@@ -1,0 +1,122 @@
+name: Swift
+
+on: 
+  pull_request:
+    branches: [ master ]  
+
+jobs:
+ build:
+
+    name: Build and Test
+    runs-on: macos-latest
+    timeout-minutes: 60
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v2 
+    - name: Setup Xcode version
+      uses: maxim-lobanov/setup-xcode@v1.1
+      with:
+        xcode-version: latest-stable
+    - name: Build TealiumCore iOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumCore" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Run tests for TealiumCore iOS
+      working-directory: ./builder
+      run: xcodebuild test -project tealium-swift.xcodeproj -scheme "TealiumCoreTests-iOS" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Build TealiumCore macOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumCore" -destination "platform=macOS,arch=x86_64" BUILD_SCRIPT=YES
+    - name: Run tests for TealiumCore macOS
+      working-directory: ./builder
+      run: xcodebuild -verbose test -project tealium-swift.xcodeproj -scheme "TealiumCoreTests-macOS" -destination "platform=macOS,arch=x86_64" BUILD_SCRIPT=YES
+    - name: Build TealiumCore tvOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumCore" -sdk iphonesimulator BUILD_SCRIPT=YES
+    - name: Run tests for TealiumCore tvOS
+      working-directory: ./builder
+      run: xcodebuild test -project tealium-swift.xcodeproj -scheme "TealiumCoreTests-tvOS" -destination "platform=tvOS Simulator,name=Apple TV" BUILD_SCRIPT=YES
+    - name: Build TealiumAttribution iOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumAttribution" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Run tests for TealiumAttribution iOS
+      working-directory: ./builder
+      run: xcodebuild test -project tealium-swift.xcodeproj -scheme "TealiumAttributionTests-iOS" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Build TealiumAutotracking iOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumAutotracking" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Run tests for TealiumAutotracking iOS
+      working-directory: ./builder
+      run: xcodebuild test -project tealium-swift.xcodeproj -scheme "TealiumAutotrackingTests-iOS" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Build TealiumCollect iOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumCollect" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Run tests for TealiumCollect iOS
+      working-directory: ./builder
+      run: xcodebuild test -project tealium-swift.xcodeproj -scheme "TealiumCollectTests-iOS" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Build TealiumCollect macOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumCollect" -destination "platform=macOS,arch=x86_64" BUILD_SCRIPT=YES
+    - name: Run tests for TealiumCollect macOS
+      working-directory: ./builder
+      run: xcodebuild -verbose test -project tealium-swift.xcodeproj -scheme "TealiumCollectTests-macOS" -destination "platform=macOS,arch=x86_64" BUILD_SCRIPT=YES
+    - name: Build TealiumCollect tvOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumCollect" -sdk iphonesimulator BUILD_SCRIPT=YES
+    - name: Run tests for TealiumCollect tvOS
+      working-directory: ./builder
+      run: xcodebuild test -project tealium-swift.xcodeproj -scheme "TealiumCollectTests-tvOS" -destination "platform=tvOS Simulator,name=Apple TV" BUILD_SCRIPT=YES
+    - name: Build TealiumLifecycle iOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumLifecycle" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Run tests for TealiumLifecycle iOS
+      working-directory: ./builder
+      run: xcodebuild test -project tealium-swift.xcodeproj -scheme "TealiumLifecycleTests-iOS" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Build TealiumLifecycle macOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumLifecycle" -destination "platform=macOS,arch=x86_64" BUILD_SCRIPT=YES
+    - name: Run tests for TealiumLifecycle macOS
+      working-directory: ./builder
+      run: xcodebuild -verbose test -project tealium-swift.xcodeproj -scheme "TealiumLifecycleTests-macOS" -destination "platform=macOS,arch=x86_64" BUILD_SCRIPT=YES
+    - name: Build TealiumLifecycle tvOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumLifecycle" -sdk iphonesimulator BUILD_SCRIPT=YES
+    - name: Run tests for TealiumLifecycle tvOS
+      working-directory: ./builder
+      run: xcodebuild test -project tealium-swift.xcodeproj -scheme "TealiumLifecycleTests-tvOS" -destination "platform=tvOS Simulator,name=Apple TV" BUILD_SCRIPT=YES
+    - name: Build TealiumLocation iOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumLocation" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    #- name: Run tests for TealiumLocation iOS
+      #working-directory: ./builder
+      #run: xcodebuild test -project tealium-swift.xcodeproj -scheme "TealiumLocationTests-iOS" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Build TealiumRemoteCommands iOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumRemoteCommands" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Run tests for TealiumRemoteCommands iOS
+      working-directory: ./builder
+      run: xcodebuild test -project tealium-swift.xcodeproj -scheme "TealiumRemoteCommandsTests-iOS" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Build TealiumTagManagement iOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumTagManagement" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Run tests for TealiumTagManagement iOS
+      working-directory: ./builder
+      run: xcodebuild test -project tealium-swift.xcodeproj -scheme "TealiumTagManagementTests-iOS" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Build TealiumVisitorService iOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumVisitorService" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Run tests for TealiumVisitorService iOS
+      working-directory: ./builder
+      run: xcodebuild test -project tealium-swift.xcodeproj -scheme "TealiumVisitorServiceTests-iOS" -destination "platform=iOS Simulator,name=iPhone 11 Pro Max" BUILD_SCRIPT=YES
+    - name: Build TealiumVisitorService macOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumVisitorService" -destination "platform=macOS,arch=x86_64" BUILD_SCRIPT=YES
+    - name: Run tests for TealiumVisitorService macOS
+      working-directory: ./builder
+      run: xcodebuild -verbose test -project tealium-swift.xcodeproj -scheme "TealiumVisitorServiceTests-macOS" -destination "platform=macOS,arch=x86_64" BUILD_SCRIPT=YES
+    - name: Build TealiumVisitorService tvOS
+      working-directory: ./builder
+      run: xcodebuild -project tealium-swift.xcodeproj -scheme "TealiumVisitorService" -sdk iphonesimulator BUILD_SCRIPT=YES
+    - name: Run tests for TealiumVisitorService tvOS
+      working-directory: ./builder
+      run: xcodebuild test -project tealium-swift.xcodeproj -scheme "TealiumVisitorServiceTests-tvOS" -destination "platform=tvOS Simulator,name=Apple TV" BUILD_SCRIPT=YES                                          
