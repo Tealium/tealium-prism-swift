@@ -1,0 +1,16 @@
+PODS:
+  - tealium-swift (0.1.0)
+
+DEPENDENCIES:
+  - tealium-swift (from `../`)
+
+EXTERNAL SOURCES:
+  tealium-swift:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  tealium-swift: 3473694abb47611d65cc2d5557f091223203725a
+
+PODFILE CHECKSUM: bfd9511a1a5adfd0c5f66472bf556a20ba0897d9
+
+COCOAPODS: 1.11.3
