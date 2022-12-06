@@ -14,6 +14,11 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
+        
+        let teal = Tealium(CoreConfig(modules: [TealiumCollect.self], coreDictionary: [:]))
+        
+        teal.track(TealiumDispatch(name: "asd", data: ["some":"data"]))
+        print("nothing")
     }
 
     override func didReceiveMemoryWarning() {

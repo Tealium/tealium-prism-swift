@@ -7,38 +7,93 @@
 
 import Foundation
 
-class Tealium: TealiumProtocol {
+let defaultConfig = """
+{
+    "core": {
+        "account":"tealiummobile",
+        "profile":"finance",
+        "environment":"dev"
+    },
+    "collect": {
+    }
+}
+"""
+
+class ConfigProvider {
     
-    required init(_ config: TealiumConfig) {
-        
-        
+    init() {
+        guard let data = defaultConfig.data(using: .utf8),
+            let json = try? JSONSerialization.jsonObject(with: data),
+              let config = json as? [String: Any] else {
+            return
+        }
+        _onConfigUpdate.publish(config)
+    }
+    
+    @ToAnyObservable(TealiumReplaySubject<[String:Any]>())
+    var onConfigUpdate: TealiumObservable<[String: Any]>
+    
+}
+
+
+public class Tealium: TealiumProtocol {
+    let configProvider = ConfigProvider()
+    var bag = TealiumDisposeBag()
+    required public init(_ config: CoreConfig) {
         self.trace = TealiumTrace()
         self.deepLink = TealiumDeepLink()
         self.dataLayer = TealiumDataLayer()
         self.timedEvents = TealiumTimedEvents()
         self.consent = TealiumConsent()
         self.modules = []
-    }
-    
-    func track(_ trackable: TealiumDispatch) {
+        let context = TealiumContext(self, config: config)
+        configProvider.onConfigUpdate.subscribe { [weak self] updates in
+            guard let self = self,
+                  let coreConfig = updates["core"] as? [String: Any]
+                else { return }
+            context.config.updateConfig(coreConfig)
+            self.modules = config.modules.compactMap({ Module in
+                guard let moduleConfig = updates[Module.id] as? [String: Any] else {
+                    return nil
+                }
+                return Module.init(context, config: moduleConfig) // TODO: module.init should only happen the first time, later should be config update
+            })
+        }.toDisposeBag(bag)
         
+        _onReady.publish()
     }
     
-    func onReady(_ completion: @escaping () -> Void) {
-        
+    public func track(_ trackable: TealiumDispatch) {
+        var trackable = trackable
+        modules.compactMap { $0 as? Collector }
+            .forEach { collector in
+                trackable.enrich(data: collector.data)
+            }
+        modules.compactMap { $0 as? Dispatcher }
+            .forEach { dispatcher in
+                dispatcher.dispatch(trackable)
+            }
     }
     
-    var trace: TealiumTrace
+    @ToAnyObservable(TealiumReplaySubject<Void>())
+    public var onReady: TealiumObservable<Void>
     
-    var deepLink: TealiumDeepLink
     
-    var dataLayer: TealiumDataLayer
+    public func onReady(_ completion: @escaping () -> Void) {
+        onReady.subscribeOnce(completion)
+    }
     
-    var timedEvents: TealiumTimedEvents
+    public var trace: TealiumTrace
     
-    var consent: TealiumConsent
+    public var deepLink: TealiumDeepLink
     
-    var modules: [TealiumModule]
+    public var dataLayer: TealiumDataLayer
+    
+    public var timedEvents: TealiumTimedEvents
+    
+    public var consent: TealiumConsent
+    
+    public var modules: [TealiumModule]
     
     
 }

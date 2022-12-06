@@ -11,69 +11,75 @@ import Foundation
 //    var eventData: [String: Any] { get }
 //}
 
-protocol TealiumDataValue {}
+public protocol TealiumDataValue {}
 extension Double: TealiumDataValue {}
 extension Int: TealiumDataValue {}
 extension String: TealiumDataValue {}
 
-enum DispatchType: String {
+public enum DispatchType: String {
     case event = "event"
     case view = "view"
 }
 
-struct TealiumDispatch {
+public struct TealiumDispatch {
     var eventData: [String : TealiumDataValue]
     
-    init(name: String, type: DispatchType = .event, data: [String: TealiumDataValue]?) {
+    public init(name: String, type: DispatchType = .event, data: [String: TealiumDataValue]?) {
         var eventData: [String: TealiumDataValue] = data ?? [:]
         eventData[TealiumDataKey.event] = name
         eventData[TealiumDataKey.eventType] = type.rawValue
         self.eventData = eventData
     }
+    
+    mutating func enrich(data: [String: TealiumDataValue]) {
+        eventData += data
+    }
 }
 
-class TealiumConfig {
+public class TealiumTrace {
     
 }
 
-class TealiumTrace {
+public class TealiumDeepLink {
     
 }
 
-class TealiumDeepLink {
+public class TealiumTimedEvents {
     
 }
 
-class TealiumTimedEvents {
+public class TealiumConsent {
     
 }
 
-class TealiumConsent {
+public class TealiumDataLayer {
     
 }
 
-class TealiumDataLayer {
-    
+public class TealiumContext {
+    public weak var tealiumProtocol: TealiumProtocol?
+    public var config: CoreConfig
+    init(_ teal: TealiumProtocol, config: CoreConfig) {
+        self.tealiumProtocol = teal
+        self.config = config
+    }
 }
 
-class TealiumContext {
-    weak var tealiumProtocol: TealiumProtocol?
+protocol Collector: TealiumModule {
+    var data: [String: TealiumDataValue] { get }
 }
 
-protocol Collector {
-    var data: [String: Any] { get }
-}
-
-protocol Dispatcher {
+protocol Dispatcher: TealiumModule {
     func dispatch(_ data: TealiumDispatch)
 }
 
-protocol TealiumModule {
-    init(_ context: TealiumContext)
+public protocol TealiumModule {
+    static var id: String { get }
+    init(_ context: TealiumContext, config: [String: Any])
 }
 
-protocol TealiumProtocol: AnyObject {
-    init(_ config: TealiumConfig)
+public protocol TealiumProtocol: AnyObject {
+    init(_ config: CoreConfig)
     func track(_ trackable: TealiumDispatch)
     func onReady(_ completion: @escaping () -> Void)
     

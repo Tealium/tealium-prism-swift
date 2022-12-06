@@ -1,5 +1,5 @@
 import XCTest
-import tealium-swift
+import tealium_swift
 
 class Tests: XCTestCase {
     
