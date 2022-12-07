@@ -7,6 +7,8 @@
 
 import Foundation
 
+
+// TODO: split TealiumConfig and Core/Module Settings
 public class CoreConfig {
     public var modules: [TealiumModule.Type]
     private var dictionary: [String: Any]

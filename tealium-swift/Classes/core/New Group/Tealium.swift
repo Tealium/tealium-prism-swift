@@ -69,6 +69,8 @@ public class Tealium: TealiumProtocol {
             .forEach { collector in
                 trackable.enrich(data: collector.data)
             }
+        // dispatch barries
+        // queueing
         modules.compactMap { $0 as? Dispatcher }
             .forEach { dispatcher in
                 dispatcher.dispatch(trackable)
