@@ -1,0 +1,9 @@
+{
+    "core": {
+        "account":"tealiummobile",
+        "profile":"finance",
+        "environment":"dev"
+    },
+    "collect": {
+    },
+}

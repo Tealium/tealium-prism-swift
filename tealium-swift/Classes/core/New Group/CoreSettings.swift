@@ -7,18 +7,27 @@
 
 import Foundation
 
+public struct TealiumConfig {
+    public let modules: [TealiumModule.Type]
+    private let configFile: String
+    private let configUrl: String?
+    
+    public init(modules: [TealiumModule.Type], configFile: String, configUrl: String?) {
+        self.modules = modules
+        self.configFile = configFile
+        self.configUrl = configUrl
+    }
+}
+
 
 // TODO: split TealiumConfig and Core/Module Settings
-public class CoreConfig {
-    public var modules: [TealiumModule.Type]
+public class CoreSettings {
     private var dictionary: [String: Any]
 
-    @ToAnyObservable(TealiumReplaySubject<CoreConfig>())
-    var onConfigUpdate: TealiumObservable<CoreConfig>
+    @ToAnyObservable(TealiumReplaySubject<CoreSettings>())
+    var onConfigUpdate: TealiumObservable<CoreSettings>
     
-    public init(modules: [TealiumModule.Type],
-                coreDictionary: [String: Any]) {
-        self.modules = modules
+    public init(coreDictionary: [String: Any]) {
         self.dictionary = coreDictionary
     }
     

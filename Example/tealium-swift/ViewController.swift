@@ -15,7 +15,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        let teal = Tealium(CoreConfig(modules: [TealiumCollect.self], coreDictionary: [:]))
+        let teal = Tealium(TealiumConfig(modules: [TealiumCollect.self, AppDataCollector.self], configFile: "TealiumConfig", configUrl: nil))
         
         teal.track(TealiumDispatch(name: "asd", data: ["some":"data"]))
         print("nothing")
