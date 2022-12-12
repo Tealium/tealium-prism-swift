@@ -19,15 +19,16 @@ let defaultConfig = """
 }
 """
 
-class ConfigProvider {
+class SettingsProvider {
     
-    init() {
-        guard let data = defaultConfig.data(using: .utf8),
-            let json = try? JSONSerialization.jsonObject(with: data),
-              let config = json as? [String: Any] else {
+    init(config: TealiumConfig) {
+        guard let path = (Bundle.main).path(forResource: config.configFile, ofType: "json"),
+            let jsonData = try? Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe),
+            let settings = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
+            let settings = settings else {
             return
         }
-        _onConfigUpdate.publish(config)
+        _onConfigUpdate.publish(settings)
     }
     
     @ToAnyObservable(TealiumReplaySubject<[String:Any]>())
@@ -37,34 +38,50 @@ class ConfigProvider {
 
 
 public class Tealium: TealiumProtocol {
-    let configProvider = ConfigProvider()
+    let settingsProvider: SettingsProvider
     var bag = TealiumDisposeBag()
-    required public init(_ config: CoreConfig) {
+    var context: TealiumContext?
+    required public init(_ config: TealiumConfig) {
         self.trace = TealiumTrace()
         self.deepLink = TealiumDeepLink()
-        self.dataLayer = TealiumDataLayer()
         self.timedEvents = TealiumTimedEvents()
         self.consent = TealiumConsent()
         self.modules = []
-        let context = TealiumContext(self, config: config)
-        configProvider.onConfigUpdate.subscribe { [weak self] updates in
-            guard let self = self,
-                  let coreConfig = updates["core"] as? [String: Any]
-                else { return }
-            context.config.updateConfig(coreConfig)
-            self.modules = config.modules.compactMap({ Module in
-                guard let moduleConfig = updates[Module.id] as? [String: Any] else {
-                    return nil
-                }
-                return Module.init(context, config: moduleConfig) // TODO: module.init should only happen the first time, later should be config update
-            })
+        self.settingsProvider = SettingsProvider(config: config)
+        context = TealiumContext(self, config: config, coreSettings: CoreSettings(coreDictionary: [:]))
+        settingsProvider.onConfigUpdate.subscribe { [weak self] settings in
+            guard let self = self, let context = self.context else {
+                return
+            }
+            if self.modules.isEmpty {
+                self.setupModules(config, context: context, settings: settings)
+            } else {
+                self.updateModules(context: context, settings: settings)
+            }
         }.toDisposeBag(bag)
-        
         _onReady.publish()
+    }
+    
+    private func setupModules(_ config: TealiumConfig, context: TealiumContext, settings: [String: Any]) {
+        context.coreSettings.updateSettings(settings)
+        self.modules = config.modules.compactMap({ Module in
+            let moduleSettings = settings[Module.id] as? [String: Any]
+            return Module.init(context: context, moduleSettings: moduleSettings ?? [:])
+        })
+        _onReady.publish()
+    }
+    
+    private func updateModules(context: TealiumContext, settings: [String: Any]) {
+        context.coreSettings.updateSettings(settings)
+        modules.forEach { module in
+            let moduleSettings = settings[type(of: module).id] as? [String: Any]
+            module.updateSettings(moduleSettings ?? [:])
+        }
     }
     
     public func track(_ trackable: TealiumDispatch) {
         var trackable = trackable
+        let modules = enabledModules
         modules.compactMap { $0 as? Collector }
             .forEach { collector in
                 trackable.enrich(data: collector.data)
@@ -89,13 +106,19 @@ public class Tealium: TealiumProtocol {
     
     public var deepLink: TealiumDeepLink
     
-    public var dataLayer: TealiumDataLayer
+    public var dataLayer: TealiumDataLayer? {
+        modules.compactMap { $0 as? TealiumDataLayer }.first
+    }
     
     public var timedEvents: TealiumTimedEvents
     
     public var consent: TealiumConsent
     
     public var modules: [TealiumModule]
+    
+    public var enabledModules: [TealiumModule] {
+        modules.filter { $0.enabled }
+    }
     
     
 }

@@ -9,11 +9,17 @@ import Foundation
 
 
 public class TealiumCollect: Dispatcher {
+    public var enabled: Bool = true
+    
+    public func updateSettings(settings: [String : Any]) {
+        // TODO: Add Settings stuff
+    }
+    
     public static var id: String = "collect"
     
     
     
-    public required init(_ context: TealiumContext, config: [String: Any]) {
+    public required init(context: TealiumContext, moduleSettings: [String: Any]) {
         
     }
     

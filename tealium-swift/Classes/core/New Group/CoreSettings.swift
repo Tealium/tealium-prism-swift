@@ -9,7 +9,7 @@ import Foundation
 
 public struct TealiumConfig {
     public let modules: [TealiumModule.Type]
-    private let configFile: String
+    public let configFile: String
     private let configUrl: String?
     
     public init(modules: [TealiumModule.Type], configFile: String, configUrl: String?) {
@@ -19,13 +19,15 @@ public struct TealiumConfig {
     }
 }
 
+// TODO: Evaluate generic module settings
+
 
 // TODO: split TealiumConfig and Core/Module Settings
 public class CoreSettings {
     private var dictionary: [String: Any]
 
     @ToAnyObservable(TealiumReplaySubject<CoreSettings>())
-    var onConfigUpdate: TealiumObservable<CoreSettings>
+    var onSettingsUpdate: TealiumObservable<CoreSettings>
     
     public init(coreDictionary: [String: Any]) {
         self.dictionary = coreDictionary
@@ -41,8 +43,8 @@ public class CoreSettings {
         dictionary["environment"] as? String
     }
     
-    func updateConfig(_ config: [String: Any]) {
+    func updateSettings(_ config: [String: Any]) {
         dictionary = config
-        _onConfigUpdate.publish(self)
+        _onSettingsUpdate.publish(self)
     }
 }
