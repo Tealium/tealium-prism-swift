@@ -8,7 +8,7 @@
 import Foundation
 
 public struct TealiumConfig {
-    public let modules: [TealiumModule.Type]
+    public var modules: [TealiumModule.Type]
     public let configFile: String
     private let configUrl: String?
     

@@ -17,13 +17,11 @@ public class TealiumCollect: Dispatcher {
     
     public static var id: String = "collect"
     
-    
-    
     public required init(context: TealiumContext, moduleSettings: [String: Any]) {
         
     }
     
-    public func dispatch(_ data: TealiumDispatch) {
+    public func dispatch(_ data: [TealiumDispatch]) {
         print(data)
     }
 }

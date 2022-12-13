@@ -42,8 +42,13 @@ public class Tealium: TealiumProtocol {
     var bag = TealiumDisposeBag()
     var context: TealiumContext?
     required public init(_ config: TealiumConfig) {
-        self.trace = TealiumTrace()
-        self.deepLink = TealiumDeepLink()
+        var config = config
+        config.modules += [
+            TealiumDataLayer.self,
+            TealiumTrace.self,
+            TealiumDeepLink.self,
+            TealiumCollector.self
+        ]
         self.timedEvents = TealiumTimedEvents()
         self.consent = TealiumConsent()
         self.modules = []
@@ -63,7 +68,9 @@ public class Tealium: TealiumProtocol {
     }
     
     private func setupModules(_ config: TealiumConfig, context: TealiumContext, settings: [String: Any]) {
-        context.coreSettings.updateSettings(settings)
+        if let coreSettings = settings["core"] as? [String: Any] {
+            context.coreSettings.updateSettings(coreSettings)
+        }
         self.modules = config.modules.compactMap({ Module in
             let moduleSettings = settings[Module.id] as? [String: Any]
             return Module.init(context: context, moduleSettings: moduleSettings ?? [:])
@@ -88,9 +95,10 @@ public class Tealium: TealiumProtocol {
             }
         // dispatch barries
         // queueing
+        // batching
         modules.compactMap { $0 as? Dispatcher }
             .forEach { dispatcher in
-                dispatcher.dispatch(trackable)
+                dispatcher.dispatch([trackable])
             }
     }
     
@@ -102,12 +110,16 @@ public class Tealium: TealiumProtocol {
         onReady.subscribeOnce(completion)
     }
     
-    public var trace: TealiumTrace
+    public var trace: TealiumTrace? {
+        getModule()
+    }
     
-    public var deepLink: TealiumDeepLink
+    public var deepLink: TealiumDeepLink? {
+        getModule()
+    }
     
     public var dataLayer: TealiumDataLayer? {
-        modules.compactMap { $0 as? TealiumDataLayer }.first
+        getModule()
     }
     
     public var timedEvents: TealiumTimedEvents
@@ -120,5 +132,7 @@ public class Tealium: TealiumProtocol {
         modules.filter { $0.enabled }
     }
     
-    
+    private func getModule<T: TealiumModule>() -> T? {
+        modules.compactMap { $0 as? T }.first
+    }
 }
