@@ -48,7 +48,7 @@ public class Tealium: TealiumProtocol {
             TealiumTrace.self,
             TealiumDeepLink.self,
             TealiumCollector.self
-        ]
+        ] // TODO: make sure there is no duplicate if they already added some of our internal modules
         self.timedEvents = TealiumTimedEvents()
         self.consent = TealiumConsent()
         self.modules = []
@@ -91,11 +91,12 @@ public class Tealium: TealiumProtocol {
         let modules = enabledModules
         modules.compactMap { $0 as? Collector }
             .forEach { collector in
-                trackable.enrich(data: collector.data)
+                trackable.enrich(data: collector.data) // collector.collect() maybe?
             }
         // dispatch barries
         // queueing
         // batching
+        // transform the data
         modules.compactMap { $0 as? Dispatcher }
             .forEach { dispatcher in
                 dispatcher.dispatch([trackable])

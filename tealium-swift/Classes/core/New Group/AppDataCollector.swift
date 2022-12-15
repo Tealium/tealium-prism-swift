@@ -60,21 +60,15 @@ public class AppDataCollector: AppDataCollection, Collector {
             TealiumDataKey.appVersion: Self.version(bundle: Bundle.main)
         ])
     }
-    
-    private func add(_ value: String?, forkey key: String) {
-        if let value = value {
-            data[key] = value
-        }
-    }
-    
+
     public func updateSettings(settings: [String : Any]) {
         
     }
 }
 
-    public extension TealiumDataKey {
-        static let appBuild = "app_build"
-        static let appName = "app_name"
-        static let appRDNS = "app_rdns"
-        static let appVersion = "app_version"
-    }
+public extension TealiumDataKey {
+    static let appBuild = "app_build"
+    static let appName = "app_name"
+    static let appRDNS = "app_rdns"
+    static let appVersion = "app_version"
+}

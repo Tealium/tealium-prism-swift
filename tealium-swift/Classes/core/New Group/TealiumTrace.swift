@@ -21,6 +21,7 @@ public class TealiumTrace: TealiumModule {
                                     data: [
                                         TealiumDataKey.killVisitorSessionEvent: TealiumKey.killVisitorSession
                                     ])
+        context.tealiumProtocol?.track(dispatch)
     }
     public func join(id: String) {
         context.tealiumProtocol?.dataLayer?.add(key: "trace_id", value: id)
