@@ -40,55 +40,32 @@ class SettingsProvider {
     var onConfigUpdate: TealiumObservable<[String: Any]>
 }
 
-
-class ModulesManager {
-    var modules = [TealiumModule]()
-    
-    func updateSettings(context: TealiumContext, settings: [String: Any]) {
-        if self.modules.isEmpty {
-            self.setupModules(context: context, settings: settings)
-        } else {
-            self.updateModules(context: context, settings: settings)
-        }
-    }
-    
-    private func setupModules(context: TealiumContext, settings: [String: Any]) {
-        self.modules = context.config.modules.compactMap({ Module in
-            let moduleSettings = settings[Module.id] as? [String: Any] ?? [:]
-            return Module.init(context: context, moduleSettings: moduleSettings)
-        })
-    }
-    
-    private func updateModules(context: TealiumContext, settings: [String: Any]) {
-        let oldModules = self.modules
-        self.modules = context.config.modules.compactMap({ ModuleClass in
-            let moduleSettings = settings[ModuleClass.id] as? [String: Any] ?? [:]
-            if let module = oldModules.first(where: { type(of: $0) == ModuleClass }) {
-                return module.updateSettings(moduleSettings)
-            } else {
-                return ModuleClass.init(context: context, moduleSettings: moduleSettings)
-            }
-        })
-    }
-}
+// TODO: Think about the event router
 
 public class Tealium: TealiumProtocol {
     let settingsProvider: SettingsProvider
     var bag = TealiumDisposeBag()
     var context: TealiumContext?
-    let modulesManager = ModulesManager()
+    let modulesManager: ModulesManager
     required public init(_ config: TealiumConfig) {
         var config = config
         config.modules += [
-            TealiumDataLayer.self,
-            TealiumTrace.self,
-            TealiumDeepLink.self,
+            DataLayerModule.self,
+            TraceModule.self,
+            DeepLinkModule.self,
             TealiumCollector.self
         ] // TODO: make sure there is no duplicate if they already added some of our internal modules
         self.timedEvents = TealiumTimedEvents()
         self.consent = TealiumConsent()
         self.settingsProvider = SettingsProvider(config: config)
-        context = TealiumContext(self, config: config, coreSettings: CoreSettings(coreDictionary: [:]))
+        let modulesManager = ModulesManager()
+        self.modulesManager = modulesManager
+        trace = TealiumTrace(modulesManager: modulesManager)
+        deepLink = TealiumDeepLink(modulesManager: modulesManager)
+        dataLayer = TealiumDataLayer(modulesManager: modulesManager)
+        context = TealiumContext(self, modulesManager: modulesManager, config: config, coreSettings: CoreSettings(coreDictionary: [:]))
+        
+        
         settingsProvider.onConfigUpdate.subscribe { [weak self] settings in
             guard let self = self, let context = self.context else {
                 return
@@ -126,17 +103,11 @@ public class Tealium: TealiumProtocol {
         onReady.subscribeOnce(completion)
     }
     
-    public var trace: TealiumTrace? {
-        getModule()
-    }
+    public let trace: TealiumTrace
     
-    public var deepLink: TealiumDeepLink? {
-        getModule()
-    }
+    public let deepLink: TealiumDeepLink
     
-    public var dataLayer: TealiumDataLayer? {
-        getModule()
-    }
+    public var dataLayer: TealiumDataLayer
     
     public var timedEvents: TealiumTimedEvents
     
@@ -146,7 +117,8 @@ public class Tealium: TealiumProtocol {
         modulesManager.modules
     }
     
-    func getModule<T: TealiumModule>() -> T? {
-        modules.compactMap { $0 as? T }.first
+    
+    public func getModule<T: TealiumModule>(completion: @escaping (T?) -> Void) {
+        modulesManager.getModule(completion: completion)
     }
 }

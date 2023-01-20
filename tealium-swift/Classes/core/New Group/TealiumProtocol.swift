@@ -75,10 +75,12 @@ public class TealiumConsent {
 
 public class TealiumContext {
     public weak var tealiumProtocol: TealiumProtocol?
-    public var config: TealiumConfig
+    public let config: TealiumConfig
     public var coreSettings: CoreSettings
-    init(_ teal: TealiumProtocol, config: TealiumConfig, coreSettings: CoreSettings) {
+    public let modulesManager: ModulesManager
+    init(_ teal: TealiumProtocol, modulesManager: ModulesManager, config: TealiumConfig, coreSettings: CoreSettings) {
         self.tealiumProtocol = teal
+        self.modulesManager = modulesManager
         self.config = config
         self.coreSettings = coreSettings
     }
@@ -110,10 +112,11 @@ public protocol TealiumProtocol: AnyObject {
     func track(_ trackable: TealiumDispatch)
     func onReady(_ completion: @escaping () -> Void)
     
-    var trace: TealiumTrace? { get }
-    var deepLink: TealiumDeepLink? { get }
-    var dataLayer: TealiumDataLayer? { get }
+    var trace: TealiumTrace { get }
+    var deepLink: TealiumDeepLink { get }
+    var dataLayer: TealiumDataLayer { get }
     var timedEvents: TealiumTimedEvents { get }
     var consent: TealiumConsent { get }
     var modules: [TealiumModule] { get }
+    func getModule<T: TealiumModule>(completion: @escaping (T?) -> Void)
 }

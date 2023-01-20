@@ -7,7 +7,39 @@
 
 import Foundation
 
-public class TealiumTrace: TealiumModule {
+let tealiumQueue = DispatchQueue(label: "tealium queue")
+
+public class TealiumTrace {
+    let modulesManager: ModulesManager
+    init(modulesManager: ModulesManager) {
+        self.modulesManager = modulesManager
+    }
+    
+    func getTraceModule(completion: @escaping (TraceModule?) -> Void) {
+        modulesManager.getModule(completion: completion)
+    }
+    
+    public func join(id: String) {
+        getTraceModule { module in
+            module?.join(id: id)
+        }
+    }
+    
+    public func leave() {
+        getTraceModule { module in
+            module?.leave()
+        }
+    }
+    
+    public func killVisitorSession() {
+        getTraceModule { module in
+            module?.killVisitorSession()
+        }
+    }
+    
+}
+
+public class TraceModule: TealiumModule {
     public static var id: String = "trace"
     
     let context: TealiumContext
@@ -22,10 +54,15 @@ public class TealiumTrace: TealiumModule {
                                     ])
         context.tealiumProtocol?.track(dispatch)
     }
+    
+    var dataLayer: DataLayerModule? {
+        context.modulesManager.getModule()
+    }
+    
     public func join(id: String) {
-        context.tealiumProtocol?.dataLayer?.add(key: "trace_id", value: id)
+        dataLayer?.add(key: "trace_id", value: id)
     }
     public func leave() {
-        context.tealiumProtocol?.dataLayer?.delete(key: "trace_id")
+        dataLayer?.delete(key: "trace_id")
     }
 }

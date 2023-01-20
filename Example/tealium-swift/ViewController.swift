@@ -58,13 +58,13 @@ class ViewController: UIViewController {
     }
     
     @objc func joinTrace() {
-        teal.trace?.join(id: "something")
+        teal.trace.join(id: "something")
         
         teal.track(TealiumDispatch(name: "joined!", data: nil))
     }
     
     @objc func deepLink() {
-        teal.deepLink?.handle(link: URL(string: "https://www.tealium.com")!)
+        teal.deepLink.handle(link: URL(string: "https://www.tealium.com")!)
         
         teal.track(TealiumDispatch(name: "DeepLink!", data: nil))
     }

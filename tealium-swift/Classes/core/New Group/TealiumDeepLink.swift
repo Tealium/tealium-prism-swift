@@ -6,7 +6,36 @@
 //
 
 import Foundation
-public class TealiumDeepLink: TealiumModule {
+
+public class TealiumDeepLink {
+    let modulesManager: ModulesManager
+    init(modulesManager: ModulesManager) {
+        self.modulesManager = modulesManager
+    }
+    
+    public func handle(link: URL, referrer: Referrer? = nil) {
+        modulesManager.getModule { (deepLinkModule: DeepLinkModule?) in
+            deepLinkModule?.handle(link: link, referrer: referrer)
+        }
+    }
+}
+
+public enum Referrer {
+    case url(_ url: URL)
+    case app(_ identifier: String)
+
+    public static func fromUrl(_ url: URL?) -> Self? {
+        guard let url = url else { return nil }
+        return .url(url)
+    }
+
+    public static func fromAppId(_ identifier: String?) -> Self? {
+        guard let id = identifier else { return nil }
+        return .app(id)
+    }
+}
+
+public class DeepLinkModule: TealiumModule {
     public static var id: String = "deeplink"
     
     let context: TealiumContext
@@ -14,20 +43,7 @@ public class TealiumDeepLink: TealiumModule {
         self.context = context
     }
     
-    public enum Referrer {
-        case url(_ url: URL)
-        case app(_ identifier: String)
-
-        public static func fromUrl(_ url: URL?) -> Self? {
-            guard let url = url else { return nil }
-            return .url(url)
-        }
-
-        public static func fromAppId(_ identifier: String?) -> Self? {
-            guard let id = identifier else { return nil }
-            return .app(id)
-        }
-    }
+    
     public func handle(link: URL, referrer: Referrer? = nil) {
         let queryItems = URLComponents(string: link.absoluteString)?.queryItems
 
@@ -86,8 +102,8 @@ public class TealiumDeepLink: TealiumModule {
         self.context.tealiumProtocol?.trace
     }
     
-    var dataLayer: TealiumDataLayer? {
-        self.context.tealiumProtocol?.dataLayer
+    var dataLayer: DataLayerModule? {
+        self.context.modulesManager.getModule()
     }
     
     /// Sends a request to modules to initiate a trace with a specific Trace ID￼.
