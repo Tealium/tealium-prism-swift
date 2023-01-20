@@ -19,6 +19,9 @@ let defaultConfig = """
 }
 """
 
+/**
+ * A class that when instanciated reads the settings locally and then sets up a timer to refresh the settings via an API and inform who is registered on config updates.
+ */
 class SettingsProvider {
     
     init(config: TealiumConfig) {
@@ -29,18 +32,51 @@ class SettingsProvider {
             return
         }
         _onConfigUpdate.publish(settings)
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            self._onConfigUpdate.publish(settings)
+        }
     }
-    
     @ToAnyObservable(TealiumReplaySubject<[String:Any]>())
     var onConfigUpdate: TealiumObservable<[String: Any]>
-    
 }
 
+
+class ModulesManager {
+    var modules = [TealiumModule]()
+    
+    func updateSettings(context: TealiumContext, settings: [String: Any]) {
+        if self.modules.isEmpty {
+            self.setupModules(context: context, settings: settings)
+        } else {
+            self.updateModules(context: context, settings: settings)
+        }
+    }
+    
+    private func setupModules(context: TealiumContext, settings: [String: Any]) {
+        self.modules = context.config.modules.compactMap({ Module in
+            let moduleSettings = settings[Module.id] as? [String: Any] ?? [:]
+            return Module.init(context: context, moduleSettings: moduleSettings)
+        })
+    }
+    
+    private func updateModules(context: TealiumContext, settings: [String: Any]) {
+        let oldModules = self.modules
+        self.modules = context.config.modules.compactMap({ ModuleClass in
+            let moduleSettings = settings[ModuleClass.id] as? [String: Any] ?? [:]
+            if let module = oldModules.first(where: { type(of: $0) == ModuleClass }) {
+                return module.updateSettings(moduleSettings)
+            } else {
+                return ModuleClass.init(context: context, moduleSettings: moduleSettings)
+            }
+        })
+    }
+}
 
 public class Tealium: TealiumProtocol {
     let settingsProvider: SettingsProvider
     var bag = TealiumDisposeBag()
     var context: TealiumContext?
+    let modulesManager = ModulesManager()
     required public init(_ config: TealiumConfig) {
         var config = config
         config.modules += [
@@ -51,44 +87,23 @@ public class Tealium: TealiumProtocol {
         ] // TODO: make sure there is no duplicate if they already added some of our internal modules
         self.timedEvents = TealiumTimedEvents()
         self.consent = TealiumConsent()
-        self.modules = []
         self.settingsProvider = SettingsProvider(config: config)
         context = TealiumContext(self, config: config, coreSettings: CoreSettings(coreDictionary: [:]))
         settingsProvider.onConfigUpdate.subscribe { [weak self] settings in
             guard let self = self, let context = self.context else {
                 return
             }
-            if self.modules.isEmpty {
-                self.setupModules(config, context: context, settings: settings)
-            } else {
-                self.updateModules(context: context, settings: settings)
+            if let coreSettings = settings["core"] as? [String: Any] {
+                context.coreSettings.updateSettings(coreSettings)
             }
+            self.modulesManager.updateSettings(context: context, settings: settings)
         }.toDisposeBag(bag)
-        _onReady.publish()
-    }
-    
-    private func setupModules(_ config: TealiumConfig, context: TealiumContext, settings: [String: Any]) {
-        if let coreSettings = settings["core"] as? [String: Any] {
-            context.coreSettings.updateSettings(coreSettings)
-        }
-        self.modules = config.modules.compactMap({ Module in
-            let moduleSettings = settings[Module.id] as? [String: Any]
-            return Module.init(context: context, moduleSettings: moduleSettings ?? [:])
-        })
-        _onReady.publish()
-    }
-    
-    private func updateModules(context: TealiumContext, settings: [String: Any]) {
-        context.coreSettings.updateSettings(settings)
-        modules.forEach { module in
-            let moduleSettings = settings[type(of: module).id] as? [String: Any]
-            module.updateSettings(moduleSettings ?? [:])
-        }
+        _onReady.publish() // TODO: this should happen after the modules manager has initialized everything probably
     }
     
     public func track(_ trackable: TealiumDispatch) {
         var trackable = trackable
-        let modules = enabledModules
+        let modules = self.modules
         modules.compactMap { $0 as? Collector }
             .forEach { collector in
                 trackable.enrich(data: collector.data) // collector.collect() maybe?
@@ -127,13 +142,11 @@ public class Tealium: TealiumProtocol {
     
     public var consent: TealiumConsent
     
-    public var modules: [TealiumModule]
-    
-    public var enabledModules: [TealiumModule] {
-        modules.filter { $0.enabled }
+    public var modules: [TealiumModule] {
+        modulesManager.modules
     }
     
-    private func getModule<T: TealiumModule>() -> T? {
+    func getModule<T: TealiumModule>() -> T? {
         modules.compactMap { $0 as? T }.first
     }
 }

@@ -46,23 +46,18 @@ public extension AppDataCollection {
 }
 
 public class AppDataCollector: AppDataCollection, Collector {
-    public var enabled: Bool = true
     
     var data: TealiumDictionary
     
     public static var id: String = "appdata"
     
-    public required init(context: TealiumContext, moduleSettings: [String : Any]) {
+    public required init?(context: TealiumContext, moduleSettings: [String : Any]) {
         data = TealiumDictionary(removingOptionals: [
             TealiumDataKey.appBuild: Self.build(bundle: Bundle.main),
             TealiumDataKey.appName: Self.name(bundle: Bundle.main),
             TealiumDataKey.appRDNS: Self.rdns(bundle: Bundle.main),
             TealiumDataKey.appVersion: Self.version(bundle: Bundle.main)
         ])
-    }
-
-    public func updateSettings(settings: [String : Any]) {
-        
     }
 }
 

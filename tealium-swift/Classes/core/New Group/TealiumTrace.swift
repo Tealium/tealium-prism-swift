@@ -10,7 +10,6 @@ import Foundation
 public class TealiumTrace: TealiumModule {
     public static var id: String = "trace"
     
-    private(set) public var enabled: Bool = true
     let context: TealiumContext
     public required init(context: TealiumContext, moduleSettings: [String : Any]) {
         self.context = context

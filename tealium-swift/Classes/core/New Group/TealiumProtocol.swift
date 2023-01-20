@@ -94,15 +94,14 @@ protocol Dispatcher: TealiumModule {
 
 public protocol TealiumModule {
     static var id: String { get }
-    var enabled: Bool { get }
-    init(context: TealiumContext, moduleSettings: [String: Any])
+    init?(context: TealiumContext, moduleSettings: [String: Any])
     
-    func updateSettings(_ settings: [String: Any])
+    func updateSettings(_ settings: [String: Any]) -> Self?
 }
 
 extension TealiumModule {
-    public func updateSettings(_ settings: [String: Any]) {
-        
+    public func updateSettings(_ settings: [String: Any]) -> Self? {
+        return self
     }
 }
 
@@ -117,5 +116,4 @@ public protocol TealiumProtocol: AnyObject {
     var timedEvents: TealiumTimedEvents { get }
     var consent: TealiumConsent { get }
     var modules: [TealiumModule] { get }
-    var enabledModules: [TealiumModule] { get }
 }

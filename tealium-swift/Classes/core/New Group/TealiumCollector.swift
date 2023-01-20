@@ -16,20 +16,15 @@ public class TealiumCollector: Collector {
             "profile": settings.profile,
             "environment": settings.environment,
             "modules": context.tealiumProtocol?.modules.map { type(of: $0).id },
-            "enabled_modules": context.tealiumProtocol?.enabledModules.map { type(of: $0).id }
+            "enabled_modules": context.tealiumProtocol?.modules.map { type(of: $0).id }
         ])
     }
     
     public static var id: String = "tealiumcollector"
     
-    private(set) public var enabled: Bool = true
     let context: TealiumContext
     public required init(context: TealiumContext, moduleSettings: [String : Any]) {
         self.context = context
     }
-    
-    
-    
-    
     
 }

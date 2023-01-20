@@ -9,7 +9,6 @@ import Foundation
 public class TealiumDeepLink: TealiumModule {
     public static var id: String = "deeplink"
     
-    private(set) public var enabled: Bool = true
     let context: TealiumContext
     public required init(context: TealiumContext, moduleSettings: [String : Any]) {
         self.context = context

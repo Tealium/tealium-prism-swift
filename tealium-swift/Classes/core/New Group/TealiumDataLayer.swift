@@ -12,15 +12,10 @@ public class TealiumDataLayer: Collector {
     
     public static var id: String = "datalayer"
     
-    private(set) public var enabled: Bool = true
-    
     public required init(context: TealiumContext, moduleSettings: [String : Any]) {
         self.data = [:]
     }
     
-    public func updateSettings(settings: [String : Any]) {
-        
-    }
     // TODO: Maybe put?
     func add(data: TealiumDictionaryOptionals, expiry: Expiry = .session) {
         add(data: TealiumDictionary(removingOptionals: data),
