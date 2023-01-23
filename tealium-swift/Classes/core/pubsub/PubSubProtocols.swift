@@ -76,3 +76,9 @@ public extension TealiumSubjectProtocol {
 public protocol TealiumDisposableProtocol {
     func dispose()
 }
+
+public extension TealiumDisposableProtocol {
+    func toDisposeBag(_ disposeBag: TealiumDisposeBag) {
+        disposeBag.add(self)
+    }
+}

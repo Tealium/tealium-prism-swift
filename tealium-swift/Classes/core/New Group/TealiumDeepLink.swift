@@ -8,13 +8,16 @@
 import Foundation
 
 public class TealiumDeepLink {
-    let modulesManager: ModulesManager
+    typealias Module = DeepLinkModule
+    private let modulesManager: ModulesManager
     init(modulesManager: ModulesManager) {
         self.modulesManager = modulesManager
     }
-    
+    private func getModule(completion: @escaping (Module?) -> Void) {
+        modulesManager.getModule(completion: completion)
+    }
     public func handle(link: URL, referrer: Referrer? = nil) {
-        modulesManager.getModule { (deepLinkModule: DeepLinkModule?) in
+        getModule { deepLinkModule in
             deepLinkModule?.handle(link: link, referrer: referrer)
         }
     }
@@ -98,8 +101,8 @@ public class DeepLinkModule: TealiumModule {
         return nil
     }
     
-    var trace: TealiumTrace? {
-        self.context.tealiumProtocol?.trace
+    var trace: TraceModule? {
+        self.context.modulesManager.getModule()
     }
     
     var dataLayer: DataLayerModule? {

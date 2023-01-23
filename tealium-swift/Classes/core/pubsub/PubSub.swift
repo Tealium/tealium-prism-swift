@@ -69,10 +69,6 @@ public class TealiumSubscription<T>: TealiumDisposableProtocol {
     public func dispose() {
         observable?.unsubscribe(self)
     }
-
-    public func toDisposeBag(_ disposeBag: TealiumDisposeBag) {
-        disposeBag.add(self)
-    }
 }
 
 public class TealiumPublisher<Element>: TealiumPublisherProtocol {

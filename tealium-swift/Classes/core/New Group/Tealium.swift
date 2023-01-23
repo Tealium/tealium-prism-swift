@@ -64,8 +64,6 @@ public class Tealium: TealiumProtocol {
         deepLink = TealiumDeepLink(modulesManager: modulesManager)
         dataLayer = TealiumDataLayer(modulesManager: modulesManager)
         context = TealiumContext(self, modulesManager: modulesManager, config: config, coreSettings: CoreSettings(coreDictionary: [:]))
-        
-        
         settingsProvider.onConfigUpdate.subscribe { [weak self] settings in
             guard let self = self, let context = self.context else {
                 return
@@ -96,7 +94,7 @@ public class Tealium: TealiumProtocol {
     }
     
     @ToAnyObservable(TealiumReplaySubject<Void>())
-    public var onReady: TealiumObservable<Void>
+    var onReady: TealiumObservable<Void>
     
     
     public func onReady(_ completion: @escaping () -> Void) {

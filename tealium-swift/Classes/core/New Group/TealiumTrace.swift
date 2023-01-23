@@ -10,29 +10,28 @@ import Foundation
 let tealiumQueue = DispatchQueue(label: "tealium queue")
 
 public class TealiumTrace {
-    let modulesManager: ModulesManager
+    typealias Module = TraceModule
+    private let modulesManager: ModulesManager
     init(modulesManager: ModulesManager) {
         self.modulesManager = modulesManager
     }
-    
-    func getTraceModule(completion: @escaping (TraceModule?) -> Void) {
+    private func getModule(completion: @escaping (Module?) -> Void) {
         modulesManager.getModule(completion: completion)
     }
-    
     public func join(id: String) {
-        getTraceModule { module in
+        getModule { module in
             module?.join(id: id)
         }
     }
     
     public func leave() {
-        getTraceModule { module in
+        getModule { module in
             module?.leave()
         }
     }
     
     public func killVisitorSession() {
-        getTraceModule { module in
+        getModule { module in
             module?.killVisitorSession()
         }
     }
