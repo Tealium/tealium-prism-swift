@@ -37,6 +37,10 @@ public class ModulesManager {
         })
     }
     
+    public func getModule<T: TealiumModule>(_ module: T.Type) -> T? {
+        getModule()
+    }
+    
     public func getModule<T: TealiumModule>() -> T? {
         modules.compactMap { $0 as? T }.first
     }
@@ -45,5 +49,9 @@ public class ModulesManager {
         tealiumQueue.async {
             completion(self.getModule())
         }
+    }
+    
+    public func getAllModuleAs<T>() -> [T] {
+        modules.compactMap { $0 as? T }
     }
 }

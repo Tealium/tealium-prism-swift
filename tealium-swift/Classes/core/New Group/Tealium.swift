@@ -27,8 +27,8 @@ class SettingsProvider {
     init(config: TealiumConfig) {
         guard let path = (Bundle.main).path(forResource: config.configFile, ofType: "json"),
             let jsonData = try? Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe),
-            let settings = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any],
-            let settings = settings else {
+            let settings = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]
+        else {
             return
         }
         _onConfigUpdate.publish(settings)
