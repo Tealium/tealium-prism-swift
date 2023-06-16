@@ -6,7 +6,7 @@
 //
 
 import Foundation
-let tealiumQueue = DispatchQueue(label: "tealium.queue") // TODO: change this
+public let tealiumQueue = DispatchQueue(label: "tealium.queue") // TODO: change this
 public class ModulesManager {
     var modules = [TealiumModule]()
     

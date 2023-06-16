@@ -20,7 +20,22 @@ public class TealiumCollect: Dispatcher {
     }
     
     public func dispatch(_ data: [TealiumDispatch]) {
+        guard let url = URL(string: "https://collect.tealiumiq.com/event/") else {
+            return
+        }
         print(data)
+        for event in data {
+            var request = URLRequest(url: url)
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.httpMethod = "POST"
+            if let jsonString = try? event.eventData.asDictionary().toJSONString() {
+                request.httpBody = jsonString.data(using: .utf8)
+            }
+            _ = NetworkClient.default.sendRequest(request) { result in
+                print("URL Request \(request) completed with \(result)")
+            }
+            
+        }
     }
 }
 

@@ -89,7 +89,6 @@ public class Tealium: TealiumProtocol {
         let trackingInterval = TealiumSignpostInterval(signposter: .tracking,
                                                        name: "TrackingCall")
         trackingInterval.begin(trackable.name ?? "unknown")
-
         tealiumQueue.async {
             var trackable = trackable
             let modules = self.modules

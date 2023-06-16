@@ -23,6 +23,7 @@ public class TealiumPublishSubject<Element>: TealiumPublisher<Element>, TealiumS
 
 // MARK: Replay
 
+//TODO: Check this might be broken
 public class TealiumReplaySubject<Element>: TealiumPublishSubject<Element> {
     private let cacheSize: Int?
     private var cache = [Element]()

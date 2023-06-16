@@ -172,18 +172,6 @@ public class VisitorServiceEventPublishers: VisitorServiceEventObservables {
     public private(set) lazy var onVisitorProfile = _onVisitorProfile.asObservable()
 }
 
-
-class VisitorServiceModule: TealiumModule {
-    static var id: String = "visitorservice"
-    
-    required init?(context: TealiumContext, moduleSettings: [String : Any]) {
-        
-    }
-    
-    let events = VisitorServiceEventPublishers()
-}
-
-
 public class VisitorServiceEvents {
     let extractor: ModuleExtractor<VisitorServiceModule>
     init(moduleExtractor: ModuleExtractor<VisitorServiceModule>) {

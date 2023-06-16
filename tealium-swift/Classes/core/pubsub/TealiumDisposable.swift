@@ -9,6 +9,7 @@
 import Foundation
 
 public protocol TealiumDisposableProtocol {
+    var isDisposed: Bool { get }
     func dispose()
 }
 
@@ -23,18 +24,20 @@ public extension TealiumDisposableProtocol {
 
 public class TealiumSubscription: TealiumDisposableProtocol {
     fileprivate var unsubscribe: () -> Void
+    public private(set) var isDisposed: Bool = false
     public init(unsubscribe: @escaping () -> Void) {
         self.unsubscribe = unsubscribe
     }
 
     public func dispose() {
         unsubscribe()
+        isDisposed = true
     }
 }
 
 public class TealiumDisposeContainer: TealiumDisposableProtocol {
     private var disposables = [TealiumDisposableProtocol]()
-
+    public private(set) var isDisposed: Bool = false
     public init() {}
 
     public func add(_ disposable: TealiumDisposableProtocol) {
@@ -47,12 +50,15 @@ public class TealiumDisposeContainer: TealiumDisposableProtocol {
         for disposable in disposables {
             disposable.dispose()
         }
+        isDisposed = true
     }
 }
 
 public class TealiumDisposeBag: TealiumDisposableProtocol {
     let container = TealiumDisposeContainer()
-    
+    public var isDisposed: Bool {
+        container.isDisposed
+    }
     public init() {}
     
     public func add(_ disposable: TealiumDisposableProtocol) {

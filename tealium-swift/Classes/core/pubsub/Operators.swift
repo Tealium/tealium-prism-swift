@@ -11,6 +11,7 @@ extension TealiumObservable {
     
     class TealiumSubscriptionWrapper: TealiumDisposableProtocol {
         var subscription: TealiumDisposableProtocol?
+        public private(set) var isDisposed: Bool = false
         let queue: DispatchQueue
         init(queue: DispatchQueue) {
             self.queue = queue
@@ -19,6 +20,7 @@ extension TealiumObservable {
             queue.async { // We might want to add a check if we are already on that queue then don't dispatch
                 self.subscription?.dispose()
             }
+            isDisposed = true
         }
     }
     
@@ -79,20 +81,6 @@ extension TealiumObservable {
                     .toDisposeContainer(container)
             }
             return container
-        }
-    }
-}
-
-public extension TealiumObservable where Element: Equatable {
-    func distinct() -> TealiumObservable<Element> {
-        return TealiumObservableCreate { observer in
-            var lastElement: Element?
-            return self.subscribe { element in
-                defer { lastElement = element }
-                if lastElement == nil || lastElement != element {
-                   observer(element)
-                }
-            }
         }
     }
 }

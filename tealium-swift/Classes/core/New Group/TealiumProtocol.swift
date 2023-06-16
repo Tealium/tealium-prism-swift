@@ -45,6 +45,9 @@ public extension TealiumDictionary {
             }
         }
     }
+    func asDictionary() -> [String: Any] {
+        self
+    }
 }
 
 public struct TealiumDispatch {

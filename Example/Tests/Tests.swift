@@ -28,7 +28,7 @@ class Tests: XCTestCase {
     func testFlatMap() {
             let pub = TealiumPublishSubject<Int>()
             let obs = pub.asObservable()
-            obs.flatMap { integer in
+            _ = obs.flatMap { integer in
                 TealiumObservableCreate<String> { observer in
                     observer("start")
                     observer("finish")
