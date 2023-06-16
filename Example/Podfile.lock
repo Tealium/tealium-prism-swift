@@ -9,7 +9,7 @@ EXTERNAL SOURCES:
     :path: "../"
 
 SPEC CHECKSUMS:
-  tealium-swift: 321d1d27a39068a7dcc912f16cca94fc266562e1
+  tealium-swift: 620efe4c1d26e89ba4a19427fada7ccac68868ac
 
 PODFILE CHECKSUM: f8a8d1b17a267ba6f48f135e3038630cdbc1d8a4
 

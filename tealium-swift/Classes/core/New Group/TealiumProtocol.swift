@@ -57,6 +57,10 @@ public struct TealiumDispatch {
         self.eventData = eventData
     }
     
+    public var name: String? {
+        eventData[TealiumDataKey.event] as? String
+    }
+    
     mutating func enrich(data: TealiumDictionary) {
         eventData += data
     }

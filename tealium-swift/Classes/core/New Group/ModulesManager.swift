@@ -19,15 +19,23 @@ public class ModulesManager {
     }
     
     private func setupModules(context: TealiumContext, settings: [String: Any]) {
-        self.modules = context.config.modules.compactMap({ Module in
-            let moduleSettings = settings[Module.id] as? [String: Any] ?? [:]
-            return Module.init(context: context, moduleSettings: moduleSettings)
+        self.modules = context.config.modules.compactMap({ ModuleClass in
+            let updateInterval = TealiumSignpostInterval(signposter: .settings,
+                                                        name: "Module Update")
+            updateInterval.begin(ModuleClass.id)
+            defer { updateInterval.end() }
+            let moduleSettings = settings[ModuleClass.id] as? [String: Any] ?? [:]
+            return ModuleClass.init(context: context, moduleSettings: moduleSettings)
         })
     }
     
     private func updateModules(context: TealiumContext, settings: [String: Any]) {
         let oldModules = self.modules
         self.modules = context.config.modules.compactMap({ ModuleClass in
+            let updateInterval = TealiumSignpostInterval(signposter: .settings,
+                                                        name: "Module Update")
+            updateInterval.begin(ModuleClass.id)
+            defer { updateInterval.end() }
             let moduleSettings = settings[ModuleClass.id] as? [String: Any] ?? [:]
             if let module = oldModules.first(where: { type(of: $0) == ModuleClass }) {
                 return module.updateSettings(moduleSettings)
