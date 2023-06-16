@@ -1,5 +1,5 @@
 import XCTest
-import tealium_swift
+@testable import tealium_swift
 
 class Tests: XCTestCase {
     
@@ -24,5 +24,30 @@ class Tests: XCTestCase {
             // Put the code you want to measure the time of here.
         }
     }
+    
+    func testFlatMap() {
+            let pub = TealiumPublishSubject<Int>()
+            let obs = pub.asObservable()
+            obs.flatMap { integer in
+                TealiumObservableCreate<String> { observer in
+                    observer("start")
+                    observer("finish")
+                    return TealiumSubscription { }
+                }
+            }.subscribe { stuff in
+                print(stuff)
+            }
+            
+            pub.publish(1)
+            pub.publish(2)
+        let expect = expectation(description: "completed")
+        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+            pub.publish(3)
+            expect.fulfill()
+        }
+        waitForExpectations(timeout: 5)
+            // We should get twice start-finish
+    }
+    
     
 }

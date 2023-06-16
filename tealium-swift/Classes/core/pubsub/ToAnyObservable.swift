@@ -10,20 +10,26 @@ import Foundation
 
 @propertyWrapper
 public final class ToAnyObservable<P: TealiumPublisherProtocol>: TealiumPublisherProtocol {
+    public typealias Element = P.Element
+    
     private let publisher: P
     public init(_ anyPublisher: P) {
         self.publisher = anyPublisher
     }
 
-    public var wrappedValue: TealiumObservable<P.Element> {
+    public var wrappedValue: TealiumObservable<Element> {
         return asObservable()
     }
 
-    public func asObservable() -> TealiumObservable<P.Element> {
+    public func asObservable() -> TealiumObservable<Element> {
         return publisher.asObservable()
     }
 
     public var projectedValue: P {
         return publisher
+    }
+    
+    public func publish(_ element: P.Element) {
+        publisher.publish(element)
     }
 }

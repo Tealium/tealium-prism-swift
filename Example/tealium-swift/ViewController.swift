@@ -9,9 +9,23 @@
 import tealium_swift
 import UIKit
 
+class CustomDispatcher: Dispatcher {
+    func dispatch(_ data: [tealium_swift.TealiumDispatch]) {
+        print("CustomDispatcher \(data)")
+    }
+    
+    static var id: String = "CustomDispatcher"
+    
+    required init?(context: tealium_swift.TealiumContext, moduleSettings: [String : Any]) {
+        
+    }
+    
+    
+}
 class ViewController: UIViewController {
 
     var teal: Tealium!
+    let bag = TealiumDisposeBag()
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
@@ -54,7 +68,6 @@ class ViewController: UIViewController {
         btnDeepLink.translatesAutoresizingMaskIntoConstraints = false
         btnDeepLink.setTitle("Deeplink", for: .normal)
         btnDeepLink.addTarget(self, action: #selector(deepLink), for: .touchUpInside)
-        
     }
     
     @objc func joinTrace() {
@@ -70,15 +83,32 @@ class ViewController: UIViewController {
     }
 
     @objc func initTeal() {
+        bag.dispose()
         let modules: [TealiumModule.Type] = [
             TealiumCollect.self,
-            AppDataCollector.self
+            AppDataCollector.self,
+            CustomDispatcher.self
         ]
         let config = TealiumConfig(modules: modules,
                                    configFile: "TealiumConfig",
                                    configUrl: nil)
         let teal = Tealium(config)
         self.teal = teal
+        
+        teal.onReady {
+            teal.dataLayer.events.onDataUpdated { updated in
+                print("some data updated: \(updated)")
+            }.toDisposeBag(self.bag)
+            teal.dataLayer.events.onDataRemoved { removed in
+                print("some data removed: \(removed)")
+            }.toDisposeBag(self.bag)
+            
+            teal.dataLayer.add(data: ["1": "1", "2":"2", "3": "3"])
+            teal.dataLayer.add(data: ["4": "4", "5":"5", "6": "6"])
+            teal.dataLayer.delete(keys: ["1", "3", "5"])
+            teal.track(TealiumDispatch(name: "something"))
+        }
+        
     }
     
     override func didReceiveMemoryWarning() {

@@ -32,12 +32,12 @@ class SettingsProvider {
             return
         }
         _onConfigUpdate.publish(settings)
-        DispatchQueue.main.asyncAfter(deadline: .now() + 2) {
+        tealiumQueue.asyncAfter(deadline: .now() + 2) {
             self._onConfigUpdate.publish(settings)
         }
     }
-    @ToAnyObservable(TealiumReplaySubject<[String:Any]>())
-    var onConfigUpdate: TealiumObservable<[String: Any]>
+    var _onConfigUpdate = TealiumReplaySubject<[String:Any]>()
+    lazy private(set) var onConfigUpdate: TealiumObservable<[String: Any]> = _onConfigUpdate.asObservable()
 }
 
 // TODO: Think about the event router
@@ -64,37 +64,44 @@ public class Tealium: TealiumProtocol {
         deepLink = TealiumDeepLink(modulesManager: modulesManager)
         dataLayer = TealiumDataLayer(modulesManager: modulesManager)
         context = TealiumContext(self, modulesManager: modulesManager, config: config, coreSettings: CoreSettings(coreDictionary: [:]))
-        settingsProvider.onConfigUpdate.subscribe { [weak self] settings in
-            guard let self = self, let context = self.context else {
-                return
+        tealiumQueue.async {
+            self.settingsProvider.onConfigUpdate.subscribe { [weak self] settings in
+                guard let self = self, let context = self.context else {
+                    return
+                }
+                if let coreSettings = settings["core"] as? [String: Any] {
+                    context.coreSettings.updateSettings(coreSettings)
+                }
+                self.modulesManager.updateSettings(context: context, settings: settings)
+                
+            }.toDisposeBag(self.bag)
+            self.settingsProvider.onConfigUpdate.subscribeOnce { _ in
+                self._onReady.publish()
             }
-            if let coreSettings = settings["core"] as? [String: Any] {
-                context.coreSettings.updateSettings(coreSettings)
-            }
-            self.modulesManager.updateSettings(context: context, settings: settings)
-        }.toDisposeBag(bag)
-        _onReady.publish() // TODO: this should happen after the modules manager has initialized everything probably
+        }
     }
     
     public func track(_ trackable: TealiumDispatch) {
-        var trackable = trackable
-        let modules = self.modules
-        modules.compactMap { $0 as? Collector }
-            .forEach { collector in
-                trackable.enrich(data: collector.data) // collector.collect() maybe?
-            }
-        // dispatch barries
-        // queueing
-        // batching
-        // transform the data
-        modules.compactMap { $0 as? Dispatcher }
-            .forEach { dispatcher in
-                dispatcher.dispatch([trackable])
-            }
+        tealiumQueue.async {
+            var trackable = trackable
+            let modules = self.modules
+            modules.compactMap { $0 as? Collector }
+                .forEach { collector in
+                    trackable.enrich(data: collector.data) // collector.collect() maybe?
+                }
+            // dispatch barries
+            // queueing
+            // batching
+            // transform the data
+            modules.compactMap { $0 as? Dispatcher }
+                .forEach { dispatcher in
+                    dispatcher.dispatch([trackable])
+                }
+        }
     }
     
-    @ToAnyObservable(TealiumReplaySubject<Void>())
-    var onReady: TealiumObservable<Void>
+    var _onReady = TealiumReplaySubject<Void>()
+    lazy private(set) var onReady: TealiumObservable<Void> = _onReady.asObservable().subscribeOn(tealiumQueue)
     
     
     public func onReady(_ completion: @escaping () -> Void) {
@@ -105,16 +112,15 @@ public class Tealium: TealiumProtocol {
     
     public let deepLink: TealiumDeepLink
     
-    public var dataLayer: TealiumDataLayer
+    public let dataLayer: TealiumDataLayer
     
-    public var timedEvents: TealiumTimedEvents
+    public let timedEvents: TealiumTimedEvents
     
-    public var consent: TealiumConsent
+    public let consent: TealiumConsent
     
     public var modules: [TealiumModule] {
         modulesManager.modules
     }
-    
     
     public func getModule<T: TealiumModule>(completion: @escaping (T?) -> Void) {
         modulesManager.getModule(completion: completion)

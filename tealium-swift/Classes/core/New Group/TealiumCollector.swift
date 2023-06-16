@@ -9,7 +9,7 @@ import Foundation
 
 
 public class TealiumCollector: Collector {
-    var data: TealiumDictionary {
+    public var data: TealiumDictionary {
         let settings = context.coreSettings
         return TealiumDictionary(removingOptionals: [
             "account": settings.account,

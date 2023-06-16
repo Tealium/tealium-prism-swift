@@ -7,7 +7,6 @@
 
 import Foundation
 
-let tealiumQueue = DispatchQueue(label: "tealium queue")
 
 public class TealiumTrace {
     typealias Module = TraceModule
@@ -55,7 +54,7 @@ public class TraceModule: TealiumModule {
     }
     
     var dataLayer: DataLayerModule? {
-        context.modulesManager.getModule()
+        context.modulesManager?.getModule()
     }
     
     public func join(id: String) {

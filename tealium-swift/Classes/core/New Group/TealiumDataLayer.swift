@@ -7,82 +7,78 @@
 
 import Foundation
 
-public class TealiumDataLayer {
-    typealias Module = DataLayerModule
-    private let modulesManager: ModulesManager
+public class ModuleExtractor<Module: TealiumModule> {
+    private weak var modulesManager: ModulesManager?
     init(modulesManager: ModulesManager) {
         self.modulesManager = modulesManager
     }
+    public var onModule: TealiumObservable<Module> {
+        TealiumObservableCreate.Callback { [weak self] callback in
+            self?.getModule(completion: callback)
+        }.compactMap { $0 }
+    }
+    public func getModule(completion: @escaping (Module?) -> Void) {
+        modulesManager?.getModule(completion: completion)
+    }
+}
+
+public class TealiumDataLayer { // WRAPPER
+    typealias Module = DataLayerModule
+    public let events: DataLayerEvents
+    private let moduleExtractor: ModuleExtractor<Module>
+    init(modulesManager: ModulesManager) {
+        let moduleExtractor = ModuleExtractor<Module>(modulesManager: modulesManager)
+        self.moduleExtractor = moduleExtractor
+        events = DataLayerEvents(moduleExtractor: moduleExtractor)
+    }
+    
     private func getModule(completion: @escaping (Module?) -> Void) {
-        modulesManager.getModule(completion: completion)
+        moduleExtractor.getModule(completion: completion)
     }
 
-    func add(data: TealiumDictionaryOptionals, expiry: Expiry = .session) {
+    public func add(data: TealiumDictionaryOptionals, expiry: Expiry = .session) {
+        getModule { dataLayer in // tealiumQueue
+            dataLayer?.add(data: data, expiry: expiry)
+        }
+    }
+    public func add(data: TealiumDictionary, expiry: Expiry = .session) {
         getModule { dataLayer in
             dataLayer?.add(data: data, expiry: expiry)
         }
     }
-    func add(data: TealiumDictionary, expiry: Expiry = .session) {
-        getModule { dataLayer in
-            dataLayer?.add(data: data, expiry: expiry)
-        }
-    }
-    func add(key: String, value: TealiumDataValue, expiry: Expiry = .session) {
+    public func add(key: String, value: TealiumDataValue, expiry: Expiry = .session) {
         getModule { dataLayer in
             dataLayer?.add(key: key, value: value, expiry: expiry)
         }
     }
-    func add(key: String, value: TealiumDataValue?, expiry: Expiry = .session) {
+    public func add(key: String, value: TealiumDataValue?, expiry: Expiry = .session) {
         getModule { dataLayer in
             dataLayer?.add(key: key, value: value, expiry: expiry)
         }
     }
-    func delete(key: String) {
+    public func delete(key: String) {
         getModule { dataLayer in
             dataLayer?.delete(key: key)
         }
     }
-    func deleteAll() {
+    public func deleteAll() {
         getModule { dataLayer in
             dataLayer?.deleteAll()
         }
     }
-    func delete(keys: [String]) {
+    public func delete(keys: [String]) {
         getModule { dataLayer in
             dataLayer?.delete(keys: keys)
         }
     }
-    
-    /**
-     * Need to experiment on this.
-     * Atm we are passing a completion with the data and a remove handler
-     *
-     * This will probably be moved in the EventRouter, but even so, are we going to have the same issues?
-     * The problem is that we want to always dispatch when we get from the public interface, otherwise people will register from different threads, which might lead to crashes.
-     */
-    func onDataRemoved(completion: @escaping (([String]) -> Void)) -> TealiumDisposableProtocol {
-        let subscriptionWrapper = TealiumSubscriptionWrapper()
-        
+    public func get(forKey key: String, completion: @escaping (Any?) -> Void) {
         getModule { dataLayer in
-            subscriptionWrapper.subscription = dataLayer?.onDataRemoved.subscribe(completion)
+            completion(dataLayer?.getData(forKey: key))
         }
-        return subscriptionWrapper
     }
-                
-    func onDataUpdated(completion: @escaping (([String: Any]) -> Void) ) -> TealiumDisposableProtocol {
-        let subscriptionWrapper = TealiumSubscriptionWrapper()
+    public func getAllData(completion: @escaping ([String:Any]?) -> Void) {
         getModule { dataLayer in
-            subscriptionWrapper.subscription = dataLayer?.onDataUpdated.subscribe(completion)
-        }
-        return subscriptionWrapper
-    }
-}
-
-public class TealiumSubscriptionWrapper: TealiumDisposableProtocol {
-    var subscription: TealiumDisposableProtocol?
-    public func dispose() {
-        tealiumQueue.async {
-            self.subscription?.dispose()
+            completion(dataLayer?.data)
         }
     }
 }
@@ -95,29 +91,25 @@ protocol DataLayerUpdateListener {
 }
 
 public class DataLayerModule: Collector {
-    var data: TealiumDictionary
-    /// Will receive events for data added or updated in the data layer
-    @ToAnyObservable<TealiumPublisher>(TealiumPublisher<[String: Any]>())
-    public var onDataUpdated: TealiumObservable<[String: Any]>
-
-    /// Will receive events for data removed or expired from the data layer
-    @ToAnyObservable<TealiumPublisher>(TealiumPublisher<[String]>())
-    public var onDataRemoved: TealiumObservable<[String]>
+    public var data: TealiumDictionary
     public static var id: String = "datalayer"
     
     public required init(context: TealiumContext, moduleSettings: [String : Any]) {
         self.data = [:]
     }
     
+    let events = DataLayerEventPublishers()
     // TODO: Maybe put?
     func add(data: TealiumDictionaryOptionals, expiry: Expiry = .session) {
         add(data: TealiumDictionary(removingOptionals: data),
             expiry: expiry)
     }
     func add(data: TealiumDictionary, expiry: Expiry = .session) {
+        events._onDataUpdated.publish(data)
         self.data += data
     }
     func add(key: String, value: TealiumDataValue, expiry: Expiry = .session) {
+        events._onDataUpdated.publish([key: value])
         data[key] = value
     }
     func add(key: String, value: TealiumDataValue?, expiry: Expiry = .session) {
@@ -132,7 +124,74 @@ public class DataLayerModule: Collector {
         delete(keys: data.keys.map { $0 as String })
     }
     func delete(keys: [String]) {
-        keys.forEach(delete(key:))
-        _onDataRemoved.publish(keys)
+        keys.forEach{ data.removeValue(forKey: $0) }
+        events._onDataRemoved.publish(keys)
+    }
+    func getData(forKey key: String) -> Any? {
+        data[key] // TODO: This will be a specific query
+    }
+}
+
+public protocol DataLayerEventObservables {
+    var onDataUpdated: TealiumObservable<[String: Any]> { get }
+    var onDataRemoved: TealiumObservable<[String]> { get }
+}
+
+public class DataLayerEventPublishers: DataLayerEventObservables {
+    fileprivate let _onDataUpdated = TealiumPublisher<[String: Any]>()
+    fileprivate let _onDataRemoved = TealiumPublisher<[String]>()
+    public private(set) lazy var onDataUpdated = _onDataUpdated.asObservable()
+    public private(set) lazy var onDataRemoved = _onDataRemoved.asObservable()
+}
+
+public class DataLayerEvents {
+    let extractor: ModuleExtractor<DataLayerModule>
+    init(moduleExtractor: ModuleExtractor<DataLayerModule>) {
+        self.extractor = moduleExtractor
+    }
+    
+    public func onDataUpdated(_ event: @escaping ([String: Any]) -> Void) -> TealiumDisposableProtocol {
+        extractor.onModule
+            .flatMap { $0.events.onDataUpdated }
+            .subscribe(event)
+    }
+
+    public func onDataRemoved(_ event: @escaping ([String]) -> Void) -> TealiumDisposableProtocol {
+        extractor.onModule
+            .flatMap { $0.events.onDataRemoved }
+            .subscribe(event)
+    }
+}
+
+public protocol VisitorServiceEventObservables {
+    var onVisitorProfile: TealiumObservable<[String: Any]> { get }
+}
+
+public class VisitorServiceEventPublishers: VisitorServiceEventObservables {
+    fileprivate let _onVisitorProfile = TealiumPublisher<[String: Any]>()
+    public private(set) lazy var onVisitorProfile = _onVisitorProfile.asObservable()
+}
+
+
+class VisitorServiceModule: TealiumModule {
+    static var id: String = "visitorservice"
+    
+    required init?(context: TealiumContext, moduleSettings: [String : Any]) {
+        
+    }
+    
+    let events = VisitorServiceEventPublishers()
+}
+
+
+public class VisitorServiceEvents {
+    let extractor: ModuleExtractor<VisitorServiceModule>
+    init(moduleExtractor: ModuleExtractor<VisitorServiceModule>) {
+        self.extractor = moduleExtractor
+    }
+    public func onVisitorProfileUpdate(_ event: @escaping ([String: Any]) -> Void) -> TealiumDisposableProtocol {
+        extractor.onModule
+            .flatMap { $0.events.onVisitorProfile }
+            .subscribe(event)
     }
 }

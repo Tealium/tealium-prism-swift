@@ -23,11 +23,8 @@ public struct TealiumConfig {
 
 
 // TODO: split TealiumConfig and Core/Module Settings
-public class CoreSettings {
+public struct CoreSettings {
     private var dictionary: [String: Any]
-
-    @ToAnyObservable(TealiumReplaySubject<CoreSettings>())
-    var onSettingsUpdate: TealiumObservable<CoreSettings>
     
     public init(coreDictionary: [String: Any]) {
         self.dictionary = coreDictionary
@@ -43,8 +40,7 @@ public class CoreSettings {
         dictionary["environment"] as? String
     }
     
-    func updateSettings(_ config: [String: Any]) {
+    mutating func updateSettings(_ config: [String: Any]) {
         dictionary = config
-        _onSettingsUpdate.publish(self)
     }
 }

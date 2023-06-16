@@ -47,7 +47,7 @@ public extension AppDataCollection {
 
 public class AppDataCollector: AppDataCollection, Collector {
     
-    var data: TealiumDictionary
+    public var data: TealiumDictionary
     
     public static var id: String = "appdata"
     

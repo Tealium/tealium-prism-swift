@@ -77,20 +77,29 @@ public class TealiumContext {
     public weak var tealiumProtocol: TealiumProtocol?
     public let config: TealiumConfig
     public var coreSettings: CoreSettings
-    public let modulesManager: ModulesManager
+    public weak var modulesManager: ModulesManager?
+    
+    @ToAnyObservable(TealiumReplaySubject<CoreSettings>())
+    var onSettingsUpdate: TealiumObservable<CoreSettings>
+    
     init(_ teal: TealiumProtocol, modulesManager: ModulesManager, config: TealiumConfig, coreSettings: CoreSettings) {
         self.tealiumProtocol = teal
         self.modulesManager = modulesManager
         self.config = config
         self.coreSettings = coreSettings
     }
+
+    func updateSettings(_ dict: [String: Any]) {
+        coreSettings.updateSettings(dict)
+        _onSettingsUpdate.publish(coreSettings)
+    }
 }
 
-protocol Collector: TealiumModule {
+public protocol Collector: TealiumModule {
     var data: TealiumDictionary { get }
 }
 
-protocol Dispatcher: TealiumModule {
+public protocol Dispatcher: TealiumModule {
     func dispatch(_ data: [TealiumDispatch])
 }
 
