@@ -25,40 +25,29 @@ public protocol NetworkClientProtocol {
 }
 
 public class NetworkClient: NetworkClientProtocol {
-    static let defaultUrlSession = URLSession.shared
-    static let defaultInterceptors = [DefaultInterceptor(exponentialBackoffBase: 2, exponentialBackoffScale: 1)]
-    public static let `default`: NetworkClient = NetworkClient(configuration: NetworkConfiguration(session: defaultUrlSession,
-                                                                                                  interceptors: defaultInterceptors))
+    public static let `default`: NetworkClient = NetworkClient()
     private let session: URLSession
-    private(set) var interceptors: [RequestInterceptor]
     private let queue: DispatchQueue
+    let interceptorManager: InterceptorManager
     
-    public init(configuration: NetworkConfiguration) {
-        session = configuration.session
-        interceptors = configuration.interceptors
+    public init(configuration: NetworkConfiguration = .default) {
+        let operationQueue = OperationQueue()
+        operationQueue.underlyingQueue = configuration.queue
+        let interceptorManager = InterceptorManager(interceptors: configuration.interceptors,
+                                                    queue: configuration.queue)
+        self.interceptorManager = interceptorManager
+        session = URLSession(configuration: configuration.sessionConfiguration,
+                             delegate: interceptorManager,
+                             delegateQueue: operationQueue)
+        // TODO: add tests that URLSession is created with the correct parameters
         queue = configuration.queue
     }
     
     public func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposableProtocol {
         let state = TealiumSignposter.networking.beginInterval("Interceptable Request", "Send Request: \(request)")
-        let completion = SelfDestructingCompletion<NetworkResponse, NetworkError>(completion: { result in
+        return self.sendRetryableRequest(request) { result in
             TealiumSignposter.networking.endInterval("Interceptable Request", state: state, "\(result)")
             completion(result)
-        })
-        let disposeContainer = TealiumDisposeContainer()
-        interceptRequest(request: request) {
-            guard !disposeContainer.isDisposed else {
-                completion.fail(error: .cancelled)
-                return
-            }
-            self.sendRetryableRequest(request, completion: completion.complete(result:))
-                .toDisposeContainer(disposeContainer)
-        }
-        return TealiumSubscription {
-            self.queue.async {
-                completion.fail(error: .cancelled)
-                disposeContainer.dispose()
-            }
         }
     }
     
@@ -67,7 +56,7 @@ public class NetworkClient: NetworkClientProtocol {
         let disposeContainer = TealiumDisposeContainer()
         self.sendBasicRequest(request) { result in
             self.queue.async {
-                self.interceptResponse(request: request, retryCount: retryCount, result: result) { [weak self] shouldRetry in
+                self.interceptorManager.interceptResponse(request: request, retryCount: retryCount, result: result) { [weak self] shouldRetry in
                     guard let self = self, !disposeContainer.isDisposed else {
                         completion.fail(error: .cancelled)
                         return
@@ -85,28 +74,58 @@ public class NetworkClient: NetworkClientProtocol {
             }
         }.toDisposeContainer(disposeContainer)
         return TealiumSubscription {
-            completion.fail(error: .cancelled)
-            disposeContainer.dispose()
+            self.queue.async {
+                completion.fail(error: .cancelled)
+                disposeContainer.dispose()
+            }
         }
     }
     
-    private func interceptRequest(request: URLRequest, completion: @escaping () -> Void) {
-        var signposterState: SignpostStateWrapper?
-        for interceptor in interceptors.reversed() {
-            let delayPolicy = interceptor.shouldDelay(request)
-            let shouldDelay = delayPolicy.shouldDelay(onQueue: queue) {
-                TealiumSignposter.networking.endInterval("Delay Request", state: signposterState, "Waiting Send: \(request)")
-                completion()
-            }
-            if shouldDelay {
-                signposterState = TealiumSignposter.networking.beginInterval("Delay Request", "Delayed: \(request)")
-                return
-            }
+    private func sendBasicRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> URLSessionDataTask {
+        let state = TealiumSignposter.networking.beginInterval("Request", "HTTP Request: \(request)")
+        return session.send(request) { result in
+            TealiumSignposter.networking.endInterval("Request", state: state, "\(result)")
+            completion(result)
         }
-        completion()
     }
     
-    private func interceptResponse(request: URLRequest, retryCount: Int, result: NetworkResult, shouldRetry: @escaping (Bool) -> Void) {
+    public func addInterceptor(_ interceptor: RequestInterceptor) {
+        queue.async {
+            self.interceptorManager.interceptors.append(interceptor)
+        }
+    }
+    
+    public func removeInterceptor(_ interceptor: RequestInterceptor) {
+        queue.async {
+            self.interceptorManager.interceptors.removeAll { $0 === interceptor }
+        }
+    }
+}
+
+// TODO: move to a separate file
+class InterceptorManager: NSObject, URLSessionTaskDelegate {
+    var interceptors: [RequestInterceptor]
+    let queue: DispatchQueue
+    init(interceptors: [RequestInterceptor], queue: DispatchQueue) {
+        self.interceptors = interceptors
+        self.queue = queue
+    }
+    
+    // TODO: add tests for this method
+    public func urlSession(_ session: URLSession, task: URLSessionTask, didFinishCollecting metrics: URLSessionTaskMetrics) {
+        self.interceptors.forEach { interceptor in
+            interceptor.didCollectMetrics(metrics, forTask: task)
+        }
+    }
+    
+    func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
+        TealiumSignposter.networking.event("URLSession WaitingForConnectivity", message: "\(task.originalRequest?.url?.absoluteString ?? "")")
+        interceptors.forEach { interceptor in
+            interceptor.waitingForConnectivity(task)
+        }
+    }
+    
+    func interceptResponse(request: URLRequest, retryCount: Int, result: NetworkResult, shouldRetry: @escaping (Bool) -> Void) {
         let interceptors = self.interceptors
         for interceptor in interceptors {
             interceptor.didComplete(request,
@@ -129,23 +148,4 @@ public class NetworkClient: NetworkClientProtocol {
         shouldRetry(false)
     }
     
-    private func sendBasicRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> URLSessionDataTask {
-        let state = TealiumSignposter.networking.beginInterval("Request", "HTTP Request: \(request)")
-        return session.send(request) { result in
-            TealiumSignposter.networking.endInterval("Request", state: state, "\(result)")
-            completion(result)
-        }
-    }
-    
-    public func addInterceptor(_ interceptor: RequestInterceptor) {
-        queue.async {
-            self.interceptors.append(interceptor)
-        }
-    }
-    
-    public func removeInterceptor(_ interceptor: RequestInterceptor) {
-        queue.async {
-            self.interceptors.removeAll { $0 === interceptor }
-        }
-    }
 }

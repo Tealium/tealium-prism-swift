@@ -23,7 +23,6 @@ public class TealiumPublishSubject<Element>: TealiumPublisher<Element>, TealiumS
 
 // MARK: Replay
 
-//TODO: Check this might be broken
 public class TealiumReplaySubject<Element>: TealiumPublishSubject<Element> {
     private let cacheSize: Int?
     private var cache = [Element]()
@@ -34,6 +33,11 @@ public class TealiumReplaySubject<Element>: TealiumPublishSubject<Element> {
 
     convenience public override init() {
         self.init(cacheSize: 1)
+    }
+    
+    convenience public init(initialValue: Element) {
+        self.init()
+        self.publish(initialValue)
     }
     
     public override func asObservable() -> TealiumObservable<Element> {
@@ -64,7 +68,14 @@ public class TealiumReplaySubject<Element>: TealiumPublishSubject<Element> {
     public func last() -> Element? {
         return cache.last
     }
+}
 
+public extension TealiumReplaySubject where Element: Equatable {
+    func publishIfChanged(_ element: Element) {
+        if element != last() {
+            publish(element)
+        }
+    }
 }
 
 // MARK: Buffered

@@ -34,9 +34,7 @@ class Tests: XCTestCase {
                     observer("finish")
                     return TealiumSubscription { }
                 }
-            }.subscribe { stuff in
-                print(stuff)
-            }
+            }.subscribe { _ in }
             
             pub.publish(1)
             pub.publish(2)

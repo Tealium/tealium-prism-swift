@@ -71,22 +71,7 @@ public class TealiumObservableCreate<Element>: TealiumObservable<Element> {
     override public func subscribe(_ observer: @escaping Observer) -> TealiumDisposableProtocol {
         subscribeHandler(observer)
     }
-    
-    public class func Callback(callback: @escaping (@escaping Observer) -> Void) -> TealiumObservableCreate<Element> {
-        TealiumObservableCreate { observer in
-            var cancelled = false
-            callback { res in
-                if !cancelled {
-                    observer(res)
-                }
-            }
-            return TealiumSubscription {
-                cancelled = true
-            }
-        }
-    }
 }
-
 
 public class TealiumPublisher<Element>: TealiumPublisherProtocol {
     fileprivate let observable: TealiumObservableImpl<Element>
@@ -104,7 +89,7 @@ public class TealiumPublisher<Element>: TealiumPublisherProtocol {
     }
 }
 
-public extension TealiumPublisher where Element == Void {
+public extension TealiumPublisherProtocol where Element == Void {
     func publish() {
         self.publish(())
     }

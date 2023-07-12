@@ -5,9 +5,10 @@ platform :ios, '11.0'
 target 'tealium-swift_Example' do
   pod 'tealium-swift', :path => '../'
 
-  target 'tealium-swift_Tests' do
-    inherit! :search_paths
+end
 
-    
-  end
+
+target 'tealium-swift_Tests' do
+  pod 'tealium-swift', :path => '../'
+
 end

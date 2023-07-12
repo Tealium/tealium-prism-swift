@@ -13,7 +13,7 @@ public class ModuleExtractor<Module: TealiumModule> {
         self.modulesManager = modulesManager
     }
     public var onModule: TealiumObservable<Module> {
-        TealiumObservableCreate.Callback { [weak self] callback in
+        TealiumObservable.Callback { [weak self] callback in
             self?.getModule(completion: callback)
         }.compactMap { $0 }
     }

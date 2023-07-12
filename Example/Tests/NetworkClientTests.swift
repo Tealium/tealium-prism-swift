@@ -10,18 +10,11 @@ import XCTest
 @testable import tealium_swift
 
 final class NetworkClientTests: XCTestCase {
-    var config: NetworkConfiguration = NetworkConfiguration(session: URLSession.shared)
+    var config: NetworkConfiguration = NetworkConfiguration(interceptors: [])
     lazy var client: NetworkClient = {
-        NetworkClient(configuration: config)
+        config.sessionConfiguration.protocolClasses = [URLProtocolMock.self]
+        return NetworkClient(configuration: config)
     }()
-    
-    class override func setUp() {
-        URLProtocol.registerClass(URLProtocolMock.self)
-    }
-
-    class override func tearDown() {
-        URLProtocol.unregisterClass(URLProtocolMock.self)
-    }
 
     func test_send_request_succeeds_with_data_and_response() {
         let expect = expectation(description: "Request will complete with a successful Result")
@@ -62,54 +55,6 @@ final class NetworkClientTests: XCTestCase {
         }
         task.dispose()
         waitForExpectations(timeout: 3.0)
-    }
-    
-    func test_request_is_sent_to_should_delay_interceptors() {
-        let expect = expectation(description: "Request will be sent to the interceptor")
-        mockSuccess()
-        config.interceptors = [
-            BlockInterceptor(shouldDelay: { _ in
-                expect.fulfill()
-                return .doNotDelay
-            })]
-        _ = client.sendRequest(URLRequests.GET()) { result in }
-        waitForExpectations(timeout: 3.0)
-    }
-    
-    func test_request_delayed_after_timeout_is_delayed() {
-        let expect = expectation(description: "Request will be completed after the delay")
-        let basicTimeoutExpactation = expectation(description: "Dispatch After ends before the interceptor delay completes")
-        mockSuccess()
-        config.interceptors = [
-            BlockInterceptor(shouldDelay: { _ in
-                return .afterDelay(1.0)
-            })]
-        config.queue.asyncAfter(deadline: .now() + 0.9) {
-            basicTimeoutExpactation.fulfill()
-        }
-        _ = client.sendRequest(URLRequests.GET()) { result in
-            expect.fulfill()
-        }
-        wait(for: [basicTimeoutExpactation, expect], timeout: 3.0, enforceOrder: true)
-    }
-    
-    func test_request_delayed_after_event_is_delayed() {
-        let expect = expectation(description: "Request will be completed after the delay")
-        let basicTimeoutExpactation = expectation(description: "Dispatch After ends before the interceptor delay completes")
-        mockSuccess()
-        let publisher = TealiumPublisher<Void>()
-        config.interceptors = [
-            BlockInterceptor(shouldDelay: { _ in
-                return .afterEvent(publisher.asObservable())
-            })]
-        config.queue.asyncAfter(deadline: .now() + 1) {
-            basicTimeoutExpactation.fulfill()
-            publisher.publish()
-        }
-        _ = client.sendRequest(URLRequests.GET()) { result in
-            expect.fulfill()
-        }
-        wait(for: [basicTimeoutExpactation, expect], timeout: 3.0, enforceOrder: true)
     }
     
     func test_succeded_request_is_sent_to_completion_interceptors() {
@@ -187,7 +132,6 @@ final class NetworkClientTests: XCTestCase {
             BlockInterceptor(shouldRetry: { _, retryCount, _ in
                 defer { expectRetry.fulfill() }
                 XCTAssertEqual(currentRetryCount+1, retryCount)
-                print(retryCount)
                 currentRetryCount = retryCount
                 if retryCount < numberOfRetriesAllowed {
                     return .afterDelay(0)
@@ -310,33 +254,6 @@ final class NetworkClientTests: XCTestCase {
         }
         wait(for: [expectSecondRetry, expectFirstRetry, expect], timeout: 3.0, enforceOrder: true)
     }
-    
-    func test_delay_interceptors_are_called_in_reverse_order() {
-        let expectFirstDelay = expectation(description: "First delay interceptor should be called second")
-        let expectSecondDelay = expectation(description: "Second delay interceptor should be called first")
-        let expect = expectation(description: "Send request completion is called in the end only once")
-        let predictedResponse = mockSuccess()
-        let firstInterceptor = BlockInterceptor(shouldDelay: { _ in
-            defer { expectFirstDelay.fulfill() }
-            return .doNotDelay
-        })
-        let secondInterceptor = BlockInterceptor(shouldDelay: { _ in
-            defer { expectSecondDelay.fulfill() }
-            return .doNotDelay
-        })
-        
-        config.interceptors = [ firstInterceptor, secondInterceptor ]
-        _ = client.sendRequest(URLRequests.GET()) { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue))
-            XCTAssertResultIsSuccess(result) { value in
-                XCTAssertEqual(value.data, predictedResponse.0!)
-                XCTAssertEqual(value.urlResponse.statusCode, predictedResponse.1?.statusCode)
-                expect.fulfill()
-            }
-        }
-        wait(for: [expectSecondDelay, expectFirstDelay, expect], timeout: 3.0, enforceOrder: true)
-    }
-    
     func test_retry_interceptors_are_called_until_one_performs_retry() {
         let expectFirstRetry = expectation(description: "Retry interceptor should be called only once as the first time is preceded by the second")
         let expectSecondRetry = expectation(description: "Retry interceptor should be called twice")
@@ -372,38 +289,6 @@ final class NetworkClientTests: XCTestCase {
             }
         }
         wait(for: [expectThirdRetry, expectSecondRetry, expectFirstRetry, expect], timeout: 3.0, enforceOrder: true)
-    }
-    
-    func test_delay_interceptors_are_called_until_one_performs_delay() {
-        let expectFirstDelay = expectation(description: "Delay interceptor should never be called as one delays before this does")
-        expectFirstDelay.isInverted = true
-        let expectSecondDelay = expectation(description: "Delay interceptor should be called")
-        let expectThirdDelay = expectation(description: "Delay interceptor should be called")
-        let expect = expectation(description: "Send request completion is called in the end only once")
-        
-        let predictedResponse = mockSuccess()
-        let firstInterceptor = BlockInterceptor(shouldDelay: { _ in
-            defer { expectFirstDelay.fulfill() }
-            return .doNotDelay
-        })
-        let secondInterceptor = BlockInterceptor(shouldDelay: { _ in
-            defer { expectSecondDelay.fulfill() }
-            return .afterDelay(0.1)
-        })
-        let thirdInterceptor = BlockInterceptor(shouldDelay: { _ in
-            defer { expectThirdDelay.fulfill() }
-            return .doNotDelay
-        })
-        config.interceptors = [ firstInterceptor, secondInterceptor, thirdInterceptor ]
-        _ = client.sendRequest(URLRequests.GET()) { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue))
-            XCTAssertResultIsSuccess(result) { value in
-                XCTAssertEqual(value.data, predictedResponse.0!)
-                XCTAssertEqual(value.urlResponse.statusCode, predictedResponse.1?.statusCode)
-                expect.fulfill()
-            }
-        }
-        wait(for: [expectThirdDelay, expectSecondDelay, expect, expectFirstDelay], timeout: 3.0, enforceOrder: true)
     }
     
     func test_retries_get_cancelled_when_dataTask_is_disposed() {
@@ -504,15 +389,15 @@ final class NetworkClientTests: XCTestCase {
     
     func test_add_and_remove_interceptor() {
         let client = NetworkClient(configuration: config)
-        let count = client.interceptors.count
+        let count = client.interceptorManager.interceptors.count
         let interceptor = BlockInterceptor()
         client.addInterceptor(interceptor)
         config.queue.sync {
-            XCTAssertEqual(count+1, client.interceptors.count)
+            XCTAssertEqual(count+1, client.interceptorManager.interceptors.count)
         }
         client.removeInterceptor(interceptor)
         config.queue.sync {
-            XCTAssertEqual(count, client.interceptors.count)
+            XCTAssertEqual(count, client.interceptorManager.interceptors.count)
         }
     }
 }

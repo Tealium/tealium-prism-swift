@@ -28,6 +28,12 @@ class ViewController: UIViewController {
     let bag = TealiumDisposeBag()
     override func viewDidLoad() {
         super.viewDidLoad()
+        _ = ConnectivityMonitor.shared
+            .onConnection
+            .subscribeOn(tealiumQueue)
+            .subscribe { connection in
+                print("New Connection: \(connection)")
+            }
         // Do any additional setup after loading the view, typically from a nib.
         
         initTeal()
