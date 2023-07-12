@@ -94,7 +94,7 @@ final class ConnectivityManagerTests: XCTestCase {
     
     func test_should_retry_returns_doNotRetry_on_connection_assumed_available() {
         XCTAssertTrue(manager.isConnectionAssumedAvailable)
-        let policy = manager.shouldRetry(URLRequests.GET(),
+        let policy = manager.shouldRetry(URLRequest(),
                                          retryCount: 0,
                                          with: connectionErrorResult)
         XCTAssertEqual(policy, .doNotRetry)
@@ -104,7 +104,7 @@ final class ConnectivityManagerTests: XCTestCase {
         XCTAssertTrue(manager.isConnectionAssumedAvailable)
         empiricalConnectivity.changeConnectionAvailable(false)
         connectivityMonitor.changeConnection(.notConnected)
-        let policy = manager.shouldRetry(URLRequests.GET(),
+        let policy = manager.shouldRetry(URLRequest(),
                                          retryCount: 0,
                                          with: .failure(.unknown(nil)))
         XCTAssertEqual(policy, .doNotRetry)
@@ -114,7 +114,7 @@ final class ConnectivityManagerTests: XCTestCase {
         empiricalConnectivity.changeConnectionAvailable(false)
         connectivityMonitor.changeConnection(.notConnected)
         XCTAssertFalse(manager.isConnectionAssumedAvailable)
-        let policy = manager.shouldRetry(URLRequests.GET(),
+        let policy = manager.shouldRetry(URLRequest(),
                                          retryCount: 0,
                                          with: connectionErrorResult)
         XCTAssertEqual(policy, .afterEvent(.Just(())))
@@ -125,7 +125,7 @@ final class ConnectivityManagerTests: XCTestCase {
         empiricalConnectivity.onConnectionFail.subscribeOnce {
             empiricalConnectionFailure.fulfill()
         }
-        manager.didComplete(URLRequests.GET(), with: connectionErrorResult)
+        manager.didComplete(URLRequest(), with: connectionErrorResult)
         waitForExpectations(timeout: 1.0)
     }
     
@@ -134,7 +134,7 @@ final class ConnectivityManagerTests: XCTestCase {
         empiricalConnectivity.onConnectionSuccess.subscribeOnce {
             empiricalConnectionSuccess.fulfill()
         }
-        manager.didComplete(URLRequests.GET(), with: .success(NetworkResponse(data: Data(), urlResponse: URLResponses.successful())))
+        manager.didComplete(URLRequest(), with: .success(.successful()))
         waitForExpectations(timeout: 1.0)
     }
     
@@ -143,7 +143,7 @@ final class ConnectivityManagerTests: XCTestCase {
         empiricalConnectivity.onConnectionSuccess.subscribeOnce {
             empiricalConnectionSuccess.fulfill()
         }
-        manager.didComplete(URLRequests.GET(), with: .failure(.non200Status(400)))
+        manager.didComplete(URLRequest(), with: .failure(.non200Status(400)))
         waitForExpectations(timeout: 1.0)
     }
     
@@ -159,7 +159,7 @@ final class ConnectivityManagerTests: XCTestCase {
         empiricalConnectivity.onConnectionFail.subscribe {
             empiricalConnectionFailure.fulfill()
         }.toDisposeBag(bag)
-        manager.didComplete(URLRequests.GET(), with: .failure(.urlError(URLError(.appTransportSecurityRequiresSecureConnection))))
+        manager.didComplete(URLRequest(), with: .failure(.urlError(URLError(.appTransportSecurityRequiresSecureConnection))))
         waitForExpectations(timeout: 1.0)
     }
     

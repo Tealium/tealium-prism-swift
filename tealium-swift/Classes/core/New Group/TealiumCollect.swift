@@ -31,7 +31,7 @@ public class TealiumCollect: Dispatcher {
             if let jsonString = try? event.eventData.asDictionary().toJSONString() {
                 request.httpBody = jsonString.data(using: .utf8)
             }
-            _ = NetworkClient.default.sendRequest(request) { result in
+            _ = NetworkClient.shared.sendRequest(request) { result in
                 print("URL Request \(request) completed with \(result)")
             }
             

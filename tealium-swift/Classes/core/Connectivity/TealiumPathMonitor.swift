@@ -5,16 +5,18 @@
 //  Copyright © 2020 Tealium, Inc. All rights reserved.
 //
 
-import Foundation
-#if canImport(Network)
-import Network
-#endif
-
 #if !os(watchOS)
-@available(iOS 12, *)
-@available(tvOS 12, *)
-@available(macCatalyst 13, *)
-@available(OSX 10.14, *)
+import Foundation
+import Network
+
+/**
+ * Monitors the NWPath changes to report when connection is available or not on iOS 12+.
+ *
+ * NWPath can be used to determine background information about why a network operation failed, or to retry
+ * network requests when a connection is established. It should not be used to prevent a user from initiating a network
+ * request, as it's possible that an initial request may be required to establish reachability.
+ */
+@available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *)
 class TealiumNWPathMonitor: ConnectivityMonitorProtocol {
 
     let monitor = NWPathMonitor()
@@ -48,7 +50,7 @@ extension NWPath {
         case .unsatisfied:
             return .notConnected
         default: // .requiresConnection
-            return .unknown // TODO: is unknown correct here? probably yes because we don't want to say that we have connection and if we had before now we might not have it anymore.
+            return .unknown
         }
     }
     
@@ -62,5 +64,4 @@ extension NWPath {
         }
     }
 }
-
 #endif

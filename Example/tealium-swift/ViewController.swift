@@ -28,6 +28,7 @@ class ViewController: UIViewController {
     let bag = TealiumDisposeBag()
     override func viewDidLoad() {
         super.viewDidLoad()
+        TealiumSignposter.enabled = true
         _ = ConnectivityMonitor.shared
             .onConnection
             .subscribeOn(tealiumQueue)

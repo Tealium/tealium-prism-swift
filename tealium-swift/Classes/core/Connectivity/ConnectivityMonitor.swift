@@ -7,7 +7,7 @@
 
 import Foundation
 
-// Just a Namespace
+/// Just a Namespace for connectivity monitors
 public class ConnectivityMonitor {
     public static let shared = defaultConnectivityMonitor()
 }

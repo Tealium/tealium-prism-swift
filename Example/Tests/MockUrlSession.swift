@@ -8,16 +8,23 @@
 
 import Foundation
 @testable import tealium_swift
-enum URLRequests {
+extension URLRequest {
     static let defaultURL = URL(string: "https://www.tealium.com")!
-    static func GET(url: URL = defaultURL) -> URLRequest {
-        URLRequest(url: url)
+    init(_ url: URL = defaultURL, method: String = "GET") {
+        self.init(url: url)
+        self.httpMethod = method
     }
 }
 
-enum URLResponses {
-    static func successful(url: URL = URLRequests.defaultURL) -> HTTPURLResponse {
+extension HTTPURLResponse {
+    static func successful(url: URL = URLRequest.defaultURL) -> HTTPURLResponse {
         HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
+    }
+}
+
+extension NetworkResponse {
+    static func successful() -> NetworkResponse {
+        NetworkResponse(data: Data(), urlResponse: .successful())
     }
 }
 

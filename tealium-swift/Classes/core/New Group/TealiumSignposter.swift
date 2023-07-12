@@ -8,51 +8,100 @@
 import Foundation
 import os.signpost
 
-@available(iOS 15.0, *)
-public extension OSSignposter {
-    static let tracking = OSSignposter(subsystem: "com.tealium.swift", category: "tracking")
+extension TealiumSignposter {
+    static let startup = TealiumSignposter(category: "Startup")
+    static let tracking = TealiumSignposter(category: "Tracking")
+    static let collecting = TealiumSignposter(category: "Collecting")
+    static let dispatching = TealiumSignposter(category: "Dispatching")
+    static let settings = TealiumSignposter(category: "Settings")
+    static let networking = TealiumSignposter(category: "Networking")
+    
 }
-
+/**
+ * A wrapper class to make the `OSSignpostIntervalState` easier to use on `iOS < 15`.
+ */
 public class SignpostStateWrapper {
 
     private let intervalState: Any
-    @available(iOS 15.0, *)
+    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
     init(_ intervalState: OSSignpostIntervalState) {
         self.intervalState = intervalState
     }
     
-    @available(iOS 15.0, *)
+    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
     func state() -> OSSignpostIntervalState? {
         intervalState as? OSSignpostIntervalState
     }
 }
 
-@available(iOS 15.0, *)
+@available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 public extension OSSignpostIntervalState {
+    /**
+     * Utility method to inline add an `OSSignpostIntervalState` to it's own `SignpostStateWrapper` and return that wrapper
+     *
+     * - Returns: the `SignpostStateWrapper` that wraps the `OSSignpostIntervalState` instance.
+     */
     func toWrapper() -> SignpostStateWrapper {
         SignpostStateWrapper(self)
     }
 }
 
+/**
+ * A wrapper around the OSSignposter API to make it easier to use when supporting `iOS < 15`. Enable it by changing the enabled static flag on this class.
+ *
+ * On `iOS < 15` this class does nothing.
+ *
+ * For normal usecases of intervals being signposted you can use the `TealiumSignpostInterval` instead of this class, so you can avoid handling the SignpostStateWrapper yourself.
+ * If instead you want to handle it yourself, or you have to send singular events, you can use this class like so:
+ *
+ * ```
+ * let signposter = TealiumSignposter("Networking")
+ * let state = signposter.beginInterval("Start Request", "\(request)")
+ * urlSession.dataTask(request) { _, response, _ in
+ *      signposter.endInterval("Start Request", state: state, "\(response)")
+ *      // Handle the HTTP response
+ * }
+ * ```
+ * Note that the `beginInterval` name needs to match with the `endInterval` name.
+ */
 public class TealiumSignposter {
     /// Set this to true at the start of the app to make sure Signposting is enabled
     public static var enabled = false
-    private let category: String
-    @available(iOS 15.0, *)
+    
+    private var _signposter: Any?
+    @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
     var signposter: OSSignposter {
-        if TealiumSignposter.enabled {
-            return OSSignposter(subsystem: "com.tealium.swift", category: category)
-        } else {
-            return OSSignposter.disabled
-        }
-    }
-    init(category: String) {
-        self.category = category
+        _signposter as? OSSignposter ?? .disabled
     }
     
-    func beginInterval(_ name: StaticString) -> SignpostStateWrapper? {
-        if #available(iOS 15.0, *) {
-            // defer { Thread.sleep(forTimeInterval: 0.5) } // TODO: Remove, only here for testing now
+    private static func signposter(category: String) -> Any? {
+        if #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) {
+            if TealiumSignposter.enabled {
+                return OSSignposter(subsystem: "com.tealium.swift", category: category)
+            } else {
+                return OSSignposter.disabled
+            }
+        } else {
+            return nil
+        }
+    }
+    
+    /// Creates and returns a `TealiumSignposter` with the given category
+    public init(category: String) {
+        _signposter = Self.signposter(category: category)
+    }
+    
+    /**
+     * Begins a new interval with the given name on iOS 15+.
+     *
+     * No-op on iOS < 15.
+     *
+     * - Parameter name: the `StaticString` used to name this interval
+     *
+     * - Returns: an optional `SignpostStateWrapper` used to pass it to the `endInterval` method. Nil on iOS < 15
+     */
+    public func beginInterval(_ name: StaticString) -> SignpostStateWrapper? {
+        if #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) {
             return signposter
                 .beginInterval(name,
                                id: signposter.makeSignpostID())
@@ -61,9 +110,19 @@ public class TealiumSignposter {
         return nil
     }
     
-    func beginInterval(_ name: StaticString, _ message: @autoclosure @escaping () -> String) -> SignpostStateWrapper? {
-        if #available(iOS 15.0, *) {
-            // defer { Thread.sleep(forTimeInterval: 0.5) } // TODO: Remove, only here for testing now
+    /**
+     * Begins a new interval with the given name on iOS 15+.
+     *
+     * No-op on iOS < 15.
+     *
+     * - Parameters:
+     *    - name: the `StaticString` used to name this interval
+     *    - message: the autoclosure `String` used to describe some parameters for this begin interval
+     *
+     * - Returns: an optional `SignpostStateWrapper` used to pass it to the `endInterval` method. Nil on iOS < 15
+     */
+    public func beginInterval(_ name: StaticString, _ message: @autoclosure @escaping () -> String) -> SignpostStateWrapper? {
+        if #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) {
             return signposter
                 .beginInterval(name,
                                id: signposter.makeSignpostID(),
@@ -73,30 +132,65 @@ public class TealiumSignposter {
         return nil
     }
     
-    func endInterval(_ name: StaticString, state: SignpostStateWrapper?) {
-        if #available(iOS 15.0, *), let state = state?.state() {
+    /**
+     * Ends an interval previusly created with the given name on iOS 15+.
+     *
+     * No-op on iOS < 15.
+     *
+     * - Parameters:
+     *    - name: the `StaticString` used to name the interval. Must be an exact match with the begin interval call
+     *    - state: the `SignpostStateWrapper` returned by the begin interval call
+     *
+     * - Returns: an optional `SignpostStateWrapper` used to pass it to the `endInterval` method. Nil on iOS < 15
+     */
+    public func endInterval(_ name: StaticString, state: SignpostStateWrapper?) {
+        if #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *), let state = state?.state() {
             signposter.endInterval(name,
                                    state)
         }
     }
     
-    func endInterval(_ name: StaticString, state: SignpostStateWrapper?, _ message: @autoclosure @escaping () -> String) {
-        if #available(iOS 15.0, *), let state = state?.state() {
+    /**
+     * Ends an interval previusly created with the given name on iOS 15+.
+     *
+     * No-op on iOS < 15.
+     *
+     * - Parameters:
+     *    - name: the `StaticString` used to name the interval. Must be an exact match with the begin interval call
+     *    - state: the `SignpostStateWrapper` returned by the begin interval call
+     *    - message: the autoclosure `String` used to describe some parameters for this end interval call
+     *
+     * - Returns: an optional `SignpostStateWrapper` used to pass it to the `endInterval` method. Nil on iOS < 15
+     */
+    public func endInterval(_ name: StaticString, state: SignpostStateWrapper?, _ message: @autoclosure @escaping () -> String) {
+        if #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *), let state = state?.state() {
             signposter.endInterval(name,
                                    state,
                                    "\(message(), privacy: .public)")
         }
     }
     
-    func event(_ name: StaticString) {
-        if #available(iOS 15.0, *) {
+    /**
+     * Emits a single event on this signpost with the given name
+     *
+     * - Parameter name: the `StaticString` used to name the event
+     */
+    public func event(_ name: StaticString) {
+        if #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) {
             signposter.emitEvent(name,
                                  id: signposter.makeSignpostID())
         }
     }
     
-    func event(_ name: StaticString, message: @autoclosure @escaping () -> String) {
-        if #available(iOS 15.0, *) {
+    /**
+     * Emits a single event on this signpost with the given name
+     *
+     * - Parameters:
+     *    - name: the `StaticString` used to name the event
+     *    - message: the autoclosure `String` used to describe some parameters for this event call
+     */
+    public func event(_ name: StaticString, message: @autoclosure @escaping () -> String) {
+        if #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) {
             signposter.emitEvent(name,
                                  id: signposter.makeSignpostID(),
                                  "\(message(), privacy: .public)")
@@ -104,55 +198,114 @@ public class TealiumSignposter {
     }
 }
 
-extension TealiumSignposter {
-    static let startup = TealiumSignposter(category: "Startup")
-    static let tracking = TealiumSignposter(category: "Tracking")
-    static let collecting = TealiumSignposter(category: "Collecting")
-    static let dispatching = TealiumSignposter(category: "Dispatching")
-    static let settings = TealiumSignposter(category: "Settings")
-    
-}
-
-class TealiumSignpostInterval {
+/**
+ * A convenience class to use the `TealiumSignposter` in an interval fashion that handles the `SignpostStateWrapper` internally.
+ *
+ * This class will work correctly as long as you get exactly one `end` call after every `begin`.
+ * The suggested way to use this would be to create and begin a new interval everytime it's needed and then end it once the interval is completed.
+ *
+ * Usage:
+ * ```
+ * let signpostInterval = TealiumSignpostInterval(signposter: .networking, name: "HTTP Call Sent").begin("URL: \(request.url!)"
+ * session.dataTask(request) { _, response, _ in
+ *    signpostInterval.end("Response \(response)")
+ *    // handle request completion
+ * }
+ * ```
+ */
+public class TealiumSignpostInterval {
     let signposter: TealiumSignposter
     let name: StaticString
     private var state: SignpostStateWrapper?
     
-    convenience init(category: String, name: StaticString) {
+    /// Creates and return a new `TealiumSignposterInterval` with the given category and name
+    public convenience init(category: String, name: StaticString) {
         self.init(signposter: TealiumSignposter(category: category),
                   name: name)
     }
     
-    init(signposter: TealiumSignposter, name: StaticString) {
+    /// Creates and return a new `TealiumSignpostInterval` with the given `TealiumSignposter` and name
+    public init(signposter: TealiumSignposter, name: StaticString) {
         self.signposter = signposter
         self.name = name
     }
     
-    
-    func begin() {
+    /**
+     * Begins the interval
+     *
+     * No-op on iOS < 15.
+     *
+     * - Returns: self for ease of use
+     */
+    public func begin() -> Self {
         state = signposter.beginInterval(name)
+        return self
     }
     
-    func begin(_ message: @autoclosure @escaping () -> String){
+    /**
+     * Begins the interval.
+     *
+     * No-op on iOS < 15.
+     *
+     * - Parameter message: the autoclosure `String` used to describe some parameters for this begin interval
+     *
+     * - Returns: self for ease of use
+     */
+    public func begin(_ message: @autoclosure @escaping () -> String) -> Self {
         state = signposter.beginInterval(name, message())
+        return self
     }
     
-    func end() {
+    /**
+     * Ends the previusly created interval.
+     *
+     * No-op on iOS < 15.
+     */
+    public func end() {
         signposter.endInterval(name, state: state)
+        self.state = nil
     }
     
-    func end(_ message: @autoclosure @escaping () -> String) {
+    /**
+     * Ends an interval previusly created with the given name on iOS 15+.
+     *
+     * No-op on iOS < 15.
+     *
+     * - Parameter message: the autoclosure `String` used to describe some parameters for this end interval call
+     */
+    public func end(_ message: @autoclosure @escaping () -> String) {
         signposter.endInterval(name, state: state, message())
+        self.state = nil
     }
     
-    func signpostedWork<Output>(_ work: @escaping () throws -> Output) rethrows -> Output {
-        begin()
+    /**
+     * Begins and ends a signpost interval around a synchronous block of code.
+     *
+     * Just runs the work on iOS < 15.
+     *
+     * - Parameter work: the block to be run while surrounded by the signpost interval
+     *
+     * - Returns: the same `Output` of the block passed as parameter
+     */
+    public func signpostedWork<Output>(_ work: @escaping () throws -> Output) rethrows -> Output {
+        _ = begin()
         defer { end() }
         return try work()
     }
     
-    func signpostedWork<Output>(_ message: @autoclosure @escaping () -> String, _ work: @escaping () throws -> Output) rethrows -> Output {
-        begin(message())
+    /**
+     * Begins and ends a signpost interval around a synchronous block of code.
+     *
+     * Just runs the work on iOS < 15.
+     *
+     * - Parameters:
+     *    - work: the block to be run while surrounded by the signpost interval
+     *    - message: the autoclosure `String` used to describe some parameters for the begin interval call
+     *
+     * - Returns: the same `Output` of the block passed as parameter
+     */
+    public func signpostedWork<Output>(_ message: @autoclosure @escaping () -> String, _ work: @escaping () throws -> Output) rethrows -> Output {
+        _ = begin(message())
         defer { end() }
         return try work()
     }

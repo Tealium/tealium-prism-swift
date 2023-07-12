@@ -6,42 +6,41 @@
 //
 
 #if !os(watchOS)
-
 import Foundation
-
-#if canImport(SystemConfiguration)
 import SystemConfiguration
-#endif
 
-/// The `ReachabilityConnectivityMonitor` class listens for reachability changes of hosts and addresses for both cellular and
-/// WiFi network interfaces.
-///
-/// Reachability can be used to determine background information about why a network operation failed, or to retry
-/// network requests when a connection is established. It should not be used to prevent a user from initiating a network
-/// request, as it's possible that an initial request may be required to establish reachability.
-public class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
+/**
+ * The `ReachabilityConnectivityMonitor` class listens for reachability changes for iOS < 11.
+ *
+ * Reachability can be used to determine background information about why a network operation failed, or to retry
+ * network requests when a connection is established. It should not be used to prevent a user from initiating a network
+ * request, as it's possible that an initial request may be required to establish reachability.
+ */
+class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
     
     @ToAnyObservable(TealiumReplaySubject<Connection>(initialValue: .unknown))
-    public var onConnection: TealiumObservable<Connection>
+    var onConnection: TealiumObservable<Connection>
     
-    public var connection: Connection {
+    var connection: Connection {
         $onConnection.last() ?? .unknown
     }
 
     /// Flags of the current reachability type, if any.
-    public var flags: SCNetworkReachabilityFlags? {
+    var flags: SCNetworkReachabilityFlags? {
         var flags = SCNetworkReachabilityFlags()
         return SCNetworkReachabilityGetFlags(reachability, &flags) ? flags : nil
     }
 
     /// `SCNetworkReachability` instance providing notifications.
-    public let reachability: SCNetworkReachability
+    let reachability: SCNetworkReachability
 
-    /// Creates an instance that monitors the address 0.0.0.0.
-    ///
-    /// Reachability treats the 0.0.0.0 address as a special token that causes it to monitor the general routing
-    /// status of the device, both IPv4 and IPv6.
-    public convenience init?(queue: DispatchQueue = tealiumQueue) {
+    /**
+     * Creates an instance that monitors the address 0.0.0.0.
+     *
+     * Reachability treats the 0.0.0.0 address as a special token that causes it to monitor the general routing
+     * status of the device, both IPv4 and IPv6.
+     */
+    convenience init?(queue: DispatchQueue = tealiumQueue) {
         var zero = sockaddr()
         zero.sa_len = UInt8(MemoryLayout<sockaddr>.size)
         zero.sa_family = sa_family_t(AF_INET)
@@ -64,16 +63,15 @@ public class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
     }
 
     // MARK: - Listening
-
-    /// Starts listening for changes in network reachability status.
-    ///
-    /// - Note: Stops and removes any existing listener.
-    ///
-    /// - Parameters:
-    ///   - queue:    `DispatchQueue` on which to call the `listener` closure. `.main` by default.
-    ///   - listener: `Listener` closure called when reachability changes.
-    ///
-    /// - Returns: `true` if listening was started successfully, `false` otherwise.
+    
+    /**
+     * Starts listening for changes in network reachability status.
+     *
+     *  - Parameters:
+     *     - queue: the `DispatchQueue` on which to notify the status changes
+     *
+     * - Returns: `true` if listening was started successfully, `false` otherwise.
+     */
     @discardableResult
     func startListening(onQueue queue: DispatchQueue) -> Bool {
 
@@ -125,10 +123,15 @@ public class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
         SCNetworkReachabilitySetDispatchQueue(reachability, nil)
     }
 
-    /// - Note: Should only be called from the internal queue.
-    ///
-    /// - Parameter flags: `SCNetworkReachabilityFlags` to use to calculate the status.
-    func notify(_ flags: SCNetworkReachabilityFlags) {
+    /**
+     * Converts the flags to a `Connection` and sends them in the onConnection `TealiumSubject`.
+     *
+     * - Note: Should only be called from the internal queue.
+     *
+     * - Parameter flags: `SCNetworkReachabilityFlags` to use to calculate the status.
+     */
+    
+    private func notify(_ flags: SCNetworkReachabilityFlags) {
         $onConnection.publishIfChanged(Connection.fromFlags(flags))
     }
 
@@ -183,5 +186,4 @@ extension SCNetworkReachabilityFlags {
         return "\(W)\(R) \(c)\(t)\(i)\(C)\(D)\(l)\(d)\(a)"
     }
 }
-
 #endif

@@ -11,9 +11,13 @@
 		1535DC0B2A38B00300CDDD44 /* DebouncerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1535DC0A2A38B00300CDDD44 /* DebouncerTests.swift */; };
 		1535DC0D2A38B90600CDDD44 /* MockInstantDebouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1535DC0C2A38B90600CDDD44 /* MockInstantDebouncer.swift */; };
 		15694FC52A40540200925C4B /* NetworkConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC42A40540200925C4B /* NetworkConfigurationTests.swift */; };
+		15694FC92A40605E00925C4B /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
+		15694FCB2A4064DF00925C4B /* InterceptorManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FCA2A4064DF00925C4B /* InterceptorManagerTests.swift */; };
 		158A82312A39CE0F0028FD7C /* ReachabilityConnectivityMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158A82302A39CE0F0028FD7C /* ReachabilityConnectivityMonitorTests.swift */; };
 		158A82352A39F16B0028FD7C /* ConnectivityManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158A82342A39F16B0028FD7C /* ConnectivityManagerTests.swift */; };
 		158A82372A39F5750028FD7C /* MockConnectivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158A82362A39F5750028FD7C /* MockConnectivity.swift */; };
+		1597DC7B2A446ADA00C394D3 /* MockInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */; };
+		1597DC7D2A446B1400C394D3 /* MockBackoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7C2A446B1400C394D3 /* MockBackoff.swift */; };
 		15AE2B842A127D280093D154 /* MockUrlSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AE2B832A127D280093D154 /* MockUrlSession.swift */; };
 		15AE2B862A127DD90093D154 /* XCTAssert+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AE2B852A127DD90093D154 /* XCTAssert+Result.swift */; };
 		15D05EB42A139D5D004C41AA /* RetryPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15D05EB32A139D5D004C41AA /* RetryPolicyTests.swift */; };
@@ -46,9 +50,13 @@
 		1535DC0A2A38B00300CDDD44 /* DebouncerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebouncerTests.swift; sourceTree = "<group>"; };
 		1535DC0C2A38B90600CDDD44 /* MockInstantDebouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockInstantDebouncer.swift; sourceTree = "<group>"; };
 		15694FC42A40540200925C4B /* NetworkConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConfigurationTests.swift; sourceTree = "<group>"; };
+		15694FC82A40605E00925C4B /* MockInterceptorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockInterceptorManager.swift; sourceTree = "<group>"; };
+		15694FCA2A4064DF00925C4B /* InterceptorManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterceptorManagerTests.swift; sourceTree = "<group>"; };
 		158A82302A39CE0F0028FD7C /* ReachabilityConnectivityMonitorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReachabilityConnectivityMonitorTests.swift; sourceTree = "<group>"; };
 		158A82342A39F16B0028FD7C /* ConnectivityManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivityManagerTests.swift; sourceTree = "<group>"; };
 		158A82362A39F5750028FD7C /* MockConnectivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockConnectivity.swift; sourceTree = "<group>"; };
+		1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockInterceptor.swift; sourceTree = "<group>"; };
+		1597DC7C2A446B1400C394D3 /* MockBackoff.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBackoff.swift; sourceTree = "<group>"; };
 		15AE2B832A127D280093D154 /* MockUrlSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockUrlSession.swift; sourceTree = "<group>"; };
 		15AE2B852A127DD90093D154 /* XCTAssert+Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTAssert+Result.swift"; sourceTree = "<group>"; };
 		15D05EB32A139D5D004C41AA /* RetryPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetryPolicyTests.swift; sourceTree = "<group>"; };
@@ -95,14 +103,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1535DC072A38A65000CDDD44 /* Connection */ = {
+		1535DC072A38A65000CDDD44 /* Connectivity */ = {
 			isa = PBXGroup;
 			children = (
 				1535DC082A38A72D00CDDD44 /* EmpiricalConnectivityTests.swift */,
 				158A82302A39CE0F0028FD7C /* ReachabilityConnectivityMonitorTests.swift */,
 				158A82342A39F16B0028FD7C /* ConnectivityManagerTests.swift */,
 			);
-			name = Connection;
+			name = Connectivity;
 			sourceTree = "<group>";
 		};
 		15694FC32A4053D700925C4B /* Networking */ = {
@@ -110,6 +118,7 @@
 			children = (
 				15E03E8D2A0E3EE000652CAA /* NetworkClientTests.swift */,
 				15694FC42A40540200925C4B /* NetworkConfigurationTests.swift */,
+				15694FCA2A4064DF00925C4B /* InterceptorManagerTests.swift */,
 			);
 			name = Networking;
 			sourceTree = "<group>";
@@ -182,7 +191,7 @@
 			isa = PBXGroup;
 			children = (
 				15694FC32A4053D700925C4B /* Networking */,
-				1535DC072A38A65000CDDD44 /* Connection */,
+				1535DC072A38A65000CDDD44 /* Connectivity */,
 				607FACEB1AFB9204008FA782 /* Tests.swift */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
 				15AE2B832A127D280093D154 /* MockUrlSession.swift */,
@@ -192,6 +201,9 @@
 				1535DC0A2A38B00300CDDD44 /* DebouncerTests.swift */,
 				1535DC0C2A38B90600CDDD44 /* MockInstantDebouncer.swift */,
 				158A82362A39F5750028FD7C /* MockConnectivity.swift */,
+				15694FC82A40605E00925C4B /* MockInterceptorManager.swift */,
+				1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */,
+				1597DC7C2A446B1400C394D3 /* MockBackoff.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -425,10 +437,14 @@
 				15AE2B862A127DD90093D154 /* XCTAssert+Result.swift in Sources */,
 				1535DC092A38A72D00CDDD44 /* EmpiricalConnectivityTests.swift in Sources */,
 				15AE2B842A127D280093D154 /* MockUrlSession.swift in Sources */,
+				1597DC7B2A446ADA00C394D3 /* MockInterceptor.swift in Sources */,
 				15E03E8E2A0E3EE000652CAA /* NetworkClientTests.swift in Sources */,
+				15694FCB2A4064DF00925C4B /* InterceptorManagerTests.swift in Sources */,
 				15D05EC22A14F0B1004C41AA /* SelfDestructingCompletionTests.swift in Sources */,
 				158A82312A39CE0F0028FD7C /* ReachabilityConnectivityMonitorTests.swift in Sources */,
+				1597DC7D2A446B1400C394D3 /* MockBackoff.swift in Sources */,
 				607FACEC1AFB9204008FA782 /* Tests.swift in Sources */,
+				15694FC92A40605E00925C4B /* MockInterceptorManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

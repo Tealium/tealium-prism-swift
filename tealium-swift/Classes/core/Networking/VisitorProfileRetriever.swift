@@ -90,7 +90,7 @@ class VisitorProfileRetriever {
     
     
     private func _getVisitorProfile(visitorId: String, completion: @escaping (VisitorProfileResult) -> Void) -> TealiumDisposableProtocol {
-        NetworkClient.default.sendRequest(URLRequest(url: URL(string: "")!)) { result in
+        NetworkClient.shared.sendRequest(URLRequest(url: URL(string: "")!)) { result in
             guard visitorId == self.currentVisitorId else {
                 completion(.failure(.cancelled))
                 return

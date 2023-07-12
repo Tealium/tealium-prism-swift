@@ -7,6 +7,33 @@
 
 import Foundation
 
+/**
+ * A class that wraps a completion block and makes sure it can only be completed once.
+ *
+ * To be sure that the completion block is not called by someone else, you should name the variable holding the instance of this class with the same name of the completion block that was passed as a parameters.
+ *
+ * Example where completion block has the same parameter of the inner  function:
+ * ```
+ *  func doSomeAsyncOperation(request: URLRequest, completion: @escaping (Result<Any, Error>) -> Void) {
+ *      let completion = SelfDestructingCompletion(completion: completion)
+ *      _ = NetworkingClient.shared.send(request, completion: completion.complete)
+ *  }
+ * ```
+ * Example where completion block has different parameters of the inner  function:
+ * ```
+ *  func doSomeAsyncOperation(request: URLRequest, completion: @escaping (Result<Any, Error>) -> Void) {
+ *      let completion = SelfDestructingCompletion(completion: completion)
+ *      URLSession.shared.dataTask(request) { data, request, error in
+ *          if let error = error {
+ *              completion.fail(error)
+ *          } else {
+ *              completion.success(data)
+ *          }
+ *      }.resume()
+ *  }
+ * ```
+ * Main usecase is for completing immediately something that is cancelled, without the need to add more logic to avoid duplicate call of the completion.
+ */
 class SelfDestructingCompletion<Success, Failure: Error> {
     typealias Param = Result<Success, Failure>
     typealias Completion = (Param) -> Void

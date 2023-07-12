@@ -13,9 +13,8 @@ import Foundation
 class SettingsProvider {
     
     init(config: TealiumConfig) {
-        let trackingInterval = TealiumSignpostInterval(signposter: .settings,
-                                                       name: "Settings Retrieval")
-        trackingInterval.begin(config.configFile)
+        let trackingInterval = TealiumSignpostInterval(signposter: .settings, name: "Settings Retrieval")
+            .begin(config.configFile)
         guard let path = Bundle.main.path(forResource: config.configFile, ofType: "json"),
             let jsonData = try? Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe),
             let settings = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]
@@ -41,9 +40,8 @@ public class Tealium: TealiumProtocol {
     var context: TealiumContext?
     let modulesManager: ModulesManager
     required public init(_ config: TealiumConfig) {
-        let startupInterval = TealiumSignpostInterval(signposter: .startup,
-                                                      name: "Teal Init")
-        startupInterval.begin()
+        let startupInterval = TealiumSignpostInterval(signposter: .startup, name: "Teal Init")
+            .begin()
         var config = config
         config.modules += [
             DataLayerModule.self,
@@ -62,15 +60,13 @@ public class Tealium: TealiumProtocol {
         context = TealiumContext(self, modulesManager: modulesManager, config: config, coreSettings: CoreSettings(coreDictionary: [:]))
         tealiumQueue.async {
             self.settingsProvider.onConfigUpdate.subscribe { [weak self] settings in
-                TealiumSignpostInterval(signposter: .settings,
-                                        name: "Module Updates")
+                TealiumSignpostInterval(signposter: .settings, name: "Module Updates")
                 .signpostedWork {
                     guard let self = self, let context = self.context else {
                         return
                     }
                     if let coreSettings = settings["core"] as? [String: Any] {
-                        TealiumSignpostInterval(signposter: .settings,
-                                                name: "Module Update")
+                        TealiumSignpostInterval(signposter: .settings, name: "Module Update")
                         .signpostedWork("core") {
                             context.coreSettings.updateSettings(coreSettings)
                         }
@@ -86,16 +82,14 @@ public class Tealium: TealiumProtocol {
     }
     
     public func track(_ trackable: TealiumDispatch) {
-        let trackingInterval = TealiumSignpostInterval(signposter: .tracking,
-                                                       name: "TrackingCall")
-        trackingInterval.begin(trackable.name ?? "unknown")
+        let trackingInterval = TealiumSignpostInterval(signposter: .tracking, name: "TrackingCall")
+            .begin(trackable.name ?? "unknown")
         tealiumQueue.async {
             var trackable = trackable
             let modules = self.modules
             modules.compactMap { $0 as? Collector }
                 .forEach { collector in
-                    TealiumSignpostInterval(signposter: .collecting,
-                                            name: "Collecting")
+                    TealiumSignpostInterval(signposter: .collecting, name: "Collecting")
                         .signpostedWork("Collector: \(type(of: collector as TealiumModule).id)") {
                             trackable.enrich(data: collector.data) // collector.collect() maybe?
                         }
@@ -106,8 +100,7 @@ public class Tealium: TealiumProtocol {
             // transform the data
             modules.compactMap { $0 as? Dispatcher }
                 .forEach { dispatcher in
-                    TealiumSignpostInterval(signposter: .dispatching,
-                                            name: "Dispatching")
+                    TealiumSignpostInterval(signposter: .dispatching, name: "Dispatching")
                         .signpostedWork("Dispatcher: \(type(of: dispatcher as TealiumModule).id)") {
                             dispatcher.dispatch([trackable])
                         }

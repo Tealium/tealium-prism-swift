@@ -7,16 +7,34 @@
 
 import Foundation
 
+/**
+ * The configuration that is used by the `NetworkClient` to customize it's behavior.
+ *
+ * You almost never need to change this as most of the Networking should happen via the shared `NetworkingClient` instance.
+ * If you need to add new interceptors you can do that directly on the `NetworkClient`.
+ *
+ * In case you really want to create a new client, start off from the `NetworkConfiguration.default`and edit it.
+ * Make sure to use a `URLSessionConfiguration` without cache and make sure to have at least the default interceptors.
+ */
 public struct NetworkConfiguration {
     var sessionConfiguration: URLSessionConfiguration
     var interceptors: [RequestInterceptor]
     var queue: DispatchQueue
-    public init(sessionConfiguration: URLSessionConfiguration = Self.defaultUrlSessionConfiguration,
-                queue: DispatchQueue = tealiumQueue,
-                interceptors: [RequestInterceptor] = Self.defaultInterceptors) {
+    var interceptorManagerFacory: InterceptorManagerProtocol.Type
+
+    public init(sessionConfiguration: URLSessionConfiguration,
+                interceptors: [RequestInterceptor],
+                interceptorManagerFacory: InterceptorManagerProtocol.Type = InterceptorManager.self,
+                queue: DispatchQueue = tealiumQueue) {
         self.sessionConfiguration = sessionConfiguration
         self.queue = queue
         self.interceptors = interceptors
+        self.interceptorManagerFacory = interceptorManagerFacory
+    }
+    
+    var interceptorManager: InterceptorManagerProtocol {
+        interceptorManagerFacory.init(interceptors: interceptors,
+                                      queue: queue)
     }
 }
 
@@ -28,11 +46,13 @@ extension NetworkConfiguration {
         return config
     }
     public static let defaultInterceptors: [RequestInterceptor] = [
-        DefaultInterceptor(exponentialBackoffBase: 2, exponentialBackoffScale: 1),
+        DefaultInterceptor(),
         ConnectivityManager.shared
     ]
     
+    /// Creates and returns a new `NetworkConfiguration` with default parameters.
     public static var `default` : NetworkConfiguration {
-        NetworkConfiguration()
+        NetworkConfiguration(sessionConfiguration: defaultUrlSessionConfiguration,
+                             interceptors: defaultInterceptors)
     }
 }

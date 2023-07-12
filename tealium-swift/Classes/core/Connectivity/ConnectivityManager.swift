@@ -12,11 +12,19 @@ public protocol ConnectivityManagerProtocol: RequestInterceptor {
     var onConnectionAssumedAvailable: TealiumObservable<Bool> { get }
 }
 
+/**
+ * A manager that handles system connectivity monitor and empirical connectivity monitor to establish when connectivity is actually available or not on the device.
+ *
+ * The default behavior would be to always assume that connectivity is available until system monitor or empirical connectivity result unavaialble or unknown.
+ */
 public class ConnectivityManager: ConnectivityManagerProtocol {
     let connectivityMonitor: ConnectivityMonitorProtocol
     let empiricalConnectivity: EmpiricalConnectivityProtocol
-    public static let shared = ConnectivityManager()
     private let bag = TealiumDisposeBag()
+    
+    /// The shared instance of the `ConnectivityManager`
+    public static let shared = ConnectivityManager()
+    
     init(connectivityMonitor: ConnectivityMonitorProtocol = ConnectivityMonitor.shared, empiricalConnectivity: EmpiricalConnectivityProtocol = EmpiricalConnectivity()) {
         self.connectivityMonitor = connectivityMonitor
         self.empiricalConnectivity = empiricalConnectivity
@@ -38,20 +46,24 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
         self.empiricalConnectivity.connectionFail()
     }
     
+    /// Returns `true` if either monitored or empirical connectivity result available
     public var isConnectionAssumedAvailable: Bool {
         $onConnectionAssumedAvailable.last() ?? true
     }
     
-    // Returns an observable that will fire with true when connection is available and false when it isn't.
-    // The internal behavior is to detect URLSession waiting events and HTTP client connection errors + ConnectivityMonitor being notConnected or unknown to assume it's not available
-    // Default behavior is to assume it's available when no error/waiting events occurred or when monitor measures as connected or an HTTP server response is received.
+    /**
+     * An observable that emits `true` when connection is assumed to be available and `false` when it's assumed to be unavailable.
+     *
+     * The internal behavior is to merge the information from the system connectivity monitor and the result of network requests
+     * and only report as unavailable when both do so or if empirical is unavailable and the monitored one is unknown.
+     */
     @ToAnyObservable(TealiumReplaySubject<Bool>(initialValue: true))
     public var onConnectionAssumedAvailable: TealiumObservable<Bool>
     
     public func didComplete(_ request: URLRequest, with response: NetworkResult) {
         // Here we always assume that the response is never coming from a local cache
         switch response {
-        case let .failure(.urlError(urlError)) where urlError.isConnectionError:
+        case let .failure(.urlError(urlError)) where urlError.isClientConnectionError:
             self.empiricalConnectivity.connectionFail()
         case .failure(.non200Status), .success:
             self.empiricalConnectivity.connectionSuccess()
