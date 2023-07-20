@@ -150,13 +150,13 @@ public class DataLayerEvents {
         self.extractor = moduleExtractor
     }
     
-    public func onDataUpdated(_ event: @escaping ([String: Any]) -> Void) -> TealiumDisposableProtocol {
+    public func onDataUpdated(_ event: @escaping ([String: Any]) -> Void) -> TealiumDisposable {
         extractor.onModule
             .flatMap { $0.events.onDataUpdated }
             .subscribe(event)
     }
 
-    public func onDataRemoved(_ event: @escaping ([String]) -> Void) -> TealiumDisposableProtocol {
+    public func onDataRemoved(_ event: @escaping ([String]) -> Void) -> TealiumDisposable {
         extractor.onModule
             .flatMap { $0.events.onDataRemoved }
             .subscribe(event)
@@ -188,7 +188,7 @@ public class VisitorServiceEvents {
     init(moduleExtractor: ModuleExtractor<VisitorServiceModule>) {
         self.extractor = moduleExtractor
     }
-    public func onVisitorProfileUpdate(_ event: @escaping ([String: Any]) -> Void) -> TealiumDisposableProtocol {
+    public func onVisitorProfileUpdate(_ event: @escaping ([String: Any]) -> Void) -> TealiumDisposable {
         extractor.onModule
             .flatMap { $0.events.onVisitorProfile }
             .subscribe(event)

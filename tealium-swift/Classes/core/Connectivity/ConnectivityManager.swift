@@ -20,7 +20,7 @@ public protocol ConnectivityManagerProtocol: RequestInterceptor {
 public class ConnectivityManager: ConnectivityManagerProtocol {
     let connectivityMonitor: ConnectivityMonitorProtocol
     let empiricalConnectivity: EmpiricalConnectivityProtocol
-    private let bag = TealiumDisposeBag()
+    private let automaticDisposer = TealiumAutomaticDisposer()
     
     /// The shared instance of the `ConnectivityManager`
     public static let shared = ConnectivityManager()
@@ -39,7 +39,7 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
                 }
             }.subscribe { [weak self] available in
                 self?.$onConnectionAssumedAvailable.publishIfChanged(available)
-        }.toDisposeBag(bag)
+        }.addTo(automaticDisposer)
     }
 
     public func waitingForConnectivity(_ task: URLSessionTask) {

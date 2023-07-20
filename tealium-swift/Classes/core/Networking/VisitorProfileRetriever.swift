@@ -31,13 +31,13 @@ extension VisitorProfileResult {
  * Just an example to POC the RetryManager
  */
 class VisitorProfileRetriever {
-    var retrivingProfile: TealiumDisposableProtocol?
+    var retrivingProfile: TealiumDisposable?
     var cachedProfile: VisitorProfile?
     var currentVisitorId: String = ""
     
     public func getProfile(delayed: Bool) {
         retrivingProfile?.dispose()
-        let getVisitorProfile: (String, Int, @escaping (VisitorProfileResult) -> Void) -> TealiumDisposableProtocol
+        let getVisitorProfile: (String, Int, @escaping (VisitorProfileResult) -> Void) -> TealiumDisposable
         if delayed {
             getVisitorProfile = delayedGetVisitorProfile(visitorId:retryCount:completion:)
         } else {
@@ -50,7 +50,7 @@ class VisitorProfileRetriever {
         }
     }
     
-    private func delayedGetVisitorProfile(visitorId: String, retryCount: Int = 0, completion: @escaping (VisitorProfileResult) -> Void) -> TealiumDisposableProtocol {
+    private func delayedGetVisitorProfile(visitorId: String, retryCount: Int = 0, completion: @escaping (VisitorProfileResult) -> Void) -> TealiumDisposable {
         let completion = SelfDestructingCompletion(completion: completion)
         let disposeContainer = TealiumDisposeContainer()
         tealiumQueue.asyncAfter(deadline: .now() + 2.1) {
@@ -61,7 +61,7 @@ class VisitorProfileRetriever {
             self.retryableGetVisitorProfile(visitorId: visitorId,
                                             retryCount: retryCount,
                                             completion: completion.complete)
-            .toDisposeContainer(disposeContainer)
+            .addTo(disposeContainer)
         }
         return TealiumSubscription {
                 completion.fail(error: .cancelled)
@@ -69,7 +69,7 @@ class VisitorProfileRetriever {
         }
     }
     
-    private func retryableGetVisitorProfile(visitorId: String, retryCount: Int, completion: @escaping (VisitorProfileResult) -> Void) -> TealiumDisposableProtocol {
+    private func retryableGetVisitorProfile(visitorId: String, retryCount: Int, completion: @escaping (VisitorProfileResult) -> Void) -> TealiumDisposable {
         let disposeContainer = TealiumDisposeContainer()
         _getVisitorProfile(visitorId: visitorId) { result in
             guard !disposeContainer.isDisposed, visitorId == self.currentVisitorId else {
@@ -80,16 +80,16 @@ class VisitorProfileRetriever {
                 self.delayedGetVisitorProfile(visitorId: visitorId,
                                               retryCount: retryCount+1,
                                               completion: completion)
-                .toDisposeContainer(disposeContainer)
+                .addTo(disposeContainer)
             } else {
                 completion(result)
             }
-        }.toDisposeContainer(disposeContainer)
+        }.addTo(disposeContainer)
         return disposeContainer
     }
     
     
-    private func _getVisitorProfile(visitorId: String, completion: @escaping (VisitorProfileResult) -> Void) -> TealiumDisposableProtocol {
+    private func _getVisitorProfile(visitorId: String, completion: @escaping (VisitorProfileResult) -> Void) -> TealiumDisposable {
         NetworkClient.shared.sendRequest(URLRequest(url: URL(string: "")!)) { result in
             guard visitorId == self.currentVisitorId else {
                 completion(.failure(.cancelled))

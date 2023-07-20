@@ -152,13 +152,13 @@ final class ConnectivityManagerTests: XCTestCase {
         empiricalConnectionSuccess.isInverted = true
         let empiricalConnectionFailure = expectation(description: "Empirical connection failure should not be reported")
         empiricalConnectionFailure.isInverted = true
-        let bag = TealiumDisposeBag()
+        let automaticDisposer = TealiumAutomaticDisposer()
         empiricalConnectivity.onConnectionSuccess.subscribe {
             empiricalConnectionSuccess.fulfill()
-        }.toDisposeBag(bag)
+        }.addTo(automaticDisposer)
         empiricalConnectivity.onConnectionFail.subscribe {
             empiricalConnectionFailure.fulfill()
-        }.toDisposeBag(bag)
+        }.addTo(automaticDisposer)
         manager.didComplete(URLRequest(), with: .failure(.urlError(URLError(.appTransportSecurityRequiresSecureConnection))))
         waitForExpectations(timeout: 1.0)
     }

@@ -36,7 +36,7 @@ class SettingsProvider {
 
 public class Tealium: TealiumProtocol {
     let settingsProvider: SettingsProvider
-    var bag = TealiumDisposeBag()
+    let automaticDisposer = TealiumAutomaticDisposer()
     var context: TealiumContext?
     let modulesManager: ModulesManager
     required public init(_ config: TealiumConfig) {
@@ -73,7 +73,7 @@ public class Tealium: TealiumProtocol {
                     }
                     self.modulesManager.updateSettings(context: context, settings: settings)
                 }
-            }.toDisposeBag(self.bag)
+            }.addTo(self.automaticDisposer)
             self.settingsProvider.onConfigUpdate.subscribeOnce { _ in
                 startupInterval.end()
                 self._onReady.publish()

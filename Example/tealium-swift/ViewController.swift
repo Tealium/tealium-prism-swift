@@ -25,7 +25,7 @@ class CustomDispatcher: Dispatcher {
 class ViewController: UIViewController {
 
     var teal: Tealium!
-    let bag = TealiumDisposeBag()
+    let automaticDisposer = TealiumAutomaticDisposer()
     override func viewDidLoad() {
         super.viewDidLoad()
         TealiumSignposter.enabled = true
@@ -90,7 +90,7 @@ class ViewController: UIViewController {
     }
 
     @objc func initTeal() {
-        bag.dispose()
+        automaticDisposer.dispose()
         let modules: [TealiumModule.Type] = [
             TealiumCollect.self,
             AppDataCollector.self,
@@ -105,10 +105,10 @@ class ViewController: UIViewController {
         teal.onReady {
             teal.dataLayer.events.onDataUpdated { updated in
                 print("some data updated: \(updated)")
-            }.toDisposeBag(self.bag)
+            }.addTo(self.automaticDisposer)
             teal.dataLayer.events.onDataRemoved { removed in
                 print("some data removed: \(removed)")
-            }.toDisposeBag(self.bag)
+            }.addTo(self.automaticDisposer)
             
             teal.dataLayer.add(data: ["1": "1", "2":"2", "3": "3"])
             teal.dataLayer.add(data: ["4": "4", "5":"5", "6": "6"])

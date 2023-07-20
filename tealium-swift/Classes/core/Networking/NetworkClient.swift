@@ -8,7 +8,7 @@
 import Foundation
 
 public protocol NetworkClientProtocol {
-    func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposableProtocol
+    func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable
     func addInterceptor(_ interceptor: RequestInterceptor)
     func removeInterceptor(_ interceptor: RequestInterceptor)
 }
@@ -55,9 +55,9 @@ public class NetworkClient: NetworkClientProtocol {
      *    - request: the `URLRequest` that is sent in the `URLSession.dataTask`
      *    - completion: the block that is called once the request is completed either with a success or with an unretriable error
      *
-     * - Returns: the `TealiumDisposableProtocol` that can be used to dispose the request and cancel the dataTask and future retries.
+     * - Returns: the `TealiumDisposable` that can be used to dispose the request and cancel the dataTask and future retries.
      */
-    public func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposableProtocol {
+    public func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable {
         let signposterInterval = TealiumSignpostInterval(signposter: .networking, name: "Interceptable Request")
             .begin("Send Request: \(request)")
         return self.sendRetryableRequest(request) { result in
@@ -66,7 +66,7 @@ public class NetworkClient: NetworkClientProtocol {
         }
     }
     
-    private func sendRetryableRequest(_ request: URLRequest, retryCount: Int = 0, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposableProtocol {
+    private func sendRetryableRequest(_ request: URLRequest, retryCount: Int = 0, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable {
         let completion = SelfDestructingCompletion(completion: completion)
         let disposeContainer = TealiumDisposeContainer()
         self.sendBasicRequest(request) { result in
@@ -80,12 +80,12 @@ public class NetworkClient: NetworkClientProtocol {
                     self.sendRetryableRequest(request,
                                               retryCount: retryCount+1,
                                               completion: completion.complete)
-                    .toDisposeContainer(disposeContainer)
+                    .addTo(disposeContainer)
                 } else {
                     completion.complete(result: result)
                 }
             }
-        }.toDisposeContainer(disposeContainer)
+        }.addTo(disposeContainer)
         return TealiumSubscription {
             self.queue.async {
                 completion.fail(error: .cancelled)

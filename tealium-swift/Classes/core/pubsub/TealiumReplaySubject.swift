@@ -1,0 +1,68 @@
+//
+//  TealiumReplaySubject.swift
+//  tealium-swift
+//
+//  Created by Enrico Zannini on 17/07/23.
+//
+
+import Foundation
+
+/// A subject that, in addition to normal publish behavior, holds a cache of items and sends it, in order, to each new observer that is subscribed.
+public class TealiumReplaySubject<Element>: TealiumSubject<Element> {
+    private let cacheSize: Int?
+    private var cache = [Element]()
+    // Having a default value here would cause a crash on Carthage
+    public init(cacheSize: Int?) {
+        self.cacheSize = cacheSize
+    }
+
+    convenience public override init() {
+        self.init(cacheSize: 1)
+    }
+    
+    convenience public init(initialValue: Element) {
+        self.init()
+        self.publish(initialValue)
+    }
+    
+    public override func asObservable() -> TealiumObservable<Element> {
+        TealiumObservableCreate { observer in
+            let cache = self.cache
+            defer {
+                for element in cache {
+                    observer(element)
+                }
+            }
+            return super.asObservable().subscribe(observer)
+        }
+    }
+    
+    public override func publish(_ element: Element) {
+        while let size = cacheSize, cache.count >= size && cache.count > 0 {
+            cache.remove(at: 0)
+        }
+        if cacheSize == nil || cacheSize > 0 {
+            cache.append(element)
+        }
+        super.publish(element)
+    }
+
+    /// Removes all events from the cache
+    public func clear() {
+        cache.removeAll()
+    }
+
+    /// Returns the last item that was published
+    public func last() -> Element? {
+        return cache.last
+    }
+}
+
+public extension TealiumReplaySubject where Element: Equatable {
+    /// Publishes the new event only if the new one is different from the last one
+    func publishIfChanged(_ element: Element) {
+        if element != last() {
+            publish(element)
+        }
+    }
+}

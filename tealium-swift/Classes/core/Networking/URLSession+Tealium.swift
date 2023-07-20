@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension URLSessionDataTask: TealiumDisposableProtocol {
+extension URLSessionDataTask: TealiumDisposable {
     public var isDisposed: Bool {
         self.state == .canceling
     }

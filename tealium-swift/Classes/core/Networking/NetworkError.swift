@@ -24,7 +24,7 @@ extension URLError {
 }
 
 /**
- * A error reported by the NetworkClient.
+ * An error reported by the NetworkClient.
  */
 public enum NetworkError: Error {
     /// A request completed with a non 2xx status code

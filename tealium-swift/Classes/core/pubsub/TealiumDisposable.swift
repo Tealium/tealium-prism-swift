@@ -1,5 +1,5 @@
 //
-//  Disposable.swift
+//  TealiumDisposable.swift
 //  TealiumCore
 //
 //  Created by Enrico Zannini on 03/09/21.
@@ -8,21 +8,25 @@
 
 import Foundation
 
-public protocol TealiumDisposableProtocol {
+/// An protocol representing some long-lived operation that can be disposed.
+public protocol TealiumDisposable {
     var isDisposed: Bool { get }
     func dispose()
 }
 
-public extension TealiumDisposableProtocol {
-    func toDisposeBag(_ disposeBag: TealiumDisposeBag) {
-        disposeBag.add(self)
-    }
-    func toDisposeContainer(_ disposeContainer: TealiumDisposeContainer) {
-        disposeContainer.add(self)
+public extension TealiumDisposable {
+    /**
+     * Add the disposable to a group so that it can be disposed along the others.
+     *
+     * - parameter container: The `TealiumGroupedDisposable` group that will contain the disposable
+     */
+    func addTo(_ container: TealiumGroupedDisposable) {
+        container.add(self)
     }
 }
 
-public class TealiumSubscription: TealiumDisposableProtocol {
+/// A concrete implementation of the `TealiumDisposable` protocol that takes a block as an input and calls that block on dispose.
+public class TealiumSubscription: TealiumDisposable {
     fileprivate var unsubscribe: () -> Void
     public private(set) var isDisposed: Bool = false
     public init(unsubscribe: @escaping () -> Void) {
@@ -35,13 +39,30 @@ public class TealiumSubscription: TealiumDisposableProtocol {
     }
 }
 
-public class TealiumDisposeContainer: TealiumDisposableProtocol {
-    private var disposables = [TealiumDisposableProtocol]()
+/// A group that contains many disposable objects and disposes them simultaneously.
+public protocol TealiumGroupedDisposable: TealiumDisposable {
+    func add(_ disposable: TealiumDisposable)
+}
+
+/// A concrete implementation of the `TealiumGroupedDisposable` protocol that handles disposal of all disposable contained.
+public class TealiumDisposeContainer: TealiumGroupedDisposable {
+    private var disposables = [TealiumDisposable]()
     public private(set) var isDisposed: Bool = false
     public init() {}
 
-    public func add(_ disposable: TealiumDisposableProtocol) {
-        disposables.append(disposable)
+    /**
+     * Adds a disposable to the internal list.
+     *
+     * If this container is already disposed than the new disposable will be immediately disposed.
+     *
+     * - parameter disposable: the `TealiumDisposable` that will be disposed with this container
+     */
+    public func add(_ disposable: TealiumDisposable) {
+        if isDisposed {
+            disposable.dispose()
+        } else {
+            disposables.append(disposable)
+        }
     }
 
     public func dispose() {
@@ -54,21 +75,8 @@ public class TealiumDisposeContainer: TealiumDisposableProtocol {
     }
 }
 
-public class TealiumDisposeBag: TealiumDisposableProtocol {
-    let container = TealiumDisposeContainer()
-    public var isDisposed: Bool {
-        container.isDisposed
-    }
-    public init() {}
-    
-    public func add(_ disposable: TealiumDisposableProtocol) {
-        container.add(disposable)
-    }
-
-    public func dispose() {
-        container.dispose()
-    }
-
+/// A subclass of the `TealiumDisposeContainer` that will automatically dispose the contained disposables when it is deinitialized.
+public class TealiumAutomaticDisposer: TealiumDisposeContainer {
     deinit {
         dispose()
     }

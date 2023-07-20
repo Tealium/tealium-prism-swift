@@ -8,6 +8,14 @@
 
 import Foundation
 
+/// A protocol to provide all publisher-like classes some utilities like `publish()` for `Void` events.
 public protocol TealiumPublisherProtocol: TealiumObservableConvertibleProtocol {
     func publish(_ element: Element)
+}
+
+public extension TealiumPublisherProtocol where Element == Void {
+    /// Just publish a `Void` event.
+    func publish() {
+        self.publish(())
+    }
 }
