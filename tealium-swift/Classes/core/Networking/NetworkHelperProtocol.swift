@@ -1,0 +1,58 @@
+//
+//  NetworkHelperProtocol.swift
+//  tealium-swift
+//
+//  Created by Enrico Zannini on 18/07/23.
+//
+
+import Foundation
+
+public protocol NetworkHelperProtocol {
+    typealias JSONResult = Result<[String:Any], NetworkError>
+    typealias CodableResult<T> = Result<T, NetworkError>
+    
+    /**
+     * Just sends a GET request to the `NetworkClient`
+     *
+     * - Parameters:
+     *    - url: the `URLConvertible` instance to build the `URL` to send
+     *    - etag: the etag to be added in order to avoid fetching a cached resource
+     *    - completion: the block that is executed when the request is completed with the `NetworkResult`
+     *
+     * - Returns: the `TealiumDisposableProtocol` to cancel the in flight operation.
+     */
+    func get(url: URLConvertible, etag: String?, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable
+    /**
+     * Sends a GET request to the `NetworkClient` and tries to convert the result the returned JSON into a  `[String: Any]`.
+     *
+     * - Parameters:
+     *    - url: the `URLConvertible` instance to build the `URL` to send
+     *    - etag: the etag to be added in order to avoid fetching a cached resource
+     *    - completion: the block that is executed when the request is completed with the `JSONResult`
+     *
+     * - Returns: the `TealiumDisposableProtocol` to cancel the in flight operation.
+     */
+    func getJsonAsDictionary(url: URLConvertible, etag: String?, completion: @escaping (JSONResult) -> Void) -> TealiumDisposable
+    /**
+     * Sends a GET request to the `NetworkClient` and tries to convert the result into a Codable model.
+     *
+     * - Parameters:
+     *    - url: the `URLConvertible` instance to build the `URL` to send
+     *    - etag: the etag to be added in order to avoid fetching a cached resource
+     *    - completion: the block that is executed when the request is completed with the `CodableResult`
+     *
+     * - Returns: the `TealiumDisposableProtocol` to cancel the in flight operation.
+     */
+    func getJsonAsObject<T: Codable>(url: URLConvertible, etag: String?, completion: @escaping (CodableResult<T>) -> Void) -> TealiumDisposable
+    /**
+     * Sends a POST request to the `NetworkClient`with a gzipped JSON body.
+     *
+     * - Parameters:
+     *    - url: the `URLConvertible` instance to build the `URL` to send
+     *    - body: the `Dictionary` to be sent as a gzipped JSON data
+     *    - completion: the block that is executed when the request is completed with the `NetworkResult`
+     *
+     * - Returns: the `TealiumDisposableProtocol` to cancel the in flight operation.
+     */
+    func post(url: URLConvertible, body: [String: Any], completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable
+}

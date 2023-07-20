@@ -36,3 +36,21 @@ func XCTAssertResultIsFailure<T, E>(
         XCTFail("Expected to be a failure but got a success with \(value)", file: file, line: line)
     }
 }
+
+func XCTAssertNoThrowReturn<T>(
+    _ expression: @autoclosure () throws -> T,
+    in file: StaticString = #file,
+    line: UInt = #line
+) -> T? {
+    do {
+        return try expression()
+    } catch {
+        XCTFail(
+            error.localizedDescription,
+            file: file,
+            line: line
+        )
+        
+    }
+    return nil
+}

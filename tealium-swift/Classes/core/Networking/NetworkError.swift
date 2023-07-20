@@ -31,7 +31,7 @@ public enum NetworkError: Error {
     case non200Status(Int)
     /// A request was cancelled before completion
     case cancelled
-    /// A URLError was returned by the `URLSession.dataTask` completion
+    /// A `URLError` was returned by the `URLSession.dataTask` completion
     case urlError(URLError)
     /**
      * An unknown error occurred.
