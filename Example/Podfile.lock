@@ -1,15 +1,24 @@
 PODS:
-  - tealium-swift (0.1.0)
+  - SQLite.swift (0.14.1):
+    - SQLite.swift/standard (= 0.14.1)
+  - SQLite.swift/standard (0.14.1)
+  - tealium-swift (0.1.0):
+    - SQLite.swift (~> 0.14.0)
 
 DEPENDENCIES:
   - tealium-swift (from `../`)
+
+SPEC REPOS:
+  trunk:
+    - SQLite.swift
 
 EXTERNAL SOURCES:
   tealium-swift:
     :path: "../"
 
 SPEC CHECKSUMS:
-  tealium-swift: 321d1d27a39068a7dcc912f16cca94fc266562e1
+  SQLite.swift: 2992550ebf3c5b268bf4352603e3df87d2a4ed72
+  tealium-swift: bace5faec301b2bba31e6c88e0d0297849e90f31
 
 PODFILE CHECKSUM: 391e87430c564d41c30930bd0ef84935dc3f7442
 

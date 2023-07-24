@@ -7,18 +7,18 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		15243A302A6691F2006E429C /* URLConvertibleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15243A2F2A6691F2006E429C /* URLConvertibleTests.swift */; };
 		150629DC2A5EC5AE0071A926 /* TealiumObservableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150629DB2A5EC5AE0071A926 /* TealiumObservableTests.swift */; };
 		150629DE2A5EC8040071A926 /* ObserverListTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150629DD2A5EC8040071A926 /* ObserverListTests.swift */; };
 		15243A222A65526F006E429C /* TealiumSubjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15243A212A65526F006E429C /* TealiumSubjectTests.swift */; };
+		15243A302A6691F2006E429C /* URLConvertibleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15243A2F2A6691F2006E429C /* URLConvertibleTests.swift */; };
 		1535DC092A38A72D00CDDD44 /* EmpiricalConnectivityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1535DC082A38A72D00CDDD44 /* EmpiricalConnectivityTests.swift */; };
 		1535DC0B2A38B00300CDDD44 /* DebouncerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1535DC0A2A38B00300CDDD44 /* DebouncerTests.swift */; };
 		1535DC0D2A38B90600CDDD44 /* MockInstantDebouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1535DC0C2A38B90600CDDD44 /* MockInstantDebouncer.swift */; };
+		153781292A617FC5007BCA70 /* TealiumDisposableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153781282A617FC5007BCA70 /* TealiumDisposableTests.swift */; };
+		1537812B2A6181BE007BCA70 /* SubscriptionRetainCycleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1537812A2A6181BE007BCA70 /* SubscriptionRetainCycleHelper.swift */; };
 		155D36302A669B4C00788363 /* RequestBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D362F2A669B4C00788363 /* RequestBuilderTests.swift */; };
 		155D36322A66A12300788363 /* NetworkHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36312A66A12300788363 /* NetworkHelperTests.swift */; };
 		155D36342A66AE1300788363 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
-		153781292A617FC5007BCA70 /* TealiumDisposableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153781282A617FC5007BCA70 /* TealiumDisposableTests.swift */; };
-		1537812B2A6181BE007BCA70 /* SubscriptionRetainCycleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1537812A2A6181BE007BCA70 /* SubscriptionRetainCycleHelper.swift */; };
 		15694FC52A40540200925C4B /* NetworkConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC42A40540200925C4B /* NetworkConfigurationTests.swift */; };
 		15694FC92A40605E00925C4B /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		15694FCB2A4064DF00925C4B /* InterceptorManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FCA2A4064DF00925C4B /* InterceptorManagerTests.swift */; };
@@ -40,6 +40,13 @@
 		15ED5B052A60463E0027BB20 /* TealiumObservableCreateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15ED5B042A60463E0027BB20 /* TealiumObservableCreateTests.swift */; };
 		192181E7FE922D42F776D2ED /* Pods_tealium_swift_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A7E7BE34E3053FEF05A688 /* Pods_tealium_swift_Example.framework */; };
 		4865806A2940F3AD0016722E /* TealiumConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 486580692940F3AD0016722E /* TealiumConfig.json */; };
+		4869569F2A3A07900014AC58 /* DatabaseHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4869569E2A3A07900014AC58 /* DatabaseHelperTests.swift */; };
+		486956A32A448E7C0014AC58 /* TestUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486956A22A448E7C0014AC58 /* TestUtilities.swift */; };
+		486956A52A449A8B0014AC58 /* TealiumDataValueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486956A42A449A8B0014AC58 /* TealiumDataValueTests.swift */; };
+		486956A72A5DE5660014AC58 /* TealiumFileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486956A62A5DE5660014AC58 /* TealiumFileManagerTests.swift */; };
+		48814ACE2A26DBAC00BD6C4F /* ModuleStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48814ACC2A26D9BE00BD6C4F /* ModuleStorageTests.swift */; };
+		48F9CE082A5F2BBE00A7376F /* SQLiteOpenHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F9CE072A5F2BBE00A7376F /* SQLiteOpenHelperTests.swift */; };
+		48F9CE0A2A5F2BDA00A7376F /* MockDatabaseHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F9CE092A5F2BDA00A7376F /* MockDatabaseHelper.swift */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACD81AFB9204008FA782 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD71AFB9204008FA782 /* ViewController.swift */; };
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
@@ -61,18 +68,18 @@
 
 /* Begin PBXFileReference section */
 		00D79E100021CBFCDBD85351 /* LICENSE */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = LICENSE; path = ../LICENSE; sourceTree = "<group>"; };
-		15243A2F2A6691F2006E429C /* URLConvertibleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLConvertibleTests.swift; sourceTree = "<group>"; };
 		150629DB2A5EC5AE0071A926 /* TealiumObservableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumObservableTests.swift; sourceTree = "<group>"; };
 		150629DD2A5EC8040071A926 /* ObserverListTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ObserverListTests.swift; sourceTree = "<group>"; };
 		15243A212A65526F006E429C /* TealiumSubjectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumSubjectTests.swift; sourceTree = "<group>"; };
+		15243A2F2A6691F2006E429C /* URLConvertibleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLConvertibleTests.swift; sourceTree = "<group>"; };
 		1535DC082A38A72D00CDDD44 /* EmpiricalConnectivityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmpiricalConnectivityTests.swift; sourceTree = "<group>"; };
 		1535DC0A2A38B00300CDDD44 /* DebouncerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebouncerTests.swift; sourceTree = "<group>"; };
 		1535DC0C2A38B90600CDDD44 /* MockInstantDebouncer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockInstantDebouncer.swift; sourceTree = "<group>"; };
+		153781282A617FC5007BCA70 /* TealiumDisposableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumDisposableTests.swift; sourceTree = "<group>"; };
+		1537812A2A6181BE007BCA70 /* SubscriptionRetainCycleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionRetainCycleHelper.swift; sourceTree = "<group>"; };
 		155D362F2A669B4C00788363 /* RequestBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestBuilderTests.swift; sourceTree = "<group>"; };
 		155D36312A66A12300788363 /* NetworkHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkHelperTests.swift; sourceTree = "<group>"; };
 		155D36332A66AE1300788363 /* MockNetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkClient.swift; sourceTree = "<group>"; };
-		153781282A617FC5007BCA70 /* TealiumDisposableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumDisposableTests.swift; sourceTree = "<group>"; };
-		1537812A2A6181BE007BCA70 /* SubscriptionRetainCycleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubscriptionRetainCycleHelper.swift; sourceTree = "<group>"; };
 		15694FC42A40540200925C4B /* NetworkConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConfigurationTests.swift; sourceTree = "<group>"; };
 		15694FC82A40605E00925C4B /* MockInterceptorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockInterceptorManager.swift; sourceTree = "<group>"; };
 		15694FCA2A4064DF00925C4B /* InterceptorManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterceptorManagerTests.swift; sourceTree = "<group>"; };
@@ -94,6 +101,13 @@
 		15ED5B042A60463E0027BB20 /* TealiumObservableCreateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumObservableCreateTests.swift; sourceTree = "<group>"; };
 		2014AEABC9135CAD16EE27FC /* Pods-tealium-swift_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tealium-swift_Tests.release.xcconfig"; path = "Target Support Files/Pods-tealium-swift_Tests/Pods-tealium-swift_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		486580692940F3AD0016722E /* TealiumConfig.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TealiumConfig.json; sourceTree = "<group>"; };
+		4869569E2A3A07900014AC58 /* DatabaseHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseHelperTests.swift; sourceTree = "<group>"; };
+		486956A22A448E7C0014AC58 /* TestUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUtilities.swift; sourceTree = "<group>"; };
+		486956A42A449A8B0014AC58 /* TealiumDataValueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumDataValueTests.swift; sourceTree = "<group>"; };
+		486956A62A5DE5660014AC58 /* TealiumFileManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumFileManagerTests.swift; sourceTree = "<group>"; };
+		48814ACC2A26D9BE00BD6C4F /* ModuleStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleStorageTests.swift; sourceTree = "<group>"; };
+		48F9CE072A5F2BBE00A7376F /* SQLiteOpenHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLiteOpenHelperTests.swift; sourceTree = "<group>"; };
+		48F9CE092A5F2BDA00A7376F /* MockDatabaseHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDatabaseHelper.swift; sourceTree = "<group>"; };
 		607FACD01AFB9204008FA782 /* tealium-swift_Example.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "tealium-swift_Example.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACD41AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		607FACD51AFB9204008FA782 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -172,6 +186,24 @@
 			name = PubSub;
 			sourceTree = "<group>";
 		};
+		15CA57442A332E1100229CB6 /* Test Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				15CA57452A332E2800229CB6 /* Mocks */,
+				15AE2B852A127DD90093D154 /* XCTAssert+Result.swift */,
+			);
+			name = "Test Utilities";
+			sourceTree = "<group>";
+		};
+		15CA57452A332E2800229CB6 /* Mocks */ = {
+			isa = PBXGroup;
+			children = (
+				15AE2B832A127D280093D154 /* MockUrlSession.swift */,
+				48F9CE092A5F2BDA00A7376F /* MockDatabaseHelper.swift */,
+			);
+			name = Mocks;
+			sourceTree = "<group>";
+		};
 		2CC79B6A7A4DCA8F7E13D509 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
@@ -179,6 +211,16 @@
 				A5271A60473B0248F5DEF3FF /* Pods_tealium_swift_Tests.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		48814ACB2A26D98E00BD6C4F /* Database */ = {
+			isa = PBXGroup;
+			children = (
+				48814ACC2A26D9BE00BD6C4F /* ModuleStorageTests.swift */,
+				4869569E2A3A07900014AC58 /* DatabaseHelperTests.swift */,
+				48F9CE072A5F2BBE00A7376F /* SQLiteOpenHelperTests.swift */,
+			);
+			name = Database;
 			sourceTree = "<group>";
 		};
 		582A3E1FC4D08629AD2E503F /* Pods */ = {
@@ -239,11 +281,16 @@
 		607FACE81AFB9204008FA782 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
+				48814ACB2A26D98E00BD6C4F /* Database */,
 				1597DC7E2A44861900C394D3 /* PubSub */,
 				15694FC32A4053D700925C4B /* Networking */,
 				1535DC072A38A65000CDDD44 /* Connectivity */,
 				607FACEB1AFB9204008FA782 /* Tests.swift */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
+				486956A22A448E7C0014AC58 /* TestUtilities.swift */,
+				486956A42A449A8B0014AC58 /* TealiumDataValueTests.swift */,
+				15CA57442A332E1100229CB6 /* Test Utilities */,
+				486956A62A5DE5660014AC58 /* TealiumFileManagerTests.swift */,
 				15AE2B832A127D280093D154 /* MockUrlSession.swift */,
 				15AE2B852A127DD90093D154 /* XCTAssert+Result.swift */,
 				15D05EB32A139D5D004C41AA /* RetryPolicyTests.swift */,
@@ -414,10 +461,12 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-tealium-swift_Tests/Pods-tealium-swift_Tests-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift/SQLite.framework",
 				"${BUILT_PRODUCTS_DIR}/tealium-swift/tealium_swift.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SQLite.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/tealium_swift.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -454,10 +503,12 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-tealium-swift_Example/Pods-tealium-swift_Example-frameworks.sh",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift/SQLite.framework",
 				"${BUILT_PRODUCTS_DIR}/tealium-swift/tealium_swift.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SQLite.framework",
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/tealium_swift.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -481,6 +532,12 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				486956A72A5DE5660014AC58 /* TealiumFileManagerTests.swift in Sources */,
+				48814ACE2A26DBAC00BD6C4F /* ModuleStorageTests.swift in Sources */,
+				4869569F2A3A07900014AC58 /* DatabaseHelperTests.swift in Sources */,
+				48F9CE0A2A5F2BDA00A7376F /* MockDatabaseHelper.swift in Sources */,
+				486956A52A449A8B0014AC58 /* TealiumDataValueTests.swift in Sources */,
+				486956A32A448E7C0014AC58 /* TestUtilities.swift in Sources */,
 				150629DE2A5EC8040071A926 /* ObserverListTests.swift in Sources */,
 				1535DC0D2A38B90600CDDD44 /* MockInstantDebouncer.swift in Sources */,
 				158A82352A39F16B0028FD7C /* ConnectivityManagerTests.swift in Sources */,
@@ -504,6 +561,7 @@
 				1597DC7B2A446ADA00C394D3 /* MockInterceptor.swift in Sources */,
 				155D36322A66A12300788363 /* NetworkHelperTests.swift in Sources */,
 				15E03E8E2A0E3EE000652CAA /* NetworkClientTests.swift in Sources */,
+				48F9CE082A5F2BBE00A7376F /* SQLiteOpenHelperTests.swift in Sources */,
 				15243A222A65526F006E429C /* TealiumSubjectTests.swift in Sources */,
 				15ED5AFF2A6021BD0027BB20 /* DeinitTester.swift in Sources */,
 				15694FCB2A4064DF00925C4B /* InterceptorManagerTests.swift in Sources */,

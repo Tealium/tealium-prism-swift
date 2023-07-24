@@ -57,7 +57,15 @@ public class Tealium: TealiumProtocol {
         trace = TealiumTrace(modulesManager: modulesManager)
         deepLink = TealiumDeepLink(modulesManager: modulesManager)
         dataLayer = TealiumDataLayer(modulesManager: modulesManager)
-        context = TealiumContext(self, modulesManager: modulesManager, config: config, coreSettings: CoreSettings(coreDictionary: [:]))
+        // We will have a solution to this later - as of right now we dont have this information but are filling it so the DatabaseHelper can work
+        let coreSettings = CoreSettings(coreDictionary: ["account": "test", "profile": "profile"])
+        let databaseHelper = try? DatabaseHelper(databaseName: "tealium", coreSettings: coreSettings)
+        context = TealiumContext(self,
+                                 modulesManager: modulesManager,
+                                 config: config,
+                                 coreSettings: coreSettings,
+                                 databaseHelper: databaseHelper)
+        context = TealiumContext(self, modulesManager: modulesManager, config: config, coreSettings: CoreSettings(coreDictionary: [:]), databaseHelper: databaseHelper)
         tealiumQueue.async {
             self.settingsProvider.onConfigUpdate.subscribe { [weak self] settings in
                 TealiumSignpostInterval(signposter: .settings, name: "Module Updates")

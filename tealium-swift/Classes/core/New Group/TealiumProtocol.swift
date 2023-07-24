@@ -11,20 +11,10 @@ import Foundation
 //    var eventData: [String: Any] { get }
 //}
 
-public protocol TealiumDataValue {}
-extension Double: TealiumDataValue {}
-extension Int: TealiumDataValue {}
-extension String: TealiumDataValue {}
-extension Array<String>: TealiumDataValue {}
-
-
 public enum DispatchType: String {
     case event = "event"
     case view = "view"
 }
-
-public typealias TealiumDictionary = [String: TealiumDataValue]
-public typealias TealiumDictionaryOptionals = [String: TealiumDataValue?]
 
 public extension TealiumDictionary {
     
@@ -84,16 +74,18 @@ public class TealiumContext {
     public weak var tealiumProtocol: TealiumProtocol?
     public let config: TealiumConfig
     public var coreSettings: CoreSettings
+    public let databaseHelper: DatabaseHelper?
     public weak var modulesManager: ModulesManager?
     
     @ToAnyObservable(TealiumReplaySubject<CoreSettings>())
     var onSettingsUpdate: TealiumObservable<CoreSettings>
     
-    init(_ teal: TealiumProtocol, modulesManager: ModulesManager, config: TealiumConfig, coreSettings: CoreSettings) {
+    init(_ teal: TealiumProtocol, modulesManager: ModulesManager, config: TealiumConfig, coreSettings: CoreSettings, databaseHelper: DatabaseHelper?) {
         self.tealiumProtocol = teal
         self.modulesManager = modulesManager
         self.config = config
         self.coreSettings = coreSettings
+        self.databaseHelper = databaseHelper
     }
 
     func updateSettings(_ dict: [String: Any]) {

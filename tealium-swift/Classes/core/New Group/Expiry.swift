@@ -13,20 +13,23 @@ public enum Expiry {
     case forever
     case after(Date)
     case afterCustom((TimeUnit, Int))
-
-    public var date: Date? {
-        switch self {
-        case .after(let date):
-            return date
-        case .session, .forever:
-            return distantDate()
+    
+    
+    func expiryTime() -> Double {
+        switch(self) {
+        case .session:
+            return -2
         case .untilRestart:
-            return Date()
+            return -3
+        case .forever:
+            return -1
+        case .after(let date):
+            return date.timeIntervalSince1970
         case .afterCustom(let (unit, value)):
-            return dateWith(unit: unit, value: value)
+            return dateWith(unit: unit, value: value)?.timeIntervalSince1970 ?? -2
         }
     }
-
+    
     private func dateWith(unit: TimeUnit, value: Int) -> Date? {
         var components = DateComponents()
         components.calendar = Calendar.autoupdatingCurrent
@@ -34,20 +37,43 @@ public enum Expiry {
         components.setValue(value, for: unit.component)
         return Calendar(identifier: .gregorian).date(byAdding: components, to: currentDate)
     }
-
-    private func distantDate() -> Date? {
-        dateWith(unit: .years, value: 100)
-    }
-
-    func isSession() -> Bool {
-        switch self {
+    
+    func timeRemaining() -> Double {
+        switch(self) {
         case .session:
-            return true
+            return -2
+        case .untilRestart:
+            return -3
+        case .forever:
+            return -1
+        case .after(let date):
+            return date.timeIntervalSince1970 - Date().timeIntervalSince1970
         default:
-            return false
+            return -2
         }
     }
-
+    
+    static func fromValue(value: Double) -> Expiry {
+        switch(value) {
+        case -3:
+            return .untilRestart
+        case -2:
+            return .session
+        case -1:
+            return .forever
+        default:
+            return .after(Date(timeIntervalSince1970: value))
+        }
+    }
+    
+    func isExpired() -> Bool {
+        switch(self) {
+        case .session, .forever, .untilRestart:
+            return false
+        default:
+            return self.timeRemaining() < 0
+        }
+    }
 }
 
 public enum TimeUnit {

@@ -45,7 +45,7 @@ class ViewController: UIViewController {
         btn.backgroundColor = .black
         view.addSubview(btn)
         btn.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-        btn.centerYAnchor.constraint(equalTo: self.view.centerYAnchor).isActive = true
+        btn.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 50).isActive = true
         btn.heightAnchor.constraint(equalToConstant: 80).isActive = true
         btn.widthAnchor.constraint(equalToConstant: 180).isActive = true
         btn.translatesAutoresizingMaskIntoConstraints = false
@@ -56,7 +56,7 @@ class ViewController: UIViewController {
         btnTrace.backgroundColor = .purple
         view.addSubview(btnTrace)
         btnTrace.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-        btnTrace.topAnchor.constraint(equalTo: btn.bottomAnchor, constant: -20).isActive = true
+        btnTrace.topAnchor.constraint(equalTo: btn.bottomAnchor, constant: 20).isActive = true
         btnTrace.heightAnchor.constraint(equalToConstant: 80).isActive = true
         btnTrace.widthAnchor.constraint(equalToConstant: 180).isActive = true
         
@@ -65,16 +65,27 @@ class ViewController: UIViewController {
         btnTrace.addTarget(self, action: #selector(joinTrace), for: .touchUpInside)
     
         let btnDeepLink = UIButton()
-        btnDeepLink.backgroundColor = .purple
+        btnDeepLink.backgroundColor = .green
         view.addSubview(btnDeepLink)
         btnDeepLink.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-        btnDeepLink.topAnchor.constraint(equalTo: btnTrace.bottomAnchor, constant: -20).isActive = true
+        btnDeepLink.topAnchor.constraint(equalTo: btnTrace.bottomAnchor, constant: 20).isActive = true
         btnDeepLink.heightAnchor.constraint(equalToConstant: 80).isActive = true
         btnDeepLink.widthAnchor.constraint(equalToConstant: 180).isActive = true
         
         btnDeepLink.translatesAutoresizingMaskIntoConstraints = false
         btnDeepLink.setTitle("Deeplink", for: .normal)
         btnDeepLink.addTarget(self, action: #selector(deepLink), for: .touchUpInside)
+        
+        let btnAddToDataLayer = UIButton()
+        btnAddToDataLayer.backgroundColor = .blue
+        view.addSubview(btnAddToDataLayer)
+        btnAddToDataLayer.translatesAutoresizingMaskIntoConstraints = false
+        btnAddToDataLayer.setTitle("Add to datalayer", for: .normal)
+        btnAddToDataLayer.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        btnAddToDataLayer.topAnchor.constraint(equalTo:  btnDeepLink.bottomAnchor, constant: 20).isActive = true
+        btnAddToDataLayer.heightAnchor.constraint(equalToConstant: 80).isActive = true
+        btnAddToDataLayer.widthAnchor.constraint(equalToConstant: 180).isActive = true
+        btnAddToDataLayer.addTarget(self, action: #selector(addToDataLayer), for: .touchUpInside)
     }
     
     @objc func joinTrace() {
@@ -87,6 +98,10 @@ class ViewController: UIViewController {
         teal.deepLink.handle(link: URL(string: "https://www.tealium.com")!)
         
         teal.track(TealiumDispatch(name: "DeepLink!", data: nil))
+    }
+    
+    @objc func addToDataLayer() {
+        teal.dataLayer.add(data: ["key1": "value1"])
     }
 
     @objc func initTeal() {
