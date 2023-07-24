@@ -1,5 +1,5 @@
 //
-//  Connection.swift
+//  NetworkConnection.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 24/05/23.
@@ -8,7 +8,7 @@
 import Foundation
 
 /// The connection as it's reported by the system monitors
-public enum Connection: Equatable {
+public enum NetworkConnection: Equatable {
     /// The type of connection that we have at the moment
     public enum ConnectionType {
         /// The connection is cellular or connected via hotspot to another phone

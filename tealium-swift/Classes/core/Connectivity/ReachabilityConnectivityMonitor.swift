@@ -18,10 +18,10 @@ import SystemConfiguration
  */
 class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
     
-    @ToAnyObservable(TealiumReplaySubject<Connection>(initialValue: .unknown))
-    var onConnection: TealiumObservable<Connection>
+    @ToAnyObservable(TealiumReplaySubject<NetworkConnection>(initialValue: .unknown))
+    var onConnection: TealiumObservable<NetworkConnection>
     
-    var connection: Connection {
+    var connection: NetworkConnection {
         $onConnection.last() ?? .unknown
     }
 
@@ -124,7 +124,7 @@ class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
     }
 
     /**
-     * Converts the flags to a `Connection` and sends them in the onConnection `TealiumSubject`.
+     * Converts the flags to a `NetworkConnection` and sends them in the onConnection `TealiumSubject`.
      *
      * - Note: Should only be called from the internal queue.
      *
@@ -132,7 +132,7 @@ class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
      */
     
     private func notify(_ flags: SCNetworkReachabilityFlags) {
-        $onConnection.publishIfChanged(Connection.fromFlags(flags))
+        $onConnection.publishIfChanged(NetworkConnection.fromFlags(flags))
     }
 
     private final class WeakManager {
@@ -144,11 +144,11 @@ class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
     }
 }
 
-extension Connection {
+extension NetworkConnection {
     static func fromFlags(_ flags: SCNetworkReachabilityFlags) -> Self {
         guard flags.isActuallyReachable else { return .notConnected }
 
-        var connection: Connection = .connected(.wifi)
+        var connection: NetworkConnection = .connected(.wifi)
 
         if flags.isCellular { connection = .connected(.cellular) }
 

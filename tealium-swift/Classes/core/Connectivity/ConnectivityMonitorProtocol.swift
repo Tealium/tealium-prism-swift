@@ -8,6 +8,6 @@
 import Foundation
 
 public protocol ConnectivityMonitorProtocol {
-    var onConnection: TealiumObservable<Connection> { get }
-    var connection: Connection { get }
+    var onConnection: TealiumObservable<NetworkConnection> { get }
+    var connection: NetworkConnection { get }
 }

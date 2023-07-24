@@ -62,7 +62,7 @@ final class TestConnectionFromFlags: XCTestCase {
     func test_connection_down_when_reachable_flag_is_absent() {
         let flags: SCNetworkReachabilityFlags = [.connectionOnDemand]
 
-        let connection = Connection.fromFlags(flags)
+        let connection = NetworkConnection.fromFlags(flags)
         
         XCTAssertEqual(connection, .notConnected)
     }
@@ -70,7 +70,7 @@ final class TestConnectionFromFlags: XCTestCase {
     func test_connection_down_when_connection_is_required() {
         let flags: SCNetworkReachabilityFlags = [.reachable, .connectionRequired]
 
-        let connection = Connection.fromFlags(flags)
+        let connection = NetworkConnection.fromFlags(flags)
 
         XCTAssertEqual(connection, .notConnected)
     }
@@ -78,7 +78,7 @@ final class TestConnectionFromFlags: XCTestCase {
     func test_conneciton_down_when_intervention_is_required() {
         let flags: SCNetworkReachabilityFlags = [.reachable, .connectionRequired, .interventionRequired]
 
-        let connection = Connection.fromFlags(flags)
+        let connection = NetworkConnection.fromFlags(flags)
 
         XCTAssertEqual(connection, .notConnected)
     }
@@ -86,7 +86,7 @@ final class TestConnectionFromFlags: XCTestCase {
     func test_connection_is_wifi_as_default_when_reachable() {
         let flags: SCNetworkReachabilityFlags = [.reachable]
 
-        let connection = Connection.fromFlags(flags)
+        let connection = NetworkConnection.fromFlags(flags)
 
         XCTAssertEqual(connection, .connected(.wifi))
     }
@@ -94,7 +94,7 @@ final class TestConnectionFromFlags: XCTestCase {
     func test_connection_is_wifi_as_default_when_connection_is_on_demand() {
         let flags: SCNetworkReachabilityFlags = [.reachable, .connectionRequired, .connectionOnDemand]
 
-        let connection = Connection.fromFlags(flags)
+        let connection = NetworkConnection.fromFlags(flags)
 
         XCTAssertEqual(connection, .connected(.wifi))
     }
@@ -102,7 +102,7 @@ final class TestConnectionFromFlags: XCTestCase {
     func test_connection_is_wifi_as_default_when_connection_is_on_traffic() {
         let flags: SCNetworkReachabilityFlags = [.reachable, .connectionRequired, .connectionOnTraffic]
 
-        let connection = Connection.fromFlags(flags)
+        let connection = NetworkConnection.fromFlags(flags)
 
         XCTAssertEqual(connection, .connected(.wifi))
     }
@@ -111,7 +111,7 @@ final class TestConnectionFromFlags: XCTestCase {
     func test_connection_is_cellular_when_is_WWAN() {
         let flags: SCNetworkReachabilityFlags = [.reachable, .isWWAN]
 
-        let connection = Connection.fromFlags(flags)
+        let connection = NetworkConnection.fromFlags(flags)
 
         // Then
         XCTAssertEqual(connection, .connected(.cellular))
@@ -120,7 +120,7 @@ final class TestConnectionFromFlags: XCTestCase {
     func test_connection_down_when_cellular_and_connection_is_required() {
         let flags: SCNetworkReachabilityFlags = [.reachable, .isWWAN, .connectionRequired]
 
-        let connection = Connection.fromFlags(flags)
+        let connection = NetworkConnection.fromFlags(flags)
 
         XCTAssertEqual(connection, .notConnected)
     }

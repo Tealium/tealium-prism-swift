@@ -21,10 +21,10 @@ class TealiumNWPathMonitor: ConnectivityMonitorProtocol {
 
     let monitor = NWPathMonitor()
     
-    @ToAnyObservable(TealiumReplaySubject<Connection>(initialValue: .unknown))
-    var onConnection: TealiumObservable<Connection>
+    @ToAnyObservable(TealiumReplaySubject<NetworkConnection>(initialValue: .unknown))
+    var onConnection: TealiumObservable<NetworkConnection>
     
-    var connection: Connection {
+    var connection: NetworkConnection {
         $onConnection.last() ?? .unknown
     }
 
@@ -43,7 +43,7 @@ class TealiumNWPathMonitor: ConnectivityMonitorProtocol {
 
 @available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *)
 extension NWPath {
-    var connection: Connection {
+    var connection: NetworkConnection {
         switch self.status {
         case .satisfied:
             return .connected(connectionType)
@@ -54,7 +54,7 @@ extension NWPath {
         }
     }
     
-    var connectionType: Connection.ConnectionType {
+    var connectionType: NetworkConnection.ConnectionType {
         if isExpensive {
             return .cellular
         } else if usesInterfaceType(.wiredEthernet) {
