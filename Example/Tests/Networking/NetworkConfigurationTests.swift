@@ -1,0 +1,37 @@
+//
+//  NetworkConfigurationTests.swift
+//  tealium-swift_Tests
+//
+//  Created by Enrico Zannini on 19/06/23.
+//  Copyright © 2023 Tealium, Inc. All rights reserved.
+//
+
+@testable import TealiumSwift
+import XCTest
+
+final class NetworkConfigurationTests: XCTestCase {
+
+    func test_default_session_configuration_cache_is_disabled() {
+        let sessionConfig = NetworkConfiguration.defaultUrlSessionConfiguration
+        XCTAssertNil(sessionConfig.urlCache)
+        XCTAssertEqual(sessionConfig.requestCachePolicy, .reloadIgnoringLocalCacheData)
+    }
+
+    func test_default_interceptors_include_connectivity() {
+        let defaultInterceptors = NetworkConfiguration.defaultInterceptors
+        XCTAssertTrue(defaultInterceptors.contains(where: { $0 is ConnectivityManager }), "ConnectivityManager should be one of the default interceptors")
+    }
+
+    func test_DefaultInterceptor_should_be_the_first_intercetor() {
+        let defaultInterceptors = NetworkConfiguration.defaultInterceptors
+        XCTAssertTrue(defaultInterceptors.first is DefaultInterceptor, "DefaultInterceptor should be the first default interceptor")
+    }
+
+    func test_interceptorManager_has_configuration_queue() {
+        let testQueue = DispatchQueue(label: "com.tealium.test_queue")
+        var config = NetworkConfiguration.default
+        config.queue = testQueue
+        let interceptorManager = config.interceptorManager as? InterceptorManager
+        XCTAssertIdentical(interceptorManager?.queue, testQueue)
+    }
+}

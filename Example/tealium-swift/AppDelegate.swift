@@ -2,12 +2,12 @@
 //  AppDelegate.swift
 //  tealium-swift
 //
-//  Created by Tyler Rister on 12/05/2022.
-//  Copyright (c) 2022 Tyler Rister. All rights reserved.
+//  Created by Tyler Rister on 5/12/2022.
+//  Copyright © 2022 Tealium, Inc. All rights reserved.
 //
 
 import UIKit
-import tealium_swift
+import TealiumSwift
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {

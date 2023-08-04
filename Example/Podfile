@@ -12,3 +12,7 @@ target 'tealium-swift_Tests' do
   pod 'tealium-swift', :path => '../'
 
 end
+
+post_install do |installer|
+    installer.pods_project.root_object.attributes["ORGANIZATIONNAME"] = "Tealium, Inc"
+end

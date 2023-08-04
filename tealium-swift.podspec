@@ -8,8 +8,9 @@
 
 Pod::Spec.new do |s|
   s.name             = 'tealium-swift'
-  s.version          = '0.1.0'
-  s.summary          = 'A short description of tealium-swift.'
+  s.module_name      = "TealiumSwift"
+  s.version          = '3.0.0'
+  s.summary          = 'Tealium Swift Integration Library'
 
 # This description is used to generate tags and improve search results.
 #   * Think: What does it do? Why did you write it? What is the focus?
@@ -18,26 +19,24 @@ Pod::Spec.new do |s|
 #   * Finally, don't worry about the indent, CocoaPods strips it!
 
   s.description      = <<-DESC
-TODO: Add long description of the pod here.
+                       Supports Tealium's iQ and UDH suite of products on iOS, macOS, tvOS and watchOS
                        DESC
 
-  s.homepage         = 'https://github.com/Tyler Rister/tealium-swift'
+  s.homepage         = 'https://github.com/Tealium/tealium-swift'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
-  s.license          = { :type => 'MIT', :file => 'LICENSE' }
-  s.author           = { 'Tyler Rister' => 'tyler.rister@tealium.com' }
-  s.source           = { :git => 'https://github.com/Tyler Rister/tealium-swift.git', :tag => s.version.to_s }
-  # s.social_media_url = 'https://twitter.com/<TWITTER_USERNAME>'
+  s.license          = { :type => "Commercial", :file => "LICENSE.txt" }
+  s.authors          = { "Tealium Inc." => "tealium@tealium.com",
+                         "craigrouse"   => "craig.rouse@tealium.com",
+                         "Enrico Zannini" => "enrico.zannini@tealium.com" }
+  s.source       = { :git => "https://github.com/Tealium/tealium-swift-v3.git", :tag => "#{s.version}" }
+  s.social_media_url = "http://twitter.com/tealium"
 
   s.ios.deployment_target = '11.0'
 
-  s.source_files = 'tealium-swift/Classes/**/*'
   s.swift_version = '5.0'
-  # s.resource_bundles = {
-  #   'tealium-swift' => ['tealium-swift/Assets/*.png']
-  # }
-
-  # s.public_header_files = 'Pod/Classes/**/*.h'
-  # s.frameworks = 'UIKit', 'MapKit'
-  # s.dependency 'AFNetworking', '~> 2.3'
   s.dependency 'SQLite.swift', '~> 0.14.0'
+  
+  s.subspec "Core" do |core|
+      core.source_files = "tealium-swift/core/**/*.{swift,h,m}"
+    end
 end

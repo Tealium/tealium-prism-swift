@@ -3,7 +3,7 @@
 	archiveVersion = 1;
 	classes = {
 	};
-	objectVersion = 46;
+	objectVersion = 54;
 	objects = {
 
 /* Begin PBXBuildFile section */
@@ -19,6 +19,7 @@
 		155D36302A669B4C00788363 /* RequestBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D362F2A669B4C00788363 /* RequestBuilderTests.swift */; };
 		155D36322A66A12300788363 /* NetworkHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36312A66A12300788363 /* NetworkHelperTests.swift */; };
 		155D36342A66AE1300788363 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
+		155F91542A791E2F007A3548 /* XCTAssert+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155F91532A791E2F007A3548 /* XCTAssert+Errors.swift */; };
 		15694FC52A40540200925C4B /* NetworkConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC42A40540200925C4B /* NetworkConfigurationTests.swift */; };
 		15694FC92A40605E00925C4B /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		15694FCB2A4064DF00925C4B /* InterceptorManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FCA2A4064DF00925C4B /* InterceptorManagerTests.swift */; };
@@ -41,7 +42,7 @@
 		192181E7FE922D42F776D2ED /* Pods_tealium_swift_Example.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C1A7E7BE34E3053FEF05A688 /* Pods_tealium_swift_Example.framework */; };
 		4865806A2940F3AD0016722E /* TealiumConfig.json in Resources */ = {isa = PBXBuildFile; fileRef = 486580692940F3AD0016722E /* TealiumConfig.json */; };
 		4869569F2A3A07900014AC58 /* DatabaseHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4869569E2A3A07900014AC58 /* DatabaseHelperTests.swift */; };
-		486956A32A448E7C0014AC58 /* TestUtilities.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486956A22A448E7C0014AC58 /* TestUtilities.swift */; };
+		486956A32A448E7C0014AC58 /* XCTAssert+BoolOptional.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486956A22A448E7C0014AC58 /* XCTAssert+BoolOptional.swift */; };
 		486956A52A449A8B0014AC58 /* TealiumDataValueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486956A42A449A8B0014AC58 /* TealiumDataValueTests.swift */; };
 		486956A72A5DE5660014AC58 /* TealiumFileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486956A62A5DE5660014AC58 /* TealiumFileManagerTests.swift */; };
 		48814ACE2A26DBAC00BD6C4F /* ModuleStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48814ACC2A26D9BE00BD6C4F /* ModuleStorageTests.swift */; };
@@ -52,7 +53,6 @@
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
-		607FACEC1AFB9204008FA782 /* Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACEB1AFB9204008FA782 /* Tests.swift */; };
 		A440366123369A61756C949F /* Pods_tealium_swift_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5271A60473B0248F5DEF3FF /* Pods_tealium_swift_Tests.framework */; };
 /* End PBXBuildFile section */
 
@@ -80,6 +80,7 @@
 		155D362F2A669B4C00788363 /* RequestBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RequestBuilderTests.swift; sourceTree = "<group>"; };
 		155D36312A66A12300788363 /* NetworkHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkHelperTests.swift; sourceTree = "<group>"; };
 		155D36332A66AE1300788363 /* MockNetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkClient.swift; sourceTree = "<group>"; };
+		155F91532A791E2F007A3548 /* XCTAssert+Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTAssert+Errors.swift"; sourceTree = "<group>"; };
 		15694FC42A40540200925C4B /* NetworkConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConfigurationTests.swift; sourceTree = "<group>"; };
 		15694FC82A40605E00925C4B /* MockInterceptorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockInterceptorManager.swift; sourceTree = "<group>"; };
 		15694FCA2A4064DF00925C4B /* InterceptorManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InterceptorManagerTests.swift; sourceTree = "<group>"; };
@@ -102,7 +103,7 @@
 		2014AEABC9135CAD16EE27FC /* Pods-tealium-swift_Tests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tealium-swift_Tests.release.xcconfig"; path = "Target Support Files/Pods-tealium-swift_Tests/Pods-tealium-swift_Tests.release.xcconfig"; sourceTree = "<group>"; };
 		486580692940F3AD0016722E /* TealiumConfig.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = TealiumConfig.json; sourceTree = "<group>"; };
 		4869569E2A3A07900014AC58 /* DatabaseHelperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DatabaseHelperTests.swift; sourceTree = "<group>"; };
-		486956A22A448E7C0014AC58 /* TestUtilities.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestUtilities.swift; sourceTree = "<group>"; };
+		486956A22A448E7C0014AC58 /* XCTAssert+BoolOptional.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTAssert+BoolOptional.swift"; sourceTree = "<group>"; };
 		486956A42A449A8B0014AC58 /* TealiumDataValueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumDataValueTests.swift; sourceTree = "<group>"; };
 		486956A62A5DE5660014AC58 /* TealiumFileManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumFileManagerTests.swift; sourceTree = "<group>"; };
 		48814ACC2A26D9BE00BD6C4F /* ModuleStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleStorageTests.swift; sourceTree = "<group>"; };
@@ -117,7 +118,6 @@
 		607FACDF1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		607FACE51AFB9204008FA782 /* tealium-swift_Tests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "tealium-swift_Tests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		607FACEA1AFB9204008FA782 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		607FACEB1AFB9204008FA782 /* Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Tests.swift; sourceTree = "<group>"; };
 		7C305CEE3B84C2376B3E69BA /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		A5271A60473B0248F5DEF3FF /* Pods_tealium_swift_Tests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_tealium_swift_Tests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A9752955C495399BADE35BBA /* Pods-tealium-swift_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tealium-swift_Example.debug.xcconfig"; path = "Target Support Files/Pods-tealium-swift_Example/Pods-tealium-swift_Example.debug.xcconfig"; sourceTree = "<group>"; };
@@ -147,30 +147,19 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		1535DC072A38A65000CDDD44 /* Connectivity */ = {
+		150410E42A6EB51500B91F30 /* Storage */ = {
 			isa = PBXGroup;
 			children = (
-				1535DC082A38A72D00CDDD44 /* EmpiricalConnectivityTests.swift */,
-				158A82302A39CE0F0028FD7C /* ReachabilityConnectivityMonitorTests.swift */,
-				158A82342A39F16B0028FD7C /* ConnectivityManagerTests.swift */,
+				486956A62A5DE5660014AC58 /* TealiumFileManagerTests.swift */,
+				486956A42A449A8B0014AC58 /* TealiumDataValueTests.swift */,
+				48814ACC2A26D9BE00BD6C4F /* ModuleStorageTests.swift */,
+				4869569E2A3A07900014AC58 /* DatabaseHelperTests.swift */,
+				48F9CE072A5F2BBE00A7376F /* SQLiteOpenHelperTests.swift */,
 			);
-			name = Connectivity;
+			path = Storage;
 			sourceTree = "<group>";
 		};
-		15694FC32A4053D700925C4B /* Networking */ = {
-			isa = PBXGroup;
-			children = (
-				15E03E8D2A0E3EE000652CAA /* NetworkClientTests.swift */,
-				15694FC42A40540200925C4B /* NetworkConfigurationTests.swift */,
-				15694FCA2A4064DF00925C4B /* InterceptorManagerTests.swift */,
-				15243A2F2A6691F2006E429C /* URLConvertibleTests.swift */,
-				155D362F2A669B4C00788363 /* RequestBuilderTests.swift */,
-				155D36312A66A12300788363 /* NetworkHelperTests.swift */,
-			);
-			name = Networking;
-			sourceTree = "<group>";
-		};
-		1597DC7E2A44861900C394D3 /* PubSub */ = {
+		150410E52A6EB52900B91F30 /* PubSub */ = {
 			isa = PBXGroup;
 			children = (
 				1597DC7F2A44862900C394D3 /* ToAnyObservableTests.swift */,
@@ -183,25 +172,68 @@
 				153781282A617FC5007BCA70 /* TealiumDisposableTests.swift */,
 				15243A212A65526F006E429C /* TealiumSubjectTests.swift */,
 			);
-			name = PubSub;
+			path = PubSub;
 			sourceTree = "<group>";
 		};
-		15CA57442A332E1100229CB6 /* Test Utilities */ = {
+		150410E62A6EB53D00B91F30 /* Networking */ = {
 			isa = PBXGroup;
 			children = (
-				15CA57452A332E2800229CB6 /* Mocks */,
-				15AE2B852A127DD90093D154 /* XCTAssert+Result.swift */,
+				15D05EB32A139D5D004C41AA /* RetryPolicyTests.swift */,
+				15E03E8D2A0E3EE000652CAA /* NetworkClientTests.swift */,
+				15694FC42A40540200925C4B /* NetworkConfigurationTests.swift */,
+				15694FCA2A4064DF00925C4B /* InterceptorManagerTests.swift */,
+				15243A2F2A6691F2006E429C /* URLConvertibleTests.swift */,
+				155D362F2A669B4C00788363 /* RequestBuilderTests.swift */,
+				155D36312A66A12300788363 /* NetworkHelperTests.swift */,
 			);
-			name = "Test Utilities";
+			path = Networking;
 			sourceTree = "<group>";
 		};
-		15CA57452A332E2800229CB6 /* Mocks */ = {
+		150410E82A6EB56200B91F30 /* Connectivity */ = {
+			isa = PBXGroup;
+			children = (
+				1535DC082A38A72D00CDDD44 /* EmpiricalConnectivityTests.swift */,
+				158A82302A39CE0F0028FD7C /* ReachabilityConnectivityMonitorTests.swift */,
+				158A82342A39F16B0028FD7C /* ConnectivityManagerTests.swift */,
+			);
+			path = Connectivity;
+			sourceTree = "<group>";
+		};
+		150410E92A6EBC5700B91F30 /* TestHelpers */ = {
+			isa = PBXGroup;
+			children = (
+				486956A22A448E7C0014AC58 /* XCTAssert+BoolOptional.swift */,
+				155F91532A791E2F007A3548 /* XCTAssert+Errors.swift */,
+				15AE2B852A127DD90093D154 /* XCTAssert+Result.swift */,
+				15ED5AFE2A6021BD0027BB20 /* DeinitTester.swift */,
+				1537812A2A6181BE007BCA70 /* SubscriptionRetainCycleHelper.swift */,
+				150410EA2A6EBC6300B91F30 /* Mocks */,
+			);
+			path = TestHelpers;
+			sourceTree = "<group>";
+		};
+		150410EA2A6EBC6300B91F30 /* Mocks */ = {
 			isa = PBXGroup;
 			children = (
 				15AE2B832A127D280093D154 /* MockUrlSession.swift */,
+				1535DC0C2A38B90600CDDD44 /* MockInstantDebouncer.swift */,
+				158A82362A39F5750028FD7C /* MockConnectivity.swift */,
+				15694FC82A40605E00925C4B /* MockInterceptorManager.swift */,
+				1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */,
+				1597DC7C2A446B1400C394D3 /* MockBackoff.swift */,
+				155D36332A66AE1300788363 /* MockNetworkClient.swift */,
 				48F9CE092A5F2BDA00A7376F /* MockDatabaseHelper.swift */,
 			);
-			name = Mocks;
+			path = Mocks;
+			sourceTree = "<group>";
+		};
+		150410EE2A6ECB2A00B91F30 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				15D05EC12A14F0B1004C41AA /* SelfDestructingCompletionTests.swift */,
+				1535DC0A2A38B00300CDDD44 /* DebouncerTests.swift */,
+			);
+			path = Utilities;
 			sourceTree = "<group>";
 		};
 		2CC79B6A7A4DCA8F7E13D509 /* Frameworks */ = {
@@ -211,16 +243,6 @@
 				A5271A60473B0248F5DEF3FF /* Pods_tealium_swift_Tests.framework */,
 			);
 			name = Frameworks;
-			sourceTree = "<group>";
-		};
-		48814ACB2A26D98E00BD6C4F /* Database */ = {
-			isa = PBXGroup;
-			children = (
-				48814ACC2A26D9BE00BD6C4F /* ModuleStorageTests.swift */,
-				4869569E2A3A07900014AC58 /* DatabaseHelperTests.swift */,
-				48F9CE072A5F2BBE00A7376F /* SQLiteOpenHelperTests.swift */,
-			);
-			name = Database;
 			sourceTree = "<group>";
 		};
 		582A3E1FC4D08629AD2E503F /* Pods */ = {
@@ -281,29 +303,13 @@
 		607FACE81AFB9204008FA782 /* Tests */ = {
 			isa = PBXGroup;
 			children = (
-				48814ACB2A26D98E00BD6C4F /* Database */,
-				1597DC7E2A44861900C394D3 /* PubSub */,
-				15694FC32A4053D700925C4B /* Networking */,
-				1535DC072A38A65000CDDD44 /* Connectivity */,
-				607FACEB1AFB9204008FA782 /* Tests.swift */,
+				150410E82A6EB56200B91F30 /* Connectivity */,
+				150410E62A6EB53D00B91F30 /* Networking */,
+				150410E52A6EB52900B91F30 /* PubSub */,
+				150410E42A6EB51500B91F30 /* Storage */,
+				150410EE2A6ECB2A00B91F30 /* Utilities */,
+				150410E92A6EBC5700B91F30 /* TestHelpers */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
-				486956A22A448E7C0014AC58 /* TestUtilities.swift */,
-				486956A42A449A8B0014AC58 /* TealiumDataValueTests.swift */,
-				15CA57442A332E1100229CB6 /* Test Utilities */,
-				486956A62A5DE5660014AC58 /* TealiumFileManagerTests.swift */,
-				15AE2B832A127D280093D154 /* MockUrlSession.swift */,
-				15AE2B852A127DD90093D154 /* XCTAssert+Result.swift */,
-				15D05EB32A139D5D004C41AA /* RetryPolicyTests.swift */,
-				15D05EC12A14F0B1004C41AA /* SelfDestructingCompletionTests.swift */,
-				1535DC0A2A38B00300CDDD44 /* DebouncerTests.swift */,
-				1535DC0C2A38B90600CDDD44 /* MockInstantDebouncer.swift */,
-				158A82362A39F5750028FD7C /* MockConnectivity.swift */,
-				15694FC82A40605E00925C4B /* MockInterceptorManager.swift */,
-				1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */,
-				1597DC7C2A446B1400C394D3 /* MockBackoff.swift */,
-				155D36332A66AE1300788363 /* MockNetworkClient.swift */,
-				15ED5AFE2A6021BD0027BB20 /* DeinitTester.swift */,
-				1537812A2A6181BE007BCA70 /* SubscriptionRetainCycleHelper.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -338,6 +344,7 @@
 				607FACCD1AFB9204008FA782 /* Frameworks */,
 				607FACCE1AFB9204008FA782 /* Resources */,
 				F409222387AF0C6390AF6B5B /* [CP] Embed Pods Frameworks */,
+				155F91512A790C73007A3548 /* SwiftLint */,
 			);
 			buildRules = (
 			);
@@ -357,6 +364,7 @@
 				607FACE21AFB9204008FA782 /* Frameworks */,
 				607FACE31AFB9204008FA782 /* Resources */,
 				9A416FF14852793B42D35145 /* [CP] Embed Pods Frameworks */,
+				155F91522A791970007A3548 /* SwiftLint */,
 			);
 			buildRules = (
 			);
@@ -376,7 +384,7 @@
 			attributes = {
 				LastSwiftUpdateCheck = 0830;
 				LastUpgradeCheck = 0830;
-				ORGANIZATIONNAME = CocoaPods;
+				ORGANIZATIONNAME = "Tealium, Inc";
 				TargetAttributes = {
 					607FACCF1AFB9204008FA782 = {
 						CreatedOnToolsVersion = 6.3.1;
@@ -432,6 +440,44 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXShellScriptBuildPhase section */
+		155F91512A790C73007A3548 /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif which swiftlint >/dev/null; then\nswiftlint --config \"$PROJECT_DIR\"/../.swiftlint.yml\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
+		155F91522A791970007A3548 /* SwiftLint */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = SwiftLint;
+			outputFileListPaths = (
+			);
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "# Type a script or drag a script file from your workspace to insert its path.\nif which swiftlint >/dev/null; then\nswiftlint --config \"$PROJECT_DIR\"/../.swiftlint_test.yml\nelse\n  echo \"warning: SwiftLint not installed, download from https://github.com/realm/SwiftLint\"\nfi\n";
+		};
 		2FA05D03DDBEE31F31F44C4E /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;
 			buildActionMask = 2147483647;
@@ -462,12 +508,12 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-tealium-swift_Tests/Pods-tealium-swift_Tests-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SQLite.swift/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-swift/tealium_swift.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-swift/TealiumSwift.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SQLite.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/tealium_swift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TealiumSwift.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -504,12 +550,12 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-tealium-swift_Example/Pods-tealium-swift_Example-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SQLite.swift/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-swift/tealium_swift.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-swift/TealiumSwift.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/SQLite.framework",
-				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/tealium_swift.framework",
+				"${TARGET_BUILD_DIR}/${FRAMEWORKS_FOLDER_PATH}/TealiumSwift.framework",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -537,7 +583,7 @@
 				4869569F2A3A07900014AC58 /* DatabaseHelperTests.swift in Sources */,
 				48F9CE0A2A5F2BDA00A7376F /* MockDatabaseHelper.swift in Sources */,
 				486956A52A449A8B0014AC58 /* TealiumDataValueTests.swift in Sources */,
-				486956A32A448E7C0014AC58 /* TestUtilities.swift in Sources */,
+				486956A32A448E7C0014AC58 /* XCTAssert+BoolOptional.swift in Sources */,
 				150629DE2A5EC8040071A926 /* ObserverListTests.swift in Sources */,
 				1535DC0D2A38B90600CDDD44 /* MockInstantDebouncer.swift in Sources */,
 				158A82352A39F16B0028FD7C /* ConnectivityManagerTests.swift in Sources */,
@@ -559,6 +605,7 @@
 				153781292A617FC5007BCA70 /* TealiumDisposableTests.swift in Sources */,
 				15AE2B842A127D280093D154 /* MockUrlSession.swift in Sources */,
 				1597DC7B2A446ADA00C394D3 /* MockInterceptor.swift in Sources */,
+				155F91542A791E2F007A3548 /* XCTAssert+Errors.swift in Sources */,
 				155D36322A66A12300788363 /* NetworkHelperTests.swift in Sources */,
 				15E03E8E2A0E3EE000652CAA /* NetworkClientTests.swift in Sources */,
 				48F9CE082A5F2BBE00A7376F /* SQLiteOpenHelperTests.swift in Sources */,
@@ -568,7 +615,6 @@
 				15D05EC22A14F0B1004C41AA /* SelfDestructingCompletionTests.swift in Sources */,
 				158A82312A39CE0F0028FD7C /* ReachabilityConnectivityMonitorTests.swift in Sources */,
 				1597DC7D2A446B1400C394D3 /* MockBackoff.swift in Sources */,
-				607FACEC1AFB9204008FA782 /* Tests.swift in Sources */,
 				155D36342A66AE1300788363 /* MockNetworkClient.swift in Sources */,
 				15694FC92A40605E00925C4B /* MockInterceptorManager.swift in Sources */,
 			);
@@ -652,6 +698,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
+				ORGANIZATIONNAME = "Tealium, Inc";
 				SDKROOT = iphoneos;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
@@ -698,8 +745,10 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.3;
 				MTL_ENABLE_DEBUG_INFO = NO;
+				ORGANIZATIONNAME = "Tealium, Inc";
 				SDKROOT = iphoneos;
-				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
 				SWIFT_VERSION = 5.0;
 				VALIDATE_PRODUCT = YES;
 			};
@@ -713,7 +762,10 @@
 				DEVELOPMENT_TEAM = XC939GDC9P;
 				INFOPLIST_FILE = "tealium-swift/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -730,7 +782,10 @@
 				DEVELOPMENT_TEAM = XC939GDC9P;
 				INFOPLIST_FILE = "tealium-swift/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
 				MODULE_NAME = ExampleApp;
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.demo.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -754,7 +809,11 @@
 				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;
@@ -773,7 +832,11 @@
 				);
 				INFOPLIST_FILE = Tests/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.0;
-				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks @loader_path/Frameworks";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
 				PRODUCT_BUNDLE_IDENTIFIER = "org.cocoapods.$(PRODUCT_NAME:rfc1034identifier)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_SWIFT3_OBJC_INFERENCE = Default;

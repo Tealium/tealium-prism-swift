@@ -2,26 +2,25 @@
 //  ViewController.swift
 //  tealium-swift
 //
-//  Created by Tyler Rister on 12/05/2022.
-//  Copyright (c) 2022 Tyler Rister. All rights reserved.
+//  Created by Tyler Rister on 5/12/2022.
+//  Copyright © 2022 Tealium, Inc. All rights reserved.
 //
 
-import tealium_swift
+import TealiumSwift
 import UIKit
 
 class CustomDispatcher: Dispatcher {
-    func dispatch(_ data: [tealium_swift.TealiumDispatch]) {
+    func dispatch(_ data: [TealiumDispatch]) {
         print("CustomDispatcher \(data)")
     }
     
     static var id: String = "CustomDispatcher"
     
-    required init?(context: tealium_swift.TealiumContext, moduleSettings: [String : Any]) {
+    required init?(context: TealiumContext, moduleSettings: [String : Any]) {
         
     }
-    
-    
 }
+
 class ViewController: UIViewController {
 
     var teal: Tealium!
@@ -39,7 +38,6 @@ class ViewController: UIViewController {
         
         initTeal()
         teal.track(TealiumDispatch(name: "asd", data: ["some":"data"]))
-        print("nothing")
         
         let btn = UIButton()
         btn.backgroundColor = .black
