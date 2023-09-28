@@ -81,7 +81,6 @@ extension AnyCodable: ExpressibleByFloatLiteral {}
 extension AnyCodable: ExpressibleByArrayLiteral {}
 extension AnyCodable: ExpressibleByDictionaryLiteral {}
 
-
 protocol EqualValues {
 }
 

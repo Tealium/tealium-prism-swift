@@ -22,7 +22,7 @@ public extension TealiumModule {
 }
 
 public protocol Collector: TealiumModule {
-    var data: TealiumDictionary { get }
+    var data: TealiumDictionaryInput { get }
 }
 
 public protocol Dispatcher: TealiumModule {

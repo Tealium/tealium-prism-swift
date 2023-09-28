@@ -12,18 +12,20 @@ public class TealiumContext {
     public weak var tealiumProtocol: TealiumProtocol?
     public let config: TealiumConfig
     public var coreSettings: CoreSettings
-    public let databaseHelper: DatabaseHelper?
+    public let databaseProvider: DatabaseProvider
+    public let moduleStoreProvider: ModuleStoreProvider
     public weak var modulesManager: ModulesManager?
 
     @ToAnyObservable<TealiumReplaySubject<CoreSettings>>(TealiumReplaySubject<CoreSettings>())
     var onSettingsUpdate: TealiumObservable<CoreSettings>
 
-    init(_ teal: TealiumProtocol, modulesManager: ModulesManager, config: TealiumConfig, coreSettings: CoreSettings, databaseHelper: DatabaseHelper?) {
+    init(_ teal: TealiumProtocol, modulesManager: ModulesManager, config: TealiumConfig, coreSettings: CoreSettings, databaseProvider: DatabaseProvider, moduleStoreProvider: ModuleStoreProvider) {
         self.tealiumProtocol = teal
         self.modulesManager = modulesManager
         self.config = config
         self.coreSettings = coreSettings
-        self.databaseHelper = databaseHelper
+        self.databaseProvider = databaseProvider
+        self.moduleStoreProvider = moduleStoreProvider
     }
 
     func updateSettings(_ dict: [String: Any]) {

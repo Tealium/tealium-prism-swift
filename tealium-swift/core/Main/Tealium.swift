@@ -24,13 +24,13 @@ class SettingsProvider {
             return
         }
         trackingInterval.end("SUCCESS")
-        _onConfigUpdate.publish(settings)
+        _onSettingsUpdate.publish(settings)
         tealiumQueue.asyncAfter(deadline: .now() + 2) {
-            self._onConfigUpdate.publish(settings)
+            self._onSettingsUpdate.publish(settings)
         }
     }
-    var _onConfigUpdate = TealiumReplaySubject<[String: Any]>()
-    lazy private(set) var onConfigUpdate: TealiumObservable<[String: Any]> = _onConfigUpdate.asObservable()
+    var _onSettingsUpdate = TealiumReplaySubject<[String: Any]>()
+    lazy private(set) var onSettingsUpdate: TealiumObservable<[String: Any]> = _onSettingsUpdate.asObservable()
 }
 
 public class Tealium: TealiumProtocol {
@@ -38,7 +38,7 @@ public class Tealium: TealiumProtocol {
     let automaticDisposer = TealiumAutomaticDisposer()
     var context: TealiumContext?
     let modulesManager: ModulesManager
-    required public init(_ config: TealiumConfig) {
+    public init(_ config: TealiumConfig, completion: @escaping (Result<TealiumProtocol, Error>) -> Void) {
         let startupInterval = TealiumSignpostInterval(signposter: .startup, name: "Teal Init")
             .begin()
         var config = config
@@ -58,34 +58,51 @@ public class Tealium: TealiumProtocol {
         dataLayer = TealiumDataLayer(modulesManager: modulesManager)
         // We will have a solution to this later - as of right now we dont have this information but are filling it so the DatabaseHelper can work
         let coreSettings = CoreSettings(coreDictionary: ["account": "test", "profile": "profile"])
-        let databaseHelper = try? DatabaseHelper(databaseName: "tealium", coreSettings: coreSettings)
-        context = TealiumContext(self,
-                                 modulesManager: modulesManager,
-                                 config: config,
-                                 coreSettings: coreSettings,
-                                 databaseHelper: databaseHelper)
-        context = TealiumContext(self, modulesManager: modulesManager, config: config, coreSettings: CoreSettings(coreDictionary: [:]), databaseHelper: databaseHelper)
         tealiumQueue.async {
-            self.settingsProvider.onConfigUpdate.subscribe { [weak self] settings in
-                TealiumSignpostInterval(signposter: .settings, name: "Module Updates")
+            let completion = SelfDestructingCompletion<TealiumProtocol, Error> { result in
+                startupInterval.end()
+                completion(result)
+                if case .success = result {
+                    self._onReady.publish()
+                }
+            }
+            do {
+                let databaseProvider = try DatabaseProvider(settings: coreSettings)
+                let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
+                                                        modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
+                storeProvider.modulesRepository.deleteExpired(expiry: .restart)
+                self.context = TealiumContext(self,
+                                              modulesManager: modulesManager,
+                                              config: config,
+                                              coreSettings: coreSettings,
+                                              databaseProvider: databaseProvider,
+                                              moduleStoreProvider: storeProvider)
+                self.handleSettingsUpdates {
+                    completion.success(response: self)
+                }
+            } catch {
+                completion.fail(error: error)
+            }
+        }
+    }
+
+    private func handleSettingsUpdates(completion: @escaping () -> Void) {
+        self.settingsProvider.onSettingsUpdate.subscribe { [weak self] settings in
+            guard let self = self, let context = self.context else {
+                return
+            }
+            TealiumSignpostInterval(signposter: .settings, name: "Module Updates")
                 .signpostedWork {
-                    guard let self = self, let context = self.context else {
-                        return
-                    }
                     if let coreSettings = settings["core"] as? [String: Any] {
                         TealiumSignpostInterval(signposter: .settings, name: "Module Update")
-                        .signpostedWork("core") {
-                            context.coreSettings.updateSettings(coreSettings)
-                        }
+                            .signpostedWork("core") {
+                                context.coreSettings.updateSettings(coreSettings)
+                            }
                     }
                     self.modulesManager.updateSettings(context: context, settings: settings)
                 }
-            }.addTo(self.automaticDisposer)
-            self.settingsProvider.onConfigUpdate.subscribeOnce { _ in
-                startupInterval.end()
-                self._onReady.publish()
-            }
-        }
+            completion()
+        }.addTo(self.automaticDisposer)
     }
 
     public func track(_ trackable: TealiumDispatch) {

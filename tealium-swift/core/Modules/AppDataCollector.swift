@@ -48,12 +48,12 @@ public extension AppDataCollection {
 
 public class AppDataCollector: AppDataCollection, Collector {
 
-    public var data: TealiumDictionary
+    public var data: TealiumDictionaryInput
 
     public static var id: String = "appdata"
 
     public required init?(context: TealiumContext, moduleSettings: [String: Any]) {
-        data = TealiumDictionary(removingOptionals: [
+        data = TealiumDictionaryInput(removingOptionals: [
             TealiumDataKey.appBuild: Self.build(bundle: Bundle.main),
             TealiumDataKey.appName: Self.name(bundle: Bundle.main),
             TealiumDataKey.appRDNS: Self.rdns(bundle: Bundle.main),

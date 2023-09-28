@@ -8,6 +8,7 @@
 
 import Foundation
 
+// TODO: is this supposed to be in the config or not?
 public struct CoreSettings {
     private var dictionary: [String: Any]
 

@@ -13,7 +13,7 @@ import XCTest
 class TealiumFileManagerTests: XCTestCase {
 
     override class func tearDown() {
-        try? TealiumFileManager.deleteAtPath(path: TealiumFileManager.getTealiumApplicationFolder()?.path ?? "")
+        try? TealiumFileManager.deleteAtPath(path: TealiumFileManager.getTealiumApplicationFolder().path)
     }
 
     func test_file_manager_creates_intermediate_directories() {

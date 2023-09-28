@@ -20,7 +20,6 @@ public class TealiumConsent {
 }
 
 public protocol TealiumProtocol: AnyObject {
-    init(_ config: TealiumConfig)
     func track(_ trackable: TealiumDispatch)
     func onReady(_ completion: @escaping () -> Void)
 

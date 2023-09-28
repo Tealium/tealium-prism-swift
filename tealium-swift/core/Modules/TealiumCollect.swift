@@ -24,7 +24,7 @@ public class TealiumCollect: Dispatcher {
             return
         }
         for event in data {
-            _ = NetworkHelper.shared.post(url: url, body: event.eventData.asDictionary()) { result in
+            _ = NetworkHelper.shared.post(url: url, body: event.eventData) { result in
                 print("URL Request \(url) completed with \(result)")
             }
         }

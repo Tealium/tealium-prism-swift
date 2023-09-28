@@ -112,7 +112,9 @@ class ViewController: UIViewController {
         let config = TealiumConfig(modules: modules,
                                    configFile: "TealiumConfig",
                                    configUrl: nil)
-        let teal = Tealium(config)
+        let teal = Tealium(config) { result in
+            print(result)
+        }
         self.teal = teal
         
         teal.onReady {
@@ -123,8 +125,9 @@ class ViewController: UIViewController {
                 print("some data removed: \(removed)")
             }.addTo(self.automaticDisposer)
             
-            teal.dataLayer.add(data: ["1": "1", "2":"2", "3": "3"])
-            teal.dataLayer.add(data: ["4": "4", "5":"5", "6": "6"])
+            teal.dataLayer.add(data: ["1": "1", "2":"2", "3": "3", "nsnumber": NSNumber(67)])
+//            teal.dataLayer.add(data: ["4": "4", "5":"5", "6": "6"])
+            teal.dataLayer.add(data: ["myTimestamp": Date().timeIntervalSince1970], expiry: .untilRestart)
             teal.dataLayer.delete(keys: ["1", "3", "5"])
             teal.track(TealiumDispatch(name: "something"))
         }

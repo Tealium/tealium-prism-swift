@@ -9,7 +9,7 @@
 import Foundation
 import SQLite
 
-internal class DispatchSchema {
+class DispatchSchema {
     static let table = Table("dispatch")
     private static let id = Expression<Int>("id")
     private static let timestamp = Expression<Date>("timestamp")

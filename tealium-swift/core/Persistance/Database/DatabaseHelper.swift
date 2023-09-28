@@ -9,28 +9,29 @@
 import Foundation
 import SQLite
 
-class DatabaseUpgrade {
-    let version: Int
-    let upgrade: (Connection) throws -> Void
+/**
+ * Concrete implementation of the `SQLiteOpenHelper` which implements the onCreate/onConfigure/onUpgrade/onDowngrade methods.
+ */
+class DatabaseHelper: SQLiteOpenHelper {
 
-    init (version: Int, upgrade: @escaping (Connection) throws -> Void) {
-        self.version = version
-        self.upgrade = upgrade
-    }
-}
-
-public class DatabaseHelper: SQLiteOpenHelper {
-
+    /// The list of all upgrades since version 1
     static var databaseUpgrades: [DatabaseUpgrade] = [
     ]
 
+    /// The current version of the DB implemented in the codebase
     static var DATABASE_VERSION = 1
 
-    init(databaseName: String?, coreSettings: CoreSettings) throws {
-        try super.init(databaseName: databaseName, version: DatabaseHelper.DATABASE_VERSION, coreSettings: coreSettings)
+    init(databaseName: String?, coreSettings: CoreSettings) {
+        super.init(databaseName: databaseName,
+                   version: DatabaseHelper.DATABASE_VERSION,
+                   coreSettings: coreSettings)
     }
 
-    public override func onCreate(database: Connection) throws {
+    override func onConfigure(database: Connection) throws {
+        database.foreignKeys = true
+    }
+
+    override func onCreate(database: Connection) throws {
         // Create Queue Tables
         try DispatchSchema.createtable(database: database)
         try DispatcherSchema.createTable(database: database)
@@ -45,11 +46,15 @@ public class DatabaseHelper: SQLiteOpenHelper {
         _ = try database.run(QueueSchema.getTriggerToRemoveProcessedDispatches())
     }
 
-    public override func onUpgrade(database: Connection, fromOldVersion oldVersion: Int, toNewVersion newVersion: Int) throws {
+    override func onUpgrade(database: Connection, fromOldVersion oldVersion: Int, toNewVersion newVersion: Int) throws {
         try getDatabaseUpgrades(oldVersion: oldVersion).forEach {
             try $0.upgrade(database)
         }
         database.userVersion = UserVersion(newVersion)
+    }
+
+    override func onDowngrade(database: Connection, fromOldVersion oldVersion: Int, toNewVersion newVersion: Int) throws {
+        throw DatabaseErrors.unsupportedDowgrade
     }
 
     func getDatabaseUpgrades(oldVersion: Int, upgrades: [DatabaseUpgrade] = DatabaseHelper.databaseUpgrades) -> [DatabaseUpgrade] {

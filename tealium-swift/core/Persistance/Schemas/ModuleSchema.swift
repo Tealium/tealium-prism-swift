@@ -9,9 +9,9 @@
 import Foundation
 import SQLite
 
-internal class ModuleSchema {
+class ModuleSchema {
     static let table = Table("module")
-    static let id = Expression<Int>("id")
+    static let id = Expression<Int64>("id")
     static let name = Expression<String>("name")
 
     static func createTable(database: Connection) throws {
@@ -23,6 +23,10 @@ internal class ModuleSchema {
 
     static func getModule(moduleName: String) -> QueryType {
         return table.where(name == moduleName)
+    }
+
+    static func getModules() -> QueryType {
+        return table
     }
 
     static func createModule(moduleName: String) -> Insert {

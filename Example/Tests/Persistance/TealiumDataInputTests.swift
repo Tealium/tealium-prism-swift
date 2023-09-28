@@ -1,5 +1,5 @@
 //
-//  TealiumDataValueTests.swift
+//  TealiumDataInputTests.swift
 //  tealium-swift_Tests
 //
 //  Created by Tyler Rister on 22/6/23.
@@ -9,13 +9,26 @@
 @testable import TealiumSwift
 import XCTest
 
-class TealiumDataValueTests: XCTestCase {
+class TealiumDataInputTests: XCTestCase {
+
+    func test_nsnumber_to_string() {
+        let int: TealiumDataInput = NSNumber(2)
+        let double: TealiumDataInput = NSNumber(2.5)
+        let zero: TealiumDataInput = NSNumber(0)
+        let intDouble: TealiumDataInput = NSNumber(2.0)
+        let bool: TealiumDataInput = NSNumber(true)
+        XCTAssertEqual(try? int.serialize(), "2")
+        XCTAssertEqual(try? double.serialize(), "2.5")
+        XCTAssertEqual(try? zero.serialize(), "0")
+        XCTAssertEqual(try? intDouble.serialize(), "2")
+        XCTAssertEqual(try? bool.serialize(), "true")
+    }
 
     func test_double_to_string() {
-        let intDouble: TealiumDataValue = 2.0
-        let regularDouble: TealiumDataValue = 2.5
-        let zero: TealiumDataValue = 0.0
-        let negativeDouble: TealiumDataValue = -2.5
+        let intDouble: TealiumDataInput = 2.0
+        let regularDouble: TealiumDataInput = 2.5
+        let zero: TealiumDataInput = 0.0
+        let negativeDouble: TealiumDataInput = -2.5
         XCTAssertEqual(try? intDouble.serialize(), "2")
         XCTAssertEqual(try? regularDouble.serialize(), "2.5")
         XCTAssertEqual(try? zero.serialize(), "0")
@@ -23,11 +36,11 @@ class TealiumDataValueTests: XCTestCase {
     }
 
     func test_int_to_string() {
-        let regularInt: TealiumDataValue = 1
-        let maxInt: TealiumDataValue = Int.max
-        let minInt: TealiumDataValue = Int.min
-        let negativeInt: TealiumDataValue = -5
-        let zeroInt: TealiumDataValue = Int.zero
+        let regularInt: TealiumDataInput = 1
+        let maxInt: TealiumDataInput = Int.max
+        let minInt: TealiumDataInput = Int.min
+        let negativeInt: TealiumDataInput = -5
+        let zeroInt: TealiumDataInput = Int.zero
         XCTAssertEqual(try? regularInt.serialize(), "1")
         XCTAssertEqual(try? maxInt.serialize(), "9223372036854775807")
         XCTAssertEqual(try? minInt.serialize(), "-9223372036854775808")
@@ -36,20 +49,20 @@ class TealiumDataValueTests: XCTestCase {
     }
 
     func test_string_to_string() {
-        let string: TealiumDataValue = "test"
+        let string: TealiumDataInput = "test"
         XCTAssertEqual(try? string.serialize(), "\"test\"")
     }
 
     func test_bool_to_string() {
-        let trueBool: TealiumDataValue = true
-        let falseBool: TealiumDataValue = false
+        let trueBool: TealiumDataInput = true
+        let falseBool: TealiumDataInput = false
         XCTAssertEqual(try? trueBool.serialize(), "true")
         XCTAssertEqual(try? falseBool.serialize(), "false")
     }
 
     func test_array_to_string_and_back() {
-        let stringArray: TealiumDataValue = ["test1", "test2", "test3"]
-        let mixedArray: TealiumDataValue = ["test1", 1, 2.2, false]
+        let stringArray: TealiumDataInput = ["test1", "test2", "test3"]
+        let mixedArray: TealiumDataInput = ["test1", 1, 2.2, false]
         let stringArrayBack = try? stringArray.serialize().deserialize() as? [Any]
         let mixedArrayBack = try? mixedArray.serialize().deserialize() as? [Any]
         XCTAssertEqual(stringArrayBack?[0] as? String, "test1")
@@ -62,7 +75,7 @@ class TealiumDataValueTests: XCTestCase {
     }
 
     func test_dictionary_to_string_and_back() {
-        let testDictionary: TealiumDataValue = [
+        let testDictionary: TealiumDataInput = [
             "string_key": "test_string",
             "int_key": 4,
             "double_key": 2.6,
@@ -101,12 +114,13 @@ class TealiumDataValueTests: XCTestCase {
         let negativeDouble: String = "-2.5"
         XCTAssertEqual(try? regularDouble.deserialize() as? Double, 2.5)
         XCTAssertEqual(try? negativeDouble.deserialize() as? Double, -2.5)
+//        XCTAssertEqual(try? "2.0".deserialize() as? Double, 2.0) // fails as it's read as int
     }
 
     func test_non_conforming_types() {
-        let nanDouble: TealiumDataValue = Double.nan
-        let infinityDouble: TealiumDataValue = Double.infinity
-        let containsNil: TealiumDictionaryOptionals = ["test_key_1": nil]
+        let nanDouble: TealiumDataInput = Double.nan
+        let infinityDouble: TealiumDataInput = Double.infinity
+        let containsNil: TealiumDictionaryInputOptionals = ["test_key_1": nil]
         let serializedNan = try? nanDouble.serialize()
         let serializedInfinity = try? infinityDouble.serialize()
         let serializedWithNil = try? containsNil.serialize()
@@ -145,5 +159,18 @@ class TealiumDataValueTests: XCTestCase {
         let falseBool: String = "false"
         XCTAssertEqual(try? trueBool.deserialize() as? Bool, true)
         XCTAssertEqual(try? falseBool.deserialize() as? Bool, false)
+    }
+
+    func test_nsnumber_back_to_type() {
+        let int: String = "1"
+        let bool: String = "true"
+        let double: String = "2.5"
+        let intDouble: String = "2.0"
+        let zeroInt: String = "0"
+        XCTAssertEqual(try? int.deserialize() as? NSNumber, 1)
+        XCTAssertEqual(try? bool.deserialize() as? NSNumber, true)
+        XCTAssertEqual(try? double.deserialize() as? NSNumber, 2.5)
+        XCTAssertEqual(try? intDouble.deserialize() as? NSNumber, 2.0)
+        XCTAssertEqual(try? zeroInt.deserialize() as? NSNumber, 0)
     }
 }

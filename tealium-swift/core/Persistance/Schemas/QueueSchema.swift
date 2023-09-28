@@ -9,7 +9,7 @@
 import Foundation
 import SQLite
 
-internal class QueueSchema {
+class QueueSchema {
     static let table = Table("queue")
     private static let dispatchId = Expression<String>("dispatch_id")
     private static let dispatcherId = Expression<Int>("dispatcher_id")

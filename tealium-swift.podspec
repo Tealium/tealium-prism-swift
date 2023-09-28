@@ -37,6 +37,6 @@ Pod::Spec.new do |s|
   s.dependency 'SQLite.swift', '~> 0.14.0'
   
   s.subspec "Core" do |core|
-      core.source_files = "tealium-swift/core/**/*.{swift,h,m}"
+      core.source_files = "tealium-swift/Core/**/*.{swift,h,m}"
     end
 end

@@ -1,5 +1,5 @@
 //
-//  TealiumDataValue.swift
+//  TealiumDataInput.swift
 //  tealium-swift
 //
 //  Created by Tyler Rister on 13/7/23.
@@ -8,21 +8,31 @@
 
 import Foundation
 
-public protocol TealiumDataValue {}
-extension Double: TealiumDataValue {}
-extension Int: TealiumDataValue {}
-extension Bool: TealiumDataValue {}
-extension Optional: TealiumDataValue {}
-extension String: TealiumDataValue {}
-extension [TealiumDataValue]: TealiumDataValue {}
-extension TealiumDictionaryOptionals: TealiumDataValue {}
+/**
+ * `TealiumDataInput` is a protocol that we use internally to limit the type of data that can be sent to Tealium to later serialize it into JSON.
+ *
+ * - Warning: Do not conform custom types to the `TealiumDataInput` protocol or it will defeat the purpose of this protocol.
+ */
+public protocol TealiumDataInput {}
+extension Double: TealiumDataInput {}
+extension Float: TealiumDataInput {}
+extension Int: TealiumDataInput {}
+extension Int64: TealiumDataInput {}
+extension Int32: TealiumDataInput {}
+extension Int16: TealiumDataInput {}
+extension Int8: TealiumDataInput {}
+extension Bool: TealiumDataInput {}
+extension String: TealiumDataInput {}
+extension NSNumber: TealiumDataInput {}
+extension [TealiumDataInput]: TealiumDataInput {}
+extension TealiumDictionaryInputOptionals: TealiumDataInput {}
 
 enum TealiumDataValueErrors: Error {
     case dataToStringFailed
     case stringToDataFailed
 }
 
-extension TealiumDataValue {
+extension TealiumDataInput {
     func serialize() throws -> String {
         let jsonEncoder = JSONEncoder()
         jsonEncoder.nonConformingFloatEncodingStrategy = .convertToString(positiveInfinity: "Infinity", negativeInfinity: "Infinity", nan: "NaN")

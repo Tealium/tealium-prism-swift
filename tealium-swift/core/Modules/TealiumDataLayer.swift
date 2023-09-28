@@ -37,22 +37,22 @@ public class TealiumDataLayer { // WRAPPER
         moduleExtractor.getModule(completion: completion)
     }
 
-    public func add(data: TealiumDictionaryOptionals, expiry: Expiry = .session) {
+    public func add(data: TealiumDictionaryInputOptionals, expiry: Expiry = .session) {
         getModule { dataLayer in // tealiumQueue
             dataLayer?.add(data: data, expiry: expiry)
         }
     }
-    public func add(data: TealiumDictionary, expiry: Expiry = .session) {
+    public func add(data: TealiumDictionaryInput, expiry: Expiry = .session) {
         getModule { dataLayer in
             dataLayer?.add(data: data, expiry: expiry)
         }
     }
-    public func add(key: String, value: TealiumDataValue, expiry: Expiry = .session) {
+    public func add(key: String, value: TealiumDataInput, expiry: Expiry = .session) {
         getModule { dataLayer in
             dataLayer?.add(key: key, value: value, expiry: expiry)
         }
     }
-    public func add(key: String, value: TealiumDataValue?, expiry: Expiry = .session) {
+    public func add(key: String, value: TealiumDataInput?, expiry: Expiry = .session) {
         getModule { dataLayer in
             dataLayer?.add(key: key, value: value, expiry: expiry)
         }
@@ -92,44 +92,58 @@ protocol DataLayerUpdateListener {
 }
 
 public class DataLayerModule: Collector {
-    public var data: TealiumDictionary
+    public var data: TealiumDictionaryInput {
+        moduleStore.getAll().compactMapValues { $0.getDataInput() }
+    }
     public static var id: String = "datalayer"
+    let moduleStore: DataStore
 
-    public required init(context: TealiumContext, moduleSettings: [String: Any]) {
-        self.data = [:]
+    public required init?(context: TealiumContext, moduleSettings: [String: Any]) {
+        do {
+            moduleStore = try context.moduleStoreProvider.getModuleStore(name: Self.id)
+        } catch {
+            return nil
+        }
     }
 
     let events = DataLayerEventPublishers()
     // TODO: Maybe put?
-    func add(data: TealiumDictionaryOptionals, expiry: Expiry = .session) {
-        add(data: TealiumDictionary(removingOptionals: data),
+    func add(data: TealiumDictionaryInputOptionals, expiry: Expiry = .session) {
+        add(data: TealiumDictionaryInput(removingOptionals: data),
             expiry: expiry)
     }
-    func add(data: TealiumDictionary, expiry: Expiry = .session) {
-        events._onDataUpdated.publish(data)
-        self.data += data
+    func add(data: TealiumDictionaryInput, expiry: Expiry = .session) {
+        try? moduleStore.edit()
+            .putAll(dictionary: data, expiry: expiry)
+            .commit()
     }
-    func add(key: String, value: TealiumDataValue, expiry: Expiry = .session) {
-        events._onDataUpdated.publish([key: value])
-        data[key] = value
+    func add(key: String, value: TealiumDataInput, expiry: Expiry = .session) {
+        try? moduleStore.edit()
+            .put(key: key, value: value, expiry: expiry)
+            .commit()
     }
-    func add(key: String, value: TealiumDataValue?, expiry: Expiry = .session) {
+    func add(key: String, value: TealiumDataInput?, expiry: Expiry = .session) {
         if let value = value {
-            add(key: key, value: value)
+            add(key: key, value: value, expiry: expiry)
         }
     }
     func delete(key: String) {
-        delete(keys: [key])
+        try? moduleStore.edit()
+            .remove(key: key)
+            .commit()
     }
     func deleteAll() {
-        delete(keys: data.keys.map { $0 as String })
+        try? moduleStore.edit()
+            .clear()
+            .commit()
     }
     func delete(keys: [String]) {
-        keys.forEach { data.removeValue(forKey: $0) }
-        events._onDataRemoved.publish(keys)
+        try? moduleStore.edit()
+            .remove(keys: keys)
+            .commit()
     }
-    func getData(forKey key: String) -> Any? {
-        data[key] // TODO: This will be a specific query
+    func getData(forKey key: String) -> TealiumDataOutput? {
+        moduleStore.get(key: key)
     }
 }
 

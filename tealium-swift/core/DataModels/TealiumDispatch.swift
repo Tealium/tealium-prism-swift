@@ -14,10 +14,10 @@ public enum DispatchType: String {
 }
 
 public struct TealiumDispatch {
-    var eventData: TealiumDictionary
+    var eventData: [String: Any]
 
-    public init(name: String, type: DispatchType = .event, data: TealiumDictionary? = nil) {
-        var eventData: TealiumDictionary = data ?? [:]
+    public init(name: String, type: DispatchType = .event, data: TealiumDictionaryInput? = nil) {
+        var eventData: [String: Any] = data ?? [:]
         eventData[TealiumDataKey.event] = name
         eventData[TealiumDataKey.eventType] = type.rawValue
         self.eventData = eventData
@@ -27,7 +27,7 @@ public struct TealiumDispatch {
         eventData[TealiumDataKey.event] as? String
     }
 
-    mutating func enrich(data: TealiumDictionary) {
+    mutating func enrich(data: [String: Any]) {
         eventData += data
     }
 }
