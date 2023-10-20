@@ -37,11 +37,6 @@ public class TealiumDataLayer { // WRAPPER
         moduleExtractor.getModule(completion: completion)
     }
 
-    public func add(data: TealiumDictionaryInputOptionals, expiry: Expiry = .session) {
-        getModule { dataLayer in // tealiumQueue
-            dataLayer?.add(data: data, expiry: expiry)
-        }
-    }
     public func add(data: TealiumDictionaryInput, expiry: Expiry = .session) {
         getModule { dataLayer in
             dataLayer?.add(data: data, expiry: expiry)
@@ -72,12 +67,12 @@ public class TealiumDataLayer { // WRAPPER
             dataLayer?.delete(keys: keys)
         }
     }
-    public func get(forKey key: String, completion: @escaping (Any?) -> Void) {
+    public func get(forKey key: String, completion: @escaping (TealiumDataOutput?) -> Void) {
         getModule { dataLayer in
             completion(dataLayer?.getData(forKey: key))
         }
     }
-    public func getAllData(completion: @escaping ([String: Any]?) -> Void) {
+    public func getAllData(completion: @escaping (TealiumDictionaryInput?) -> Void) {
         getModule { dataLayer in
             completion(dataLayer?.data)
         }
@@ -108,10 +103,6 @@ public class DataLayerModule: Collector {
 
     let events = DataLayerEventPublishers()
     // TODO: Maybe put?
-    func add(data: TealiumDictionaryInputOptionals, expiry: Expiry = .session) {
-        add(data: TealiumDictionaryInput(removingOptionals: data),
-            expiry: expiry)
-    }
     func add(data: TealiumDictionaryInput, expiry: Expiry = .session) {
         try? moduleStore.edit()
             .putAll(dictionary: data, expiry: expiry)

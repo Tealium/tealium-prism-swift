@@ -24,9 +24,21 @@ extension Int8: TealiumDataInput {}
 extension Bool: TealiumDataInput {}
 extension String: TealiumDataInput {}
 extension NSNumber: TealiumDataInput {}
-extension [TealiumDataInput]: TealiumDataInput {}
-extension TealiumDictionaryInputOptionals: TealiumDataInput {}
-
+extension Array: TealiumDataInput where Element == TealiumDataInput {}
+extension Dictionary: TealiumDataInput where Key == String, Value == TealiumDataInput { }
+public protocol TealiumDataInputConvertible {
+    func toDataInput() -> TealiumDataInput
+}
+extension Array: TealiumDataInputConvertible where Element: TealiumDataInput {
+    public func toDataInput() -> TealiumDataInput {
+        self as [TealiumDataInput]
+    }
+}
+extension Dictionary: TealiumDataInputConvertible where Key == String, Value: TealiumDataInput {
+    public func toDataInput() -> TealiumDataInput {
+        self as [String: TealiumDataInput]
+    }
+}
 enum TealiumDataValueErrors: Error {
     case dataToStringFailed
     case stringToDataFailed

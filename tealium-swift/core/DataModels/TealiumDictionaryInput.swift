@@ -14,10 +14,10 @@ public typealias TealiumDictionaryInputOptionals = [String: TealiumDataInput?]
 public extension TealiumDictionaryInput {
 
     init(removingOptionals elements: TealiumDictionaryInputOptionals) {
-        self.init(uniqueKeysWithValues: elements.compactMap({ key, value in
+        self.init(uniqueKeysWithValues: elements.compactMap { key, value in
             guard let value = value else { return nil }
             return (key, value)
-        }))
+        })
     }
 
     subscript(removingOptionals key: String) -> TealiumDataInput? {
@@ -30,6 +30,7 @@ public extension TealiumDictionaryInput {
             }
         }
     }
+
     func asDictionary() -> [String: Any] {
         self
     }
