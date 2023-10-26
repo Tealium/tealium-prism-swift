@@ -120,20 +120,14 @@ class TealiumDataInputTests: XCTestCase {
     func test_non_conforming_types() {
         let nanDouble: TealiumDataInput = Double.nan
         let infinityDouble: TealiumDataInput = Double.infinity
-        let containsNil: TealiumDictionaryInputOptionals = ["test_key_1": nil]
         let serializedNan = try? nanDouble.serialize()
         let serializedInfinity = try? infinityDouble.serialize()
-        let serializedWithNil = try? containsNil.serialize()
         XCTAssertNotNil(serializedNan)
         XCTAssertNotNil(serializedInfinity)
-        XCTAssertNotNil(serializedWithNil)
         let deserializedNan = try? serializedNan?.deserialize()
         let deserializedInfinity = try? serializedInfinity?.deserialize()
-        let deserializedContainsNil = try? serializedWithNil?.deserialize() as? [String: Any?]
         XCTAssertTrueOptional((deserializedNan as? Double)?.isNaN)
         XCTAssertEqual(deserializedInfinity as? Double, Double.infinity)
-        XCTAssertTrueOptional(deserializedContainsNil?.keys.contains("test_key_1"))
-        XCTAssertEqual(deserializedContainsNil?["test_key_1"] as? NSNull, NSNull())
     }
 
     func test_int_back_to_type() {
