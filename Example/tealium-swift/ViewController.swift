@@ -11,7 +11,7 @@ import UIKit
 
 class CustomDispatcher: Dispatcher {
     func dispatch(_ data: [TealiumDispatch]) {
-        print("CustomDispatcher \(data)")
+        print("CustomDispatcher dispatch: \(data.compactMap { $0.name })")
     }
     
     static var id: String = "CustomDispatcher"
@@ -113,7 +113,7 @@ class ViewController: UIViewController {
                                    configFile: "TealiumConfig",
                                    configUrl: nil)
         let teal = Tealium(config) { result in
-            print(result)
+            
         }
         self.teal = teal
         

@@ -10,9 +10,7 @@
 import XCTest
 
 final class ModuleStoreProviderTests: XCTestCase {
-    // swiftlint:disable force_unwrapping
-    let dbProvider = MockDatabaseProvider()!
-    // swiftlint:enable force_unwrapping
+    let dbProvider = MockDatabaseProvider()
     func test_getModuleStore_automatically_registers_module() {
         let storeProvider = ModuleStoreProvider(databaseProvider: dbProvider, modulesRepository: SQLModulesRepository(dbProvider: dbProvider))
         let store = XCTAssertNoThrowReturn(try storeProvider.getModuleStore(name: "test"))

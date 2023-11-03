@@ -38,6 +38,9 @@ public class Tealium: TealiumProtocol {
     let automaticDisposer = TealiumAutomaticDisposer()
     var context: TealiumContext?
     let modulesManager: ModulesManager
+    @ToAnyObservable<TealiumReplaySubject<CoreSettings>>(TealiumReplaySubject<CoreSettings>())
+    var onSettingsUpdate: TealiumObservable<CoreSettings>
+
     public init(_ config: TealiumConfig, completion: @escaping (Result<TealiumProtocol, Error>) -> Void) {
         let startupInterval = TealiumSignpostInterval(signposter: .startup, name: "Teal Init")
             .begin()
@@ -56,28 +59,46 @@ public class Tealium: TealiumProtocol {
         trace = TealiumTrace(modulesManager: modulesManager)
         deepLink = TealiumDeepLink(modulesManager: modulesManager)
         dataLayer = TealiumDataLayer(modulesManager: modulesManager)
+        asyncBootstrap(config: config) { result in
+            startupInterval.end()
+            completion(result)
+        }
+    }
+
+    private func asyncBootstrap(config: TealiumConfig, completion: @escaping (Result<TealiumProtocol, Error>) -> Void) {
         // We will have a solution to this later - as of right now we dont have this information but are filling it so the DatabaseHelper can work
         let coreSettings = CoreSettings(coreDictionary: ["account": "test", "profile": "profile"])
+        let logger = TealiumLogger(logger: config.loggerType.getHandler(),
+                                   minLogLevel: coreSettings.minLogLevel,
+                                   onCoreSettings: onSettingsUpdate)
         tealiumQueue.async {
             let completion = SelfDestructingCompletion<TealiumProtocol, Error> { result in
-                startupInterval.end()
                 completion(result)
-                if case .success = result {
+                switch result {
+                case .success:
+                    logger.debug?.log(category: TealiumLibraryCategories.startup, message: "Tealium startup completed with success")
                     self._onReady.publish()
+                case .failure(let error):
+                    logger.error?.log(category: TealiumLibraryCategories.startup, message: "Tealium startup failed with \(error)")
                 }
             }
             do {
+                logger.trace?.log(category: TealiumLibraryCategories.startup, message: "Creating DB")
                 let databaseProvider = try DatabaseProvider(settings: coreSettings)
                 let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
                                                         modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
+                logger.trace?.log(category: TealiumLibraryCategories.startup, message: "Deleting restart and expired items from DB")
                 storeProvider.modulesRepository.deleteExpired(expiry: .restart)
                 self.context = TealiumContext(self,
-                                              modulesManager: modulesManager,
+                                              modulesManager: self.modulesManager,
                                               config: config,
                                               coreSettings: coreSettings,
+                                              onSettingsUpdate: self.onSettingsUpdate,
                                               databaseProvider: databaseProvider,
-                                              moduleStoreProvider: storeProvider)
+                                              moduleStoreProvider: storeProvider,
+                                              logger: logger)
                 self.handleSettingsUpdates {
+                    logger.trace?.log(category: TealiumLibraryCategories.settings, message: "Settings Updated")
                     completion.success(response: self)
                 }
             } catch {
@@ -91,16 +112,18 @@ public class Tealium: TealiumProtocol {
             guard let self = self, let context = self.context else {
                 return
             }
+            context.logger.trace?.log(category: TealiumLibraryCategories.settings, message: "Received new settings")
             TealiumSignpostInterval(signposter: .settings, name: "Module Updates")
                 .signpostedWork {
                     if let coreSettings = settings["core"] as? [String: Any] {
                         TealiumSignpostInterval(signposter: .settings, name: "Module Update")
                             .signpostedWork("core") {
-                                context.coreSettings.updateSettings(coreSettings)
+                                self._onSettingsUpdate.publish(CoreSettings(coreDictionary: coreSettings))
                             }
                     }
                     self.modulesManager.updateSettings(context: context, settings: settings)
                 }
+            context.logger.trace?.log(category: TealiumLibraryCategories.settings, message: "Updated settings on all modules")
             completion()
         }.addTo(self.automaticDisposer)
     }
@@ -108,6 +131,8 @@ public class Tealium: TealiumProtocol {
     public func track(_ trackable: TealiumDispatch) {
         let trackingInterval = TealiumSignpostInterval(signposter: .tracking, name: "TrackingCall")
             .begin(trackable.name ?? "unknown")
+        context?.logger.debug?.log(category: TealiumLibraryCategories.tracking, message: "Received new track")
+        context?.logger.trace?.log(category: TealiumLibraryCategories.tracking, message: "Tracked Event \(trackable.eventData)")
         tealiumQueue.async {
             var trackable = trackable
             let modules = self.modules
@@ -118,6 +143,9 @@ public class Tealium: TealiumProtocol {
                             trackable.enrich(data: collector.data) // collector.collect() maybe?
                         }
                 }
+            self.context?.logger.debug?.log(category: TealiumLibraryCategories.tracking, message: "Enriched Event")
+            self.context?.logger.trace?.log(category: TealiumLibraryCategories.tracking, message: "Updated Data \(trackable.eventData)")
+
             // dispatch barries
             // queueing
             // batching
@@ -129,6 +157,7 @@ public class Tealium: TealiumProtocol {
                             dispatcher.dispatch([trackable])
                         }
                 }
+            self.context?.logger.debug?.log(category: TealiumLibraryCategories.tracking, message: "Dispatched Event")
             trackingInterval.end()
         }
     }

@@ -15,6 +15,7 @@ final class DatabaseProviderTests: XCTestCase {
 
     override func setUp() {
         path = (try? TealiumFileManager.getTealiumApplicationFolder().path) ?? ""
+        try? TealiumFileManager.deleteAtPath(path: path)
         XCTAssertFalse(FileManager.default.fileExists(atPath: path))
     }
 

@@ -10,13 +10,10 @@
 import XCTest
 
 final class SQLKeyValueRepositoryTests: XCTestCase {
-    // swiftlint:disable force_unwrapping
-    let dbProvider = MockDatabaseProvider()!
-    var repository: SQLKeyValueRepository!
-    // swiftlint:enable force_unwrapping
+    let dbProvider = MockDatabaseProvider()
+    lazy var repository = SQLKeyValueRepository(dbProvider: dbProvider, moduleId: 1)
 
     override func setUp() {
-        repository = SQLKeyValueRepository(dbProvider: dbProvider, moduleId: 1)
         dbProvider.database.foreignKeys = false
     }
 

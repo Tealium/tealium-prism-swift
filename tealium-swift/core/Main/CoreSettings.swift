@@ -25,8 +25,11 @@ public struct CoreSettings {
     var environment: String? {
         dictionary["environment"] as? String
     }
-
-    mutating func updateSettings(_ config: [String: Any]) {
-        dictionary = config
+    var minLogLevel: TealiumLogLevel.Minimum {
+        guard let logLevelString = dictionary["minLogLevel"] as? String,
+              let level = TealiumLogLevel.Minimum(from: logLevelString) else {
+            return .default
+        }
+        return level
     }
 }

@@ -11,10 +11,8 @@ import SQLite
 import XCTest
 
 final class ModuleStoreTests: XCTestCase {
-    // swiftlint:disable force_unwrapping
-    var dbProvider = MockDatabaseProvider()!
+    var dbProvider = MockDatabaseProvider()
     lazy var modulesRepository = SQLModulesRepository(dbProvider: self.dbProvider)
-    // swiftlint:enable force_unwrapping
     var moduleStoreProvider: ModuleStoreProvider {
         ModuleStoreProvider(databaseProvider: self.dbProvider,
                             modulesRepository: modulesRepository)

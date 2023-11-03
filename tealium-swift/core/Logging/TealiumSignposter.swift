@@ -10,13 +10,12 @@ import Foundation
 import os.signpost
 
 extension TealiumSignposter {
-    static let startup = TealiumSignposter(category: "Startup")
-    static let tracking = TealiumSignposter(category: "Tracking")
-    static let collecting = TealiumSignposter(category: "Collecting")
-    static let dispatching = TealiumSignposter(category: "Dispatching")
-    static let settings = TealiumSignposter(category: "Settings")
-    static let networking = TealiumSignposter(category: "Networking")
-
+    static let startup = TealiumSignposter(category: TealiumLibraryCategories.startup)
+    static let tracking = TealiumSignposter(category: TealiumLibraryCategories.tracking)
+    static let collecting = TealiumSignposter(category: TealiumLibraryCategories.collecting)
+    static let dispatching = TealiumSignposter(category: TealiumLibraryCategories.dispatching)
+    static let settings = TealiumSignposter(category: TealiumLibraryCategories.settings)
+    static let networking = TealiumSignposter(category: TealiumLibraryCategories.networking)
 }
 /**
  * A wrapper class to make the `OSSignpostIntervalState` easier to use on `iOS < 15`.

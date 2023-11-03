@@ -11,9 +11,7 @@ import XCTest
 
 final class SQLModulesRepositoryTests: XCTestCase {
 
-    // swiftlint:disable force_unwrapping
-    let dbProvider = MockDatabaseProvider()!
-    // swiftlint:enable force_unwrapping
+    let dbProvider = MockDatabaseProvider()
     lazy var modulesRepository = SQLModulesRepository(dbProvider: dbProvider)
 
     func test_registerModule_registers_first_module() {

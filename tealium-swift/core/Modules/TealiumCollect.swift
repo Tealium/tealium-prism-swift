@@ -10,9 +10,10 @@ import Foundation
 
 public class TealiumCollect: Dispatcher {
     public static var id: String = "collect"
+    let context: TealiumContext
 
     public required init(context: TealiumContext, moduleSettings: [String: Any]) {
-
+        self.context = context
     }
 
     public func updateSettings(_ settings: [String: Any]) -> Self? {
@@ -24,8 +25,8 @@ public class TealiumCollect: Dispatcher {
             return
         }
         for event in data {
-            _ = NetworkHelper.shared.post(url: url, body: event.eventData) { result in
-                print("URL Request \(url) completed with \(result)")
+            _ = NetworkHelper.shared.post(url: url, body: event.eventData) { [weak self] result in
+                self?.context.logger.trace?.log(category: TealiumLibraryCategories.dispatching, message: "URL Request \(url) completed with \(result)")
             }
         }
     }

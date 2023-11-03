@@ -12,24 +12,32 @@ public class TealiumContext {
     public weak var tealiumProtocol: TealiumProtocol?
     public let config: TealiumConfig
     public var coreSettings: CoreSettings
+    public let onSettingsUpdate: TealiumObservable<CoreSettings>
     public let databaseProvider: DatabaseProvider
     public let moduleStoreProvider: ModuleStoreProvider
     public weak var modulesManager: ModulesManager?
+    public let logger: TealiumLoggerProvider
 
-    @ToAnyObservable<TealiumReplaySubject<CoreSettings>>(TealiumReplaySubject<CoreSettings>())
-    var onSettingsUpdate: TealiumObservable<CoreSettings>
+    private var automaticDisposer = TealiumAutomaticDisposer()
 
-    init(_ teal: TealiumProtocol, modulesManager: ModulesManager, config: TealiumConfig, coreSettings: CoreSettings, databaseProvider: DatabaseProvider, moduleStoreProvider: ModuleStoreProvider) {
+    init(_ teal: TealiumProtocol,
+         modulesManager: ModulesManager,
+         config: TealiumConfig,
+         coreSettings: CoreSettings,
+         onSettingsUpdate: TealiumObservable<CoreSettings>,
+         databaseProvider: DatabaseProvider,
+         moduleStoreProvider: ModuleStoreProvider,
+         logger: TealiumLoggerProvider) {
         self.tealiumProtocol = teal
         self.modulesManager = modulesManager
         self.config = config
         self.coreSettings = coreSettings
+        self.onSettingsUpdate = onSettingsUpdate
         self.databaseProvider = databaseProvider
         self.moduleStoreProvider = moduleStoreProvider
-    }
-
-    func updateSettings(_ dict: [String: Any]) {
-        coreSettings.updateSettings(dict)
-        _onSettingsUpdate.publish(coreSettings)
+        self.logger = logger
+        onSettingsUpdate.subscribe { [weak self] settings in
+            self?.coreSettings = settings
+        }.addTo(automaticDisposer)
     }
 }

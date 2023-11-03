@@ -10,6 +10,7 @@ import Foundation
 
 public struct TealiumConfig {
     public var modules: [TealiumModule.Type]
+    public var loggerType: TealiumLoggerType = .os
     public let configFile: String
     private let configUrl: String?
 
