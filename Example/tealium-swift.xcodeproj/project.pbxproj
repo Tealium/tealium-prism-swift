@@ -167,7 +167,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		150410E42A6EB51500B91F30 /* Persistance */ = {
+		150410E42A6EB51500B91F30 /* Persistence */ = {
 			isa = PBXGroup;
 			children = (
 				486956A62A5DE5660014AC58 /* TealiumFileManagerTests.swift */,
@@ -181,7 +181,7 @@
 				1504FE7C2AB4B71F002C0103 /* ModuleStoreProviderTests.swift */,
 				1504FE7E2AB4BB6D002C0103 /* DatabaseProviderTests.swift */,
 			);
-			path = Persistance;
+			path = Persistence;
 			sourceTree = "<group>";
 		};
 		150410E52A6EB52900B91F30 /* PubSub */ = {
@@ -336,7 +336,7 @@
 				150410E82A6EB56200B91F30 /* Connectivity */,
 				150410E62A6EB53D00B91F30 /* Networking */,
 				150410E52A6EB52900B91F30 /* PubSub */,
-				150410E42A6EB51500B91F30 /* Persistance */,
+				150410E42A6EB51500B91F30 /* Persistence */,
 				150410EE2A6ECB2A00B91F30 /* Utilities */,
 				150410E92A6EBC5700B91F30 /* TestHelpers */,
 				607FACE91AFB9204008FA782 /* Supporting Files */,
