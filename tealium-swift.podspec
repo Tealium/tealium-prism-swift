@@ -24,7 +24,7 @@ Pod::Spec.new do |s|
 
   s.homepage         = 'https://github.com/Tealium/tealium-swift'
   # s.screenshots     = 'www.example.com/screenshots_1', 'www.example.com/screenshots_2'
-  s.license          = { :type => "Commercial", :file => "LICENSE.txt" }
+  s.license          = { :type => "Commercial", :file => "LICENSE" }
   s.authors          = { "Tealium Inc." => "tealium@tealium.com",
                          "craigrouse"   => "craig.rouse@tealium.com",
                          "Enrico Zannini" => "enrico.zannini@tealium.com" }
