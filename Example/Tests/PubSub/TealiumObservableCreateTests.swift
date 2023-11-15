@@ -43,4 +43,54 @@ final class TealiumObservableCreateTests: XCTestCase {
         }
     }
 
+    func test_CombineLatest_observable_is_notified_immediately_on_sync_observables() {
+        let combineLatestIsNotifiedImmediately = expectation(description: "Combine latest event is notified immediately")
+        let sub = TealiumObservable<String>.CombineLatest([.Just("a1"), .Just("b1"), .Just("c1")])
+            .subscribe { result in
+                XCTAssertEqual(result, ["a1", "b1", "c1"])
+                combineLatestIsNotifiedImmediately.fulfill()
+            }
+        waitForExpectations(timeout: 1.0)
+        sub.dispose()
+    }
+
+    func test_CombineLatest_observable_is_notified_after_all_observables_have_pushed_at_least_one_event() {
+        let combineLatestIsNotified = expectation(description: "Combine latest event is notified")
+        let pubA = TealiumPublisher<String>()
+        let pubB = TealiumPublisher<String>()
+        let pubC = TealiumPublisher<String>()
+        let sub = TealiumObservable<String>.CombineLatest([pubA.asObservable(), pubB.asObservable(), pubC.asObservable()])
+            .subscribe { result in
+                XCTAssertEqual(result, ["a3", "b1", "c1"])
+                combineLatestIsNotified.fulfill()
+            }
+        pubA.publish("a1")
+        pubA.publish("a2")
+        pubA.publish("a3")
+        pubC.publish("c1")
+        pubB.publish("b1")
+        waitForExpectations(timeout: 1.0)
+        sub.dispose()
+    }
+
+    func test_CombineLatest_observable_is_notified_after_each_event_after_every_observable_notified_at_least_one() {
+        let combineLatestIsNotified = expectation(description: "Combine latest event is notified 3 times")
+        combineLatestIsNotified.expectedFulfillmentCount = 3
+        let pubA = TealiumPublisher<String>()
+        let pubB = TealiumPublisher<String>()
+        let pubC = TealiumPublisher<String>()
+        let sub = TealiumObservable<String>.CombineLatest([pubA.asObservable(), pubB.asObservable(), pubC.asObservable()])
+            .subscribe { result in
+                XCTAssertEqual(result, ["a", "b1", "c1"])
+                combineLatestIsNotified.fulfill()
+            }
+        pubA.publish("a")
+        pubC.publish("c1")
+        pubB.publish("b1")
+        pubA.publish("a")
+        pubA.publish("a")
+        waitForExpectations(timeout: 1.0)
+        sub.dispose()
+    }
+
 }

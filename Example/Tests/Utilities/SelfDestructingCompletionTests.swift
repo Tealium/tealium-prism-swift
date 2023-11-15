@@ -13,7 +13,7 @@ final class SelfDestructingCompletionTests: XCTestCase {
 
     func test_completion_is_only_called_once_on_success() {
         let expect = expectation(description: "Completion is only called once")
-        let completion = SelfDestructingCompletion<Void, Error> { _ in
+        let completion = SelfDestructingResultCompletion<Void, Error> { _ in
             expect.fulfill()
         }
         completion.success(response: ())
@@ -25,7 +25,7 @@ final class SelfDestructingCompletionTests: XCTestCase {
 
     func test_completion_is_only_called_once_on_failure() {
         let expect = expectation(description: "Completion is only called once")
-        let completion = SelfDestructingCompletion<Void, Error> { _ in
+        let completion = SelfDestructingResultCompletion<Void, Error> { _ in
             expect.fulfill()
         }
         let error = NetworkError.unknown(nil)
@@ -38,7 +38,7 @@ final class SelfDestructingCompletionTests: XCTestCase {
 
     func test_completion_is_only_called_once_on_completion() {
         let expect = expectation(description: "Completion is only called once")
-        let completion = SelfDestructingCompletion<Void, Error> { _ in
+        let completion = SelfDestructingResultCompletion<Void, Error> { _ in
             expect.fulfill()
         }
         completion.complete(result: .success(()))

@@ -68,7 +68,7 @@ public class NetworkClient: NetworkClientProtocol {
     }
 
     private func sendRetryableRequest(_ request: URLRequest, retryCount: Int = 0, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable {
-        let completion = SelfDestructingCompletion(completion: completion)
+        let completion = SelfDestructingResultCompletion(completion: completion)
         let disposeContainer = TealiumDisposeContainer()
         self.sendBasicRequest(request) { result in
             self.interceptorManager.interceptResult(request: request, retryCount: retryCount, result: result) { [weak self] shouldRetry in

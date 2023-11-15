@@ -72,7 +72,7 @@ public class Tealium: TealiumProtocol {
                                    minLogLevel: coreSettings.minLogLevel,
                                    onCoreSettings: onSettingsUpdate)
         tealiumQueue.async {
-            let completion = SelfDestructingCompletion<TealiumProtocol, Error> { result in
+            let completion = SelfDestructingResultCompletion<TealiumProtocol, Error> { result in
                 completion(result)
                 switch result {
                 case .success:
@@ -154,7 +154,9 @@ public class Tealium: TealiumProtocol {
                 .forEach { dispatcher in
                     TealiumSignpostInterval(signposter: .dispatching, name: "Dispatching")
                         .signpostedWork("Dispatcher: \(type(of: dispatcher as TealiumModule).id)") {
-                            dispatcher.dispatch([trackable])
+                            dispatcher.dispatch([trackable]) { _ in
+
+                            }
                         }
                 }
             self.context?.logger.debug?.log(category: TealiumLibraryCategories.tracking, message: "Dispatched Event")

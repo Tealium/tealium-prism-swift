@@ -10,11 +10,12 @@ import TealiumSwift
 import UIKit
 
 class CustomDispatcher: Dispatcher {
-    func dispatch(_ data: [TealiumDispatch]) {
+    func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) {
         print("CustomDispatcher dispatch: \(data.compactMap { $0.name })")
+        completion(data)
     }
-    
-    static var id: String = "CustomDispatcher"
+
+    static let id: String = "CustomDispatcher"
     
     required init?(context: TealiumContext, moduleSettings: [String : Any]) {
         

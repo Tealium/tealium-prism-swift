@@ -52,7 +52,7 @@ class VisitorProfileRetriever {
     }
 
     private func delayedGetVisitorProfile(visitorId: String, retryCount: Int = 0, completion: @escaping (VisitorProfileResult) -> Void) -> TealiumDisposable {
-        let completion = SelfDestructingCompletion(completion: completion)
+        let completion = SelfDestructingResultCompletion(completion: completion)
         let disposeContainer = TealiumDisposeContainer()
         tealiumQueue.asyncAfter(deadline: .now() + 2.1) {
             guard !disposeContainer.isDisposed, visitorId == self.currentVisitorId else {

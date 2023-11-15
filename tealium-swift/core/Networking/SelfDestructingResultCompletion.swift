@@ -1,5 +1,5 @@
 //
-//  SelfDestructingCompletion.swift
+//  SelfDestructingResultCompletion.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 17/05/23.
@@ -16,14 +16,14 @@ import Foundation
  * Example where completion block has the same parameter of the inner  function:
  * ```
  *  func doSomeAsyncOperation(request: URLRequest, completion: @escaping (Result<Any, Error>) -> Void) {
- *      let completion = SelfDestructingCompletion(completion: completion)
+ *      let completion = SelfDestructingResultCompletion(completion: completion)
  *      _ = NetworkingClient.shared.send(request, completion: completion.complete)
  *  }
  * ```
  * Example where completion block has different parameters of the inner  function:
  * ```
  *  func doSomeAsyncOperation(request: URLRequest, completion: @escaping (Result<Any, Error>) -> Void) {
- *      let completion = SelfDestructingCompletion(completion: completion)
+ *      let completion = SelfDestructingResultCompletion(completion: completion)
  *      URLSession.shared.dataTask(request) { data, request, error in
  *          if let error = error {
  *              completion.fail(error)
@@ -35,8 +35,16 @@ import Foundation
  * ```
  * Main usecase is for completing immediately something that is cancelled, without the need to add more logic to avoid duplicate call of the completion.
  */
-class SelfDestructingCompletion<Success, Failure: Error> {
-    typealias Param = Result<Success, Failure>
+class SelfDestructingResultCompletion<Success, Failure: Error>: SelfDestructingCompletion<Result<Success, Failure>> {
+    func fail(error: Failure) {
+        complete(result: .failure(error))
+    }
+    func success(response: Success) {
+        complete(result: .success(response))
+    }
+}
+
+class SelfDestructingCompletion<Param> {
     typealias Completion = (Param) -> Void
     private var completion: Completion?
     init(completion: @escaping Completion) {
@@ -47,11 +55,5 @@ class SelfDestructingCompletion<Success, Failure: Error> {
             self.completion = nil
             completion(result)
         }
-    }
-    func fail(error: Failure) {
-        complete(result: .failure(error))
-    }
-    func success(response: Success) {
-        complete(result: .success(response))
     }
 }

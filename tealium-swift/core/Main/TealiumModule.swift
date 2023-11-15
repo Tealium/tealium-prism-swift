@@ -14,6 +14,11 @@ public protocol TealiumModule {
 
     func updateSettings(_ settings: [String: Any]) -> Self?
 }
+public extension TealiumModule {
+    var id: String {
+        type(of: self).id
+    }
+}
 
 public extension TealiumModule {
     func updateSettings(_ settings: [String: Any]) -> Self? {
@@ -26,5 +31,10 @@ public protocol Collector: TealiumModule {
 }
 
 public protocol Dispatcher: TealiumModule {
-    func dispatch(_ data: [TealiumDispatch])
+    var dispatchLimit: Int { get }
+    func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void)
+}
+
+public extension Dispatcher {
+    var dispatchLimit: Int { 1 }
 }

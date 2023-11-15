@@ -20,7 +20,7 @@ public class TealiumCollect: Dispatcher {
         return self
     }
 
-    public func dispatch(_ data: [TealiumDispatch]) {
+    public func dispatch(_ data: [TealiumDispatch], completion: ([TealiumDispatch]) -> Void) {
         guard let url = URL(string: "https://collect.tealiumiq.com/event/") else {
             return
         }
@@ -29,6 +29,7 @@ public class TealiumCollect: Dispatcher {
                 self?.context.logger.trace?.log(category: TealiumLibraryCategories.dispatching, message: "URL Request \(url) completed with \(result)")
             }
         }
+        completion(data)
     }
 }
 

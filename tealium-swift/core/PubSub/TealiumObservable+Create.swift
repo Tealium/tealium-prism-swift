@@ -41,5 +41,43 @@ public extension TealiumObservable {
             return TealiumSubscription { }
         }
     }
+
+    /// Returns an empty observable that never reports anything
+    static func Empty<Element>() -> TealiumObservable<Element> {
+        TealiumObservableCreate { _ in
+            return TealiumSubscription { }
+        }
+    }
+
+    static func CombineLatest(_ observables: [TealiumObservable<Element>]) -> TealiumObservable<[Element]> {
+        TealiumObservableCreate { observer in
+            let container = TealiumDisposeContainer()
+            let count = observables.count
+            guard count > 0 else { return container }
+            var temporaryArray: [Element?]? = [Element?](repeating: nil, count: observables.count)
+            var resultArray = [Element]()
+            func notify(element: Element, index: Int) {
+                if temporaryArray != nil {
+                    temporaryArray?[index] = element
+                    if temporaryArray?.contains(where: { $0 == nil }) == false,
+                       let unwrappedArray = temporaryArray?.compactMap({ $0 }),
+                        unwrappedArray.count == count {
+                        resultArray = unwrappedArray
+                        temporaryArray = nil
+                    }
+                }
+                if resultArray.count == count {
+                    resultArray[index] = element
+                    observer(resultArray)
+                }
+            }
+            for i in 0..<count {
+                observables[i].subscribe { element in
+                    notify(element: element, index: i)
+                }.addTo(container)
+            }
+            return container
+        }
+    }
     // swiftlint:enable identifier_name
 }

@@ -98,6 +98,20 @@ public extension TealiumObservableProtocol {
         }
     }
 
+    func flatMapLatest<Result>(_ selector: @escaping (Element) -> TealiumObservable<Result>) -> TealiumObservable<Result> {
+        return TealiumObservableCreate<Result> { observer in
+            let container = TealiumDisposeContainer()
+            var subscription: TealiumDisposable?
+            self.subscribe { element in
+                subscription?.dispose()
+                subscription = selector(element)
+                    .subscribe(observer)
+                subscription?.addTo(container)
+            }.addTo(container)
+            return container
+        }
+    }
+
     /// On subscription emits the provided elements before providing the other events from the original observable.
     func startWith(_ elements: Element...) -> TealiumObservable<Element> {
         return TealiumObservableCreate { observer in
