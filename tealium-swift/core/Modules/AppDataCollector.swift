@@ -50,7 +50,7 @@ public class AppDataCollector: AppDataCollection, Collector {
 
     public var data: TealiumDictionaryInput
 
-    public static var id: String = "appdata"
+    public static let id: String = "appdata"
 
     public required init?(context: TealiumContext, moduleSettings: [String: Any]) {
         data = TealiumDictionaryInput(removingOptionals: [

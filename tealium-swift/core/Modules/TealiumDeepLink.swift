@@ -40,7 +40,7 @@ public enum Referrer {
 }
 
 public class DeepLinkModule: TealiumModule {
-    public static var id: String = "deeplink"
+    public static let id: String = "deeplink"
 
     let context: TealiumContext
     public required init(context: TealiumContext, moduleSettings: [String: Any]) {

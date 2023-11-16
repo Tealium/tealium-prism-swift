@@ -12,15 +12,14 @@ public class TealiumCollector: Collector {
     public var data: TealiumDictionaryInput {
         let settings = context.coreSettings
         return TealiumDictionaryInput(removingOptionals: [
-            "account": settings.account,
-            "profile": settings.profile,
-            "environment": settings.environment,
-            "modules": context.tealiumProtocol?.modules.map { type(of: $0).id },
-            "enabled_modules": context.tealiumProtocol?.modules.map { type(of: $0).id }
+            TealiumDataKey.account: settings.account,
+            TealiumDataKey.profile: settings.profile,
+            TealiumDataKey.environment: settings.environment,
+            TealiumDataKey.enabledModules: context.tealiumProtocol?.modules.map { type(of: $0).id }
         ])
     }
 
-    public static var id: String = "tealiumcollector"
+    public static let id: String = "tealiumcollector"
 
     let context: TealiumContext
     public required init(context: TealiumContext, moduleSettings: [String: Any]) {

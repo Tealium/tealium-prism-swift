@@ -37,7 +37,7 @@ public class TealiumTrace {
 }
 
 public class TraceModule: TealiumModule {
-    public static var id: String = "trace"
+    public static let id: String = "trace"
 
     let context: TealiumContext
     public required init(context: TealiumContext, moduleSettings: [String: Any]) {

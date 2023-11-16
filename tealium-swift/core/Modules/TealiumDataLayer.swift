@@ -90,7 +90,7 @@ public class DataLayerModule: Collector {
     public var data: TealiumDictionaryInput {
         moduleStore.getAll().compactMapValues { $0.getDataInput() }
     }
-    public static var id: String = "datalayer"
+    public static let id: String = "datalayer"
     let moduleStore: DataStore
 
     public required init?(context: TealiumContext, moduleSettings: [String: Any]) {
@@ -179,7 +179,7 @@ public class VisitorServiceEventPublishers: VisitorServiceEventObservables {
 }
 
 class VisitorServiceModule: TealiumModule {
-    static var id: String = "visitorservice"
+    static let id: String = "visitorservice"
 
     required init?(context: TealiumContext, moduleSettings: [String: Any]) {
 
