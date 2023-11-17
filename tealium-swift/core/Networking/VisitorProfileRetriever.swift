@@ -35,6 +35,11 @@ class VisitorProfileRetriever {
     var retrivingProfile: TealiumDisposable?
     var cachedProfile: VisitorProfile?
     var currentVisitorId: String = ""
+    let context: TealiumContext
+
+    init(context: TealiumContext) {
+        self.context = context
+    }
 
     public func getProfile(delayed: Bool) {
         retrivingProfile?.dispose()
@@ -90,7 +95,7 @@ class VisitorProfileRetriever {
     }
 
     private func _getVisitorProfile(visitorId: String, completion: @escaping (VisitorProfileResult) -> Void) -> TealiumDisposable {
-        NetworkHelper.shared.getJsonAsObject(url: "") { result in
+        context.networkHelper.getJsonAsObject(url: "") { result in
             guard visitorId == self.currentVisitorId else {
                 completion(.failure(.cancelled))
                 return

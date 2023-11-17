@@ -49,18 +49,6 @@ public class DefaultInterceptor: RequestInterceptor {
         self.backoffPolicy = backoffPolicy
     }
 
-    public func didComplete(_ request: URLRequest, with response: NetworkResult) {
-        // TODO: change with a logger instance?
-        var text = "NetworkRequest \(request) "
-        switch response {
-        case .failure(let error):
-            text += "failed with \(error.localizedDescription)"
-        case .success(let response):
-            text += "succeded with \(response.urlResponse.statusCode) status code"
-        }
-        print(text)
-    }
-
     public func shouldRetry(_ request: URLRequest, retryCount: Int, with response: NetworkResult) -> RetryPolicy {
         switch response {
         case .failure(let error) where error.isRetryable:

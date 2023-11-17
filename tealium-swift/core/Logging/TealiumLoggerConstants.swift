@@ -16,7 +16,7 @@ import Foundation
  * but it will always be used by a logger to compare it with the `TealiumLogLevel.Minimum`
  * minimum log level and only send logs with higher severity than the configured minimum.
  */
-public enum TealiumLogLevel: Int, Comparable, CaseIterable {
+public enum TealiumLogLevel: Int, Comparable, CaseIterable, CustomStringConvertible {
     case trace  = 0
     case debug  = 100
     case info   = 200
@@ -31,12 +31,26 @@ public enum TealiumLogLevel: Int, Comparable, CaseIterable {
         lhs.rawValue < rhs.rawValue
     }
 
+    public var description: String {
+        switch self {
+        case .trace:
+            return "Trace"
+        case .debug:
+            return "Debug"
+        case .info:
+            return "Info"
+        case .warn:
+            return "Warning"
+        case .error:
+            return "Error"
+        }
+    }
     /**
      * The minimum log level that will be used by a logger to limit the amount of logs produced.
      *
      * It includes the same log levels as the TealiumLogLevel plus an additional `silent` level to stop all logging.
      */
-    public enum Minimum: Int, Comparable, CustomStringConvertible {
+    public enum Minimum: Int, Comparable {
         case trace  = 0
         case debug  = 100
         case info   = 200
@@ -44,7 +58,7 @@ public enum TealiumLogLevel: Int, Comparable, CaseIterable {
         case error  = 400
         case silent = 999_999
 
-        static let `default` = Self.error
+        static let `default` = Self.debug
 
         public init?(from string: String) {
             switch string {
@@ -62,23 +76,6 @@ public enum TealiumLogLevel: Int, Comparable, CaseIterable {
                 self = .silent
             default:
                 return nil
-            }
-        }
-
-        public var description: String {
-            switch self {
-            case .trace:
-                return "Trace"
-            case .debug:
-                return "Debug"
-            case .info:
-                return "Info"
-            case .warn:
-                return "Warning"
-            case .error:
-                return "Error"
-            case .silent:
-                return "Silent"
             }
         }
 

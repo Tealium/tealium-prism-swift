@@ -17,7 +17,7 @@ public class TealiumContext {
     public let moduleStoreProvider: ModuleStoreProvider
     public weak var modulesManager: ModulesManager?
     public let logger: TealiumLoggerProvider
-
+    public let networkHelper: NetworkHelperProtocol
     private var automaticDisposer = TealiumAutomaticDisposer()
 
     init(_ teal: TealiumProtocol,
@@ -27,7 +27,8 @@ public class TealiumContext {
          onSettingsUpdate: TealiumObservable<CoreSettings>,
          databaseProvider: DatabaseProvider,
          moduleStoreProvider: ModuleStoreProvider,
-         logger: TealiumLoggerProvider) {
+         logger: TealiumLoggerProvider,
+         networkHelper: NetworkHelperProtocol) {
         self.tealiumProtocol = teal
         self.modulesManager = modulesManager
         self.config = config
@@ -36,6 +37,7 @@ public class TealiumContext {
         self.databaseProvider = databaseProvider
         self.moduleStoreProvider = moduleStoreProvider
         self.logger = logger
+        self.networkHelper = networkHelper
         onSettingsUpdate.subscribe { [weak self] settings in
             self?.coreSettings = settings
         }.addTo(automaticDisposer)

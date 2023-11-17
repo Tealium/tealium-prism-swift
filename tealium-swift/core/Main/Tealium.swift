@@ -89,6 +89,8 @@ public class Tealium: TealiumProtocol {
                                                         modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
                 logger.trace?.log(category: TealiumLibraryCategories.startup, message: "Deleting restart and expired items from DB")
                 storeProvider.modulesRepository.deleteExpired(expiry: .restart)
+                let networkHelper = NetworkHelper(networkClient: HTTPClient.shared.newClient(withLogger: logger),
+                                                  logger: logger)
                 self.context = TealiumContext(self,
                                               modulesManager: self.modulesManager,
                                               config: config,
@@ -96,7 +98,8 @@ public class Tealium: TealiumProtocol {
                                               onSettingsUpdate: self.onSettingsUpdate,
                                               databaseProvider: databaseProvider,
                                               moduleStoreProvider: storeProvider,
-                                              logger: logger)
+                                              logger: logger,
+                                              networkHelper: networkHelper)
                 self.handleSettingsUpdates {
                     logger.trace?.log(category: TealiumLibraryCategories.settings, message: "Settings Updated")
                     completion.success(response: self)

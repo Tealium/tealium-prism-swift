@@ -1,5 +1,5 @@
 //
-//  NetworkClientTests.swift
+//  HTTPClientTests.swift
 //  tealium-swift_Tests
 //
 //  Created by Enrico Zannini on 12/05/23.
@@ -9,7 +9,7 @@
 @testable import TealiumSwift
 import XCTest
 
-final class NetworkClientTests: XCTestCase {
+final class HTTPClientTests: XCTestCase {
     var config: NetworkConfiguration = NetworkConfiguration(sessionConfiguration: NetworkConfiguration.defaultUrlSessionConfiguration,
                                                             interceptors: [],
                                                             interceptorManagerFactory: MockInterceptorManager.self)
@@ -18,9 +18,9 @@ final class NetworkClientTests: XCTestCase {
         client.interceptorManager as! MockInterceptorManager
         // swiftlint:enable force_cast
     }
-    lazy var client: NetworkClient = {
+    lazy var client: HTTPClient = {
         config.sessionConfiguration.protocolClasses = [URLProtocolMock.self]
-        return NetworkClient(configuration: config)
+        return HTTPClient(configuration: config)
     }()
 
     func test_url_session_has_interceptor_as_delegate() {
@@ -197,20 +197,6 @@ final class NetworkClientTests: XCTestCase {
             }
         }
         wait(for: [expectCancelled, expectSucceded], timeout: 3.0, enforceOrder: true)
-    }
-
-    func test_add_and_remove_interceptor() {
-        let client = NetworkClient(configuration: config)
-        let count = client.interceptorManager.interceptors.count
-        let interceptor = MockInterceptor()
-        client.addInterceptor(interceptor)
-        config.queue.sync {
-            XCTAssertEqual(count + 1, client.interceptorManager.interceptors.count)
-        }
-        client.removeInterceptor(interceptor)
-        config.queue.sync {
-            XCTAssertEqual(count, client.interceptorManager.interceptors.count)
-        }
     }
 }
 

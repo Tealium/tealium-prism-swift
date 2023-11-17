@@ -9,7 +9,6 @@
 import Foundation
 
 public protocol InterceptorManagerProtocol: URLSessionTaskDelegate {
-    var interceptors: [RequestInterceptor] { get set }
     init(interceptors: [RequestInterceptor], queue: DispatchQueue)
     func interceptResult(request: URLRequest, retryCount: Int, result: NetworkResult, shouldRetry: @escaping (Bool) -> Void)
 }
@@ -19,7 +18,7 @@ public protocol InterceptorManagerProtocol: URLSessionTaskDelegate {
  * It forwards them to the interceptors along with some other internal network client messages.
  */
 public class InterceptorManager: NSObject, InterceptorManagerProtocol {
-    public var interceptors: [RequestInterceptor]
+    var interceptors: [RequestInterceptor]
     let queue: DispatchQueue
     public required init(interceptors: [RequestInterceptor], queue: DispatchQueue) {
         self.interceptors = interceptors

@@ -10,18 +10,27 @@ import Foundation
 
 public class NetworkHelper: NetworkHelperProtocol {
     private static let decoder = JSONDecoder()
-    public let networkClient: NetworkClientProtocol
-    init(networkClient: NetworkClientProtocol = NetworkClient.shared) {
+    public let networkClient: NetworkClient
+    let logger: TealiumLoggerProvider?
+    init(networkClient: NetworkClient = HTTPClient.shared, logger: TealiumLoggerProvider? = nil) {
         self.networkClient = networkClient
+        self.logger = logger
     }
 
-    public static let shared = NetworkHelper()
-
     private func send(requestBuilder: @autoclosure () throws -> RequestBuilder, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable {
+        let completion: (NetworkResult) -> Void = { [weak self] result in
+            self?.logger?.trace?.log(category: TealiumLibraryCategories.networking,
+                                     message: "NetworkHelper completed request with result \(result.shortDescription())")
+            completion(result)
+        }
         do {
             let request = try requestBuilder().build()
+            logger?.trace?.log(category: TealiumLibraryCategories.networking,
+                               message: "NetworkHelper built request \(request)")
             return networkClient.sendRequest(request, completion: completion)
         } catch {
+            logger?.error?.log(category: TealiumLibraryCategories.networking,
+                               message: "NetworkHelper failed to build a request")
             completion(.failure(.unknown(error)))
             return TealiumSubscription { }
         }

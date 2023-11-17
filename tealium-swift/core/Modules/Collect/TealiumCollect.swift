@@ -21,7 +21,7 @@ public class TealiumCollect: Dispatcher {
 
     /// Generic `Dispatcher` initializer called by the `ModulesManager`.
     public required convenience init(context: TealiumContext, moduleSettings: [String: Any]) {
-        self.init(networkHelper: NetworkHelper.shared,
+        self.init(networkHelper: context.networkHelper,
                   settings: TealiumCollectSettings(moduleSettings: moduleSettings),
                   logger: context.logger)
     }
@@ -85,7 +85,7 @@ public class TealiumCollect: Dispatcher {
         _ = networkHelper.post(url: url, body: data) { [weak self] result in
             self?.logger?.debug?
                 .log(category: TealiumLibraryCategories.dispatching,
-                     message: "Collect dispatching complete with \(result) for event \(event.name ?? "unknown")")
+                     message: "Collect dispatching \(result.shortDescription()) for event \(event.name ?? "unknown")")
             completion([event])
         }
     }
@@ -110,7 +110,7 @@ public class TealiumCollect: Dispatcher {
         _ = networkHelper.post(url: url, body: batchData) { [weak self] result in
             self?.logger?.debug?
                 .log(category: TealiumLibraryCategories.dispatching,
-                     message: "Collect dispatching complete with \(result) for events \(events.map { $0.name ?? "unknown" })")
+                     message: "Collect dispatching \(result.shortDescription()) for events \(events.map { $0.name ?? "unknown" })")
             completion(events)
         }
     }

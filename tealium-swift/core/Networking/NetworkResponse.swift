@@ -14,5 +14,16 @@ public struct NetworkResponse {
     public let urlResponse: HTTPURLResponse
 }
 
-/// A successful Result with a NetwprkResponse or a failed Result with NetworkError, returned by the NetworkClient
+/// A successful Result with a NetworkResponse or a failed Result with NetworkError, returned by the NetworkClient
 public typealias NetworkResult = Result<NetworkResponse, NetworkError>
+
+extension NetworkResult {
+    func shortDescription() -> String {
+        switch self {
+        case .failure(let error):
+            return "failed with \(error.localizedDescription)"
+        case .success(let response):
+            return "succeded with \(response.urlResponse.statusCode) status code"
+        }
+    }
+}

@@ -8,45 +8,7 @@
 
 import Foundation
 
-public protocol NetworkClientProtocol {
-    func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable
-    func addInterceptor(_ interceptor: RequestInterceptor)
-    func removeInterceptor(_ interceptor: RequestInterceptor)
-}
-
-/**
- * An HTTP client that sends `URLRequest`s via a `URLSession`.
- *
- * `URLRequest`s are sent as is and are retried according to the `RequestInterceptor`s logic when necessary.
- * `RequestInterceptor`s are also notified of other events concerning the request lifecycle.
- * Some of these events are related to the `NetworkClient` logic and some are just `URLSessionDelegate` events being forwarded.
- *
- * You should almost never create a new instance of this class but rather use the `shared` instance,
- * as it's configured with sensible defaults and using one `URLSession` comes with a series of optimizations.
- * If you need a new specific `RequestInterceptor` you can add it via the `addInterceptor` method instead of creating a new client.
- */
-public class NetworkClient: NetworkClientProtocol {
-    /// The shared instance created with the default configuration
-    public static let shared: NetworkClient = NetworkClient()
-    let session: URLSession
-    private let queue: DispatchQueue
-    let interceptorManager: InterceptorManagerProtocol
-    /**
-     * Creates and returns a new client.
-     *
-     * - Parameter configuration: the `NetworkConfiguration` used to instanciate the client.
-     */
-    public init(configuration: NetworkConfiguration = .default) {
-        let operationQueue = OperationQueue()
-        operationQueue.underlyingQueue = configuration.queue
-        let interceptorManager = configuration.interceptorManager
-        self.interceptorManager = interceptorManager
-        session = URLSession(configuration: configuration.sessionConfiguration,
-                             delegate: interceptorManager,
-                             delegateQueue: operationQueue)
-        queue = configuration.queue
-    }
-
+public protocol NetworkClient {
     /**
      * Sends a `URLRequest` as is and completes with a `NetworkResult`. It returns a `TealiumDisposableProtocol` that can be disposed to cancel the request sent.
      *
@@ -58,6 +20,52 @@ public class NetworkClient: NetworkClientProtocol {
      *
      * - Returns: the `TealiumDisposable` that can be used to dispose the request and cancel the dataTask and future retries.
      */
+    func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable
+}
+
+/**
+ * An HTTP client that sends `URLRequest`s via a `URLSession`.
+ *
+ * `URLRequest`s are sent as is and are retried according to the `RequestInterceptor`s logic when necessary.
+ * `RequestInterceptor`s are also notified of other events concerning the request lifecycle.
+ * Some of these events are related to the `HTTPClient` logic and some are just `URLSessionDelegate` events being forwarded.
+ *
+ * You should almost never create a new instance of this class but rather use the `shared` instance,
+ * as it's configured with sensible defaults and using one `URLSession` comes with a series of optimizations.
+ * If you need to create a new instance make sure to start from a `default` configuration and only add new interceptors to the default ones.
+ */
+public class HTTPClient: NetworkClient {
+    /// The shared instance created with the default configuration
+    public static let shared: HTTPClient = HTTPClient()
+    let session: URLSession
+    private let queue: DispatchQueue
+    let interceptorManager: InterceptorManagerProtocol
+    private let logger: TealiumLoggerProvider?
+
+    /**
+     * Creates and returns a new client.
+     *
+     * - Parameter configuration: the `NetworkConfiguration` used to instanciate the client.
+     */
+    convenience public init(configuration: NetworkConfiguration = .default, logger: TealiumLoggerProvider? = nil) {
+        let operationQueue = OperationQueue()
+        operationQueue.underlyingQueue = configuration.queue
+        let interceptorManager = configuration.interceptorManager
+        self.init(session: URLSession(configuration: configuration.sessionConfiguration,
+                                      delegate: interceptorManager,
+                                      delegateQueue: operationQueue),
+                  queue: configuration.queue,
+                  interceptorManager: interceptorManager,
+                  logger: logger)
+    }
+
+    init(session: URLSession, queue: DispatchQueue, interceptorManager: InterceptorManagerProtocol, logger: TealiumLoggerProvider?) {
+        self.session = session
+        self.queue = queue
+        self.interceptorManager = interceptorManager
+        self.logger = logger
+    }
+
     public func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable {
         let signposterInterval = TealiumSignpostInterval(signposter: .networking, name: "Interceptable Request")
             .begin("Send Request: \(request)")
@@ -77,9 +85,12 @@ public class NetworkClient: NetworkClientProtocol {
                     return
                 }
                 if shouldRetry {
-                    TealiumSignposter.networking.event("Retry", message: "\(retryCount + 1)")
+                    let newRetryCount = retryCount + 1
+                    TealiumSignposter.networking.event("Retry", message: "\(newRetryCount)")
+                    self.logger?.trace?.log(category: TealiumLibraryCategories.networking,
+                                            message: "HTTPClient retrying request \(request) for retryCount: \(newRetryCount)")
                     self.sendRetryableRequest(request,
-                                              retryCount: retryCount + 1,
+                                              retryCount: newRetryCount,
                                               completion: completion.complete)
                     .addTo(disposeContainer)
                 } else {
@@ -96,33 +107,22 @@ public class NetworkClient: NetworkClientProtocol {
     }
 
     private func sendBasicRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> URLSessionDataTask {
+        logger?.trace?.log(category: TealiumLibraryCategories.networking,
+                           message: "HTTPClient sending request \(request)")
         let signposterInterval = TealiumSignpostInterval(signposter: .networking, name: "Request")
             .begin("HTTP Request: \(request)")
-        return session.send(request) { result in
+        return session.send(request) { [weak self] result in
             signposterInterval.end("\(result)")
+            self?.logger?.trace?.log(category: TealiumLibraryCategories.networking,
+                                     message: "HTTPClient completed request \(request) with \(result)")
             completion(result)
         }
     }
 
-    /**
-     * Adds a new interceptor
-     *
-     * - Parameter interceptor: the `RequestInterceptor` to be added
-     */
-    public func addInterceptor(_ interceptor: RequestInterceptor) {
-        queue.async {
-            self.interceptorManager.interceptors.append(interceptor)
-        }
-    }
-
-    /**
-     * Removes an interceptor
-     *
-     * - Parameter interceptor: the `RequestInterceptor` to be removed
-     */
-    public func removeInterceptor(_ interceptor: RequestInterceptor) {
-        queue.async {
-            self.interceptorManager.interceptors.removeAll { $0 === interceptor }
-        }
+    func newClient(withLogger logger: TealiumLogger) -> HTTPClient {
+        HTTPClient(session: session,
+                   queue: queue,
+                   interceptorManager: interceptorManager,
+                   logger: logger)
     }
 }

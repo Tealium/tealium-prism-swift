@@ -9,7 +9,7 @@
 import Foundation
 @testable import TealiumSwift
 
-class MockNetworkClient: NetworkClientProtocol {
+class MockNetworkClient: NetworkClient {
     var interceptors = [RequestInterceptor]()
     var result: NetworkResult
     var requestDidSend: ((URLRequest) -> Void)?
