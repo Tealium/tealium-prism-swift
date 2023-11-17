@@ -1,7 +1,7 @@
 included:
   - ./tealium-swift
 excluded:
-  - ./tealium-swift/Core/Persistance/DataModels/AnyCodable/
+  - ./tealium-swift/Core/Persistence/DataModels/AnyCodable/
   - ./tealium-swift/Core/Networking/Data+Gzip.swift 
 disabled_rules:
   - trailing_comma
