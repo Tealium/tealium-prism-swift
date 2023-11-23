@@ -30,7 +30,7 @@ final class OperatorsTests: XCTestCase {
                     expectations[2].fulfill()
                 }
             }
-        wait(for: expectations, timeout: 2.0, enforceOrder: true)
+        wait(for: expectations, timeout: 1.0, enforceOrder: true)
     }
 
     func test_map_subscription_dispose_cleans_retain_cycles() {
@@ -44,7 +44,7 @@ final class OperatorsTests: XCTestCase {
         pub.publish(1)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_compactMap_transforms_events_and_removes_nils() {
@@ -69,7 +69,7 @@ final class OperatorsTests: XCTestCase {
                     expectations[2].fulfill()
                 }
             }
-        wait(for: expectations, timeout: 2.0, enforceOrder: true)
+        wait(for: expectations, timeout: 1.0, enforceOrder: true)
     }
 
     func test_compactMap_subscription_dispose_cleans_retain_cycles() {
@@ -83,7 +83,7 @@ final class OperatorsTests: XCTestCase {
         pub.publish(1)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_filter_removes_events() {
@@ -103,7 +103,7 @@ final class OperatorsTests: XCTestCase {
                     expectations[2].fulfill()
                 }
             }
-        wait(for: expectations, timeout: 2.0, enforceOrder: true)
+        wait(for: expectations, timeout: 1.0, enforceOrder: true)
     }
 
     func test_filter_subscription_dispose_cleans_retain_cycles() {
@@ -118,7 +118,7 @@ final class OperatorsTests: XCTestCase {
         pub.publish(2)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
     func test_subscribeOn_subscribes_on_provided_queue() {
         let expectation = expectation(description: "Subscribe handler is called")
@@ -131,7 +131,7 @@ final class OperatorsTests: XCTestCase {
         _ = observable.subscribeOn(queue)
             .subscribe { }
         queue.sync {
-            waitForExpectations(timeout: 2.0)
+            waitForExpectations(timeout: 1.0)
         }
     }
 
@@ -150,7 +150,7 @@ final class OperatorsTests: XCTestCase {
         helper?.subscription?.dispose()
         helper = nil
         queue.sync {
-            waitForExpectations(timeout: 2.0)
+            waitForExpectations(timeout: 1.0)
         }
     }
 
@@ -164,7 +164,7 @@ final class OperatorsTests: XCTestCase {
                 expectation.fulfill()
             }
         queue.sync {
-            waitForExpectations(timeout: 2.0)
+            waitForExpectations(timeout: 1.0)
         }
     }
 
@@ -181,7 +181,7 @@ final class OperatorsTests: XCTestCase {
         queue.sync {
             helper?.subscription?.dispose()
             helper = nil
-            waitForExpectations(timeout: 2.0)
+            waitForExpectations(timeout: 1.0)
         }
     }
 
@@ -194,7 +194,37 @@ final class OperatorsTests: XCTestCase {
             XCTAssertEqual(event, "flatMapped")
             flatMappedEventIsCalled.fulfill()
         }
-        waitForExpectations(timeout: 5)
+        waitForExpectations(timeout: 1.0)
+    }
+
+    func test_flatMap_emits_events_form_all_returned_observables() {
+        let flatMappedEventIsCalled = expectation(description: "FlatMapped event is called 3 times")
+        flatMappedEventIsCalled.expectedFulfillmentCount = 3
+        _ = observable123.flatMap { element in
+            TealiumObservable.Callback { observer in
+                DispatchQueue.main.async {
+                    observer(element)
+                }
+            }
+        }.subscribe { _ in
+            flatMappedEventIsCalled.fulfill()
+        }
+        waitForExpectations(timeout: 1.0)
+    }
+
+    func test_flatMapLatest_only_emits_events_from_latest_returned_observable() {
+        let flatMappedEventIsCalled = expectation(description: "FlatMapped event is called only once")
+        _ = observable123.flatMapLatest { element in
+            TealiumObservable.Callback { observer in
+                DispatchQueue.main.async {
+                    observer(element)
+                }
+            }
+        }.subscribe { element in
+            XCTAssertEqual(element, 3)
+            flatMappedEventIsCalled.fulfill()
+        }
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_flatMap_subscription_dispose_cleans_retain_cycles() {
@@ -208,7 +238,7 @@ final class OperatorsTests: XCTestCase {
         pub.publish(1)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_start_with_prefixes_the_events_with_provided_events() {
@@ -222,7 +252,7 @@ final class OperatorsTests: XCTestCase {
             .subscribe { number in
                 expectations[number].fulfill()
             }
-        wait(for: expectations, timeout: 2.0, enforceOrder: true)
+        wait(for: expectations, timeout: 1.0, enforceOrder: true)
     }
 
     func test_startWith_subscription_dispose_cleans_retain_cycles() {
@@ -236,7 +266,7 @@ final class OperatorsTests: XCTestCase {
         pub.publish(1)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_merge_publishes_events_of_both_observables() {
@@ -260,7 +290,7 @@ final class OperatorsTests: XCTestCase {
         pub2.publish(2)
         pub1.publish(3)
         pub2.publish(4)
-        wait(for: expectations, timeout: 2.0, enforceOrder: true)
+        wait(for: expectations, timeout: 1.0, enforceOrder: true)
     }
 
     func test_merge_subscription_dispose_cleans_retain_cycles() {
@@ -274,7 +304,7 @@ final class OperatorsTests: XCTestCase {
         pub.publish(1)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_first_returns_only_first_event() {
@@ -284,7 +314,7 @@ final class OperatorsTests: XCTestCase {
                 expectation.fulfill()
             }
 
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_first_returns_only_first_event_that_is_included() {
@@ -294,7 +324,7 @@ final class OperatorsTests: XCTestCase {
                 XCTAssertEqual(number, 2)
                 expectation.fulfill()
             }
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_first_disposes_subscription_after_the_event_is_reported() {
@@ -304,7 +334,7 @@ final class OperatorsTests: XCTestCase {
                 expectation.fulfill()
             }
         XCTAssertTrue(subscription.isDisposed)
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_first_subscription_dispose_cleans_retain_cycles() {
@@ -317,7 +347,7 @@ final class OperatorsTests: XCTestCase {
         })
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_first_cleans_retain_cycles_after_first_event() {
@@ -329,7 +359,7 @@ final class OperatorsTests: XCTestCase {
             expectation.fulfill()
         })
         pub.publish(1)
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_combineLatest_doesnt_send_event_if_first_has_provided_no_events() {
@@ -342,7 +372,7 @@ final class OperatorsTests: XCTestCase {
             .combineLatest(pub2.asObservable())
             .subscribe { _, _ in expectation.fulfill() }
         pub1.publish(1)
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_combineLatest_doesnt_send_event_if_second_has_provided_no_events() {
@@ -355,7 +385,7 @@ final class OperatorsTests: XCTestCase {
             .combineLatest(pub2.asObservable())
             .subscribe { _, _ in expectation.fulfill() }
         pub2.publish("a")
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_combineLatest_sends_event_if_both_provided_an_event() {
@@ -368,7 +398,7 @@ final class OperatorsTests: XCTestCase {
             .subscribe { _, _ in expectation.fulfill() }
         pub1.publish(1)
         pub2.publish("a")
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_combineLatest_after_first_sends_events_at_each_event_from_both_observables() {
@@ -400,7 +430,7 @@ final class OperatorsTests: XCTestCase {
         pub2.publish("a")
         pub1.publish(2)
         pub2.publish("b")
-        wait(for: expectations, timeout: 2.0, enforceOrder: true)
+        wait(for: expectations, timeout: 1.0, enforceOrder: true)
     }
 
     func test_combineLatest_subscription_dispose_cleans_retain_cycles() {
@@ -414,7 +444,7 @@ final class OperatorsTests: XCTestCase {
         pub.publish(1)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_distinct_only_provides_different_events() {
@@ -429,7 +459,7 @@ final class OperatorsTests: XCTestCase {
                 expectations[number].fulfill()
             }
 
-        wait(for: expectations, timeout: 2.0, enforceOrder: true)
+        wait(for: expectations, timeout: 1.0, enforceOrder: true)
     }
 
     func test_distinct_subscription_dispose_cleans_retain_cycles() {
@@ -445,7 +475,23 @@ final class OperatorsTests: XCTestCase {
         pub.publish(2)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
+    }
+
+    func test_ignoreN_ignores_first_N_events() {
+        let expectation = expectation(description: "4th event received")
+        let sub = TealiumReplaySubject(initialValue: 0)
+        let observable = sub.asObservable()
+        observable.ignore(3)
+            .subscribeOnce { element in
+                if element == 3 {
+                    expectation.fulfill()
+                }
+            }
+        sub.publish(1)
+        sub.publish(2)
+        sub.publish(3)
+        waitForExpectations(timeout: 1.0)
     }
 }
 // swiftlint:enable type_body_length

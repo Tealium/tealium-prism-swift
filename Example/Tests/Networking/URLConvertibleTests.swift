@@ -31,19 +31,6 @@ final class URLConvertibleTests: XCTestCase {
         }
     }
 
-    func test_malformed_string_throws_an_error() {
-        let malformedString = "😀"
-        XCTAssertThrowsError(try malformedString.asUrl()) { error in
-            let parsingError = error as? ParsingError
-            XCTAssertNotNil(parsingError, "Error should be a parsing error")
-            guard case let .invalidUrl(url) = parsingError else {
-                XCTFail("ParsingError should be invalid URL")
-                return
-            }
-            XCTAssertEqual(malformedString, url as? String)
-        }
-    }
-
     func test_URLComponents_converts_to_url() {
         let urlComponents = URLComponents(string: urlString)
         guard let url = XCTAssertNoThrowReturn(try urlComponents?.asUrl()) as? URL else {

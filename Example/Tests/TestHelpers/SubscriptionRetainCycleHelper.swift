@@ -9,7 +9,7 @@
 import Foundation
 @testable import TealiumSwift
 
-class SubscriptionRetainCycleHelper<P: TealiumObservableConvertibleProtocol>: DeinitTester {
+class SubscriptionRetainCycleHelper<P: TealiumObservableConvertible>: DeinitTester {
 
     let anyPublisher: P
     var subscription: TealiumDisposable?

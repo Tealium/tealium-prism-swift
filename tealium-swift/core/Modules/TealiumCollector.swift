@@ -10,12 +10,12 @@ import Foundation
 
 public class TealiumCollector: Collector {
     public var data: TealiumDictionaryInput {
-        let settings = context.coreSettings
+        let config = context.config
         return TealiumDictionaryInput(removingOptionals: [
-            TealiumDataKey.account: settings.account,
-            TealiumDataKey.profile: settings.profile,
-            TealiumDataKey.environment: settings.environment,
-            TealiumDataKey.enabledModules: context.tealiumProtocol?.modules.map { type(of: $0).id }
+            TealiumDataKey.account: config.account,
+            TealiumDataKey.profile: config.profile,
+            TealiumDataKey.environment: config.environment,
+            TealiumDataKey.enabledModules: context.modulesManager?.modules.map { type(of: $0).id }
         ])
     }
 

@@ -22,7 +22,7 @@ final class ConnectivityManagerTests: XCTestCase {
     func test_connectivity_is_assumed_available_on_start() {
         let connectionAssumedAvailableEvent = expectation(description: "Event is returned")
         XCTAssertTrue(manager.isConnectionAssumedAvailable)
-        manager.onConnectionAssumedAvailable.subscribeOnce { available in
+        manager.$connectionAssumedAvailable.subscribeOnce { available in
             XCTAssertTrue(available)
             connectionAssumedAvailableEvent.fulfill()
         }
@@ -34,7 +34,7 @@ final class ConnectivityManagerTests: XCTestCase {
         connectivityMonitor.changeConnection(.connected(.wifi))
         empiricalConnectivity.changeConnectionAvailable(false)
         XCTAssertTrue(manager.isConnectionAssumedAvailable)
-        manager.onConnectionAssumedAvailable.subscribeOnce { available in
+        manager.$connectionAssumedAvailable.subscribeOnce { available in
             XCTAssertTrue(available)
             connectionAssumedAvailableEvent.fulfill()
         }
@@ -45,7 +45,7 @@ final class ConnectivityManagerTests: XCTestCase {
         let connectionAssumedAvailableEvent = expectation(description: "Event is returned")
         connectivityMonitor.changeConnection(.notConnected)
         XCTAssertTrue(manager.isConnectionAssumedAvailable)
-        manager.onConnectionAssumedAvailable.subscribeOnce { available in
+        manager.$connectionAssumedAvailable.subscribeOnce { available in
             XCTAssertTrue(available)
             connectionAssumedAvailableEvent.fulfill()
         }
@@ -57,7 +57,7 @@ final class ConnectivityManagerTests: XCTestCase {
         connectivityMonitor.changeConnection(.notConnected)
         empiricalConnectivity.changeConnectionAvailable(false)
         XCTAssertFalse(manager.isConnectionAssumedAvailable)
-        manager.onConnectionAssumedAvailable.subscribeOnce { available in
+        manager.$connectionAssumedAvailable.subscribeOnce { available in
             XCTAssertFalse(available)
             connectionAssumedAvailableEvent.fulfill()
         }
@@ -71,7 +71,7 @@ final class ConnectivityManagerTests: XCTestCase {
         XCTAssertFalse(manager.isConnectionAssumedAvailable)
         empiricalConnectivity.changeConnectionAvailable(true)
         XCTAssertTrue(manager.isConnectionAssumedAvailable)
-        manager.onConnectionAssumedAvailable.subscribeOnce { available in
+        manager.$connectionAssumedAvailable.subscribeOnce { available in
             XCTAssertTrue(available)
             connectionAssumedAvailableEvent.fulfill()
         }
@@ -85,7 +85,7 @@ final class ConnectivityManagerTests: XCTestCase {
         XCTAssertFalse(manager.isConnectionAssumedAvailable)
         connectivityMonitor.changeConnection(.connected(.wifi))
         XCTAssertTrue(manager.isConnectionAssumedAvailable)
-        manager.onConnectionAssumedAvailable.subscribeOnce { available in
+        manager.$connectionAssumedAvailable.subscribeOnce { available in
             XCTAssertTrue(available)
             connectionAssumedAvailableEvent.fulfill()
         }

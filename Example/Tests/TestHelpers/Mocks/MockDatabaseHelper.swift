@@ -29,7 +29,7 @@ class MockDatabaseHelper: SQLiteOpenHelper {
         self.onCreateCallback = onCreateCallback
         self.onConfigureCallback = onConfigureCallback
         self.onOpenCallback = onOpenCallback
-        super.init(databaseName: databaseName, version: version, coreSettings: CoreSettings(coreDictionary: ["account": "Mock", "profile": "DatabaseHelper"]))
+        super.init(databaseName: databaseName, version: version, config: mockConfig)
     }
     override func onUpgrade(database: Connection, fromOldVersion oldVersion: Int, toNewVersion newVersion: Int) throws {
         try onUpgradeCallback(database, oldVersion, newVersion)

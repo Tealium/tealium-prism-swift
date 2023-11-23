@@ -49,7 +49,7 @@ public class TraceModule: TealiumModule {
                                        data: [
                                         TealiumDataKey.killVisitorSessionEvent: TealiumKey.killVisitorSession
                                        ])
-        context.tealiumProtocol?.track(dispatch)
+        context.tracker.track(dispatch)
     }
 
     var dataLayer: DataLayerModule? {

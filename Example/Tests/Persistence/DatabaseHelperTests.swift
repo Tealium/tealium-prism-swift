@@ -42,8 +42,7 @@ extension Connection: Equatable {
 
 class DatabaseHelperTests: XCTestCase {
     let databaseHelper = DatabaseHelper(databaseName: nil,
-                                        coreSettings: CoreSettings(coreDictionary: ["account": "test",
-                                                                                    "profile": "test"]))
+                                        config: mockConfig)
 
     func test_onCreate_creates_tables() throws {
         let connection = try Connection(.inMemory)

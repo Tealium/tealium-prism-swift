@@ -15,16 +15,6 @@ public struct CoreSettings {
     public init(coreDictionary: [String: Any]) {
         self.dictionary = coreDictionary
     }
-
-    var account: String? {
-        dictionary["account"] as? String
-    }
-    var profile: String? {
-        dictionary["profile"] as? String
-    }
-    var environment: String? {
-        dictionary["environment"] as? String
-    }
     var minLogLevel: TealiumLogLevel.Minimum {
         guard let logLevelString = dictionary["minLogLevel"] as? String,
               let level = TealiumLogLevel.Minimum(from: logLevelString) else {

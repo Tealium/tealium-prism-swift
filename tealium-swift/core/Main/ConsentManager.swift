@@ -63,8 +63,7 @@ class ConsentTransformer: Transformer {
 }
 
 protocol CMPIntegration {
-    var onConsentDecision: TealiumObservable<ConsentDecision> { get }
-    func getConsentDecision() -> ConsentDecision?
+    var consentDecision: TealiumObservableState<ConsentDecision?> { get }
     func allPurposes() -> [String]?
 }
 
@@ -106,7 +105,7 @@ class ConsentManager {
         onConsentSettings.subscribe { [weak self] settings in
             self?.settings = settings
         }.addTo(automaticDisposer)
-        cmpIntegration?.onConsentDecision.subscribe { [weak self] consentDecision in
+        cmpIntegration?.consentDecision.asObservable().compactMap { $0 }.subscribe { [weak self] consentDecision in
             guard let self = self,
                   self.tealiumConsented(forPurposes: consentDecision.purposes) else {
                 if consentDecision.decisionType == .explicit {
@@ -146,7 +145,7 @@ class ConsentManager {
     }
 
     func getConsentDecision() -> ConsentDecision? {
-        cmpIntegration?.getConsentDecision()
+        cmpIntegration?.consentDecision.value
     }
 
     func applyConsent(to dispatch: TealiumDispatch) {
@@ -156,7 +155,7 @@ class ConsentManager {
             return
         }
 
-        guard let decision = integration.getConsentDecision(),
+        guard let decision = integration.consentDecision.value,
               tealiumConsented(forPurposes: decision.purposes),
               var consentedDispatch = applyDecision(decision, toDispatch: dispatch) else {
             consentQueue.enqueue(dispatch)

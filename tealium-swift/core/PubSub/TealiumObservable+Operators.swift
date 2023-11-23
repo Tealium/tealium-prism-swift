@@ -84,7 +84,7 @@ public extension TealiumObservableProtocol {
      *
      * - Parameter selector: the function that will return a new observable when an event is published by the original observable.
      *
-     * - Returns: an observable that flattens the observable returned by the selector and emits all of its events.
+     * - Returns: an observable that flattens the observables returned by the selector and emits all of their events.
      */
     func flatMap<Result>(_ selector: @escaping (Element) -> TealiumObservable<Result>) -> TealiumObservable<Result> {
         return TealiumObservableCreate<Result> { observer in
@@ -98,6 +98,14 @@ public extension TealiumObservableProtocol {
         }
     }
 
+    /**
+     * Transforms an event by providing a new observable that is flattened in the observable that is returned by this method.
+     * Every new observable returned will cancel the old observable subscriptions, therefore only emitting events for the latest returned observable.
+     *
+     * - Parameter selector: the function that will return a new observable when an event is published by the original observable.
+     *
+     * - Returns: an observable that flattens the observable returned by the selector and emits all of the events from the latest returned observable.
+     */
     func flatMapLatest<Result>(_ selector: @escaping (Element) -> TealiumObservable<Result>) -> TealiumObservable<Result> {
         return TealiumObservableCreate<Result> { observer in
             let container = TealiumDisposeContainer()
@@ -183,6 +191,25 @@ public extension TealiumObservableProtocol {
             }.addTo(container)
             return container
         }
+    }
+
+    /// Returns an observable that ignores the first N published events.
+    func ignore(_ count: Int) -> TealiumObservable<Element> {
+        TealiumObservableCreate { observer in
+            var current = 0
+            return self.subscribe { element in
+                guard current >= count else {
+                    current += 1
+                    return
+                }
+                observer(element)
+            }
+        }
+    }
+
+    /// Returns an observable that ignores the first published events.
+    func ignoreFirst() -> TealiumObservable<Element> {
+        ignore(1)
     }
 }
 

@@ -13,21 +13,16 @@ class MockConnectivityMonitor: ConnectivityMonitorProtocol {
 
     // MARK: ConnectivityMonitorProtocol
 
-    @ToAnyObservable(TealiumReplaySubject<NetworkConnection>(initialValue: .unknown))
-    public var onConnection: TealiumObservable<NetworkConnection>
-
-    public var connection: NetworkConnection {
-        $onConnection.last() ?? .unknown
-    }
+    @TealiumMutableState(.unknown)
+    var connection: TealiumObservableState<NetworkConnection>
 
     // MARK: Testing Utilities
 
     func changeConnection(_ connection: NetworkConnection) {
-        $onConnection.publishIfChanged(connection)
+        _connection.value = connection
     }
 
     func reset() {
-        $onConnection.clear()
         changeConnection(.unknown)
     }
 }

@@ -18,12 +18,8 @@ import SystemConfiguration
  */
 class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
 
-    @ToAnyObservable<TealiumReplaySubject<NetworkConnection>>(TealiumReplaySubject<NetworkConnection>(initialValue: .unknown))
-    var onConnection: TealiumObservable<NetworkConnection>
-
-    var connection: NetworkConnection {
-        $onConnection.last() ?? .unknown
-    }
+    @TealiumMutableState(.unknown)
+    var connection: TealiumObservableState<NetworkConnection>
 
     /// Flags of the current reachability type, if any.
     var flags: SCNetworkReachabilityFlags? {
@@ -131,7 +127,7 @@ class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
      * - Parameter flags: `SCNetworkReachabilityFlags` to use to calculate the status.
      */
     private func notify(_ flags: SCNetworkReachabilityFlags) {
-        $onConnection.publishIfChanged(NetworkConnection.fromFlags(flags))
+        _connection.mutateIfChanged(NetworkConnection.fromFlags(flags))
     }
 
     private final class WeakManager {

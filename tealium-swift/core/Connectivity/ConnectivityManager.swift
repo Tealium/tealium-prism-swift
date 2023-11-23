@@ -9,8 +9,7 @@
 import Foundation
 
 public protocol ConnectivityManagerProtocol: RequestInterceptor {
-    var isConnectionAssumedAvailable: Bool { get }
-    var onConnectionAssumedAvailable: TealiumObservable<Bool> { get }
+    var connectionAssumedAvailable: TealiumObservableState<Bool> { get }
 }
 
 /**
@@ -29,7 +28,7 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
     init(connectivityMonitor: ConnectivityMonitorProtocol = ConnectivityMonitor.shared, empiricalConnectivity: EmpiricalConnectivityProtocol = EmpiricalConnectivity()) {
         self.connectivityMonitor = connectivityMonitor
         self.empiricalConnectivity = empiricalConnectivity
-        connectivityMonitor.onConnection
+        connectivityMonitor.connection.asObservable()
             .combineLatest(empiricalConnectivity.onEmpiricalConnectionAvailable)
             .map { monitoredConnection, empiricalConnectionAvailable in
                 switch monitoredConnection {
@@ -39,7 +38,7 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
                     return true
                 }
             }.subscribe { [weak self] available in
-                self?.$onConnectionAssumedAvailable.publishIfChanged(available)
+                self?._connectionAssumedAvailable.mutateIfChanged(available)
             }.addTo(automaticDisposer)
     }
 
@@ -49,7 +48,7 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
 
     /// Returns `true` if either monitored or empirical connectivity result available
     public var isConnectionAssumedAvailable: Bool {
-        $onConnectionAssumedAvailable.last() ?? true
+        connectionAssumedAvailable.value
     }
 
     /**
@@ -58,8 +57,8 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
      * The internal behavior is to merge the information from the system connectivity monitor and the result of network requests
      * and only report as unavailable when both do so or if empirical is unavailable and the monitored one is unknown.
      */
-    @ToAnyObservable<TealiumReplaySubject<Bool>>(TealiumReplaySubject<Bool>(initialValue: true))
-    public var onConnectionAssumedAvailable: TealiumObservable<Bool>
+    @TealiumMutableState(true)
+    public var connectionAssumedAvailable: TealiumObservableState<Bool>
 
     public func didComplete(_ request: URLRequest, with response: NetworkResult) {
         // Here we always assume that the response is never coming from a local cache
@@ -77,7 +76,7 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
         switch response {
         case .failure(let error) where error.isRetryable && !isConnectionAssumedAvailable:
             return .afterEvent(
-                onConnectionAssumedAvailable
+                $connectionAssumedAvailable
                     .filter { $0 }
                     .map { _ in }
             )

@@ -12,7 +12,7 @@ import XCTest
 
 final class DatabaseProviderTests: XCTestCase {
     var path = ""
-
+    let config = mockConfig
     override func setUp() {
         path = (try? TealiumFileManager.getTealiumApplicationFolder().path) ?? ""
         try? TealiumFileManager.deleteAtPath(path: path)
@@ -24,23 +24,23 @@ final class DatabaseProviderTests: XCTestCase {
     }
 
     func test_inMemory_db_is_created() throws {
-        let database = XCTAssertNoThrowReturn(try DatabaseProvider.getInMemoryDatabase(settings: CoreSettings(coreDictionary: [:])))
+        let database = XCTAssertNoThrowReturn(try DatabaseProvider.getInMemoryDatabase(config: config))
         XCTAssertNotNil(database)
         XCTAssertFalse(FileManager.default.fileExists(atPath: path))
     }
 
     func test_persistent_db_is_created() throws {
-        let database = DatabaseProvider.getPersistentDatabase(settings: CoreSettings(coreDictionary: [:]))
+        let database = DatabaseProvider.getPersistentDatabase(config: config)
         XCTAssertNotNil(database)
         XCTAssertTrue(FileManager.default.fileExists(atPath: path))
     }
 
     func test_downgraded_db_is_recreated() throws {
         DatabaseHelper.DATABASE_VERSION = 2
-        let dbProviderV2 = try DatabaseProvider(settings: CoreSettings(coreDictionary: [:]))
+        let dbProviderV2 = try DatabaseProvider(config: config)
         XCTAssertEqual(dbProviderV2.database.userVersion, 2)
         DatabaseHelper.DATABASE_VERSION = 1
-        let dbProviderV1 = try DatabaseProvider(settings: CoreSettings(coreDictionary: [:]))
+        let dbProviderV1 = try DatabaseProvider(config: config)
         XCTAssertEqual(dbProviderV1.database.userVersion, 1)
         XCTAssertNil(dbProviderV2.database.userVersion, "Old DB connection should be unusable")
         XCTAssertThrowsError(try dbProviderV2.database.run(ModuleSchema.createModule(moduleName: "test")), "Old DB connection should be unusable")
@@ -48,7 +48,7 @@ final class DatabaseProviderTests: XCTestCase {
     }
 
     func test_created_database_is_persisted_by_default() throws {
-        _ = try DatabaseProvider(settings: CoreSettings(coreDictionary: [:]))
+        _ = try DatabaseProvider(config: config)
         XCTAssertTrue(FileManager.default.fileExists(atPath: path))
     }
 }

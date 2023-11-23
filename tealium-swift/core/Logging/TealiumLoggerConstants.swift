@@ -58,6 +58,7 @@ public enum TealiumLogLevel: Int, Comparable, CaseIterable, CustomStringConverti
         case error  = 400
         case silent = 999_999
 
+        // TODO: Switch back to an .error default
         static let `default` = Self.debug
 
         public init?(from string: String) {

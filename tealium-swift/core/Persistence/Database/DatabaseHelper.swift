@@ -21,10 +21,10 @@ class DatabaseHelper: SQLiteOpenHelper {
     /// The current version of the DB implemented in the codebase
     static var DATABASE_VERSION = 1
 
-    init(databaseName: String?, coreSettings: CoreSettings) {
+    init(databaseName: String?, config: TealiumConfig) {
         super.init(databaseName: databaseName,
                    version: DatabaseHelper.DATABASE_VERSION,
-                   coreSettings: coreSettings)
+                   config: config)
     }
 
     override func onConfigure(database: Connection) throws {

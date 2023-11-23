@@ -49,6 +49,12 @@ public extension TealiumObservable {
         }
     }
 
+    /**
+     * Returns a single observable with an array of Elements from the provided array of elements
+     *
+     * The first element published from the returned observable will be published when all the observables provided emit at list one element.
+     * All subsequent changes to any observable will be emitted one by one.
+     */
     static func CombineLatest(_ observables: [TealiumObservable<Element>]) -> TealiumObservable<[Element]> {
         TealiumObservableCreate { observer in
             let container = TealiumDisposeContainer()

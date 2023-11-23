@@ -30,7 +30,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
         TealiumSignposter.enabled = true
         _ = ConnectivityMonitor.shared
-            .onConnection
+            .connection.asObservable()
             .subscribeOn(tealiumQueue)
             .subscribe { connection in
                 print("New Connection: \(connection)")
@@ -110,7 +110,10 @@ class ViewController: UIViewController {
             AppDataCollector.self,
             CustomDispatcher.self
         ]
-        let config = TealiumConfig(modules: modules,
+        let config = TealiumConfig(account: "tealiummobile",
+                                   profile: "enrico-test",
+                                   environment: "dev",
+                                   modules: modules,
                                    configFile: "TealiumConfig",
                                    configUrl: nil)
         let teal = Tealium(config) { result in
@@ -118,7 +121,7 @@ class ViewController: UIViewController {
         }
         self.teal = teal
         
-        teal.onReady {
+        teal.onReady { teal in
             teal.dataLayer.events.onDataUpdated { updated in
                 print("some data updated: \(updated)")
             }.addTo(self.automaticDisposer)

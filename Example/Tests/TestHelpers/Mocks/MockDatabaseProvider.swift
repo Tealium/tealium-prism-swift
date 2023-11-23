@@ -13,7 +13,7 @@ import SQLite
 class MockDatabaseProvider: DatabaseProviderProtocol {
     let database: Connection
     init() {
-        guard let database = try? DatabaseProvider.getInMemoryDatabase(settings: CoreSettings(coreDictionary: [:])) else {
+        guard let database = try? DatabaseProvider.getInMemoryDatabase(config: mockConfig) else {
             fatalError("Failed to create MockDatabaseProvider")
         }
         self.database = database

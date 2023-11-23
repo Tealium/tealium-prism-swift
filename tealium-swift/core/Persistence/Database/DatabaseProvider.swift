@@ -16,12 +16,12 @@ public protocol DatabaseProviderProtocol {
 public class DatabaseProvider: DatabaseProviderProtocol {
     public let database: Connection
 
-    init(settings: CoreSettings) throws {
-        database = try Self.getPersistentDatabase(settings: settings) ?? Self.getInMemoryDatabase(settings: settings)
+    init(config: TealiumConfig) throws {
+        database = try Self.getPersistentDatabase(config: config) ?? Self.getInMemoryDatabase(config: config)
     }
 
-    static func getPersistentDatabase(settings: CoreSettings) -> Connection? {
-        let helper = DatabaseHelper(databaseName: "tealium", coreSettings: settings)
+    static func getPersistentDatabase(config: TealiumConfig) -> Connection? {
+        let helper = DatabaseHelper(databaseName: "tealium", config: config)
         do {
             return try helper.getDatabase()
         } catch DatabaseErrors.unsupportedDowgrade {
@@ -32,8 +32,8 @@ public class DatabaseProvider: DatabaseProviderProtocol {
         }
     }
 
-    static func getInMemoryDatabase(settings: CoreSettings) throws -> Connection {
-        let helper = DatabaseHelper(databaseName: nil, coreSettings: settings)
+    static func getInMemoryDatabase(config: TealiumConfig) throws -> Connection {
+        let helper = DatabaseHelper(databaseName: nil, config: config)
         return try helper.getDatabase()
     }
 }

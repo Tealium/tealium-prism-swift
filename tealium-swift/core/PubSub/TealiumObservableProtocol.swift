@@ -9,14 +9,14 @@
 import Foundation
 
 /// A protocol to provide all publisher-like classes access to a corresponding observable.
-public protocol TealiumObservableConvertibleProtocol {
+public protocol TealiumObservableConvertible {
     associatedtype Element
 
     func asObservable() -> TealiumObservable<Element>
 }
 
 /// A protocol to provide all observable-like classes some utilities like subscribeOnce or the operators.
-public protocol TealiumObservableProtocol: TealiumObservableConvertibleProtocol {
+public protocol TealiumObservableProtocol: TealiumObservableConvertible {
     typealias Observer = (Element) -> Void
 
     @discardableResult

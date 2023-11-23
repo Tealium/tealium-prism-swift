@@ -9,10 +9,9 @@
 import Foundation
 
 public class TealiumContext {
-    public weak var tealiumProtocol: TealiumProtocol?
     public let config: TealiumConfig
-    public var coreSettings: CoreSettings
-    public let onSettingsUpdate: TealiumObservable<CoreSettings>
+    public var coreSettings: TealiumObservableState<CoreSettings>
+    public let tracker: TealiumTracker
     public let databaseProvider: DatabaseProvider
     public let moduleStoreProvider: ModuleStoreProvider
     public weak var modulesManager: ModulesManager?
@@ -20,26 +19,21 @@ public class TealiumContext {
     public let networkHelper: NetworkHelperProtocol
     private var automaticDisposer = TealiumAutomaticDisposer()
 
-    init(_ teal: TealiumProtocol,
-         modulesManager: ModulesManager,
+    init(modulesManager: ModulesManager,
          config: TealiumConfig,
-         coreSettings: CoreSettings,
-         onSettingsUpdate: TealiumObservable<CoreSettings>,
+         coreSettings: TealiumObservableState<CoreSettings>,
+         tracker: TealiumTracker,
          databaseProvider: DatabaseProvider,
          moduleStoreProvider: ModuleStoreProvider,
          logger: TealiumLoggerProvider,
          networkHelper: NetworkHelperProtocol) {
-        self.tealiumProtocol = teal
         self.modulesManager = modulesManager
         self.config = config
         self.coreSettings = coreSettings
-        self.onSettingsUpdate = onSettingsUpdate
+        self.tracker = tracker
         self.databaseProvider = databaseProvider
         self.moduleStoreProvider = moduleStoreProvider
         self.logger = logger
         self.networkHelper = networkHelper
-        onSettingsUpdate.subscribe { [weak self] settings in
-            self?.coreSettings = settings
-        }.addTo(automaticDisposer)
     }
 }

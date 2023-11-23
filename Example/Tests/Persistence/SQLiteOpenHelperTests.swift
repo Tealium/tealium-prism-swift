@@ -13,7 +13,7 @@ import XCTest
 class SQLiteOpenHelperTests: XCTestCase {
     let openHelper = SQLiteOpenHelper(databaseName: nil,
                                       version: 1,
-                                      coreSettings: CoreSettings(coreDictionary: [String: Any]()))
+                                      config: mockConfig)
 
     func test_prepare_runs_all_functions_in_order() throws {
         let configureExpectation = expectation(description: "onConfigure is called.")
@@ -144,7 +144,7 @@ class SQLiteOpenHelperTests: XCTestCase {
     }
 
     func test_create_and_delete_database() throws {
-        let sqlOpenHelper = SQLiteOpenHelper(databaseName: "test", version: 1, coreSettings: CoreSettings(coreDictionary: [String: Any]()))
+        let sqlOpenHelper = SQLiteOpenHelper(databaseName: "test", version: 1, config: mockConfig)
         guard let path = sqlOpenHelper.databaseUrl?.path else {
             XCTFail("Failed to get path for database")
             return
@@ -159,7 +159,7 @@ class SQLiteOpenHelperTests: XCTestCase {
     }
 
     func test_database_is_excluded_from_backup() throws {
-        let sqlOpenHelper = SQLiteOpenHelper(databaseName: "test", version: 1, coreSettings: CoreSettings(coreDictionary: [String: Any]()))
+        let sqlOpenHelper = SQLiteOpenHelper(databaseName: "test", version: 1, config: mockConfig)
         _ = try sqlOpenHelper.getDatabase()
         guard let url = sqlOpenHelper.databaseUrl else {
             XCTFail("Invalid database url.")
