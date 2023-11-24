@@ -72,12 +72,9 @@ class DispatchManager {
 
     private func startDispatchLoop() {
         for dispatcher in dispatchers {
-            barrierCoordinator.onBarriersState(forScope: .all)
-                .combineLatest(barrierCoordinator.onBarriersState(forScope: .perDispatcher(dispatcher.id)))
-                .map { genericState, dispatcherState in genericState == .open && dispatcherState == .open }
-                .distinct()
-                .flatMapLatest { [weak self] dispatchLoopActive in
-                    if dispatchLoopActive, let newLoop = self?.startTransformAndDispatchLoop(for: dispatcher) {
+            barrierCoordinator.onBarrierState(for: dispatcher.id)
+                .flatMapLatest { [weak self] barriersState in
+                    if barriersState == .open, let newLoop = self?.startTransformAndDispatchLoop(for: dispatcher) {
                         return newLoop
                     } else {
                         return .Empty()

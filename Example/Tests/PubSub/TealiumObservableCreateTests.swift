@@ -93,4 +93,14 @@ final class TealiumObservableCreateTests: XCTestCase {
         sub.dispose()
     }
 
+    func test_CombineLatest_observable_is_notified_immediately_with_an_empty_array_when_provided_with_an_empty_array() {
+        let combineLatestIsNotified = expectation(description: "Combine latest event is notified")
+        let sub = TealiumObservable<String>.CombineLatest([])
+            .subscribe { result in
+                XCTAssertEqual(result, [])
+                combineLatestIsNotified.fulfill()
+            }
+        waitForExpectations(timeout: 1.0)
+        sub.dispose()
+    }
 }

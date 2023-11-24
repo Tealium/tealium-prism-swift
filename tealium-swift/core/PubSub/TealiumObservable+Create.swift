@@ -43,7 +43,7 @@ public extension TealiumObservable {
     }
 
     /// Returns an empty observable that never reports anything
-    static func Empty<Element>() -> TealiumObservable<Element> {
+    static func Empty() -> TealiumObservable<Element> {
         TealiumObservableCreate { _ in
             return TealiumSubscription { }
         }
@@ -59,7 +59,10 @@ public extension TealiumObservable {
         TealiumObservableCreate { observer in
             let container = TealiumDisposeContainer()
             let count = observables.count
-            guard count > 0 else { return container }
+            guard count > 0 else {
+                observer([])
+                return container
+            }
             var temporaryArray: [Element?]? = [Element?](repeating: nil, count: observables.count)
             var resultArray = [Element]()
             func notify(element: Element, index: Int) {

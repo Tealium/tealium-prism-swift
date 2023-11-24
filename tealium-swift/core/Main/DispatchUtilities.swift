@@ -8,29 +8,9 @@
 
 import Foundation
 
-public enum BarrierState {
-    case closed
-    case open
-}
-public protocol Barrier {
-    var id: String { get }
-    var onState: TealiumObservable<BarrierState> { get }
-}
-
 public protocol Transformer {
     var id: String { get }
     func applyTransformation(_ transformationId: String, to dispatch: TealiumDispatch, scope: DispatchScope, completion: @escaping (TealiumDispatch?) -> Void)
-}
-
-extension TealiumConfig {
-
-    func registerBarrier(_ barrier: Barrier) {
-
-    }
-
-    func registerTransformer(_ transformer: Transformer) {
-
-    }
 }
 
 public enum TransformationScope: RawRepresentable, Codable {
@@ -87,70 +67,6 @@ public enum DispatchScope: RawRepresentable, Codable {
         default:
             self = .onDispatcher(lowercasedScope)
         }
-    }
-}
-
-public enum BarrierScope: RawRepresentable, Codable {
-    public typealias RawValue = String
-
-    case all
-    case perDispatcher(String)
-
-    public var rawValue: String {
-        switch self {
-        case .all:
-            return "all"
-        case .perDispatcher(let dispatcher):
-            return dispatcher
-        }
-    }
-
-    public init?(rawValue: String) {
-        let lowercasedScope = rawValue.lowercased()
-        switch lowercasedScope {
-        case "all":
-            self = .all
-        default:
-            self = .perDispatcher(lowercasedScope)
-        }
-    }
-}
-
-public struct ScopedBarrier: Codable {
-    let barrierId: String
-    let scope: [BarrierScope]
-
-    func matchesScope(_ scope: BarrierScope) -> Bool {
-        self.scope.contains { $0 == scope }
-    }
-}
-
-class BarrierCoordinator {
-    let registeredBarriers = [Barrier]() // Provided by the config at launch
-    var scopedBarriers = [ScopedBarrier]() { // Provided and updated by the Core Settings
-        didSet {
-            onScopedBarriers.publish(scopedBarriers)
-        }
-    }
-
-    var onScopedBarriers = TealiumReplaySubject<[ScopedBarrier]>()
-
-    func onBarriersState(forScope scope: BarrierScope) -> TealiumObservable<BarrierState> {
-        onScopedBarriers.asObservable()
-            .flatMap { newScopedBarriers in
-                TealiumObservable.CombineLatest(self.getBarriers(scopedBarriers: newScopedBarriers, for: scope)
-                        .map { $0.onState })
-                .map { barrierStates in
-                    barrierStates.first { $0 == .closed } ?? .open
-                }
-            }.distinct()
-    }
-
-    func getBarriers(scopedBarriers: [ScopedBarrier], for scope: BarrierScope) -> [Barrier] {
-        scopedBarriers.filter { $0.matchesScope(scope) }
-            .compactMap { barrierScope in
-                registeredBarriers.first { $0.id == barrierScope.barrierId }
-            }
     }
 }
 

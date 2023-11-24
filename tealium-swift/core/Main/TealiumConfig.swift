@@ -9,13 +9,15 @@
 import Foundation
 
 public struct TealiumConfig {
-    let account: String
-    let profile: String
-    let environment: String
+    public let account: String
+    public let profile: String
+    public let environment: String
     public var modules: [TealiumModule.Type]
+    public var barriers: [Barrier] = []
+    public var transformers: [Transformer] = []
     public var loggerType: TealiumLoggerType = .os
     public let configFile: String
-    private let configUrl: String?
+    public let configUrl: String?
 
     public init(account: String, profile: String, environment: String, modules: [TealiumModule.Type], configFile: String, configUrl: String?) {
         self.account = account

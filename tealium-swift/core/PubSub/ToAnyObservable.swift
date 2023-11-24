@@ -12,7 +12,7 @@ import Foundation
 public final class ToAnyObservable<P: TealiumPublisherProtocol>: TealiumPublisherProtocol {
     public typealias Element = P.Element
 
-    private let publisher: P
+    public let publisher: P
     public init(_ anyPublisher: P) {
         self.publisher = anyPublisher
     }
@@ -23,10 +23,6 @@ public final class ToAnyObservable<P: TealiumPublisherProtocol>: TealiumPublishe
 
     public func asObservable() -> TealiumObservable<Element> {
         return publisher.asObservable()
-    }
-
-    public var projectedValue: P {
-        return publisher
     }
 
     public func publish(_ element: P.Element) {

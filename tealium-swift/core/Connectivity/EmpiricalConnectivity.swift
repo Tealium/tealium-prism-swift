@@ -67,6 +67,7 @@ class EmpiricalConnectivity: EmpiricalConnectivityProtocol {
     }
 
     private func notify(assumeAvailable: Bool) {
-        $onEmpiricalConnectionAvailable.publishIfChanged(assumeAvailable)
+        _onEmpiricalConnectionAvailable.publisher
+            .publishIfChanged(assumeAvailable)
     }
 }

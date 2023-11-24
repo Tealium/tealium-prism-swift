@@ -8,18 +8,27 @@
 
 import Foundation
 
-// TODO: is this supposed to be in the config or not?
 public struct CoreSettings {
-    private var dictionary: [String: Any]
-
+    enum Keys {
+        static let minLogLevel = "minLogLevel"
+        static let barriers = "barriers"
+    }
+    enum Defaults {
+        static let minLogLevel = TealiumLogLevel.Minimum.debug // TODO: Change into .error later
+    }
     public init(coreDictionary: [String: Any]) {
-        self.dictionary = coreDictionary
-    }
-    var minLogLevel: TealiumLogLevel.Minimum {
-        guard let logLevelString = dictionary["minLogLevel"] as? String,
-              let level = TealiumLogLevel.Minimum(from: logLevelString) else {
-            return .default
+        if let logLevelString = coreDictionary[Keys.minLogLevel] as? String,
+           let level = TealiumLogLevel.Minimum(from: logLevelString) {
+                          minLogLevel = level
+        } else {
+            minLogLevel = Defaults.minLogLevel
         }
-        return level
+        if let barriers = coreDictionary[Keys.barriers] as? [[String: Any]] {
+            scopedBarriers = barriers.compactMap { ScopedBarrier(from: $0) }
+        } else {
+            scopedBarriers = []
+        }
     }
+    let minLogLevel: TealiumLogLevel.Minimum
+    let scopedBarriers: [ScopedBarrier]
 }

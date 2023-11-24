@@ -35,11 +35,11 @@ class MockEmpiricalConnectivity: EmpiricalConnectivityProtocol {
     var onEmpiricalConnectionAvailable: TealiumObservable<Bool>
 
     func connectionSuccess() {
-        $onConnectionSuccess.publish()
+        _onConnectionSuccess.publish()
     }
 
     func connectionFail() {
-        $onConnectionFail.publish()
+        _onConnectionFail.publish()
     }
 
     // MARK: Testing Utilities
@@ -51,11 +51,11 @@ class MockEmpiricalConnectivity: EmpiricalConnectivityProtocol {
     var onConnectionFail: TealiumObservable<Void>
 
     func changeConnectionAvailable(_ available: Bool) {
-        $onEmpiricalConnectionAvailable.publishIfChanged(available)
+        _onEmpiricalConnectionAvailable.publisher.publishIfChanged(available)
     }
 
     func reset() {
-        $onEmpiricalConnectionAvailable.clear()
+        _onEmpiricalConnectionAvailable.publisher.clear()
         changeConnectionAvailable(true)
     }
 }
