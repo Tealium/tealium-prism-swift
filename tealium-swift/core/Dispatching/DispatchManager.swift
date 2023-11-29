@@ -29,11 +29,11 @@ class DispatchManager {
 
     // TODO: this can in future be done when creating the dispatch manager and the coordinators, no need to do it in here
     func registerConsentTransformation() {
-        transformerCoordinator.registeredTransformers.append(consentManager.consentTransformer)
-        transformerCoordinator.scopedTransformations
-            .append(ScopedTransformation(id: "verify_consent",
-                                         transformerId: consentManager.consentTransformer.id,
-                                         scope: [TransformationScope.onAllDispatchers]))
+//        transformerCoordinator.registeredTransformers.append(consentManager.consentTransformer)
+//        transformerCoordinator.scopedTransformations
+//            .append(ScopedTransformation(id: "verify_consent",
+//                                         transformerId: consentManager.consentTransformer.id,
+//                                         scope: [TransformationScope.onAllDispatchers]))
     }
 
     func tealiumPurposeExplicitlyBlocked() -> Bool {
@@ -102,7 +102,7 @@ class DispatchManager {
     }
 
     private func transformAndDispatch(dispatches: [TealiumDispatch], for dispatcher: Dispatcher, completion: @escaping ([TealiumDispatch]) -> Void) {
-        self.transformerCoordinator.transform(dispatches: dispatches, for: dispatcher) { [weak self] transformedDispaches in
+        self.transformerCoordinator.transform(dispatches: dispatches, for: .dispatcher(dispatcher.id)) { [weak self] transformedDispaches in
             let missingDispatchesAfterTransformations = dispatches.filter { oldDispatch in
                 !transformedDispaches.contains { transformedDispatch in oldDispatch.id == transformedDispatch.id }
             }

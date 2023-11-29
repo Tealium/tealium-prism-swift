@@ -44,7 +44,7 @@ class ConsentTransformer: Transformer {
             completion(dispatch)
             return
         }
-        guard case let DispatchScope.onDispatcher(dispatcherId) = scope,
+        guard case let DispatchScope.dispatcher(dispatcherId) = scope,
             let requiredPurposes = settings.dispatcherToPurposes[dispatcherId],
               !requiredPurposes.isEmpty,
               self.dispatch(dispatch, matchesPurposes: requiredPurposes) else {

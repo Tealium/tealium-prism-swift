@@ -66,4 +66,16 @@ final class TealiumMutableStateTests: XCTestCase {
         mutableState.mutateIfChanged(2)
         waitForExpectations(timeout: 1.0)
     }
+
+    func test_mutate_array_emits_new_update() {
+        let mutableState = TealiumMutableState([1, 2, 3])
+        let updated = expectation(description: "Update arrives")
+        _ = mutableState.updates().subscribe { result in
+            updated.fulfill()
+            XCTAssertEqual(result, [1, 2, 3, 4])
+        }
+        mutableState.value.append(4)
+        XCTAssertEqual(mutableState.value, [1, 2, 3, 4])
+        waitForExpectations(timeout: 1.0)
+    }
 }
