@@ -27,15 +27,15 @@ public extension TealiumDisposable {
 
 /// A concrete implementation of the `TealiumDisposable` protocol that takes a block as an input and calls that block on dispose.
 public class TealiumSubscription: TealiumDisposable {
-    fileprivate var unsubscribe: () -> Void
-    public private(set) var isDisposed: Bool = false
+    fileprivate var unsubscribe: (() -> Void)?
+    public var isDisposed: Bool { unsubscribe == nil }
     public init(unsubscribe: @escaping () -> Void) {
         self.unsubscribe = unsubscribe
     }
 
     public func dispose() {
-        unsubscribe()
-        isDisposed = true
+        unsubscribe?()
+        unsubscribe = nil
     }
 }
 

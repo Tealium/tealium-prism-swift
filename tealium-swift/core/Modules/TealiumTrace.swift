@@ -53,7 +53,7 @@ public class TraceModule: TealiumModule {
     }
 
     var dataLayer: DataLayerModule? {
-        context.modulesManager?.getModule()
+        context.modulesManager.getModule()
     }
 
     public func join(id: String) {

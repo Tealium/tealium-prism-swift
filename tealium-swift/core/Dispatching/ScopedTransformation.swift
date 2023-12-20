@@ -42,10 +42,25 @@ public enum TransformationScope: RawRepresentable, Codable {
 public struct ScopedTransformation: Codable {
     let id: String
     let transformerId: String
-    let scope: [TransformationScope]
+    let scopes: [TransformationScope]
+
+    init?(from dictionary: [String: Any]) {
+        guard let id = dictionary[CodingKeys.id.rawValue] as? String,
+              let transformerId = dictionary[CodingKeys.transformerId.rawValue] as? String,
+              let scopes = dictionary[CodingKeys.scopes.rawValue] as? [String] else {
+            return nil
+        }
+        self.init(id: id, transformerId: transformerId, scopes: scopes.compactMap { TransformationScope(rawValue: $0) })
+    }
+
+    init(id: String, transformerId: String, scopes: [TransformationScope]) {
+        self.id = id
+        self.transformerId = transformerId
+        self.scopes = scopes
+    }
 
     func matchesScope(_ dispatchScope: DispatchScope) -> Bool {
-        self.scope.contains { transformationScope in
+        self.scopes.contains { transformationScope in
             switch (transformationScope, dispatchScope) {
             case (.afterCollectors, .afterCollectors):
                 return true
@@ -57,5 +72,11 @@ public struct ScopedTransformation: Codable {
                 return false
             }
         }
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case id = "transformation_id"
+        case transformerId = "transformer_id"
+        case scopes
     }
 }

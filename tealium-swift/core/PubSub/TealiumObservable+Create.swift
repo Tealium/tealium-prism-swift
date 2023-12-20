@@ -19,7 +19,7 @@ public extension TealiumObservable {
      * - Returns: a `TealiumObservable` that, when a new observer subscribes, will call the asyncFunction and publish a new event to the subscribers when the function completes.
      */
     static func Callback(from asyncFunction: @escaping (@escaping Observer) -> Void) -> TealiumObservable<Element> {
-        TealiumObservableCreate { observer in
+        Callback { observer in
             var cancelled = false
             asyncFunction { res in
                 if !cancelled {
@@ -32,8 +32,30 @@ public extension TealiumObservable {
         }
     }
 
+    /**
+     * Returns an observable that will send only one event once the asyncFunction has completed.
+     *
+     * - Parameter asyncFunction: is the function that needs to be called and needs to report the completion to the provided observer.
+     *  This function will only be called when an observer subscribes to the returned Observable. Every subscription will cause the asyncFunction to be called again.
+     *  It will return a `TealiumDisposable` that can be used to cancel the function itself.
+     *
+     * - Returns: a `TealiumObservable` that, when a new observer subscribes, will call the asyncFunction and publish a new event to the subscribers when the function completes.
+     */
+    static func Callback(fromDisposable asyncFunction: @escaping (@escaping Observer) -> TealiumDisposable) -> TealiumObservable<Element> {
+        TealiumObservableCreate { observer in
+            asyncFunction { res in
+                observer(res)
+            }
+        }
+    }
+
     /// Returns an observable that just reports the provided elements in order to each new subscriber.
     static func Just(_ elements: Element...) -> TealiumObservable<Element> {
+        From(elements)
+    }
+
+    /// Returns an observable that just reports the provided elements in order to each new subscriber.
+    static func From(_ elements: [Element]) -> TealiumObservable<Element> {
         TealiumObservableCreate { observer in
             for element in elements {
                 observer(element)
@@ -44,9 +66,7 @@ public extension TealiumObservable {
 
     /// Returns an empty observable that never reports anything
     static func Empty() -> TealiumObservable<Element> {
-        TealiumObservableCreate { _ in
-            return TealiumSubscription { }
-        }
+        From([])
     }
 
     /**

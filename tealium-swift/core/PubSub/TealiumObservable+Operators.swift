@@ -12,12 +12,16 @@ import Foundation
 class TealiumSubscriptionWrapper: TealiumDisposable {
     var subscription: TealiumDisposable?
     private(set) var isDisposed: Bool = false
-    let queue: DispatchQueue
-    init(disposeOn queue: DispatchQueue) {
+    let queue: DispatchQueue?
+    init(disposeOn queue: DispatchQueue? = nil) {
         self.queue = queue
     }
     func dispose() {
-        queue.async { // TODO: We might want to add a check if we are already on that queue then don't dispatch
+        if let queue = queue {
+            queue.async { // TODO: We might want to add a check if we are already on that queue then don't dispatch
+                self.subscription?.dispose()
+            }
+        } else {
             self.subscription?.dispose()
         }
         isDisposed = true
@@ -211,6 +215,51 @@ public extension TealiumObservableProtocol {
     func ignoreFirst() -> TealiumObservable<Element> {
         ignore(1)
     }
+
+    /**
+     * Unsubscribes and subscribes again on each event while the condition is met.
+     *
+     * This is mainly used for cold observables that, when subscribed, start a new stream from zero. Use when you want to trigger the underlying observable to restart every time.
+     *
+     * - Warning: If the underlying observable always emits a new event and the condition is always met, this will end up calling endlessly until, eventually, the app will crash for stack overflow or out of memory exceptions.
+     * You need to treat the underlying observable as a recurring function and make sure there is an exit condition.
+     */
+    func resubscribingWhile(_ isIncluded: @escaping (Element) -> Bool) -> TealiumObservable<Element> {
+        func subscribeOnceInfiniteLoop(observer: @escaping (Element) -> Void, subscriptionWrapper: TealiumSubscriptionWrapper) -> TealiumDisposable {
+            self.subscribeOnce { element in
+                guard !subscriptionWrapper.isDisposed else { return }
+                subscriptionWrapper.subscription?.dispose()
+                observer(element)
+                if isIncluded(element) {
+                    subscriptionWrapper.subscription = subscribeOnceInfiniteLoop(observer: observer, subscriptionWrapper: subscriptionWrapper)
+                }
+            }
+        }
+        return TealiumObservableCreate { observer in
+            let subscription = TealiumSubscriptionWrapper()
+            subscription.subscription = subscribeOnceInfiniteLoop(observer: observer, subscriptionWrapper: subscription)
+            return subscription
+        }
+    }
+
+    /// Returns an observable that automatically unsubscribes when the provided condition is no longer met. If inclusive is `true` the last element will also be published.
+    func takeWhile(_ isIncluded: @escaping (Element) -> Bool, inclusive: Bool = false) -> TealiumObservable<Element> {
+        TealiumObservableCreate { observer in
+            let container = TealiumDisposeContainer()
+            self.subscribe { element in
+                guard !container.isDisposed else { return }
+                if isIncluded(element) {
+                    observer(element)
+                } else {
+                    if inclusive {
+                        observer(element)
+                    }
+                    container.dispose()
+                }
+            }.addTo(container)
+            return container
+        }
+    }
 }
 
 public extension TealiumObservableProtocol where Element: Equatable {
@@ -219,8 +268,9 @@ public extension TealiumObservableProtocol where Element: Equatable {
         return TealiumObservableCreate { observer in
             var lastElement: Element?
             return self.subscribe { element in
-                defer { lastElement = element }
-                if lastElement == nil || lastElement != element {
+                let isDistinct = lastElement == nil || lastElement != element
+                lastElement = element
+                if isDistinct {
                    observer(element)
                 }
             }

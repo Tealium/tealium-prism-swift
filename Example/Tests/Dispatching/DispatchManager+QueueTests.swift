@@ -1,0 +1,77 @@
+//
+//  DispatchManager+QueueTests.swift
+//  tealium-swift_Tests
+//
+//  Created by Enrico Zannini on 07/12/23.
+//  Copyright © 2023 Tealium, Inc. All rights reserved.
+//
+
+@testable import TealiumSwift
+import XCTest
+
+final class DispatchManagerQueueTests: DispatchManagerTestCase {
+
+    func test_event_is_dispatched_when_already_present_in_the_queue() {
+        let eventIsDispatched = expectation(description: "Event is dispatched")
+        queueManager.storeDispatch(TealiumDispatch(name: "someEvent"), for: nil)
+        module1?.onDispatch.subscribeOnce { dispatches in
+            XCTAssertEqual(dispatches.count, 1)
+            XCTAssertEqual(dispatches.first?.name, "someEvent")
+            eventIsDispatched.fulfill()
+        }
+        _ = dispatchManager
+        waitForExpectations(timeout: 1.0)
+    }
+
+    func test_events_are_dispatched_in_order() {
+        disableModule(module: module2)
+        let eventsAreDispatched = expectation(description: "Events are dispatched 30 times")
+        eventsAreDispatched.expectedFulfillmentCount = 30
+        var count = 0
+        for index in 0..<30 {
+            queueManager.storeDispatch(TealiumDispatch(name: "\(index)"), for: nil)
+        }
+        _ = module1?.onDispatch.subscribe { dispatches in
+            XCTAssertEqual(dispatches.count, 1)
+            XCTAssertEqual(dispatches.first?.name, "\(count)")
+            count += 1
+            eventsAreDispatched.fulfill()
+        }
+        _ = dispatchManager
+        waitForExpectations(timeout: 1.0)
+    }
+
+    func test_events_are_dispatched_in_ordered_batches() {
+        disableModule(module: module1)
+        XCTAssertEqual(modulesManager.modules.value.count, 1)
+        let eventsAreDispatched = expectation(description: "Events are dispatched in batches 10 times")
+        eventsAreDispatched.expectedFulfillmentCount = 10
+        var count = 0
+        for index in 0..<30 {
+            queueManager.storeDispatch(TealiumDispatch(name: "\(index)"), for: nil)
+        }
+        _ = module2?.onDispatch.subscribe { dispatches in
+            XCTAssertEqual(dispatches.count, 3)
+            for index in 0..<3 {
+                XCTAssertEqual(dispatches[index].name, "\(count * 3 + index)")
+            }
+            count += 1
+            eventsAreDispatched.fulfill()
+        }
+        _ = dispatchManager
+        waitForExpectations(timeout: 1.0)
+    }
+
+    func test_pulls_from_the_queue_are_stopped_immediately_when_a_partial_batch_is_returned() {
+        disableModule(module: module1)
+        let eventsAreDequeued = expectation(description: "Events are dequeued only once in a batch")
+        for index in 0..<2 {
+            queueManager.storeDispatch(TealiumDispatch(name: "\(index)"), for: nil)
+        }
+        _ = queueManager.onDequeueRequest.subscribe {
+            eventsAreDequeued.fulfill()
+        }
+        _ = dispatchManager
+        waitForExpectations(timeout: 1.0)
+    }
+}

@@ -16,6 +16,8 @@ class MockNetworkHelper: NetworkHelperProtocol {
     var result: NetworkResult = NetworkResult.success(.successful())
     var jsonResult: JSONResult = JSONResult.success([:])
     var codableResult: CodableResult<Any> = CodableResult.success(())
+    var delay: Int?
+    var queue = DispatchQueue.main
     enum Requests {
         case get(URLConvertible, String?)
         case post(URLConvertible, [String: Any])
@@ -24,36 +26,72 @@ class MockNetworkHelper: NetworkHelperProtocol {
     @ToAnyObservable(TealiumReplaySubject(cacheSize: 10))
     var requests: TealiumObservable<Requests>
 
+    private func delayBlock(_ work: @escaping () -> Void) {
+        if let delay = delay {
+            queue.asyncAfter(deadline: .now() + .milliseconds(delay), execute: work)
+        } else {
+            work()
+        }
+    }
+
     func get(url: URLConvertible, etag: String?, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable {
-        _requests.publish(.get(url, etag))
-        completion(result)
-        return TealiumSubscription { }
+        let sub = TealiumSubscription { }
+        delayBlock {
+            guard !sub.isDisposed else {
+                completion(.failure(.cancelled))
+                return
+            }
+            self._requests.publish(.get(url, etag))
+            completion(self.result)
+        }
+        return sub
     }
 
     func getJsonAsDictionary(url: URLConvertible, etag: String?, completion: @escaping (JSONResult) -> Void) -> TealiumDisposable {
-        _requests.publish(.get(url, etag))
-        completion(JSONResult.success([:]))
-        return TealiumSubscription { }
+        let sub = TealiumSubscription { }
+        delayBlock {
+            guard !sub.isDisposed else {
+                completion(.failure(.cancelled))
+                return
+            }
+            self._requests.publish(.get(url, etag))
+            completion(JSONResult.success([:]))
+        }
+        return sub
     }
 
     func getJsonAsObject<T>(url: URLConvertible, etag: String?, completion: @escaping (CodableResult<T>) -> Void) -> TealiumDisposable where T: Codable {
-        _requests.publish(.get(url, etag))
-        switch codableResult {
-        case let .success(object):
-            if let object = object as? T {
-                completion(.success(object))
-            } else {
-                completion(.failure(.unknown(MockError.failedToConvertToExpectedResultType)))
+        let sub = TealiumSubscription { }
+        delayBlock {
+            guard !sub.isDisposed else {
+                completion(.failure(.cancelled))
+                return
             }
-        case let .failure(error):
-            completion(.failure(error))
+            self._requests.publish(.get(url, etag))
+            switch self.codableResult {
+            case let .success(object):
+                if let object = object as? T {
+                    completion(.success(object))
+                } else {
+                    completion(.failure(.unknown(MockError.failedToConvertToExpectedResultType)))
+                }
+            case let .failure(error):
+                completion(.failure(error))
+            }
         }
-        return TealiumSubscription { }
+        return sub
     }
 
     func post(url: URLConvertible, body: [String: Any], completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable {
-        _requests.publish(.post(url, body))
-        completion(result)
-        return TealiumSubscription { }
+        let sub = TealiumSubscription { }
+        delayBlock {
+            guard !sub.isDisposed else {
+                completion(.failure(.cancelled))
+                return
+            }
+            self._requests.publish(.post(url, body))
+            completion(self.result)
+        }
+        return sub
     }
 }

@@ -11,21 +11,21 @@ import Foundation
 public class TealiumContext {
     public let config: TealiumConfig
     public var coreSettings: TealiumObservableState<CoreSettings>
-    public let tracker: TealiumTracker
-    public let databaseProvider: DatabaseProvider
+    public let tracker: Tracker
+    public let databaseProvider: DatabaseProviderProtocol
     public let moduleStoreProvider: ModuleStoreProvider
-    public weak var modulesManager: ModulesManager?
-    public let logger: TealiumLoggerProvider
+    public var modulesManager: ModulesManager
+    public let logger: TealiumLoggerProvider?
     public let networkHelper: NetworkHelperProtocol
     private var automaticDisposer = TealiumAutomaticDisposer()
 
     init(modulesManager: ModulesManager,
          config: TealiumConfig,
          coreSettings: TealiumObservableState<CoreSettings>,
-         tracker: TealiumTracker,
-         databaseProvider: DatabaseProvider,
+         tracker: Tracker,
+         databaseProvider: DatabaseProviderProtocol,
          moduleStoreProvider: ModuleStoreProvider,
-         logger: TealiumLoggerProvider,
+         logger: TealiumLoggerProvider?,
          networkHelper: NetworkHelperProtocol) {
         self.modulesManager = modulesManager
         self.config = config

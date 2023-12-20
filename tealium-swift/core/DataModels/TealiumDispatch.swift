@@ -15,7 +15,7 @@ public enum DispatchType: String {
 
 public struct TealiumDispatch {
     var eventData: TealiumDictionaryInput
-    var id: String = UUID().uuidString
+    let id: String = UUID().uuidString
 
     public init(name: String, type: DispatchType = .event, data: TealiumDictionaryInput? = nil) {
         var eventData: TealiumDictionaryInput = data ?? [:]

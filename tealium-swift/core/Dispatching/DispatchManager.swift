@@ -7,33 +7,40 @@
 //
 
 import Foundation
-
+/**
+ * The class containing the core logic of the library, taking `TealiumDispatch`es from the queue, transforming and dispatching them to each individual `Dispatcher` when they are ready.
+ */
 class DispatchManager {
     static let MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER = 50
     let barrierCoordinator: BarrierCoordinator
     let transformerCoordinator: TransformerCoordinator
-    let dispatchers: [Dispatcher] = []
-    let queueManager: QueueManager
-    let consentManager: ConsentManager
+
+    var dispatchers: [Dispatcher] {
+        modulesManager.modules.value.compactMap { $0 as? Dispatcher }
+    }
+    var onDispatchers: TealiumObservable<[Dispatcher]> {
+        modulesManager.$modules.map { moduleList in moduleList.compactMap { $0 as? Dispatcher } }
+    }
+    let modulesManager: ModulesManager
+    let queueManager: QueueManagerProtocol
+    let consentManager: ConsentManagerProtocol
+    let logger: TealiumLoggerProvider?
     @ToAnyObservable<TealiumPublisher<Void>>(TealiumPublisher<Void>())
     var onQueuedEvents: TealiumObservable<Void>
 
-    init(consentManager: ConsentManager, queueManager: QueueManager, barrierCoordinator: BarrierCoordinator, transformerCoordinator: TransformerCoordinator) {
+    init(modulesManager: ModulesManager,
+         consentManager: ConsentManagerProtocol,
+         queueManager: QueueManagerProtocol,
+         barrierCoordinator: BarrierCoordinator,
+         transformerCoordinator: TransformerCoordinator,
+         logger: TealiumLoggerProvider? = nil) {
+        self.modulesManager = modulesManager
         self.consentManager = consentManager
         self.queueManager = queueManager
         self.barrierCoordinator = barrierCoordinator
         self.transformerCoordinator = transformerCoordinator
-        registerConsentTransformation()
+        self.logger = logger
         startDispatchLoop()
-    }
-
-    // TODO: this can in future be done when creating the dispatch manager and the coordinators, no need to do it in here
-    func registerConsentTransformation() {
-//        transformerCoordinator.registeredTransformers.append(consentManager.consentTransformer)
-//        transformerCoordinator.scopedTransformations
-//            .append(ScopedTransformation(id: "verify_consent",
-//                                         transformerId: consentManager.consentTransformer.id,
-//                                         scope: [TransformationScope.onAllDispatchers]))
     }
 
     func tealiumPurposeExplicitlyBlocked() -> Bool {
@@ -49,9 +56,11 @@ class DispatchManager {
 
     func track(_ dispatch: TealiumDispatch) {
         guard !tealiumPurposeExplicitlyBlocked() else {
+            logger?.info?.log(category: TealiumLibraryCategories.dispatching,
+                              message: "Tealium purpose was explicitly declined, discarding this dispatch!")
             return
         }
-        transformerCoordinator.transformAfterCollectors(dispatch: dispatch) { [weak self] dispatch in
+        transformerCoordinator.transform(dispatch: dispatch, for: .afterCollectors) { [weak self] dispatch in
             guard let self = self,
                 let dispatch = dispatch else {
                 return
@@ -66,51 +75,78 @@ class DispatchManager {
 
     private var managerContainer = TealiumAutomaticDisposer()
 
-    private func stopDispatchLoop() {
+    func stopDispatchLoop() {
         managerContainer = TealiumAutomaticDisposer()
     }
 
-    private func startDispatchLoop() {
-        for dispatcher in dispatchers {
-            barrierCoordinator.onBarrierState(for: dispatcher.id)
+    func startDispatchLoop() {
+        let coordinator = barrierCoordinator
+        onDispatchers.flatMapLatest { dispatchers in
+            TealiumObservable.From(dispatchers)
+        }.flatMap { [weak self] dispatcher in
+            coordinator.onBarrierState(for: dispatcher.id)
                 .flatMapLatest { [weak self] barriersState in
-                    if barriersState == .open, let newLoop = self?.startTransformAndDispatchLoop(for: dispatcher) {
+                    self?.logger?.trace?.log(category: TealiumLibraryCategories.dispatching, message: "BarrierState changed \(barriersState)")
+                    if barriersState == .open,
+                       let newLoop = self?.startDequeueLoop(for: dispatcher) {
                         return newLoop
                     } else {
                         return .Empty()
                     }
-                }.subscribe { dispatches in
-                    print("Dispatched and deleted from Queue/inflight: \(dispatches)")
-                }.addTo(managerContainer)
-        }
-    }
-
-    private func startTransformAndDispatchLoop(for dispatcher: Dispatcher) -> TealiumObservable<[TealiumDispatch]> {
-        self.queueManager.onEnqueuedEvents.startWith(())
-            .combineLatest(self.queueManager.onInflightEventsCount(for: dispatcher))
-            .filter { $1 < Self.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER }
-            .observeOn(tealiumQueue) // added to delay subsequent events after getQueuedEvents changes the inflightEventsCount and therefore preserve the order of dispatches
-            .compactMap { [weak self] _ in self?.queueManager.getQueuedEvents(for: dispatcher, limit: dispatcher.dispatchLimit) }
-            .filter { $0.count > 0 }
-            .flatMap { dispatches in
-                TealiumObservable.Callback { [weak self] observer in
-                    self?.transformAndDispatch(dispatches: dispatches, for: dispatcher) { completedDispatches in
-                        observer(completedDispatches)
+                }.flatMap { [weak self] dispatches in
+                    TealiumObservable.Callback { [weak self] observer in
+                        guard let self = self else {
+                            return TealiumSubscription { }
+                        }
+                        self.logger?.debug?.log(category: TealiumLibraryCategories.dispatching,
+                                                message: "Dispatching events to dispatcher \(dispatcher.id): \(dispatches.shortDescription())")
+                        return self.transformAndDispatch(dispatches: dispatches, for: dispatcher) { completedDispatches in
+                            observer(completedDispatches)
+                        }
                     }
                 }
+        }
+        .subscribe { [weak self] dispatches in
+            self?.logger?.debug?.log(category: TealiumLibraryCategories.dispatching,
+                                     message: "Dispatched and deleted from Queue/inflight: \(dispatches.shortDescription())")
+        }.addTo(self.managerContainer)
+    }
+
+    private func startDequeueLoop(for dispatcher: Dispatcher) -> TealiumObservable<[TealiumDispatch]> {
+        let onInflightLower = queueManager.onInflightEventsCount(for: dispatcher)
+            .map { $0 < Self.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER }
+            .distinct()
+        let queueManager = self.queueManager
+        return queueManager.onEnqueuedEvents.startWith(())
+            .flatMapLatest { _ in
+                onInflightLower
+                    .filter { $0 }
+                    .map { _ in queueManager.getQueuedEvents(for: dispatcher, limit: dispatcher.dispatchLimit) }
+                    .filter { !$0.isEmpty }
+                    .resubscribingWhile { $0.count >= dispatcher.dispatchLimit } // Loops the `getQueuedEvents` as long as we pull `dispatchLimit` items from the queue
             }
     }
 
-    private func transformAndDispatch(dispatches: [TealiumDispatch], for dispatcher: Dispatcher, completion: @escaping ([TealiumDispatch]) -> Void) {
+    private func transformAndDispatch(dispatches: [TealiumDispatch], for dispatcher: Dispatcher, completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
+        let container = TealiumDisposeContainer()
         self.transformerCoordinator.transform(dispatches: dispatches, for: .dispatcher(dispatcher.id)) { [weak self] transformedDispaches in
+            guard !container.isDisposed else { return }
             let missingDispatchesAfterTransformations = dispatches.filter { oldDispatch in
                 !transformedDispaches.contains { transformedDispatch in oldDispatch.id == transformedDispatch.id }
             }
             self?.queueManager.deleteDispatches(missingDispatchesAfterTransformations, for: dispatcher)
             dispatcher.dispatch(transformedDispaches) { [weak self] dispatches in
+                guard !container.isDisposed else { return }
                 self?.queueManager.deleteDispatches(dispatches, for: dispatcher)
                 completion(dispatches)
-            }
+            }.addTo(container)
         }
+        return container
+    }
+}
+
+private extension Array where Element == TealiumDispatch {
+    func shortDescription() -> String {
+        "\(map { $0.name ?? "" })"
     }
 }

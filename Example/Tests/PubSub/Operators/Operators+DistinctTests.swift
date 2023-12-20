@@ -40,4 +40,20 @@ final class OperatorsDistinctTests: XCTestCase {
         helper = nil
         waitForExpectations(timeout: 1.0)
     }
+
+    func test_distinct_detects_equal_elements_for_synchronous_refire_in_the_chain() {
+        let eventProvided = expectation(description: "Event is provided")
+        let publisher = TealiumPublisher<Int>()
+        _ = publisher.asObservable()
+            .distinct()
+            .map { element in
+                publisher.publish(element)
+                return element
+            }
+            .subscribe { _ in
+                eventProvided.fulfill()
+            }
+        publisher.publish(1)
+        waitForExpectations(timeout: 1.0)
+    }
 }

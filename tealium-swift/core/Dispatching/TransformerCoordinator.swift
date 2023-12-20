@@ -41,13 +41,9 @@ class TransformerCoordinator {
     }
 
     /**
-     * Transforms a single `TealiumDispatch`, intended to be used on a dispatch after it's been enriched by the collectors.
+     * Transforms a single `TealiumDispatch`, intended to be mainly used on a dispatch after it's been enriched by the collectors.
      */
-    func transformAfterCollectors(dispatch: TealiumDispatch, completion: @escaping TransformationCompletion) {
-        transform(dispatch: dispatch, for: .afterCollectors, completion: completion)
-    }
-
-    private func transform(dispatch: TealiumDispatch, for scope: DispatchScope, completion: @escaping TransformationCompletion) {
+    func transform(dispatch: TealiumDispatch, for scope: DispatchScope, completion: @escaping TransformationCompletion) {
         recursiveSerialApply(transformations: getTransformations(for: scope),
                              to: dispatch,
                              scope: scope,

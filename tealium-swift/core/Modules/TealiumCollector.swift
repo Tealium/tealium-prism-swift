@@ -15,7 +15,7 @@ public class TealiumCollector: Collector {
             TealiumDataKey.account: config.account,
             TealiumDataKey.profile: config.profile,
             TealiumDataKey.environment: config.environment,
-            TealiumDataKey.enabledModules: context.modulesManager?.modules.map { type(of: $0).id }
+            TealiumDataKey.enabledModules: context.modulesManager.modules.value.map { type(of: $0).id }
         ])
     }
 

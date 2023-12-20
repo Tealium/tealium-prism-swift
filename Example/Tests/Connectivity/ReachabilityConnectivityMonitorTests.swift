@@ -21,15 +21,12 @@ final class ReachabilityConnectivityMonitorTests: XCTestCase {
     func test_reachability_monitor_can_be_deinitialized() {
         let reachabilityQueueCleared = expectation(description: "reachability queue should clear")
         let queue = DispatchQueue(label: "com.tealium.reachability-test")
-        var monitor: ReachabilityConnectivityMonitor? = ReachabilityConnectivityMonitor(queue: queue)
-        weak var weakMonitor = monitor
-
-        monitor = nil
+        let helper = RetainCycleHelper(variable: ReachabilityConnectivityMonitor(queue: queue))
+        helper.removeStrongReference()
         queue.async { reachabilityQueueCleared.fulfill() }
 
         waitForExpectations(timeout: 1.0)
-        XCTAssertNil(monitor, "strong reference should be nil")
-        XCTAssertNil(weakMonitor, "weak reference should be nil")
+        helper.forceAndAssertObjectDeinit()
     }
 
     func test_connection_starts_with_unknown() {

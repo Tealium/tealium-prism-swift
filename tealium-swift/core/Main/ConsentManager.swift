@@ -8,13 +8,18 @@
 
 import Foundation
 
-struct ConsentDecision {
-    enum DecisionType: String {
+public struct ConsentDecision {
+    public enum DecisionType: String {
         case implicit
         case explicit
     }
-    let decisionType: DecisionType
-    let purposes: [String]
+    public let decisionType: DecisionType
+    public let purposes: [String]
+
+    init(decisionType: DecisionType, purposes: [String]) {
+        self.decisionType = decisionType
+        self.purposes = purposes
+    }
 
     func matchAll(_ requiredPurposes: [String]) -> Bool {
         requiredPurposes.allSatisfy(purposes.contains)
@@ -25,18 +30,29 @@ struct ConsentSettings {
     let enabled: Bool
     let dispatcherToPurposes: [String: [String]]
     let shouldRefireDispatchers: [String]
+
+    init(consentDictionary: [String: Any]) {
+        self.init(enabled: consentDictionary["enabled"] as? Bool ?? false,
+                  dispatcherToPurposes: consentDictionary["dispatcher_to_purposes"] as? [String: [String]] ?? [:],
+                  shouldRefireDispatchers: consentDictionary["should_refire_dispatchers"] as? [String] ?? [])
+    }
+
+    init(enabled: Bool, dispatcherToPurposes: [String: [String]], shouldRefireDispatchers: [String]) {
+        self.enabled = enabled
+        self.dispatcherToPurposes = dispatcherToPurposes
+        self.shouldRefireDispatchers = shouldRefireDispatchers
+    }
 }
 
 class ConsentTransformer: Transformer {
     let id: String = "ConsentTransformer"
-    var enabled = true
-    var settings: ConsentSettings
+    var enabled: Bool {
+        settings.value.enabled
+    }
+    var settings: TealiumObservableState<ConsentSettings>
     private let automaticDisposer = TealiumAutomaticDisposer()
-    init(consentSettings: ConsentSettings, onConsentSettings: TealiumObservable<ConsentSettings>) {
+    init(consentSettings: TealiumObservableState<ConsentSettings>) {
         self.settings = consentSettings
-        onConsentSettings.subscribe { [weak self] consentSettings in
-            self?.settings = consentSettings
-        }.addTo(automaticDisposer)
     }
 
     func applyTransformation(_ id: String, to dispatch: TealiumDispatch, scope: DispatchScope, completion: @escaping (TealiumDispatch?) -> Void) {
@@ -45,7 +61,7 @@ class ConsentTransformer: Transformer {
             return
         }
         guard case let DispatchScope.dispatcher(dispatcherId) = scope,
-            let requiredPurposes = settings.dispatcherToPurposes[dispatcherId],
+              let requiredPurposes = settings.value.dispatcherToPurposes[dispatcherId],
               !requiredPurposes.isEmpty,
               self.dispatch(dispatch, matchesPurposes: requiredPurposes) else {
             completion(nil)
@@ -62,7 +78,7 @@ class ConsentTransformer: Transformer {
     }
 }
 
-protocol CMPIntegration {
+public protocol CMPIntegration {
     var consentDecision: TealiumObservableState<ConsentDecision?> { get }
     func allPurposes() -> [String]?
 }
@@ -84,27 +100,33 @@ class ConsentQueue {
     }
 }
 
-class ConsentManager {
-    var enabled: Bool = true // From settings
+protocol ConsentManagerProtocol {
+    var enabled: Bool { get }
+    func applyConsent(to dispatch: TealiumDispatch)
+    func tealiumConsented(forPurposes purposes: [String]) -> Bool
+    func allPurposesMatch(consentDecision: ConsentDecision) -> Bool
+    func getConsentDecision() -> ConsentDecision?
+}
+
+class ConsentManager: ConsentManagerProtocol {
+    var enabled: Bool = false // From settings
     let processedPurposesKey = "purposes_with_consent_processed"
     let unprocessedPurposesKey = "purposes_with_consent_unprocessed"
     let queueManager: QueueManager
     let consentQueue: ConsentQueue
-    var settings: ConsentSettings = ConsentSettings(enabled: true, dispatcherToPurposes: [:], shouldRefireDispatchers: [])
+    let settings: TealiumObservableState<ConsentSettings>
     var cmpIntegration: CMPIntegration? // From config
     var refireDispatchers: [String] { // From settings
-        settings.shouldRefireDispatchers
+        settings.value.shouldRefireDispatchers
     }
     let consentTransformer: ConsentTransformer
     private let automaticDisposer = TealiumAutomaticDisposer()
-    init(queueManager: QueueManager, consentQueue: ConsentQueue, cmpIntegration: CMPIntegration?, onConsentSettings: TealiumObservable<ConsentSettings>) {
+    init(queueManager: QueueManager, consentQueue: ConsentQueue, cmpIntegration: CMPIntegration?, consentSettings: TealiumObservableState<ConsentSettings>) {
         self.queueManager = queueManager
         self.consentQueue = consentQueue
         self.cmpIntegration = cmpIntegration
-        consentTransformer = ConsentTransformer(consentSettings: settings, onConsentSettings: onConsentSettings)
-        onConsentSettings.subscribe { [weak self] settings in
-            self?.settings = settings
-        }.addTo(automaticDisposer)
+        consentTransformer = ConsentTransformer(consentSettings: consentSettings)
+        settings = consentSettings
         cmpIntegration?.consentDecision.asObservable().compactMap { $0 }.subscribe { [weak self] consentDecision in
             guard let self = self,
                   self.tealiumConsented(forPurposes: consentDecision.purposes) else {

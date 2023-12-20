@@ -10,9 +10,10 @@ import TealiumSwift
 import UIKit
 
 class CustomDispatcher: Dispatcher {
-    func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) {
+    func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
         print("CustomDispatcher dispatch: \(data.compactMap { $0.name })")
         completion(data)
+        return TealiumSubscription { }
     }
 
     static let id: String = "CustomDispatcher"
@@ -38,7 +39,7 @@ class ViewController: UIViewController {
         // Do any additional setup after loading the view, typically from a nib.
         
         initTeal()
-        teal.track(TealiumDispatch(name: "asd", data: ["some":"data"]))
+//        teal.track(TealiumDispatch(name: "asd", data: ["some":"data"]))
         
         let btn = UIButton()
         btn.backgroundColor = .black
@@ -108,7 +109,7 @@ class ViewController: UIViewController {
         let modules: [TealiumModule.Type] = [
             TealiumCollect.self,
             AppDataCollector.self,
-            CustomDispatcher.self
+//            CustomDispatcher.self
         ]
         let config = TealiumConfig(account: "tealiummobile",
                                    profile: "enrico-test",
@@ -134,6 +135,7 @@ class ViewController: UIViewController {
             teal.dataLayer.add(data: ["myTimestamp": Date().timeIntervalSince1970], expiry: .untilRestart)
             teal.dataLayer.delete(keys: ["1", "3", "5"])
             teal.track(TealiumDispatch(name: "something"))
+            teal.track(TealiumDispatch(name: "something2", data: ["some":"data"]))
         }
         
     }

@@ -47,22 +47,26 @@ public class TealiumCollect: Dispatcher {
      * In case of multiple events with different `visitorId`s this method will automatically group them by `visitorId` and send them separately.
      * The completion block can, therefore, be called more than once with the list of dispatches that are actually completed every time.
      */
-    public func dispatch(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) {
+    public func dispatch(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
         logger?.trace?.log(category: TealiumLibraryCategories.dispatching,
                            message: "Collect dispatching events \(events.map { $0.eventData })")
         if events.count == 1 {
-            sendSingleDispatch(events[0], completion: completion)
+            return sendSingleDispatch(events[0], completion: completion)
         } else {
             let batches = batcher.splitDispatchesByVisitorId(events)
             logger?.trace?.log(category: TealiumLibraryCategories.dispatching,
                                message: "Collect events split in batches \(batches)")
+            let container = TealiumDisposeContainer()
             for batch in batches where !batch.isEmpty {
                 if batch.count == 1 {
                     sendSingleDispatch(batch[0], completion: completion)
+                        .addTo(container)
                 } else {
                     sendBatchDispatches(batch, completion: completion)
+                        .addTo(container)
                 }
             }
+            return container
         }
     }
 
@@ -72,17 +76,21 @@ public class TealiumCollect: Dispatcher {
      * This method will create the JSON, eventually apply the `overrideProfile`,
      * and then send the gzipped payload with a POST request to the batch endpoint.
      */
-    func sendSingleDispatch(_ event: TealiumDispatch, completion: @escaping ([TealiumDispatch]) -> Void) {
+    func sendSingleDispatch(_ event: TealiumDispatch, completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
         logger?.debug?.log(category: TealiumLibraryCategories.dispatching,
                            message: "Collect dispatching event \(event.name ?? "unknown")")
         guard let url = settings.url else {
             logger?.error?.log(category: TealiumLibraryCategories.dispatching,
                                message: "Collect failed to dispatch due to settings with no URL to dispatch")
-            return
+            return TealiumSubscription { }
         }
         var data: [String: Any] = event.eventData
         batcher.applyProfileOverride(settings.overrideProfile, to: &data)
-        _ = networkHelper.post(url: url, body: data) { [weak self] result in
+        return networkHelper.post(url: url, body: data) { [weak self] result in
+            if case .failure(.cancelled) = result {
+                completion([])
+                return
+            }
             self?.logger?.debug?
                 .log(category: TealiumLibraryCategories.dispatching,
                      message: "Collect dispatching \(result.shortDescription()) for event \(event.name ?? "unknown")")
@@ -98,16 +106,20 @@ public class TealiumCollect: Dispatcher {
      * This method will create the JSON by compressing those batches, eventually apply the `overrideProfile`,
      * and then send the payload with a gzipped POST requst to the batch endpoint.
      */
-    func sendBatchDispatches(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) {
+    func sendBatchDispatches(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
         logger?.debug?.log(category: TealiumLibraryCategories.dispatching,
                            message: "Collect dispatching events \(events.map { $0.name ?? "unknown" })")
         guard let url = settings.batchUrl,
               let batchData = batcher.compressDispatches(events, profileOverride: settings.overrideProfile) else {
                 logger?.error?.log(category: TealiumLibraryCategories.dispatching,
                                    message: "Collect failed to disptch due to settings with no batch URL to dispatch")
-            return
+            return TealiumSubscription { }
         }
-        _ = networkHelper.post(url: url, body: batchData) { [weak self] result in
+        return networkHelper.post(url: url, body: batchData) { [weak self] result in
+            if case .failure(.cancelled) = result {
+                completion([])
+                return
+            }
             self?.logger?.debug?
                 .log(category: TealiumLibraryCategories.dispatching,
                      message: "Collect dispatching \(result.shortDescription()) for events \(events.map { $0.name ?? "unknown" })")

@@ -11,13 +11,13 @@ import XCTest
 
 final class TransformerCoordinatorTests: XCTestCase {
     @TealiumMutableState([
-        ScopedTransformation(id: "transformation1", transformerId: "transformer1", scope: [.afterCollectors]),
-        ScopedTransformation(id: "transformation2", transformerId: "transformer2", scope: [.allDispatchers]),
-        ScopedTransformation(id: "transformation3", transformerId: "transformer3", scope: [.dispatcher("someDispatcher")]),
-        ScopedTransformation(id: "transformation4", transformerId: "transformer1", scope: [.allDispatchers]),
-        ScopedTransformation(id: "transformation5", transformerId: "transformer2", scope: [.dispatcher("someOtherDispatcher")]),
-        ScopedTransformation(id: "transformation6", transformerId: "transformer3", scope: [.afterCollectors]),
-        ScopedTransformation(id: "transformation7", transformerId: "transformer1", scope: [.dispatcher("someDispatcher"), .dispatcher("someOtherDispatcher")]),
+        ScopedTransformation(id: "transformation1", transformerId: "transformer1", scopes: [.afterCollectors]),
+        ScopedTransformation(id: "transformation2", transformerId: "transformer2", scopes: [.allDispatchers]),
+        ScopedTransformation(id: "transformation3", transformerId: "transformer3", scopes: [.dispatcher("someDispatcher")]),
+        ScopedTransformation(id: "transformation4", transformerId: "transformer1", scopes: [.allDispatchers]),
+        ScopedTransformation(id: "transformation5", transformerId: "transformer2", scopes: [.dispatcher("someOtherDispatcher")]),
+        ScopedTransformation(id: "transformation6", transformerId: "transformer3", scopes: [.afterCollectors]),
+        ScopedTransformation(id: "transformation7", transformerId: "transformer1", scopes: [.dispatcher("someDispatcher"), .dispatcher("someOtherDispatcher")]),
     ])
     var scopedTransformations: TealiumObservableState<[ScopedTransformation]>
     var registeredTransformers: [MockTransformer] = [

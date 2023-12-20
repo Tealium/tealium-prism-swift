@@ -101,11 +101,11 @@ public class DeepLinkModule: TealiumModule {
     }
 
     var trace: TraceModule? {
-        self.context.modulesManager?.getModule()
+        self.context.modulesManager.getModule()
     }
 
     var dataLayer: DataLayerModule? {
-        self.context.modulesManager?.getModule()
+        self.context.modulesManager.getModule()
     }
 
     /// Sends a request to modules to initiate a trace with a specific Trace ID￼.

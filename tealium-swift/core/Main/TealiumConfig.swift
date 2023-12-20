@@ -16,6 +16,7 @@ public struct TealiumConfig {
     public var barriers: [Barrier] = []
     public var transformers: [Transformer] = []
     public var loggerType: TealiumLoggerType = .os
+    public var cmpIntegration: CMPIntegration?
     public let configFile: String
     public let configUrl: String?
 

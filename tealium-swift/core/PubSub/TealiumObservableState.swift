@@ -16,12 +16,20 @@ import Foundation
  */
 public class TealiumObservableState<Element>: TealiumObservableConvertible {
     private let mutableState: TealiumMutableState<Element>
+    private lazy var automaticDisposer = TealiumAutomaticDisposer()
     public var value: Element {
         mutableState.value
     }
 
     public init(mutableState: TealiumMutableState<Element>) {
         self.mutableState = mutableState
+    }
+
+    public init(initialValue: Element, updates: TealiumObservable<Element>) {
+        self.mutableState = TealiumMutableState(initialValue)
+        updates.subscribe { [weak self] element in
+            self?.mutableState.value = element
+        }.addTo(automaticDisposer)
     }
 
     public class func constant(_ value: Element) -> TealiumObservableState<Element> {
@@ -36,5 +44,12 @@ public class TealiumObservableState<Element>: TealiumObservableConvertible {
     /// Returns an observable that emits only new updates of this State.
     public func updates() -> TealiumObservable<Element> {
         mutableState.updates()
+    }
+}
+
+public extension TealiumObservableState {
+    func map<Result>(_ transform: @escaping (Element) -> Result) -> TealiumObservableState<Result> {
+        TealiumObservableState<Result>(initialValue: transform(value),
+                                       updates: updates().map(transform))
     }
 }

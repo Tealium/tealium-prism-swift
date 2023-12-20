@@ -13,7 +13,8 @@ import Foundation
  */
 class SettingsProvider {
     @TealiumMutableState var settings: TealiumObservableState<[String: Any]>
-    @TealiumMutableState var coreSettings: TealiumObservableState<CoreSettings>
+    let coreSettings: TealiumObservableState<CoreSettings>
+    let consentSettings: TealiumObservableState<ConsentSettings>
 
     init(config: TealiumConfig, storeProvider: ModuleStoreProvider) {
         let trackingInterval = TealiumSignpostInterval(signposter: .settings, name: "Settings Retrieval")
@@ -24,12 +25,17 @@ class SettingsProvider {
         else {
             trackingInterval.end("FAILED")
             self._settings = TealiumMutableState([:])
-            self._coreSettings = TealiumMutableState(CoreSettings(coreDictionary: [:]))
+            self.coreSettings = TealiumObservableState(mutableState: TealiumMutableState(CoreSettings(coreDictionary: [:])))
+            self.consentSettings = TealiumObservableState(mutableState: TealiumMutableState(ConsentSettings(consentDictionary: [:])))
             return
         }
         trackingInterval.end("SUCCESS")
-        self._settings = TealiumMutableState(settings)
-        self._coreSettings = TealiumMutableState(CoreSettings(coreDictionary: settings["core"] as? [String: Any] ?? [:]))
+        let mutableSettings = TealiumMutableState(settings)
+        self._settings = mutableSettings
+        self.coreSettings = mutableSettings.toObservableState()
+            .map { settings in CoreSettings(coreDictionary: settings["core"] as? [String: Any] ?? [:]) }
+        self.consentSettings = mutableSettings.toObservableState()
+            .map { settings in ConsentSettings(consentDictionary: settings["consent"] as? [String: Any] ?? [:]) }
     }
 
 }

@@ -12,6 +12,7 @@ public struct CoreSettings {
     enum Keys {
         static let minLogLevel = "minLogLevel"
         static let barriers = "barriers"
+        static let transformations = "transformations"
     }
     enum Defaults {
         static let minLogLevel = TealiumLogLevel.Minimum.debug // TODO: Change into .error later
@@ -28,7 +29,13 @@ public struct CoreSettings {
         } else {
             scopedBarriers = []
         }
+        if let transformations = coreDictionary[Keys.transformations] as? [[String: Any]] {
+            scopedTransformations = transformations.compactMap { ScopedTransformation(from: $0) }
+        } else {
+            scopedTransformations = []
+        }
     }
     let minLogLevel: TealiumLogLevel.Minimum
     let scopedBarriers: [ScopedBarrier]
+    let scopedTransformations: [ScopedTransformation]
 }

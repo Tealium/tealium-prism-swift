@@ -27,7 +27,7 @@ final class TealiumCollectTests: XCTestCase {
                 postRequestSent.fulfill()
             }
         }
-        collect.dispatch([stubDispatches[0]], completion: { _ in })
+        _ = collect.dispatch([stubDispatches[0]], completion: { _ in })
         waitForExpectations(timeout: 1.0)
     }
 
@@ -47,7 +47,7 @@ final class TealiumCollectTests: XCTestCase {
                 postRequestSent.fulfill()
             }
         }
-        collect.dispatch(stubDispatches, completion: { _ in })
+        _ = collect.dispatch(stubDispatches, completion: { _ in })
         waitForExpectations(timeout: 1.0)
     }
 
@@ -60,7 +60,7 @@ final class TealiumCollectTests: XCTestCase {
                 postRequestSent.fulfill()
             }
         }
-        collect.dispatch([stubDispatches[0]], completion: { _ in })
+        _ = collect.dispatch([stubDispatches[0]], completion: { _ in })
         waitForExpectations(timeout: 1.0)
     }
 
@@ -73,7 +73,7 @@ final class TealiumCollectTests: XCTestCase {
                 postRequestSent.fulfill()
             }
         }
-        collect.dispatch(stubDispatches, completion: { _ in })
+        _ = collect.dispatch(stubDispatches, completion: { _ in })
         waitForExpectations(timeout: 1.0)
     }
 
@@ -90,7 +90,7 @@ final class TealiumCollectTests: XCTestCase {
                 }
             }
         }
-        collect.dispatch([
+        _ = collect.dispatch([
             TealiumDispatch(name: "event1", data: [TealiumDataKey.visitorId: "visitor1"]),
             TealiumDispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor2"])
         ], completion: { _ in })
@@ -112,7 +112,7 @@ final class TealiumCollectTests: XCTestCase {
                 }
             }
         }
-        collect.dispatch([
+        _ = collect.dispatch([
             TealiumDispatch(name: "event1", data: [TealiumDataKey.visitorId: "visitor1"]),
             TealiumDispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor1"]),
             TealiumDispatch(name: "event3", data: [TealiumDataKey.visitorId: "visitor2"]),
@@ -125,7 +125,7 @@ final class TealiumCollectTests: XCTestCase {
     func test_multiple_dispatches_with_same_visitorIds_only_complete_with_the_batched_events() {
         let firstVisitorSent = expectation(description: "The POST request for the first visitor is sent")
         let secondVisitorSent = expectation(description: "The POST request for the second visitor is sent")
-        collect.dispatch([
+        _ = collect.dispatch([
             TealiumDispatch(name: "event1", data: [TealiumDataKey.visitorId: "visitor1"]),
             TealiumDispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor1"]),
             TealiumDispatch(name: "event3", data: [TealiumDataKey.visitorId: "visitor2"])
@@ -138,6 +138,17 @@ final class TealiumCollectTests: XCTestCase {
                 secondVisitorSent.fulfill()
             }
         })
+        waitForExpectations(timeout: 1.0)
+    }
+
+    func test_disposed_dispatch_are_not_completed() {
+        let postRequestCancelled = expectation(description: "The POST request is cancelled")
+        networkHelper.delay = 500
+        let subscription = collect.dispatch([stubDispatches[0]], completion: { dispatches in
+            XCTAssertEqual(dispatches.count, 0)
+            postRequestCancelled.fulfill()
+        })
+        subscription.dispose()
         waitForExpectations(timeout: 1.0)
     }
 }

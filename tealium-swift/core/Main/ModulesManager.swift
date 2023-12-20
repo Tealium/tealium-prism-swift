@@ -11,10 +11,11 @@ import Foundation
 public let tealiumQueue = DispatchQueue(label: "tealium.queue") // TODO: change this
 
 public class ModulesManager {
-    var modules = [TealiumModule]()
+    @TealiumMutableState([])
+    var modules: TealiumObservableState<[TealiumModule]>
 
     func updateSettings(context: TealiumContext, settings: [String: Any]) {
-        if self.modules.isEmpty {
+        if self.modules.value.isEmpty {
             self.setupModules(context: context, settings: settings)
         } else {
             self.updateModules(context: context, settings: settings)
@@ -23,7 +24,7 @@ public class ModulesManager {
 
     // swiftlint:disable identifier_name explicit_init
     private func setupModules(context: TealiumContext, settings: [String: Any]) {
-        self.modules = context.config.modules.compactMap({ ModuleClass in
+        self._modules.value = context.config.modules.compactMap({ ModuleClass in
             let updateInterval = TealiumSignpostInterval(signposter: .settings, name: "Module Update")
                 .begin(ModuleClass.id)
             defer { updateInterval.end() }
@@ -33,8 +34,8 @@ public class ModulesManager {
     }
 
     private func updateModules(context: TealiumContext, settings: [String: Any]) {
-        let oldModules = self.modules
-        self.modules = context.config.modules.compactMap({ ModuleClass in
+        let oldModules = self.modules.value
+        self._modules.value = context.config.modules.compactMap({ ModuleClass in
             let updateInterval = TealiumSignpostInterval(signposter: .settings, name: "Module Update")
                 .begin(ModuleClass.id)
             defer { updateInterval.end() }
@@ -52,7 +53,7 @@ public class ModulesManager {
     }
 
     public func getModule<T: TealiumModule>() -> T? {
-        modules.compactMap { $0 as? T }.first
+        modules.value.compactMap { $0 as? T }.first
     }
 
     public func getModule<T: TealiumModule>(completion: @escaping (T?) -> Void) {
@@ -62,6 +63,6 @@ public class ModulesManager {
     }
 
     public func getAllModuleAs<T>() -> [T] {
-        modules.compactMap { $0 as? T }
+        modules.value.compactMap { $0 as? T }
     }
 }
