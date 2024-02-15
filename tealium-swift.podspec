@@ -31,7 +31,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/Tealium/tealium-swift-v3.git", :tag => "#{s.version}" }
   s.social_media_url = "http://twitter.com/tealium"
 
-  s.ios.deployment_target = '11.0'
+  s.ios.deployment_target = '12.0'
 
   s.swift_version = '5.0'
   s.dependency 'SQLite.swift', '~> 0.14.0'
