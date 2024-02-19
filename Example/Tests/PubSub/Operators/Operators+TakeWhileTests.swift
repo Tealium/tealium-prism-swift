@@ -65,7 +65,7 @@ final class OperatorsTakeWhileTests: XCTestCase {
         expectations[1].isInverted = true
         expectations[2].isInverted = true
         _ = observable123
-            .takeWhile { $0 % 2 == 1 }
+            .takeWhile { $0 != 2 }
             .subscribe { event in
                 if event == 1 {
                     expectations[0].fulfill()
@@ -86,7 +86,7 @@ final class OperatorsTakeWhileTests: XCTestCase {
         ]
         expectations[2].isInverted = true
         _ = observable123
-            .takeWhile({ $0 % 2 == 1 }, inclusive: true)
+            .takeWhile({ $0 != 2 }, inclusive: true)
             .subscribe { event in
                 if event == 1 {
                     expectations[0].fulfill()

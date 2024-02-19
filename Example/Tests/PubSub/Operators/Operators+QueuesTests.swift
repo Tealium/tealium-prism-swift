@@ -46,6 +46,20 @@ final class OperatorsQueuesTests: XCTestCase {
         }
     }
 
+    func test_subscribeOn_subscription_dispose_immediately_disposes_underlying_subscription() {
+        let notPublished = expectation(description: "Even not published to the observer")
+        notPublished.isInverted = true
+        let pub = TealiumReplaySubject<Int>(initialValue: 1)
+        let observable = pub.asObservable()
+        let queue = DispatchQueue.main // So that the subscription is delayed after the end of this function
+        let generatedObservable: TealiumObservable<Int> = observable.subscribeOn(queue)
+        let subscription = generatedObservable.subscribe { _ in
+            notPublished.fulfill()
+        }
+        subscription.dispose()
+        waitForExpectations(timeout: 1.0)
+    }
+
     func test_observeOn_observes_on_provided_queue() {
         let expectation = expectation(description: "Observer is called")
         expectation.assertForOverFulfill = false
@@ -75,5 +89,19 @@ final class OperatorsQueuesTests: XCTestCase {
             helper = nil
             waitForExpectations(timeout: 1.0)
         }
+    }
+
+    func test_observeOn_subscription_dispose_immediately_disposes_underlying_subscription() {
+        let notPublished = expectation(description: "Even not published to the observer")
+        notPublished.isInverted = true
+        let pub = TealiumReplaySubject<Int>(initialValue: 1)
+        let observable = pub.asObservable()
+        let queue = DispatchQueue.main // So that the subscription is delayed after the end of this function
+        let generatedObservable: TealiumObservable<Int> = observable.observeOn(queue)
+        let subscription = generatedObservable.subscribe { _ in
+            notPublished.fulfill()
+        }
+        subscription.dispose()
+        waitForExpectations(timeout: 1.0)
     }
 }

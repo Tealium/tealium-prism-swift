@@ -8,23 +8,21 @@
 
 import Foundation
 
-/// A simple wrapper that disposes the provided subscription on a specific queue.
-class TealiumSubscriptionWrapper: TealiumDisposable {
-    var subscription: TealiumDisposable?
-    private(set) var isDisposed: Bool = false
-    let queue: DispatchQueue?
-    init(disposeOn queue: DispatchQueue? = nil) {
+/// A simple wrapper that disposes the provided subscriptions on a specific queue.
+class TealiumAsyncDisposer: TealiumDisposeContainer {
+    let queue: DispatchQueue
+    private var _isDisposed = false
+    override var isDisposed: Bool {
+        _isDisposed
+    }
+    init(disposeOn queue: DispatchQueue) {
         self.queue = queue
     }
-    func dispose() {
-        if let queue = queue {
-            queue.async { // TODO: We might want to add a check if we are already on that queue then don't dispatch
-                self.subscription?.dispose()
-            }
-        } else {
-            self.subscription?.dispose()
+    override func dispose() {
+        self._isDisposed = true
+        queue.async { // TODO: We might want to add a check if we are already on that queue then don't dispatch
+            super.dispose()
         }
-        isDisposed = true
     }
 }
 
@@ -33,9 +31,10 @@ public extension TealiumObservableProtocol {
     /// Ensures that Observers to the returned observable are always subscribed on the provided queue.
     func subscribeOn(_ queue: DispatchQueue) -> TealiumObservable<Element> {
         TealiumObservableCreate { observer in
-            let subscription = TealiumSubscriptionWrapper(disposeOn: queue)
+            let subscription = TealiumAsyncDisposer(disposeOn: queue)
             queue.async { // TODO: We might want to add a check if we are already on that queue then don't dispatch
-                subscription.subscription = self.subscribe(observer)
+                guard !subscription.isDisposed else { return }
+                self.subscribe(observer).addTo(subscription)
             }
             return subscription
         }
@@ -44,11 +43,14 @@ public extension TealiumObservableProtocol {
     /// Ensures that Observers to the returned observable are always called on the provided queue.
     func observeOn(_ queue: DispatchQueue) -> TealiumObservable<Element> {
         TealiumObservableCreate { observer in
+            let container = TealiumDisposeContainer()
             self.subscribe { element in
                 queue.async { // TODO: We might want to add a check if we are already on that queue then don't dispatch
+                    guard !container.isDisposed else { return }
                     observer(element)
                 }
-            }
+            }.addTo(container)
+            return container
         }
     }
 
@@ -225,20 +227,21 @@ public extension TealiumObservableProtocol {
      * You need to treat the underlying observable as a recurring function and make sure there is an exit condition.
      */
     func resubscribingWhile(_ isIncluded: @escaping (Element) -> Bool) -> TealiumObservable<Element> {
-        func subscribeOnceInfiniteLoop(observer: @escaping (Element) -> Void, subscriptionWrapper: TealiumSubscriptionWrapper) -> TealiumDisposable {
+        func subscribeOnceInfiniteLoop(observer: @escaping (Element) -> Void, container: TealiumDisposeContainer) -> TealiumDisposable {
             self.subscribeOnce { element in
-                guard !subscriptionWrapper.isDisposed else { return }
-                subscriptionWrapper.subscription?.dispose()
+                guard !container.isDisposed else { return }
                 observer(element)
                 if isIncluded(element) {
-                    subscriptionWrapper.subscription = subscribeOnceInfiniteLoop(observer: observer, subscriptionWrapper: subscriptionWrapper)
+                    subscribeOnceInfiniteLoop(observer: observer, container: container)
+                        .addTo(container)
                 }
             }
         }
         return TealiumObservableCreate { observer in
-            let subscription = TealiumSubscriptionWrapper()
-            subscription.subscription = subscribeOnceInfiniteLoop(observer: observer, subscriptionWrapper: subscription)
-            return subscription
+            let container = TealiumDisposeContainer()
+            subscribeOnceInfiniteLoop(observer: observer, container: container)
+                .addTo(container)
+            return container
         }
     }
 
