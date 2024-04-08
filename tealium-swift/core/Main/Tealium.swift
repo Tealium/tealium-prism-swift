@@ -38,7 +38,10 @@ public class Tealium {
     }
 
     private func onImplementationReady(_ completion: @escaping (TealiumImplementation?) -> Void) {
-        onTealiumImplementation.subscribeOnce(completion).addTo(automaticDisposer)
+        onTealiumImplementation
+            .subscribeOn(tealiumQueue)
+            .subscribeOnce(completion)
+            .addTo(automaticDisposer)
     }
 
     public func onReady(_ completion: @escaping (Tealium) -> Void) {
