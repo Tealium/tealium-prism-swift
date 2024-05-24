@@ -12,7 +12,7 @@ enum ExpirationRequest {
     case restart
     case sessionChange
 
-    var expiryTime: Double {
+    var expiryTime: Int64 {
         switch self {
         case .restart:
             return Expiry.untilRestart.expiryTime()

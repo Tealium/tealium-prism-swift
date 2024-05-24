@@ -9,7 +9,7 @@
 import Foundation
 
 /// An object that will apply different transformations, selected by `transformationId`, to a dispatch.
-public protocol Transformer {
+public protocol Transformer: AnyObject {
     /// The Transformer ID used to match it with the `ScopedTransformation` in the settings
     var id: String { get }
     /// Applies a transformation, identified by a `transformationId`, to a `TealiumDispatch` for the `DispatchScope` in which this transformation is called.
@@ -19,25 +19,36 @@ public protocol Transformer {
                              completion: @escaping (TealiumDispatch?) -> Void)
 }
 
+public protocol TransformerRegistry {
+    func registerTransfomer(_ transformer: Transformer)
+    func unregisterTransformer(_ transformer: Transformer)
+    func registerTransformation(_ scopedTransformation: ScopedTransformation)
+    func unregisterTransformation(_ scopedTransformation: ScopedTransformation)
+}
+
 /**
  * A class that takes a constant list of registered transformers and an observable state of scopedTransformers and can be used to transform the events after they have been enriched by the collectors or before being sent to each individual dispatcher.
  *
  * The `scopedTransformations` are used to select the right transformer when we are transforming each event.
  */
-class TransformerCoordinator {
-    let registeredTransformers: [Transformer]
-    let scopedTransformations: TealiumObservableState<[ScopedTransformation]>
-    let queue: DispatchQueue
+public class TransformerCoordinator: TransformerRegistry {
+    private var registeredTransformers: [Transformer]
+    private let scopedTransformations: TealiumStatefulObservable<[ScopedTransformation]>
+    private let additionalTransformations = TealiumVariableSubject<[ScopedTransformation]>([])
+    private var allTransformations: [ScopedTransformation] {
+        scopedTransformations.value + additionalTransformations.value
+    }
+    private let queue: DispatchQueue
     typealias TransformationCompletion = (TealiumDispatch?) -> Void
     typealias DispatchesTransformationCompletion = ([TealiumDispatch]) -> Void
-    init(registeredTransformers: [Transformer], scopedTransformations: TealiumObservableState<[ScopedTransformation]>, queue: DispatchQueue = tealiumQueue) {
+    init(registeredTransformers: [Transformer], scopedTransformations: TealiumStatefulObservable<[ScopedTransformation]>, queue: DispatchQueue = tealiumQueue) {
         self.registeredTransformers = registeredTransformers
         self.scopedTransformations = scopedTransformations
         self.queue = queue
     }
 
     func getTransformations(for scope: DispatchScope) -> [ScopedTransformation] {
-        scopedTransformations.value.filter { $0.matchesScope(scope) }
+        allTransformations.filter { $0.matchesScope(scope) }
     }
 
     /**
@@ -83,6 +94,21 @@ class TransformerCoordinator {
             return
         }
         return transformer.applyTransformation(transformation.id, to: dispatch, scope: scope, completion: completion)
+    }
+
+    public func registerTransfomer(_ transformer: Transformer) {
+        registeredTransformers.append(transformer)
+    }
+
+    public func unregisterTransformer(_ transformer: Transformer) {
+        registeredTransformers.removeAll { $0 === transformer }
+    }
+
+    public func registerTransformation(_ scopedTransformation: ScopedTransformation) {
+        additionalTransformations.value.append(scopedTransformation)
+    }
+    public func unregisterTransformation(_ scopedTransformation: ScopedTransformation) {
+        additionalTransformations.value.removeAll { $0 == scopedTransformation }
     }
 }
 

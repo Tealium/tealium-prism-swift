@@ -9,21 +9,33 @@
 import Foundation
 import TealiumSwift
 
-class MockDispatcher: Dispatcher {
-    var dispatchLimit: Int { 1 }
-    class var id: String { "mockDispacher" }
-    var delay: Int?
-    var queue = DispatchQueue.main
-
-    @ToAnyObservable<TealiumPublisher<[TealiumDispatch]>>(TealiumPublisher())
-    var onDispatch: TealiumObservable<[TealiumDispatch]>
-
+class MockModule: TealiumModule {
+    class var id: String { "mockModule" }
+    init() { }
     required init?(context: TealiumContext, moduleSettings: [String: Any]) {
         let enabled = moduleSettings["enabled"] as? Bool ?? true
         if !enabled {
             return nil
         }
     }
+
+    func updateSettings(_ settings: [String: Any]) -> Self? {
+        let enabled = settings["enabled"] as? Bool ?? true
+        if !enabled {
+            return nil
+        }
+        return self
+    }
+}
+
+class MockDispatcher: MockModule, Dispatcher {
+    var dispatchLimit: Int { 1 }
+    class override var id: String { "mockDispacher" }
+    var delay: Int?
+    var queue = DispatchQueue.main
+
+    @ToAnyObservable<TealiumPublisher<[TealiumDispatch]>>(TealiumPublisher())
+    var onDispatch: TealiumObservable<[TealiumDispatch]>
 
     func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
         let subscription = TealiumSubscription { }
@@ -39,20 +51,24 @@ class MockDispatcher: Dispatcher {
         }
         return subscription
     }
-
-    func updateSettings(_ settings: [String: Any]) -> Self? {
-        let enabled = settings["enabled"] as? Bool ?? true
-        if !enabled {
-            return nil
-        }
-        return self
-    }
 }
 
 class MockDispatcher1: MockDispatcher {
     override class var id: String { "mockDispatcher1" }
+    override init() {
+        super.init()
+    }
+    required init?(context: TealiumContext, moduleSettings: [String: Any]) {
+        super.init(context: context, moduleSettings: moduleSettings)
+    }
 }
 class MockDispatcher2: MockDispatcher {
     override var dispatchLimit: Int { 3 }
     override class var id: String { "mockDispatcher2" }
+    override init() {
+        super.init()
+    }
+    required init?(context: TealiumContext, moduleSettings: [String: Any]) {
+        super.init(context: context, moduleSettings: moduleSettings)
+    }
 }

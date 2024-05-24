@@ -10,8 +10,11 @@ import Foundation
 
 public class TealiumContext {
     public let config: TealiumConfig
-    public var coreSettings: TealiumObservableState<CoreSettings>
+    public var coreSettings: TealiumStatefulObservable<CoreSettings>
     public let tracker: Tracker
+    public let queueManager: QueueManagerProtocol
+    public let barrierRegistry: BarrierRegistry
+    public let transformerRegistry: TransformerRegistry
     public let databaseProvider: DatabaseProviderProtocol
     public let moduleStoreProvider: ModuleStoreProvider
     public var modulesManager: ModulesManager
@@ -21,14 +24,20 @@ public class TealiumContext {
 
     init(modulesManager: ModulesManager,
          config: TealiumConfig,
-         coreSettings: TealiumObservableState<CoreSettings>,
+         coreSettings: TealiumStatefulObservable<CoreSettings>,
          tracker: Tracker,
+         queueManager: QueueManagerProtocol,
+         barrierRegistry: BarrierRegistry,
+         transformerRegistry: TransformerRegistry,
          databaseProvider: DatabaseProviderProtocol,
          moduleStoreProvider: ModuleStoreProvider,
          logger: TealiumLoggerProvider?,
          networkHelper: NetworkHelperProtocol) {
         self.modulesManager = modulesManager
         self.config = config
+        self.queueManager = queueManager
+        self.barrierRegistry = barrierRegistry
+        self.transformerRegistry = transformerRegistry
         self.coreSettings = coreSettings
         self.tracker = tracker
         self.databaseProvider = databaseProvider

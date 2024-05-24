@@ -8,7 +8,7 @@
 
 import Foundation
 
-public enum TransformationScope: RawRepresentable, Codable {
+public enum TransformationScope: RawRepresentable, Codable, Equatable {
     public typealias RawValue = String
 
     case afterCollectors
@@ -39,7 +39,7 @@ public enum TransformationScope: RawRepresentable, Codable {
     }
 }
 
-public struct ScopedTransformation: Codable {
+public struct ScopedTransformation: Codable, Equatable {
     let id: String
     let transformerId: String
     let scopes: [TransformationScope]
@@ -78,5 +78,9 @@ public struct ScopedTransformation: Codable {
         case id = "transformation_id"
         case transformerId = "transformer_id"
         case scopes
+    }
+
+    public static func == (lhs: ScopedTransformation, rhs: ScopedTransformation) -> Bool {
+        return lhs.id == rhs.id && lhs.transformerId == rhs.transformerId && lhs.scopes == rhs.scopes
     }
 }

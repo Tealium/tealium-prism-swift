@@ -26,9 +26,10 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
         let eventAreDispatched = expectation(description: "Events are dispatched")
         eventAreDispatched.expectedFulfillmentCount = 2
         _ = module2?.onDispatch.subscribe { dispatches in
-            XCTAssertEqual(dispatches.count, 1)
             XCTAssertEqual(dispatches.first?.name, "someEvent")
-            eventAreDispatched.fulfill()
+            for _ in dispatches {
+                eventAreDispatched.fulfill()
+            }
         }
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
         dispatchManager.track(TealiumDispatch(name: "someEvent"))

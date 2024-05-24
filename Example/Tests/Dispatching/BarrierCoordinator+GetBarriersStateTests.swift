@@ -11,9 +11,9 @@ import XCTest
 
 final class BarrierCoordinatorGetBarriersStateTests: XCTestCase {
     let registeredBarriers = [MockBarrier(id: "mock1"), MockBarrier(id: "mock2"), MockBarrier(id: "mock3")]
-    @TealiumMutableState([])
-    var onScopedBarriers: TealiumObservableState<[ScopedBarrier]>
-    lazy var barrierCoordinator = BarrierCoordinator(registeredBarriers: registeredBarriers, onScopedBarriers: $onScopedBarriers)
+    @TealiumVariableSubject([])
+    var onScopedBarriers: TealiumStatefulObservable<[ScopedBarrier]>
+    lazy var barrierCoordinator = BarrierCoordinator(registeredBarriers: registeredBarriers, onScopedBarriers: onScopedBarriers)
 
     func test_getBarriersState_returns_open_if_all_barriers_are_open() {
             _onScopedBarriers.value = [

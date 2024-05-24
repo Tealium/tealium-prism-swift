@@ -52,7 +52,7 @@ final class TealiumLoggerTests: XCTestCase {
 
     func test_minLogLevel_changes_onCoreSettings_change() {
         XCTAssertEqual(logger.minLogLevel, .debug)
-        onCoreSettings.publish(CoreSettings(coreDictionary: ["minLogLevel": "trace"]))
+        onCoreSettings.publish(CoreSettings(coreDictionary: ["log_level": "trace"]))
         XCTAssertEqual(logger.minLogLevel, .trace)
     }
 }

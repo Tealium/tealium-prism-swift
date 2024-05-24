@@ -9,7 +9,7 @@
 import Foundation
 
 /// The scope used to define a `ScopedBarrier` in the `CoreSettings`.
-public enum BarrierScope: RawRepresentable, Codable {
+public enum BarrierScope: RawRepresentable, Codable, Equatable {
     public typealias RawValue = String
 
     case all
@@ -36,7 +36,7 @@ public enum BarrierScope: RawRepresentable, Codable {
 }
 
 /// A model that defines which scopes a specific barrier, identified by its `barrierId`, should be applied to.
-public struct ScopedBarrier: Codable {
+public struct ScopedBarrier: Codable, Equatable {
     let barrierId: String
     let scopes: [BarrierScope]
 
@@ -60,5 +60,9 @@ public struct ScopedBarrier: Codable {
     enum CodingKeys: String, CodingKey {
         case barrierId = "barrier_id"
         case scopes
+    }
+
+    public static func == (lhs: ScopedBarrier, rhs: ScopedBarrier) -> Bool {
+        lhs.barrierId == rhs.barrierId && lhs.scopes == rhs.scopes
     }
 }

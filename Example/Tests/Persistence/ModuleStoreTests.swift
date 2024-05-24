@@ -162,8 +162,9 @@ final class ModuleStoreTests: XCTestCase {
     func test_deleteExpired_notifies_onDataRemoved() throws {
         let store = try moduleStoreProvider.getModuleStore(name: "test")
         let dataRemoved = expectation(description: "onDataRemoved event is notified")
+        let currentDate = Date()
         try store.edit()
-            .put(key: "expired", value: "value", expiry: .after(Date()))
+            .put(key: "expired", value: "value", expiry: .after(currentDate.addSeconds(-1) ?? currentDate))
             .put(key: "valid", value: "value", expiry: .forever)
             .commit()
         store.onDataRemoved.subscribeOnce { removedData in

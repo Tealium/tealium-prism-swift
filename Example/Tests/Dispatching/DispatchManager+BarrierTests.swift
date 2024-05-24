@@ -64,7 +64,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         let eventsAreDispatched = expectation(description: "Events are dispatched")
         let eventsAreDequeued = expectation(description: "Events are dequeued")
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        queueManager.onInflightEvents.subscribeOnce { _ in
+        queueManager.inflightEvents.asObservable().subscribeOnce { _ in
             self.barrier.setState(.closed)
             eventsAreDequeued.fulfill()
         }
@@ -79,14 +79,14 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         let eventsAreDequeued = expectation(description: "Events are flushed until queue is empty or limit is reached when a barrier is open. Closing the barrier only stops future flushes")
         eventsAreDequeued.expectedFulfillmentCount = 2
         for index in 0..<5 {
-            queueManager.storeDispatch(TealiumDispatch(name: "\(index)"), for: nil)
+            queueManager.storeDispatches([TealiumDispatch(name: "\(index)")], enqueueingFor: allDispatchers)
         }
         _ = queueManager.onDequeueRequest.subscribe {
             eventsAreDequeued.fulfill()
         }
         _ = dispatchManager
         barrier.setState(.closed)
-        queueManager.storeDispatch(TealiumDispatch(name: "6"), for: nil)
+        queueManager.storeDispatches([TealiumDispatch(name: "6")], enqueueingFor: allDispatchers)
         waitForExpectations(timeout: 1.0)
     }
 }

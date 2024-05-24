@@ -34,7 +34,6 @@ class DatabaseHelper: SQLiteOpenHelper {
     override func onCreate(database: Connection) throws {
         // Create Queue Tables
         try DispatchSchema.createtable(database: database)
-        try DispatcherSchema.createTable(database: database)
         try QueueSchema.createTable(database: database)
 
         // Create Module Tables
@@ -42,7 +41,6 @@ class DatabaseHelper: SQLiteOpenHelper {
         try ModuleStorageSchema.createTable(database: database)
 
         // Create Triggers
-        _ = try database.run(DispatchSchema.getTriggerForAddToQueue())
         _ = try database.run(QueueSchema.getTriggerToRemoveProcessedDispatches())
     }
 

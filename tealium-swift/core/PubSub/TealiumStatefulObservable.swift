@@ -1,0 +1,54 @@
+//
+//  TealiumStatefulObservable.swift
+//  tealium-swift
+//
+//  Created by Enrico Zannini on 20/11/23.
+//  Copyright © 2023 Tealium, Inc. All rights reserved.
+//
+
+import Foundation
+
+/**
+ * An observable that holds the current value as the current state.
+ *
+ * You can use `updates` to receive only future updates in a new observable.
+ */
+public class TealiumStatefulObservable<Element>: TealiumObservableCreate<Element> {
+    typealias Element = Element
+    private let valueProvider: () -> Element
+    public var value: Element {
+        valueProvider()
+    }
+
+    convenience init(variableSubject: TealiumVariableSubject<Element>) {
+        self.init(valueProvider: variableSubject.value) { observer in
+            variableSubject.subscribe(observer)
+        }
+    }
+
+    init(valueProvider: @autoclosure @escaping () -> Element, subscriptionHandler: @escaping SubscribeHandler) {
+        self.valueProvider = valueProvider
+        super.init(subscriptionHandler)
+    }
+
+    public class func constant(_ value: Element) -> TealiumStatefulObservable<Element> {
+        TealiumStatefulObservable<Element>(valueProvider: value) { _ in
+            TealiumSubscription { }
+        }
+    }
+
+    /// Returns an observable that emits only new updates of this State.
+    public func updates() -> TealiumObservable<Element> {
+        asObservable().ignoreFirst()
+    }
+}
+
+extension TealiumStatefulObservable {
+    func map<NewElement>(transform: @escaping (Element) -> NewElement) -> TealiumStatefulObservable<NewElement> {
+        TealiumStatefulObservable<NewElement>(valueProvider: transform(self.value)) { observer in
+            self.subscribe { element in
+                observer(transform(element))
+            }
+        }
+    }
+}

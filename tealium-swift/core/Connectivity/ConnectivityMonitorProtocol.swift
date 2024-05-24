@@ -9,5 +9,5 @@
 import Foundation
 
 public protocol ConnectivityMonitorProtocol {
-    var connection: TealiumObservableState<NetworkConnection> { get }
+    var connection: TealiumStatefulObservable<NetworkConnection> { get }
 }

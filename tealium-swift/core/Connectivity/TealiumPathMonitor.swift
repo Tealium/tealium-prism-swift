@@ -21,12 +21,12 @@ class TealiumNWPathMonitor: ConnectivityMonitorProtocol {
 
     let monitor = NWPathMonitor()
 
-    @TealiumMutableState(.unknown)
-    var connection: TealiumObservableState<NetworkConnection>
+    @TealiumVariableSubject(.unknown)
+    var connection: TealiumStatefulObservable<NetworkConnection>
 
     init(queue: DispatchQueue = tealiumQueue) {
         monitor.pathUpdateHandler = { [weak self] path in
-            self?._connection.mutateIfChanged(path.connection)
+            self?._connection.publishIfChanged(path.connection)
         }
         monitor.start(queue: queue)
     }

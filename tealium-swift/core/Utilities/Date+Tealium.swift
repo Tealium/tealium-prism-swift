@@ -61,11 +61,13 @@ public extension Date {
         return Formatter.MMDDYYYY.string(from: self)
     }
 
-    var unixTimeMilliseconds: String {
+    var unixTimeMillisecondsInt: Int64 {
         // must be forced to Int64 to avoid overflow on watchOS (32 bit)
-        let time = Int64(self.timeIntervalSince1970 * 1000)
+        Int64(self.timeIntervalSince1970 * 1000)
+    }
 
-        return String(describing: time)
+    var unixTimeMilliseconds: String {
+        return String(describing: unixTimeMillisecondsInt)
     }
 
     var unixTimeSeconds: String {

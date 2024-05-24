@@ -13,8 +13,8 @@ class MockConnectivityMonitor: ConnectivityMonitorProtocol {
 
     // MARK: ConnectivityMonitorProtocol
 
-    @TealiumMutableState(.unknown)
-    var connection: TealiumObservableState<NetworkConnection>
+    @TealiumVariableSubject(.unknown)
+    var connection: TealiumStatefulObservable<NetworkConnection>
 
     // MARK: Testing Utilities
 

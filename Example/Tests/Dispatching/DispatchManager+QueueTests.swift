@@ -13,7 +13,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
 
     func test_event_is_dispatched_when_already_present_in_the_queue() {
         let eventIsDispatched = expectation(description: "Event is dispatched")
-        queueManager.storeDispatch(TealiumDispatch(name: "someEvent"), for: nil)
+        queueManager.storeDispatches([TealiumDispatch(name: "someEvent")], enqueueingFor: allDispatchers)
         module1?.onDispatch.subscribeOnce { dispatches in
             XCTAssertEqual(dispatches.count, 1)
             XCTAssertEqual(dispatches.first?.name, "someEvent")
@@ -29,7 +29,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
         eventsAreDispatched.expectedFulfillmentCount = 30
         var count = 0
         for index in 0..<30 {
-            queueManager.storeDispatch(TealiumDispatch(name: "\(index)"), for: nil)
+            queueManager.storeDispatches([TealiumDispatch(name: "\(index)")], enqueueingFor: allDispatchers)
         }
         _ = module1?.onDispatch.subscribe { dispatches in
             XCTAssertEqual(dispatches.count, 1)
@@ -48,7 +48,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
         eventsAreDispatched.expectedFulfillmentCount = 10
         var count = 0
         for index in 0..<30 {
-            queueManager.storeDispatch(TealiumDispatch(name: "\(index)"), for: nil)
+            queueManager.storeDispatches([TealiumDispatch(name: "\(index)")], enqueueingFor: allDispatchers)
         }
         _ = module2?.onDispatch.subscribe { dispatches in
             XCTAssertEqual(dispatches.count, 3)
@@ -66,7 +66,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
         disableModule(module: module1)
         let eventsAreDequeued = expectation(description: "Events are dequeued only once in a batch")
         for index in 0..<2 {
-            queueManager.storeDispatch(TealiumDispatch(name: "\(index)"), for: nil)
+            queueManager.storeDispatches([TealiumDispatch(name: "\(index)")], enqueueingFor: allDispatchers)
         }
         _ = queueManager.onDequeueRequest.subscribe {
             eventsAreDequeued.fulfill()

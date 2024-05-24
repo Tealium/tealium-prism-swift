@@ -11,15 +11,19 @@ import SQLite
 
 class QueueSchema {
     static let table = Table("queue")
-    private static let dispatchId = Expression<String>("dispatch_id")
-    private static let dispatcherId = Expression<Int>("dispatcher_id")
+    static let dispatchId = Expression<String>("dispatch_id")
+    static let processor = Expression<String>("processor")
+
+    static let tableDispatchId = table[dispatchId]
+    static let tableProcessor = table[processor]
 
     static func createTable(database: Connection) throws {
         try database.run(table.create { table in
             table.column(dispatchId)
-            table.column(dispatcherId)
-            table.primaryKey(dispatchId, dispatcherId)
-            table.foreignKey(dispatcherId, references: DispatcherSchema.table, Expression<Int>("id"), update: .cascade)
+            table.column(processor)
+            table.primaryKey(dispatchId, processor)
+            table.foreignKey(dispatchId, references: DispatchSchema.table, DispatchSchema.uuid, delete: .cascade)
+
         })
     }
 
@@ -30,11 +34,32 @@ class QueueSchema {
                 BEGIN
                     DELETE FROM dispatch
                     WHERE NOT EXISTS (
-                        SELECT dispatch_id
+                        SELECT processor
                           FROM queue
-                          WHERE dispatch_id = dispatch.id
+                          WHERE dispatch_id = dispatch.uuid
                     );
                 END;
         """
+    }
+
+    static func insertDispatch(_ dispatchUUID: String, for processor: String) -> Insert {
+        table.insert([ Self.dispatchId <- dispatchUUID,
+                       Self.processor <- processor ])
+    }
+
+    static func deleteDispatches(forProcessorsNotContainedIn processors: [String]) -> Delete {
+        table.filter(!processors.contains(processor)).delete()
+    }
+
+    static func deleteDispatches(_ dispatchIds: [String], for processor: String) -> Delete {
+        QueueSchema.table
+            .where(dispatchIds.contains(QueueSchema.dispatchId) && QueueSchema.processor == processor)
+            .delete()
+    }
+
+    static func deleteAllDispatches(for processor: String) -> Delete {
+        QueueSchema.table
+            .where(QueueSchema.processor == processor)
+            .delete()
     }
 }

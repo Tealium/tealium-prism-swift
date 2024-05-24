@@ -49,7 +49,6 @@ class DatabaseHelperTests: XCTestCase {
         try databaseHelper.onCreate(database: connection)
         XCTAssertTrueOptional(connection.tableExists(tableName: "queue"), "Queue table does not exist")
         XCTAssertTrueOptional(connection.tableExists(tableName: "dispatch"), "Dispatch table does not exist")
-        XCTAssertTrueOptional(connection.tableExists(tableName: "dispatcher"), "Dispatcher table does not exist")
         XCTAssertTrueOptional(connection.tableExists(tableName: "module"), "Module table does not exist")
         XCTAssertTrueOptional(connection.tableExists(tableName: "module_storage"), "ModuleStorage table does not exist")
     }

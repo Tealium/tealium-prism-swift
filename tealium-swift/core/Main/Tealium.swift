@@ -52,9 +52,10 @@ public class Tealium {
         }
     }
 
-    public func track(_ trackable: TealiumDispatch) {
+    public func track(_ name: String, type: DispatchType = .event, data: TealiumDictionaryInput? = nil) {
+        let dispatch = TealiumDispatch(name: name, type: type, data: data)
         onImplementationReady { implementation in
-            implementation?.track(trackable)
+            implementation?.track(dispatch)
         }
     }
 

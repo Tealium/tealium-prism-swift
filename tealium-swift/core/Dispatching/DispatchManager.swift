@@ -19,23 +19,23 @@ class DispatchManager {
         modulesManager.modules.value.compactMap { $0 as? Dispatcher }
     }
     var onDispatchers: TealiumObservable<[Dispatcher]> {
-        modulesManager.$modules.map { moduleList in moduleList.compactMap { $0 as? Dispatcher } }
+        modulesManager.modules.map { moduleList in moduleList.compactMap { $0 as? Dispatcher } }
     }
     let modulesManager: ModulesManager
     let queueManager: QueueManagerProtocol
-    let consentManager: ConsentManagerProtocol
+    var consentManager: ConsentManager? {
+        modulesManager.modules.value.compactMap { $0 as? ConsentManager }.first
+    }
     let logger: TealiumLoggerProvider?
     @ToAnyObservable<TealiumPublisher<Void>>(TealiumPublisher<Void>())
     var onQueuedEvents: TealiumObservable<Void>
 
     init(modulesManager: ModulesManager,
-         consentManager: ConsentManagerProtocol,
          queueManager: QueueManagerProtocol,
          barrierCoordinator: BarrierCoordinator,
          transformerCoordinator: TransformerCoordinator,
          logger: TealiumLoggerProvider? = nil) {
         self.modulesManager = modulesManager
-        self.consentManager = consentManager
         self.queueManager = queueManager
         self.barrierCoordinator = barrierCoordinator
         self.transformerCoordinator = transformerCoordinator
@@ -44,7 +44,7 @@ class DispatchManager {
     }
 
     func tealiumPurposeExplicitlyBlocked() -> Bool {
-        guard consentManager.enabled else {
+        guard let consentManager = consentManager else {
             return false
         }
         guard let decision = consentManager.getConsentDecision(),
@@ -65,10 +65,10 @@ class DispatchManager {
                 let dispatch = dispatch else {
                 return
             }
-            if self.consentManager.enabled {
-                self.consentManager.applyConsent(to: dispatch)
+            if let consentManager = self.consentManager {
+                consentManager.applyConsent(to: dispatch)
             } else {
-                self.queueManager.storeDispatch(dispatch, for: dispatchers.map { $0.id })
+                self.queueManager.storeDispatches([dispatch], enqueueingFor: dispatchers.map { $0.id })
             }
         }
     }
@@ -113,15 +113,17 @@ class DispatchManager {
     }
 
     private func startDequeueLoop(for dispatcher: Dispatcher) -> TealiumObservable<[TealiumDispatch]> {
-        let onInflightLower = queueManager.onInflightEventsCount(for: dispatcher)
+        let onInflightLower = queueManager.onInflightDispatchesCount(for: dispatcher.id)
             .map { $0 < Self.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER }
             .distinct()
         let queueManager = self.queueManager
-        return queueManager.onEnqueuedEvents.startWith(())
+        return queueManager.onEnqueuedDispatchesForProcessors
+            .filter { processors in processors.contains { $0 != ConsentModule.id } }
+            .startWith([])
             .flatMapLatest { _ in
                 onInflightLower
                     .filter { $0 }
-                    .map { _ in queueManager.getQueuedEvents(for: dispatcher, limit: dispatcher.dispatchLimit) }
+                    .map { _ in queueManager.getQueuedDispatches(for: dispatcher.id, limit: dispatcher.dispatchLimit) }
                     .filter { !$0.isEmpty }
                     .resubscribingWhile { $0.count >= dispatcher.dispatchLimit } // Loops the `getQueuedEvents` as long as we pull `dispatchLimit` items from the queue
             }
@@ -134,10 +136,12 @@ class DispatchManager {
             let missingDispatchesAfterTransformations = dispatches.filter { oldDispatch in
                 !transformedDispaches.contains { transformedDispatch in oldDispatch.id == transformedDispatch.id }
             }
-            self?.queueManager.deleteDispatches(missingDispatchesAfterTransformations, for: dispatcher)
+            if !missingDispatchesAfterTransformations.isEmpty {
+                self?.queueManager.deleteDispatches(missingDispatchesAfterTransformations.map { $0.id }, for: dispatcher.id)
+            }
             dispatcher.dispatch(transformedDispaches) { [weak self] dispatches in
                 guard !container.isDisposed else { return }
-                self?.queueManager.deleteDispatches(dispatches, for: dispatcher)
+                self?.queueManager.deleteDispatches(dispatches.map { $0.id }, for: dispatcher.id)
                 completion(dispatches)
             }.addTo(container)
         }

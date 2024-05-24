@@ -34,19 +34,19 @@ class TealiumImplementation {
         storeProvider.modulesRepository.deleteExpired(expiry: .restart)
         let networkHelper = NetworkHelper(networkClient: HTTPClient.shared.newClient(withLogger: logger),
                                           logger: logger)
-        let queueManager = QueueManager(modulesManager: modulesManager)
-        let consentQueue = ConsentQueue()
-
-        let consentManager = ConsentManager(queueManager: queueManager,
-                                            consentQueue: consentQueue,
-                                            cmpIntegration: config.cmpIntegration,
-                                            consentSettings: settingsProvider.consentSettings)
-        let dispatchManager = Self.createDispatchManager(config: config,
-                                                         coreSettings: coreSettings,
-                                                         modulesManager: modulesManager,
-                                                         queueManager: queueManager,
-                                                         consentManager: consentManager,
-                                                         logger: logger)
+        let queueManager = QueueManager(processors: Self.queueProcessors(from: modulesManager.modules),
+                                        queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
+                                                                            maxQueueSize: coreSettings.value.maxQueueSize,
+                                                                            expiration: coreSettings.value.queueExpiration),
+                                        coreSettings: coreSettings,
+                                        logger: logger)
+        let barrierCoordinator = Self.barrierCoordinator(config: config, coreSettings: coreSettings)
+        let transformerCoordinator = Self.transformerCoordinator(config: config, coreSettings: coreSettings)
+        let dispatchManager = DispatchManager(modulesManager: modulesManager,
+                                              queueManager: queueManager,
+                                              barrierCoordinator: barrierCoordinator,
+                                              transformerCoordinator: transformerCoordinator,
+                                              logger: logger)
         let tracker = TealiumTracker(modulesManager: modulesManager,
                                      dispatchManager: dispatchManager,
                                      logger: logger)
@@ -55,6 +55,9 @@ class TealiumImplementation {
                                       config: config,
                                       coreSettings: coreSettings,
                                       tracker: tracker,
+                                      queueManager: queueManager,
+                                      barrierRegistry: barrierCoordinator,
+                                      transformerRegistry: transformerCoordinator,
                                       databaseProvider: databaseProvider,
                                       moduleStoreProvider: storeProvider,
                                       logger: logger,
@@ -83,35 +86,23 @@ class TealiumImplementation {
         context.logger?.trace?.log(category: TealiumLibraryCategories.settings, message: "Updated settings on all modules")
     }
 
-    // swiftlint:disable function_parameter_count
-    private static func createDispatchManager(config: TealiumConfig,
-                                              coreSettings: TealiumObservableState<CoreSettings>,
-                                              modulesManager: ModulesManager,
-                                              queueManager: QueueManager,
-                                              consentManager: ConsentManager,
-                                              logger: TealiumLoggerProvider) -> DispatchManager {
-        let defaultBarriers: [Barrier] = []
-        let defaultScopedBarriers: [ScopedBarrier] = []
-        let defaultTransformers: [Transformer] = [consentManager.consentTransformer]
-        let defaultScopedTransformations: [ScopedTransformation] = [
-            ScopedTransformation(id: "verify_consent",
-                                 transformerId: consentManager.consentTransformer.id,
-                                 scopes: [TransformationScope.allDispatchers])
-        ]
-
-        let barrierCoordinator = BarrierCoordinator(registeredBarriers: config.barriers + defaultBarriers,
-                                                    onScopedBarriers: coreSettings.asObservable().map { $0.scopedBarriers + defaultScopedBarriers })
-        let scopedTransformations = coreSettings.map { $0.scopedTransformations + defaultScopedTransformations }
-
-        let transformerCoordinator = TransformerCoordinator(registeredTransformers: config.transformers + defaultTransformers,
-                                                            scopedTransformations: scopedTransformations,
-                                                            queue: tealiumQueue)
-        return DispatchManager(modulesManager: modulesManager,
-                               consentManager: consentManager,
-                               queueManager: queueManager,
-                               barrierCoordinator: barrierCoordinator,
-                               transformerCoordinator: transformerCoordinator,
-                               logger: logger)
+    private static func barrierCoordinator(config: TealiumConfig, coreSettings: TealiumStatefulObservable<CoreSettings>) -> BarrierCoordinator {
+        return BarrierCoordinator(registeredBarriers: config.barriers,
+                                  onScopedBarriers: coreSettings.asObservable().map { $0.scopedBarriers })
     }
-    // swiftlint:enable function_parameter_count
+
+    private static func transformerCoordinator(config: TealiumConfig, coreSettings: TealiumStatefulObservable<CoreSettings>) -> TransformerCoordinator {
+        let scopedTransformations = coreSettings.map { $0.scopedTransformations }
+        return TransformerCoordinator(registeredTransformers: config.transformers,
+                                      scopedTransformations: scopedTransformations,
+                                      queue: tealiumQueue)
+    }
+
+    static func queueProcessors(from modules: TealiumStatefulObservable<[TealiumModule]>) -> TealiumObservable<[String]> {
+        modules.filter { !$0.isEmpty }
+            .map { modules in modules
+                    .filter { $0 is Dispatcher || $0 is ConsentManager }
+                    .map { $0.id }
+            }.distinct()
+    }
 }

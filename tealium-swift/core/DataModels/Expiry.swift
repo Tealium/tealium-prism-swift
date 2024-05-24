@@ -17,14 +17,14 @@ public enum Expiry: Equatable {
 
     /// Creates an `.after(Date)` expiry with a date that is value unit of time ahead of now.
     static func afterCustom(unit: TimeUnit, value: Int) -> Expiry {
-        guard let date = dateWith(unit: unit, value: value) else {
+        guard let date = TimeFrame(unit: unit, interval: value).dateAfter() else {
             return .forever
         }
         return .after(date)
     }
 
-    init(timestamp: Double) {
-        switch timestamp {
+    init(timestamp milliseconds: Int64) {
+        switch milliseconds {
         case -2:
             self = .session
         case -3:
@@ -32,11 +32,11 @@ public enum Expiry: Equatable {
         case -1:
             self = .forever
         default:
-            self = .after(Date(timeIntervalSince1970: timestamp))
+            self = .after(Date(timeIntervalSince1970: Double(milliseconds) / 1000))
         }
     }
 
-    func expiryTime() -> Double {
+    func expiryTime() -> Int64 {
         switch self {
         case .session:
             return -2
@@ -45,20 +45,13 @@ public enum Expiry: Equatable {
         case .forever:
             return -1
         case .after(let date):
-            return date.timeIntervalSince1970
+            return date.unixTimeMillisecondsInt
         }
-    }
-
-    private static func dateWith(unit: TimeUnit, value: Int) -> Date? {
-        var components = DateComponents()
-        components.calendar = Calendar.autoupdatingCurrent
-        let currentDate = Date()
-        components.setValue(value, for: unit.component)
-        return Calendar(identifier: .gregorian).date(byAdding: components, to: currentDate)
     }
 }
 
 public enum TimeUnit {
+    case seconds
     case minutes
     case hours
     case days
@@ -67,6 +60,8 @@ public enum TimeUnit {
 
     public var component: Calendar.Component {
         switch self {
+        case .seconds:
+            return .second
         case .minutes:
             return .minute
         case .hours:
@@ -78,5 +73,49 @@ public enum TimeUnit {
         case .years:
             return .year
         }
+    }
+}
+
+public struct TimeFrame {
+    let unit: TimeUnit
+    let interval: Int
+
+    func dateAfter(date: Date = Date()) -> Date? {
+        Self.dateDifference(date: date, interval: interval, for: unit.component)
+    }
+
+    func dateBefore(date: Date = Date()) -> Date? {
+        Self.dateDifference(date: date, interval: -interval, for: unit.component)
+    }
+
+    private static func dateDifference(date: Date, interval: Int, for component: Calendar.Component) -> Date? {
+        var components = DateComponents()
+        components.calendar = Calendar.autoupdatingCurrent
+        components.setValue(interval, for: component)
+        return Calendar(identifier: .gregorian).date(byAdding: components, to: date)
+    }
+}
+
+extension TimeFrame: Comparable, Equatable {
+    public static func < (lhs: Self, rhs: Self) -> Bool {
+        guard lhs.unit != rhs.unit else {
+            return lhs.interval < rhs.interval
+        }
+        let date = Date()
+        guard let lhsAfter = lhs.dateAfter(date: date), let rhsAfter = rhs.dateAfter(date: date) else {
+            return false
+        }
+        return lhsAfter < rhsAfter
+    }
+
+    public static func == (lhs: Self, rhs: Self) -> Bool {
+        guard lhs.unit != rhs.unit else {
+            return lhs.interval == rhs.interval
+        }
+        let date = Date()
+        guard let lhsAfter = lhs.dateAfter(date: date), let rhsAfter = rhs.dateAfter(date: date) else {
+            return false
+        }
+        return lhsAfter == rhsAfter
     }
 }

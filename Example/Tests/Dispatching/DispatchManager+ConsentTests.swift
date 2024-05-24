@@ -13,8 +13,8 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
 
     func test_consent_is_applied_when_consentManager_is_enabled() {
         let consentIsAppliedToDispatch = expectation(description: "Consent is applied to dispatch")
-        consentManager.enabled = true
-        _ = consentManager.onApplyConsent.subscribe { _ in
+        enableModule(ConsentModule.id)
+        _ = consentManager?.onApplyConsent.subscribe { _ in
             consentIsAppliedToDispatch.fulfill()
         }
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
@@ -23,16 +23,20 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
 
     func test_dispatch_is_not_enqueued_by_the_dispatchManager_when_consentManager_is_enabled() {
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        XCTAssertEqual(queueManager.inflightEvents["mockDispatcher1"]?.count, 1, "First event is enqueued because consentManager is disabled")
-        consentManager.enabled = true
+        XCTAssertEqual(queueManager.inflightEvents.value["mockDispatcher1"]?.count, 1, "First event is enqueued because consentManager is disabled")
+        enableModule(ConsentModule.id)
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        XCTAssertEqual(queueManager.inflightEvents["mockDispatcher1"]?.count, 1, "Second event is not enqueued because consentManager is enabled")
+        XCTAssertEqual(queueManager.inflightEvents.value["mockDispatcher1"]?.count, 1, "Second event is not enqueued because consentManager is enabled")
     }
 
     func test_dispatch_process_is_stopped_before_transformations_for_tealium_purpose_disabled_explicitly() {
+        enableModule(ConsentModule.id)
+        guard let consentManager = consentManager else {
+            XCTFail("ConsentManager not added to the modules list")
+            return
+        }
         let transformationNotCalled = expectation(description: "The transformation is not called")
         transformationNotCalled.isInverted = true
-        consentManager.enabled = true
         consentManager.currentDecision = ConsentDecision(decisionType: .explicit, purposes: [])
         XCTAssertFalse(consentManager.tealiumConsented(forPurposes: consentManager.allPurposes))
         transformer.transformation = { _, _, _ in
@@ -44,8 +48,12 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
     }
 
     func test_dispatch_process_is_NOT_stopped_before_transformations_for_tealium_purpose_disabled_implicitly() {
+        enableModule(ConsentModule.id)
+        guard let consentManager = consentManager else {
+            XCTFail("ConsentManager not added to the modules list")
+            return
+        }
         let transformationNotCalled = expectation(description: "The transformation is called")
-        consentManager.enabled = true
         consentManager.currentDecision = ConsentDecision(decisionType: .implicit, purposes: [])
         XCTAssertFalse(consentManager.tealiumConsented(forPurposes: consentManager.allPurposes))
         transformer.transformation = { _, _, _ in

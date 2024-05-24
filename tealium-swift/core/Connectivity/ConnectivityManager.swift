@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol ConnectivityManagerProtocol: RequestInterceptor {
-    var connectionAssumedAvailable: TealiumObservableState<Bool> { get }
+    var connectionAssumedAvailable: TealiumStatefulObservable<Bool> { get }
 }
 
 /**
@@ -38,7 +38,7 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
                     return true
                 }
             }.subscribe { [weak self] available in
-                self?._connectionAssumedAvailable.mutateIfChanged(available)
+                self?._connectionAssumedAvailable.publishIfChanged(available)
             }.addTo(automaticDisposer)
     }
 
@@ -57,8 +57,8 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
      * The internal behavior is to merge the information from the system connectivity monitor and the result of network requests
      * and only report as unavailable when both do so or if empirical is unavailable and the monitored one is unknown.
      */
-    @TealiumMutableState(true)
-    public var connectionAssumedAvailable: TealiumObservableState<Bool>
+    @TealiumVariableSubject(true)
+    public var connectionAssumedAvailable: TealiumStatefulObservable<Bool>
 
     public func didComplete(_ request: URLRequest, with response: NetworkResult) {
         // Here we always assume that the response is never coming from a local cache
@@ -76,7 +76,7 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
         switch response {
         case .failure(let error) where error.isRetryable && !isConnectionAssumedAvailable:
             return .afterEvent(
-                $connectionAssumedAvailable
+                connectionAssumedAvailable
                     .filter { $0 }
                     .map { _ in }
             )

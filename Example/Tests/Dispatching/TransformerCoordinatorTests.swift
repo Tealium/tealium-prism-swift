@@ -10,7 +10,7 @@
 import XCTest
 
 final class TransformerCoordinatorTests: XCTestCase {
-    @TealiumMutableState([
+    @TealiumVariableSubject([
         ScopedTransformation(id: "transformation1", transformerId: "transformer1", scopes: [.afterCollectors]),
         ScopedTransformation(id: "transformation2", transformerId: "transformer2", scopes: [.allDispatchers]),
         ScopedTransformation(id: "transformation3", transformerId: "transformer3", scopes: [.dispatcher("someDispatcher")]),
@@ -19,7 +19,7 @@ final class TransformerCoordinatorTests: XCTestCase {
         ScopedTransformation(id: "transformation6", transformerId: "transformer3", scopes: [.afterCollectors]),
         ScopedTransformation(id: "transformation7", transformerId: "transformer1", scopes: [.dispatcher("someDispatcher"), .dispatcher("someOtherDispatcher")]),
     ])
-    var scopedTransformations: TealiumObservableState<[ScopedTransformation]>
+    var scopedTransformations: TealiumStatefulObservable<[ScopedTransformation]>
     var registeredTransformers: [MockTransformer] = [
         MockTransformer(id: "transformer1"),
         MockTransformer(id: "transformer2"),

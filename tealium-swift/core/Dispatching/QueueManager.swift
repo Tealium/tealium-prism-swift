@@ -1,0 +1,118 @@
+//
+//  QueueManager.swift
+//  tealium-swift
+//
+//  Created by Enrico Zannini on 24/10/23.
+//  Copyright © 2023 Tealium, Inc. All rights reserved.
+//
+
+import Foundation
+
+class QueueManager: QueueManagerProtocol {
+    /// [DispatcherId: [DispatchId]]
+    @TealiumVariableSubject([String: [String]]())
+    var inflightEvents: TealiumStatefulObservable<[String: [String]]>
+    @ToAnyObservable<TealiumPublisher<[String]>>(TealiumPublisher<[String]>())
+    var onEnqueuedDispatchesForProcessors: TealiumObservable<[String]>
+    let queueRepository: QueueRepository
+    let disposer = TealiumAutomaticDisposer()
+    let logger: TealiumLogger?
+    init(processors: TealiumObservable<[String]>, queueRepository: QueueRepository, coreSettings: TealiumStatefulObservable<CoreSettings>, logger: TealiumLogger? = nil) {
+        self.queueRepository = queueRepository
+        self.logger = logger
+        processors.subscribe { [weak self] processors in
+            self?.deleteQueues(forProcessorsNotIn: processors)
+        }.addTo(disposer)
+        coreSettings.subscribe { settings in
+            do {
+                try queueRepository.resize(newSize: settings.maxQueueSize)
+                logger?.debug?.log(category: "QueueManager", message: "Resized the queue to \(settings.maxQueueSize) and deleted eventual overflowing dispatches")
+            } catch {
+                logger?.error?.log(category: "QueueManager", message: "Failed to delete dispatches exceeding the maxQueueSize of \(settings.maxQueueSize)\nError: \(error)")
+            }
+            do {
+                try queueRepository.setExpiration(settings.queueExpiration)
+                logger?.debug?.log(category: "QueueManager", message: "Set Queue Expiration to \(settings.queueExpiration) and deleted all expired dispatches")
+            } catch {
+                logger?.error?.log(category: "QueueManager", message: "Failed to delete expired dispatches for expiration \(settings.queueExpiration)\nError: \(error)")
+            }
+        }.addTo(disposer)
+    }
+
+    private func deleteQueues(forProcessorsNotIn processors: [String]) {
+        do {
+            try self.queueRepository.deleteQueues(forProcessorsNotIn: processors)
+            logger?.debug?.log(category: "QueueManager", message: "Deleted queued events for disabled processors. Currently enabled processors are: \(processors)")
+            let removedProcessors = self.inflightEvents.value.keys.filter { processors.contains($0) }
+            guard !removedProcessors.isEmpty else {
+                return
+            }
+            var newInflightEvents = self.inflightEvents.value
+            for removedProcessor in removedProcessors {
+                newInflightEvents.removeValue(forKey: removedProcessor)
+            }
+            _inflightEvents.value = newInflightEvents
+        } catch {
+            logger?.error?.log(category: "QueueManager",
+                               message: "Failed to delete queued events for disabled processors. Currently enabled processors are: \(processors)\nError: \(error.localizedDescription)")
+        }
+    }
+
+    func onInflightDispatchesCount(for processor: String) -> TealiumObservable<Int> {
+        inflightEvents.asObservable().map { events in
+            events[processor]?.count ?? 0
+        }.distinct()
+    }
+
+    func getQueuedDispatches(for processor: String, limit: Int?) -> [TealiumDispatch] {
+        let dispatches = queueRepository.getQueuedDispatches(for: processor,
+                                                             limit: limit,
+                                                             excluding: inflightEvents.value[processor] ?? [])
+        guard !dispatches.isEmpty else {
+            return []
+        }
+        logger?.debug?.log(category: "QueueManager", message: "Dequeued dispatches for processor \(processor): \(dispatches.map { $0.logDescription() })")
+        var inflight = inflightEvents.value
+        for event in dispatches {
+            inflight[processor] = (inflight[processor] ?? []) + [event.id]
+        }
+        _inflightEvents.value = inflight
+        return dispatches
+    }
+
+    func storeDispatches(_ dispatches: [TealiumDispatch], enqueueingFor processors: [String]) {
+        guard !dispatches.isEmpty && !processors.isEmpty else {
+            return
+        }
+        do {
+            try queueRepository.storeDispatches(dispatches, enqueueingFor: processors)
+            logger?.debug?.log(category: "QueueManager", message: "Enqueued dispatches for processors \(processors): \(dispatches.map { $0.logDescription() })")
+            _onEnqueuedDispatchesForProcessors.publish(processors)
+        } catch {
+            logger?.error?.log(category: "QueueManager",
+                               message: "Failed to enqueue dispatches for processors \(processors): \(dispatches.map { $0.logDescription() })\nError: \(error)")
+        }
+    }
+
+    func deleteDispatches(_ dispatchUUIDs: [String], for processor: String) {
+        do {
+            try queueRepository.deleteDispatches(dispatchUUIDs, for: processor)
+            logger?.debug?.log(category: "QueueManager", message: "Removed processed dispatches for processor \(processor): \(dispatchUUIDs)")
+            _inflightEvents.value[processor] = inflightEvents.value[processor]?.filter { inFlightDispatch in
+                !dispatchUUIDs.contains { $0 == inFlightDispatch }
+            } ?? []
+        } catch {
+            logger?.error?.log(category: "QueueManager", message: "Failed to remove processed dispatches for processor \(processor): \(dispatchUUIDs)\nError: \(error)")
+        }
+    }
+
+    func deleteAllDispatches(for processor: String) {
+        do {
+            try queueRepository.deleteAllDispatches(for: processor)
+            logger?.debug?.log(category: "QueueManager", message: "Removed all processed dispatches for processor \(processor)")
+            _inflightEvents.value[processor] = []
+        } catch {
+            logger?.debug?.log(category: "QueueManager", message: "Failed to remove all processed dispatches for processor \(processor)\nError: \(error)")
+        }
+    }
+}

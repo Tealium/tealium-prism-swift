@@ -93,7 +93,7 @@ public extension TealiumObservableProtocol {
      * - Returns: an observable that flattens the observables returned by the selector and emits all of their events.
      */
     func flatMap<Result>(_ selector: @escaping (Element) -> TealiumObservable<Result>) -> TealiumObservable<Result> {
-        return TealiumObservableCreate<Result> { observer in
+        TealiumObservableCreate<Result> { observer in
             let container = TealiumDisposeContainer()
             self.subscribe { element in
                  selector(element)
@@ -113,7 +113,7 @@ public extension TealiumObservableProtocol {
      * - Returns: an observable that flattens the observable returned by the selector and emits all of the events from the latest returned observable.
      */
     func flatMapLatest<Result>(_ selector: @escaping (Element) -> TealiumObservable<Result>) -> TealiumObservable<Result> {
-        return TealiumObservableCreate<Result> { observer in
+        TealiumObservableCreate<Result> { observer in
             let container = TealiumDisposeContainer()
             var subscription: TealiumDisposable?
             self.subscribe { element in
@@ -128,7 +128,7 @@ public extension TealiumObservableProtocol {
 
     /// On subscription emits the provided elements before providing the other events from the original observable.
     func startWith(_ elements: Element...) -> TealiumObservable<Element> {
-        return TealiumObservableCreate { observer in
+        TealiumObservableCreate { observer in
             for startingElement in elements {
                 observer(startingElement)
             }
@@ -140,7 +140,7 @@ public extension TealiumObservableProtocol {
 
     /// Returns a new observable that emits the events of the original observable and the otherObservable passed as parameter.
     func merge(_ otherObservables: TealiumObservable<Element>...) -> TealiumObservable<Element> {
-        return TealiumObservableCreate { observer in
+        TealiumObservableCreate { observer in
             let container = TealiumDisposeContainer()
             self.subscribe(observer)
                 .addTo(container)
@@ -268,7 +268,7 @@ public extension TealiumObservableProtocol {
 public extension TealiumObservableProtocol where Element: Equatable {
     /// Only emits new events if the last one is different from the new one.
     func distinct() -> TealiumObservable<Element> {
-        return TealiumObservableCreate { observer in
+        TealiumObservableCreate { observer in
             var lastElement: Element?
             return self.subscribe { element in
                 let isDistinct = lastElement == nil || lastElement != element

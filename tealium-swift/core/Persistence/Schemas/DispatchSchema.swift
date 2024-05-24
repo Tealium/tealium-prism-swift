@@ -11,29 +11,34 @@ import SQLite
 
 class DispatchSchema {
     static let table = Table("dispatch")
-    private static let id = Expression<Int>("id")
-    private static let timestamp = Expression<Date>("timestamp")
-    private static let dispatch = Expression<String>("dispatch")
+    static let uuid = Expression<String>("uuid")
+    static let timestamp = Expression<Int64>("timestamp")
+    static let dispatch = Expression<String>("dispatch")
+
+    static let tableUUID = table[uuid]
 
     static func createtable(database: Connection) throws {
         try database.run(table.create { table in
-            table.column(id, primaryKey: .autoincrement)
+            table.column(uuid, primaryKey: true)
             table.column(timestamp)
             table.column(dispatch)
         })
     }
 
-    static func getTriggerForAddToQueue() -> String {
-        return """
-                CREATE TRIGGER dispatch_add_to_queue
-                    AFTER INSERT ON dispatch
-                    FOR EACH ROW
-                BEGIN
-                    INSERT INTO queue
-                        SELECT NEW.id, dispatcher.id
-                        FROM dispatcher
-                        WHERE dispatcher.active = true;
-                END;
-            """
+    static func insert(dispatch: TealiumDispatch) throws -> Insert {
+        table.insert(or: .replace, [ Self.uuid <- dispatch.id,
+                                    Self.timestamp <- dispatch.timestamp,
+                                    Self.dispatch <- (try dispatch.eventData.toJSONString())])
+    }
+
+    static func deleteLatestDispatches(_ count: Int) throws -> Delete {
+        table.order(DispatchSchema.timestamp)
+            .limit(count)
+            .delete()
+    }
+
+    static func deleteExpired(sentBefore timestamp: Int64) throws -> Delete {
+        table.filter(DispatchSchema.timestamp < timestamp)
+            .delete()
     }
 }

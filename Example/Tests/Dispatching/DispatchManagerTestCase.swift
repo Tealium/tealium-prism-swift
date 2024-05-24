@@ -10,11 +10,18 @@
 import XCTest
 
 class DispatchManagerTestCase: XCTestCase {
-    @TealiumMutableState([ScopedBarrier(barrierId: "barrier1", scopes: [.all])])
-    var scopedBarriers: TealiumObservableState<[ScopedBarrier]>
 
-    @TealiumMutableState([ScopedTransformation(id: "transformation1", transformerId: "transformer1", scopes: [.afterCollectors, .allDispatchers])])
-    var scopedTransformations: TealiumObservableState<[ScopedTransformation]>
+    var allDispatchers: [String] {
+        modulesManager.modules.value
+            .filter { $0 is Dispatcher }
+            .map { $0.id }
+    }
+
+    @TealiumVariableSubject([ScopedBarrier(barrierId: "barrier1", scopes: [.all])])
+    var scopedBarriers: TealiumStatefulObservable<[ScopedBarrier]>
+
+    @TealiumVariableSubject([ScopedTransformation(id: "transformation1", transformerId: "transformer1", scopes: [.afterCollectors, .allDispatchers])])
+    var scopedTransformations: TealiumStatefulObservable<[ScopedTransformation]>
 
     let transformer = MockTransformer(id: "transformer1") { transformation, dispatch, scope in
         var dispatch = dispatch
@@ -26,34 +33,47 @@ class DispatchManagerTestCase: XCTestCase {
     let config = TealiumConfig(account: "test",
                                profile: "test",
                                environment: "dev",
-                               modules: [MockDispatcher1.self, MockDispatcher2.self],
+                               modules: [MockDispatcher1.self, MockDispatcher2.self, MockConsentManager.self],
                                configFile: "",
                                configUrl: nil)
     let databaseProvider = MockDatabaseProvider()
     let modulesManager = ModulesManager()
-    @TealiumMutableState(CoreSettings(coreDictionary: [:]))
-    var coreSettings: TealiumObservableState<CoreSettings>
-    lazy var queueManager = MockQueueManager(modulesManager: modulesManager)
+    lazy var settings: [String: Any] = ["consent": ["enabled": false]]
+    lazy var _coreSettings = TealiumVariableSubject(CoreSettings(coreDictionary: settings))
+    var coreSettings: TealiumStatefulObservable<CoreSettings> {
+        _coreSettings.toStatefulObservable()
+    }
+    lazy var queueManager = MockQueueManager(processors: TealiumImplementation.queueProcessors(from: modulesManager.modules),
+                                             queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
+                                                                                 maxQueueSize: 10,
+                                                                                 expiration: TimeFrame(unit: .days, interval: 1)),
+                                             coreSettings: coreSettings)
+    lazy var barrierCoordinator = BarrierCoordinator(registeredBarriers: [barrier],
+                                                     onScopedBarriers: scopedBarriers)
+    lazy var transformerCoordinator = TransformerCoordinator(registeredTransformers: [transformer],
+                                                             scopedTransformations: scopedTransformations,
+                                                             queue: .main)
     lazy var context = TealiumContext(modulesManager: modulesManager,
                                       config: config,
                                       coreSettings: coreSettings,
                                       tracker: MockTracker(),
+                                      queueManager: queueManager,
+                                      barrierRegistry: barrierCoordinator,
+                                      transformerRegistry: transformerCoordinator,
                                       databaseProvider: databaseProvider,
                                       moduleStoreProvider: ModuleStoreProvider(databaseProvider: databaseProvider,
                                                                                modulesRepository: MockModulesRepository()),
                                       logger: nil,
                                       networkHelper: MockNetworkHelper())
-    let consentManager = MockConsentManager()
+    var consentManager: MockConsentManager? {
+        modulesManager.getModule()
+    }
     lazy var dispatchManager = getDispatchManager()
     func getDispatchManager() -> DispatchManager {
         DispatchManager(modulesManager: modulesManager,
-                        consentManager: consentManager,
                         queueManager: queueManager,
-                        barrierCoordinator: BarrierCoordinator(registeredBarriers: [barrier],
-                                                               onScopedBarriers: $scopedBarriers),
-                        transformerCoordinator: TransformerCoordinator(registeredTransformers: [transformer],
-                                                                       scopedTransformations: scopedTransformations,
-                                                                       queue: .main))
+                        barrierCoordinator: barrierCoordinator,
+                        transformerCoordinator: transformerCoordinator)
     }
 
     var module1: MockDispatcher1? {
@@ -67,11 +87,17 @@ class DispatchManagerTestCase: XCTestCase {
     override func setUp() {
         super.setUp()
         modulesManager.updateSettings(context: context,
-                                      settings: [:])
+                                      settings: settings)
     }
 
-    func disableModule(module: MockDispatcher?) {
+    func disableModule<T: TealiumModule>(module: T?) {
         guard let module = module else { return }
-        modulesManager.updateSettings(context: context, settings: [module.id: ["enabled": false]])
+        settings += [module.id: ["enabled": false]]
+        modulesManager.updateSettings(context: context, settings: settings)
+    }
+
+    func enableModule(_ moduleId: String) {
+        settings += [moduleId: ["enabled": true]]
+        modulesManager.updateSettings(context: context, settings: settings)
     }
 }

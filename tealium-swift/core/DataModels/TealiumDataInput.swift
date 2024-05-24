@@ -46,10 +46,14 @@ enum TealiumDataValueErrors: Error {
 
 extension TealiumDataInput {
     func serialize() throws -> String {
-        let jsonEncoder = JSONEncoder()
-        jsonEncoder.nonConformingFloatEncodingStrategy = .convertToString(positiveInfinity: "Infinity", negativeInfinity: "Infinity", nan: "NaN")
-        let anyCodable = AnyEncodable(self)
-        let jsonData = try jsonEncoder.encode(anyCodable)
+        return try AnyEncodable(self).serialize()
+    }
+}
+
+extension AnyEncodable {
+    func serialize() throws -> String {
+        let jsonEncoder = Tealium.jsonEncoder
+        let jsonData = try jsonEncoder.encode(self)
         guard let jsonString = String(data: jsonData, encoding: .utf8) else {
             throw TealiumDataValueErrors.dataToStringFailed
         }
@@ -62,8 +66,7 @@ extension String {
         guard let data = self.data(using: .utf8) else {
             throw TealiumDataValueErrors.stringToDataFailed
         }
-        let decoder = JSONDecoder()
-        decoder.nonConformingFloatDecodingStrategy = .convertFromString(positiveInfinity: "Infinity", negativeInfinity: "Infinity", nan: "NaN")
+        let decoder = Tealium.jsonDecoder
         let response = try decoder.decode(AnyCodable.self, from: data)
         return response.value
     }

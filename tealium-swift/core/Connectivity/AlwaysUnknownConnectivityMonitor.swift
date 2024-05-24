@@ -13,5 +13,5 @@ import Foundation
  * as it returns notConnected also when there is connection available from a nearby phone
  */
 public struct AlwaysUnknownConnectivityMonitor: ConnectivityMonitorProtocol {
-    public var connection: TealiumObservableState<NetworkConnection> = .constant(.unknown)
+    public var connection: TealiumStatefulObservable<NetworkConnection> = .constant(.unknown)
 }

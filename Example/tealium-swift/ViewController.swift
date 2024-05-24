@@ -91,13 +91,13 @@ class ViewController: UIViewController {
     @objc func joinTrace() {
         teal.trace.join(id: "something")
         
-        teal.track(TealiumDispatch(name: "joined!", data: nil))
+        teal.track("joined!")
     }
     
     @objc func deepLink() {
         teal.deepLink.handle(link: URL(string: "https://www.tealium.com")!)
         
-        teal.track(TealiumDispatch(name: "DeepLink!", data: nil))
+        teal.track("DeepLink!")
     }
     
     @objc func addToDataLayer() {
@@ -134,8 +134,8 @@ class ViewController: UIViewController {
 //            teal.dataLayer.add(data: ["4": "4", "5":"5", "6": "6"])
             teal.dataLayer.add(data: ["myTimestamp": Date().timeIntervalSince1970], expiry: .untilRestart)
             teal.dataLayer.delete(keys: ["1", "3", "5"])
-            teal.track(TealiumDispatch(name: "something"))
-            teal.track(TealiumDispatch(name: "something2", data: ["some":"data"]))
+            teal.track("something")
+            teal.track("something2", data: ["some":"data"])
         }
         
     }

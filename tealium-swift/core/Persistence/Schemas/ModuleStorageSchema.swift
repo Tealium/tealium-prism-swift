@@ -14,15 +14,16 @@ class ModuleStorageSchema {
     static let moduleId = Expression<Int64>("module_id")
     static let key = Expression<String>("key")
     static let value = Expression<String>("value")
-    static let expiry = Expression<Double>("expiry")
+    static let expiry = Expression<Int64>("expiry")
 
     static func createTable(database: Connection) throws {
         try database.run(table.create { table in
-            table.column(moduleId, references: ModuleSchema.table, Expression<Int64>("id"))
+            table.column(moduleId)
             table.column(key)
             table.column(value)
             table.column(expiry)
             table.primaryKey(moduleId, key)
+            table.foreignKey(moduleId, references: ModuleSchema.table, ModuleSchema.id, delete: .cascade)
         })
     }
 
@@ -55,11 +56,11 @@ class ModuleStorageSchema {
     }
 
     private static func nonExpired() -> Expression<Bool> {
-        expiry < 0 || expiry > Date().timeIntervalSince1970
+        expiry < 0 || expiry > Date().unixTimeMillisecondsInt
     }
 
     private static func expired(request: ExpirationRequest, date: Date) -> Expression<Bool> {
-        expiry == request.expiryTime || expiry < date.timeIntervalSince1970 && expiry > 0
+        expiry == request.expiryTime || expiry < date.unixTimeMillisecondsInt && expiry > 0
     }
 
     static func getKeys(moduleId: Int64) -> QueryType {

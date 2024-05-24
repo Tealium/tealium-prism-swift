@@ -14,9 +14,16 @@ public enum BarrierState {
 }
 
 /// An object that will change its state to stop or allow dispatching of events to some dispatchers.
-public protocol Barrier {
+public protocol Barrier: AnyObject {
     var id: String { get }
     var onState: TealiumObservable<BarrierState> { get }
+}
+
+public protocol BarrierRegistry {
+    func registerBarrier(_ barrier: Barrier)
+    func unregisterBarrier(_ barrier: Barrier)
+    func registerScopedBarrier(_ scopedBarrier: ScopedBarrier)
+    func unregisterScopedBarrier(_ scopedBarrier: ScopedBarrier)
 }
 
 /**
@@ -24,9 +31,16 @@ public protocol Barrier {
  *
  * The `onScopedBarriers` observable is assumed to emit one value on subscription, even if it's just with an empty array.
  */
-class BarrierCoordinator {
-    let registeredBarriers: [Barrier]
-    let onScopedBarriers: TealiumObservable<[ScopedBarrier]>
+public class BarrierCoordinator: BarrierRegistry {
+    private var registeredBarriers: [Barrier]
+    private let onScopedBarriers: TealiumObservable<[ScopedBarrier]>
+    private let additionalScopedBarriers = TealiumVariableSubject<[ScopedBarrier]>([])
+    var onAllScopedBarriers: TealiumObservable<[ScopedBarrier]> {
+        onScopedBarriers.combineLatest(additionalScopedBarriers.asObservable())
+            .map { barriers1, barriers2 in
+                return barriers1 + barriers2
+            }
+    }
     init(registeredBarriers: [Barrier], onScopedBarriers: TealiumObservable<[ScopedBarrier]>) {
         self.registeredBarriers = registeredBarriers
         self.onScopedBarriers = onScopedBarriers
@@ -39,7 +53,7 @@ class BarrierCoordinator {
      * A new value is emitted only if it's different from the last one.
      */
     func onBarrierState(for dispatcherId: String) -> TealiumObservable<BarrierState> {
-        onScopedBarriers.flatMapLatest { newScopedBarriers in
+        onAllScopedBarriers.flatMapLatest { newScopedBarriers in
             TealiumObservable.CombineLatest(self.getAllBarriers(scopedBarriers: newScopedBarriers, for: dispatcherId)
                 .map { $0.onState })
             .map { barrierStates in
@@ -58,5 +72,21 @@ class BarrierCoordinator {
             .compactMap { barrierScope in
                 registeredBarriers.first { $0.id == barrierScope.barrierId }
             }
+    }
+
+    public func registerBarrier(_ barrier: Barrier) {
+        registeredBarriers.append(barrier)
+    }
+
+    public func unregisterBarrier(_ barrier: Barrier) {
+        registeredBarriers.removeAll { $0 === barrier }
+    }
+
+    public func registerScopedBarrier(_ scopedBarrier: ScopedBarrier) {
+        additionalScopedBarriers.value.append(scopedBarrier)
+    }
+
+    public func unregisterScopedBarrier(_ scopedBarrier: ScopedBarrier) {
+        additionalScopedBarriers.value.removeAll { $0 == scopedBarrier }
     }
 }

@@ -31,7 +31,7 @@ public class TealiumTracker: Tracker {
         modules.compactMap { $0 as? Collector }
             .forEach { collector in
                 TealiumSignpostInterval(signposter: .collecting, name: "Collecting")
-                    .signpostedWork("Collector: \(type(of: collector as TealiumModule).id)") {
+                    .signpostedWork("Collector: \(collector.id)") {
                         trackable.enrich(data: collector.data) // collector.collect() maybe?
                     }
             }
