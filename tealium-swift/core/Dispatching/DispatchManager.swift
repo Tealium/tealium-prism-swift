@@ -80,10 +80,9 @@ class DispatchManager {
     }
 
     func startDispatchLoop() {
-        let coordinator = barrierCoordinator
         onDispatchers.flatMapLatest { dispatchers in
             TealiumObservable.From(dispatchers)
-        }.flatMap { [weak self] dispatcher in
+        }.flatMap { [weak self, coordinator = barrierCoordinator] dispatcher in
             coordinator.onBarrierState(for: dispatcher.id)
                 .flatMapLatest { [weak self] barriersState in
                     self?.logger?.trace?.log(category: TealiumLibraryCategories.dispatching, message: "BarrierState changed \(barriersState)")
@@ -118,14 +117,14 @@ class DispatchManager {
             .distinct()
         let queueManager = self.queueManager
         return queueManager.onEnqueuedDispatchesForProcessors
-            .filter { processors in processors.contains { $0 != ConsentModule.id } }
+            .filter { processors in processors.contains { $0 == dispatcher.id } }
             .startWith([])
             .flatMapLatest { _ in
                 onInflightLower
                     .filter { $0 }
                     .map { _ in queueManager.getQueuedDispatches(for: dispatcher.id, limit: dispatcher.dispatchLimit) }
                     .filter { !$0.isEmpty }
-                    .resubscribingWhile { $0.count >= dispatcher.dispatchLimit } // Loops the `getQueuedEvents` as long as we pull `dispatchLimit` items from the queue
+                    .resubscribingWhile { $0.count >= dispatcher.dispatchLimit } // Loops the `getQueuedDispatches` as long as we pull `dispatchLimit` items from the queue
             }
     }
 

@@ -78,9 +78,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         disableModule(module: module1)
         let eventsAreDequeued = expectation(description: "Events are flushed until queue is empty or limit is reached when a barrier is open. Closing the barrier only stops future flushes")
         eventsAreDequeued.expectedFulfillmentCount = 2
-        for index in 0..<5 {
-            queueManager.storeDispatches([TealiumDispatch(name: "\(index)")], enqueueingFor: allDispatchers)
-        }
+        queueManager.storeDispatches(createDispatches(amount: 5), enqueueingFor: allDispatchers)
         _ = queueManager.onDequeueRequest.subscribe {
             eventsAreDequeued.fulfill()
         }

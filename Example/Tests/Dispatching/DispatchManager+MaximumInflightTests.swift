@@ -14,7 +14,7 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
     func test_event_is_not_dispatched_if_inflight_count_is_too_high() {
         let eventIsNotDispatched = expectation(description: "Event is NOT dispatched")
         eventIsNotDispatched.isInverted = true
-        let dispatches = (0..<DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER).map { TealiumDispatch(name: "event\($0)") }
+        let dispatches = createDispatches(amount: DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
         queueManager.storeDispatches(dispatches, enqueueingFor: ["mockDispatcher1"])
         _ = queueManager.getQueuedDispatches(for: "mockDispatcher1", limit: nil)
         XCTAssertEqual(queueManager.inflightEvents.value["mockDispatcher1"]?.count, DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
@@ -28,7 +28,7 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
     func test_event_is_dispatched_again_after_the_inflight_count_goes_down() {
         let eventIsNotDispatched = expectation(description: "Event is NOT dispatched")
         eventIsNotDispatched.isInverted = true
-        let dispatches = (0..<DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER).map { TealiumDispatch(name: "event\($0)") }
+        let dispatches = createDispatches(amount: DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
         queueManager.storeDispatches(dispatches, enqueueingFor: ["mockDispatcher1"])
         _ = queueManager.getQueuedDispatches(for: "mockDispatcher1", limit: nil)
         XCTAssertEqual(queueManager.inflightEvents.value["mockDispatcher1"]?.count, DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
@@ -56,9 +56,7 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
         let firstEventIsDispatched = expectation(description: "First event is dispatched")
         let maximumInflightCountReached = expectation(description: "Maximum number of events inflight is reached")
         maximumInflightCountReached.assertForOverFulfill = false
-        for index in 0..<DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER + 5 {
-            queueManager.storeDispatches([TealiumDispatch(name: "\(index)")], enqueueingFor: allDispatchers)
-        }
+        queueManager.storeDispatches(createDispatches(amount: DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER + 5), enqueueingFor: allDispatchers)
         _ = queueManager.onInflightDispatchesCount(for: module1.id).subscribe { inflights in
             XCTAssertLessThanOrEqual(inflights, DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
             if inflights == DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER {
@@ -69,6 +67,6 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
             firstEventIsDispatched.fulfill()
         }
         _ = dispatchManager
-        wait(for: [maximumInflightCountReached, firstEventIsDispatched], timeout: 1.0, enforceOrder: false)
+        wait(for: [maximumInflightCountReached, firstEventIsDispatched], timeout: 1.0, enforceOrder: true)
     }
 }

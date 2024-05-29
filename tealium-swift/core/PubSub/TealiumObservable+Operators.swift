@@ -224,7 +224,7 @@ public extension TealiumObservableProtocol {
      * This is mainly used for cold observables that, when subscribed, start a new stream from zero. Use when you want to trigger the underlying observable to restart every time.
      *
      * - Warning: If the underlying observable always emits a new event and the condition is always met, this will end up calling endlessly until, eventually, the app will crash for stack overflow or out of memory exceptions.
-     * You need to treat the underlying observable as a recurring function and make sure there is an exit condition.
+     * You need to treat the underlying observable as a recursive function and make sure there is an exit condition.
      */
     func resubscribingWhile(_ isIncluded: @escaping (Element) -> Bool) -> TealiumObservable<Element> {
         func subscribeOnceInfiniteLoop(observer: @escaping (Element) -> Void, container: TealiumDisposeContainer) -> TealiumDisposable {

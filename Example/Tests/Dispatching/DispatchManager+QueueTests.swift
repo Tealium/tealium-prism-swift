@@ -27,13 +27,11 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
         disableModule(module: module2)
         let eventsAreDispatched = expectation(description: "Events are dispatched 30 times")
         eventsAreDispatched.expectedFulfillmentCount = 30
-        var count = 0
-        for index in 0..<30 {
-            queueManager.storeDispatches([TealiumDispatch(name: "\(index)")], enqueueingFor: allDispatchers)
-        }
+        var count = 1
+        queueManager.storeDispatches(createDispatches(amount: 30), enqueueingFor: allDispatchers)
         _ = module1?.onDispatch.subscribe { dispatches in
             XCTAssertEqual(dispatches.count, 1)
-            XCTAssertEqual(dispatches.first?.name, "\(count)")
+            XCTAssertEqual(dispatches.first?.name, "event\(count)")
             count += 1
             eventsAreDispatched.fulfill()
         }
@@ -47,13 +45,11 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
         let eventsAreDispatched = expectation(description: "Events are dispatched in batches 10 times")
         eventsAreDispatched.expectedFulfillmentCount = 10
         var count = 0
-        for index in 0..<30 {
-            queueManager.storeDispatches([TealiumDispatch(name: "\(index)")], enqueueingFor: allDispatchers)
-        }
+        queueManager.storeDispatches(createDispatches(amount: 30), enqueueingFor: allDispatchers)
         _ = module2?.onDispatch.subscribe { dispatches in
             XCTAssertEqual(dispatches.count, 3)
             for index in 0..<3 {
-                XCTAssertEqual(dispatches[index].name, "\(count * 3 + index)")
+                XCTAssertEqual(dispatches[index].name, "event\(count * 3 + index + 1)")
             }
             count += 1
             eventsAreDispatched.fulfill()
@@ -65,9 +61,20 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
     func test_pulls_from_the_queue_are_stopped_immediately_when_a_partial_batch_is_returned() {
         disableModule(module: module1)
         let eventsAreDequeued = expectation(description: "Events are dequeued only once in a batch")
-        for index in 0..<2 {
-            queueManager.storeDispatches([TealiumDispatch(name: "\(index)")], enqueueingFor: allDispatchers)
+        queueManager.storeDispatches(createDispatches(amount: 2), enqueueingFor: allDispatchers)
+        _ = queueManager.onDequeueRequest.subscribe {
+            eventsAreDequeued.fulfill()
         }
+        _ = dispatchManager
+        waitForExpectations(timeout: 1.0)
+    }
+
+    func test_pulls_from_the_queue_are_stopped_immediately_when_number_of_inflight_reaches_the_maximum() {
+        disableModule(module: module2)
+        module1?.delay = 2000
+        let eventsAreDequeued = expectation(description: "Events are dequeued Maximum number of times, not more")
+        eventsAreDequeued.expectedFulfillmentCount = DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER
+        queueManager.storeDispatches(createDispatches(amount: DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER + 10), enqueueingFor: allDispatchers)
         _ = queueManager.onDequeueRequest.subscribe {
             eventsAreDequeued.fulfill()
         }

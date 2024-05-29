@@ -258,10 +258,4 @@ final class SQLQueueRepositoryTests: XCTestCase {
         }
         XCTAssertEqual(dispatchRows.count, 5)
     }
-
-    private func createDispatches(amount: Int) -> [TealiumDispatch] {
-        (1...amount).map { count in
-            TealiumDispatch(name: "event\(count)")
-        }
-    }
 }
