@@ -34,7 +34,7 @@ Pod::Spec.new do |s|
   s.ios.deployment_target = '12.0'
 
   s.swift_version = '5.0'
-  s.dependency 'SQLite.swift', '~> 0.14.0'
+  s.dependency 'SQLite.swift', '~> 0.15.0'
   
   s.subspec "Core" do |core|
       core.source_files = "tealium-swift/Core/**/*.{swift,h,m}"
