@@ -90,6 +90,10 @@ class DispatchManagerTestCase: XCTestCase {
                                       settings: settings)
     }
 
+    override func tearDown() {
+        dispatchManager.stopDispatchLoop()
+    }
+
     func disableModule<T: TealiumModule>(module: T?) {
         guard let module = module else { return }
         settings += [module.id: ["enabled": false]]
