@@ -61,8 +61,12 @@ class MockEmpiricalConnectivity: EmpiricalConnectivityProtocol {
 }
 
 class MockConnectivityManager: ConnectivityManager {
+    let mockConnectivityMonitor: MockConnectivityMonitor
+    let mockEmpiricalConnectivity: MockEmpiricalConnectivity
     init() {
-        super.init(connectivityMonitor: MockConnectivityMonitor(),
-                   empiricalConnectivity: MockEmpiricalConnectivity())
+        self.mockConnectivityMonitor = MockConnectivityMonitor()
+        self.mockEmpiricalConnectivity = MockEmpiricalConnectivity()
+        super.init(connectivityMonitor: mockConnectivityMonitor,
+                   empiricalConnectivity: mockEmpiricalConnectivity)
     }
 }

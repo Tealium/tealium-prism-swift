@@ -87,7 +87,7 @@ class TealiumImplementation {
     }
 
     private static func barrierCoordinator(config: TealiumConfig, coreSettings: TealiumStatefulObservable<CoreSettings>) -> BarrierCoordinator {
-        return BarrierCoordinator(registeredBarriers: config.barriers,
+        return BarrierCoordinator(registeredBarriers: config.barriers + [ConnectivityBarrier(onConnection: ConnectivityManager.shared.connectionAssumedAvailable)],
                                   onScopedBarriers: coreSettings.asObservable().map { $0.scopedBarriers })
     }
 

@@ -104,6 +104,7 @@
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		A440366123369A61756C949F /* Pods_tealium_swift_Tests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A5271A60473B0248F5DEF3FF /* Pods_tealium_swift_Tests.framework */; };
+		D50F192E2C0A042F006C44F7 /* ConnectivityBarrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D50F192D2C0A042F006C44F7 /* ConnectivityBarrierTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -224,6 +225,7 @@
 		A9752955C495399BADE35BBA /* Pods-tealium-swift_Example.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tealium-swift_Example.debug.xcconfig"; path = "Target Support Files/Pods-tealium-swift_Example/Pods-tealium-swift_Example.debug.xcconfig"; sourceTree = "<group>"; };
 		B7F4AFC349B7500B10B0C401 /* Pods-tealium-swift_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tealium-swift_Tests.debug.xcconfig"; path = "Target Support Files/Pods-tealium-swift_Tests/Pods-tealium-swift_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		C1A7E7BE34E3053FEF05A688 /* Pods_tealium_swift_Example.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_tealium_swift_Example.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		D50F192D2C0A042F006C44F7 /* ConnectivityBarrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivityBarrierTests.swift; sourceTree = "<group>"; };
 		DC0D7EDBD3533E3C50791B1C /* tealium-swift.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "tealium-swift.podspec"; path = "../tealium-swift.podspec"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		E50DA3204E831AF8C4158B21 /* Pods-tealium-swift_Example.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tealium-swift_Example.release.xcconfig"; path = "Target Support Files/Pods-tealium-swift_Example/Pods-tealium-swift_Example.release.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -303,6 +305,7 @@
 				158A82342A39F16B0028FD7C /* ConnectivityManagerTests.swift */,
 				1535DC082A38A72D00CDDD44 /* EmpiricalConnectivityTests.swift */,
 				158A82302A39CE0F0028FD7C /* ReachabilityConnectivityMonitorTests.swift */,
+				D50F192D2C0A042F006C44F7 /* ConnectivityBarrierTests.swift */,
 			);
 			path = Connectivity;
 			sourceTree = "<group>";
@@ -797,6 +800,7 @@
 				15C0DCC42B0CF5DA0007F6BE /* Operators+DistinctTests.swift in Sources */,
 				15BBA9CD2B164EFB00677037 /* DispatchManager+TrackTests.swift in Sources */,
 				15C0DCC62B0CF6280007F6BE /* Operators+FilterTests.swift in Sources */,
+				D50F192E2C0A042F006C44F7 /* ConnectivityBarrierTests.swift in Sources */,
 				150629DC2A5EC5AE0071A926 /* TealiumObservableTests.swift in Sources */,
 				155C0F212C072AA0009630FC /* CreateDispatches.swift in Sources */,
 				15BBB28A2B07E362009D4CB5 /* MockConfig.swift in Sources */,
