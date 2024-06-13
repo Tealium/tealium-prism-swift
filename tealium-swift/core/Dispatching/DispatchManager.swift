@@ -55,20 +55,26 @@ class DispatchManager {
     }
 
     func track(_ dispatch: TealiumDispatch) {
+        track(dispatch, onTrackResult: nil)
+    }
+
+    func track(_ dispatch: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
         guard !tealiumPurposeExplicitlyBlocked() else {
             logger?.info?.log(category: TealiumLibraryCategories.dispatching,
                               message: "Tealium purpose was explicitly declined, discarding this dispatch!")
+            onTrackResult?(dispatch, .dropped)
             return
         }
-        transformerCoordinator.transform(dispatch: dispatch, for: .afterCollectors) { [weak self] dispatch in
-            guard let self = self,
-                let dispatch = dispatch else {
+        transformerCoordinator.transform(dispatch: dispatch, for: .afterCollectors) { [weak self] transformed in
+            guard let self, let transformed else {
+                onTrackResult?(dispatch, .dropped)
                 return
             }
             if let consentManager = self.consentManager {
-                consentManager.applyConsent(to: dispatch)
+                consentManager.applyConsent(to: transformed, completion: onTrackResult)
             } else {
-                self.queueManager.storeDispatches([dispatch], enqueueingFor: dispatchers.map { $0.id })
+                self.queueManager.storeDispatches([transformed], enqueueingFor: dispatchers.map { $0.id })
+                onTrackResult?(transformed, .accepted)
             }
         }
     }

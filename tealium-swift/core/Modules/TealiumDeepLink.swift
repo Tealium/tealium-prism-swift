@@ -122,8 +122,8 @@ public class DeepLinkModule: TealiumModule {
     }
 
     /// Ends the current visitor session. Trace remains active, but visitor session is terminated.
-    func killTraceVisitorSession() {
-        trace?.killVisitorSession()
+    func killTraceVisitorSession(completion onTrackResult: TrackResultCompletion? = nil) {
+        trace?.killVisitorSession(completion: onTrackResult)
     }
 
 }

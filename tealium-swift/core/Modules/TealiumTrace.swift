@@ -29,9 +29,9 @@ public class TealiumTrace {
         }
     }
 
-    public func killVisitorSession() {
+    public func killVisitorSession(completion onTrackResult: TrackResultCompletion?) {
         getModule { module in
-            module?.killVisitorSession()
+            module?.killVisitorSession(completion: onTrackResult)
         }
     }
 }
@@ -44,12 +44,12 @@ public class TraceModule: TealiumModule {
         self.context = context
     }
 
-    public func killVisitorSession() {
+    public func killVisitorSession(completion onTrackResult: TrackResultCompletion? = nil) {
         let dispatch = TealiumDispatch(name: TealiumKey.killVisitorSession,
                                        data: [
                                         TealiumDataKey.killVisitorSessionEvent: TealiumKey.killVisitorSession
                                        ])
-        context.tracker.track(dispatch)
+        context.tracker.track(dispatch, onTrackResult: onTrackResult)
     }
 
     var dataLayer: DataLayerModule? {

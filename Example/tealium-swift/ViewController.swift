@@ -97,7 +97,10 @@ class ViewController: UIViewController {
     @objc func deepLink() {
         teal.deepLink.handle(link: URL(string: "https://www.tealium.com")!)
         
-        teal.track("DeepLink!")
+        teal.track("DeepLink!") {dispatch,result in 
+            print("Dispatch: \(dispatch)")
+            print("Result: \(result)")
+        }
     }
     
     @objc func addToDataLayer() {

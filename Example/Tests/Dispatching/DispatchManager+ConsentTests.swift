@@ -63,4 +63,21 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
         waitForExpectations(timeout: 1.0)
     }
+
+    func test_track_completion_is_called_when_consent_is_applied() {
+            enableModule(ConsentModule.id)
+            guard let consentManager else {
+                XCTFail("ConsentManager not added to the modules list")
+                return
+            }
+            let completionCalled = expectation(description: "Completion was called")
+            let consentIsApplied = expectation(description: "Consent is applied")
+            consentManager.onApplyConsent.subscribeOnce { _ in
+                consentIsApplied.fulfill()
+            }
+            dispatchManager.track(TealiumDispatch(name: "someEvent")) { _, _ in
+                completionCalled.fulfill()
+            }
+            waitForExpectations(timeout: 1.0)
+        }
 }

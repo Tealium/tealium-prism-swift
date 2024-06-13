@@ -67,8 +67,8 @@ class TealiumImplementation {
         self.handleSettingsUpdates()
     }
 
-    public func track(_ trackable: TealiumDispatch) {
-        context.tracker.track(trackable)
+    public func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
+        context.tracker.track(trackable, onTrackResult: onTrackResult)
     }
 
     private func handleSettingsUpdates() {

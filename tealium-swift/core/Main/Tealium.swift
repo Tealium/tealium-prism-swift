@@ -8,6 +8,8 @@
 
 import Foundation
 
+public typealias TrackResultCompletion = (_ dispatch: TealiumDispatch, _ result: TrackResult) -> Void
+
 public class Tealium {
     let modulesManager: ModulesManager
     private var onTealiumImplementation = TealiumReplaySubject<TealiumImplementation?>()
@@ -52,10 +54,10 @@ public class Tealium {
         }
     }
 
-    public func track(_ name: String, type: DispatchType = .event, data: TealiumDictionaryInput? = nil) {
+    public func track(_ name: String, type: DispatchType = .event, data: TealiumDictionaryInput? = nil, onTrackResult: TrackResultCompletion? = nil) {
         let dispatch = TealiumDispatch(name: name, type: type, data: data)
         onImplementationReady { implementation in
-            implementation?.track(dispatch)
+            implementation?.track(dispatch, onTrackResult: onTrackResult)
         }
     }
 

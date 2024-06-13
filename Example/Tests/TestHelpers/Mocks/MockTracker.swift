@@ -10,6 +10,6 @@ import Foundation
 @testable import TealiumSwift
 
 class MockTracker: Tracker {
-    func track(_ trackable: TealiumDispatch) {
+    func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
     }
 }

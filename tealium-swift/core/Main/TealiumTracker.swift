@@ -8,8 +8,23 @@
 
 import Foundation
 
+/**
+ * Track result shows whether the dispatch being tracked has been enqueued for further processing (stored by QueueManager) or not.
+ * It can be set by either DispatchManager (e.g., dispatch may be dropped by Transformer) or ConsentManager (if consent is applied).
+ */
+public enum TrackResult {
+    case accepted, dropped
+}
+
 public protocol Tracker {
     func track(_ trackable: TealiumDispatch)
+    func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?)
+}
+
+public extension Tracker {
+    func track(_ trackable: TealiumDispatch) {
+        track(trackable, onTrackResult: nil)
+    }
 }
 
 public class TealiumTracker: Tracker {
@@ -21,7 +36,8 @@ public class TealiumTracker: Tracker {
         self.dispatchManager = dispatchManager
         self.logger = logger
     }
-    public func track(_ trackable: TealiumDispatch) {
+
+    public func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
         let trackingInterval = TealiumSignpostInterval(signposter: .tracking, name: "TrackingCall")
             .begin(trackable.name ?? "unknown")
         logger?.debug?.log(category: TealiumLibraryCategories.tracking, message: "Received new track \(trackable.name ?? "")")
@@ -37,7 +53,7 @@ public class TealiumTracker: Tracker {
             }
         self.logger?.debug?.log(category: TealiumLibraryCategories.tracking, message: "Enriched Event")
         self.logger?.trace?.log(category: TealiumLibraryCategories.tracking, message: "Updated Data \(trackable.eventData)")
-        self.dispatchManager.track(trackable)
+        self.dispatchManager.track(trackable, onTrackResult: onTrackResult)
         self.logger?.debug?.log(category: TealiumLibraryCategories.tracking, message: "Dispatched Event")
         trackingInterval.end()
     }

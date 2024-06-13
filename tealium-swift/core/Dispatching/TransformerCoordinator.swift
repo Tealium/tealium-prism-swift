@@ -20,7 +20,7 @@ public protocol Transformer: AnyObject {
 }
 
 public protocol TransformerRegistry {
-    func registerTransfomer(_ transformer: Transformer)
+    func registerTransformer(_ transformer: Transformer)
     func unregisterTransformer(_ transformer: Transformer)
     func registerTransformation(_ scopedTransformation: ScopedTransformation)
     func unregisterTransformation(_ scopedTransformation: ScopedTransformation)
@@ -96,7 +96,7 @@ public class TransformerCoordinator: TransformerRegistry {
         return transformer.applyTransformation(transformation.id, to: dispatch, scope: scope, completion: completion)
     }
 
-    public func registerTransfomer(_ transformer: Transformer) {
+    public func registerTransformer(_ transformer: Transformer) {
         registeredTransformers.append(transformer)
     }
 

@@ -16,11 +16,6 @@ public struct ConsentDecision {
     public let decisionType: DecisionType
     public let purposes: [String]
 
-    init(decisionType: DecisionType, purposes: [String]) {
-        self.decisionType = decisionType
-        self.purposes = purposes
-    }
-
     func matchAll(_ requiredPurposes: [String]) -> Bool {
         requiredPurposes.allSatisfy(purposes.contains)
     }
@@ -80,11 +75,11 @@ class ConsentTransformer: Transformer {
 
 public protocol CMPIntegration {
     var consentDecision: TealiumStatefulObservable<ConsentDecision?> { get }
-    func allPurposes() -> [String]
+    func allPurposes() -> [String] // TODO: why it's not a computable getter?
 }
 
 protocol ConsentManager: TealiumModule {
-    func applyConsent(to dispatch: TealiumDispatch)
+    func applyConsent(to dispatch: TealiumDispatch, completion onTrackResult: TrackResultCompletion?)
     func tealiumConsented(forPurposes purposes: [String]) -> Bool
     func getConsentDecision() -> ConsentDecision?
 }
@@ -136,7 +131,7 @@ class ConsentModule: ConsentManager {
                                                      scopes: [TransformationScope.allDispatchers])
         settings = consentSettings
         self.transformerRegistry = transformerRegistry
-        transformerRegistry.registerTransfomer(consentTransformer)
+        transformerRegistry.registerTransformer(consentTransformer)
         transformerRegistry.registerTransformation(consentTransformation)
         cmpIntegration?.consentDecision.asObservable().compactMap { $0 }.subscribe { [weak self] (consentDecision: ConsentDecision) in
             guard let self = self else {
@@ -199,10 +194,11 @@ class ConsentModule: ConsentManager {
         cmpIntegration?.consentDecision.value
     }
 
-    func applyConsent(to dispatch: TealiumDispatch) {
+    func applyConsent(to dispatch: TealiumDispatch, completion onTrackResult: TrackResultCompletion?) {
         guard let integration = cmpIntegration else {
             // Nothing we can do, maybe Log an error
             // Maybe this condition can be avoided as we can force the integration to be provided in configuration when consent is enabled (?)
+            onTrackResult?(dispatch, .dropped)
             return
         }
 
@@ -210,11 +206,15 @@ class ConsentModule: ConsentManager {
               tealiumConsented(forPurposes: decision.purposes) else {
             if integration.consentDecision.value?.decisionType != .explicit {
                 queueManager.storeDispatches([dispatch], enqueueingFor: [Self.id])
+                onTrackResult?(dispatch, .accepted)
+            } else {
+                onTrackResult?(dispatch, .dropped)
             }
             return
         }
         guard let consentedDispatch = applyDecision(decision, toDispatch: dispatch) else {
-            // No dispatch due to no purposes provided, ignore dispatch
+            // No dispatch due to no unprocessed purposes present, ignore dispatch
+            onTrackResult?(dispatch, .dropped)
             return
         }
         var processors = dispatchers
@@ -222,6 +222,7 @@ class ConsentModule: ConsentManager {
             processors += [Self.id]
         }
         queueManager.storeDispatches([consentedDispatch], enqueueingFor: processors)
+        onTrackResult?(consentedDispatch, .accepted)
     }
 
     func applyDecision(_ decision: ConsentDecision, toDispatch dispatch: TealiumDispatch) -> TealiumDispatch? {
