@@ -8,10 +8,19 @@
 
 import Foundation
 
-public protocol NetworkHelperProtocol {
-    typealias JSONResult = Result<[String: Any], NetworkError>
-    typealias CodableResult<T> = Result<T, NetworkError>
+public struct JSONResponse {
+    public let json: [String: Any]
+    public let urlResponse: HTTPURLResponse
+}
+public struct ObjectResponse<T> {
+    public let object: T
+    public let urlResponse: HTTPURLResponse
+}
 
+public typealias JSONResult = Result<JSONResponse, NetworkError>
+public typealias ObjectResult<T> = Result<ObjectResponse<T>, NetworkError>
+
+public protocol NetworkHelperProtocol {
     /**
      * Just sends a GET request to the `NetworkClient`
      *
@@ -44,7 +53,7 @@ public protocol NetworkHelperProtocol {
      *
      * - Returns: the `TealiumDisposableProtocol` to cancel the in flight operation.
      */
-    func getJsonAsObject<T: Codable>(url: URLConvertible, etag: String?, completion: @escaping (CodableResult<T>) -> Void) -> TealiumDisposable
+    func getJsonAsObject<T: Codable>(url: URLConvertible, etag: String?, completion: @escaping (ObjectResult<T>) -> Void) -> TealiumDisposable
     /**
      * Sends a POST request to the `NetworkClient`with a gzipped JSON body.
      *
@@ -76,7 +85,6 @@ public extension NetworkHelperProtocol {
      *
      * - Parameters:
      *    - url: the `URLConvertible` instance to build the `URL` to send
-     *    - etag: the etag to be added in order to avoid fetching a cached resource
      *    - completion: the block that is executed when the request is completed with the `JSONResult`
      *
      * - Returns: the `TealiumDisposableProtocol` to cancel the in flight operation.
@@ -93,7 +101,7 @@ public extension NetworkHelperProtocol {
      *
      * - Returns: the `TealiumDisposableProtocol` to cancel the in flight operation.
      */
-    func getJsonAsObject<T: Codable>(url: URLConvertible, completion: @escaping (CodableResult<T>) -> Void) -> TealiumDisposable {
+    func getJsonAsObject<T: Codable>(url: URLConvertible, completion: @escaping (ObjectResult<T>) -> Void) -> TealiumDisposable {
         getJsonAsObject(url: url, etag: nil, completion: completion)
     }
 }

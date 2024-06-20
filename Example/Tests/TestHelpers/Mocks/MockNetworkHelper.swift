@@ -7,15 +7,29 @@
 //
 
 import Foundation
-import TealiumSwift
+@testable import TealiumSwift
+
+extension JSONResponse {
+    static func successful(json: [String: Any]) -> Self {
+        JSONResponse(json: json,
+                     urlResponse: HTTPURLResponse.successful())
+    }
+}
+
+extension ObjectResponse {
+    static func successful(object: T) -> ObjectResponse<T> {
+        ObjectResponse<T>(object: object,
+                          urlResponse: HTTPURLResponse.successful())
+    }
+}
 
 class MockNetworkHelper: NetworkHelperProtocol {
     enum MockError: Error {
         case failedToConvertToExpectedResultType
     }
     var result: NetworkResult = NetworkResult.success(.successful())
-    var jsonResult: JSONResult = JSONResult.success([:])
-    var codableResult: CodableResult<Any> = CodableResult.success(())
+    var jsonResult: JSONResult = JSONResult.success(.successful(json: [:]))
+    var codableResult: ObjectResult<Any> = ObjectResult.success(.successful(object: ()))
     var delay: Int?
     var queue = DispatchQueue.main
     enum Requests {
@@ -55,12 +69,12 @@ class MockNetworkHelper: NetworkHelperProtocol {
                 return
             }
             self._requests.publish(.get(url, etag))
-            completion(JSONResult.success([:]))
+            completion(JSONResult.success(.successful(json: [:])))
         }
         return sub
     }
 
-    func getJsonAsObject<T>(url: URLConvertible, etag: String?, completion: @escaping (CodableResult<T>) -> Void) -> TealiumDisposable where T: Codable {
+    func getJsonAsObject<T>(url: URLConvertible, etag: String?, completion: @escaping (ObjectResult<T>) -> Void) -> TealiumDisposable where T: Codable {
         let sub = TealiumSubscription { }
         delayBlock {
             guard !sub.isDisposed else {
@@ -69,9 +83,9 @@ class MockNetworkHelper: NetworkHelperProtocol {
             }
             self._requests.publish(.get(url, etag))
             switch self.codableResult {
-            case let .success(object):
-                if let object = object as? T {
-                    completion(.success(object))
+            case let .success(response):
+                if let object = response.object as? T {
+                    completion(.success(.successful(object: object)))
                 } else {
                     completion(.failure(.unknown(MockError.failedToConvertToExpectedResultType)))
                 }

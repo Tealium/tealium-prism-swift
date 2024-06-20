@@ -123,3 +123,95 @@ public protocol DataStoreEditor {
      */
     func commit() throws
 }
+
+public extension DataStore {
+    /**
+     * Returns the `NSNumber` stored at the given key if present and if it is the correct type.
+     *
+     * - Parameters:
+     *  - key: The key from which to extract the number.
+     *
+     *  - Returns: The `NSNumber` stored at that key, if present and if it is the correct type.
+     */
+    func getNSNumber(key: String) -> NSNumber? {
+        get(key: key)?.getNSNumber()
+    }
+
+    /**
+     * Returns the `Int64` stored at the given key if present and if it is the correct type.
+     *
+     * Any `NSNumber` convertible data will be read as such and then converted to `Int64`.
+     *
+     * - Parameters:
+     *  - key: The key from which to extract the number.
+     *
+     *  - Returns: The `Int64` stored at that key, if present and if it is the correct type.
+     */
+    func getInt(key: String) -> Int64? {
+        get(key: key)?.getInt()
+    }
+
+    /**
+     * Returns the `Double` stored at the given key if present and if it is the correct type.
+     *
+     * Any `NSNumber` convertible data will be read as such and then converted to `Double`.
+     *
+     * - Parameters:
+     *  - key: The key from which to extract the number.
+     *
+     *  - Returns: The `Double` stored at that key, if present and if it is the correct type.
+     */
+    func getDouble(key: String) -> Double? {
+        get(key: key)?.getDouble()
+    }
+
+    /**
+     * Returns the `Bool` stored at the given key if present and if it is the correct type.
+     *
+     * Any `NSNumber` convertible data will be read as such and then converted to `Bool`.
+     *
+     * - Parameters:
+     *  - key: The key from which to extract the number.
+     *
+     *  - Returns: The `Bool` stored at that key, if present and if it is the correct type.
+     */
+    func getBool(key: String) -> Bool? {
+        get(key: key)?.getBool()
+    }
+
+    /**
+     * Returns the `String` stored at the given key if present and if it is the correct type.
+     *
+     * - Parameters:
+     *  - key: The key from which to extract the `String`.
+     *
+     *  - Returns: The `String` stored at that key, if present and if it is the correct type.
+     */
+    func getString(key: String) -> String? {
+        get(key: key)?.getString()
+    }
+
+    /**
+     * Returns the `Array` stored at the given key if present and if it is the correct type.
+     *
+     * - Parameters:
+     *  - key: The key from which to extract the `Array`.
+     *
+     *  - Returns: The `Array` stored at that key, if present and if it is the correct type.
+     */
+    func getArray(key: String) -> [TealiumDataOutput]? {
+        get(key: key)?.getArray()
+    }
+
+    /**
+     * Returns the `Dictionary` stored at the given key if present and if it is the correct type.
+     *
+     * - Parameters:
+     *  - key: The key from which to extract the `Dictionary`.
+     *
+     *  - Returns: The `Dictionary` stored at that key, if present and if it is the correct type.
+     */
+    func getDictionary(key: String) -> [String: TealiumDataOutput]? {
+        get(key: key)?.getDictionary()
+    }
+}

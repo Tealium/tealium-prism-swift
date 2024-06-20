@@ -53,7 +53,7 @@ final class NetworkHelperTests: XCTestCase {
         let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.getJsonAsObject(url: url) { result in
             XCTAssertResultIsSuccess(result) { response in
-                XCTAssertEqual(response, object)
+                XCTAssertEqual(response.object, object)
             }
             networkCallCompleted.fulfill()
         }
@@ -68,7 +68,7 @@ final class NetworkHelperTests: XCTestCase {
             requestSended.fulfill()
         }
         let networkHelper = NetworkHelper(networkClient: mockClient)
-        _ = networkHelper.getJsonAsObject(url: url, etag: "some etag") { (_: Result<MockResultObject, NetworkError>) in }
+        _ = networkHelper.getJsonAsObject(url: url, etag: "some etag") { (_: ObjectResult<MockResultObject>) in }
         waitForExpectations(timeout: 2.0)
     }
 
@@ -76,7 +76,7 @@ final class NetworkHelperTests: XCTestCase {
         let networkCallCompleted = expectation(description: "Network Call completed")
         mockClient.result = .success(NetworkResponse(data: Data(), urlResponse: .successful()))
         let networkHelper = NetworkHelper(networkClient: mockClient)
-        _ = networkHelper.getJsonAsObject(url: url) { (result: Result<MockResultObject, NetworkError>)  in
+        _ = networkHelper.getJsonAsObject(url: url) { (result: ObjectResult<MockResultObject>)  in
             XCTAssertResultIsFailure(result)
             networkCallCompleted.fulfill()
         }
@@ -94,8 +94,8 @@ final class NetworkHelperTests: XCTestCase {
         let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.getJsonAsDictionary(url: url) { result in
             XCTAssertResultIsSuccess(result) { response in
-                XCTAssertEqual(response["keyString"] as? String, "value")
-                XCTAssertEqual(response["keyInt"] as? Int, 1)
+                XCTAssertEqual(response.json["keyString"] as? String, "value")
+                XCTAssertEqual(response.json["keyInt"] as? Int, 1)
             }
             networkCallCompleted.fulfill()
         }

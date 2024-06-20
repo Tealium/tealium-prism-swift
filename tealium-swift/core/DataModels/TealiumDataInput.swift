@@ -63,11 +63,16 @@ extension AnyEncodable {
 
 extension String {
     func deserialize() throws -> Any {
+        let anyCodable: AnyCodable = try deserializeCodable()
+        return anyCodable.value
+    }
+
+    func deserializeCodable<T: Codable>() throws -> T {
         guard let data = self.data(using: .utf8) else {
             throw TealiumDataValueErrors.stringToDataFailed
         }
         let decoder = Tealium.jsonDecoder
-        let response = try decoder.decode(AnyCodable.self, from: data)
-        return response.value
+        let response = try decoder.decode(T.self, from: data)
+        return response
     }
 }

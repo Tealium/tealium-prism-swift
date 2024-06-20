@@ -47,7 +47,7 @@ public class NetworkHelper: NetworkHelperProtocol {
                 do {
                     let json = try JSONSerialization.jsonObject(with: response.data)
                     if let dictionary = json as? [String: Any] {
-                        return .success(dictionary)
+                        return .success(JSONResponse(json: dictionary, urlResponse: response.urlResponse))
                     } else {
                         return .failure(.unknown(ParsingError.jsonIsNotADictionary(json)))
                     }
@@ -58,11 +58,12 @@ public class NetworkHelper: NetworkHelperProtocol {
         }
     }
 
-    public func getJsonAsObject<T: Codable>(url: URLConvertible, etag: String? = nil, completion: @escaping (CodableResult<T>) -> Void) -> TealiumDisposable {
+    public func getJsonAsObject<T: Codable>(url: URLConvertible, etag: String? = nil, completion: @escaping (ObjectResult<T>) -> Void) -> TealiumDisposable {
         send(requestBuilder: .makeGET(url: url, etag: etag)) { result in
             completion(result.flatMap { response in
                 do {
-                    return .success(try Self.decoder.decode(T.self, from: response.data))
+                    return .success(ObjectResponse(object: try Self.decoder.decode(T.self, from: response.data),
+                                                   urlResponse: response.urlResponse))
                 } catch {
                     return .failure(.unknown(error))
                 }
