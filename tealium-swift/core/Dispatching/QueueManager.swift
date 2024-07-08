@@ -26,15 +26,15 @@ class QueueManager: QueueManagerProtocol {
         coreSettings.subscribe { settings in
             do {
                 try queueRepository.resize(newSize: settings.maxQueueSize)
-                logger?.debug?.log(category: "QueueManager", message: "Resized the queue to \(settings.maxQueueSize) and deleted eventual overflowing dispatches")
+                logger?.debug?.log(category: LogCategory.queueManager, message: "Resized the queue to \(settings.maxQueueSize) and deleted eventual overflowing dispatches")
             } catch {
-                logger?.error?.log(category: "QueueManager", message: "Failed to delete dispatches exceeding the maxQueueSize of \(settings.maxQueueSize)\nError: \(error)")
+                logger?.error?.log(category: LogCategory.queueManager, message: "Failed to delete dispatches exceeding the maxQueueSize of \(settings.maxQueueSize)\nError: \(error)")
             }
             do {
                 try queueRepository.setExpiration(settings.queueExpiration)
-                logger?.debug?.log(category: "QueueManager", message: "Set Queue Expiration to \(settings.queueExpiration) and deleted all expired dispatches")
+                logger?.debug?.log(category: LogCategory.queueManager, message: "Set Queue Expiration to \(settings.queueExpiration) and deleted all expired dispatches")
             } catch {
-                logger?.error?.log(category: "QueueManager", message: "Failed to delete expired dispatches for expiration \(settings.queueExpiration)\nError: \(error)")
+                logger?.error?.log(category: LogCategory.queueManager, message: "Failed to delete expired dispatches for expiration \(settings.queueExpiration)\nError: \(error)")
             }
         }.addTo(disposer)
     }
@@ -42,7 +42,7 @@ class QueueManager: QueueManagerProtocol {
     private func deleteQueues(forProcessorsNotIn processors: [String]) {
         do {
             try self.queueRepository.deleteQueues(forProcessorsNotIn: processors)
-            logger?.debug?.log(category: "QueueManager", message: "Deleted queued events for disabled processors. Currently enabled processors are: \(processors)")
+            logger?.debug?.log(category: LogCategory.queueManager, message: "Deleted queued events for disabled processors. Currently enabled processors are: \(processors)")
             let removedProcessors = self.inflightEvents.value.keys.filter { processors.contains($0) }
             guard !removedProcessors.isEmpty else {
                 return
@@ -53,8 +53,8 @@ class QueueManager: QueueManagerProtocol {
             }
             _inflightEvents.value = newInflightEvents
         } catch {
-            logger?.error?.log(category: "QueueManager",
-                               message: "Failed to delete queued events for disabled processors. Currently enabled processors are: \(processors)\nError: \(error.localizedDescription)")
+            logger?.error?.log(category: LogCategory.queueManager,
+                               message: "Failed to delete queued events for disabled processors. Currently enabled processors are: \(processors)\nError: \(error)")
         }
     }
 
@@ -71,7 +71,7 @@ class QueueManager: QueueManagerProtocol {
         guard !dispatches.isEmpty else {
             return []
         }
-        logger?.debug?.log(category: "QueueManager", message: "Dequeued dispatches for processor \(processor): \(dispatches.map { $0.logDescription() })")
+        logger?.debug?.log(category: LogCategory.queueManager, message: "Dequeued dispatches for processor \(processor): \(dispatches.map { $0.logDescription() })")
         var inflight = inflightEvents.value
         for event in dispatches {
             inflight[processor] = (inflight[processor] ?? []) + [event.id]
@@ -86,10 +86,10 @@ class QueueManager: QueueManagerProtocol {
         }
         do {
             try queueRepository.storeDispatches(dispatches, enqueueingFor: processors)
-            logger?.debug?.log(category: "QueueManager", message: "Enqueued dispatches for processors \(processors): \(dispatches.map { $0.logDescription() })")
+            logger?.debug?.log(category: LogCategory.queueManager, message: "Enqueued dispatches for processors \(processors): \(dispatches.map { $0.logDescription() })")
             _onEnqueuedDispatchesForProcessors.publish(processors)
         } catch {
-            logger?.error?.log(category: "QueueManager",
+            logger?.error?.log(category: LogCategory.queueManager,
                                message: "Failed to enqueue dispatches for processors \(processors): \(dispatches.map { $0.logDescription() })\nError: \(error)")
         }
     }
@@ -97,22 +97,22 @@ class QueueManager: QueueManagerProtocol {
     func deleteDispatches(_ dispatchUUIDs: [String], for processor: String) {
         do {
             try queueRepository.deleteDispatches(dispatchUUIDs, for: processor)
-            logger?.debug?.log(category: "QueueManager", message: "Removed processed dispatches for processor \(processor): \(dispatchUUIDs)")
+            logger?.debug?.log(category: LogCategory.queueManager, message: "Removed processed dispatches for processor \(processor): \(dispatchUUIDs)")
             _inflightEvents.value[processor] = inflightEvents.value[processor]?.filter { inFlightDispatch in
                 !dispatchUUIDs.contains { $0 == inFlightDispatch }
             } ?? []
         } catch {
-            logger?.error?.log(category: "QueueManager", message: "Failed to remove processed dispatches for processor \(processor): \(dispatchUUIDs)\nError: \(error)")
+            logger?.error?.log(category: LogCategory.queueManager, message: "Failed to remove processed dispatches for processor \(processor): \(dispatchUUIDs)\nError: \(error)")
         }
     }
 
     func deleteAllDispatches(for processor: String) {
         do {
             try queueRepository.deleteAllDispatches(for: processor)
-            logger?.debug?.log(category: "QueueManager", message: "Removed all processed dispatches for processor \(processor)")
+            logger?.debug?.log(category: LogCategory.queueManager, message: "Removed all processed dispatches for processor \(processor)")
             _inflightEvents.value[processor] = []
         } catch {
-            logger?.debug?.log(category: "QueueManager", message: "Failed to remove all processed dispatches for processor \(processor)\nError: \(error)")
+            logger?.error?.log(category: LogCategory.queueManager, message: "Failed to remove all processed dispatches for processor \(processor)\nError: \(error)")
         }
     }
 }

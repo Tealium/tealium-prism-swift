@@ -19,30 +19,36 @@ public class NetworkHelper: NetworkHelperProtocol {
 
     private func send(requestBuilder: @autoclosure () throws -> RequestBuilder, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable {
         let completion: (NetworkResult) -> Void = { [weak self] result in
-            self?.logger?.trace?.log(category: TealiumLibraryCategories.networking,
-                                     message: "NetworkHelper completed request with result \(result.shortDescription())")
+            let resultLogger: TealiumLimitedLogger? = switch result {
+                        case .success:
+                            self?.logger?.trace
+                        case .failure:
+                            self?.logger?.error
+                        }
+            resultLogger?.log(category: LogCategory.networkHelper,
+                              message: "Completed request with result \(result.shortDescription())")
             completion(result)
         }
         do {
             let request = try requestBuilder().build()
-            logger?.trace?.log(category: TealiumLibraryCategories.networking,
-                               message: "NetworkHelper built request \(request)")
+            logger?.trace?.log(category: LogCategory.networkHelper,
+                               message: "Built request \(request)")
             return networkClient.sendRequest(request, completion: completion)
         } catch {
-            logger?.error?.log(category: TealiumLibraryCategories.networking,
-                               message: "NetworkHelper failed to build a request")
+            logger?.error?.log(category: LogCategory.networkHelper,
+                               message: "Failed to build request")
             completion(.failure(.unknown(error)))
             return TealiumSubscription { }
         }
     }
 
     public func get(url: URLConvertible, etag: String? = nil, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable {
-        send(requestBuilder: .makeGET(url: url, etag: etag),
+        send(requestBuilder: try .makeGET(url: url, etag: etag),
              completion: completion)
     }
 
     public func getJsonAsDictionary(url: URLConvertible, etag: String? = nil, completion: @escaping (JSONResult) -> Void) -> TealiumDisposable {
-        send(requestBuilder: .makeGET(url: url, etag: etag)) { result in
+        send(requestBuilder: try .makeGET(url: url, etag: etag)) { result in
             completion(result.flatMap { response in
                 do {
                     let json = try JSONSerialization.jsonObject(with: response.data)
@@ -59,7 +65,7 @@ public class NetworkHelper: NetworkHelperProtocol {
     }
 
     public func getJsonAsObject<T: Codable>(url: URLConvertible, etag: String? = nil, completion: @escaping (ObjectResult<T>) -> Void) -> TealiumDisposable {
-        send(requestBuilder: .makeGET(url: url, etag: etag)) { result in
+        send(requestBuilder: try .makeGET(url: url, etag: etag)) { result in
             completion(result.flatMap { response in
                 do {
                     return .success(ObjectResponse(object: try Self.decoder.decode(T.self, from: response.data),

@@ -102,11 +102,14 @@ public enum TealiumLoggerType {
 }
 // swiftlint:enable identifier_name
 
-enum TealiumLibraryCategories {
+enum LogCategory {
     static let startup = "Startup"
+    static let tealium = "Tealium"
     static let tracking = "Tracking"
-    static let collecting = "Collecting"
-    static let dispatching = "Dispatching"
-    static let settings = "Settings"
-    static let networking = "Networking"
+    static let collect = "Collect"
+    static let dispatchManager = "DispatchManager"
+    static let settingsManager = "SettingsManager"
+    static let httpClient = "HTTPClient"
+    static let networkHelper = "NetworkHelper"
+    static let queueManager = "QueueManager"
 }

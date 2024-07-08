@@ -40,21 +40,20 @@ public class TealiumTracker: Tracker {
     public func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
         let trackingInterval = TealiumSignpostInterval(signposter: .tracking, name: "TrackingCall")
             .begin(trackable.name ?? "unknown")
-        logger?.debug?.log(category: TealiumLibraryCategories.tracking, message: "Received new track \(trackable.name ?? "")")
-        logger?.trace?.log(category: TealiumLibraryCategories.tracking, message: "Tracked Event \(trackable.eventData)")
+        logger?.debug?.log(category: LogCategory.tealium, message: "New tracking event received: \(trackable.logDescription())")
+        logger?.trace?.log(category: LogCategory.tealium, message: "Event data: \(trackable.eventData)")
         var trackable = trackable
         let modules = self.modulesManager.modules.value
         modules.compactMap { $0 as? Collector }
             .forEach { collector in
-                TealiumSignpostInterval(signposter: .collecting, name: "Collecting")
+                TealiumSignpostInterval(signposter: .tracking, name: "Collecting")
                     .signpostedWork("Collector: \(collector.id)") {
                         trackable.enrich(data: collector.data) // collector.collect() maybe?
                     }
             }
-        self.logger?.debug?.log(category: TealiumLibraryCategories.tracking, message: "Enriched Event")
-        self.logger?.trace?.log(category: TealiumLibraryCategories.tracking, message: "Updated Data \(trackable.eventData)")
+        self.logger?.debug?.log(category: LogCategory.tealium, message: "Event: \(trackable.logDescription()) has been enriched by collectors")
+        self.logger?.trace?.log(category: LogCategory.tealium, message: "Enriched event data: \(trackable.eventData)")
         self.dispatchManager.track(trackable, onTrackResult: onTrackResult)
-        self.logger?.debug?.log(category: TealiumLibraryCategories.tracking, message: "Dispatched Event")
         trackingInterval.end()
     }
 }

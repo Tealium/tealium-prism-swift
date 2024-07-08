@@ -41,9 +41,20 @@ public class ModulesManager {
             defer { updateInterval.end() }
             let moduleSettings = settings[ModuleClass.id] as? [String: Any] ?? [:]
             if let module = oldModules.first(where: { type(of: $0) == ModuleClass }) {
-                return module.updateSettings(moduleSettings)
+                guard let module = module.updateSettings(moduleSettings) else {
+                    context.logger?.debug?.log(category: ModuleClass.id,
+                                               message: "Module failed to update settings. Module will be shut down.")
+                    return nil
+                }
+                context.logger?.trace?.log(category: ModuleClass.id, message: "Settings updated to \(moduleSettings)")
+                return module
             } else {
-                return ModuleClass.init(context: context, moduleSettings: moduleSettings)
+                guard let module = ModuleClass.init(context: context, moduleSettings: moduleSettings) else {
+                    context.logger?.debug?.log(category: ModuleClass.id,
+                                               message: "Module failed to initialize.")
+                    return nil
+                }
+                return module
             }
         })
     }

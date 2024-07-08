@@ -60,6 +60,6 @@ final class TealiumCollectSettingsTests: XCTestCase {
 
     func test_overrideProfile_is_set_on_init() {
         let settings = Settings(moduleSettings: [Settings.Keys.overrideProfile: "override"])
-        XCTAssertEqual(settings.overrideProfile, "override")
+        XCTAssertEqual(settings?.overrideProfile, "override")
     }
 }

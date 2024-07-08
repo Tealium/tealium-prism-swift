@@ -60,19 +60,21 @@ class DispatchManager {
 
     func track(_ dispatch: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
         guard !tealiumPurposeExplicitlyBlocked() else {
-            logger?.info?.log(category: TealiumLibraryCategories.dispatching,
-                              message: "Tealium purpose was explicitly declined, discarding this dispatch!")
+            logger?.debug?.log(category: LogCategory.dispatchManager, message: "Tealium consent purpose is explicitly blocked. Event \(dispatch.logDescription()) will be dropped.")
             onTrackResult?(dispatch, .dropped)
             return
         }
         transformerCoordinator.transform(dispatch: dispatch, for: .afterCollectors) { [weak self] transformed in
             guard let self, let transformed else {
+                self?.logger?.debug?.log(category: LogCategory.dispatchManager, message: "Event \(dispatch.logDescription()) dropped due to transformer")
                 onTrackResult?(dispatch, .dropped)
                 return
             }
             if let consentManager = self.consentManager {
+                self.logger?.debug?.log(category: LogCategory.dispatchManager, message: "Event \(transformed.logDescription()) consent applied")
                 consentManager.applyConsent(to: transformed, completion: onTrackResult)
             } else {
+                self.logger?.debug?.log(category: LogCategory.dispatchManager, message: "Event \(transformed.logDescription()) accepted for processing")
                 self.queueManager.storeDispatches([transformed], enqueueingFor: dispatchers.map { $0.id })
                 onTrackResult?(transformed, .accepted)
             }
@@ -91,7 +93,7 @@ class DispatchManager {
         }.flatMap { [weak self, coordinator = barrierCoordinator] dispatcher in
             coordinator.onBarrierState(for: dispatcher.id)
                 .flatMapLatest { [weak self] barriersState in
-                    self?.logger?.trace?.log(category: TealiumLibraryCategories.dispatching, message: "BarrierState changed \(barriersState)")
+                    self?.logger?.debug?.log(category: LogCategory.dispatchManager, message: "BarrierState changed for \(dispatcher.id): \(barriersState)")
                     if barriersState == .open,
                        let newLoop = self?.startDequeueLoop(for: dispatcher) {
                         return newLoop
@@ -103,17 +105,18 @@ class DispatchManager {
                         guard let self = self else {
                             return TealiumSubscription { }
                         }
-                        self.logger?.debug?.log(category: TealiumLibraryCategories.dispatching,
-                                                message: "Dispatching events to dispatcher \(dispatcher.id): \(dispatches.shortDescription())")
-                        return self.transformAndDispatch(dispatches: dispatches, for: dispatcher) { completedDispatches in
-                            observer(completedDispatches)
+                        self.logger?.debug?.log(category: LogCategory.dispatchManager,
+                                                message: "Sending events to dispatcher \(dispatcher.id): \(dispatches.shortDescription())")
+                        return self.transformAndDispatch(dispatches: dispatches, for: dispatcher) { processedDispatches in
+                            observer((dispatcher, processedDispatches))
                         }
                     }
                 }
         }
-        .subscribe { [weak self] dispatches in
-            self?.logger?.debug?.log(category: TealiumLibraryCategories.dispatching,
-                                     message: "Dispatched and deleted from Queue/inflight: \(dispatches.shortDescription())")
+        .subscribe { [weak self] dispatcher, processedDispatches in
+            self?.queueManager.deleteDispatches(processedDispatches.map { $0.id }, for: dispatcher.id)
+            self?.logger?.debug?.log(category: LogCategory.dispatchManager,
+                                     message: "Dispatcher: \(dispatcher.id) processed events: \(processedDispatches.shortDescription())")
         }.addTo(self.managerContainer)
     }
 
@@ -134,20 +137,19 @@ class DispatchManager {
             }
     }
 
-    private func transformAndDispatch(dispatches: [TealiumDispatch], for dispatcher: Dispatcher, completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
+    private func transformAndDispatch(dispatches: [TealiumDispatch], for dispatcher: Dispatcher, onProcessedDispatches: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
         let container = TealiumDisposeContainer()
-        self.transformerCoordinator.transform(dispatches: dispatches, for: .dispatcher(dispatcher.id)) { [weak self] transformedDispaches in
+        self.transformerCoordinator.transform(dispatches: dispatches, for: .dispatcher(dispatcher.id)) { transformedDispatches in
             guard !container.isDisposed else { return }
             let missingDispatchesAfterTransformations = dispatches.filter { oldDispatch in
-                !transformedDispaches.contains { transformedDispatch in oldDispatch.id == transformedDispatch.id }
+                !transformedDispatches.contains { transformedDispatch in oldDispatch.id == transformedDispatch.id }
             }
             if !missingDispatchesAfterTransformations.isEmpty {
-                self?.queueManager.deleteDispatches(missingDispatchesAfterTransformations.map { $0.id }, for: dispatcher.id)
+                onProcessedDispatches(missingDispatchesAfterTransformations)
             }
-            dispatcher.dispatch(transformedDispaches) { [weak self] dispatches in
+            dispatcher.dispatch(transformedDispatches) { processedDispatches in
                 guard !container.isDisposed else { return }
-                self?.queueManager.deleteDispatches(dispatches.map { $0.id }, for: dispatcher.id)
-                completion(dispatches)
+                onProcessedDispatches(processedDispatches)
             }.addTo(container)
         }
         return container
@@ -156,6 +158,6 @@ class DispatchManager {
 
 private extension Array where Element == TealiumDispatch {
     func shortDescription() -> String {
-        "\(map { $0.name ?? "" })"
+        "\(map { $0.logDescription() })"
     }
 }

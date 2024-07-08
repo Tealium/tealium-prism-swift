@@ -29,15 +29,21 @@ struct TealiumCollectSettings {
     }
 
     /// The URL to be used for the single event endpoint
-    let url: URL?
+    let url: URL
     /// The URL to be used for the batch events endpoint
-    let batchUrl: URL?
+    let batchUrl: URL
     /// The profile to override in the data layer events
     let overrideProfile: String?
 
-    init(moduleSettings: [String: Any]) {
-        url = Self.getURL(moduleSettings: moduleSettings)
-        batchUrl = Self.getBatchURL(moduleSettings: moduleSettings)
+    init?(moduleSettings: [String: Any], logger: TealiumLoggerProvider? = nil) {
+        guard let url = Self.getURL(moduleSettings: moduleSettings),
+              let batchUrl = Self.getBatchURL(moduleSettings: moduleSettings) else {
+            logger?.error?.log(category: LogCategory.collect,
+                               message: "Unable to init settings due to invalid URL")
+            return nil
+        }
+        self.url = url
+        self.batchUrl = batchUrl
         overrideProfile = moduleSettings[Keys.overrideProfile] as? String
     }
 

@@ -22,12 +22,12 @@ final class TealiumCollectTests: XCTestCase {
         let postRequestSent = expectation(description: "The POST request is sent")
         networkHelper.requests.subscribeOnce { request in
             if case let .post(url, body) = request {
-                XCTAssertEqual(try? url.asUrl(), self.collect.settings.url)
+                XCTAssertEqual(try? url.asUrl(), self.collect?.settings.url)
                 XCTAssertEqual(body as NSDictionary, self.stubDispatches[0].eventData as NSDictionary)
                 postRequestSent.fulfill()
             }
         }
-        _ = collect.dispatch([stubDispatches[0]], completion: { _ in })
+        _ = collect?.dispatch([stubDispatches[0]], completion: { _ in })
         waitForExpectations(timeout: 1.0)
     }
 
@@ -35,7 +35,7 @@ final class TealiumCollectTests: XCTestCase {
         let postRequestSent = expectation(description: "The POST request is sent")
         networkHelper.requests.subscribeOnce { request in
             if case let .post(url, body) = request {
-                XCTAssertEqual(try? url.asUrl(), self.collect.settings.batchUrl)
+                XCTAssertEqual(try? url.asUrl(), self.collect?.settings.batchUrl)
                 XCTAssertEqual(body as NSDictionary,
                                [
                                 "shared": [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"],
@@ -47,7 +47,7 @@ final class TealiumCollectTests: XCTestCase {
                 postRequestSent.fulfill()
             }
         }
-        _ = collect.dispatch(stubDispatches, completion: { _ in })
+        _ = collect?.dispatch(stubDispatches, completion: { _ in })
         waitForExpectations(timeout: 1.0)
     }
 
@@ -60,7 +60,7 @@ final class TealiumCollectTests: XCTestCase {
                 postRequestSent.fulfill()
             }
         }
-        _ = collect.dispatch([stubDispatches[0]], completion: { _ in })
+        _ = collect?.dispatch([stubDispatches[0]], completion: { _ in })
         waitForExpectations(timeout: 1.0)
     }
 
@@ -73,7 +73,7 @@ final class TealiumCollectTests: XCTestCase {
                 postRequestSent.fulfill()
             }
         }
-        _ = collect.dispatch(stubDispatches, completion: { _ in })
+        _ = collect?.dispatch(stubDispatches, completion: { _ in })
         waitForExpectations(timeout: 1.0)
     }
 
@@ -90,7 +90,7 @@ final class TealiumCollectTests: XCTestCase {
                 }
             }
         }
-        _ = collect.dispatch([
+        _ = collect?.dispatch([
             TealiumDispatch(name: "event1", data: [TealiumDataKey.visitorId: "visitor1"]),
             TealiumDispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor2"])
         ], completion: { _ in })
@@ -112,7 +112,7 @@ final class TealiumCollectTests: XCTestCase {
                 }
             }
         }
-        _ = collect.dispatch([
+        _ = collect?.dispatch([
             TealiumDispatch(name: "event1", data: [TealiumDataKey.visitorId: "visitor1"]),
             TealiumDispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor1"]),
             TealiumDispatch(name: "event3", data: [TealiumDataKey.visitorId: "visitor2"]),
@@ -125,7 +125,7 @@ final class TealiumCollectTests: XCTestCase {
     func test_multiple_dispatches_with_same_visitorIds_only_complete_with_the_batched_events() {
         let firstVisitorSent = expectation(description: "The POST request for the first visitor is sent")
         let secondVisitorSent = expectation(description: "The POST request for the second visitor is sent")
-        _ = collect.dispatch([
+        _ = collect?.dispatch([
             TealiumDispatch(name: "event1", data: [TealiumDataKey.visitorId: "visitor1"]),
             TealiumDispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor1"]),
             TealiumDispatch(name: "event3", data: [TealiumDataKey.visitorId: "visitor2"])
@@ -144,11 +144,21 @@ final class TealiumCollectTests: XCTestCase {
     func test_disposed_dispatch_are_not_completed() {
         let postRequestCancelled = expectation(description: "The POST request is cancelled")
         networkHelper.delay = 500
-        let subscription = collect.dispatch([stubDispatches[0]], completion: { dispatches in
+        let subscription = collect?.dispatch([stubDispatches[0]], completion: { dispatches in
             XCTAssertEqual(dispatches.count, 0)
             postRequestCancelled.fulfill()
         })
-        subscription.dispose()
+        subscription?.dispose()
         waitForExpectations(timeout: 1.0)
+    }
+
+    func test_collect_is_not_initialized_when_url_is_invalid() {
+        settings = TealiumCollectSettings(moduleSettings: [TealiumCollectSettings.Keys.url: ""])
+        XCTAssertNil(collect)
+    }
+
+    func test_collect_is_not_initialized_when_batchUrl_is_invalid() {
+        settings = TealiumCollectSettings(moduleSettings: [TealiumCollectSettings.Keys.batchUrl: ""])
+        XCTAssertNil(collect)
     }
 }

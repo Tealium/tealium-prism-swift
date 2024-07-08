@@ -13,6 +13,7 @@ class TealiumImplementation {
     let automaticDisposer = TealiumAutomaticDisposer()
     let context: TealiumContext
     let modulesManager: ModulesManager
+    let instanceName: String
 
     public init(_ config: TealiumConfig, modulesManager: ModulesManager) throws {
         var config = config
@@ -30,7 +31,7 @@ class TealiumImplementation {
         let logger = TealiumLogger(logger: config.loggerType.getHandler(),
                                    minLogLevel: coreSettings.value.minLogLevel,
                                    onCoreSettings: coreSettings.updates())
-        logger.trace?.log(category: TealiumLibraryCategories.startup, message: "Deleting restart and expired items from DB")
+        logger.debug?.log(category: LogCategory.tealium, message: "Purging expired data from the database")
         storeProvider.modulesRepository.deleteExpired(expiry: .restart)
         let networkHelper = NetworkHelper(networkClient: HTTPClient.shared.newClient(withLogger: logger),
                                           logger: logger)
@@ -64,6 +65,8 @@ class TealiumImplementation {
                                       networkHelper: networkHelper)
         self.settingsProvider = settingsProvider
         self.modulesManager = modulesManager
+        self.instanceName = "\(config.account)-\(config.profile)"
+        logger.info?.log(category: LogCategory.tealium, message: "Instance \(self.instanceName) initialized.")
         self.handleSettingsUpdates()
     }
 
@@ -78,12 +81,12 @@ class TealiumImplementation {
     }
 
     private static func updateSettings(context: TealiumContext, settings: [String: Any]) {
-        context.logger?.trace?.log(category: TealiumLibraryCategories.settings, message: "Received new settings")
+        context.logger?.debug?.log(category: LogCategory.settingsManager, message: "New SDK settings downloaded")
+        context.logger?.trace?.log(category: LogCategory.settingsManager, message: "Downloaded settings: \(settings)")
         TealiumSignpostInterval(signposter: .settings, name: "Module Updates")
             .signpostedWork {
                 context.modulesManager.updateSettings(context: context, settings: settings)
             }
-        context.logger?.trace?.log(category: TealiumLibraryCategories.settings, message: "Updated settings on all modules")
     }
 
     private static func barrierCoordinator(config: TealiumConfig, coreSettings: TealiumStatefulObservable<CoreSettings>) -> BarrierCoordinator {
@@ -104,5 +107,9 @@ class TealiumImplementation {
                     .filter { $0 is Dispatcher || $0 is ConsentManager }
                     .map { $0.id }
             }.distinct()
+    }
+
+    deinit {
+        context.logger?.info?.log(category: LogCategory.tealium, message: "Instance \(instanceName) shutting down.")
     }
 }

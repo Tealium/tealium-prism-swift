@@ -14,12 +14,12 @@ class RequestBuilder {
         case get = "GET"
         case post = "POST"
     }
-    private let url: URLConvertible
+    private let url: URL
     private let method: HTTPMethod?
     private var body: Data?
     private var headers: [String: String] = [:]
-    init(url: URLConvertible, method: HTTPMethod? = nil) {
-        self.url = url
+    init(url: URLConvertible, method: HTTPMethod? = nil) throws {
+        self.url = try url.asUrl()
         self.method = method
     }
 
@@ -28,8 +28,8 @@ class RequestBuilder {
             .gzip(json: json)
     }
 
-    static func makeGET(url: URLConvertible, etag: String?) -> RequestBuilder {
-        RequestBuilder(url: url, method: .get)
+    static func makeGET(url: URLConvertible, etag: String?) throws -> RequestBuilder {
+        try RequestBuilder(url: url, method: .get)
             .etag(etag)
     }
 
@@ -64,8 +64,8 @@ class RequestBuilder {
         return self
     }
 
-    func build() throws -> URLRequest {
-        var request = URLRequest(url: try url.asUrl())
+    func build() -> URLRequest {
+        var request = URLRequest(url: url)
         request.httpBody = body
         request.httpMethod = method?.rawValue
         for header in headers {

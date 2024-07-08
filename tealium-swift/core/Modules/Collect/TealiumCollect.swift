@@ -20,14 +20,17 @@ public class TealiumCollect: Dispatcher {
     var settings: TealiumCollectSettings
 
     /// Generic `Dispatcher` initializer called by the `ModulesManager`.
-    public required convenience init(context: TealiumContext, moduleSettings: [String: Any]) {
+    public required convenience init?(context: TealiumContext, moduleSettings: [String: Any]) {
         self.init(networkHelper: context.networkHelper,
-                  settings: TealiumCollectSettings(moduleSettings: moduleSettings),
+                  settings: TealiumCollectSettings(moduleSettings: moduleSettings, logger: context.logger),
                   logger: context.logger)
     }
 
-    /// Internal initalizer called by the generic one and by the tests.
-    init(networkHelper: NetworkHelperProtocol, settings: TealiumCollectSettings, logger: TealiumLoggerProvider? = nil) {
+    /// Internal initializer called by the generic one and by the tests.
+    init?(networkHelper: NetworkHelperProtocol, settings: TealiumCollectSettings?, logger: TealiumLoggerProvider? = nil) {
+        guard let settings else {
+            return nil
+        }
         self.networkHelper = networkHelper
         self.settings = settings
         self.logger = logger
@@ -35,8 +38,10 @@ public class TealiumCollect: Dispatcher {
 
     /// Method that will be called automatically when new settings are provided.
     public func updateSettings(_ settings: [String: Any]) -> Self? {
-        self.settings = TealiumCollectSettings(moduleSettings: settings)
-        logger?.trace?.log(category: TealiumLibraryCategories.settings, message: "Collect settings updated \(self.settings)")
+        guard let tealiumCollectSettings = TealiumCollectSettings(moduleSettings: settings, logger: self.logger) else {
+            return nil
+        }
+        self.settings = tealiumCollectSettings
         return self
     }
 
@@ -48,13 +53,11 @@ public class TealiumCollect: Dispatcher {
      * The completion block can, therefore, be called more than once with the list of dispatches that are actually completed every time.
      */
     public func dispatch(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
-        logger?.trace?.log(category: TealiumLibraryCategories.dispatching,
-                           message: "Collect dispatching events \(events.map { $0.eventData })")
         if events.count == 1 {
             return sendSingleDispatch(events[0], completion: completion)
         } else {
             let batches = batcher.splitDispatchesByVisitorId(events)
-            logger?.trace?.log(category: TealiumLibraryCategories.dispatching,
+            logger?.trace?.log(category: LogCategory.collect,
                                message: "Collect events split in batches \(batches)")
             let container = TealiumDisposeContainer()
             for batch in batches where !batch.isEmpty {
@@ -77,23 +80,13 @@ public class TealiumCollect: Dispatcher {
      * and then send the gzipped payload with a POST request to the batch endpoint.
      */
     func sendSingleDispatch(_ event: TealiumDispatch, completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
-        logger?.debug?.log(category: TealiumLibraryCategories.dispatching,
-                           message: "Collect dispatching event \(event.name ?? "unknown")")
-        guard let url = settings.url else {
-            logger?.error?.log(category: TealiumLibraryCategories.dispatching,
-                               message: "Collect failed to dispatch due to settings with no URL to dispatch")
-            return TealiumSubscription { }
-        }
         var data: [String: Any] = event.eventData
         batcher.applyProfileOverride(settings.overrideProfile, to: &data)
-        return networkHelper.post(url: url, body: data) { [weak self] result in
+        return networkHelper.post(url: settings.url, body: data) { result in
             if case .failure(.cancelled) = result {
                 completion([])
                 return
             }
-            self?.logger?.debug?
-                .log(category: TealiumLibraryCategories.dispatching,
-                     message: "Collect dispatching \(result.shortDescription()) for event \(event.name ?? "unknown")")
             completion([event])
         }
     }
@@ -107,22 +100,14 @@ public class TealiumCollect: Dispatcher {
      * and then send the payload with a gzipped POST requst to the batch endpoint.
      */
     func sendBatchDispatches(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
-        logger?.debug?.log(category: TealiumLibraryCategories.dispatching,
-                           message: "Collect dispatching events \(events.map { $0.name ?? "unknown" })")
-        guard let url = settings.batchUrl,
-              let batchData = batcher.compressDispatches(events, profileOverride: settings.overrideProfile) else {
-                logger?.error?.log(category: TealiumLibraryCategories.dispatching,
-                                   message: "Collect failed to disptch due to settings with no batch URL to dispatch")
+        guard let batchData = batcher.compressDispatches(events, profileOverride: settings.overrideProfile) else {
             return TealiumSubscription { }
         }
-        return networkHelper.post(url: url, body: batchData) { [weak self] result in
+        return networkHelper.post(url: settings.batchUrl, body: batchData) { result in
             if case .failure(.cancelled) = result {
                 completion([])
                 return
             }
-            self?.logger?.debug?
-                .log(category: TealiumLibraryCategories.dispatching,
-                     message: "Collect dispatching \(result.shortDescription()) for events \(events.map { $0.name ?? "unknown" })")
             completion(events)
         }
     }

@@ -67,7 +67,7 @@ public class HTTPClient: NetworkClient {
     }
 
     public func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable {
-        let signposterInterval = TealiumSignpostInterval(signposter: .networking, name: "Interceptable Request")
+        let signposterInterval = TealiumSignpostInterval(signposter: .httpClient, name: "Interceptable Request")
             .begin("Send Request: \(request)")
         return self.sendRetryableRequest(request) { result in
             signposterInterval.end("\(result)")
@@ -86,9 +86,9 @@ public class HTTPClient: NetworkClient {
                 }
                 if shouldRetry {
                     let newRetryCount = retryCount + 1
-                    TealiumSignposter.networking.event("Retry", message: "\(newRetryCount)")
-                    self.logger?.trace?.log(category: TealiumLibraryCategories.networking,
-                                            message: "HTTPClient retrying request \(request) for retryCount: \(newRetryCount)")
+                    TealiumSignposter.httpClient.event("Retry", message: "\(newRetryCount)")
+                    self.logger?.trace?.log(category: LogCategory.httpClient,
+                                            message: "Retrying request \(String(describing: request.url)) \(String(describing: request.httpBody)) Retry count: \(newRetryCount)")
                     self.sendRetryableRequest(request,
                                               retryCount: newRetryCount,
                                               completion: completion.complete)
@@ -107,14 +107,20 @@ public class HTTPClient: NetworkClient {
     }
 
     private func sendBasicRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> URLSessionDataTask {
-        logger?.trace?.log(category: TealiumLibraryCategories.networking,
-                           message: "HTTPClient sending request \(request)")
-        let signposterInterval = TealiumSignpostInterval(signposter: .networking, name: "Request")
+        logger?.trace?.log(category: LogCategory.httpClient,
+                           message: "Sending request \(String(describing: request.url)) \(String(describing: request.httpBody))")
+        let signposterInterval = TealiumSignpostInterval(signposter: .httpClient, name: "Request")
             .begin("HTTP Request: \(request)")
         return session.send(request) { [weak self] result in
             signposterInterval.end("\(result)")
-            self?.logger?.trace?.log(category: TealiumLibraryCategories.networking,
-                                     message: "HTTPClient completed request \(request) with \(result)")
+            let resultLogger: TealiumLimitedLogger? = switch result {
+            case .success:
+                self?.logger?.trace
+            case .failure:
+                self?.logger?.error
+            }
+            resultLogger?.log(category: LogCategory.httpClient,
+                              message: "Completed request \(String(describing: request.url)) \(String(describing: request.httpBody)) with \(result)")
             completion(result)
         }
     }
