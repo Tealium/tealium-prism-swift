@@ -24,17 +24,8 @@ public class TealiumLimitedLogger {
         self.shouldLog = shouldLog
     }
 
-    public func log(category: String,
-                    message: String,
-                    file: String = #file,
-                    function: String = #function,
-                    line: UInt = #line) {
+    public func log(category: String, message: String) {
         guard shouldLog() == true else { return }
-        logger?.log(category: category,
-                    message: message,
-                    level: logLevel,
-                    file: file,
-                    function: function,
-                    line: line)
+        logger?.log(category: category, message: message, level: logLevel)
     }
 }

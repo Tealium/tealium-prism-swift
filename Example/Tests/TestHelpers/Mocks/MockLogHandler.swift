@@ -13,9 +13,7 @@ class MockLogHandler: TealiumLogHandler {
     typealias LogEvent = (String, String, TealiumLogLevel)
     @ToAnyObservable<TealiumReplaySubject<LogEvent>>(TealiumReplaySubject<LogEvent>())
     var onLogged: TealiumObservable<LogEvent>
-    // swiftlint:disable function_parameter_count
-    func log(category: String, message: String, level: TealiumLogLevel, file: String, function: String, line: UInt) {
+    func log(category: String, message: String, level: TealiumLogLevel) {
         _onLogged.publish((category, message, level))
     }
-    // swiftlint:enable function_parameter_count
 }

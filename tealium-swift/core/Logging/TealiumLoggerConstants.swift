@@ -85,14 +85,11 @@ public enum TealiumLogLevel: Int, Comparable, CaseIterable, CustomStringConverti
 
 // swiftlint:disable identifier_name
 public enum TealiumLoggerType {
-    case print
     case os
     case custom(TealiumLogHandler)
 
     func getHandler() -> TealiumLogHandler {
         switch self {
-        case .print:
-            return TealiumPrintLogger()
         case .os:
             return TealiumOSLogger()
         case .custom(let handler):
