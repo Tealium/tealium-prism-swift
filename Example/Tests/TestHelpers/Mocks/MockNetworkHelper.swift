@@ -37,8 +37,8 @@ class MockNetworkHelper: NetworkHelperProtocol {
         case post(URLConvertible, [String: Any])
     }
 
-    @ToAnyObservable(TealiumReplaySubject(cacheSize: 10))
-    var requests: TealiumObservable<Requests>
+    @ToAnyObservable(ReplaySubject(cacheSize: 10))
+    var requests: Observable<Requests>
 
     private func delayBlock(_ work: @escaping () -> Void) {
         if let delay = delay {
@@ -48,8 +48,8 @@ class MockNetworkHelper: NetworkHelperProtocol {
         }
     }
 
-    func get(url: URLConvertible, etag: String?, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable {
-        let sub = TealiumSubscription { }
+    func get(url: URLConvertible, etag: String?, completion: @escaping (NetworkResult) -> Void) -> Disposable {
+        let sub = Subscription { }
         delayBlock {
             guard !sub.isDisposed else {
                 completion(.failure(.cancelled))
@@ -61,8 +61,8 @@ class MockNetworkHelper: NetworkHelperProtocol {
         return sub
     }
 
-    func getJsonAsDictionary(url: URLConvertible, etag: String?, completion: @escaping (JSONResult) -> Void) -> TealiumDisposable {
-        let sub = TealiumSubscription { }
+    func getJsonAsDictionary(url: URLConvertible, etag: String?, completion: @escaping (JSONResult) -> Void) -> Disposable {
+        let sub = Subscription { }
         delayBlock {
             guard !sub.isDisposed else {
                 completion(.failure(.cancelled))
@@ -74,8 +74,8 @@ class MockNetworkHelper: NetworkHelperProtocol {
         return sub
     }
 
-    func getJsonAsObject<T>(url: URLConvertible, etag: String?, completion: @escaping (ObjectResult<T>) -> Void) -> TealiumDisposable where T: Codable {
-        let sub = TealiumSubscription { }
+    func getJsonAsObject<T>(url: URLConvertible, etag: String?, completion: @escaping (ObjectResult<T>) -> Void) -> Disposable where T: Codable {
+        let sub = Subscription { }
         delayBlock {
             guard !sub.isDisposed else {
                 completion(.failure(.cancelled))
@@ -96,8 +96,8 @@ class MockNetworkHelper: NetworkHelperProtocol {
         return sub
     }
 
-    func post(url: URLConvertible, body: [String: Any], completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable {
-        let sub = TealiumSubscription { }
+    func post(url: URLConvertible, body: [String: Any], completion: @escaping (NetworkResult) -> Void) -> Disposable {
+        let sub = Subscription { }
         delayBlock {
             guard !sub.isDisposed else {
                 completion(.failure(.cancelled))

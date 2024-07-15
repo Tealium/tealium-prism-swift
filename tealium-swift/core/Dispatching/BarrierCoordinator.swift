@@ -16,7 +16,7 @@ public enum BarrierState {
 /// An object that will change its state to stop or allow dispatching of events to some dispatchers.
 public protocol Barrier: AnyObject {
     var id: String { get }
-    var onState: TealiumObservable<BarrierState> { get }
+    var onState: Observable<BarrierState> { get }
 }
 
 public protocol BarrierRegistry {
@@ -33,15 +33,15 @@ public protocol BarrierRegistry {
  */
 public class BarrierCoordinator: BarrierRegistry {
     private var registeredBarriers: [Barrier]
-    private let onScopedBarriers: TealiumObservable<[ScopedBarrier]>
-    private let additionalScopedBarriers = TealiumVariableSubject<[ScopedBarrier]>([])
-    var onAllScopedBarriers: TealiumObservable<[ScopedBarrier]> {
+    private let onScopedBarriers: Observable<[ScopedBarrier]>
+    private let additionalScopedBarriers = StateSubject<[ScopedBarrier]>([])
+    var onAllScopedBarriers: Observable<[ScopedBarrier]> {
         onScopedBarriers.combineLatest(additionalScopedBarriers.asObservable())
             .map { barriers1, barriers2 in
                 return barriers1 + barriers2
             }
     }
-    init(registeredBarriers: [Barrier], onScopedBarriers: TealiumObservable<[ScopedBarrier]>) {
+    init(registeredBarriers: [Barrier], onScopedBarriers: Observable<[ScopedBarrier]>) {
         self.registeredBarriers = registeredBarriers
         self.onScopedBarriers = onScopedBarriers
     }
@@ -52,9 +52,9 @@ public class BarrierCoordinator: BarrierRegistry {
      * When the scopedBarriers change the barriers get evaluated again and emit a new value.
      * A new value is emitted only if it's different from the last one.
      */
-    func onBarrierState(for dispatcherId: String) -> TealiumObservable<BarrierState> {
+    func onBarrierState(for dispatcherId: String) -> Observable<BarrierState> {
         onAllScopedBarriers.flatMapLatest { newScopedBarriers in
-            TealiumObservable.CombineLatest(self.getAllBarriers(scopedBarriers: newScopedBarriers, for: dispatcherId)
+            Observable.CombineLatest(self.getAllBarriers(scopedBarriers: newScopedBarriers, for: dispatcherId)
                 .map { $0.onState })
             .map { barrierStates in
                 barrierStates.first { $0 == .closed } ?? .open

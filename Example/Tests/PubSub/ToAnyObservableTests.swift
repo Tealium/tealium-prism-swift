@@ -11,17 +11,17 @@ import XCTest
 
 class ToAnyObservableTests: XCTestCase {
 
-    @ToAnyObservable(TealiumPublisher<Int>())
-    public var publisherObservable: TealiumObservable<Int>
+    @ToAnyObservable(BasePublisher<Int>())
+    public var publisherObservable: Observable<Int>
 
-    @ToAnyObservable(TealiumSubject<Int>())
-    var subjectObservable: TealiumObservable<Int>
+    @ToAnyObservable(BaseSubject<Int>())
+    var subjectObservable: Observable<Int>
 
-    @ToAnyObservable(TealiumReplaySubject<Int>())
-    var replayObservable: TealiumObservable<Int>
+    @ToAnyObservable(ReplaySubject<Int>())
+    var replayObservable: Observable<Int>
 
-    @ToAnyObservable(TealiumBufferedSubject<Int>())
-    var bufferedObservable: TealiumObservable<Int>
+    @ToAnyObservable(BufferedSubject<Int>())
+    var bufferedObservable: Observable<Int>
 
     func test_PublisherPropertyWrapper_notifies_events() {
         let eventNotified = expectation(description: "Event is notified")

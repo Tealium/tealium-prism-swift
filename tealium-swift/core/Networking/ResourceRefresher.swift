@@ -37,10 +37,10 @@ public class ResourceRefresher<Resource: Codable> {
     private let networkHelper: NetworkHelperProtocol
     private let logger: TealiumLogger?
 
-    private let _onResourceLoaded = TealiumPublisher<Resource>()
+    private let _onResourceLoaded = BasePublisher<Resource>()
     /// An observable sequence of resources, starting from whatever might be cached on disk, and followed with all the subsequent successful refreshes.
-    public var onResourceLoaded: TealiumObservable<Resource> {
-        TealiumObservable.Just(readResource())
+    public var onResourceLoaded: Observable<Resource> {
+        Observable.Just(readResource())
             .compactMap { [weak self] resource in
                 if resource != nil {
                     self?.isFileCached = true
@@ -55,10 +55,10 @@ public class ResourceRefresher<Resource: Codable> {
      *
      * Note that 304 errors are ignored as they are the intended network response when the resource was not modified.
      */
-    @ToAnyObservable<TealiumPublisher<Error>>(TealiumPublisher<Error>())
-    public var onRefreshError: TealiumObservable<Error>
+    @ToAnyObservable<BasePublisher<Error>>(BasePublisher<Error>())
+    public var onRefreshError: Observable<Error>
 
-    private var disposableRequest: TealiumDisposable?
+    private var disposableRequest: Disposable?
 
     public init(networkHelper: NetworkHelperProtocol,
                 dataStore: DataStore,

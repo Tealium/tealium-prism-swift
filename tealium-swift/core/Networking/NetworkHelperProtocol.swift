@@ -29,9 +29,9 @@ public protocol NetworkHelperProtocol {
      *    - etag: the etag to be added in order to avoid fetching a cached resource
      *    - completion: the block that is executed when the request is completed with the `NetworkResult`
      *
-     * - Returns: the `TealiumDisposableProtocol` to cancel the in flight operation.
+     * - Returns: the `Disposable` to cancel the in flight operation.
      */
-    func get(url: URLConvertible, etag: String?, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable
+    func get(url: URLConvertible, etag: String?, completion: @escaping (NetworkResult) -> Void) -> Disposable
     /**
      * Sends a GET request to the `NetworkClient` and tries to convert the result the returned JSON into a  `[String: Any]`.
      *
@@ -40,9 +40,9 @@ public protocol NetworkHelperProtocol {
      *    - etag: the etag to be added in order to avoid fetching a cached resource
      *    - completion: the block that is executed when the request is completed with the `JSONResult`
      *
-     * - Returns: the `TealiumDisposableProtocol` to cancel the in flight operation.
+     * - Returns: the `Disposable` to cancel the in flight operation.
      */
-    func getJsonAsDictionary(url: URLConvertible, etag: String?, completion: @escaping (JSONResult) -> Void) -> TealiumDisposable
+    func getJsonAsDictionary(url: URLConvertible, etag: String?, completion: @escaping (JSONResult) -> Void) -> Disposable
     /**
      * Sends a GET request to the `NetworkClient` and tries to convert the result into a Codable model.
      *
@@ -51,9 +51,9 @@ public protocol NetworkHelperProtocol {
      *    - etag: the etag to be added in order to avoid fetching a cached resource
      *    - completion: the block that is executed when the request is completed with the `CodableResult`
      *
-     * - Returns: the `TealiumDisposableProtocol` to cancel the in flight operation.
+     * - Returns: the `Disposable` to cancel the in flight operation.
      */
-    func getJsonAsObject<T: Codable>(url: URLConvertible, etag: String?, completion: @escaping (ObjectResult<T>) -> Void) -> TealiumDisposable
+    func getJsonAsObject<T: Codable>(url: URLConvertible, etag: String?, completion: @escaping (ObjectResult<T>) -> Void) -> Disposable
     /**
      * Sends a POST request to the `NetworkClient`with a gzipped JSON body.
      *
@@ -62,9 +62,9 @@ public protocol NetworkHelperProtocol {
      *    - body: the `Dictionary` to be sent as a gzipped JSON data
      *    - completion: the block that is executed when the request is completed with the `NetworkResult`
      *
-     * - Returns: the `TealiumDisposableProtocol` to cancel the in flight operation.
+     * - Returns: the `Disposable` to cancel the in flight operation.
      */
-    func post(url: URLConvertible, body: [String: Any], completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable
+    func post(url: URLConvertible, body: [String: Any], completion: @escaping (NetworkResult) -> Void) -> Disposable
 }
 
 public extension NetworkHelperProtocol {
@@ -75,9 +75,9 @@ public extension NetworkHelperProtocol {
      *    - url: the `URLConvertible` instance to build the `URL` to send
      *    - completion: the block that is executed when the request is completed with the `NetworkResult`
      *
-     * - Returns: the `TealiumDisposableProtocol` to cancel the in flight operation.
+     * - Returns: the `Disposable` to cancel the in flight operation.
      */
-    func get(url: URLConvertible, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable {
+    func get(url: URLConvertible, completion: @escaping (NetworkResult) -> Void) -> Disposable {
         get(url: url, etag: nil, completion: completion)
     }
     /**
@@ -87,9 +87,9 @@ public extension NetworkHelperProtocol {
      *    - url: the `URLConvertible` instance to build the `URL` to send
      *    - completion: the block that is executed when the request is completed with the `JSONResult`
      *
-     * - Returns: the `TealiumDisposableProtocol` to cancel the in flight operation.
+     * - Returns: the `Disposable` to cancel the in flight operation.
      */
-    func getJsonAsDictionary(url: URLConvertible, completion: @escaping (JSONResult) -> Void) -> TealiumDisposable {
+    func getJsonAsDictionary(url: URLConvertible, completion: @escaping (JSONResult) -> Void) -> Disposable {
         getJsonAsDictionary(url: url, etag: nil, completion: completion)
     }
     /**
@@ -99,9 +99,9 @@ public extension NetworkHelperProtocol {
      *    - url: the `URLConvertible` instance to build the `URL` to send
      *    - completion: the block that is executed when the request is completed with the `CodableResult`
      *
-     * - Returns: the `TealiumDisposableProtocol` to cancel the in flight operation.
+     * - Returns: the `Disposable` to cancel the in flight operation.
      */
-    func getJsonAsObject<T: Codable>(url: URLConvertible, completion: @escaping (ObjectResult<T>) -> Void) -> TealiumDisposable {
+    func getJsonAsObject<T: Codable>(url: URLConvertible, completion: @escaping (ObjectResult<T>) -> Void) -> Disposable {
         getJsonAsObject(url: url, etag: nil, completion: completion)
     }
 }

@@ -10,7 +10,7 @@ import TealiumSwift
 import XCTest
 
 final class OperatorsFilterTests: XCTestCase {
-    let observable123 = TealiumObservable.Just(1, 2, 3)
+    let observable123 = Observable.Just(1, 2, 3)
 
     func test_filter_removes_events() {
         let expectations = [
@@ -34,9 +34,9 @@ final class OperatorsFilterTests: XCTestCase {
 
     func test_filter_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = TealiumPublisher<Int>()
+        let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
-        let generatedObservable: TealiumObservable<Int> = observable.filter { $0 != 2 }
+        let generatedObservable: Observable<Int> = observable.filter { $0 != 2 }
         var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })

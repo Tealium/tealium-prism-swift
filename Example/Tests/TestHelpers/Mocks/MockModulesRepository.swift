@@ -10,7 +10,7 @@ import Foundation
 @testable import TealiumSwift
 
 class MockModulesRepository: ModulesRepository {
-    var onDataExpired: TealiumObservable<ExpiredDataEvent> = TealiumObservable.Just([
+    var onDataExpired: Observable<ExpiredDataEvent> = Observable.Just([
         1: [
             "key1": TealiumDataOutput(value: "")
         ],

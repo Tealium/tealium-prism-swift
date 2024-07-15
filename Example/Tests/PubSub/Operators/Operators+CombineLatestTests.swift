@@ -13,8 +13,8 @@ final class OperatorsCombineLatestTests: XCTestCase {
     func test_combineLatest_doesnt_send_event_if_first_has_provided_no_events() {
         let expectation = expectation(description: "CombineLatest doesn't provide event")
         expectation.isInverted = true
-        let pub1 = TealiumPublisher<Int>()
-        let pub2 = TealiumPublisher<String>()
+        let pub1 = BasePublisher<Int>()
+        let pub2 = BasePublisher<String>()
 
         _ = pub1.asObservable()
             .combineLatest(pub2.asObservable())
@@ -26,8 +26,8 @@ final class OperatorsCombineLatestTests: XCTestCase {
     func test_combineLatest_doesnt_send_event_if_second_has_provided_no_events() {
         let expectation = expectation(description: "CombineLatest doesn't provide event")
         expectation.isInverted = true
-        let pub1 = TealiumPublisher<Int>()
-        let pub2 = TealiumPublisher<String>()
+        let pub1 = BasePublisher<Int>()
+        let pub2 = BasePublisher<String>()
 
         _ = pub1.asObservable()
             .combineLatest(pub2.asObservable())
@@ -38,8 +38,8 @@ final class OperatorsCombineLatestTests: XCTestCase {
 
     func test_combineLatest_sends_event_if_both_provided_an_event() {
         let expectation = expectation(description: "CombineLatest provides an event")
-        let pub1 = TealiumPublisher<Int>()
-        let pub2 = TealiumPublisher<String>()
+        let pub1 = BasePublisher<Int>()
+        let pub2 = BasePublisher<String>()
 
         _ = pub1.asObservable()
             .combineLatest(pub2.asObservable())
@@ -57,8 +57,8 @@ final class OperatorsCombineLatestTests: XCTestCase {
             expectation(description: "CombineLatest provides no other events")
         ]
         expectations[3].isInverted = true
-        let pub1 = TealiumPublisher<Int>()
-        let pub2 = TealiumPublisher<String>()
+        let pub1 = BasePublisher<Int>()
+        let pub2 = BasePublisher<String>()
 
         _ = pub1.asObservable()
             .combineLatest(pub2.asObservable())
@@ -83,9 +83,9 @@ final class OperatorsCombineLatestTests: XCTestCase {
 
     func test_combineLatest_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = TealiumPublisher<Int>()
+        let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
-        let generatedObservable: TealiumObservable<(Int, String)> = observable.combineLatest(TealiumObservable.Just("a"))
+        let generatedObservable: Observable<(Int, String)> = observable.combineLatest(Observable.Just("a"))
         var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })

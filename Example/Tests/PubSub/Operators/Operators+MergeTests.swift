@@ -18,8 +18,8 @@ final class OperatorsMergeTests: XCTestCase {
             expectation(description: "Event 3 is published"),
             expectation(description: "Event 4 is published")
         ]
-        let pub1 = TealiumPublisher<Int>()
-        let pub2 = TealiumPublisher<Int>()
+        let pub1 = BasePublisher<Int>()
+        let pub2 = BasePublisher<Int>()
 
         _ = pub1.asObservable()
             .merge(pub2.asObservable())
@@ -36,9 +36,9 @@ final class OperatorsMergeTests: XCTestCase {
 
     func test_merge_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = TealiumPublisher<Int>()
+        let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
-        let generatedObservable: TealiumObservable<Int> = observable.merge(TealiumObservable.Just(2))
+        let generatedObservable: Observable<Int> = observable.merge(Observable.Just(2))
         var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })

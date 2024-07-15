@@ -13,8 +13,8 @@ public class ModuleExtractor<Module: TealiumModule> {
     init(modulesManager: ModulesManager) {
         self.modulesManager = modulesManager
     }
-    public var onModule: TealiumObservable<Module> {
-        TealiumObservable.Callback { [weak self] callback in
+    public var onModule: Observable<Module> {
+        Observable.Callback { [weak self] callback in
             self?.getModule(completion: callback)
         }.compactMap { $0 }
     }
@@ -139,13 +139,13 @@ public class DataLayerModule: Collector {
 }
 
 public protocol DataLayerEventObservables {
-    var onDataUpdated: TealiumObservable<[String: Any]> { get }
-    var onDataRemoved: TealiumObservable<[String]> { get }
+    var onDataUpdated: Observable<[String: Any]> { get }
+    var onDataRemoved: Observable<[String]> { get }
 }
 
 public class DataLayerEventPublishers: DataLayerEventObservables {
-    fileprivate let _onDataUpdated = TealiumPublisher<[String: Any]>()
-    fileprivate let _onDataRemoved = TealiumPublisher<[String]>()
+    fileprivate let _onDataUpdated = BasePublisher<[String: Any]>()
+    fileprivate let _onDataRemoved = BasePublisher<[String]>()
     public private(set) lazy var onDataUpdated = _onDataUpdated.asObservable()
     public private(set) lazy var onDataRemoved = _onDataRemoved.asObservable()
 }
@@ -156,13 +156,13 @@ public class DataLayerEvents {
         self.extractor = moduleExtractor
     }
 
-    public func onDataUpdated(_ event: @escaping ([String: Any]) -> Void) -> TealiumDisposable {
+    public func onDataUpdated(_ event: @escaping ([String: Any]) -> Void) -> Disposable {
         extractor.onModule
             .flatMap { $0.events.onDataUpdated }
             .subscribe(event)
     }
 
-    public func onDataRemoved(_ event: @escaping ([String]) -> Void) -> TealiumDisposable {
+    public func onDataRemoved(_ event: @escaping ([String]) -> Void) -> Disposable {
         extractor.onModule
             .flatMap { $0.events.onDataRemoved }
             .subscribe(event)
@@ -170,11 +170,11 @@ public class DataLayerEvents {
 }
 
 public protocol VisitorServiceEventObservables {
-    var onVisitorProfile: TealiumObservable<[String: Any]> { get }
+    var onVisitorProfile: Observable<[String: Any]> { get }
 }
 
 public class VisitorServiceEventPublishers: VisitorServiceEventObservables {
-    fileprivate let _onVisitorProfile = TealiumPublisher<[String: Any]>()
+    fileprivate let _onVisitorProfile = BasePublisher<[String: Any]>()
     public private(set) lazy var onVisitorProfile = _onVisitorProfile.asObservable()
 }
 
@@ -193,7 +193,7 @@ public class VisitorServiceEvents {
     init(moduleExtractor: ModuleExtractor<VisitorServiceModule>) {
         self.extractor = moduleExtractor
     }
-    public func onVisitorProfileUpdate(_ event: @escaping ([String: Any]) -> Void) -> TealiumDisposable {
+    public func onVisitorProfileUpdate(_ event: @escaping ([String: Any]) -> Void) -> Disposable {
         extractor.onModule
             .flatMap { $0.events.onVisitorProfile }
             .subscribe(event)

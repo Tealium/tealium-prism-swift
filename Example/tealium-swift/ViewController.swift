@@ -10,10 +10,10 @@ import TealiumSwift
 import UIKit
 
 class CustomDispatcher: Dispatcher {
-    func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
+    func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
         print("CustomDispatcher dispatch: \(data.compactMap { $0.name })")
         completion(data)
-        return TealiumSubscription { }
+        return Subscription { }
     }
 
     static let id: String = "CustomDispatcher"
@@ -26,7 +26,7 @@ class CustomDispatcher: Dispatcher {
 class ViewController: UIViewController {
 
     var teal: Tealium!
-    let automaticDisposer = TealiumAutomaticDisposer()
+    let automaticDisposer = AutomaticDisposer()
     override func viewDidLoad() {
         super.viewDidLoad()
         TealiumSignposter.enabled = true

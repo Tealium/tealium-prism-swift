@@ -1,5 +1,5 @@
 //
-//  TealiumDisposable.swift
+//  Disposable.swift
 //  TealiumCore
 //
 //  Created by Enrico Zannini on 03/09/21.
@@ -9,24 +9,24 @@
 import Foundation
 
 /// An protocol representing some long-lived operation that can be disposed.
-public protocol TealiumDisposable {
+public protocol Disposable {
     var isDisposed: Bool { get }
     func dispose()
 }
 
-public extension TealiumDisposable {
+public extension Disposable {
     /**
      * Add the disposable to a group so that it can be disposed along the others.
      *
-     * - parameter container: The `TealiumGroupedDisposable` group that will contain the disposable
+     * - parameter container: The `GroupedDisposable` group that will contain the disposable
      */
-    func addTo(_ container: TealiumGroupedDisposable) {
+    func addTo(_ container: GroupedDisposable) {
         container.add(self)
     }
 }
 
-/// A concrete implementation of the `TealiumDisposable` protocol that takes a block as an input and calls that block on dispose.
-public class TealiumSubscription: TealiumDisposable {
+/// A concrete implementation of the `Disposable` protocol that takes a block as an input and calls that block on dispose.
+public class Subscription: Disposable {
     fileprivate var unsubscribe: (() -> Void)?
     public var isDisposed: Bool { unsubscribe == nil }
     public init(unsubscribe: @escaping () -> Void) {
@@ -40,13 +40,13 @@ public class TealiumSubscription: TealiumDisposable {
 }
 
 /// A group that contains many disposable objects and disposes them simultaneously.
-public protocol TealiumGroupedDisposable: TealiumDisposable {
-    func add(_ disposable: TealiumDisposable)
+public protocol GroupedDisposable: Disposable {
+    func add(_ disposable: Disposable)
 }
 
-/// A concrete implementation of the `TealiumGroupedDisposable` protocol that handles disposal of all disposable contained.
-public class TealiumDisposeContainer: TealiumGroupedDisposable {
-    private var disposables = [TealiumDisposable]()
+/// A concrete implementation of the `GroupedDisposable` protocol that handles disposal of all disposable contained.
+public class DisposeContainer: GroupedDisposable {
+    private var disposables = [Disposable]()
     public private(set) var isDisposed: Bool = false
     public init() {}
 
@@ -55,9 +55,9 @@ public class TealiumDisposeContainer: TealiumGroupedDisposable {
      *
      * If this container is already disposed than the new disposable will be immediately disposed.
      *
-     * - parameter disposable: the `TealiumDisposable` that will be disposed with this container
+     * - parameter disposable: the `Disposable` that will be disposed with this container
      */
-    public func add(_ disposable: TealiumDisposable) {
+    public func add(_ disposable: Disposable) {
         if isDisposed {
             disposable.dispose()
         } else {
@@ -75,8 +75,8 @@ public class TealiumDisposeContainer: TealiumGroupedDisposable {
     }
 }
 
-/// A subclass of the `TealiumDisposeContainer` that will automatically dispose the contained disposables when it is deinitialized.
-public class TealiumAutomaticDisposer: TealiumDisposeContainer {
+/// A subclass of the `DisposeContainer` that will automatically dispose the contained disposables when it is deinitialized.
+public class AutomaticDisposer: DisposeContainer {
     deinit {
         dispose()
     }

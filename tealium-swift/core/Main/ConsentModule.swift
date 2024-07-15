@@ -44,9 +44,9 @@ class ConsentTransformer: Transformer {
     var enabled: Bool {
         settings.value.enabled
     }
-    var settings: TealiumStatefulObservable<ConsentSettings>
-    private let automaticDisposer = TealiumAutomaticDisposer()
-    init(consentSettings: TealiumStatefulObservable<ConsentSettings>) {
+    var settings: ObservableState<ConsentSettings>
+    private let automaticDisposer = AutomaticDisposer()
+    init(consentSettings: ObservableState<ConsentSettings>) {
         self.settings = consentSettings
     }
 
@@ -74,7 +74,7 @@ class ConsentTransformer: Transformer {
 }
 
 public protocol CMPIntegration {
-    var consentDecision: TealiumStatefulObservable<ConsentDecision?> { get }
+    var consentDecision: ObservableState<ConsentDecision?> { get }
     func allPurposes() -> [String] // TODO: why it's not a computable getter?
 }
 
@@ -91,9 +91,9 @@ class ConsentModule: ConsentManager {
     let unprocessedPurposesKey = "purposes_with_consent_unprocessed"
     let allPurposesKey = "purposes_with_consent_all"
     let queueManager: QueueManagerProtocol
-    let settings: TealiumVariableSubject<ConsentSettings>
+    let settings: StateSubject<ConsentSettings>
     var cmpIntegration: CMPIntegration? // From config
-    let modules: TealiumStatefulObservable<[TealiumModule]>
+    let modules: ObservableState<[TealiumModule]>
     var dispatchers: [String] {
         modules.value
             .filter { $0 is Dispatcher }
@@ -106,7 +106,7 @@ class ConsentModule: ConsentManager {
     }
     let consentTransformer: ConsentTransformer
     let consentTransformation: ScopedTransformation
-    private let automaticDisposer = TealiumAutomaticDisposer()
+    private let automaticDisposer = AutomaticDisposer()
     private let transformerRegistry: TransformerRegistry
 
     required convenience init?(context: TealiumContext, moduleSettings: [String: Any]) {
@@ -114,14 +114,14 @@ class ConsentModule: ConsentManager {
                   modules: context.modulesManager.modules,
                   transformerRegistry: context.transformerRegistry,
                   cmpIntegration: nil,
-                  consentSettings: TealiumVariableSubject(ConsentSettings(consentDictionary: moduleSettings)))
+                  consentSettings: StateSubject(ConsentSettings(consentDictionary: moduleSettings)))
     }
 
     init(queueManager: QueueManagerProtocol,
-         modules: TealiumStatefulObservable<[TealiumModule]>,
+         modules: ObservableState<[TealiumModule]>,
          transformerRegistry: TransformerRegistry,
          cmpIntegration: CMPIntegration?,
-         consentSettings: TealiumVariableSubject<ConsentSettings>) {
+         consentSettings: StateSubject<ConsentSettings>) {
         self.queueManager = queueManager
         self.cmpIntegration = cmpIntegration
         self.modules = modules

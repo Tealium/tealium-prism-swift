@@ -9,7 +9,7 @@
 import Foundation
 
 protocol EmpiricalConnectivityProtocol {
-    var onEmpiricalConnectionAvailable: TealiumObservable<Bool> { get }
+    var onEmpiricalConnectionAvailable: Observable<Bool> { get }
     func connectionSuccess()
     func connectionFail()
 }
@@ -29,8 +29,8 @@ class EmpiricalConnectivity: EmpiricalConnectivityProtocol {
     }
 
     /// An observable that emits `true` when connection is available and `false` otherwise. Starts with `true`.
-    @ToAnyObservable<TealiumReplaySubject<Bool>>(TealiumReplaySubject<Bool>(initialValue: true))
-    var onEmpiricalConnectionAvailable: TealiumObservable<Bool>
+    @ToAnyObservable<ReplaySubject<Bool>>(ReplaySubject<Bool>(initialValue: true))
+    var onEmpiricalConnectionAvailable: Observable<Bool>
 
     /**
      * Call this method when an HTTP connection was successfully established.

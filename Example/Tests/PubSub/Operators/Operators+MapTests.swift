@@ -11,7 +11,7 @@ import XCTest
 
 final class OperatorsMapTests: XCTestCase {
 
-    let observable123 = TealiumObservable.Just(1, 2, 3)
+    let observable123 = Observable.Just(1, 2, 3)
 
     func test_map_transforms_events() {
         let expectations = [
@@ -34,9 +34,9 @@ final class OperatorsMapTests: XCTestCase {
 
     func test_map_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = TealiumPublisher<Int>()
+        let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
-        let generatedObservable: TealiumObservable<Int> = observable.map { $0 * 10 }
+        let generatedObservable: Observable<Int> = observable.map { $0 * 10 }
         var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
@@ -53,7 +53,7 @@ final class OperatorsMapTests: XCTestCase {
             expectation(description: "Event nil is removed")
         ]
         expectations[2].isInverted = true
-        let observable = TealiumObservable.Just(1, nil, 3)
+        let observable = Observable.Just(1, nil, 3)
         _ = observable
             .compactMap({ (number: Int?) -> Int? in
                 guard let number = number else { return nil }
@@ -73,9 +73,9 @@ final class OperatorsMapTests: XCTestCase {
 
     func test_compactMap_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = TealiumPublisher<Int>()
+        let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
-        let generatedObservable: TealiumObservable<Int> = observable.compactMap { $0 * 10 }
+        let generatedObservable: Observable<Int> = observable.compactMap { $0 * 10 }
         var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })

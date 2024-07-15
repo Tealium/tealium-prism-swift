@@ -36,8 +36,8 @@ public protocol TealiumLoggerProvider: AnyObject {
 public class TealiumLogger: TealiumLoggerProvider {
     let logger: TealiumLogHandler?
     public internal(set) var minLogLevel: TealiumLogLevel.Minimum
-    let autoDisposer = TealiumAutomaticDisposer()
-    init(logger: TealiumLogHandler?, minLogLevel: TealiumLogLevel.Minimum, onCoreSettings: TealiumObservable<CoreSettings>) {
+    let autoDisposer = AutomaticDisposer()
+    init(logger: TealiumLogHandler?, minLogLevel: TealiumLogLevel.Minimum, onCoreSettings: Observable<CoreSettings>) {
         self.logger = logger
         self.minLogLevel = minLogLevel
         onCoreSettings.subscribe { [weak self] settings in

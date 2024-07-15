@@ -10,10 +10,10 @@ import Foundation
 
 class ConnectivityBarrier: Barrier {
     let id: String = "ConnectivityBarrier"
-    let onState: TealiumObservable<BarrierState>
+    let onState: Observable<BarrierState>
 
     // connectionAssumedAvailable value of ConnectivityManager is gonna be passed here
-    init(onConnection onConnectionAvailable: TealiumObservable<Bool>) {
+    init(onConnection onConnectionAvailable: Observable<Bool>) {
         onState = onConnectionAvailable.map { isConnected in
             isConnected ? .open : .closed
         }

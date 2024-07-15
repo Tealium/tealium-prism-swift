@@ -1,5 +1,5 @@
 //
-//  TealiumStatefulObservable.swift
+//  ObservableState.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 20/11/23.
@@ -13,39 +13,39 @@ import Foundation
  *
  * You can use `updates` to receive only future updates in a new observable.
  */
-public class TealiumStatefulObservable<Element>: TealiumObservableCreate<Element> {
+public class ObservableState<Element>: CustomObservable<Element> {
     typealias Element = Element
     private let valueProvider: () -> Element
     public var value: Element {
         valueProvider()
     }
 
-    convenience init(variableSubject: TealiumVariableSubject<Element>) {
+    convenience init(variableSubject: StateSubject<Element>) {
         self.init(valueProvider: variableSubject.value) { observer in
             variableSubject.subscribe(observer)
         }
     }
 
-    init(valueProvider: @autoclosure @escaping () -> Element, subscriptionHandler: @escaping SubscribeHandler) {
+    init(valueProvider: @autoclosure @escaping () -> Element, subscriptionHandler: @escaping SubscriptionHandler) {
         self.valueProvider = valueProvider
         super.init(subscriptionHandler)
     }
 
-    public class func constant(_ value: Element) -> TealiumStatefulObservable<Element> {
-        TealiumStatefulObservable<Element>(valueProvider: value) { _ in
-            TealiumSubscription { }
+    public class func constant(_ value: Element) -> ObservableState<Element> {
+        ObservableState<Element>(valueProvider: value) { _ in
+            Subscription { }
         }
     }
 
     /// Returns an observable that emits only new updates of this State.
-    public func updates() -> TealiumObservable<Element> {
+    public func updates() -> Observable<Element> {
         asObservable().ignoreFirst()
     }
 }
 
-extension TealiumStatefulObservable {
-    func map<NewElement>(transform: @escaping (Element) -> NewElement) -> TealiumStatefulObservable<NewElement> {
-        TealiumStatefulObservable<NewElement>(valueProvider: transform(self.value)) { observer in
+extension ObservableState {
+    func map<NewElement>(transform: @escaping (Element) -> NewElement) -> ObservableState<NewElement> {
+        ObservableState<NewElement>(valueProvider: transform(self.value)) { observer in
             self.subscribe { element in
                 observer(transform(element))
             }

@@ -11,12 +11,12 @@ import XCTest
 
 final class QueueManagerTests: XCTestCase {
 
-    @TealiumVariableSubject([MockDispatcher1(), MockDispatcher2()])
-    var modules: TealiumStatefulObservable<[TealiumModule]>
+    @StateSubject([MockDispatcher1(), MockDispatcher2()])
+    var modules: ObservableState<[TealiumModule]>
     let dbProvider = MockDatabaseProvider()
     lazy var settings: [String: Any] = [:]
-    lazy var _coreSettings = TealiumVariableSubject(CoreSettings(coreDictionary: settings))
-    var coreSettings: TealiumStatefulObservable<CoreSettings> {
+    lazy var _coreSettings = StateSubject(CoreSettings(coreDictionary: settings))
+    var coreSettings: ObservableState<CoreSettings> {
         _coreSettings.toStatefulObservable()
     }
     lazy var queueRepository = SQLQueueRepository(dbProvider: dbProvider,

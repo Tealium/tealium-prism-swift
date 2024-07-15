@@ -10,13 +10,13 @@ import TealiumSwift
 import XCTest
 
 final class OperatorsFlatMapTests: XCTestCase {
-    let observable123 = TealiumObservable.Just(1, 2, 3)
+    let observable123 = Observable.Just(1, 2, 3)
 
     func test_flatMap_returns_new_observables_flattening_it() {
         let flatMappedEventIsCalled = expectation(description: "FlatMapped event is called 3 times")
         flatMappedEventIsCalled.expectedFulfillmentCount = 3
         _ = observable123.flatMap { _ in
-            TealiumObservable.Just("flatMapped")
+            Observable.Just("flatMapped")
         }.subscribe { event in
             XCTAssertEqual(event, "flatMapped")
             flatMappedEventIsCalled.fulfill()
@@ -28,7 +28,7 @@ final class OperatorsFlatMapTests: XCTestCase {
         let flatMappedEventIsCalled = expectation(description: "FlatMapped event is called 3 times")
         flatMappedEventIsCalled.expectedFulfillmentCount = 3
         _ = observable123.flatMap { element in
-            TealiumObservable.Callback { observer in
+            Observable.Callback { observer in
                 DispatchQueue.main.async {
                     observer(element)
                 }
@@ -42,7 +42,7 @@ final class OperatorsFlatMapTests: XCTestCase {
     func test_flatMapLatest_only_emits_events_from_latest_returned_observable() {
         let flatMappedEventIsCalled = expectation(description: "FlatMapped event is called only once")
         _ = observable123.flatMapLatest { element in
-            TealiumObservable.Callback { observer in
+            Observable.Callback { observer in
                 DispatchQueue.main.async {
                     observer(element)
                 }
@@ -56,9 +56,9 @@ final class OperatorsFlatMapTests: XCTestCase {
 
     func test_flatMap_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = TealiumPublisher<Int>()
+        let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
-        let generatedObservable: TealiumObservable<Int> = observable.flatMap { _ in TealiumObservable.Just(2) }
+        let generatedObservable: Observable<Int> = observable.flatMap { _ in Observable.Just(2) }
         var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })

@@ -12,14 +12,14 @@ public class ModuleStore: DataStore {
 
     private let repository: KeyValueRepository
 
-    @ToAnyObservable<TealiumPublisher<[String: TealiumDataInput]>>(TealiumPublisher<[String: TealiumDataInput]>())
-    public var onDataUpdated: TealiumObservable<[String: TealiumDataInput]>
-    private let _onDataRemoved: TealiumPublisher<[String]>
-    public let onDataRemoved: TealiumObservable<[String]>
+    @ToAnyObservable<BasePublisher<[String: TealiumDataInput]>>(BasePublisher<[String: TealiumDataInput]>())
+    public var onDataUpdated: Observable<[String: TealiumDataInput]>
+    private let _onDataRemoved: BasePublisher<[String]>
+    public let onDataRemoved: Observable<[String]>
 
-    init(repository: KeyValueRepository, onDataExpired: TealiumObservable<[String: TealiumDataOutput]>) {
+    init(repository: KeyValueRepository, onDataExpired: Observable<[String: TealiumDataOutput]>) {
         self.repository = repository
-        let onDataRemovedPublisher = TealiumPublisher<[String]>()
+        let onDataRemovedPublisher = BasePublisher<[String]>()
         self._onDataRemoved = onDataRemovedPublisher
         self.onDataRemoved = onDataExpired.map { expiredData in expiredData.keys.map { String($0) } }.merge(onDataRemovedPublisher.asObservable())
     }

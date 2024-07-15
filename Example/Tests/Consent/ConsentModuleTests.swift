@@ -13,8 +13,8 @@ final class ConsentModuleTests: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
     let modulesManager = ModulesManager()
     lazy var settings: [String: Any] = ["consent": ["enabled": true]]
-    lazy var _coreSettings = TealiumVariableSubject(CoreSettings(coreDictionary: settings))
-    var coreSettings: TealiumStatefulObservable<CoreSettings> {
+    lazy var _coreSettings = StateSubject(CoreSettings(coreDictionary: settings))
+    var coreSettings: ObservableState<CoreSettings> {
         _coreSettings.toStatefulObservable()
     }
     lazy var queueManager = MockQueueManager(processors: TealiumImplementation.queueProcessors(from: modulesManager.modules),
@@ -22,13 +22,13 @@ final class ConsentModuleTests: XCTestCase {
                                                                                  maxQueueSize: 10,
                                                                                  expiration: TimeFrame(unit: .days, interval: 1)),
                                              coreSettings: coreSettings)
-    @TealiumVariableSubject([])
-    var scopedTransformations: TealiumStatefulObservable<[ScopedTransformation]>
+    @StateSubject([])
+    var scopedTransformations: ObservableState<[ScopedTransformation]>
     lazy var transformerCoordinator = TransformerCoordinator(registeredTransformers: [],
                                                              scopedTransformations: scopedTransformations,
                                                              queue: .main)
-    @TealiumVariableSubject(ConsentSettings(enabled: true, dispatcherToPurposes: [:], shouldRefireDispatchers: []))
-    var consentSettings: TealiumStatefulObservable<ConsentSettings>
+    @StateSubject(ConsentSettings(enabled: true, dispatcherToPurposes: [:], shouldRefireDispatchers: []))
+    var consentSettings: ObservableState<ConsentSettings>
     func buildConsentManager(cmpIntegration: CMPIntegration?) -> ConsentManager {
         return ConsentModule(queueManager: queueManager,
                              modules: modulesManager.modules,
@@ -50,7 +50,7 @@ final class ConsentModuleTests: XCTestCase {
     }
 
     func test_applyConsent_runs_completion_with_dropped_result_and_original_dispatch_when_explicitly_not_tealium_consented() {
-        let integration = MockCMPIntegration(consentDecision: TealiumStatefulObservable(variableSubject: TealiumVariableSubject(ConsentDecision(decisionType: .explicit, purposes: []))))
+        let integration = MockCMPIntegration(consentDecision: ObservableState(variableSubject: StateSubject(ConsentDecision(decisionType: .explicit, purposes: []))))
         let consentManager: ConsentManager = buildConsentManager(cmpIntegration: integration)
         let completionCalled = expectation(description: completionCalledDescription)
         consentManager.applyConsent(to: TealiumDispatch(name: "event1")) { dispatch, result in
@@ -62,7 +62,7 @@ final class ConsentModuleTests: XCTestCase {
     }
 
     func test_applyConsent_runs_completion_with_accepted_result_and_original_dispatch_when_implicitly_not_tealium_consented() {
-        let integration = MockCMPIntegration(consentDecision: TealiumStatefulObservable(variableSubject: TealiumVariableSubject(ConsentDecision(decisionType: .implicit, purposes: []))))
+        let integration = MockCMPIntegration(consentDecision: ObservableState(variableSubject: StateSubject(ConsentDecision(decisionType: .implicit, purposes: []))))
         let consentManager: ConsentManager = buildConsentManager(cmpIntegration: integration)
         let completionCalled = expectation(description: completionCalledDescription)
         consentManager.applyConsent(to: TealiumDispatch(name: "event1")) { dispatch, result in
@@ -74,7 +74,7 @@ final class ConsentModuleTests: XCTestCase {
     }
 
     func test_applyConsent_runs_completion_with_accepted_result_and_consented_dispatch_when_tealium_consented() {
-        let integration = MockCMPIntegration(consentDecision: TealiumStatefulObservable(variableSubject: TealiumVariableSubject(ConsentDecision(decisionType: .explicit, purposes: ["tealium"]))))
+        let integration = MockCMPIntegration(consentDecision: ObservableState(variableSubject: StateSubject(ConsentDecision(decisionType: .explicit, purposes: ["tealium"]))))
         let consentManager: ConsentManager = buildConsentManager(cmpIntegration: integration)
         let completionCalled = expectation(description: completionCalledDescription)
         consentManager.applyConsent(to: TealiumDispatch(name: "event1")) { dispatch, result in
@@ -87,7 +87,7 @@ final class ConsentModuleTests: XCTestCase {
     }
 
     func test_apply_consent_runs_completion_with_dropped_result_and_original_dispatch_when_unprocessed_purposes_empty() {
-        let integration = MockCMPIntegration(consentDecision: TealiumStatefulObservable(variableSubject: TealiumVariableSubject(ConsentDecision(decisionType: .explicit, purposes: ["tealium"]))))
+        let integration = MockCMPIntegration(consentDecision: ObservableState(variableSubject: StateSubject(ConsentDecision(decisionType: .explicit, purposes: ["tealium"]))))
         let consentManager: ConsentManager = buildConsentManager(cmpIntegration: integration)
         let completionCalled = expectation(description: completionCalledDescription)
         var dispatch = TealiumDispatch(name: "event1")

@@ -1,5 +1,5 @@
 //
-//  TealiumVariableSubject.swift
+//  StateSubject.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 16/11/23.
@@ -9,7 +9,7 @@
 import Foundation
 
 @propertyWrapper
-public class TealiumVariableSubject<Element>: TealiumReplaySubject<Element> {
+public class StateSubject<Element>: ReplaySubject<Element> {
 
     public var value: Element {
         get {
@@ -31,16 +31,16 @@ public class TealiumVariableSubject<Element>: TealiumReplaySubject<Element> {
         // Do nothing, can't clear this
     }
 
-    public func toStatefulObservable() -> TealiumStatefulObservable<Element> {
-        TealiumStatefulObservable<Element>(variableSubject: self)
+    public func toStatefulObservable() -> ObservableState<Element> {
+        ObservableState<Element>(variableSubject: self)
     }
 
     /// Returns an observable that emits only new updates of this State.
-    public func updates() -> TealiumObservable<Element> {
+    public func updates() -> Observable<Element> {
         asObservable().ignoreFirst()
     }
 
-    public var wrappedValue: TealiumStatefulObservable<Element> {
+    public var wrappedValue: ObservableState<Element> {
         toStatefulObservable()
     }
 }

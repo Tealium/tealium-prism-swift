@@ -52,14 +52,14 @@ public class TealiumCollect: Dispatcher {
      * In case of multiple events with different `visitorId`s this method will automatically group them by `visitorId` and send them separately.
      * The completion block can, therefore, be called more than once with the list of dispatches that are actually completed every time.
      */
-    public func dispatch(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
+    public func dispatch(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
         if events.count == 1 {
             return sendSingleDispatch(events[0], completion: completion)
         } else {
             let batches = batcher.splitDispatchesByVisitorId(events)
             logger?.trace?.log(category: LogCategory.collect,
                                message: "Collect events split in batches \(batches)")
-            let container = TealiumDisposeContainer()
+            let container = DisposeContainer()
             for batch in batches where !batch.isEmpty {
                 if batch.count == 1 {
                     sendSingleDispatch(batch[0], completion: completion)
@@ -79,7 +79,7 @@ public class TealiumCollect: Dispatcher {
      * This method will create the JSON, eventually apply the `overrideProfile`,
      * and then send the gzipped payload with a POST request to the batch endpoint.
      */
-    func sendSingleDispatch(_ event: TealiumDispatch, completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
+    func sendSingleDispatch(_ event: TealiumDispatch, completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
         var data: [String: Any] = event.eventData
         batcher.applyProfileOverride(settings.overrideProfile, to: &data)
         return networkHelper.post(url: settings.url, body: data) { result in
@@ -99,9 +99,9 @@ public class TealiumCollect: Dispatcher {
      * This method will create the JSON by compressing those batches, eventually apply the `overrideProfile`,
      * and then send the payload with a gzipped POST requst to the batch endpoint.
      */
-    func sendBatchDispatches(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
+    func sendBatchDispatches(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
         guard let batchData = batcher.compressDispatches(events, profileOverride: settings.overrideProfile) else {
-            return TealiumSubscription { }
+            return Subscription { }
         }
         return networkHelper.post(url: settings.batchUrl, body: batchData) { result in
             if case .failure(.cancelled) = result {

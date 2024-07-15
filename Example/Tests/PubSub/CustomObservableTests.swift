@@ -1,5 +1,5 @@
 //
-//  TealiumObservableCreateTests.swift
+//  CustomObservableTests.swift
 //  tealium-swift_Tests
 //
 //  Created by Enrico Zannini on 13/07/23.
@@ -9,7 +9,7 @@
 @testable import TealiumSwift
 import XCTest
 
-final class TealiumObservableCreateTests: XCTestCase {
+final class CustomObservableTests: XCTestCase {
 
     func test_Just_observable_publishes_parameters_as_events() {
         let expectations = [
@@ -17,7 +17,7 @@ final class TealiumObservableCreateTests: XCTestCase {
             expectation(description: "Event 1 is published"),
             expectation(description: "Event 2 is published"),
         ]
-        let observable = TealiumObservable<Int>.Just(0, 1, 2)
+        let observable = Observable<Int>.Just(0, 1, 2)
         _ = observable.subscribe { number in
                 expectations[number].fulfill()
         }
@@ -32,7 +32,7 @@ final class TealiumObservableCreateTests: XCTestCase {
                 callback(1)
             }
         }
-        let observable = TealiumObservable<Int>.Callback(from: anAsyncFunctionWithACallback(callback:))
+        let observable = Observable<Int>.Callback(from: anAsyncFunctionWithACallback(callback:))
         _ = observable.subscribe { number in
             XCTAssertEqual(number, 1)
             expectation.fulfill()
@@ -45,7 +45,7 @@ final class TealiumObservableCreateTests: XCTestCase {
 
     func test_CombineLatest_observable_is_notified_immediately_on_sync_observables() {
         let combineLatestIsNotifiedImmediately = expectation(description: "Combine latest event is notified immediately")
-        let sub = TealiumObservable<String>.CombineLatest([.Just("a1"), .Just("b1"), .Just("c1")])
+        let sub = Observable<String>.CombineLatest([.Just("a1"), .Just("b1"), .Just("c1")])
             .subscribe { result in
                 XCTAssertEqual(result, ["a1", "b1", "c1"])
                 combineLatestIsNotifiedImmediately.fulfill()
@@ -56,10 +56,10 @@ final class TealiumObservableCreateTests: XCTestCase {
 
     func test_CombineLatest_observable_is_notified_after_all_observables_have_pushed_at_least_one_event() {
         let combineLatestIsNotified = expectation(description: "Combine latest event is notified")
-        let pubA = TealiumPublisher<String>()
-        let pubB = TealiumPublisher<String>()
-        let pubC = TealiumPublisher<String>()
-        let sub = TealiumObservable<String>.CombineLatest([pubA.asObservable(), pubB.asObservable(), pubC.asObservable()])
+        let pubA = BasePublisher<String>()
+        let pubB = BasePublisher<String>()
+        let pubC = BasePublisher<String>()
+        let sub = Observable<String>.CombineLatest([pubA.asObservable(), pubB.asObservable(), pubC.asObservable()])
             .subscribe { result in
                 XCTAssertEqual(result, ["a3", "b1", "c1"])
                 combineLatestIsNotified.fulfill()
@@ -76,10 +76,10 @@ final class TealiumObservableCreateTests: XCTestCase {
     func test_CombineLatest_observable_is_notified_after_each_event_after_every_observable_notified_at_least_one() {
         let combineLatestIsNotified = expectation(description: "Combine latest event is notified 3 times")
         combineLatestIsNotified.expectedFulfillmentCount = 3
-        let pubA = TealiumPublisher<String>()
-        let pubB = TealiumPublisher<String>()
-        let pubC = TealiumPublisher<String>()
-        let sub = TealiumObservable<String>.CombineLatest([pubA.asObservable(), pubB.asObservable(), pubC.asObservable()])
+        let pubA = BasePublisher<String>()
+        let pubB = BasePublisher<String>()
+        let pubC = BasePublisher<String>()
+        let sub = Observable<String>.CombineLatest([pubA.asObservable(), pubB.asObservable(), pubC.asObservable()])
             .subscribe { result in
                 XCTAssertEqual(result, ["a", "b1", "c1"])
                 combineLatestIsNotified.fulfill()
@@ -95,7 +95,7 @@ final class TealiumObservableCreateTests: XCTestCase {
 
     func test_CombineLatest_observable_is_notified_immediately_with_an_empty_array_when_provided_with_an_empty_array() {
         let combineLatestIsNotified = expectation(description: "Combine latest event is notified")
-        let sub = TealiumObservable<String>.CombineLatest([])
+        let sub = Observable<String>.CombineLatest([])
             .subscribe { result in
                 XCTAssertEqual(result, [])
                 combineLatestIsNotified.fulfill()

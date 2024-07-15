@@ -12,8 +12,8 @@ import Foundation
  * A class that when instantiated reads the settings locally and then sets up a timer to refresh the settings via an API and inform who is registered on settings updates.
  */
 class SettingsProvider {
-    @TealiumVariableSubject var settings: TealiumStatefulObservable<[String: Any]>
-    let coreSettings: TealiumStatefulObservable<CoreSettings>
+    @StateSubject var settings: ObservableState<[String: Any]>
+    let coreSettings: ObservableState<CoreSettings>
 
     init(config: TealiumConfig, storeProvider: ModuleStoreProvider) {
         let trackingInterval = TealiumSignpostInterval(signposter: .settings, name: "Settings Retrieval")
@@ -23,12 +23,12 @@ class SettingsProvider {
             let settings = try? JSONSerialization.jsonObject(with: jsonData) as? [String: Any]
         else {
             trackingInterval.end("FAILED")
-            self._settings = TealiumVariableSubject([:])
-            self.coreSettings = TealiumStatefulObservable(variableSubject: TealiumVariableSubject(CoreSettings(coreDictionary: [:])))
+            self._settings = StateSubject([:])
+            self.coreSettings = ObservableState(variableSubject: StateSubject(CoreSettings(coreDictionary: [:])))
             return
         }
         trackingInterval.end("SUCCESS")
-        let mutableSettings = TealiumVariableSubject(settings)
+        let mutableSettings = StateSubject(settings)
         self._settings = mutableSettings
         self.coreSettings = mutableSettings.toStatefulObservable()
             .map { settings in CoreSettings(coreDictionary: settings["core"] as? [String: Any] ?? [:]) }

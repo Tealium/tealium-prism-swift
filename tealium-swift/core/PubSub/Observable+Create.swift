@@ -1,5 +1,5 @@
 //
-//  TealiumObservable+Create.swift
+//  Observable+Create.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 09/06/23.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension TealiumObservable {
+public extension Observable {
     // swiftlint:disable identifier_name
     /**
      * Returns an observable that will send only one event once the asyncFunction has completed.
@@ -16,9 +16,9 @@ public extension TealiumObservable {
      * - Parameter asyncFunction: is the function that needs to be called and needs to report the completion to the provided observer.
      *  This function will only be called when an observer subscribes to the returned Observable. Every subscription will cause the asyncFunction to be called again.
      *
-     * - Returns: a `TealiumObservable` that, when a new observer subscribes, will call the asyncFunction and publish a new event to the subscribers when the function completes.
+     * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and publish a new event to the subscribers when the function completes.
      */
-    static func Callback(from asyncFunction: @escaping (@escaping Observer) -> Void) -> TealiumObservable<Element> {
+    static func Callback(from asyncFunction: @escaping (@escaping Observer) -> Void) -> Observable<Element> {
         Callback { observer in
             var cancelled = false
             asyncFunction { res in
@@ -26,7 +26,7 @@ public extension TealiumObservable {
                     observer(res)
                 }
             }
-            return TealiumSubscription {
+            return Subscription {
                 cancelled = true
             }
         }
@@ -37,12 +37,12 @@ public extension TealiumObservable {
      *
      * - Parameter asyncFunction: is the function that needs to be called and needs to report the completion to the provided observer.
      *  This function will only be called when an observer subscribes to the returned Observable. Every subscription will cause the asyncFunction to be called again.
-     *  It will return a `TealiumDisposable` that can be used to cancel the function itself.
+     *  It will return a `Disposable` that can be used to cancel the function itself.
      *
-     * - Returns: a `TealiumObservable` that, when a new observer subscribes, will call the asyncFunction and publish a new event to the subscribers when the function completes.
+     * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and publish a new event to the subscribers when the function completes.
      */
-    static func Callback(fromDisposable asyncFunction: @escaping (@escaping Observer) -> TealiumDisposable) -> TealiumObservable<Element> {
-        TealiumObservableCreate { observer in
+    static func Callback(fromDisposable asyncFunction: @escaping (@escaping Observer) -> Disposable) -> Observable<Element> {
+        CustomObservable { observer in
             asyncFunction { res in
                 observer(res)
             }
@@ -50,22 +50,22 @@ public extension TealiumObservable {
     }
 
     /// Returns an observable that just reports the provided elements in order to each new subscriber.
-    static func Just(_ elements: Element...) -> TealiumObservable<Element> {
+    static func Just(_ elements: Element...) -> Observable<Element> {
         From(elements)
     }
 
     /// Returns an observable that just reports the provided elements in order to each new subscriber.
-    static func From(_ elements: [Element]) -> TealiumObservable<Element> {
-        TealiumObservableCreate { observer in
+    static func From(_ elements: [Element]) -> Observable<Element> {
+        CustomObservable { observer in
             for element in elements {
                 observer(element)
             }
-            return TealiumSubscription { }
+            return Subscription { }
         }
     }
 
     /// Returns an empty observable that never reports anything
-    static func Empty() -> TealiumObservable<Element> {
+    static func Empty() -> Observable<Element> {
         From([])
     }
 
@@ -75,9 +75,9 @@ public extension TealiumObservable {
      * The first element published from the returned observable will be published when all the observables provided emit at list one element.
      * All subsequent changes to any observable will be emitted one by one.
      */
-    static func CombineLatest(_ observables: [TealiumObservable<Element>]) -> TealiumObservable<[Element]> {
-        TealiumObservableCreate { observer in
-            let container = TealiumDisposeContainer()
+    static func CombineLatest(_ observables: [Observable<Element>]) -> Observable<[Element]> {
+        CustomObservable { observer in
+            let container = DisposeContainer()
             let count = observables.count
             guard count > 0 else {
                 observer([])

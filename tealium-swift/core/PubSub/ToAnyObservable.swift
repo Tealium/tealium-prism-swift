@@ -9,7 +9,7 @@
 import Foundation
 
 @propertyWrapper
-public final class ToAnyObservable<P: TealiumPublisherProtocol>: TealiumPublisherProtocol {
+public final class ToAnyObservable<P: Publisher>: Publisher {
     public typealias Element = P.Element
 
     public let publisher: P
@@ -17,11 +17,11 @@ public final class ToAnyObservable<P: TealiumPublisherProtocol>: TealiumPublishe
         self.publisher = anyPublisher
     }
 
-    public var wrappedValue: TealiumObservable<Element> {
+    public var wrappedValue: Observable<Element> {
         return asObservable()
     }
 
-    public func asObservable() -> TealiumObservable<Element> {
+    public func asObservable() -> Observable<Element> {
         return publisher.asObservable()
     }
 

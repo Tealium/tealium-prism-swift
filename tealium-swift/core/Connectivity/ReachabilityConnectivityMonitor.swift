@@ -18,8 +18,8 @@ import SystemConfiguration
  */
 class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
 
-    @TealiumVariableSubject(.unknown)
-    var connection: TealiumStatefulObservable<NetworkConnection>
+    @StateSubject(.unknown)
+    var connection: ObservableState<NetworkConnection>
 
     /// Flags of the current reachability type, if any.
     var flags: SCNetworkReachabilityFlags? {
@@ -120,7 +120,7 @@ class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
     }
 
     /**
-     * Converts the flags to a `NetworkConnection` and sends them in the onConnection `TealiumSubject`.
+     * Converts the flags to a `NetworkConnection` and sends them in the onConnection `Subject`.
      *
      * - Note: Should only be called from the internal queue.
      *

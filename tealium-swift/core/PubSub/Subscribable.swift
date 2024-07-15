@@ -1,5 +1,5 @@
 //
-//  TealiumObservableProtocol.swift
+//  Subscribable.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 07/02/23.
@@ -9,35 +9,35 @@
 import Foundation
 
 /// A protocol to provide all publisher-like classes access to a corresponding observable.
-public protocol TealiumObservableConvertible {
+public protocol ObservableConvertible {
     associatedtype Element
 
-    func asObservable() -> TealiumObservable<Element>
+    func asObservable() -> Observable<Element>
 }
 
 /// A protocol to provide all observable-like classes some utilities like subscribeOnce or the operators.
-public protocol TealiumObservableProtocol: TealiumObservableConvertible {
+public protocol Subscribable: ObservableConvertible {
     typealias Observer = (Element) -> Void
 
     @discardableResult
-    func subscribe(_ observer: @escaping Observer) -> any TealiumDisposable
+    func subscribe(_ observer: @escaping Observer) -> any Disposable
 }
 
-public extension TealiumObservableProtocol {
+public extension Subscribable {
     /**
      * Subscribes the observer only once and then automatically disposes it.
      *
      * This is meant to be used when you only need one observer to be registered once.
      * Use the standalone `first()` operator if multiple observers all need to register for one event.
      *
-     * - returns: a `TealiumDisposable` that can be used to dispose this observer before the first event is sent to the observer, in case it's not needed any longer.
+     * - returns: a `Disposable` that can be used to dispose this observer before the first event is sent to the observer, in case it's not needed any longer.
      */
     @discardableResult
-    func subscribeOnce(_ observer: @escaping Observer) -> TealiumDisposable {
+    func subscribeOnce(_ observer: @escaping Observer) -> Disposable {
         first().subscribe(observer)
     }
 
-    func asObservable() -> TealiumObservable<Element> {
-        TealiumObservableCreate<Element> { observer in self.subscribe(observer) }
+    func asObservable() -> Observable<Element> {
+        CustomObservable<Element> { observer in self.subscribe(observer) }
     }
 }

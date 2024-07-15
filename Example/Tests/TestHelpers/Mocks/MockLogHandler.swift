@@ -11,8 +11,8 @@ import TealiumSwift
 
 class MockLogHandler: TealiumLogHandler {
     typealias LogEvent = (String, String, TealiumLogLevel)
-    @ToAnyObservable<TealiumReplaySubject<LogEvent>>(TealiumReplaySubject<LogEvent>())
-    var onLogged: TealiumObservable<LogEvent>
+    @ToAnyObservable<ReplaySubject<LogEvent>>(ReplaySubject<LogEvent>())
+    var onLogged: Observable<LogEvent>
     func log(category: String, message: String, level: TealiumLogLevel) {
         _onLogged.publish((category, message, level))
     }

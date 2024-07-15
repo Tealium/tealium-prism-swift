@@ -14,7 +14,7 @@ typealias ExpiredDataEvent = [Int64: [String: TealiumDataOutput]]
 /// A repository class for registering and managing modules.
 protocol ModulesRepository {
     /// Observable to notify of data expiration.
-    var onDataExpired: TealiumObservable<ExpiredDataEvent> { get}
+    var onDataExpired: Observable<ExpiredDataEvent> { get}
 
     /// Returns the current existing of module names mapped to their id.
     func getModules() -> [String: Int64]

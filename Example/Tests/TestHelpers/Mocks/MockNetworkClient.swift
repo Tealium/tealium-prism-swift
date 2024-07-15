@@ -17,10 +17,10 @@ class MockNetworkClient: NetworkClient {
         self.result = result
     }
 
-    func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> TealiumDisposable {
+    func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> Disposable {
         requestDidSend?(request)
         completion(result)
-        return TealiumSubscription { }
+        return Subscription { }
     }
 
     func addInterceptor(_ interceptor: RequestInterceptor) {

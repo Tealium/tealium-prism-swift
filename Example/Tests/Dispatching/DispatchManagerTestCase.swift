@@ -17,11 +17,11 @@ class DispatchManagerTestCase: XCTestCase {
             .map { $0.id }
     }
 
-    @TealiumVariableSubject([ScopedBarrier(barrierId: "barrier1", scopes: [.all])])
-    var scopedBarriers: TealiumStatefulObservable<[ScopedBarrier]>
+    @StateSubject([ScopedBarrier(barrierId: "barrier1", scopes: [.all])])
+    var scopedBarriers: ObservableState<[ScopedBarrier]>
 
-    @TealiumVariableSubject([ScopedTransformation(id: "transformation1", transformerId: "transformer1", scopes: [.afterCollectors, .allDispatchers])])
-    var scopedTransformations: TealiumStatefulObservable<[ScopedTransformation]>
+    @StateSubject([ScopedTransformation(id: "transformation1", transformerId: "transformer1", scopes: [.afterCollectors, .allDispatchers])])
+    var scopedTransformations: ObservableState<[ScopedTransformation]>
 
     let transformer = MockTransformer(id: "transformer1") { transformation, dispatch, scope in
         var dispatch = dispatch
@@ -39,8 +39,8 @@ class DispatchManagerTestCase: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
     let modulesManager = ModulesManager()
     lazy var settings: [String: Any] = ["consent": ["enabled": false]]
-    lazy var _coreSettings = TealiumVariableSubject(CoreSettings(coreDictionary: settings))
-    var coreSettings: TealiumStatefulObservable<CoreSettings> {
+    lazy var _coreSettings = StateSubject(CoreSettings(coreDictionary: settings))
+    var coreSettings: ObservableState<CoreSettings> {
         _coreSettings.toStatefulObservable()
     }
     lazy var queueManager = MockQueueManager(processors: TealiumImplementation.queueProcessors(from: modulesManager.modules),

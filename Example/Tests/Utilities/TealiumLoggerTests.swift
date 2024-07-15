@@ -10,7 +10,7 @@
 import XCTest
 
 final class TealiumLoggerTests: XCTestCase {
-    var onCoreSettings = TealiumPublisher<CoreSettings>()
+    var onCoreSettings = BasePublisher<CoreSettings>()
     lazy var logger = TealiumLogger(logger: MockLogHandler(), minLogLevel: .debug, onCoreSettings: onCoreSettings.asObservable())
     func test_getLogger_returns_logger_only_when_higherThan_or_equalTo_minLogLevel() {
         XCTAssertNil(logger.getLogger(.trace))

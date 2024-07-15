@@ -152,7 +152,7 @@ final class ConnectivityManagerTests: XCTestCase {
         empiricalConnectionSuccess.isInverted = true
         let empiricalConnectionFailure = expectation(description: "Empirical connection failure should not be reported")
         empiricalConnectionFailure.isInverted = true
-        let automaticDisposer = TealiumAutomaticDisposer()
+        let automaticDisposer = AutomaticDisposer()
         empiricalConnectivity.onConnectionSuccess.subscribe {
             empiricalConnectionSuccess.fulfill()
         }.addTo(automaticDisposer)

@@ -10,7 +10,7 @@ import TealiumSwift
 import XCTest
 
 final class OperatorsFirstTests: XCTestCase {
-    let observable123 = TealiumObservable.Just(1, 2, 3)
+    let observable123 = Observable.Just(1, 2, 3)
 
     func test_first_returns_only_first_event() {
         let expectation = expectation(description: "Only first event is reported")
@@ -44,9 +44,9 @@ final class OperatorsFirstTests: XCTestCase {
 
     func test_first_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = TealiumPublisher<Int>()
+        let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
-        let generatedObservable: TealiumObservable<Int> = observable.first()
+        let generatedObservable: Observable<Int> = observable.first()
         var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
@@ -57,9 +57,9 @@ final class OperatorsFirstTests: XCTestCase {
 
     func test_first_cleans_retain_cycles_after_first_event() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = TealiumPublisher<Int>()
+        let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
-        let generatedObservable: TealiumObservable<Int> = observable.first()
+        let generatedObservable: Observable<Int> = observable.first()
         _ = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })

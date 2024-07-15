@@ -10,8 +10,8 @@ import Foundation
 @testable import TealiumSwift
 
 class MockQueueManager: QueueManager {
-    @ToAnyObservable(TealiumPublisher())
-    var onDequeueRequest: TealiumObservable<Void>
+    @ToAnyObservable(BasePublisher())
+    var onDequeueRequest: Observable<Void>
     override func getQueuedDispatches(for processor: String, limit: Int?) -> [TealiumDispatch] {
         _onDequeueRequest.publish()
         return super.getQueuedDispatches(for: processor, limit: limit)

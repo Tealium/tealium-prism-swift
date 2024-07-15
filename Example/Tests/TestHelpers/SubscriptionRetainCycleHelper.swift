@@ -9,10 +9,10 @@
 import Foundation
 @testable import TealiumSwift
 
-class SubscriptionRetainCycleHelper<P: TealiumObservableConvertible>: DeinitTester {
+class SubscriptionRetainCycleHelper<P: ObservableConvertible>: DeinitTester {
 
     let anyPublisher: P
-    var subscription: TealiumDisposable?
+    var subscription: Disposable?
 
     init(publisher: P, onDeinit: @escaping () -> Void) {
         self.anyPublisher = publisher

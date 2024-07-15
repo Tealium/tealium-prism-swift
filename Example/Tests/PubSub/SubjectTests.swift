@@ -1,5 +1,5 @@
 //
-//  TealiumSubjectTests.swift
+//  SubjectTests.swift
 //  tealium-swift_Tests
 //
 //  Created by Enrico Zannini on 17/07/23.
@@ -9,12 +9,12 @@
 @testable import TealiumSwift
 import XCTest
 
-class TealiumSubjectTests: XCTestCase {
+class SubjectTests: XCTestCase {
 
     func testPublishSubject() {
         let eventNotified = XCTestExpectation()
         let value = 2
-        let subject = TealiumSubject<Int>()
+        let subject = BaseSubject<Int>()
         _ = subject.subscribe { val in
             XCTAssertEqual(val, value)
             eventNotified.fulfill()
@@ -23,12 +23,12 @@ class TealiumSubjectTests: XCTestCase {
         wait(for: [eventNotified], timeout: 0)
     }
 
-    func test_subscribeOnce_TealiumSubject_calls_the_observer_only_once() {
-        let publisher = TealiumPublisher<Int>()
+    func test_subscribeOnce_Subject_calls_the_observer_only_once() {
+        let publisher = BasePublisher<Int>()
         subscribeOnce_calls_the_observer_only_once(publisher)
     }
 
-    func subscribeOnce_calls_the_observer_only_once(_ publisher: TealiumPublisher<Int>) {
+    func subscribeOnce_calls_the_observer_only_once(_ publisher: BasePublisher<Int>) {
         let eventNotified = expectation(description: "Event is notified")
         eventNotified.assertForOverFulfill = true
         let eventNotNotified = expectation(description: "Event is NOT notified")

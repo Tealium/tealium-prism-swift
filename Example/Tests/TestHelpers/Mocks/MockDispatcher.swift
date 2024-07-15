@@ -34,11 +34,11 @@ class MockDispatcher: MockModule, Dispatcher {
     var delay: Int?
     var queue = DispatchQueue.main
 
-    @ToAnyObservable<TealiumPublisher<[TealiumDispatch]>>(TealiumPublisher())
-    var onDispatch: TealiumObservable<[TealiumDispatch]>
+    @ToAnyObservable<BasePublisher<[TealiumDispatch]>>(BasePublisher())
+    var onDispatch: Observable<[TealiumDispatch]>
 
-    func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
-        let subscription = TealiumSubscription { }
+    func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
+        let subscription = Subscription { }
         if let delay = delay {
             queue.asyncAfter(deadline: .now() + .milliseconds(delay)) {
                 guard !subscription.isDisposed else { return }

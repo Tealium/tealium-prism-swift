@@ -11,8 +11,8 @@ import Foundation
 public let tealiumQueue = DispatchQueue(label: "tealium.queue") // TODO: change this
 
 public class ModulesManager {
-    @TealiumVariableSubject([])
-    var modules: TealiumStatefulObservable<[TealiumModule]>
+    @StateSubject([])
+    var modules: ObservableState<[TealiumModule]>
 
     func updateSettings(context: TealiumContext, settings: [String: Any]) {
         if self.modules.value.isEmpty {

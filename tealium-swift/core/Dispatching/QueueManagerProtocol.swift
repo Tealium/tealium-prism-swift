@@ -11,16 +11,16 @@ import Foundation
 /// A manager that stores `TealiumDispatch`es in separate queues per each `processor` and keeps track of the one that are currently inflight.
 public protocol QueueManagerProtocol {
     /// Observable that emits an event with the `processor`s for which a `TealiumDispatch` is enqueued.
-    var onEnqueuedDispatchesForProcessors: TealiumObservable<[String]> { get }
+    var onEnqueuedDispatchesForProcessors: Observable<[String]> { get }
 
     /**
      * Returns an observable that emits an event every time the amount of inflight `TealiumDispatch`es for a specific processor changes.
      *
      * - parameter processor: The `processor` for which to listen for the events count change
      *
-     * - returns: A `TealiumObservable<Int>` that emits events with the count of `TealiumDispatch`es that are currently inflight.
+     * - returns: A `Observable<Int>` that emits events with the count of `TealiumDispatch`es that are currently inflight.
      */
-    func onInflightDispatchesCount(for processor: String) -> TealiumObservable<Int>
+    func onInflightDispatchesCount(for processor: String) -> Observable<Int>
 
     /**
      * Returns the `TealiumDispatch`es in the queue, up to an optional limit, excluding the current inflight events.

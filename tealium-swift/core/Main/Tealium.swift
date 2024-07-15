@@ -12,8 +12,8 @@ public typealias TrackResultCompletion = (_ dispatch: TealiumDispatch, _ result:
 
 public class Tealium {
     let modulesManager: ModulesManager
-    private var onTealiumImplementation = TealiumReplaySubject<TealiumImplementation?>()
-    let automaticDisposer = TealiumAutomaticDisposer()
+    private var onTealiumImplementation = ReplaySubject<TealiumImplementation?>()
+    let automaticDisposer = AutomaticDisposer()
 
     public init(_ config: TealiumConfig, completion: @escaping (Result<Tealium, Error>) -> Void) {
         let startupInterval = TealiumSignpostInterval(signposter: .startup, name: "Teal Init")

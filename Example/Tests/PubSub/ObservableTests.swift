@@ -1,5 +1,5 @@
 //
-//  TealiumObservableTests.swift
+//  ObservableTests.swift
 //  tealium-swift_Tests
 //
 //  Created by Enrico Zannini on 12/07/23.
@@ -9,9 +9,9 @@
 @testable import TealiumSwift
 import XCTest
 
-final class TealiumObservableTests: XCTestCase {
+final class ObservableTests: XCTestCase {
 
-    let pub = TealiumPublisher<Int>()
+    let pub = BasePublisher<Int>()
 
     func test_as_observable_receives_events() {
         let expectation = expectation(description: "Event is published to the observable")
@@ -49,9 +49,9 @@ final class TealiumObservableTests: XCTestCase {
 
     func test_create_custom_observable_calls_subscription_handler_on_subscription() {
         let expectation = expectation(description: "Subscription handler is called")
-        let observable: TealiumObservableCreate<Int> = TealiumObservableCreate<Int> { _ in
+        let observable: CustomObservable<Int> = CustomObservable<Int> { _ in
             expectation.fulfill()
-            return TealiumSubscription { }
+            return Subscription { }
         }
         _ = observable.subscribe { _ in }
         waitForExpectations(timeout: 2.0)

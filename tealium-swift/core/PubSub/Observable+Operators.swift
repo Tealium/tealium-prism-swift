@@ -1,5 +1,5 @@
 //
-//  TealiumObservable+Operators.swift
+//  Observable+Operators.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 07/02/23.
@@ -9,7 +9,7 @@
 import Foundation
 
 /// A simple wrapper that disposes the provided subscriptions on a specific queue.
-class TealiumAsyncDisposer: TealiumDisposeContainer {
+class AsyncDisposer: DisposeContainer {
     let queue: DispatchQueue
     private var _isDisposed = false
     override var isDisposed: Bool {
@@ -26,12 +26,12 @@ class TealiumAsyncDisposer: TealiumDisposeContainer {
     }
 }
 
-public extension TealiumObservableProtocol {
+public extension Subscribable {
 
     /// Ensures that Observers to the returned observable are always subscribed on the provided queue.
-    func subscribeOn(_ queue: DispatchQueue) -> TealiumObservable<Element> {
-        TealiumObservableCreate { observer in
-            let subscription = TealiumAsyncDisposer(disposeOn: queue)
+    func subscribeOn(_ queue: DispatchQueue) -> Observable<Element> {
+        CustomObservable { observer in
+            let subscription = AsyncDisposer(disposeOn: queue)
             queue.async { // TODO: We might want to add a check if we are already on that queue then don't dispatch
                 guard !subscription.isDisposed else { return }
                 self.subscribe(observer).addTo(subscription)
@@ -41,9 +41,9 @@ public extension TealiumObservableProtocol {
     }
 
     /// Ensures that Observers to the returned observable are always called on the provided queue.
-    func observeOn(_ queue: DispatchQueue) -> TealiumObservable<Element> {
-        TealiumObservableCreate { observer in
-            let container = TealiumDisposeContainer()
+    func observeOn(_ queue: DispatchQueue) -> Observable<Element> {
+        CustomObservable { observer in
+            let container = DisposeContainer()
             self.subscribe { element in
                 queue.async { // TODO: We might want to add a check if we are already on that queue then don't dispatch
                     guard !container.isDisposed else { return }
@@ -55,8 +55,8 @@ public extension TealiumObservableProtocol {
     }
 
     /// Transforms the events provided to the observable into new events before calling the observers of the new observable.
-    func map<Result>(_ transform: @escaping (Element) -> Result) -> TealiumObservable<Result> {
-        TealiumObservableCreate { observer in
+    func map<Result>(_ transform: @escaping (Element) -> Result) -> Observable<Result> {
+        CustomObservable { observer in
             self.subscribe { element in
                 observer(transform(element))
             }
@@ -64,8 +64,8 @@ public extension TealiumObservableProtocol {
     }
 
     /// Transforms the events provided to the observable into new events, stripping out the nil events, before calling the observers of the new observable.
-    func compactMap<Result>(_ transform: @escaping (Element) -> Result?) -> TealiumObservable<Result> {
-        TealiumObservableCreate { observer in
+    func compactMap<Result>(_ transform: @escaping (Element) -> Result?) -> Observable<Result> {
+        CustomObservable { observer in
             self.subscribe { element in
                 if let transformed = transform(element) {
                     observer(transformed)
@@ -75,8 +75,8 @@ public extension TealiumObservableProtocol {
     }
 
     /// Only report the events that are included by the provided filter.
-    func filter(_ isIncluded: @escaping (Element) -> Bool) -> TealiumObservable<Element> {
-        TealiumObservableCreate { observer in
+    func filter(_ isIncluded: @escaping (Element) -> Bool) -> Observable<Element> {
+        CustomObservable { observer in
             self.subscribe { element in
                 if isIncluded(element) {
                     observer(element)
@@ -92,9 +92,9 @@ public extension TealiumObservableProtocol {
      *
      * - Returns: an observable that flattens the observables returned by the selector and emits all of their events.
      */
-    func flatMap<Result>(_ selector: @escaping (Element) -> TealiumObservable<Result>) -> TealiumObservable<Result> {
-        TealiumObservableCreate<Result> { observer in
-            let container = TealiumDisposeContainer()
+    func flatMap<Result>(_ selector: @escaping (Element) -> Observable<Result>) -> Observable<Result> {
+        CustomObservable<Result> { observer in
+            let container = DisposeContainer()
             self.subscribe { element in
                  selector(element)
                     .subscribe(observer)
@@ -112,10 +112,10 @@ public extension TealiumObservableProtocol {
      *
      * - Returns: an observable that flattens the observable returned by the selector and emits all of the events from the latest returned observable.
      */
-    func flatMapLatest<Result>(_ selector: @escaping (Element) -> TealiumObservable<Result>) -> TealiumObservable<Result> {
-        TealiumObservableCreate<Result> { observer in
-            let container = TealiumDisposeContainer()
-            var subscription: TealiumDisposable?
+    func flatMapLatest<Result>(_ selector: @escaping (Element) -> Observable<Result>) -> Observable<Result> {
+        CustomObservable<Result> { observer in
+            let container = DisposeContainer()
+            var subscription: Disposable?
             self.subscribe { element in
                 subscription?.dispose()
                 subscription = selector(element)
@@ -127,8 +127,8 @@ public extension TealiumObservableProtocol {
     }
 
     /// On subscription emits the provided elements before providing the other events from the original observable.
-    func startWith(_ elements: Element...) -> TealiumObservable<Element> {
-        TealiumObservableCreate { observer in
+    func startWith(_ elements: Element...) -> Observable<Element> {
+        CustomObservable { observer in
             for startingElement in elements {
                 observer(startingElement)
             }
@@ -139,9 +139,9 @@ public extension TealiumObservableProtocol {
     }
 
     /// Returns a new observable that emits the events of the original observable and the otherObservable passed as parameter.
-    func merge(_ otherObservables: TealiumObservable<Element>...) -> TealiumObservable<Element> {
-        TealiumObservableCreate { observer in
-            let container = TealiumDisposeContainer()
+    func merge(_ otherObservables: Observable<Element>...) -> Observable<Element> {
+        CustomObservable { observer in
+            let container = DisposeContainer()
             self.subscribe(observer)
                 .addTo(container)
             for observable in otherObservables {
@@ -158,9 +158,9 @@ public extension TealiumObservableProtocol {
      * If you don't provide a block then the first event will always be taken.
      * After the first event is published it automatically disposes the observer.
      */
-    func first(where isIncluded: @escaping (Element) -> Bool = { _ in true }) -> TealiumObservable<Element> {
-        TealiumObservableCreate { observer in
-            let container = TealiumDisposeContainer()
+    func first(where isIncluded: @escaping (Element) -> Bool = { _ in true }) -> Observable<Element> {
+        CustomObservable { observer in
+            let container = DisposeContainer()
             self.filter(isIncluded)
                 .subscribe { element in
                     guard !container.isDisposed else { return } // Used to sync multiple events without unsubscribe capabilities
@@ -177,9 +177,9 @@ public extension TealiumObservableProtocol {
      * The first event will be fired when both observable have emitted at least one event.
      * Then a new event with the tuple will be emitted everytime one of the two emits a new event.
      */
-    func combineLatest<Other>(_ otherObservable: TealiumObservable<Other>) -> TealiumObservable<(Element, Other)> {
-        TealiumObservableCreate { observer in
-            let container = TealiumDisposeContainer()
+    func combineLatest<Other>(_ otherObservable: Observable<Other>) -> Observable<(Element, Other)> {
+        CustomObservable { observer in
+            let container = DisposeContainer()
             var first: Element?
             var other: Other?
             func notify() {
@@ -200,8 +200,8 @@ public extension TealiumObservableProtocol {
     }
 
     /// Returns an observable that ignores the first N published events.
-    func ignore(_ count: Int) -> TealiumObservable<Element> {
-        TealiumObservableCreate { observer in
+    func ignore(_ count: Int) -> Observable<Element> {
+        CustomObservable { observer in
             var current = 0
             return self.subscribe { element in
                 guard current >= count else {
@@ -214,7 +214,7 @@ public extension TealiumObservableProtocol {
     }
 
     /// Returns an observable that ignores the first published events.
-    func ignoreFirst() -> TealiumObservable<Element> {
+    func ignoreFirst() -> Observable<Element> {
         ignore(1)
     }
 
@@ -226,8 +226,8 @@ public extension TealiumObservableProtocol {
      * - Warning: If the underlying observable always emits a new event and the condition is always met, this will end up calling endlessly until, eventually, the app will crash for stack overflow or out of memory exceptions.
      * You need to treat the underlying observable as a recursive function and make sure there is an exit condition.
      */
-    func resubscribingWhile(_ isIncluded: @escaping (Element) -> Bool) -> TealiumObservable<Element> {
-        func subscribeOnceInfiniteLoop(observer: @escaping (Element) -> Void, container: TealiumDisposeContainer) -> TealiumDisposable {
+    func resubscribingWhile(_ isIncluded: @escaping (Element) -> Bool) -> Observable<Element> {
+        func subscribeOnceInfiniteLoop(observer: @escaping (Element) -> Void, container: DisposeContainer) -> Disposable {
             self.subscribeOnce { element in
                 guard !container.isDisposed else { return }
                 observer(element)
@@ -237,8 +237,8 @@ public extension TealiumObservableProtocol {
                 }
             }
         }
-        return TealiumObservableCreate { observer in
-            let container = TealiumDisposeContainer()
+        return CustomObservable { observer in
+            let container = DisposeContainer()
             subscribeOnceInfiniteLoop(observer: observer, container: container)
                 .addTo(container)
             return container
@@ -246,9 +246,9 @@ public extension TealiumObservableProtocol {
     }
 
     /// Returns an observable that automatically unsubscribes when the provided condition is no longer met. If inclusive is `true` the last element will also be published.
-    func takeWhile(_ isIncluded: @escaping (Element) -> Bool, inclusive: Bool = false) -> TealiumObservable<Element> {
-        TealiumObservableCreate { observer in
-            let container = TealiumDisposeContainer()
+    func takeWhile(_ isIncluded: @escaping (Element) -> Bool, inclusive: Bool = false) -> Observable<Element> {
+        CustomObservable { observer in
+            let container = DisposeContainer()
             self.subscribe { element in
                 guard !container.isDisposed else { return }
                 if isIncluded(element) {
@@ -265,10 +265,10 @@ public extension TealiumObservableProtocol {
     }
 }
 
-public extension TealiumObservableProtocol where Element: Equatable {
+public extension Subscribable where Element: Equatable {
     /// Only emits new events if the last one is different from the new one.
-    func distinct() -> TealiumObservable<Element> {
-        TealiumObservableCreate { observer in
+    func distinct() -> Observable<Element> {
+        CustomObservable { observer in
             var lastElement: Element?
             return self.subscribe { element in
                 let isDistinct = lastElement == nil || lastElement != element

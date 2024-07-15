@@ -10,13 +10,13 @@ import Foundation
 import TealiumSwift
 
 class MockCMPIntegration: CMPIntegration {
-    let consentDecision: TealiumSwift.TealiumStatefulObservable<TealiumSwift.ConsentDecision?>
+    let consentDecision: TealiumSwift.ObservableState<TealiumSwift.ConsentDecision?>
 
     func allPurposes() -> [String] {
         return consentDecision.value?.purposes ?? []
     }
 
-    init(consentDecision: TealiumSwift.TealiumStatefulObservable<TealiumSwift.ConsentDecision?>) {
+    init(consentDecision: TealiumSwift.ObservableState<TealiumSwift.ConsentDecision?>) {
         self.consentDecision = consentDecision
     }
 }

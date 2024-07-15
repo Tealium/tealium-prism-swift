@@ -10,15 +10,15 @@ import TealiumSwift
 import XCTest
 
 final class OperatorsQueuesTests: XCTestCase {
-    let observable123 = TealiumObservable.Just(1, 2, 3)
+    let observable123 = Observable.Just(1, 2, 3)
 
     func test_subscribeOn_subscribes_on_provided_queue() {
         let expectation = expectation(description: "Subscribe handler is called")
         let queue = DispatchQueue(label: "ObservableTestQueue")
-        let observable = TealiumObservableCreate<Void> { _ in
+        let observable = CustomObservable<Void> { _ in
             dispatchPrecondition(condition: .onQueue(queue))
             expectation.fulfill()
-            return TealiumSubscription { }
+            return Subscription { }
         }
         _ = observable.subscribeOn(queue)
             .subscribe { }
@@ -29,10 +29,10 @@ final class OperatorsQueuesTests: XCTestCase {
 
     func test_subscribeOn_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = TealiumPublisher<Int>()
+        let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
         let queue = DispatchQueue(label: "ObservableTestQueue")
-        let generatedObservable: TealiumObservable<Int> = observable.subscribeOn(queue)
+        let generatedObservable: Observable<Int> = observable.subscribeOn(queue)
         var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
@@ -49,10 +49,10 @@ final class OperatorsQueuesTests: XCTestCase {
     func test_subscribeOn_subscription_dispose_immediately_disposes_underlying_subscription() {
         let notPublished = expectation(description: "Even not published to the observer")
         notPublished.isInverted = true
-        let pub = TealiumReplaySubject<Int>(initialValue: 1)
+        let pub = ReplaySubject<Int>(initialValue: 1)
         let observable = pub.asObservable()
         let queue = DispatchQueue.main // So that the subscription is delayed after the end of this function
-        let generatedObservable: TealiumObservable<Int> = observable.subscribeOn(queue)
+        let generatedObservable: Observable<Int> = observable.subscribeOn(queue)
         let subscription = generatedObservable.subscribe { _ in
             notPublished.fulfill()
         }
@@ -76,10 +76,10 @@ final class OperatorsQueuesTests: XCTestCase {
 
     func test_observeOn_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = TealiumPublisher<Int>()
+        let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
         let queue = DispatchQueue(label: "ObservableTestQueue")
-        let generatedObservable: TealiumObservable<Int> = observable.observeOn(queue)
+        let generatedObservable: Observable<Int> = observable.observeOn(queue)
         var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
@@ -94,10 +94,10 @@ final class OperatorsQueuesTests: XCTestCase {
     func test_observeOn_subscription_dispose_immediately_disposes_underlying_subscription() {
         let notPublished = expectation(description: "Even not published to the observer")
         notPublished.isInverted = true
-        let pub = TealiumReplaySubject<Int>(initialValue: 1)
+        let pub = ReplaySubject<Int>(initialValue: 1)
         let observable = pub.asObservable()
         let queue = DispatchQueue.main // So that the subscription is delayed after the end of this function
-        let generatedObservable: TealiumObservable<Int> = observable.observeOn(queue)
+        let generatedObservable: Observable<Int> = observable.observeOn(queue)
         let subscription = generatedObservable.subscribe { _ in
             notPublished.fulfill()
         }

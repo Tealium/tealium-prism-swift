@@ -10,7 +10,7 @@ import Foundation
 
 class TealiumImplementation {
     let settingsProvider: SettingsProvider
-    let automaticDisposer = TealiumAutomaticDisposer()
+    let automaticDisposer = AutomaticDisposer()
     let context: TealiumContext
     let modulesManager: ModulesManager
     let instanceName: String
@@ -89,19 +89,19 @@ class TealiumImplementation {
             }
     }
 
-    private static func barrierCoordinator(config: TealiumConfig, coreSettings: TealiumStatefulObservable<CoreSettings>) -> BarrierCoordinator {
+    private static func barrierCoordinator(config: TealiumConfig, coreSettings: ObservableState<CoreSettings>) -> BarrierCoordinator {
         return BarrierCoordinator(registeredBarriers: config.barriers + [ConnectivityBarrier(onConnection: ConnectivityManager.shared.connectionAssumedAvailable)],
                                   onScopedBarriers: coreSettings.asObservable().map { $0.scopedBarriers })
     }
 
-    private static func transformerCoordinator(config: TealiumConfig, coreSettings: TealiumStatefulObservable<CoreSettings>) -> TransformerCoordinator {
+    private static func transformerCoordinator(config: TealiumConfig, coreSettings: ObservableState<CoreSettings>) -> TransformerCoordinator {
         let scopedTransformations = coreSettings.map { $0.scopedTransformations }
         return TransformerCoordinator(registeredTransformers: config.transformers,
                                       scopedTransformations: scopedTransformations,
                                       queue: tealiumQueue)
     }
 
-    static func queueProcessors(from modules: TealiumStatefulObservable<[TealiumModule]>) -> TealiumObservable<[String]> {
+    static func queueProcessors(from modules: ObservableState<[TealiumModule]>) -> Observable<[String]> {
         modules.filter { !$0.isEmpty }
             .map { modules in modules
                     .filter { $0 is Dispatcher || $0 is ConsentManager }

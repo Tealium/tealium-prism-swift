@@ -82,7 +82,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
         let refresherError = expectation(description: "No Error should be reported")
         refresherError.isInverted = true
         let refresher = try createResourceRefresher()
-        let automaticDisposer = TealiumAutomaticDisposer()
+        let automaticDisposer = AutomaticDisposer()
         refresher.onResourceLoaded.subscribe { _ in
             resourceLoaded.fulfill()
         }.addTo(automaticDisposer)

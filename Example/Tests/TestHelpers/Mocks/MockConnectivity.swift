@@ -13,8 +13,8 @@ class MockConnectivityMonitor: ConnectivityMonitorProtocol {
 
     // MARK: ConnectivityMonitorProtocol
 
-    @TealiumVariableSubject(.unknown)
-    var connection: TealiumStatefulObservable<NetworkConnection>
+    @StateSubject(.unknown)
+    var connection: ObservableState<NetworkConnection>
 
     // MARK: Testing Utilities
 
@@ -31,8 +31,8 @@ class MockEmpiricalConnectivity: EmpiricalConnectivityProtocol {
 
     // MARK: EmpiricalConnectivityProtocol
 
-    @ToAnyObservable(TealiumReplaySubject<Bool>(initialValue: true))
-    var onEmpiricalConnectionAvailable: TealiumObservable<Bool>
+    @ToAnyObservable(ReplaySubject<Bool>(initialValue: true))
+    var onEmpiricalConnectionAvailable: Observable<Bool>
 
     func connectionSuccess() {
         _onConnectionSuccess.publish()
@@ -44,11 +44,11 @@ class MockEmpiricalConnectivity: EmpiricalConnectivityProtocol {
 
     // MARK: Testing Utilities
 
-    @ToAnyObservable(TealiumPublisher<Void>())
-    var onConnectionSuccess: TealiumObservable<Void>
+    @ToAnyObservable(BasePublisher<Void>())
+    var onConnectionSuccess: Observable<Void>
 
-    @ToAnyObservable(TealiumPublisher<Void>())
-    var onConnectionFail: TealiumObservable<Void>
+    @ToAnyObservable(BasePublisher<Void>())
+    var onConnectionFail: Observable<Void>
 
     func changeConnectionAvailable(_ available: Bool) {
         _onEmpiricalConnectionAvailable.publisher.publishIfChanged(available)

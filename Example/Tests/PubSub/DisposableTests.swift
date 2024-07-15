@@ -1,5 +1,5 @@
 //
-//  TealiumDisposableTests.swift
+//  DisposableTests.swift
 //  tealium-swift_Tests
 //
 //  Created by Enrico Zannini on 14/07/23.
@@ -9,11 +9,11 @@
 @testable import TealiumSwift
 import XCTest
 
-final class TealiumDisposableTests: XCTestCase {
+final class DisposableTests: XCTestCase {
 
     func test_tealium_subscription_calls_callback_on_dispose() {
         let expectation = expectation(description: "Dispose callback is called")
-        let subscription = TealiumSubscription {
+        let subscription = Subscription {
             expectation.fulfill()
         }
         subscription.dispose()
@@ -21,7 +21,7 @@ final class TealiumDisposableTests: XCTestCase {
     }
 
     func test_is_disposed_true_when_subscription_is_disposed() {
-        let subscription = TealiumSubscription { }
+        let subscription = Subscription { }
         XCTAssertFalse(subscription.isDisposed)
         subscription.dispose()
         XCTAssertTrue(subscription.isDisposed)
@@ -30,16 +30,16 @@ final class TealiumDisposableTests: XCTestCase {
     func test_dispose_container_disposes_all_subscriptions() {
         let subscriptionDisposedExpectation = expectation(description: "Subscription is disposed")
         subscriptionDisposedExpectation.expectedFulfillmentCount = 3
-        let disposeContainer = TealiumDisposeContainer()
-        disposeContainer.add(TealiumSubscription { subscriptionDisposedExpectation.fulfill() })
-        disposeContainer.add(TealiumSubscription { subscriptionDisposedExpectation.fulfill() })
-        disposeContainer.add(TealiumSubscription { subscriptionDisposedExpectation.fulfill() })
+        let disposeContainer = DisposeContainer()
+        disposeContainer.add(Subscription { subscriptionDisposedExpectation.fulfill() })
+        disposeContainer.add(Subscription { subscriptionDisposedExpectation.fulfill() })
+        disposeContainer.add(Subscription { subscriptionDisposedExpectation.fulfill() })
         disposeContainer.dispose()
         waitForExpectations(timeout: 2.0)
     }
 
     func test_is_disposed_true_when_dispose_container_is_disposed() {
-        let container = TealiumDisposeContainer()
+        let container = DisposeContainer()
         XCTAssertFalse(container.isDisposed)
         container.dispose()
         XCTAssertTrue(container.isDisposed)
@@ -47,9 +47,9 @@ final class TealiumDisposableTests: XCTestCase {
 
     func test_disposed_container_automatically_disposes_new_disposable() {
         let subscriptionDisposed = expectation(description: "Subscription is disposed immediately")
-        let container = TealiumDisposeContainer()
+        let container = DisposeContainer()
         container.dispose()
-        container.add(TealiumSubscription(unsubscribe: {
+        container.add(Subscription(unsubscribe: {
             subscriptionDisposed.fulfill()
         }))
         waitForExpectations(timeout: 2.0)
@@ -58,10 +58,10 @@ final class TealiumDisposableTests: XCTestCase {
     func test_deinit_disposes_automatically_all_subscriptions_contained_in_automatic_disposer() {
         let subscriptionDisposedExpectation = expectation(description: "Subscription is disposed")
         subscriptionDisposedExpectation.expectedFulfillmentCount = 3
-        var automaticDisposer: TealiumAutomaticDisposer? = TealiumAutomaticDisposer()
-        automaticDisposer?.add(TealiumSubscription { subscriptionDisposedExpectation.fulfill() })
-        automaticDisposer?.add(TealiumSubscription { subscriptionDisposedExpectation.fulfill() })
-        automaticDisposer?.add(TealiumSubscription { subscriptionDisposedExpectation.fulfill() })
+        var automaticDisposer: AutomaticDisposer? = AutomaticDisposer()
+        automaticDisposer?.add(Subscription { subscriptionDisposedExpectation.fulfill() })
+        automaticDisposer?.add(Subscription { subscriptionDisposedExpectation.fulfill() })
+        automaticDisposer?.add(Subscription { subscriptionDisposedExpectation.fulfill() })
         automaticDisposer = nil
         waitForExpectations(timeout: 2.0)
     }

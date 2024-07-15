@@ -14,7 +14,7 @@ import Foundation
 public enum RetryPolicy {
     case doNotRetry
     case afterDelay(TimeInterval)
-    case afterEvent(TealiumObservable<Void>)
+    case afterEvent(Observable<Void>)
 
     /**
      * Waits for the `RetryPolicy` and calls the completion, if necessary, and returns a boolean expressing if the policy indicates it needs a retry.

@@ -10,12 +10,12 @@
 import XCTest
 
 final class OperatorsResubscribingTests: XCTestCase {
-    let observable123 = TealiumObservable.Just(1, 2, 3)
+    let observable123 = Observable.Just(1, 2, 3)
 
     func test_resubscribing_on_a_synchronous_observable_only_publishes_the_first_event() {
         let onlyFirstEventIsPublished = expectation(description: "Only the first event is published on a synchronous observable")
         onlyFirstEventIsPublished.expectedFulfillmentCount = 5
-        var subscription: TealiumDisposable?
+        var subscription: Disposable?
         let queue = DispatchQueue(label: "test.queue")
         var count = 0
         queue.async {
@@ -37,14 +37,14 @@ final class OperatorsResubscribingTests: XCTestCase {
         let eventsPublished = expectation(description: "Events are published")
         eventsPublished.expectedFulfillmentCount = 3
         var eventCount = 0
-        _ = TealiumObservableCreate { observer in
+        _ = CustomObservable { observer in
             if eventCount < 3 {
                 DispatchQueue.main.async {
                     eventCount += 1
                     observer(eventCount)
                 }
             }
-            return TealiumSubscription { }
+            return Subscription { }
         }
         .resubscribingWhile { _ in eventCount < 3 }
         .subscribe { number in
@@ -58,7 +58,7 @@ final class OperatorsResubscribingTests: XCTestCase {
         let subscribeCalled = expectation(description: "Subscribe block is called")
         subscribeCalled.expectedFulfillmentCount = 3
         var eventCount = 0
-        _ = TealiumObservableCreate { observer in
+        _ = CustomObservable { observer in
             subscribeCalled.fulfill()
             if eventCount < 3 {
                 DispatchQueue.main.async {
@@ -66,7 +66,7 @@ final class OperatorsResubscribingTests: XCTestCase {
                     observer(eventCount)
                 }
             }
-            return TealiumSubscription { }
+            return Subscription { }
         }
         .resubscribingWhile { _ in eventCount < 3 }
         .subscribe { _ in }
@@ -77,14 +77,14 @@ final class OperatorsResubscribingTests: XCTestCase {
         let disposeCalled = expectation(description: "Dispose subscription is called on every event")
         disposeCalled.expectedFulfillmentCount = 3
         var eventCount = 0
-        _ = TealiumObservableCreate { observer in
+        _ = CustomObservable { observer in
             if eventCount < 3 {
                 DispatchQueue.main.async {
                     eventCount += 1
                     observer(eventCount)
                 }
             }
-            return TealiumSubscription {
+            return Subscription {
                 disposeCalled.fulfill()
             }
         }

@@ -16,8 +16,8 @@ class MockBarrier: Barrier {
         self.id = id
     }
 
-    @ToAnyObservable(TealiumReplaySubject<BarrierState>(initialValue: .open))
-    var onState: TealiumObservable<BarrierState>
+    @ToAnyObservable(ReplaySubject<BarrierState>(initialValue: .open))
+    var onState: Observable<BarrierState>
 
     func setState(_ newState: BarrierState) {
         _onState.publisher.publishIfChanged(newState)

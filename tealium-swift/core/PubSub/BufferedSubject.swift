@@ -1,5 +1,5 @@
 //
-//  TealiumBufferedSubject.swift
+//  BufferedSubject.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 17/07/23.
@@ -14,7 +14,7 @@ import Foundation
  * While at least one observer is subscribed the events are not buffered anymore.
  * Buffering will resume when the last observer unsubscribes.
  */
-public class TealiumBufferedSubject<Element>: TealiumSubject<Element> {
+public class BufferedSubject<Element>: BaseSubject<Element> {
     private let bufferSize: Int?
     private var buffer = [Element]()
     private var observersCount = 0
@@ -27,8 +27,8 @@ public class TealiumBufferedSubject<Element>: TealiumSubject<Element> {
         self.init(bufferSize: 1)
     }
 
-    public override func asObservable() -> TealiumObservable<Element> {
-        TealiumObservableCreate { observer in
+    public override func asObservable() -> Observable<Element> {
+        CustomObservable { observer in
             let buffer = self.buffer
             self.buffer = []
             defer {
@@ -38,7 +38,7 @@ public class TealiumBufferedSubject<Element>: TealiumSubject<Element> {
             }
             self.observersCount += 1
             let sub = super.asObservable().subscribe(observer)
-            return TealiumSubscription {
+            return Subscription {
                 self.observersCount -= 1
                 sub.dispose()
             }

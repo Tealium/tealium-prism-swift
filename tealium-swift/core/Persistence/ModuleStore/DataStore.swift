@@ -57,14 +57,14 @@ public protocol DataStore {
     func count() -> Int
 
     /// Observable of key-value pairs from this DataStore that have been updated
-    var onDataUpdated: TealiumObservable<[String: TealiumDataInput]> { get }
+    var onDataUpdated: Observable<[String: TealiumDataInput]> { get }
 
     /**
      * Observable of key-value pairs from this DataStore that have been removed or expired
      *
      * Note that expiration may not happen immediately when the value is expired but may happen asynchronously on a later check
      */
-    var onDataRemoved: TealiumObservable<[String]> { get }
+    var onDataRemoved: Observable<[String]> { get }
 }
 
 /// Enables editing multiple entries in the module storage in a transactional way.

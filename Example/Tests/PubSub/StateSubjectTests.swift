@@ -1,5 +1,5 @@
 //
-//  TealiumVariableSubjectTests.swift
+//  StateSubjectTests.swift
 //  tealium-swift_Tests
 //
 //  Created by Enrico Zannini on 20/11/23.
@@ -9,9 +9,9 @@
 import TealiumSwift
 import XCTest
 
-final class TealiumVariableSubjectTests: XCTestCase {
+final class StateSubjectTests: XCTestCase {
 
-    let variableSubject = TealiumVariableSubject(0)
+    let variableSubject = StateSubject(0)
 
     func test_value_changes_emit_new_updates() {
         let stateChanged = expectation(description: "State changed")
@@ -68,7 +68,7 @@ final class TealiumVariableSubjectTests: XCTestCase {
     }
 
     func test_mutate_array_emits_new_update() {
-        let variableSubject = TealiumVariableSubject([1, 2, 3])
+        let variableSubject = StateSubject([1, 2, 3])
         let updated = expectation(description: "Update arrives")
         _ = variableSubject.updates().subscribe { result in
             updated.fulfill()

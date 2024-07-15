@@ -15,8 +15,8 @@ class MockConsentManager: MockModule, ConsentManager {
     var allPurposes: [String] = []
     var trackResult: TrackResult = .accepted
 
-    @ToAnyObservable(TealiumPublisher<TealiumDispatch>())
-    var onApplyConsent: TealiumObservable<TealiumDispatch>
+    @ToAnyObservable(BasePublisher<TealiumDispatch>())
+    var onApplyConsent: Observable<TealiumDispatch>
 
     func applyConsent(to dispatch: TealiumDispatch, completion onTrackResult: TrackResultCompletion?) {
         _onApplyConsent.publish(dispatch)

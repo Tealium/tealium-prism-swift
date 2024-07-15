@@ -11,8 +11,8 @@ import SQLite
 
 class SQLModulesRepository: ModulesRepository {
 
-    @ToAnyObservable<TealiumPublisher<ExpiredDataEvent>>(TealiumPublisher<ExpiredDataEvent>())
-    var onDataExpired: TealiumObservable<ExpiredDataEvent>
+    @ToAnyObservable<BasePublisher<ExpiredDataEvent>>(BasePublisher<ExpiredDataEvent>())
+    var onDataExpired: Observable<ExpiredDataEvent>
     private let database: Connection
 
     init(dbProvider: DatabaseProviderProtocol) {

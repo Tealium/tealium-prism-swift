@@ -1,5 +1,5 @@
 //
-//  TealiumReplaySubject.swift
+//  ReplaySubject.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 17/07/23.
@@ -9,7 +9,7 @@
 import Foundation
 
 /// A subject that, in addition to normal publish behavior, holds a cache of items and sends it, in order, to each new observer that is subscribed.
-public class TealiumReplaySubject<Element>: TealiumSubject<Element> {
+public class ReplaySubject<Element>: BaseSubject<Element> {
     private let cacheSize: Int?
     private var cache = [Element]()
     // Having a default value here would cause a crash on Carthage
@@ -26,8 +26,8 @@ public class TealiumReplaySubject<Element>: TealiumSubject<Element> {
         self.publish(initialValue)
     }
 
-    public override func asObservable() -> TealiumObservable<Element> {
-        TealiumObservableCreate { observer in
+    public override func asObservable() -> Observable<Element> {
+        CustomObservable { observer in
             let cache = self.cache
             defer {
                 for element in cache {
@@ -59,7 +59,7 @@ public class TealiumReplaySubject<Element>: TealiumSubject<Element> {
     }
 }
 
-public extension TealiumReplaySubject where Element: Equatable {
+public extension ReplaySubject where Element: Equatable {
     /// Publishes the new event only if the new one is different from the last one
     func publishIfChanged(_ element: Element) {
         if element != last() {

@@ -32,7 +32,7 @@ public protocol Collector: TealiumModule {
 
 public protocol Dispatcher: TealiumModule {
     var dispatchLimit: Int { get }
-    func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable
+    func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable
 }
 
 public extension Dispatcher {

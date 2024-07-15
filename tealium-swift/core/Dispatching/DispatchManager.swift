@@ -18,7 +18,7 @@ class DispatchManager {
     var dispatchers: [Dispatcher] {
         modulesManager.modules.value.compactMap { $0 as? Dispatcher }
     }
-    var onDispatchers: TealiumObservable<[Dispatcher]> {
+    var onDispatchers: Observable<[Dispatcher]> {
         modulesManager.modules.map { moduleList in moduleList.compactMap { $0 as? Dispatcher } }
     }
     let modulesManager: ModulesManager
@@ -27,8 +27,8 @@ class DispatchManager {
         modulesManager.modules.value.compactMap { $0 as? ConsentManager }.first
     }
     let logger: TealiumLoggerProvider?
-    @ToAnyObservable<TealiumPublisher<Void>>(TealiumPublisher<Void>())
-    var onQueuedEvents: TealiumObservable<Void>
+    @ToAnyObservable<BasePublisher<Void>>(BasePublisher<Void>())
+    var onQueuedEvents: Observable<Void>
 
     init(modulesManager: ModulesManager,
          queueManager: QueueManagerProtocol,
@@ -81,15 +81,15 @@ class DispatchManager {
         }
     }
 
-    private var managerContainer = TealiumAutomaticDisposer()
+    private var managerContainer = AutomaticDisposer()
 
     func stopDispatchLoop() {
-        managerContainer = TealiumAutomaticDisposer()
+        managerContainer = AutomaticDisposer()
     }
 
     func startDispatchLoop() {
         onDispatchers.flatMapLatest { dispatchers in
-            TealiumObservable.From(dispatchers)
+            Observable.From(dispatchers)
         }.flatMap { [weak self, coordinator = barrierCoordinator] dispatcher in
             coordinator.onBarrierState(for: dispatcher.id)
                 .flatMapLatest { [weak self] barriersState in
@@ -101,9 +101,9 @@ class DispatchManager {
                         return .Empty()
                     }
                 }.flatMap { [weak self] dispatches in
-                    TealiumObservable.Callback { [weak self] observer in
+                    Observable.Callback { [weak self] observer in
                         guard let self = self else {
-                            return TealiumSubscription { }
+                            return Subscription { }
                         }
                         self.logger?.debug?.log(category: LogCategory.dispatchManager,
                                                 message: "Sending events to dispatcher \(dispatcher.id): \(dispatches.shortDescription())")
@@ -120,7 +120,7 @@ class DispatchManager {
         }.addTo(self.managerContainer)
     }
 
-    private func startDequeueLoop(for dispatcher: Dispatcher) -> TealiumObservable<[TealiumDispatch]> {
+    private func startDequeueLoop(for dispatcher: Dispatcher) -> Observable<[TealiumDispatch]> {
         let onInflightLower = queueManager.onInflightDispatchesCount(for: dispatcher.id)
             .map { $0 < Self.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER }
             .distinct()
@@ -137,8 +137,8 @@ class DispatchManager {
             }
     }
 
-    private func transformAndDispatch(dispatches: [TealiumDispatch], for dispatcher: Dispatcher, onProcessedDispatches: @escaping ([TealiumDispatch]) -> Void) -> TealiumDisposable {
-        let container = TealiumDisposeContainer()
+    private func transformAndDispatch(dispatches: [TealiumDispatch], for dispatcher: Dispatcher, onProcessedDispatches: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
+        let container = DisposeContainer()
         self.transformerCoordinator.transform(dispatches: dispatches, for: .dispatcher(dispatcher.id)) { transformedDispatches in
             guard !container.isDisposed else { return }
             let missingDispatchesAfterTransformations = dispatches.filter { oldDispatch in

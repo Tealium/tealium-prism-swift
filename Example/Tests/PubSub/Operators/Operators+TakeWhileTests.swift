@@ -11,7 +11,7 @@ import XCTest
 
 final class OperatorsTakeWhileTests: XCTestCase {
 
-    let observable123 = TealiumObservable.Just(1, 2, 3)
+    let observable123 = Observable.Just(1, 2, 3)
 
     func test_events_over_conditions_are_not_emitted() {
         let expectations = [
@@ -105,7 +105,7 @@ final class OperatorsTakeWhileTests: XCTestCase {
             expectation(description: "Event 2 is not emitted"),
         ]
         expectations[1].isInverted = true
-        let pub = TealiumPublisher<Int>()
+        let pub = BasePublisher<Int>()
         _ = pub.asObservable()
             .takeWhile { $0 < 2 }
             .subscribe { event in
@@ -126,7 +126,7 @@ final class OperatorsTakeWhileTests: XCTestCase {
             expectation(description: "Event 1 is emitted only once"),
             expectation(description: "Event 2 is emitted"),
         ]
-        let pub = TealiumPublisher<Int>()
+        let pub = BasePublisher<Int>()
         _ = pub.asObservable()
             .takeWhile({ $0 < 2 }, inclusive: true)
             .subscribe { event in
@@ -148,7 +148,7 @@ final class OperatorsTakeWhileTests: XCTestCase {
             expectation(description: "Event 2 is not emitted"),
         ]
         expectations[1].isInverted = true
-        let pub = TealiumPublisher<Int>()
+        let pub = BasePublisher<Int>()
         let subscription = pub.asObservable()
             .takeWhile { $0 < 2 }
             .subscribe { event in
@@ -170,7 +170,7 @@ final class OperatorsTakeWhileTests: XCTestCase {
             expectation(description: "Event 1 is emitted only once"),
             expectation(description: "Event 2 is emitted"),
         ]
-        let pub = TealiumPublisher<Int>()
+        let pub = BasePublisher<Int>()
         let subscription = pub.asObservable()
             .takeWhile({ $0 < 2 }, inclusive: true)
             .subscribe { event in

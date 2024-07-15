@@ -33,15 +33,15 @@ public protocol TransformerRegistry {
  */
 public class TransformerCoordinator: TransformerRegistry {
     private var registeredTransformers: [Transformer]
-    private let scopedTransformations: TealiumStatefulObservable<[ScopedTransformation]>
-    private let additionalTransformations = TealiumVariableSubject<[ScopedTransformation]>([])
+    private let scopedTransformations: ObservableState<[ScopedTransformation]>
+    private let additionalTransformations = StateSubject<[ScopedTransformation]>([])
     private var allTransformations: [ScopedTransformation] {
         scopedTransformations.value + additionalTransformations.value
     }
     private let queue: DispatchQueue
     typealias TransformationCompletion = (TealiumDispatch?) -> Void
     typealias DispatchesTransformationCompletion = ([TealiumDispatch]) -> Void
-    init(registeredTransformers: [Transformer], scopedTransformations: TealiumStatefulObservable<[ScopedTransformation]>, queue: DispatchQueue = tealiumQueue) {
+    init(registeredTransformers: [Transformer], scopedTransformations: ObservableState<[ScopedTransformation]>, queue: DispatchQueue = tealiumQueue) {
         self.registeredTransformers = registeredTransformers
         self.scopedTransformations = scopedTransformations
         self.queue = queue

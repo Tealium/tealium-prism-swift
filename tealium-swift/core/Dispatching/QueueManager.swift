@@ -10,14 +10,14 @@ import Foundation
 
 class QueueManager: QueueManagerProtocol {
     /// [DispatcherId: [DispatchId]]
-    @TealiumVariableSubject([String: [String]]())
-    var inflightEvents: TealiumStatefulObservable<[String: [String]]>
-    @ToAnyObservable<TealiumPublisher<[String]>>(TealiumPublisher<[String]>())
-    var onEnqueuedDispatchesForProcessors: TealiumObservable<[String]>
+    @StateSubject([String: [String]]())
+    var inflightEvents: ObservableState<[String: [String]]>
+    @ToAnyObservable<BasePublisher<[String]>>(BasePublisher<[String]>())
+    var onEnqueuedDispatchesForProcessors: Observable<[String]>
     let queueRepository: QueueRepository
-    let disposer = TealiumAutomaticDisposer()
+    let disposer = AutomaticDisposer()
     let logger: TealiumLogger?
-    init(processors: TealiumObservable<[String]>, queueRepository: QueueRepository, coreSettings: TealiumStatefulObservable<CoreSettings>, logger: TealiumLogger? = nil) {
+    init(processors: Observable<[String]>, queueRepository: QueueRepository, coreSettings: ObservableState<CoreSettings>, logger: TealiumLogger? = nil) {
         self.queueRepository = queueRepository
         self.logger = logger
         processors.subscribe { [weak self] processors in
@@ -58,7 +58,7 @@ class QueueManager: QueueManagerProtocol {
         }
     }
 
-    func onInflightDispatchesCount(for processor: String) -> TealiumObservable<Int> {
+    func onInflightDispatchesCount(for processor: String) -> Observable<Int> {
         inflightEvents.asObservable().map { events in
             events[processor]?.count ?? 0
         }.distinct()
