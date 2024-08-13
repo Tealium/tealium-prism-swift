@@ -1,5 +1,5 @@
 //
-//  TealiumCollectSettingsTests.swift
+//  CollectSettingsTests.swift
 //  tealium-swift_Tests
 //
 //  Created by Enrico Zannini on 15/11/23.
@@ -9,8 +9,8 @@
 @testable import TealiumSwift
 import XCTest
 
-final class TealiumCollectSettingsTests: XCTestCase {
-    typealias Settings = TealiumCollectSettings
+final class CollectSettingsTests: XCTestCase {
+    typealias Settings = CollectSettings
     let customUrl = "https://www.tealium.com/somePath?somekey=someValue"
 
     func test_overrideDomainURL_changes_domain_on_baseUrl() {
@@ -61,5 +61,32 @@ final class TealiumCollectSettingsTests: XCTestCase {
     func test_overrideProfile_is_set_on_init() {
         let settings = Settings(moduleSettings: [Settings.Keys.overrideProfile: "override"])
         XCTAssertEqual(settings?.overrideProfile, "override")
+    }
+
+    func test_is_not_initialized_when_url_is_invalid() {
+        XCTAssertNil(CollectSettings(moduleSettings: [CollectSettings.Keys.url: ""]))
+    }
+
+    func test_is_not_initialized_when_batchUrl_is_invalid() {
+        XCTAssertNil(CollectSettings(moduleSettings: [CollectSettings.Keys.batchUrl: ""]))
+    }
+
+    func test_create_settings_from_builder_sets_url_batchUrl_and_overrideProfile() {
+        let builder = CollectSettingsBuilder()
+            .setUrl("url")
+            .setBatchUrl("batchUrl")
+            .setOverrideProfile("overrideProfile")
+        let settings = CollectSettings(moduleSettings: builder.build())
+        XCTAssertEqual(settings?.url, URL(string: "url"))
+        XCTAssertEqual(settings?.batchUrl, URL(string: "batchUrl"))
+        XCTAssertEqual(settings?.overrideProfile, "overrideProfile")
+    }
+
+    func test_create_settings_from_builder_sets_overrideDomain() {
+        let builder = CollectSettingsBuilder()
+            .setOverrideDomain("overrideDomain")
+        let settings = CollectSettings(moduleSettings: builder.build())
+        XCTAssertEqual(settings?.url, URL(string: "https://overrideDomain/event"))
+        XCTAssertEqual(settings?.batchUrl, URL(string: "https://overrideDomain/bulk-event"))
     }
 }

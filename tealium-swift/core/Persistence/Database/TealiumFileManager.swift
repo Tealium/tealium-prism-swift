@@ -50,4 +50,16 @@ public class TealiumFileManager {
             throw error
         }
     }
+
+    public static func fullJSONPath(from bundle: Bundle, relativePath: String) -> String? {
+        if !relativePath.lowercased().hasSuffix(".json") {
+            // For "name.json" saved, but only "name" passed
+            return bundle.path(forResource: relativePath, ofType: "json") ??
+            // For "name"/"name.otherExtension" saved, and same is passed
+            bundle.path(forResource: relativePath, ofType: nil)
+        } else {
+            // For "name.json"/"name.JSON" saved, and same is passed
+            return bundle.path(forResource: relativePath, ofType: nil)
+        }
+    }
 }

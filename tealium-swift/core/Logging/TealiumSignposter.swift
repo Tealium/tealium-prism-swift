@@ -287,7 +287,7 @@ public class TealiumSignpostInterval {
      *
      * - Returns: the same `Output` of the block passed as parameter
      */
-    public func signpostedWork<Output>(_ work: @escaping () throws -> Output) rethrows -> Output {
+    public func signpostedWork<Output>(_ work: () throws -> Output) rethrows -> Output {
         _ = begin()
         defer { end() }
         return try work()

@@ -36,18 +36,18 @@ public protocol NetworkClient {
  */
 public class HTTPClient: NetworkClient {
     /// The shared instance created with the default configuration
-    public static let shared: HTTPClient = HTTPClient()
+    public static let shared: HTTPClient = HTTPClient(onLogger: .Empty())
     let session: URLSession
     private let queue: DispatchQueue
     let interceptorManager: InterceptorManagerProtocol
-    private let logger: TealiumLoggerProvider?
+    private let onLogger: Observable<TealiumLoggerProvider>
 
     /**
      * Creates and returns a new client.
      *
      * - Parameter configuration: the `NetworkConfiguration` used to instanciate the client.
      */
-    convenience public init(configuration: NetworkConfiguration = .default, logger: TealiumLoggerProvider? = nil) {
+    convenience public init(configuration: NetworkConfiguration = .default, onLogger: Observable<TealiumLoggerProvider>) {
         let operationQueue = OperationQueue()
         operationQueue.underlyingQueue = configuration.queue
         let interceptorManager = configuration.interceptorManager
@@ -56,14 +56,14 @@ public class HTTPClient: NetworkClient {
                                       delegateQueue: operationQueue),
                   queue: configuration.queue,
                   interceptorManager: interceptorManager,
-                  logger: logger)
+                  onLogger: onLogger)
     }
 
-    init(session: URLSession, queue: DispatchQueue, interceptorManager: InterceptorManagerProtocol, logger: TealiumLoggerProvider?) {
+    init(session: URLSession, queue: DispatchQueue, interceptorManager: InterceptorManagerProtocol, onLogger: Observable<TealiumLoggerProvider>) {
         self.session = session
         self.queue = queue
         self.interceptorManager = interceptorManager
-        self.logger = logger
+        self.onLogger = onLogger
     }
 
     public func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> Disposable {
@@ -87,8 +87,10 @@ public class HTTPClient: NetworkClient {
                 if shouldRetry {
                     let newRetryCount = retryCount + 1
                     TealiumSignposter.httpClient.event("Retry", message: "\(newRetryCount)")
-                    self.logger?.trace?.log(category: LogCategory.httpClient,
-                                            message: "Retrying request \(String(describing: request.url)) \(String(describing: request.httpBody)) Retry count: \(newRetryCount)")
+                    self.onLogger.subscribeOnce { logger in
+                        logger.trace?.log(category: LogCategory.httpClient,
+                                          message: "Retrying request \(String(describing: request.url)) \(String(describing: request.httpBody)) Retry count: \(newRetryCount)")
+                    }
                     self.sendRetryableRequest(request,
                                               retryCount: newRetryCount,
                                               completion: completion.complete)
@@ -107,28 +109,34 @@ public class HTTPClient: NetworkClient {
     }
 
     private func sendBasicRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> URLSessionDataTask {
-        logger?.trace?.log(category: LogCategory.httpClient,
-                           message: "Sending request \(String(describing: request.url)) \(String(describing: request.httpBody))")
+        onLogger.subscribeOnce { logger in
+            logger.trace?.log(category: LogCategory.httpClient,
+                              message: "Sending request \(String(describing: request.url)) \(String(describing: request.httpBody))")
+        }
         let signposterInterval = TealiumSignpostInterval(signposter: .httpClient, name: "Request")
             .begin("HTTP Request: \(request)")
         return session.send(request) { [weak self] result in
             signposterInterval.end("\(result)")
-            let resultLogger: TealiumLimitedLogger? = switch result {
-            case .success:
-                self?.logger?.trace
-            case .failure:
-                self?.logger?.error
+            self?.onLogger.map { logger in
+                switch result {
+                case .success:
+                    logger.trace
+                case .failure:
+                    logger.error
+                }
             }
-            resultLogger?.log(category: LogCategory.httpClient,
-                              message: "Completed request \(String(describing: request.url)) \(String(describing: request.httpBody)) with \(result)")
+            .subscribeOnce { limitedLogger in
+                limitedLogger?.log(category: LogCategory.httpClient,
+                                   message: "Completed request \(String(describing: request.url)) \(String(describing: request.httpBody)) with \(result)")
+            }
             completion(result)
         }
     }
 
-    func newClient(withLogger logger: TealiumLogger) -> HTTPClient {
+    func newClient(withLogger onLogger: Observable<TealiumLoggerProvider>) -> HTTPClient {
         HTTPClient(session: session,
                    queue: queue,
                    interceptorManager: interceptorManager,
-                   logger: logger)
+                   onLogger: onLogger)
     }
 }

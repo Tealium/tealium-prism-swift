@@ -9,19 +9,22 @@
 import Foundation
 
 public struct CoreSettings {
+    static let id = "Core"
     enum Keys {
         static let minLogLevel = "log_level"
         static let barriers = "barriers"
         static let transformations = "transformations"
         static let maxQueueSize = "max_queue_size"
         static let expirationSeconds = "expiration"
+        static let refreshIntervalSeconds = "refresh_interval"
     }
     enum Defaults {
-        static let minLogLevel = TealiumLogLevel.Minimum.debug // TODO: Change into .error later
+        static let minLogLevel = TealiumLogLevel.Minimum.error
         static let maxQueueSize = 100
-        static let queueExpirationSeconds = 86_400
+        static let queueExpirationSeconds: Double = 86_400
+        static let refreshIntervalSeconds: Double = 900
     }
-    public init(coreDictionary: [String: Any]) {
+    init(coreDictionary: [String: Any]) {
         if let logLevelString = coreDictionary[Keys.minLogLevel] as? String,
            let level = TealiumLogLevel.Minimum(from: logLevelString) {
             minLogLevel = level
@@ -39,12 +42,15 @@ public struct CoreSettings {
             scopedTransformations = []
         }
         maxQueueSize = coreDictionary[Keys.maxQueueSize] as? Int ?? Defaults.maxQueueSize
-        let expirationSeconds = coreDictionary[Keys.expirationSeconds] as? Int ?? Defaults.queueExpirationSeconds
-        queueExpiration = TimeFrame(unit: .seconds, interval: expirationSeconds)
+        queueExpiration = TimeFrame(unit: .seconds,
+                                    interval: (coreDictionary[Keys.expirationSeconds] as? NSNumber)?.doubleValue ?? Defaults.queueExpirationSeconds)
+        refreshInterval = TimeFrame(unit: .seconds,
+                                    interval: (coreDictionary[Keys.refreshIntervalSeconds] as? NSNumber)?.doubleValue ?? Defaults.refreshIntervalSeconds)
     }
-    let minLogLevel: TealiumLogLevel.Minimum
-    let scopedBarriers: [ScopedBarrier]
-    let scopedTransformations: [ScopedTransformation]
-    let maxQueueSize: Int
-    let queueExpiration: TimeFrame
+    public let minLogLevel: TealiumLogLevel.Minimum
+    public let scopedBarriers: [ScopedBarrier]
+    public let scopedTransformations: [ScopedTransformation]
+    public let maxQueueSize: Int
+    public let queueExpiration: TimeFrame
+    public let refreshInterval: TimeFrame
 }

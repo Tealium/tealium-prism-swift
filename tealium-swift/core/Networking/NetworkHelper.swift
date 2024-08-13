@@ -9,34 +9,42 @@
 import Foundation
 
 public class NetworkHelper: NetworkHelperProtocol {
-    private static let decoder = JSONDecoder()
+    private static let decoder = Tealium.jsonDecoder
     public let networkClient: NetworkClient
-    let logger: TealiumLoggerProvider?
-    init(networkClient: NetworkClient = HTTPClient.shared, logger: TealiumLoggerProvider? = nil) {
+    let onLogger: Observable<TealiumLoggerProvider>
+    init(networkClient: NetworkClient = HTTPClient.shared, onLogger: Observable<TealiumLoggerProvider> = .Just(TealiumLogger(logger: TealiumOSLogger(), minLogLevel: .constant(.trace)))) {
         self.networkClient = networkClient
-        self.logger = logger
+        self.onLogger = onLogger
     }
 
     private func send(requestBuilder: @autoclosure () throws -> RequestBuilder, completion: @escaping (NetworkResult) -> Void) -> Disposable {
         let completion: (NetworkResult) -> Void = { [weak self] result in
-            let resultLogger: TealiumLimitedLogger? = switch result {
-                        case .success:
-                            self?.logger?.trace
-                        case .failure:
-                            self?.logger?.error
-                        }
-            resultLogger?.log(category: LogCategory.networkHelper,
-                              message: "Completed request with result \(result.shortDescription())")
+            self?.onLogger.map { logger in
+                switch result {
+                case .success:
+                    logger.trace
+                case .failure:
+                    logger.error
+                }
+            }
+            .subscribeOnce { limitedLogger in
+                limitedLogger?.log(category: LogCategory.networkHelper,
+                                   message: "Completed request with result \(result.shortDescription())")
+            }
             completion(result)
         }
         do {
             let request = try requestBuilder().build()
-            logger?.trace?.log(category: LogCategory.networkHelper,
-                               message: "Built request \(request)")
+            onLogger.subscribeOnce { logger in
+                logger.trace?.log(category: LogCategory.networkHelper,
+                                  message: "Built request \(request)")
+            }
             return networkClient.sendRequest(request, completion: completion)
         } catch {
-            logger?.error?.log(category: LogCategory.networkHelper,
-                               message: "Failed to build request")
+            onLogger.subscribeOnce { logger in
+                logger.error?.log(category: LogCategory.networkHelper,
+                                  message: "Failed to build request")
+            }
             completion(.failure(.unknown(error)))
             return Subscription { }
         }
@@ -48,7 +56,7 @@ public class NetworkHelper: NetworkHelperProtocol {
     }
 
     public func getJsonAsDictionary(url: URLConvertible, etag: String? = nil, completion: @escaping (JSONResult) -> Void) -> Disposable {
-        send(requestBuilder: try .makeGET(url: url, etag: etag)) { result in
+        get(url: url, etag: etag) { result in
             completion(result.flatMap { response in
                 do {
                     let json = try JSONSerialization.jsonObject(with: response.data)
@@ -65,7 +73,7 @@ public class NetworkHelper: NetworkHelperProtocol {
     }
 
     public func getJsonAsObject<T: Codable>(url: URLConvertible, etag: String? = nil, completion: @escaping (ObjectResult<T>) -> Void) -> Disposable {
-        send(requestBuilder: try .makeGET(url: url, etag: etag)) { result in
+        get(url: url, etag: etag) { result in
             completion(result.flatMap { response in
                 do {
                     return .success(ObjectResponse(object: try Self.decoder.decode(T.self, from: response.data),

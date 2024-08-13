@@ -32,7 +32,7 @@ class SQLiteOpenHelperTests: XCTestCase {
         })
         _ = try mockDatabaseHelper.getDatabase()
         wait(for: [configureExpectation, createExpectation, onOpenExpectation],
-             timeout: 3.0,
+             timeout: 1.0,
              enforceOrder: true)
     }
 
@@ -61,7 +61,7 @@ class SQLiteOpenHelperTests: XCTestCase {
         })
         try mockDatabaseHelper.prepare(database: connection)
         wait(for: [configureExpectation, onUpgradeExpectation, onOpenExpectation, onCreateExpectation],
-             timeout: 3.0,
+             timeout: 1.0,
              enforceOrder: true)
     }
 
@@ -95,7 +95,7 @@ class SQLiteOpenHelperTests: XCTestCase {
         })
         _ = try mockDatabaseHelper.prepare(database: connection)
         wait(for: [configureExpectation, onDowngradeExpectation, onOpenExpectation, onUpgradeExpectation, onCreateExpectation],
-             timeout: 3.0,
+             timeout: 1.0,
              enforceOrder: true)
     }
 
@@ -127,7 +127,7 @@ class SQLiteOpenHelperTests: XCTestCase {
             throw NSError(domain: "Test Error", code: 1)
         })
         XCTAssertThrowsError(try databaseHelper.prepare(database: connection))
-        waitForExpectations(timeout: 3.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_prepare_throws_when_onDowngrade_throws() throws {
@@ -140,7 +140,7 @@ class SQLiteOpenHelperTests: XCTestCase {
             throw NSError(domain: "Test Error", code: 1)
         })
         XCTAssertThrowsError(try databaseHelper.prepare(database: connection))
-        waitForExpectations(timeout: 3.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_create_and_delete_database() throws {

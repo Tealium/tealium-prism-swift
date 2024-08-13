@@ -12,20 +12,39 @@ public struct TealiumConfig {
     public let account: String
     public let profile: String
     public let environment: String
-    public var modules: [TealiumModule.Type]
+    public internal(set) var settingsFile: String?
+    public internal(set) var settingsUrl: String?
+    public var modules: [any TealiumModuleFactory]
     public var barriers: [Barrier] = []
     public var transformers: [Transformer] = []
     public var loggerType: TealiumLoggerType = .os
     public var cmpIntegration: CMPIntegration?
-    public let configFile: String
-    public let configUrl: String?
+    public var bundle: Bundle = .main
+    let coreSettings: [String: Any]?
 
-    public init(account: String, profile: String, environment: String, modules: [TealiumModule.Type], configFile: String, configUrl: String?) {
+    public init(account: String, profile: String, environment: String, modules: [any TealiumModuleFactory],
+                settingsFile: String?, settingsUrl: String?, forcingSettings block: ((_ builder: CoreSettingsBuilder) -> CoreSettingsBuilder)? = nil) {
         self.account = account
         self.profile = profile
         self.environment = environment
+        self.settingsFile = settingsFile
+        self.settingsUrl = settingsUrl
         self.modules = modules
-        self.configFile = configFile
-        self.configUrl = configUrl
+        coreSettings = block?(CoreSettingsBuilder()).build()
+    }
+
+    func getEnforcedSDKSettings() -> SDKSettings {
+        let accumulator = [CoreSettings.id: coreSettings].compactMapValues { $0 }
+        let modulesSettings = modules.reduce(into: accumulator) { partialResult, factory in
+            guard let moduleEnforcedSettings = factory.getEnforcedSettings() else {
+                return
+            }
+            partialResult[factory.id] = moduleEnforcedSettings
+        }
+        return SDKSettings(modulesSettings: modulesSettings)
+    }
+
+    mutating public func addModule<ModuleFactory: TealiumModuleFactory>(_ module: ModuleFactory) {
+        modules.append(module)
     }
 }

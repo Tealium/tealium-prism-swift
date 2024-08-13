@@ -37,7 +37,7 @@ class TealiumFileManagerTests: XCTestCase {
             XCTFail("Failed to get path for test file.")
             return
         }
-        FileManager.default.createFile(atPath: testFile, contents: "test file contents".data(using: .utf8))
+        FileManager.default.createFile(atPath: testFile, contents: Data("test file contents".utf8))
         XCTAssertTrue(FileManager.default.fileExists(atPath: testFile))
         XCTAssertNoThrow(try TealiumFileManager.deleteAtPath(path: testFile))
         XCTAssertFalse(FileManager.default.fileExists(atPath: testFile))
@@ -48,7 +48,7 @@ class TealiumFileManagerTests: XCTestCase {
             XCTFail("Failed to get path for file.")
             return
         }
-        FileManager.default.createFile(atPath: testFile.path, contents: "{\"test_key\": \"test_value\"}".data(using: .utf8))
+        FileManager.default.createFile(atPath: testFile.path, contents: Data("{\"test_key\": \"test_value\"}".utf8))
         let isExcludedFromBackup = try? testFile.resourceValues(forKeys: [.isExcludedFromBackupKey]).isExcludedFromBackup
         XCTAssertFalseOptional(isExcludedFromBackup)
         XCTAssertNoThrow(try TealiumFileManager.setIsExcludedFromBackup(to: true, for: testFile))

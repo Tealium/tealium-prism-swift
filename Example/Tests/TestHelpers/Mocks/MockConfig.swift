@@ -7,6 +7,22 @@
 //
 
 import Foundation
-import TealiumSwift
+@testable import TealiumSwift
 
-let mockConfig = TealiumConfig(account: "mock", profile: "mock", environment: "dev", modules: [], configFile: "", configUrl: nil)
+let mockConfig = TealiumConfig(account: "mock",
+                               profile: "mock",
+                               environment: "dev",
+                               modules: [],
+                               settingsFile: "",
+                               settingsUrl: nil)
+private let mockDbProvider = MockDatabaseProvider()
+let mockContext = TealiumContext(modulesManager: ModulesManager(),
+                                 config: mockConfig,
+                                 coreSettings: StateSubject(CoreSettings(coreDictionary: [:])).toStatefulObservable(),
+                                 tracker: MockTracker(),
+                                 barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
+                                 transformerRegistry: TransformerCoordinator(registeredTransformers: [], scopedTransformations: StateSubject([]).toStatefulObservable()),
+                                 databaseProvider: mockDbProvider,
+                                 moduleStoreProvider: ModuleStoreProvider(databaseProvider: mockDbProvider, modulesRepository: MockModulesRepository()),
+                                 logger: nil,
+                                 networkHelper: MockNetworkHelper())

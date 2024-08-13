@@ -65,4 +65,11 @@ public struct ScopedBarrier: Codable, Equatable {
     public static func == (lhs: ScopedBarrier, rhs: ScopedBarrier) -> Bool {
         lhs.barrierId == rhs.barrierId && lhs.scopes == rhs.scopes
     }
+
+    func toDictionary() -> [String: Any] {
+        [
+            CodingKeys.barrierId.rawValue: barrierId,
+            CodingKeys.scopes.rawValue: scopes.map { $0.rawValue }
+        ]
+    }
 }

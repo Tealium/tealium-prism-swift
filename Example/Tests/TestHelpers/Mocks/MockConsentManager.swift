@@ -10,7 +10,7 @@ import Foundation
 @testable import TealiumSwift
 
 class MockConsentManager: MockModule, ConsentManager {
-    class override var id: String { "consent" }
+    class override var id: String { ConsentModule.id }
     var currentDecision: ConsentDecision?
     var allPurposes: [String] = []
     var trackResult: TrackResult = .accepted

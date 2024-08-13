@@ -22,7 +22,7 @@ final class RequestBuilderTests: XCTestCase {
             .build())
         XCTAssertEqual(urlRequest?.url, try? url.asUrl())
         XCTAssertEqual(urlRequest?.httpMethod, "POST")
-        XCTAssertEqual(urlRequest?.value(forHTTPHeaderField: "ETAG"), "Some Etag")
+        XCTAssertEqual(urlRequest?.value(forHTTPHeaderField: "If-None-Match"), "Some Etag")
         XCTAssertEqual(urlRequest?.value(forHTTPHeaderField: "HEADER_KEY"), "Some header")
     }
 

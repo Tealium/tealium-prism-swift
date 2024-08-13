@@ -23,10 +23,10 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
 
     func test_dispatch_is_not_enqueued_by_the_dispatchManager_when_consentManager_is_enabled() {
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        XCTAssertEqual(queueManager.inflightEvents.value["mockDispatcher1"]?.count, 1, "First event is enqueued because consentManager is disabled")
+        XCTAssertEqual(queueManager.inflightEvents.value[MockDispatcher1.id]?.count, 1, "First event is enqueued because consentManager is disabled")
         enableModule(ConsentModule.id)
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        XCTAssertEqual(queueManager.inflightEvents.value["mockDispatcher1"]?.count, 1, "Second event is not enqueued because consentManager is enabled")
+        XCTAssertEqual(queueManager.inflightEvents.value[MockDispatcher1.id]?.count, 1, "Second event is not enqueued because consentManager is enabled")
     }
 
     func test_dispatch_process_is_stopped_before_transformations_for_tealium_purpose_disabled_explicitly() {

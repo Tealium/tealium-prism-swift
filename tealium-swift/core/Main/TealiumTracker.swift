@@ -16,7 +16,7 @@ public enum TrackResult {
     case accepted, dropped
 }
 
-public protocol Tracker {
+public protocol Tracker: AnyObject {
     func track(_ trackable: TealiumDispatch)
     func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?)
 }

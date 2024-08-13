@@ -77,6 +77,17 @@ public enum TealiumLogLevel: Int, Comparable, CaseIterable, CustomStringConverti
             }
         }
 
+        public func toString() -> String {
+            switch self {
+            case .trace: "trace"
+            case .debug: "debug"
+            case .info: "info"
+            case .warn: "warn"
+            case .error: "error"
+            case .silent: "silent"
+            }
+        }
+
         public static func < (lhs: Self, rhs: Self) -> Bool {
             lhs.rawValue < rhs.rawValue
         }
@@ -108,5 +119,6 @@ enum LogCategory {
     static let settingsManager = "SettingsManager"
     static let httpClient = "HTTPClient"
     static let networkHelper = "NetworkHelper"
+    static let resourceRefresher = "ResourceRefresher"
     static let queueManager = "QueueManager"
 }

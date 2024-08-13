@@ -83,4 +83,12 @@ public struct ScopedTransformation: Codable, Equatable {
     public static func == (lhs: ScopedTransformation, rhs: ScopedTransformation) -> Bool {
         return lhs.id == rhs.id && lhs.transformerId == rhs.transformerId && lhs.scopes == rhs.scopes
     }
+
+    func toDictionary() -> [String: Any] {
+        [
+            CodingKeys.id.rawValue: id,
+            CodingKeys.transformerId.rawValue: transformerId,
+            CodingKeys.scopes.rawValue: scopes.map { $0.rawValue }
+        ]
+    }
 }

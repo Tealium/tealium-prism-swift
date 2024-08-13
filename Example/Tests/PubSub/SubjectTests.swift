@@ -45,6 +45,6 @@ class SubjectTests: XCTestCase {
         }
         publisher.publish(1)
         publisher.publish(2)
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 }

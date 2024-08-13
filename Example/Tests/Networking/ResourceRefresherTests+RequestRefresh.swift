@@ -28,13 +28,13 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
         networkHelper.codableResult = .success(.successful(object: inputResource))
         let resourceLoaded = expectation(description: "Resource is loaded")
         let refresher = try createResourceRefresher()
-        refresher.onResourceLoaded.subscribeOnce { _ in
+        refresher.onLatestResource.subscribeOnce { _ in
             resourceLoaded.fulfill()
         }
-        XCTAssertNil(refresher.readResource())
+        XCTAssertNil(refresher.resourceCacher.readResource())
         refresher.requestRefresh()
         waitForExpectations(timeout: 1.0)
-        XCTAssertEqual(refresher.readResource(), inputResource)
+        XCTAssertEqual(refresher.resourceCacher.readResource(), inputResource)
     }
 
     func test_requestRefresh_when_cache_is_empty_causes_onResourceLoaded_to_publish_the_resource_as_an_event() throws {
@@ -42,11 +42,11 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
         networkHelper.codableResult = .success(.successful(object: inputResource))
         let resourceLoaded = expectation(description: "Resource is loaded")
         let refresher = try createResourceRefresher()
-        refresher.onResourceLoaded.subscribeOnce { loadedObj in
+        refresher.onLatestResource.subscribeOnce { loadedObj in
             resourceLoaded.fulfill()
             XCTAssertEqual(loadedObj, inputResource)
         }
-        XCTAssertNil(refresher.readResource())
+        XCTAssertNil(refresher.resourceCacher.readResource())
         refresher.requestRefresh()
         waitForExpectations(timeout: 1.0)
     }
@@ -58,10 +58,10 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
         let resourceLoaded = expectation(description: "Resource is loaded")
         resourceLoaded.expectedFulfillmentCount = 2
         let refresher = try createResourceRefresher()
-        refresher.saveResource(inputResource1, etag: nil)
-        XCTAssertNotNil(refresher.readResource())
+        try refresher.resourceCacher.saveResource(inputResource1, etag: nil)
+        XCTAssertNotNil(refresher.resourceCacher.readResource())
         var count = 0
-        let subscription = refresher.onResourceLoaded.subscribe { loadedObj in
+        let subscription = refresher.onLatestResource.subscribe { loadedObj in
             resourceLoaded.fulfill()
             if count == 0 {
                 XCTAssertEqual(loadedObj, inputResource1)
@@ -83,7 +83,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
         refresherError.isInverted = true
         let refresher = try createResourceRefresher()
         let automaticDisposer = AutomaticDisposer()
-        refresher.onResourceLoaded.subscribe { _ in
+        refresher.onLatestResource.subscribe { _ in
             resourceLoaded.fulfill()
         }.addTo(automaticDisposer)
         refresher.onRefreshError.subscribe { _ in
@@ -111,7 +111,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
         let resourceNotLoaded = expectation(description: "Resource should not be loaded")
         resourceNotLoaded.isInverted = true
         let refresher = try createResourceRefresher()
-        refresher.onResourceLoaded.subscribeOnce { _ in
+        refresher.onLatestResource.subscribeOnce { _ in
             resourceNotLoaded.fulfill()
         }
         refresher.requestRefresh { _ in

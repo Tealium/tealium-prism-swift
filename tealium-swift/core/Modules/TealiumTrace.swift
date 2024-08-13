@@ -36,30 +36,30 @@ public class TealiumTrace {
     }
 }
 
-public class TraceModule: TealiumModule {
-    public static let id: String = "trace"
+class TraceModule: TealiumBasicModule {
+    static let id: String = "Trace"
 
     let context: TealiumContext
-    public required init(context: TealiumContext, moduleSettings: [String: Any]) {
+    required init(context: TealiumContext, moduleSettings: [String: Any]) {
         self.context = context
     }
 
-    public func killVisitorSession(completion onTrackResult: TrackResultCompletion? = nil) {
+    func killVisitorSession(completion onTrackResult: TrackResultCompletion? = nil) {
         let dispatch = TealiumDispatch(name: TealiumKey.killVisitorSession,
                                        data: [
                                         TealiumDataKey.killVisitorSessionEvent: TealiumKey.killVisitorSession
                                        ])
-        context.tracker.track(dispatch, onTrackResult: onTrackResult)
+        context.tracker?.track(dispatch, onTrackResult: onTrackResult)
     }
 
     var dataLayer: DataLayerModule? {
-        context.modulesManager.getModule()
+        context.modulesManager?.getModule()
     }
 
-    public func join(id: String) {
+    func join(id: String) {
         dataLayer?.add(key: "trace_id", value: id)
     }
-    public func leave() {
+    func leave() {
         dataLayer?.delete(key: "trace_id")
     }
 }

@@ -9,38 +9,43 @@
 import Foundation
 
 class TealiumImplementation {
-    let settingsProvider: SettingsProvider
+    let settingsManager: SettingsManager
     let automaticDisposer = AutomaticDisposer()
     let context: TealiumContext
     let modulesManager: ModulesManager
+    let tracker: TealiumTracker
     let instanceName: String
+    private let onLogger = ReplaySubject<TealiumLoggerProvider>()
 
-    public init(_ config: TealiumConfig, modulesManager: ModulesManager) throws {
+    init(_ config: TealiumConfig, modulesManager: ModulesManager) throws {
         var config = config
-        config.modules += [
-            DataLayerModule.self,
-            TraceModule.self,
-            DeepLinkModule.self,
-            TealiumCollector.self
-        ] // TODO: make sure there is no duplicate if they already added some of our internal modules
+        Self.addMandatoryAndRemoveDuplicateModules(from: &config)
         let databaseProvider = try DatabaseProvider(config: config)
         let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
                                                 modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
-        let settingsProvider = SettingsProvider(config: config, storeProvider: storeProvider)
-        let coreSettings = settingsProvider.coreSettings
+        let onLoggerObservable = onLogger.asObservable()
+        let networkHelper = NetworkHelper(networkClient: HTTPClient.shared.newClient(withLogger: onLoggerObservable), onLogger: onLoggerObservable)
+        let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
+        // TODO: Add actual onActivity observable
+        let settingsManager = try SettingsManager(config: config,
+                                                  dataStore: dataStore,
+                                                  networkHelper: networkHelper,
+                                                  onLogger: onLoggerObservable,
+                                                  onActivity: .Just(.launch(Date())))
+        self.settingsManager = settingsManager
+        let coreSettings = settingsManager.settings.map { $0.coreSettings }
         let logger = TealiumLogger(logger: config.loggerType.getHandler(),
-                                   minLogLevel: coreSettings.value.minLogLevel,
-                                   onCoreSettings: coreSettings.updates())
+                                   minLogLevel: coreSettings.map { $0.minLogLevel })
+        onLogger.publish(logger)
         logger.debug?.log(category: LogCategory.tealium, message: "Purging expired data from the database")
         storeProvider.modulesRepository.deleteExpired(expiry: .restart)
-        let networkHelper = NetworkHelper(networkClient: HTTPClient.shared.newClient(withLogger: logger),
-                                          logger: logger)
         let queueManager = QueueManager(processors: Self.queueProcessors(from: modulesManager.modules),
                                         queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
                                                                             maxQueueSize: coreSettings.value.maxQueueSize,
                                                                             expiration: coreSettings.value.queueExpiration),
                                         coreSettings: coreSettings,
                                         logger: logger)
+        Self.addQueueManager(queueManager, toConsentInConfig: &config)
         let barrierCoordinator = Self.barrierCoordinator(config: config, coreSettings: coreSettings)
         let transformerCoordinator = Self.transformerCoordinator(config: config, coreSettings: coreSettings)
         let dispatchManager = DispatchManager(modulesManager: modulesManager,
@@ -48,22 +53,18 @@ class TealiumImplementation {
                                               barrierCoordinator: barrierCoordinator,
                                               transformerCoordinator: transformerCoordinator,
                                               logger: logger)
-        let tracker = TealiumTracker(modulesManager: modulesManager,
-                                     dispatchManager: dispatchManager,
-                                     logger: logger)
-
+        let tracker = TealiumTracker(modulesManager: modulesManager, dispatchManager: dispatchManager, logger: logger)
+        self.tracker = tracker
         self.context = TealiumContext(modulesManager: modulesManager,
                                       config: config,
                                       coreSettings: coreSettings,
                                       tracker: tracker,
-                                      queueManager: queueManager,
                                       barrierRegistry: barrierCoordinator,
                                       transformerRegistry: transformerCoordinator,
                                       databaseProvider: databaseProvider,
                                       moduleStoreProvider: storeProvider,
                                       logger: logger,
                                       networkHelper: networkHelper)
-        self.settingsProvider = settingsProvider
         self.modulesManager = modulesManager
         self.instanceName = "\(config.account)-\(config.profile)"
         logger.info?.log(category: LogCategory.tealium, message: "Instance \(self.instanceName) initialized.")
@@ -71,21 +72,20 @@ class TealiumImplementation {
     }
 
     public func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
-        context.tracker.track(trackable, onTrackResult: onTrackResult)
+        tracker.track(trackable, onTrackResult: onTrackResult)
     }
 
     private func handleSettingsUpdates() {
-        self.settingsProvider.settings.asObservable().subscribe { [context = self.context] settings in
-            Self.updateSettings(context: context, settings: settings)
+        self.settingsManager.settings.asObservable().subscribe { [weak self] settings in
+            guard let self else { return }
+            self.updateSettings(context: context, settings: settings.modulesSettings)
         }.addTo(self.automaticDisposer)
     }
 
-    private static func updateSettings(context: TealiumContext, settings: [String: Any]) {
-        context.logger?.debug?.log(category: LogCategory.settingsManager, message: "New SDK settings downloaded")
-        context.logger?.trace?.log(category: LogCategory.settingsManager, message: "Downloaded settings: \(settings)")
+    private func updateSettings(context: TealiumContext, settings: [String: Any]) {
         TealiumSignpostInterval(signposter: .settings, name: "Module Updates")
             .signpostedWork {
-                context.modulesManager.updateSettings(context: context, settings: settings)
+                modulesManager.updateSettings(context: context, settings: settings)
             }
     }
 

@@ -132,6 +132,6 @@ final class InterceptorManagerTests: XCTestCase {
             XCTAssertTrue(shouldRetry)
             expectInterceptResponse.fulfill()
         }
-        wait(for: [expectThirdRetry, expectSecondRetry, expectInterceptResponse, expectFirstRetry], timeout: 3.0, enforceOrder: true)
+        wait(for: [expectThirdRetry, expectSecondRetry, expectInterceptResponse, expectFirstRetry], timeout: 1.0, enforceOrder: true)
     }
 }

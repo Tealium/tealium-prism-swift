@@ -15,42 +15,26 @@ public class ModulesManager {
     var modules: ObservableState<[TealiumModule]>
 
     func updateSettings(context: TealiumContext, settings: [String: Any]) {
-        if self.modules.value.isEmpty {
-            self.setupModules(context: context, settings: settings)
-        } else {
-            self.updateModules(context: context, settings: settings)
-        }
-    }
-
-    // swiftlint:disable identifier_name explicit_init
-    private func setupModules(context: TealiumContext, settings: [String: Any]) {
-        self._modules.value = context.config.modules.compactMap({ ModuleClass in
-            let updateInterval = TealiumSignpostInterval(signposter: .settings, name: "Module Update")
-                .begin(ModuleClass.id)
-            defer { updateInterval.end() }
-            let moduleSettings = settings[ModuleClass.id] as? [String: Any] ?? [:]
-            return ModuleClass.init(context: context, moduleSettings: moduleSettings)
-        })
-    }
-
-    private func updateModules(context: TealiumContext, settings: [String: Any]) {
         let oldModules = self.modules.value
-        self._modules.value = context.config.modules.compactMap({ ModuleClass in
+        _modules.value = context.config.modules.compactMap({ moduleFactory in
             let updateInterval = TealiumSignpostInterval(signposter: .settings, name: "Module Update")
-                .begin(ModuleClass.id)
+                .begin(moduleFactory.id)
             defer { updateInterval.end() }
-            let moduleSettings = settings[ModuleClass.id] as? [String: Any] ?? [:]
-            if let module = oldModules.first(where: { type(of: $0) == ModuleClass }) {
-                guard let module = module.updateSettings(moduleSettings) else {
-                    context.logger?.debug?.log(category: ModuleClass.id,
+            let moduleSettings = settings[moduleFactory.id] as? [String: Any] ?? [:]
+            if let module = oldModules.first(where: { $0.id == moduleFactory.id }) {
+                guard moduleFactory.shouldBeEnabled(by: moduleSettings),
+                      let module = module.updateSettings(moduleSettings) else {
+                    context.logger?.debug?.log(category: moduleFactory.id,
                                                message: "Module failed to update settings. Module will be shut down.")
+                    module.shutdown()
                     return nil
                 }
-                context.logger?.trace?.log(category: ModuleClass.id, message: "Settings updated to \(moduleSettings)")
+                context.logger?.trace?.log(category: moduleFactory.id, message: "Settings updated to \(moduleSettings)")
                 return module
             } else {
-                guard let module = ModuleClass.init(context: context, moduleSettings: moduleSettings) else {
-                    context.logger?.debug?.log(category: ModuleClass.id,
+                guard moduleFactory.shouldBeEnabled(by: moduleSettings),
+                    let module = moduleFactory.create(context: context, moduleSettings: moduleSettings) else {
+                    context.logger?.debug?.log(category: moduleFactory.id,
                                                message: "Module failed to initialize.")
                     return nil
                 }
@@ -58,7 +42,7 @@ public class ModulesManager {
             }
         })
     }
-    // swiftlint:enable identifier_name explicit_init
+
     public func getModule<T: TealiumModule>(_ module: T.Type) -> T? {
         getModule()
     }

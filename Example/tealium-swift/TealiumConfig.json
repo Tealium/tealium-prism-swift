@@ -1,9 +1,9 @@
 {
     "core": {
-        "account":"tealiummobile",
-        "profile":"finance",
-        "environment":"dev"
+        "log_level": "trace",
+        "expiration": 200
     },
     "collect": {
+        "enabled": false
     },
 }

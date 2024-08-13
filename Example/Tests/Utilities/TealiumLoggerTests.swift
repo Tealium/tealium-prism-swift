@@ -10,8 +10,8 @@
 import XCTest
 
 final class TealiumLoggerTests: XCTestCase {
-    var onCoreSettings = BasePublisher<CoreSettings>()
-    lazy var logger = TealiumLogger(logger: MockLogHandler(), minLogLevel: .debug, onCoreSettings: onCoreSettings.asObservable())
+    let minimumLogLevel = StateSubject(TealiumLogLevel.Minimum.debug)
+    lazy var logger = TealiumLogger(logger: MockLogHandler(), minLogLevel: minimumLogLevel.toStatefulObservable())
     func test_getLogger_returns_logger_only_when_higherThan_or_equalTo_minLogLevel() {
         XCTAssertNil(logger.getLogger(.trace))
         XCTAssertNotNil(logger.getLogger(.debug))
@@ -48,11 +48,5 @@ final class TealiumLoggerTests: XCTestCase {
         for logLevel in TealiumLogLevel.allCases {
             XCTAssertGreaterThan(TealiumLogLevel.Minimum.silent.rawValue, logLevel.rawValue)
         }
-    }
-
-    func test_minLogLevel_changes_onCoreSettings_change() {
-        XCTAssertEqual(logger.minLogLevel, .debug)
-        onCoreSettings.publish(CoreSettings(coreDictionary: ["log_level": "trace"]))
-        XCTAssertEqual(logger.minLogLevel, .trace)
     }
 }

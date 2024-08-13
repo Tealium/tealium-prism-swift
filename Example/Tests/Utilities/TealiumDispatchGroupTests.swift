@@ -9,7 +9,6 @@
 @testable import TealiumSwift
 import XCTest
 
-// swiftlint:disable opening_brace
 final class TealiumDispatchGroupTests: XCTestCase {
     let queue = DispatchQueue(label: "test.queue")
     lazy var group = TealiumDispatchGroup(queue: queue)
@@ -69,4 +68,3 @@ final class TealiumDispatchGroupTests: XCTestCase {
         wait(for: [firstWorkCompleted, secondWorkCompleted, parallelExecutionCompletes], enforceOrder: true)
     }
 }
-// swiftlint:enable opening_brace

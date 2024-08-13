@@ -9,28 +9,34 @@
 import Foundation
 import TealiumSwift
 
-class MockModule: TealiumModule {
-    class var id: String { "mockModule" }
+class MockModule: TealiumBasicModule {
+    class var id: String { "MockModule" }
+    class var factory: any TealiumModuleFactory { DefaultModuleFactory(module: Self.self) }
+
+    @StateSubject<[String: Any]>([:])
+    var moduleSettings: ObservableState<[String: Any]>
+
+    @ToAnyObservable<BasePublisher<Void>>(BasePublisher<Void>())
+    var onShutdown: Observable<Void>
+
     init() { }
     required init?(context: TealiumContext, moduleSettings: [String: Any]) {
-        let enabled = moduleSettings["enabled"] as? Bool ?? true
-        if !enabled {
-            return nil
-        }
+        _moduleSettings.value = moduleSettings
     }
 
     func updateSettings(_ settings: [String: Any]) -> Self? {
-        let enabled = settings["enabled"] as? Bool ?? true
-        if !enabled {
-            return nil
-        }
+        _moduleSettings.value = settings
         return self
+    }
+
+    func shutdown() {
+        _onShutdown.publish()
     }
 }
 
 class MockDispatcher: MockModule, Dispatcher {
-    var dispatchLimit: Int { 1 }
-    class override var id: String { "mockDispacher" }
+    var dispatchLimit: Int = 1
+    class override var id: String { "MockDispacher" }
     var delay: Int?
     var queue = DispatchQueue.main
 
@@ -54,7 +60,7 @@ class MockDispatcher: MockModule, Dispatcher {
 }
 
 class MockDispatcher1: MockDispatcher {
-    override class var id: String { "mockDispatcher1" }
+    override class var id: String { "MockDispatcher1" }
     override init() {
         super.init()
     }
@@ -63,12 +69,13 @@ class MockDispatcher1: MockDispatcher {
     }
 }
 class MockDispatcher2: MockDispatcher {
-    override var dispatchLimit: Int { 3 }
-    override class var id: String { "mockDispatcher2" }
+    override class var id: String { "MockDispatcher2" }
     override init() {
         super.init()
+        dispatchLimit = 3
     }
     required init?(context: TealiumContext, moduleSettings: [String: Any]) {
         super.init(context: context, moduleSettings: moduleSettings)
+        dispatchLimit = 3
     }
 }

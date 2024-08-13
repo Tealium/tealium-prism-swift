@@ -12,7 +12,7 @@ import XCTest
 final class ConsentModuleTests: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
     let modulesManager = ModulesManager()
-    lazy var settings: [String: Any] = ["consent": ["enabled": true]]
+    lazy var settings: [String: Any] = [ConsentModule.id: ["enabled": true]]
     lazy var _coreSettings = StateSubject(CoreSettings(coreDictionary: settings))
     var coreSettings: ObservableState<CoreSettings> {
         _coreSettings.toStatefulObservable()
@@ -27,9 +27,9 @@ final class ConsentModuleTests: XCTestCase {
     lazy var transformerCoordinator = TransformerCoordinator(registeredTransformers: [],
                                                              scopedTransformations: scopedTransformations,
                                                              queue: .main)
-    @StateSubject(ConsentSettings(enabled: true, dispatcherToPurposes: [:], shouldRefireDispatchers: []))
+    @StateSubject(ConsentSettings(moduleSettings: [:]))
     var consentSettings: ObservableState<ConsentSettings>
-    func buildConsentManager(cmpIntegration: CMPIntegration?) -> ConsentManager {
+    func buildConsentManager(cmpIntegration: CMPIntegration) -> ConsentManager {
         return ConsentModule(queueManager: queueManager,
                              modules: modulesManager.modules,
                              transformerRegistry: transformerCoordinator,
@@ -37,17 +37,6 @@ final class ConsentModuleTests: XCTestCase {
                              consentSettings: _consentSettings)
     }
     let completionCalledDescription = "Completion was called"
-
-    func test_applyConsent_runs_completion_with_dropped_result_and_original_dispatch_when_cmp_is_nil() {
-        let consentManager: ConsentManager = buildConsentManager(cmpIntegration: nil)
-        let completionCalled = expectation(description: completionCalledDescription)
-        consentManager.applyConsent(to: TealiumDispatch(name: "event1")) { dispatch, result in
-            completionCalled.fulfill()
-            XCTAssertEqual(result, .dropped)
-            XCTAssertEqual(dispatch.eventData.count, 2)
-        }
-        waitForExpectations(timeout: 1.0)
-    }
 
     func test_applyConsent_runs_completion_with_dropped_result_and_original_dispatch_when_explicitly_not_tealium_consented() {
         let integration = MockCMPIntegration(consentDecision: ObservableState(variableSubject: StateSubject(ConsentDecision(decisionType: .explicit, purposes: []))))

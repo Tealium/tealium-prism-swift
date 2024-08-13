@@ -35,14 +35,10 @@ public protocol TealiumLoggerProvider: AnyObject {
  */
 public class TealiumLogger: TealiumLoggerProvider {
     let logger: TealiumLogHandler?
-    public internal(set) var minLogLevel: TealiumLogLevel.Minimum
-    let autoDisposer = AutomaticDisposer()
-    init(logger: TealiumLogHandler?, minLogLevel: TealiumLogLevel.Minimum, onCoreSettings: Observable<CoreSettings>) {
+    public let minLogLevel: ObservableState<TealiumLogLevel.Minimum>
+    init(logger: TealiumLogHandler?, minLogLevel: ObservableState<TealiumLogLevel.Minimum>) {
         self.logger = logger
         self.minLogLevel = minLogLevel
-        onCoreSettings.subscribe { [weak self] settings in
-            self?.minLogLevel = settings.minLogLevel
-        }.addTo(autoDisposer)
     }
 
     private var _trace: TealiumLimitedLogger?
@@ -89,6 +85,6 @@ public class TealiumLogger: TealiumLoggerProvider {
     }
 
     func shouldLog(_ logLevel: TealiumLogLevel) -> Bool {
-        return logLevel >= minLogLevel
+        return logLevel >= minLogLevel.value
     }
 }

@@ -39,15 +39,15 @@ public enum Referrer {
     }
 }
 
-public class DeepLinkModule: TealiumModule {
-    public static let id: String = "deeplink"
+class DeepLinkModule: TealiumBasicModule {
+    static let id: String = "Deeplink"
 
     let context: TealiumContext
-    public required init(context: TealiumContext, moduleSettings: [String: Any]) {
+    required init(context: TealiumContext, moduleSettings: [String: Any]) {
         self.context = context
     }
 
-    public func handle(link: URL, referrer: Referrer? = nil) {
+    func handle(link: URL, referrer: Referrer? = nil) {
         let queryItems = URLComponents(string: link.absoluteString)?.queryItems
 
         if let queryItems = queryItems,
@@ -101,11 +101,11 @@ public class DeepLinkModule: TealiumModule {
     }
 
     var trace: TraceModule? {
-        self.context.modulesManager.getModule()
+        self.context.modulesManager?.getModule()
     }
 
     var dataLayer: DataLayerModule? {
-        self.context.modulesManager.getModule()
+        self.context.modulesManager?.getModule()
     }
 
     /// Sends a request to modules to initiate a trace with a specific Trace ID￼.

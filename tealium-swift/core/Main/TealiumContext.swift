@@ -10,23 +10,20 @@ import Foundation
 
 public class TealiumContext {
     public let config: TealiumConfig
-    public var coreSettings: ObservableState<CoreSettings>
-    public let tracker: Tracker
-    public let queueManager: QueueManagerProtocol
+    public let coreSettings: ObservableState<CoreSettings>
+    weak public private(set) var tracker: Tracker?
     public let barrierRegistry: BarrierRegistry
     public let transformerRegistry: TransformerRegistry
     public let databaseProvider: DatabaseProviderProtocol
     public let moduleStoreProvider: ModuleStoreProvider
-    public var modulesManager: ModulesManager
+    weak public private(set) var modulesManager: ModulesManager?
     public let logger: TealiumLoggerProvider?
     public let networkHelper: NetworkHelperProtocol
-    private var automaticDisposer = AutomaticDisposer()
 
     init(modulesManager: ModulesManager,
          config: TealiumConfig,
          coreSettings: ObservableState<CoreSettings>,
          tracker: Tracker,
-         queueManager: QueueManagerProtocol,
          barrierRegistry: BarrierRegistry,
          transformerRegistry: TransformerRegistry,
          databaseProvider: DatabaseProviderProtocol,
@@ -35,7 +32,6 @@ public class TealiumContext {
          networkHelper: NetworkHelperProtocol) {
         self.modulesManager = modulesManager
         self.config = config
-        self.queueManager = queueManager
         self.barrierRegistry = barrierRegistry
         self.transformerRegistry = transformerRegistry
         self.coreSettings = coreSettings

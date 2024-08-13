@@ -86,14 +86,15 @@ protocol DataLayerUpdateListener {
     func onDataUpdate()
 }
 
-public class DataLayerModule: Collector {
-    public var data: TealiumDictionaryInput {
+class DataLayerModule: TealiumBasicModule, Collector {
+    static var canBeDisabled: Bool { false }
+    var data: TealiumDictionaryInput {
         moduleStore.getAll().compactMapValues { $0.getDataInput() }
     }
-    public static let id: String = "datalayer"
+    static let id: String = "DataLayer"
     let moduleStore: DataStore
 
-    public required init?(context: TealiumContext, moduleSettings: [String: Any]) {
+    required init?(context: TealiumContext, moduleSettings: [String: Any]) {
         do {
             moduleStore = try context.moduleStoreProvider.getModuleStore(name: Self.id)
         } catch {

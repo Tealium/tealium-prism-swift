@@ -11,23 +11,23 @@ import Foundation
 /**
  * A `Dispatcher` that sends events to our Tealium Collect service.
  */
-public class TealiumCollect: Dispatcher {
-    public static let id: String = "collect"
-    public let dispatchLimit = 10
+class TealiumCollect: Dispatcher {
+    static let id: String = "Collect"
+    let dispatchLimit = 10
     let batcher = CollectBatcher()
     let networkHelper: NetworkHelperProtocol
     let logger: TealiumLoggerProvider?
-    var settings: TealiumCollectSettings
+    var settings: CollectSettings
 
     /// Generic `Dispatcher` initializer called by the `ModulesManager`.
-    public required convenience init?(context: TealiumContext, moduleSettings: [String: Any]) {
+    required convenience init?(context: TealiumContext, moduleSettings: [String: Any]) {
         self.init(networkHelper: context.networkHelper,
-                  settings: TealiumCollectSettings(moduleSettings: moduleSettings, logger: context.logger),
+                  settings: CollectSettings(moduleSettings: moduleSettings, logger: context.logger),
                   logger: context.logger)
     }
 
     /// Internal initializer called by the generic one and by the tests.
-    init?(networkHelper: NetworkHelperProtocol, settings: TealiumCollectSettings?, logger: TealiumLoggerProvider? = nil) {
+    init?(networkHelper: NetworkHelperProtocol, settings: CollectSettings?, logger: TealiumLoggerProvider? = nil) {
         guard let settings else {
             return nil
         }
@@ -37,8 +37,8 @@ public class TealiumCollect: Dispatcher {
     }
 
     /// Method that will be called automatically when new settings are provided.
-    public func updateSettings(_ settings: [String: Any]) -> Self? {
-        guard let tealiumCollectSettings = TealiumCollectSettings(moduleSettings: settings, logger: self.logger) else {
+    func updateSettings(_ settings: [String: Any]) -> Self? {
+        guard let tealiumCollectSettings = CollectSettings(moduleSettings: settings, logger: self.logger) else {
             return nil
         }
         self.settings = tealiumCollectSettings
@@ -52,7 +52,7 @@ public class TealiumCollect: Dispatcher {
      * In case of multiple events with different `visitorId`s this method will automatically group them by `visitorId` and send them separately.
      * The completion block can, therefore, be called more than once with the list of dispatches that are actually completed every time.
      */
-    public func dispatch(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
+    func dispatch(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
         if events.count == 1 {
             return sendSingleDispatch(events[0], completion: completion)
         } else {

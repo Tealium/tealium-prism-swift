@@ -10,6 +10,11 @@ import Foundation
 
 /// A utility class to easily build URLRequests
 class RequestBuilder {
+    enum HeaderKeys {
+        static let ifNoneMatch = "If-None-Match"
+        static let contentType = "Content-Type"
+        static let contentEncoding = "Content-Encoding"
+    }
     enum HTTPMethod: String {
         case get = "GET"
         case post = "POST"
@@ -40,7 +45,7 @@ class RequestBuilder {
     }
 
     func etag(_ etag: String?) -> Self {
-        header(etag, forField: "ETAG")
+        header(etag, forField: HeaderKeys.ifNoneMatch)
     }
 
     @discardableResult
@@ -50,13 +55,13 @@ class RequestBuilder {
     }
 
     func gzip(json: [String: Any]) throws -> Self {
-        header("application/json", forField: "Content-Type")
+        header("application/json", forField: HeaderKeys.contentType)
         guard JSONSerialization.isValidJSONObject(json) else {
             throw ParsingError.nonConvertibleToJSONObject(json)
         }
         let data = try JSONSerialization.data(withJSONObject: json)
         if let gzippedData = try? data.gzipped(level: .bestCompression) {
-            header("gzip", forField: "Content-Encoding")
+            header("gzip", forField: HeaderKeys.contentEncoding)
             body(gzippedData)
         } else {
             body(data)

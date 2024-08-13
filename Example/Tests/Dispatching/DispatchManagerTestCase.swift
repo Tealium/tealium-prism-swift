@@ -33,12 +33,12 @@ class DispatchManagerTestCase: XCTestCase {
     let config = TealiumConfig(account: "test",
                                profile: "test",
                                environment: "dev",
-                               modules: [MockDispatcher1.self, MockDispatcher2.self, MockConsentManager.self],
-                               configFile: "",
-                               configUrl: nil)
+                               modules: [MockDispatcher1.factory, MockDispatcher2.factory, MockConsentManager.factory],
+                               settingsFile: "",
+                               settingsUrl: nil)
     let databaseProvider = MockDatabaseProvider()
     let modulesManager = ModulesManager()
-    lazy var settings: [String: Any] = ["consent": ["enabled": false]]
+    lazy var settings: [String: Any] = [ConsentModule.id: ["enabled": false]]
     lazy var _coreSettings = StateSubject(CoreSettings(coreDictionary: settings))
     var coreSettings: ObservableState<CoreSettings> {
         _coreSettings.toStatefulObservable()
@@ -57,7 +57,6 @@ class DispatchManagerTestCase: XCTestCase {
                                       config: config,
                                       coreSettings: coreSettings,
                                       tracker: MockTracker(),
-                                      queueManager: queueManager,
                                       barrierRegistry: barrierCoordinator,
                                       transformerRegistry: transformerCoordinator,
                                       databaseProvider: databaseProvider,

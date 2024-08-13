@@ -9,24 +9,13 @@
 import TealiumSwift
 import UIKit
 
-class CustomDispatcher: Dispatcher {
-    func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
-        print("CustomDispatcher dispatch: \(data.compactMap { $0.name })")
-        completion(data)
-        return Subscription { }
-    }
-
-    static let id: String = "CustomDispatcher"
-    
-    required init?(context: TealiumContext, moduleSettings: [String : Any]) {
-        
-    }
-}
-
 class ViewController: UIViewController {
 
-    var teal: Tealium!
-    let automaticDisposer = AutomaticDisposer()
+    var teal: Tealium? {
+        TealiumHelper.shared.teal
+    }
+    var automaticDisposer = AutomaticDisposer()
+    let btnStartStop = UIButton()
     override func viewDidLoad() {
         super.viewDidLoad()
         TealiumSignposter.enabled = true
@@ -41,22 +30,21 @@ class ViewController: UIViewController {
         initTeal()
 //        teal.track(TealiumDispatch(name: "asd", data: ["some":"data"]))
         
-        let btn = UIButton()
-        btn.backgroundColor = .black
-        view.addSubview(btn)
-        btn.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-        btn.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 50).isActive = true
-        btn.heightAnchor.constraint(equalToConstant: 80).isActive = true
-        btn.widthAnchor.constraint(equalToConstant: 180).isActive = true
-        btn.translatesAutoresizingMaskIntoConstraints = false
-        btn.setTitle("Reinit Tealium", for: .normal)
-        btn.addTarget(self, action: #selector(initTeal), for: .touchUpInside)
+        
+        btnStartStop.backgroundColor = .black
+        view.addSubview(btnStartStop)
+        btnStartStop.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
+        btnStartStop.topAnchor.constraint(equalTo: self.view.safeAreaLayoutGuide.topAnchor, constant: 50).isActive = true
+        btnStartStop.heightAnchor.constraint(equalToConstant: 80).isActive = true
+        btnStartStop.widthAnchor.constraint(equalToConstant: 180).isActive = true
+        btnStartStop.translatesAutoresizingMaskIntoConstraints = false
+        btnStartStop.addTarget(self, action: #selector(initTeal), for: .touchUpInside)
         
         let btnTrace = UIButton()
         btnTrace.backgroundColor = .purple
         view.addSubview(btnTrace)
         btnTrace.centerXAnchor.constraint(equalTo: self.view.centerXAnchor).isActive = true
-        btnTrace.topAnchor.constraint(equalTo: btn.bottomAnchor, constant: 20).isActive = true
+        btnTrace.topAnchor.constraint(equalTo: btnStartStop.bottomAnchor, constant: 20).isActive = true
         btnTrace.heightAnchor.constraint(equalToConstant: 80).isActive = true
         btnTrace.widthAnchor.constraint(equalToConstant: 180).isActive = true
         
@@ -89,43 +77,34 @@ class ViewController: UIViewController {
     }
     
     @objc func joinTrace() {
-        teal.trace.join(id: "something")
+        teal?.trace.join(id: "something")
         
-        teal.track("joined!")
+        teal?.track("joined!")
     }
     
     @objc func deepLink() {
-        teal.deepLink.handle(link: URL(string: "https://www.tealium.com")!)
+        teal?.deepLink.handle(link: URL(string: "https://www.tealium.com")!)
         
-        teal.track("DeepLink!") {dispatch,result in 
+        teal?.track("DeepLink!") {dispatch,result in
             print("Dispatch: \(dispatch)")
             print("Result: \(result)")
         }
     }
     
     @objc func addToDataLayer() {
-        teal.dataLayer.add(data: ["key1": "value1"])
+        teal?.dataLayer.add(data: ["key1": "value1"])
     }
 
     @objc func initTeal() {
-        automaticDisposer.dispose()
-        let modules: [TealiumModule.Type] = [
-            TealiumCollect.self,
-            AppDataCollector.self,
-//            CustomDispatcher.self
-        ]
-        let config = TealiumConfig(account: "tealiummobile",
-                                   profile: "enrico-test",
-                                   environment: "dev",
-                                   modules: modules,
-                                   configFile: "TealiumConfig",
-                                   configUrl: nil)
-        let teal = Tealium(config) { result in
-            
+        guard teal == nil else {
+            TealiumHelper.shared.stopTealium()
+            automaticDisposer = AutomaticDisposer()
+            btnStartStop.setTitle("Reinit Tealium", for: .normal)
+            return
         }
-        self.teal = teal
-        
-        teal.onReady { teal in
+        btnStartStop.setTitle("Stop Tealium", for: .normal)
+        TealiumHelper.shared.startTealium()
+        teal?.onReady { teal in
             teal.dataLayer.events.onDataUpdated { updated in
                 print("some data updated: \(updated)")
             }.addTo(self.automaticDisposer)

@@ -131,7 +131,9 @@ class DispatchManager {
             .flatMapLatest { _ in
                 onInflightLower
                     .filter { $0 }
-                    .map { _ in queueManager.getQueuedDispatches(for: dispatcher.id, limit: dispatcher.dispatchLimit) }
+                    .map { _ in queueManager.getQueuedDispatches(for: dispatcher.id,
+                                                                 limit: min(dispatcher.dispatchLimit, Self.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER))
+                    }
                     .filter { !$0.isEmpty }
                     .resubscribingWhile { $0.count >= dispatcher.dispatchLimit } // Loops the `getQueuedDispatches` as long as we pull `dispatchLimit` items from the queue
             }

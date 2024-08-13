@@ -1,5 +1,5 @@
 //
-//  TealiumCollectSettings.swift
+//  CollectSettings.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 14/11/23.
@@ -9,7 +9,7 @@
 import Foundation
 
 /// The settings used by the `TealiumCollect` module.
-struct TealiumCollectSettings {
+struct CollectSettings {
     enum Keys {
         /// The URL used to send single events
         static let url = "url"

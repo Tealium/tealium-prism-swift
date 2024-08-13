@@ -8,71 +8,6 @@
 
 import Foundation
 
-public struct ConsentDecision {
-    public enum DecisionType: String {
-        case implicit
-        case explicit
-    }
-    public let decisionType: DecisionType
-    public let purposes: [String]
-
-    func matchAll(_ requiredPurposes: [String]) -> Bool {
-        requiredPurposes.allSatisfy(purposes.contains)
-    }
-}
-
-struct ConsentSettings {
-    let enabled: Bool
-    let dispatcherToPurposes: [String: [String]]
-    let shouldRefireDispatchers: [String]
-
-    init(consentDictionary: [String: Any]) {
-        self.init(enabled: consentDictionary["enabled"] as? Bool ?? false,
-                  dispatcherToPurposes: consentDictionary["dispatcher_to_purposes"] as? [String: [String]] ?? [:],
-                  shouldRefireDispatchers: consentDictionary["should_refire_dispatchers"] as? [String] ?? [])
-    }
-
-    init(enabled: Bool, dispatcherToPurposes: [String: [String]], shouldRefireDispatchers: [String]) {
-        self.enabled = enabled
-        self.dispatcherToPurposes = dispatcherToPurposes
-        self.shouldRefireDispatchers = shouldRefireDispatchers
-    }
-}
-
-class ConsentTransformer: Transformer {
-    let id: String = "ConsentTransformer"
-    var enabled: Bool {
-        settings.value.enabled
-    }
-    var settings: ObservableState<ConsentSettings>
-    private let automaticDisposer = AutomaticDisposer()
-    init(consentSettings: ObservableState<ConsentSettings>) {
-        self.settings = consentSettings
-    }
-
-    func applyTransformation(_ id: String, to dispatch: TealiumDispatch, scope: DispatchScope, completion: @escaping (TealiumDispatch?) -> Void) {
-        guard enabled else {
-            completion(dispatch)
-            return
-        }
-        guard case let DispatchScope.dispatcher(dispatcherId) = scope,
-              let requiredPurposes = settings.value.dispatcherToPurposes[dispatcherId],
-              !requiredPurposes.isEmpty,
-              self.dispatch(dispatch, matchesPurposes: requiredPurposes) else {
-            completion(nil)
-            return
-        }
-        completion(dispatch)
-    }
-
-    func dispatch(_ dispatch: TealiumDispatch, matchesPurposes requiredPurposes: [String]) -> Bool {
-        guard let consentedPurposes = dispatch.eventData["purposes_with_consent_all"] as? [String] else {
-            return false
-        }
-        return requiredPurposes.allSatisfy(consentedPurposes.contains)
-    }
-}
-
 public protocol CMPIntegration {
     var consentDecision: ObservableState<ConsentDecision?> { get }
     func allPurposes() -> [String] // TODO: why it's not a computable getter?
@@ -85,22 +20,21 @@ protocol ConsentManager: TealiumModule {
 }
 
 class ConsentModule: ConsentManager {
-
-    static let id: String = "consent"
+    static let id: String = "Consent"
     let processedPurposesKey = "purposes_with_consent_processed"
     let unprocessedPurposesKey = "purposes_with_consent_unprocessed"
     let allPurposesKey = "purposes_with_consent_all"
     let queueManager: QueueManagerProtocol
     let settings: StateSubject<ConsentSettings>
-    var cmpIntegration: CMPIntegration? // From config
-    let modules: ObservableState<[TealiumModule]>
+    let cmpIntegration: CMPIntegration
+    weak var modules: ObservableState<[TealiumModule]>?
     var dispatchers: [String] {
-        modules.value
+        modules?.value
             .filter { $0 is Dispatcher }
-            .map { $0.id }
+            .map { $0.id } ?? []
     }
     var refireDispatchers: [String] { // From settings
-        dispatchers.filter {
+        return dispatchers.filter {
             settings.value.shouldRefireDispatchers.contains($0)
         }
     }
@@ -109,18 +43,22 @@ class ConsentModule: ConsentManager {
     private let automaticDisposer = AutomaticDisposer()
     private let transformerRegistry: TransformerRegistry
 
-    required convenience init?(context: TealiumContext, moduleSettings: [String: Any]) {
-        self.init(queueManager: context.queueManager,
-                  modules: context.modulesManager.modules,
+    required convenience init?(context: TealiumContext, cmpIntegration: CMPIntegration, queueManager: QueueManagerProtocol, moduleSettings: [String: Any]) {
+        let settings = ConsentSettings(moduleSettings: moduleSettings)
+        guard let modules = context.modulesManager?.modules else {
+            return nil
+        }
+        self.init(queueManager: queueManager,
+                  modules: modules,
                   transformerRegistry: context.transformerRegistry,
-                  cmpIntegration: nil,
-                  consentSettings: StateSubject(ConsentSettings(consentDictionary: moduleSettings)))
+                  cmpIntegration: cmpIntegration,
+                  consentSettings: StateSubject(settings))
     }
 
     init(queueManager: QueueManagerProtocol,
          modules: ObservableState<[TealiumModule]>,
          transformerRegistry: TransformerRegistry,
-         cmpIntegration: CMPIntegration?,
+         cmpIntegration: CMPIntegration,
          consentSettings: StateSubject<ConsentSettings>) {
         self.queueManager = queueManager
         self.cmpIntegration = cmpIntegration
@@ -133,7 +71,7 @@ class ConsentModule: ConsentManager {
         self.transformerRegistry = transformerRegistry
         transformerRegistry.registerTransformer(consentTransformer)
         transformerRegistry.registerTransformation(consentTransformation)
-        cmpIntegration?.consentDecision.asObservable().compactMap { $0 }.subscribe { [weak self] (consentDecision: ConsentDecision) in
+        cmpIntegration.consentDecision.asObservable().compactMap { $0 }.subscribe { [weak self] (consentDecision: ConsentDecision) in
             guard let self = self else {
                 return
             }
@@ -150,12 +88,7 @@ class ConsentModule: ConsentManager {
     }
 
     func updateSettings(_ settings: [String: Any]) -> Self? {
-        self.settings.value = ConsentSettings(consentDictionary: settings)
-        if !self.settings.value.enabled {
-            transformerRegistry.unregisterTransformer(consentTransformer)
-            transformerRegistry.unregisterTransformation(consentTransformation)
-            return nil
-        }
+        self.settings.value = ConsentSettings(moduleSettings: settings)
         return self
     }
 
@@ -191,20 +124,13 @@ class ConsentModule: ConsentManager {
     }
 
     func getConsentDecision() -> ConsentDecision? {
-        cmpIntegration?.consentDecision.value
+        cmpIntegration.consentDecision.value
     }
 
     func applyConsent(to dispatch: TealiumDispatch, completion onTrackResult: TrackResultCompletion?) {
-        guard let integration = cmpIntegration else {
-            // Nothing we can do, maybe Log an error
-            // Maybe this condition can be avoided as we can force the integration to be provided in configuration when consent is enabled (?)
-            onTrackResult?(dispatch, .dropped)
-            return
-        }
-
-        guard let decision = integration.consentDecision.value,
+        guard let decision = cmpIntegration.consentDecision.value,
               tealiumConsented(forPurposes: decision.purposes) else {
-            if integration.consentDecision.value?.decisionType != .explicit {
+            if cmpIntegration.consentDecision.value?.decisionType != .explicit {
                 queueManager.storeDispatches([dispatch], enqueueingFor: [Self.id])
                 onTrackResult?(dispatch, .accepted)
             } else {
@@ -218,7 +144,7 @@ class ConsentModule: ConsentManager {
             return
         }
         var processors = dispatchers
-        if consentDecisionAllowsForRefire(decision, allPurposes: integration.allPurposes()) {
+        if consentDecisionAllowsForRefire(decision, allPurposes: cmpIntegration.allPurposes()) {
             processors += [Self.id]
         }
         queueManager.storeDispatches([consentedDispatch], enqueueingFor: processors)
@@ -239,5 +165,18 @@ class ConsentModule: ConsentManager {
             "consent_type": decision.decisionType.rawValue,
         ])
         return dispatch
+    }
+
+    func unregisterTransformer() {
+        transformerRegistry.unregisterTransformer(consentTransformer)
+        transformerRegistry.unregisterTransformation(consentTransformation)
+    }
+
+    func shutdown() {
+        unregisterTransformer()
+    }
+
+    deinit {
+        shutdown()
     }
 }

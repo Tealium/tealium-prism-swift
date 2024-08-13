@@ -8,21 +8,22 @@
 
 import Foundation
 
-public class TealiumCollector: Collector {
-    public var data: TealiumDictionaryInput {
+class TealiumCollector: TealiumBasicModule, Collector {
+    static var canBeDisabled: Bool { false }
+    var data: TealiumDictionaryInput {
         let config = context.config
         return TealiumDictionaryInput(removingOptionals: [
             TealiumDataKey.account: config.account,
             TealiumDataKey.profile: config.profile,
             TealiumDataKey.environment: config.environment,
-            TealiumDataKey.enabledModules: context.modulesManager.modules.value.map { $0.id }
+            TealiumDataKey.enabledModules: context.modulesManager?.modules.value.map { $0.id } ?? []
         ])
     }
 
-    public static let id: String = "tealiumcollector"
+    static let id: String = "TealiumCollector"
 
     let context: TealiumContext
-    public required init(context: TealiumContext, moduleSettings: [String: Any]) {
+    required init(context: TealiumContext, moduleSettings: [String: Any]) {
         self.context = context
     }
 }

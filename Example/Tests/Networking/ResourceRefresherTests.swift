@@ -9,74 +9,31 @@
 @testable import TealiumSwift
 import XCTest
 
-class ResourceRefresherBaseTests: XCTestCase {
-    struct TestResourceObject: Codable, Equatable {
-        let propertyString: String
-        let propertyInt: Int
-    }
-    let networkHelper = {
-        let networkHelper = MockNetworkHelper()
-        networkHelper.delay = 0
-        return networkHelper
-    }()
-    let databaseProvider = MockDatabaseProvider()
-    lazy var dataStoreProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
-                                                     modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
-
+class ResourceRefresherBaseTests: ResourceCacherBaseTests {
     func createResourceRefresher(urlString: String = "someUrl", refreshInterval: Double = 1.0, errorCooldown: ErrorCooldown? = nil) throws -> ResourceRefresher<TestResourceObject> {
         guard let url = URL(string: urlString) else {
             throw ParsingError.invalidUrl(urlString)
         }
+        let cacher = try createResourceCacher()
         let parameters = RefreshParameters(id: "refresher_id",
                                            url: url,
-                                           fileName: "file_name",
                                            refreshInterval: refreshInterval)
         return ResourceRefresher<TestResourceObject>(networkHelper: networkHelper,
-                                                     dataStore: try dataStoreProvider.getModuleStore(name: "test"),
+                                                     resourceCacher: cacher,
                                                      parameters: parameters,
                                                      errorCooldown: errorCooldown)
     }
 }
 
 class ResourceRefresherTests: ResourceRefresherBaseTests {
-    func test_saveResource_stores_the_object() throws {
-        let refresher = try createResourceRefresher()
-        let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
-        refresher.saveResource(inputResource, etag: nil)
-        let outputResource = refresher.readResource()
-        XCTAssertEqual(inputResource, outputResource)
-    }
-
-    func test_saveResource_stores_the_etag() throws {
-        let refresher = try createResourceRefresher()
-        let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
-        refresher.saveResource(inputResource, etag: "some_etag")
-        let etag = refresher.dataStore.get(key: refresher.etagStorageKey)?.getString()
-        XCTAssertEqual(etag, "some_etag")
-    }
 
     func test_lastEtag_is_set_at_launch_when_previously_stored() throws {
         networkHelper.result = .failure(.cancelled)
         let refresher = try createResourceRefresher()
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
-        refresher.saveResource(inputResource, etag: "some_etag")
+        try refresher.resourceCacher.saveResource(inputResource, etag: "some_etag")
         let secondRefresher = try createResourceRefresher()
         XCTAssertNotNil(secondRefresher.lastEtag)
-    }
-
-    func test_readResource_returns_nil_at_launch() throws {
-        networkHelper.result = .failure(.cancelled)
-        let refresher = try createResourceRefresher()
-        XCTAssertNil(refresher.readResource())
-    }
-
-    func test_readResource_returns_object_at_launch_when_previously_stored() throws {
-        networkHelper.result = .failure(.cancelled)
-        let refresher = try createResourceRefresher()
-        let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
-        refresher.saveResource(inputResource, etag: "some_etag")
-        let secondRefresher = try createResourceRefresher()
-        XCTAssertNotNil(secondRefresher.readResource())
     }
 
     func test_shouldRefresh_is_true_when_resource_is_not_cached() throws {
@@ -90,7 +47,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         networkHelper.codableResult = .success(.successful(object: inputResource))
         let resourceLoaded = expectation(description: "Resource is loaded")
         let refresher = try createResourceRefresher()
-        refresher.onResourceLoaded.subscribeOnce { loadedObj in
+        refresher.onLatestResource.subscribeOnce { loadedObj in
             resourceLoaded.fulfill()
             XCTAssertEqual(loadedObj, inputResource)
         }
@@ -105,7 +62,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         networkHelper.codableResult = .success(.successful(object: inputResource))
         let resourceLoaded = expectation(description: "Resource is loaded")
         let refresher = try createResourceRefresher(refreshInterval: 0.0)
-        refresher.onResourceLoaded.subscribeOnce { loadedObj in
+        refresher.onLatestResource.subscribeOnce { loadedObj in
             resourceLoaded.fulfill()
             XCTAssertEqual(loadedObj, inputResource)
         }
@@ -147,7 +104,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         networkHelper.delay = 500
         let resourceLoaded = expectation(description: "Resource is loaded")
         let refresher = try createResourceRefresher(refreshInterval: 0.0)
-        refresher.onResourceLoaded.subscribeOnce { loadedObj in
+        refresher.onLatestResource.subscribeOnce { loadedObj in
             resourceLoaded.fulfill()
             XCTAssertEqual(loadedObj, inputResource)
         }
@@ -158,27 +115,40 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         XCTAssertTrue(refresher.shouldRefresh)
     }
 
-  func test_onResourceLoaded_publishes_an_event_when_a_resource_is_cached() throws {
+    func test_onLatestResource_publishes_an_event_when_a_resource_is_cached() throws {
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
         networkHelper.codableResult = .success(.successful(object: inputResource))
         let resourceLoaded = expectation(description: "Resource is loaded")
         let refresher = try createResourceRefresher()
-        refresher.saveResource(inputResource, etag: nil)
-        refresher.onResourceLoaded.subscribeOnce { loadedObj in
+        try refresher.resourceCacher.saveResource(inputResource, etag: nil)
+        refresher.onLatestResource.subscribeOnce { loadedObj in
             resourceLoaded.fulfill()
             XCTAssertEqual(loadedObj, inputResource)
         }
         waitForExpectations(timeout: 1.0)
     }
 
-    func test_onResourceLoaded_doesnt_publish_an_event_when_a_resource_is_not_cached_and_not_refreshed() throws {
+    func test_onResourceLoaded_doesnt_publish_an_event_when_a_resource_is_cached() throws {
+        let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
+        networkHelper.codableResult = .success(.successful(object: inputResource))
+        let resourceLoaded = expectation(description: "Resource is not loaded")
+        resourceLoaded.isInverted = true
+        let refresher = try createResourceRefresher()
+        try refresher.resourceCacher.saveResource(inputResource, etag: nil)
+        refresher.onResourceLoaded.subscribeOnce { _ in
+            resourceLoaded.fulfill()
+        }
+        waitForExpectations(timeout: 1.0)
+      }
+
+    func test_onLatestResource_doesnt_publish_an_event_when_a_resource_is_not_cached_and_not_refreshed() throws {
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
         networkHelper.codableResult = .success(.successful(object: inputResource))
         let resourceLoaded = expectation(description: "Resource should not be loaded")
         resourceLoaded.isInverted = true
         let refresher = try createResourceRefresher()
-        XCTAssertNil(refresher.readResource())
-        let subscription = refresher.onResourceLoaded.subscribeOnce { loadedObj in
+        XCTAssertNil(refresher.resourceCacher.readResource())
+        let subscription = refresher.onLatestResource.subscribeOnce { loadedObj in
             resourceLoaded.fulfill()
             XCTAssertEqual(loadedObj, inputResource)
         }

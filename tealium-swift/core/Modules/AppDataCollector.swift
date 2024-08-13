@@ -46,13 +46,13 @@ public extension AppDataCollection {
     }
 }
 
-public class AppDataCollector: AppDataCollection, Collector {
+class AppDataCollector: AppDataCollection, TealiumBasicModule, Collector {
 
-    public var data: TealiumDictionaryInput
+    var data: TealiumDictionaryInput
 
-    public static let id: String = "appdata"
+    static let id: String = "AppData"
 
-    public required init?(context: TealiumContext, moduleSettings: [String: Any]) {
+    required init?(context: TealiumContext, moduleSettings: [String: Any]) {
         data = TealiumDictionaryInput(removingOptionals: [
             TealiumDataKey.appBuild: Self.build(bundle: Bundle.main),
             TealiumDataKey.appName: Self.name(bundle: Bundle.main),

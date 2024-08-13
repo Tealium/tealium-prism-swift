@@ -38,7 +38,7 @@ final class ReplaySubjectTests: SubjectTests {
         _ = subject.subscribe { number in
             expectations[number].fulfill()
         }
-        wait(for: expectations, timeout: 2.0, enforceOrder: true)
+        wait(for: expectations, timeout: 1.0, enforceOrder: true)
     }
 
     func test_oldest_event_is_the_first_to_be_removed_from_the_cache() {
@@ -53,7 +53,7 @@ final class ReplaySubjectTests: SubjectTests {
             XCTAssertEqual(number, 1)
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_clear_removes_all_cached_events() {
@@ -68,7 +68,7 @@ final class ReplaySubjectTests: SubjectTests {
         subject.subscribeOnce { _ in
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 2.0)
+        waitForExpectations(timeout: 1.0)
     }
 
     func test_events_are_directly_sent_to_subscribed_observers() {
@@ -91,7 +91,7 @@ final class ReplaySubjectTests: SubjectTests {
         }
         subject.publish(3)
         subject.publish(4)
-        wait(for: expectations, timeout: 2.0, enforceOrder: true)
+        wait(for: expectations, timeout: 1.0, enforceOrder: true)
     }
 
     func test_subscribeOnce_ReplaySubject_calls_the_observer_only_once() {

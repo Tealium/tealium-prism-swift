@@ -30,11 +30,11 @@ final class NetworkHelperTests: XCTestCase {
         waitForExpectations(timeout: 2.0)
     }
 
-    func test_get_with_etag_sends_correct_urlRequest() {
+    func test_get_with_etag_adds_if_none_match_header() {
         let requestSended = expectation(description: "URLRequest was sent")
         mockClient.requestDidSend = { request in
             XCTAssertEqual(request.url?.absoluteString, self.url)
-            XCTAssertEqual(request.value(forHTTPHeaderField: "ETAG"), "some etag")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "If-None-Match"), "some etag")
             requestSended.fulfill()
         }
         let networkHelper = NetworkHelper(networkClient: mockClient)
@@ -60,11 +60,11 @@ final class NetworkHelperTests: XCTestCase {
         waitForExpectations(timeout: 2.0)
     }
 
-    func test_getJsonAsObject_with_etag_sends_correct_urlRequest() {
+    func test_getJsonAsObject_with_etag_adds_if_none_match_header() {
         let requestSended = expectation(description: "URLRequest was sent")
         mockClient.requestDidSend = { request in
             XCTAssertEqual(request.url?.absoluteString, self.url)
-            XCTAssertEqual(request.value(forHTTPHeaderField: "ETAG"), "some etag")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "If-None-Match"), "some etag")
             requestSended.fulfill()
         }
         let networkHelper = NetworkHelper(networkClient: mockClient)
@@ -102,11 +102,11 @@ final class NetworkHelperTests: XCTestCase {
         waitForExpectations(timeout: 2.0)
     }
 
-    func test_getJsonAsDictionary_with_etag_sends_correct_urlRequest() {
+    func test_getJsonAsDictionary_with_etag_adds_if_none_match_header() {
         let requestSent = expectation(description: "URLRequest was sent")
         mockClient.requestDidSend = { request in
             XCTAssertEqual(request.url?.absoluteString, self.url)
-            XCTAssertEqual(request.value(forHTTPHeaderField: "ETAG"), "some etag")
+            XCTAssertEqual(request.value(forHTTPHeaderField: "If-None-Match"), "some etag")
             requestSent.fulfill()
         }
         let networkHelper = NetworkHelper(networkClient: mockClient)

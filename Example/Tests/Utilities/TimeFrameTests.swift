@@ -56,4 +56,19 @@ final class TimeFrameTests: XCTestCase {
         let time2 = TimeFrame(unit: .seconds, interval: 120)
         XCTAssertTrue(time1 == time2)
     }
+
+    func test_seconds_conversion() {
+        let secondsFrame = TimeFrame(unit: .seconds, interval: 10)
+        XCTAssertEqual(secondsFrame.seconds(), 10.0)
+        let minutesFrame = TimeFrame(unit: .minutes, interval: 10)
+        XCTAssertEqual(minutesFrame.seconds(), 600.0)
+        let hoursFrame = TimeFrame(unit: .hours, interval: 10)
+        XCTAssertEqual(hoursFrame.seconds(), 36_000.0)
+        let daysFrame = TimeFrame(unit: .days, interval: 10)
+        XCTAssertEqual(daysFrame.seconds(), 864_000.0)
+        let monthsFrame = TimeFrame(unit: .months, interval: 10)
+        XCTAssertEqual(monthsFrame.seconds(), 26_280_000.0)
+        let yearsFrame = TimeFrame(unit: .years, interval: 10)
+        XCTAssertEqual(yearsFrame.seconds(), 315_360_000.0)
+    }
 }

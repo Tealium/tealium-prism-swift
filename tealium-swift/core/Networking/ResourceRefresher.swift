@@ -18,13 +18,10 @@ import Foundation
  * This will first push an event with a resource read from disk, if present, and then all refreshes from remote.
  */
 public class ResourceRefresher<Resource: Codable> {
-    let dataStore: DataStore
+    let resourceCacher: ResourceCacher<Resource>
     private var parameters: RefreshParameters
     public var id: String {
         parameters.id
-    }
-    var etagStorageKey: String {
-        parameters.fileName + "_etag"
     }
     private var fetching: Bool {
         disposableRequest != nil
@@ -37,16 +34,13 @@ public class ResourceRefresher<Resource: Codable> {
     private let networkHelper: NetworkHelperProtocol
     private let logger: TealiumLogger?
 
-    private let _onResourceLoaded = BasePublisher<Resource>()
+    @ToAnyObservable<BasePublisher<Resource>>(BasePublisher())
+    var onResourceLoaded: Observable<Resource>
+
     /// An observable sequence of resources, starting from whatever might be cached on disk, and followed with all the subsequent successful refreshes.
-    public var onResourceLoaded: Observable<Resource> {
+    public var onLatestResource: Observable<Resource> {
         Observable.Just(readResource())
-            .compactMap { [weak self] resource in
-                if resource != nil {
-                    self?.isFileCached = true
-                }
-                return resource
-            }
+            .compactMap { $0 }
             .merge(_onResourceLoaded.asObservable())
     }
 
@@ -61,18 +55,18 @@ public class ResourceRefresher<Resource: Codable> {
     private var disposableRequest: Disposable?
 
     public init(networkHelper: NetworkHelperProtocol,
-                dataStore: DataStore,
+                resourceCacher: ResourceCacher<Resource>,
                 parameters: RefreshParameters,
-                errorCooldown: ErrorCooldown?,
+                errorCooldown: ErrorCooldown? = nil,
                 logger: TealiumLogger? = nil) {
         self.networkHelper = networkHelper
-        self.dataStore = dataStore
+        self.resourceCacher = resourceCacher
         self.parameters = parameters
         self.errorCooldown = errorCooldown ?? ErrorCooldown(baseInterval: parameters.errorCooldownBaseInterval,
                                                             maxInterval: parameters.refreshInterval)
         self.logger = logger
         if lastEtag == nil && isFileCached {
-            lastEtag = dataStore.getString(key: etagStorageKey)
+            lastEtag = resourceCacher.readEtag()
         }
     }
 
@@ -114,23 +108,23 @@ public class ResourceRefresher<Resource: Codable> {
             switch result {
             case .success(let response):
                 if validatingResource(response.object) {
-                    self.logger?.debug?.log(category: "ResourceRefresher",
+                    self.logger?.debug?.log(category: LogCategory.resourceRefresher,
                                             message: "Refreshed resource \(id)")
                     self.saveResource(response.object, etag: response.urlResponse.etag)
                     self._onResourceLoaded.publish(response.object)
                 } else {
-                    self.logger?.debug?.log(category: "ResourceRefresher",
+                    self.logger?.debug?.log(category: LogCategory.resourceRefresher,
                                             message: "Downloaded resource \(id) but discarded as not valid")
                 }
                 self.errorCooldown?.newCooldownEvent(error: nil)
             case .failure(let error):
                 if case let .non200Status(code) = error, code == 304 {
-                    self.logger?.trace?.log(category: "ResourceRefresher",
+                    self.logger?.trace?.log(category: LogCategory.resourceRefresher,
                                             message: "Resource \(id) is not modified")
                     self.errorCooldown?.newCooldownEvent(error: nil)
                 } else {
-                    self.logger?.error?.log(category: "ResourceRefresher",
-                                            message: "Failed to refresh resource \(id) due to error\n\(error)")
+                    self.logger?.error?.log(category: LogCategory.resourceRefresher,
+                                            message: "Failed to refresh resource \(id).\nError: \(error)")
                     self._onRefreshError.publish(error)
                     self.errorCooldown?.newCooldownEvent(error: error)
                 }
@@ -140,40 +134,22 @@ public class ResourceRefresher<Resource: Codable> {
         }
     }
 
-    public func readResource() -> Resource? {
-        guard let stringValue = dataStore.getString(key: parameters.fileName) else {
-            return nil
-        }
-        return try? stringValue.deserializeCodable()
+    private func readResource() -> Resource? {
+        let resource = resourceCacher.readResource()
+        isFileCached = resource != nil
+        return resource
     }
 
-    private func serialize(resource: Resource) throws -> String {
-        let jsonEncoder = Tealium.jsonEncoder
-        let jsonData = try jsonEncoder.encode(resource)
-        guard let jsonString = String(data: jsonData, encoding: .utf8) else {
-            throw TealiumDataValueErrors.dataToStringFailed
-        }
-        return jsonString
-    }
-
-    func saveResource(_ resource: Resource, etag: String?) {
+    private func saveResource(_ resource: Resource, etag: String?) {
         do {
-            let serializedResource = try serialize(resource: resource)
-            var edit = dataStore.edit()
-                .put(key: parameters.fileName, value: serializedResource, expiry: .forever)
-            if let etag = etag {
-                edit = edit.put(key: etagStorageKey, value: etag, expiry: .forever)
-            } else {
-                edit = edit.remove(key: etagStorageKey)
-            }
-            try edit.commit()
+            try resourceCacher.saveResource(resource, etag: etag)
             lastEtag = etag
             isFileCached = true
-            logger?.trace?.log(category: "ResourceRefresher",
-                               message: "Resource \(id) saved in the cache: \(serializedResource)")
+            logger?.trace?.log(category: LogCategory.resourceRefresher,
+                               message: "Resource \(id) saved in the cache:\n\(resource)")
         } catch {
-            logger?.error?.log(category: "ResourceRefresher",
-                               message: "Failed to save downloaded resource \(id) due to error\n\(error)")
+            logger?.error?.log(category: LogCategory.resourceRefresher,
+                               message: "Failed to save downloaded resource \(id).\nError: \(error)")
             _onRefreshError.publish(error)
         }
     }

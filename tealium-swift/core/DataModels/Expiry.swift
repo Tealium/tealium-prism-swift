@@ -16,7 +16,7 @@ public enum Expiry: Equatable {
     case after(Date)
 
     /// Creates an `.after(Date)` expiry with a date that is value unit of time ahead of now.
-    static func afterCustom(unit: TimeUnit, value: Int) -> Expiry {
+    static func afterCustom(unit: TimeUnit, value: Double) -> Expiry {
         guard let date = TimeFrame(unit: unit, interval: value).dateAfter() else {
             return .forever
         }
@@ -74,11 +74,29 @@ public enum TimeUnit {
             return .year
         }
     }
+
+    /// The amount you need to multiply the current unit to approximately transform it to seconds.
+    func toSecondsMultiplier() -> Double {
+        switch self {
+        case .seconds:
+            1
+        case .minutes:
+            60
+        case .hours:
+            60 * TimeUnit.minutes.toSecondsMultiplier()
+        case .days:
+            24 * TimeUnit.hours.toSecondsMultiplier()
+        case .months:
+            365 / 12 * TimeUnit.days.toSecondsMultiplier()
+        case .years:
+            365 * TimeUnit.days.toSecondsMultiplier()
+        }
+    }
 }
 
 public struct TimeFrame {
     let unit: TimeUnit
-    let interval: Int
+    let interval: Double
 
     func dateAfter(date: Date = Date()) -> Date? {
         Self.dateDifference(date: date, interval: interval, for: unit.component)
@@ -88,11 +106,16 @@ public struct TimeFrame {
         Self.dateDifference(date: date, interval: -interval, for: unit.component)
     }
 
-    private static func dateDifference(date: Date, interval: Int, for component: Calendar.Component) -> Date? {
+    private static func dateDifference(date: Date, interval: Double, for component: Calendar.Component) -> Date? {
         var components = DateComponents()
         components.calendar = Calendar.autoupdatingCurrent
-        components.setValue(interval, for: component)
+        components.setValue(Int(interval), for: component)
         return Calendar(identifier: .gregorian).date(byAdding: components, to: date)
+    }
+
+    /// Gets the ammount of seconds approximately equivalent to this TimeFrame.
+    func seconds() -> Double {
+        unit.toSecondsMultiplier() * interval
     }
 }
 
@@ -101,21 +124,13 @@ extension TimeFrame: Comparable, Equatable {
         guard lhs.unit != rhs.unit else {
             return lhs.interval < rhs.interval
         }
-        let date = Date()
-        guard let lhsAfter = lhs.dateAfter(date: date), let rhsAfter = rhs.dateAfter(date: date) else {
-            return false
-        }
-        return lhsAfter < rhsAfter
+        return lhs.seconds() < rhs.seconds()
     }
 
     public static func == (lhs: Self, rhs: Self) -> Bool {
         guard lhs.unit != rhs.unit else {
             return lhs.interval == rhs.interval
         }
-        let date = Date()
-        guard let lhsAfter = lhs.dateAfter(date: date), let rhsAfter = rhs.dateAfter(date: date) else {
-            return false
-        }
-        return lhsAfter == rhsAfter
+        return lhs.seconds() == rhs.seconds()
     }
 }

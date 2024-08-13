@@ -11,7 +11,7 @@ import XCTest
 
 final class TealiumCollectTests: XCTestCase {
     let networkHelper = MockNetworkHelper()
-    var settings = TealiumCollectSettings(moduleSettings: [:])
+    var settings = CollectSettings(moduleSettings: [:])
     lazy var collect = TealiumCollect(networkHelper: networkHelper, settings: settings)
     let stubDispatches = [
         TealiumDispatch(name: "event1", data: [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"]),
@@ -23,7 +23,7 @@ final class TealiumCollectTests: XCTestCase {
         networkHelper.requests.subscribeOnce { request in
             if case let .post(url, body) = request {
                 XCTAssertEqual(try? url.asUrl(), self.collect?.settings.url)
-                XCTAssertEqual(body as NSDictionary, self.stubDispatches[0].eventData as NSDictionary)
+                XCTAssertEqual(body, self.stubDispatches[0].eventData)
                 postRequestSent.fulfill()
             }
         }
@@ -36,14 +36,14 @@ final class TealiumCollectTests: XCTestCase {
         networkHelper.requests.subscribeOnce { request in
             if case let .post(url, body) = request {
                 XCTAssertEqual(try? url.asUrl(), self.collect?.settings.batchUrl)
-                XCTAssertEqual(body as NSDictionary,
+                XCTAssertEqual(body,
                                [
                                 "shared": [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"],
                                 "events": [
                                     [TealiumDataKey.event: "event1", TealiumDataKey.eventType: "event"],
                                     [TealiumDataKey.event: "event2", TealiumDataKey.eventType: "event"]
                                 ]
-                               ] as NSDictionary)
+                               ])
                 postRequestSent.fulfill()
             }
         }
@@ -52,7 +52,7 @@ final class TealiumCollectTests: XCTestCase {
     }
 
     func test_send_single_dispatch_overrides_profile_when_provided() {
-        settings = TealiumCollectSettings(moduleSettings: [TealiumCollectSettings.Keys.overrideProfile: "override"])
+        settings = CollectSettings(moduleSettings: [CollectSettings.Keys.overrideProfile: "override"])
         let postRequestSent = expectation(description: "The POST request is sent")
         networkHelper.requests.subscribeOnce { request in
             if case let .post(_, body) = request {
@@ -65,7 +65,7 @@ final class TealiumCollectTests: XCTestCase {
     }
 
     func test_send_multiple_dispatches_overrides_profile_when_provided() {
-        settings = TealiumCollectSettings(moduleSettings: [TealiumCollectSettings.Keys.overrideProfile: "override"])
+        settings = CollectSettings(moduleSettings: [CollectSettings.Keys.overrideProfile: "override"])
         let postRequestSent = expectation(description: "The POST request is sent")
         networkHelper.requests.subscribeOnce { request in
             if case let .post(_, body) = request {
@@ -152,13 +152,19 @@ final class TealiumCollectTests: XCTestCase {
         waitForExpectations(timeout: 1.0)
     }
 
-    func test_collect_is_not_initialized_when_url_is_invalid() {
-        settings = TealiumCollectSettings(moduleSettings: [TealiumCollectSettings.Keys.url: ""])
+    func test_collect_is_not_initialized_when_settings_are_nil() {
+        settings = nil
         XCTAssertNil(collect)
     }
 
-    func test_collect_is_not_initialized_when_batchUrl_is_invalid() {
-        settings = TealiumCollectSettings(moduleSettings: [TealiumCollectSettings.Keys.batchUrl: ""])
-        XCTAssertNil(collect)
+    func test_updateSettings_changes_collectSettings() {
+        let updatedCollect = collect?.updateSettings(["url": "customUrl"])
+        XCTAssertNotNil(updatedCollect)
+        XCTAssertEqual(updatedCollect?.settings.url.absoluteString, "customUrl")
+    }
+
+    func test_updateSettings_with_invalid_urls_returns_nil() {
+        let updatedCollect = collect?.updateSettings(["url": ""])
+        XCTAssertNil(updatedCollect)
     }
 }
