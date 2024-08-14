@@ -22,7 +22,7 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
             eventIsNotDispatched.fulfill()
         }
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_event_is_dispatched_again_after_the_inflight_count_goes_down() {
@@ -36,7 +36,7 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
             eventIsNotDispatched.fulfill()
         }
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         subscription?.dispose()
         let eventIsDispatched = expectation(description: "Event is dispatched")
         module1?.onDispatch.subscribeOnce { dispatches in
@@ -45,12 +45,12 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
             eventIsDispatched.fulfill()
         }
         queueManager.deleteDispatches(dispatches.map { $0.id }, for: MockDispatcher1.id)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_events_are_stopped_after_we_reach_the_maximumInflightLimit() {
         guard let module1 = module1 else { return }
-        module1.delay = 500
+        module1.delay = 0
         disableModule(module: module2)
         XCTAssertEqual(modulesManager.modules.value.count, 1)
         let firstEventIsDispatched = expectation(description: "First event is dispatched")
@@ -67,7 +67,7 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
             firstEventIsDispatched.fulfill()
         }
         _ = dispatchManager
-        wait(for: [maximumInflightCountReached, firstEventIsDispatched], timeout: 1.0, enforceOrder: true)
+        wait(for: [maximumInflightCountReached, firstEventIsDispatched], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_events_are_limited_by_maximumInflightLimit_when_dispatchLimit_is_higher() {
@@ -82,6 +82,6 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
             XCTAssertEqual(dispatches.count, DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
         }
         _ = dispatchManager
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

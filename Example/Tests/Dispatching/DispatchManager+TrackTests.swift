@@ -20,7 +20,7 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
             eventIsDispatched.fulfill()
         }
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_subsequent_events_are_dispatched() {
@@ -34,7 +34,7 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
         }
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_track_completion_block_is_run_with_accepted_result_and_transformed_dispatch_when_consent_not_enabled() {
@@ -45,7 +45,7 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
             XCTAssertNotEqual(dispatch.eventData.count, 2)
             XCTAssertNotNil(dispatch.eventData["transformation-afterCollectors"])
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_track_completion_block_is_run_with_dropped_result_and_original_dispatch_when_tealium_purpose_explicitly_blocked() {
@@ -62,7 +62,7 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
             XCTAssertEqual(result, .dropped)
             XCTAssertEqual(dispatch.eventData.count, 2)
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_track_completion_block_is_run_with_dropped_result_and_original_dispatch_when_event_dropped_by_transformer() {
@@ -75,6 +75,6 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
             XCTAssertEqual(result, .dropped)
             XCTAssertEqual(dispatch.eventData.count, 2)
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

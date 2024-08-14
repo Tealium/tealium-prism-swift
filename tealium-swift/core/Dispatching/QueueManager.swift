@@ -98,9 +98,11 @@ class QueueManager: QueueManagerProtocol {
         do {
             try queueRepository.deleteDispatches(dispatchUUIDs, for: processor)
             logger?.debug?.log(category: LogCategory.queueManager, message: "Removed processed dispatches for processor \(processor): \(dispatchUUIDs)")
-            _inflightEvents.value[processor] = inflightEvents.value[processor]?.filter { inFlightDispatch in
+            let currentlyInflightsForProcessor: [String] = inflightEvents.value[processor] ?? []
+            let remainingInflightsForProcessor: [String] = currentlyInflightsForProcessor.filter { inFlightDispatch in
                 !dispatchUUIDs.contains { $0 == inFlightDispatch }
-            } ?? []
+            }
+            _inflightEvents.value[processor] = remainingInflightsForProcessor
         } catch {
             logger?.error?.log(category: LogCategory.queueManager, message: "Failed to remove processed dispatches for processor \(processor): \(dispatchUUIDs)\nError: \(error)")
         }

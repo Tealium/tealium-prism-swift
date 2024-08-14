@@ -21,7 +21,7 @@ final class ObservableTests: XCTestCase {
             XCTAssertEqual(number, 1)
         }
         pub.publish(1)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_observers_are_called_in_order() {
@@ -44,7 +44,7 @@ final class ObservableTests: XCTestCase {
             XCTAssertEqual(number, 1)
         }
         pub.publish(1)
-        wait(for: expectations, timeout: 2.0, enforceOrder: true)
+        wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_create_custom_observable_calls_subscription_handler_on_subscription() {
@@ -54,7 +54,7 @@ final class ObservableTests: XCTestCase {
             return Subscription { }
         }
         _ = observable.subscribe { _ in }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
 }

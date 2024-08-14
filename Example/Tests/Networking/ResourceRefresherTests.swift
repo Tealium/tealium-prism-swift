@@ -53,7 +53,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         }
         XCTAssertTrue(refresher.shouldRefresh)
         refresher.requestRefresh()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         XCTAssertFalse(refresher.shouldRefresh)
     }
 
@@ -68,7 +68,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         }
         XCTAssertTrue(refresher.shouldRefresh)
         refresher.requestRefresh()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         XCTAssertTrue(refresher.shouldRefresh)
     }
 
@@ -81,7 +81,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         }
         XCTAssertTrue(refresher.shouldRefresh)
         refresher.requestRefresh()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         XCTAssertFalse(refresher.shouldRefresh)
     }
 
@@ -94,14 +94,14 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         }
         XCTAssertTrue(refresher.shouldRefresh)
         refresher.requestRefresh()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         XCTAssertTrue(refresher.shouldRefresh)
     }
 
     func test_shouldRefresh_is_false_during_another_fetch() throws {
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
         networkHelper.codableResult = .success(.successful(object: inputResource))
-        networkHelper.delay = 500
+        networkHelper.delay = 0
         let resourceLoaded = expectation(description: "Resource is loaded")
         let refresher = try createResourceRefresher(refreshInterval: 0.0)
         refresher.onLatestResource.subscribeOnce { loadedObj in
@@ -111,7 +111,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         XCTAssertTrue(refresher.shouldRefresh)
         refresher.requestRefresh()
         XCTAssertFalse(refresher.shouldRefresh)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         XCTAssertTrue(refresher.shouldRefresh)
     }
 
@@ -125,7 +125,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
             resourceLoaded.fulfill()
             XCTAssertEqual(loadedObj, inputResource)
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_onResourceLoaded_doesnt_publish_an_event_when_a_resource_is_cached() throws {
@@ -138,7 +138,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         refresher.onResourceLoaded.subscribeOnce { _ in
             resourceLoaded.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
       }
 
     func test_onLatestResource_doesnt_publish_an_event_when_a_resource_is_not_cached_and_not_refreshed() throws {
@@ -152,7 +152,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
             resourceLoaded.fulfill()
             XCTAssertEqual(loadedObj, inputResource)
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         subscription.dispose()
     }
 }

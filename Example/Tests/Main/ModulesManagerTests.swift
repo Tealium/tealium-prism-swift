@@ -89,7 +89,7 @@ final class ModulesManagerTests: XCTestCase {
                     }
             }
         modulesManager.updateSettings(context: context, settings: [:])
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_updateSettings_doesnt_send_new_settings_to_modules_being_disabled() {
@@ -102,7 +102,7 @@ final class ModulesManagerTests: XCTestCase {
             updatedSettings.fulfill()
         }
         modulesManager.updateSettings(context: context, settings: [MockDispatcher1.id: ["enabled": false]])
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_shutdown_called_to_modules_being_disabled() {
@@ -114,7 +114,7 @@ final class ModulesManagerTests: XCTestCase {
             shutdown.fulfill()
         }
         modulesManager.updateSettings(context: context, settings: [MockDispatcher1.id: ["enabled": false]])
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_updateSettings_initializes_modules_with_their_own_settings() {
@@ -159,7 +159,7 @@ final class ModulesManagerTests: XCTestCase {
             XCTAssertNotNil(module)
         }
         tealiumQueue.sync {
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
     }
 
@@ -172,7 +172,7 @@ final class ModulesManagerTests: XCTestCase {
             XCTAssertNil(module)
         }
         tealiumQueue.sync {
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
     }
 }

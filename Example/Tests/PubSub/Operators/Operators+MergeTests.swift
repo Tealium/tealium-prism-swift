@@ -31,7 +31,7 @@ final class OperatorsMergeTests: XCTestCase {
         pub2.publish(2)
         pub1.publish(3)
         pub2.publish(4)
-        wait(for: expectations, timeout: 1.0, enforceOrder: true)
+        wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_merge_subscription_dispose_cleans_retain_cycles() {
@@ -45,6 +45,6 @@ final class OperatorsMergeTests: XCTestCase {
         pub.publish(1)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

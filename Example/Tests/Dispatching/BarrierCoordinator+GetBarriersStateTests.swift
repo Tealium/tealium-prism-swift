@@ -27,7 +27,7 @@ final class BarrierCoordinatorGetBarriersStateTests: XCTestCase {
                     XCTAssertEqual(state, .open)
                     barrierStateReported.fulfill()
                 }
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
 
         func test_getBarriersState_returns_closed_if_at_least_one_barrier_is_closed() {
@@ -43,7 +43,7 @@ final class BarrierCoordinatorGetBarriersStateTests: XCTestCase {
                     XCTAssertEqual(state, .closed)
                     barrierStateReported.fulfill()
                 }
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
 
         func test_getBarriersState_returns_open_if_a_closed_barrier_is_scoped_to_a_different_dispatcher() {
@@ -59,7 +59,7 @@ final class BarrierCoordinatorGetBarriersStateTests: XCTestCase {
                     XCTAssertEqual(state, .open)
                     barrierStateReported.fulfill()
                 }
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
 
         func test_getBarriersState_closes_when_a_barrier_closes() {
@@ -82,7 +82,7 @@ final class BarrierCoordinatorGetBarriersStateTests: XCTestCase {
                     barrierStateReported.fulfill()
                 }
             registeredBarriers[1].setState(.closed)
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
 
         func test_getBarriersState_opens_when_the_last_closed_barrier_opens() {
@@ -106,7 +106,7 @@ final class BarrierCoordinatorGetBarriersStateTests: XCTestCase {
                     barrierStateReported.fulfill()
                 }
             registeredBarriers[1].setState(.open)
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
 
         func test_getBarriersState_doesnt_emit_state_changes_for_the_old_scopedBarriers() {
@@ -131,7 +131,7 @@ final class BarrierCoordinatorGetBarriersStateTests: XCTestCase {
                 ScopedBarrier(barrierId: "mock2", scopes: [.dispatcher("dispatcher1")])
             ]
             registeredBarriers[0].setState(.closed)
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
 
         func test_getBarriersState_emits_state_changes_for_the_new_scopedBarriers() {
@@ -156,7 +156,7 @@ final class BarrierCoordinatorGetBarriersStateTests: XCTestCase {
                 ScopedBarrier(barrierId: "mock2", scopes: [.dispatcher("dispatcher1")])
             ]
             registeredBarriers[1].setState(.closed)
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
 
         func test_getBarriersState_emits_closed_when_adding_a_closed_barrier() {
@@ -182,7 +182,7 @@ final class BarrierCoordinatorGetBarriersStateTests: XCTestCase {
                 ScopedBarrier(barrierId: "mock1", scopes: [.dispatcher("dispatcher1")]),
                 ScopedBarrier(barrierId: "mock2", scopes: [.dispatcher("dispatcher1")])
             ]
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
 
         func test_getBarriersState_emits_open_when_removing_the_only_closed_barrier() {
@@ -208,7 +208,7 @@ final class BarrierCoordinatorGetBarriersStateTests: XCTestCase {
             _onScopedBarriers.value = [
                 ScopedBarrier(barrierId: "mock1", scopes: [.dispatcher("dispatcher1")])
             ]
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
 
         func test_getBarriersState_emits_open_when_scopedBarriers_is_empty() {
@@ -220,6 +220,6 @@ final class BarrierCoordinatorGetBarriersStateTests: XCTestCase {
                     XCTAssertEqual(state, .open)
                     barrierStateReported.fulfill()
                 }
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
 }

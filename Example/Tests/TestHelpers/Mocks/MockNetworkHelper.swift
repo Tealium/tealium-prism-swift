@@ -42,7 +42,11 @@ class MockNetworkHelper: NetworkHelperProtocol {
 
     private func delayBlock(_ work: @escaping () -> Void) {
         if let delay = delay {
-            queue.asyncAfter(deadline: .now() + .milliseconds(delay), execute: work)
+            if delay > 0 {
+                queue.asyncAfter(deadline: .now() + .milliseconds(delay), execute: work)
+            } else {
+                queue.async(execute: work)
+            }
         } else {
             work()
         }

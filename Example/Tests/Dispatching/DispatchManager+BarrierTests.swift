@@ -19,7 +19,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
             eventIsNotDispatched.fulfill()
         }
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_events_stop_dispatching_when_a_barrier_closes() {
@@ -31,7 +31,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
         barrier.setState(.closed)
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        waitForExpectations(timeout: 3.0)
+        waitForDefaultTimeout()
     }
 
     func test_event_is_dispatched_after_the_closed_barrier_opens() {
@@ -42,7 +42,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
             eventIsNotDispatched.fulfill()
         }
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         subscription?.dispose()
         let eventIsDispatched = expectation(description: "Event is dispatched")
         module1?.onDispatch.subscribeOnce { dispatches in
@@ -51,7 +51,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
             eventIsDispatched.fulfill()
         }
         barrier.setState(.open)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_closing_a_barrier_doesnt_cancel_inProgress_dispatches() {
@@ -60,7 +60,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
             XCTFail("module1 not found")
             return
         }
-        module.delay = 500
+        module.delay = 0
         let eventsAreDispatched = expectation(description: "Events are dispatched")
         let eventsAreDequeued = expectation(description: "Events are dequeued")
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
@@ -71,7 +71,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         _ = module.onDispatch.subscribe { _ in
             eventsAreDispatched.fulfill()
         }
-        wait(for: [eventsAreDequeued, eventsAreDispatched], timeout: 2.0, enforceOrder: true)
+        wait(for: [eventsAreDequeued, eventsAreDispatched], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_pulls_from_the_queue_are_stopped_asynchronously_when_a_barrier_closes() {
@@ -85,6 +85,6 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         _ = dispatchManager
         barrier.setState(.closed)
         queueManager.storeDispatches([TealiumDispatch(name: "6")], enqueueingFor: allDispatchers)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

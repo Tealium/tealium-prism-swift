@@ -27,7 +27,7 @@ final class NetworkHelperTests: XCTestCase {
             XCTAssertResultIsSuccess(result)
             networkCallCompleted.fulfill()
         }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_get_with_etag_adds_if_none_match_header() {
@@ -39,7 +39,7 @@ final class NetworkHelperTests: XCTestCase {
         }
         let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.get(url: url, etag: "some etag") { _ in }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_getJsonAsObject_returns_codable_result() {
@@ -57,7 +57,7 @@ final class NetworkHelperTests: XCTestCase {
             }
             networkCallCompleted.fulfill()
         }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_getJsonAsObject_with_etag_adds_if_none_match_header() {
@@ -69,7 +69,7 @@ final class NetworkHelperTests: XCTestCase {
         }
         let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.getJsonAsObject(url: url, etag: "some etag") { (_: ObjectResult<MockResultObject>) in }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_getJsonAsObject_fails_when_data_is_malformed() {
@@ -80,7 +80,7 @@ final class NetworkHelperTests: XCTestCase {
             XCTAssertResultIsFailure(result)
             networkCallCompleted.fulfill()
         }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_getJsonAsDictionary_returns_dictionary_result() {
@@ -99,7 +99,7 @@ final class NetworkHelperTests: XCTestCase {
             }
             networkCallCompleted.fulfill()
         }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_getJsonAsDictionary_with_etag_adds_if_none_match_header() {
@@ -111,7 +111,7 @@ final class NetworkHelperTests: XCTestCase {
         }
         let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.getJsonAsDictionary(url: url, etag: "some etag") { _ in }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_getJsonAsDictionary_fails_when_response_is_an_array() {
@@ -127,7 +127,7 @@ final class NetworkHelperTests: XCTestCase {
             XCTAssertResultIsFailure(result)
             networkCallCompleted.fulfill()
         }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_post_returns_mocked_result() {
@@ -137,7 +137,7 @@ final class NetworkHelperTests: XCTestCase {
             XCTAssertResultIsSuccess(result)
             networkCallCompleted.fulfill()
         }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_post_fails_for_malformed_body() {
@@ -147,7 +147,7 @@ final class NetworkHelperTests: XCTestCase {
             XCTAssertResultIsFailure(result)
             networkCallCompleted.fulfill()
         }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_post_sends_correct_urlRequest() {
@@ -161,6 +161,6 @@ final class NetworkHelperTests: XCTestCase {
         }
         let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.post(url: url, body: jsonDictionary) { _ in }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 }

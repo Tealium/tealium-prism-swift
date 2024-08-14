@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TealiumSwift
+@testable import TealiumSwift
 
 class MockLogHandler: TealiumLogHandler {
     typealias LogEvent = (String, String, TealiumLogLevel)
@@ -17,3 +17,6 @@ class MockLogHandler: TealiumLogHandler {
         _onLogged.publish((category, message, level))
     }
 }
+
+let verboseLogger = TealiumLogger(logger: TealiumOSLogger(),
+                                  minLogLevel: .constant(.trace))

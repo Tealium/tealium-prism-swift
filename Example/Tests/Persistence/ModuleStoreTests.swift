@@ -110,7 +110,7 @@ final class ModuleStoreTests: XCTestCase {
         try store.edit()
             .putAll(dictionary: ["key1": 1, "key2": "2"], expiry: .forever)
             .commit()
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_remove_notifies_onDataRemoved() throws {
@@ -137,7 +137,7 @@ final class ModuleStoreTests: XCTestCase {
         try store.edit()
             .remove(keys: ["key2", "key3"])
             .commit()
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_clear_notifies_onDataRemoved() throws {
@@ -156,7 +156,7 @@ final class ModuleStoreTests: XCTestCase {
         try store.edit()
             .clear()
             .commit()
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_deleteExpired_notifies_onDataRemoved() throws {
@@ -173,7 +173,7 @@ final class ModuleStoreTests: XCTestCase {
             dataRemoved.fulfill()
         }
         modulesRepository.deleteExpired(expiry: .restart)
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_deleteExpired_doesnt_notify_onDataRemoved_if_noData_expired_in_this_module() throws {
@@ -192,6 +192,6 @@ final class ModuleStoreTests: XCTestCase {
             dataRemoved.fulfill()
         }
         modulesRepository.deleteExpired(expiry: .restart)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

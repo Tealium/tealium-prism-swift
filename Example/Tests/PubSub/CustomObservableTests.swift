@@ -21,7 +21,7 @@ final class CustomObservableTests: XCTestCase {
         _ = observable.subscribe { number in
                 expectations[number].fulfill()
         }
-        wait(for: expectations, timeout: 2.0, enforceOrder: true)
+        wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_Callback_observable_transforms_a_function_with_callback_into_an_observable() {
@@ -39,7 +39,7 @@ final class CustomObservableTests: XCTestCase {
         }
 
         dispatchQueue.sync {
-            waitForExpectations(timeout: 2.0)
+            waitForDefaultTimeout()
         }
     }
 
@@ -50,7 +50,7 @@ final class CustomObservableTests: XCTestCase {
                 XCTAssertEqual(result, ["a1", "b1", "c1"])
                 combineLatestIsNotifiedImmediately.fulfill()
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         sub.dispose()
     }
 
@@ -69,7 +69,7 @@ final class CustomObservableTests: XCTestCase {
         pubA.publish("a3")
         pubC.publish("c1")
         pubB.publish("b1")
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         sub.dispose()
     }
 
@@ -89,7 +89,7 @@ final class CustomObservableTests: XCTestCase {
         pubB.publish("b1")
         pubA.publish("a")
         pubA.publish("a")
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         sub.dispose()
     }
 
@@ -100,7 +100,7 @@ final class CustomObservableTests: XCTestCase {
                 XCTAssertEqual(result, [])
                 combineLatestIsNotified.fulfill()
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         sub.dispose()
     }
 }

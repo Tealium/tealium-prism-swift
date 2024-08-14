@@ -22,14 +22,14 @@ class ModuleSchema {
     }
 
     static func getModule(moduleName: String) -> QueryType {
-        return table.where(name == moduleName)
+        getModules().where(name == moduleName)
     }
 
     static func getModules() -> QueryType {
-        return table
+        table
     }
 
     static func createModule(moduleName: String) -> Insert {
-        return table.insert(self.name <- moduleName)
+        table.insert(self.name <- moduleName)
     }
 }

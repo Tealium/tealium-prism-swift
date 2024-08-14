@@ -32,7 +32,7 @@ class ToAnyObservableTests: XCTestCase {
         }
         _publisherObservable.publish(value)
 
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_SubjectPropertyWrapper_notifies_events() {
@@ -43,7 +43,7 @@ class ToAnyObservableTests: XCTestCase {
             eventNotified.fulfill()
         }
         _subjectObservable.publish(value)
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_ReplaySubjectPropertyWrapper_notifies_events() {
@@ -54,7 +54,7 @@ class ToAnyObservableTests: XCTestCase {
             eventNotified.fulfill()
         }
         _replayObservable.publish(value)
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_BufferedSubjectPropertyWrapper_notifies_events() {
@@ -65,7 +65,7 @@ class ToAnyObservableTests: XCTestCase {
             eventNotified.fulfill()
         }
         _bufferedObservable.publish(value)
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
 }

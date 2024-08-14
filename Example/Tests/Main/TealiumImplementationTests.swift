@@ -21,7 +21,7 @@ final class TealiumImplementationTests: XCTestCase {
             .subscribeOnce { _ in
                 queueProcessorsDoesntEmit.fulfill()
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_queueProcessors_emits_all_dispatchers() {
@@ -32,7 +32,7 @@ final class TealiumImplementationTests: XCTestCase {
                 XCTAssertEqual(processors, self.modules.value.map { $0.id })
                 queueProcessorsEmits.fulfill()
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_queueProcessors_skips_all_non_dispatchers() {
@@ -43,7 +43,7 @@ final class TealiumImplementationTests: XCTestCase {
                 XCTAssertEqual(processors, self.modules.value.prefix(2).map { $0.id })
                 queueProcessorsEmits.fulfill()
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_queueProcessors_emits_consent_manager() {
@@ -54,6 +54,6 @@ final class TealiumImplementationTests: XCTestCase {
                 XCTAssertEqual(processors, self.modules.value.map { $0.id })
                 queueProcessorsEmits.fulfill()
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

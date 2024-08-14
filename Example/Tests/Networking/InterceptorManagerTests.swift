@@ -30,7 +30,7 @@ final class InterceptorManagerTests: XCTestCase {
             XCTAssertTrue(shouldRetry)
             expectInterceptResponse.fulfill()
         }
-        waitForExpectations(timeout: 3.0)
+        waitForDefaultTimeout()
     }
 
     func test_retry_after_event_policy_should_retry() {
@@ -52,9 +52,11 @@ final class InterceptorManagerTests: XCTestCase {
             XCTAssertTrue(shouldRetry)
             expectInterceptResponse.fulfill()
         }
-        waitForExpectations(timeout: 3.0)
+        waitForDefaultTimeout()
     }
 
+    @available(tvOS, deprecated: 13.0, message: "URLSessionTask init not supported")
+    @available(macOS, deprecated: 10.15, message: "URLSessionTask init not supported")
     func test_waitingForConnectivity_interceptors_are_called_in_order() {
         let expectFirstCompletion = expectation(description: "First waitingForConnectivity interceptor should be called first")
         let expectSecondCompletion = expectation(description: "Second waitingForConnectivity interceptor should be called second")
@@ -66,7 +68,7 @@ final class InterceptorManagerTests: XCTestCase {
             secondInterceptor
         ]
         manager.urlSession(URLSession.shared, taskIsWaitingForConnectivity: URLSessionTask())
-        wait(for: [expectFirstCompletion, expectSecondCompletion], timeout: 3.0, enforceOrder: true)
+        wait(for: [expectFirstCompletion, expectSecondCompletion], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_completion_interceptors_are_called_in_order() {
@@ -80,7 +82,7 @@ final class InterceptorManagerTests: XCTestCase {
             secondInterceptor
         ]
         manager.interceptResult(request: URLRequest(), retryCount: 0, result: .success(.successful())) { _ in }
-        wait(for: [expectFirstCompletion, expectSecondCompletion], timeout: 3.0, enforceOrder: true)
+        wait(for: [expectFirstCompletion, expectSecondCompletion], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_retry_interceptors_are_called_in_reverse_order() {
@@ -100,7 +102,7 @@ final class InterceptorManagerTests: XCTestCase {
             secondInterceptor
         ]
         manager.interceptResult(request: URLRequest(), retryCount: 0, result: .success(.successful())) { _ in }
-        wait(for: [expectSecondRetry, expectFirstRetry], timeout: 3.0, enforceOrder: true)
+        wait(for: [expectSecondRetry, expectFirstRetry], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_retry_interceptors_are_called_until_one_performs_retry() {
@@ -132,6 +134,6 @@ final class InterceptorManagerTests: XCTestCase {
             XCTAssertTrue(shouldRetry)
             expectInterceptResponse.fulfill()
         }
-        wait(for: [expectThirdRetry, expectSecondRetry, expectInterceptResponse, expectFirstRetry], timeout: 1.0, enforceOrder: true)
+        wait(for: [expectThirdRetry, expectSecondRetry, expectInterceptResponse, expectFirstRetry], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 }

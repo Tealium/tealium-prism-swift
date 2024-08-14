@@ -29,6 +29,6 @@ final class ModuleStoreProviderTests: XCTestCase {
             XCTAssertFalse(dataRemoved.contains("key2"))
             onDataRemovedNotified.fulfill()
         }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 }

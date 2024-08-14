@@ -36,7 +36,9 @@ class ModuleStorageSchema {
     }
 
     static func delete(key: String, moduleId: Int64) -> Delete {
-        table.where(self.key == key && self.moduleId == moduleId).delete()
+        let deleteExpression: Expression<Bool> = self.key == key && self.moduleId == moduleId
+        let query: QueryType = table.where(deleteExpression)
+        return query.delete()
     }
 
     static func getExpired(request: ExpirationRequest, date: Date) -> QueryType {
@@ -48,7 +50,8 @@ class ModuleStorageSchema {
     }
 
     static func getValue(key: String, moduleId: Int64) -> QueryType {
-        table.where(self.moduleId == moduleId && self.key == key && nonExpired())
+        let expression: Expression<Bool> = self.moduleId == moduleId && self.key == key && nonExpired()
+        return table.where(expression)
     }
 
     static func getAllRows(moduleId: Int64) -> QueryType {

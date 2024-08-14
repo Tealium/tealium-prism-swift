@@ -30,7 +30,11 @@ public enum RetryPolicy {
         case .doNotRetry:
             return false
         case .afterDelay(let timeInterval):
-            queue.asyncAfter(deadline: .now() + timeInterval, execute: completion)
+            if timeInterval > 0 {
+                queue.asyncAfter(deadline: .now() + timeInterval, execute: completion)
+            } else {
+                queue.async(execute: completion)
+            }
         case .afterEvent(let tealiumObservable):
             tealiumObservable
                 .subscribeOn(queue)

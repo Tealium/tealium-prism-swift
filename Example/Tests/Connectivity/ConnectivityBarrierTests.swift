@@ -19,7 +19,7 @@ final class ConnectivityBarrierTests: XCTestCase {
             XCTAssertEqual(state, .open)
             isInOpenState.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_connectivity_barrier_is_closed_when_connection_is_not_available() {
@@ -30,7 +30,7 @@ final class ConnectivityBarrierTests: XCTestCase {
             XCTAssertEqual(state, .closed)
             isInClosedState.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_connectivity_barrier_updates_emitted_value_when_connectivity_status_is_updated() {
@@ -51,7 +51,7 @@ final class ConnectivityBarrierTests: XCTestCase {
         }
         empiricalConnectivity.changeConnectionAvailable(false)
         empiricalConnectivity.changeConnectionAvailable(true)
-        wait(for: [isInClosedState, isInOpenState], timeout: 1.0, enforceOrder: true)
+        wait(for: [isInClosedState, isInOpenState], timeout: Self.defaultTimeout, enforceOrder: true)
         disposable.dispose()
     }
 }

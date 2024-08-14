@@ -12,7 +12,7 @@ import XCTest
 class SubjectTests: XCTestCase {
 
     func testPublishSubject() {
-        let eventNotified = XCTestExpectation()
+        let eventNotified = expectation(description: "Event is notified")
         let value = 2
         let subject = BaseSubject<Int>()
         _ = subject.subscribe { val in
@@ -20,7 +20,7 @@ class SubjectTests: XCTestCase {
             eventNotified.fulfill()
         }
         subject.publish(value)
-        wait(for: [eventNotified], timeout: 0)
+        waitForDefaultTimeout()
     }
 
     func test_subscribeOnce_Subject_calls_the_observer_only_once() {
@@ -45,6 +45,6 @@ class SubjectTests: XCTestCase {
         }
         publisher.publish(1)
         publisher.publish(2)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

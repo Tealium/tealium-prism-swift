@@ -26,7 +26,7 @@ final class TealiumLimitedLoggerTests: XCTestCase {
             XCTAssertEqual(level, self.logLevel)
             logged.fulfill()
         }
-        waitForExpectations(timeout: 0.1)
+        waitForDefaultTimeout()
     }
 
     func test_log_is_not_sent_when_should_log_returns_false() {
@@ -37,7 +37,7 @@ final class TealiumLimitedLoggerTests: XCTestCase {
         mockLogHandler.onLogged.subscribeOnce { _, _, _ in
             logged.fulfill()
         }
-        waitForExpectations(timeout: 0.1)
+        waitForDefaultTimeout()
     }
 
     func test_log_is_not_sent_when_should_log_returns_nil() {
@@ -48,6 +48,6 @@ final class TealiumLimitedLoggerTests: XCTestCase {
         mockLogHandler.onLogged.subscribeOnce { _, _, _ in
             logged.fulfill()
         }
-        waitForExpectations(timeout: 0.1)
+        waitForDefaultTimeout()
     }
 }

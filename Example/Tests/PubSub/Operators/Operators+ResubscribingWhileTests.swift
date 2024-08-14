@@ -27,7 +27,7 @@ final class OperatorsResubscribingTests: XCTestCase {
                     count += 1
                 }
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         queue.async {
             subscription?.dispose()
         }
@@ -51,7 +51,7 @@ final class OperatorsResubscribingTests: XCTestCase {
             XCTAssertEqual(number, eventCount)
             eventsPublished.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_resubscribing_on_an_asynchronous_observable_will_call_subscribe_block_on_initial_subscribe_plus_every_event() {
@@ -70,7 +70,7 @@ final class OperatorsResubscribingTests: XCTestCase {
         }
         .resubscribingWhile { _ in eventCount < 3 }
         .subscribe { _ in }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_resubscribing_on_an_asynchronous_observable_will_dispose_subscription_on_every_event() {
@@ -90,6 +90,6 @@ final class OperatorsResubscribingTests: XCTestCase {
         }
         .resubscribingWhile { _ in eventCount < 3 }
         .subscribe { _ in }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 }

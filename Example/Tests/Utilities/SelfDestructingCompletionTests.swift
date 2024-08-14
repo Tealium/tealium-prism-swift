@@ -20,7 +20,7 @@ final class SelfDestructingCompletionTests: XCTestCase {
         completion.success(response: ())
         completion.success(response: ())
         completion.success(response: ())
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_completion_is_only_called_once_on_failure() {
@@ -33,7 +33,7 @@ final class SelfDestructingCompletionTests: XCTestCase {
         completion.fail(error: error)
         completion.fail(error: error)
         completion.fail(error: error)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_completion_is_only_called_once_on_completion() {
@@ -45,7 +45,7 @@ final class SelfDestructingCompletionTests: XCTestCase {
         completion.complete(result: .failure(NetworkError.unknown(nil)))
         completion.complete(result: .success(()))
         completion.complete(result: .failure(NetworkError.unknown(nil)))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
 }

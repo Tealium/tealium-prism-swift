@@ -18,7 +18,7 @@ final class BufferedSubjectTests: SubjectTests {
             XCTAssertEqual(number, 0)
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_buffered_events_are_returned_in_order() {
@@ -37,7 +37,7 @@ final class BufferedSubjectTests: SubjectTests {
         _ = subject.subscribe { number in
             expectations[number].fulfill()
         }
-        wait(for: expectations, timeout: 2.0, enforceOrder: true)
+        wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_oldest_event_is_the_first_to_be_removed_from_the_buffer() {
@@ -52,7 +52,7 @@ final class BufferedSubjectTests: SubjectTests {
             XCTAssertEqual(number, 1)
             expectation.fulfill()
         }
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_events_are_directly_sent_to_subscribed_observers() {
@@ -74,7 +74,7 @@ final class BufferedSubjectTests: SubjectTests {
         _ = subject.subscribe { number in
             expectations[number].fulfill() // Nothing should be published here
         }
-        wait(for: expectations, timeout: 2.0, enforceOrder: true)
+        wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_buffering_stops_on_first_subscription() {
@@ -97,7 +97,7 @@ final class BufferedSubjectTests: SubjectTests {
         _ = subject.subscribe { number in
             expectations[number].fulfill() // Nothing should be published here
         }
-        wait(for: expectations, timeout: 2.0, enforceOrder: true)
+        wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_subscribeOnce_BufferedSubject_calls_the_observer_only_once() {

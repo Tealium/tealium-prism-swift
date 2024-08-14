@@ -15,34 +15,34 @@ final class DebouncerTests: XCTestCase {
 
     func test_debounce_completes_after_timeout() {
         let debounceCompleted = expectation(description: "Debounce is completed")
-        debouncer.debounce(time: 0.1) {
+        debouncer.debounce(time: 0.01) {
             dispatchPrecondition(condition: .onQueue(.main))
             debounceCompleted.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_debounce_is_delayed_on_each_call_and_completes_once() {
         let debounceCompleted = expectation(description: "Debounce is completed")
         for _ in 0..<10 {
-            Thread.sleep(forTimeInterval: 0.1)
-            debouncer.debounce(time: 0.2) {
+            Thread.sleep(forTimeInterval: 0.01)
+            debouncer.debounce(time: 0.02) {
                 dispatchPrecondition(condition: .onQueue(.main))
                 debounceCompleted.fulfill()
             }
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_cancel_prevents_debounce_to_complete() {
         let debounceCompleted = expectation(description: "Debounce is completed")
         debounceCompleted.isInverted = true
-        debouncer.debounce(time: 0.1) {
+        debouncer.debounce(time: 0.01) {
             dispatchPrecondition(condition: .onQueue(.main))
             debounceCompleted.fulfill()
         }
         debouncer.cancel()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_debounce_with_negative_time_completes_immediately() {
@@ -51,6 +51,6 @@ final class DebouncerTests: XCTestCase {
             dispatchPrecondition(condition: .onQueue(.main))
             debounceCompleted.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

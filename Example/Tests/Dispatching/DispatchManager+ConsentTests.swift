@@ -18,7 +18,7 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
             consentIsAppliedToDispatch.fulfill()
         }
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_dispatch_is_not_enqueued_by_the_dispatchManager_when_consentManager_is_enabled() {
@@ -44,7 +44,7 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
             return nil
         }
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_dispatch_process_is_NOT_stopped_before_transformations_for_tealium_purpose_disabled_implicitly() {
@@ -61,7 +61,7 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
             return nil
         }
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_track_completion_is_called_when_consent_is_applied() {
@@ -78,6 +78,6 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
             dispatchManager.track(TealiumDispatch(name: "someEvent")) { _, _ in
                 completionCalled.fulfill()
             }
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
 }

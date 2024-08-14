@@ -25,7 +25,7 @@ final class DispatchManagerDeinitTests: DispatchManagerTestCase {
             eventsAreNotDispatched.fulfill()
         }
         dispatchManager.stopDispatchLoop()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_dispatchManager_can_be_deinitialized() {

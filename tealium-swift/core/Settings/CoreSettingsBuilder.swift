@@ -55,13 +55,18 @@ public class CoreSettingsBuilder {
     }
 
     func build() -> [String: Any]? {
+        let logLevel: String? = minLogLevel?.toString()
+        let scopedBarriers: [[String: Any]]? = scopedBarriers?.map { $0.toDictionary() }
+        let scopedTransformations: [[String: Any]]? = scopedTransformations?.map { $0.toDictionary() }
+        let expirationSeconds: Double? = queueExpiration?.seconds()
+        let refreshIntervalSeconds: Double? = refreshInterval?.seconds()
         let dictionaryWithOptionals: [String: Any?] = [
-            Keys.minLogLevel: minLogLevel?.toString(),
-            Keys.barriers: scopedBarriers?.map { $0.toDictionary() },
-            Keys.transformations: scopedTransformations?.map { $0.toDictionary() },
+            Keys.minLogLevel: logLevel,
+            Keys.barriers: scopedBarriers,
+            Keys.transformations: scopedTransformations,
             Keys.maxQueueSize: maxQueueSize,
-            Keys.expirationSeconds: queueExpiration?.seconds(),
-            Keys.refreshIntervalSeconds: refreshInterval?.seconds()
+            Keys.expirationSeconds: expirationSeconds,
+            Keys.refreshIntervalSeconds: refreshIntervalSeconds
         ]
         return dictionaryWithOptionals.compactMapValues { $0 }
     }

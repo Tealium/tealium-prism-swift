@@ -28,7 +28,7 @@ final class TealiumCollectTests: XCTestCase {
             }
         }
         _ = collect?.dispatch([stubDispatches[0]], completion: { _ in })
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_send_multiple_dispatches() {
@@ -48,7 +48,7 @@ final class TealiumCollectTests: XCTestCase {
             }
         }
         _ = collect?.dispatch(stubDispatches, completion: { _ in })
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_send_single_dispatch_overrides_profile_when_provided() {
@@ -61,7 +61,7 @@ final class TealiumCollectTests: XCTestCase {
             }
         }
         _ = collect?.dispatch([stubDispatches[0]], completion: { _ in })
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_send_multiple_dispatches_overrides_profile_when_provided() {
@@ -74,7 +74,7 @@ final class TealiumCollectTests: XCTestCase {
             }
         }
         _ = collect?.dispatch(stubDispatches, completion: { _ in })
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_multiple_dispatches_with_all_different_visitorIds_are_sent_in_different_single_requests() {
@@ -94,7 +94,7 @@ final class TealiumCollectTests: XCTestCase {
             TealiumDispatch(name: "event1", data: [TealiumDataKey.visitorId: "visitor1"]),
             TealiumDispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor2"])
         ], completion: { _ in })
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         subscription.dispose()
     }
 
@@ -118,7 +118,7 @@ final class TealiumCollectTests: XCTestCase {
             TealiumDispatch(name: "event3", data: [TealiumDataKey.visitorId: "visitor2"]),
             TealiumDispatch(name: "event4", data: [TealiumDataKey.visitorId: "visitor2"])
         ], completion: { _ in })
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         subscription.dispose()
     }
 
@@ -138,18 +138,18 @@ final class TealiumCollectTests: XCTestCase {
                 secondVisitorSent.fulfill()
             }
         })
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_disposed_dispatch_are_not_completed() {
         let postRequestCancelled = expectation(description: "The POST request is cancelled")
-        networkHelper.delay = 500
+        networkHelper.delay = 0
         let subscription = collect?.dispatch([stubDispatches[0]], completion: { dispatches in
             XCTAssertEqual(dispatches.count, 0)
             postRequestCancelled.fulfill()
         })
         subscription?.dispose()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_collect_is_not_initialized_when_settings_are_nil() {

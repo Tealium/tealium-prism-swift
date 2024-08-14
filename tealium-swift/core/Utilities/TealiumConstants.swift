@@ -194,7 +194,7 @@ public protocol TealiumErrorEnum: Error {}
 
 // Add default localizedDescription
 extension TealiumErrorEnum {
-    var localizedDescription: String? {
+    var localizedDescription: String {
         return "\(type(of: self)).\(self)"
     }
 }

@@ -25,7 +25,7 @@ final class TealiumDispatchGroupTests: XCTestCase {
             dispatchPrecondition(condition: .onQueue(self.queue))
             parallelExecutionCompletes.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_completion_is_called_with_results_in_provided_order() {
@@ -43,7 +43,7 @@ final class TealiumDispatchGroupTests: XCTestCase {
             XCTAssertEqual(results, [1, 2])
             parallelExecutionCompletes.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_completion_is_called_after_all_have_completed() {

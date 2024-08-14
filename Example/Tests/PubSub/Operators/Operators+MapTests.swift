@@ -29,7 +29,7 @@ final class OperatorsMapTests: XCTestCase {
                     expectations[2].fulfill()
                 }
             }
-        wait(for: expectations, timeout: 1.0, enforceOrder: true)
+        wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_map_subscription_dispose_cleans_retain_cycles() {
@@ -43,7 +43,7 @@ final class OperatorsMapTests: XCTestCase {
         pub.publish(1)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_compactMap_transforms_events_and_removes_nils() {
@@ -68,7 +68,7 @@ final class OperatorsMapTests: XCTestCase {
                     expectations[2].fulfill()
                 }
             }
-        wait(for: expectations, timeout: 1.0, enforceOrder: true)
+        wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_compactMap_subscription_dispose_cleans_retain_cycles() {
@@ -82,6 +82,6 @@ final class OperatorsMapTests: XCTestCase {
         pub.publish(1)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

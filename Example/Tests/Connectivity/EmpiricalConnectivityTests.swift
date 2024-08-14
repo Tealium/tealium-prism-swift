@@ -19,7 +19,7 @@ final class EmpiricalConnectivityTests: XCTestCase {
                 XCTAssertTrue(available)
                 connectionAvailable.fulfill()
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_connectivity_becomes_unavailable_on_connection_failure() {
@@ -30,7 +30,7 @@ final class EmpiricalConnectivityTests: XCTestCase {
                 XCTAssertFalse(available)
                 connectionNotAvailable.fulfill()
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_connectivity_returns_available_on_connection_success() {
@@ -42,7 +42,7 @@ final class EmpiricalConnectivityTests: XCTestCase {
                 XCTAssertTrue(available)
                 connectionAvailable.fulfill()
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_connectivity_returns_available_on_timeout() {
@@ -62,7 +62,7 @@ final class EmpiricalConnectivityTests: XCTestCase {
                 }
                 connectionAvailableChange.fulfill()
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_connection_fail_without_success_increases_number_of_failures() {
@@ -84,7 +84,7 @@ final class EmpiricalConnectivityTests: XCTestCase {
                     fail()
                 }
             }
-        waitForExpectations(timeout: 3.0)
+        waitForDefaultTimeout()
     }
 
     func test_connection_success_resets_number_of_failures() {
@@ -103,7 +103,7 @@ final class EmpiricalConnectivityTests: XCTestCase {
                     connectionAvailable.fulfill()
                 }
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         empiricalConnectivity.connectionSuccess()
         XCTAssertEqual(empiricalConnectivity.numberOfFailedConsecutiveTimeouts, 0)
     }

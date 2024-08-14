@@ -47,7 +47,7 @@ final class ConsentModuleTests: XCTestCase {
             XCTAssertEqual(result, .dropped)
             XCTAssertEqual(dispatch.eventData.count, 2)
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_applyConsent_runs_completion_with_accepted_result_and_original_dispatch_when_implicitly_not_tealium_consented() {
@@ -59,7 +59,7 @@ final class ConsentModuleTests: XCTestCase {
             XCTAssertEqual(result, .accepted)
             XCTAssertEqual(dispatch.eventData.count, 2)
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_applyConsent_runs_completion_with_accepted_result_and_consented_dispatch_when_tealium_consented() {
@@ -72,7 +72,7 @@ final class ConsentModuleTests: XCTestCase {
             XCTAssertNotEqual(dispatch.eventData.count, 2)
             XCTAssertNotNil(dispatch.eventData["consent_type"])
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_apply_consent_runs_completion_with_dropped_result_and_original_dispatch_when_unprocessed_purposes_empty() {
@@ -86,6 +86,6 @@ final class ConsentModuleTests: XCTestCase {
             XCTAssertEqual(result, .dropped)
             XCTAssertEqual(dispatch.eventData.count, 3) // ...that's why 3 is here
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

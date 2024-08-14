@@ -13,7 +13,7 @@ let mockConfig = TealiumConfig(account: "mock",
                                profile: "mock",
                                environment: "dev",
                                modules: [],
-                               settingsFile: "",
+                               settingsFile: nil,
                                settingsUrl: nil)
 private let mockDbProvider = MockDatabaseProvider()
 let mockContext = TealiumContext(modulesManager: ModulesManager(),

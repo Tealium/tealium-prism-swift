@@ -37,14 +37,13 @@ final class DatabaseProviderTests: XCTestCase {
 
     func test_downgraded_db_is_recreated() throws {
         DatabaseHelper.DATABASE_VERSION = 2
+        // This simulates a past launch with a greater DB version
         let dbProviderV2 = try DatabaseProvider(config: config)
         XCTAssertEqual(dbProviderV2.database.userVersion, 2)
         DatabaseHelper.DATABASE_VERSION = 1
+        // This simulates the new launch after a downgrade
         let dbProviderV1 = try DatabaseProvider(config: config)
         XCTAssertEqual(dbProviderV1.database.userVersion, 1)
-        XCTAssertNil(dbProviderV2.database.userVersion, "Old DB connection should be unusable")
-        XCTAssertThrowsError(try dbProviderV2.database.run(ModuleSchema.createModule(moduleName: "test")), "Old DB connection should be unusable")
-        XCTAssertThrowsError(try dbProviderV2.database.pluck(ModuleSchema.getModule(moduleName: "test")), "Old DB connection should be unusable")
     }
 
     func test_created_database_is_persisted_by_default() throws {

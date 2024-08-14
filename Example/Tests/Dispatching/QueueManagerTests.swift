@@ -94,7 +94,7 @@ final class QueueManagerTests: XCTestCase {
         let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_storeDispatches_fails_with_duplicated_dispatch_only_inserts_one() {

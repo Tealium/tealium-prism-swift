@@ -21,7 +21,7 @@ final class OperatorsFlatMapTests: XCTestCase {
             XCTAssertEqual(event, "flatMapped")
             flatMappedEventIsCalled.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_flatMap_emits_events_form_all_returned_observables() {
@@ -36,7 +36,7 @@ final class OperatorsFlatMapTests: XCTestCase {
         }.subscribe { _ in
             flatMappedEventIsCalled.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_flatMapLatest_only_emits_events_from_latest_returned_observable() {
@@ -51,7 +51,7 @@ final class OperatorsFlatMapTests: XCTestCase {
             XCTAssertEqual(element, 3)
             flatMappedEventIsCalled.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_flatMap_subscription_dispose_cleans_retain_cycles() {
@@ -65,6 +65,6 @@ final class OperatorsFlatMapTests: XCTestCase {
         pub.publish(1)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

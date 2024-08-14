@@ -30,7 +30,7 @@ public extension Subscribable {
 
     /// Ensures that Observers to the returned observable are always subscribed on the provided queue.
     func subscribeOn(_ queue: DispatchQueue) -> Observable<Element> {
-        CustomObservable { observer in
+        CustomObservable<Element> { observer in
             let subscription = AsyncDisposer(disposeOn: queue)
             queue.async { // TODO: We might want to add a check if we are already on that queue then don't dispatch
                 guard !subscription.isDisposed else { return }
@@ -42,7 +42,7 @@ public extension Subscribable {
 
     /// Ensures that Observers to the returned observable are always called on the provided queue.
     func observeOn(_ queue: DispatchQueue) -> Observable<Element> {
-        CustomObservable { observer in
+        CustomObservable<Element> { observer in
             let container = DisposeContainer()
             self.subscribe { element in
                 queue.async { // TODO: We might want to add a check if we are already on that queue then don't dispatch
@@ -56,7 +56,7 @@ public extension Subscribable {
 
     /// Transforms the events provided to the observable into new events before calling the observers of the new observable.
     func map<Result>(_ transform: @escaping (Element) -> Result) -> Observable<Result> {
-        CustomObservable { observer in
+        CustomObservable<Result> { observer in
             self.subscribe { element in
                 observer(transform(element))
             }
@@ -65,7 +65,7 @@ public extension Subscribable {
 
     /// Transforms the events provided to the observable into new events, stripping out the nil events, before calling the observers of the new observable.
     func compactMap<Result>(_ transform: @escaping (Element) -> Result?) -> Observable<Result> {
-        CustomObservable { observer in
+        CustomObservable<Result> { observer in
             self.subscribe { element in
                 if let transformed = transform(element) {
                     observer(transformed)
@@ -76,7 +76,7 @@ public extension Subscribable {
 
     /// Only report the events that are included by the provided filter.
     func filter(_ isIncluded: @escaping (Element) -> Bool) -> Observable<Element> {
-        CustomObservable { observer in
+        CustomObservable<Element> { observer in
             self.subscribe { element in
                 if isIncluded(element) {
                     observer(element)
@@ -128,7 +128,7 @@ public extension Subscribable {
 
     /// On subscription emits the provided elements before providing the other events from the original observable.
     func startWith(_ elements: Element...) -> Observable<Element> {
-        CustomObservable { observer in
+        CustomObservable<Element> { observer in
             for startingElement in elements {
                 observer(startingElement)
             }
@@ -140,7 +140,7 @@ public extension Subscribable {
 
     /// Returns a new observable that emits the events of the original observable and the otherObservable passed as parameter.
     func merge(_ otherObservables: Observable<Element>...) -> Observable<Element> {
-        CustomObservable { observer in
+        CustomObservable<Element> { observer in
             let container = DisposeContainer()
             self.subscribe(observer)
                 .addTo(container)
@@ -159,7 +159,7 @@ public extension Subscribable {
      * After the first event is published it automatically disposes the observer.
      */
     func first(where isIncluded: @escaping (Element) -> Bool = { _ in true }) -> Observable<Element> {
-        CustomObservable { observer in
+        CustomObservable<Element> { observer in
             let container = DisposeContainer()
             self.filter(isIncluded)
                 .subscribe { element in
@@ -178,7 +178,7 @@ public extension Subscribable {
      * Then a new event with the tuple will be emitted everytime one of the two emits a new event.
      */
     func combineLatest<Other>(_ otherObservable: Observable<Other>) -> Observable<(Element, Other)> {
-        CustomObservable { observer in
+        CustomObservable<(Element, Other)> { observer in
             let container = DisposeContainer()
             var first: Element?
             var other: Other?
@@ -201,7 +201,7 @@ public extension Subscribable {
 
     /// Returns an observable that ignores the first N published events.
     func ignore(_ count: Int) -> Observable<Element> {
-        CustomObservable { observer in
+        CustomObservable<Element> { observer in
             var current = 0
             return self.subscribe { element in
                 guard current >= count else {
@@ -237,7 +237,7 @@ public extension Subscribable {
                 }
             }
         }
-        return CustomObservable { observer in
+        return CustomObservable<Element> { observer in
             let container = DisposeContainer()
             subscribeOnceInfiniteLoop(observer: observer, container: container)
                 .addTo(container)
@@ -247,7 +247,7 @@ public extension Subscribable {
 
     /// Returns an observable that automatically unsubscribes when the provided condition is no longer met. If inclusive is `true` the last element will also be published.
     func takeWhile(_ isIncluded: @escaping (Element) -> Bool, inclusive: Bool = false) -> Observable<Element> {
-        CustomObservable { observer in
+        CustomObservable<Element> { observer in
             let container = DisposeContainer()
             self.subscribe { element in
                 guard !container.isDisposed else { return }
@@ -268,7 +268,7 @@ public extension Subscribable {
 public extension Subscribable where Element: Equatable {
     /// Only emits new events if the last one is different from the new one.
     func distinct() -> Observable<Element> {
-        CustomObservable { observer in
+        CustomObservable<Element> { observer in
             var lastElement: Element?
             return self.subscribe { element in
                 let isDistinct = lastElement == nil || lastElement != element

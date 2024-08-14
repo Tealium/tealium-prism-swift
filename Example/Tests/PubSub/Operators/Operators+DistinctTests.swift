@@ -22,7 +22,7 @@ final class OperatorsDistinctTests: XCTestCase {
                 expectations[number].fulfill()
             }
 
-        wait(for: expectations, timeout: 1.0, enforceOrder: true)
+        wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_distinct_subscription_dispose_cleans_retain_cycles() {
@@ -38,7 +38,7 @@ final class OperatorsDistinctTests: XCTestCase {
         pub.publish(2)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_distinct_detects_equal_elements_for_synchronous_refire_in_the_chain() {
@@ -54,6 +54,6 @@ final class OperatorsDistinctTests: XCTestCase {
                 eventProvided.fulfill()
             }
         publisher.publish(1)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

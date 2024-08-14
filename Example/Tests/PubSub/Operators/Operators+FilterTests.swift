@@ -29,7 +29,7 @@ final class OperatorsFilterTests: XCTestCase {
                     expectations[2].fulfill()
                 }
             }
-        wait(for: expectations, timeout: 1.0, enforceOrder: true)
+        wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_filter_subscription_dispose_cleans_retain_cycles() {
@@ -44,7 +44,7 @@ final class OperatorsFilterTests: XCTestCase {
         pub.publish(2)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
 }

@@ -20,7 +20,7 @@ final class OperatorsCombineLatestTests: XCTestCase {
             .combineLatest(pub2.asObservable())
             .subscribe { _, _ in expectation.fulfill() }
         pub1.publish(1)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_combineLatest_doesnt_send_event_if_second_has_provided_no_events() {
@@ -33,7 +33,7 @@ final class OperatorsCombineLatestTests: XCTestCase {
             .combineLatest(pub2.asObservable())
             .subscribe { _, _ in expectation.fulfill() }
         pub2.publish("a")
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_combineLatest_sends_event_if_both_provided_an_event() {
@@ -46,7 +46,7 @@ final class OperatorsCombineLatestTests: XCTestCase {
             .subscribe { _, _ in expectation.fulfill() }
         pub1.publish(1)
         pub2.publish("a")
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_combineLatest_after_first_sends_events_at_each_event_from_both_observables() {
@@ -78,7 +78,7 @@ final class OperatorsCombineLatestTests: XCTestCase {
         pub2.publish("a")
         pub1.publish(2)
         pub2.publish("b")
-        wait(for: expectations, timeout: 1.0, enforceOrder: true)
+        wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_combineLatest_subscription_dispose_cleans_retain_cycles() {
@@ -92,6 +92,6 @@ final class OperatorsCombineLatestTests: XCTestCase {
         pub.publish(1)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

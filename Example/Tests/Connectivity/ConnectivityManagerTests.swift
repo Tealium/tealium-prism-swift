@@ -23,7 +23,7 @@ final class ConnectivityManagerTests: XCTestCase {
             XCTAssertTrue(available)
             connectionAssumedAvailableEvent.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_connectivity_is_still_assumed_available_after_empirical_connection_down() {
@@ -35,7 +35,7 @@ final class ConnectivityManagerTests: XCTestCase {
             XCTAssertTrue(available)
             connectionAssumedAvailableEvent.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_connectivity_is_still_connected_after_connection_monitor_down() {
@@ -46,7 +46,7 @@ final class ConnectivityManagerTests: XCTestCase {
             XCTAssertTrue(available)
             connectionAssumedAvailableEvent.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_connectivity_is_unavailable_after_empirical_and_monitored_connection_down() {
@@ -58,7 +58,7 @@ final class ConnectivityManagerTests: XCTestCase {
             XCTAssertFalse(available)
             connectionAssumedAvailableEvent.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_connectivity_returns_available_on_empirical_connection() {
@@ -72,7 +72,7 @@ final class ConnectivityManagerTests: XCTestCase {
             XCTAssertTrue(available)
             connectionAssumedAvailableEvent.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_connectivity_returns_available_on_monitored_connection() {
@@ -86,7 +86,7 @@ final class ConnectivityManagerTests: XCTestCase {
             XCTAssertTrue(available)
             connectionAssumedAvailableEvent.fulfill()
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_should_retry_returns_doNotRetry_on_connection_assumed_available() {
@@ -123,7 +123,7 @@ final class ConnectivityManagerTests: XCTestCase {
             empiricalConnectionFailure.fulfill()
         }
         manager.didComplete(URLRequest(), with: connectionErrorResult)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_did_complete_with_success_causes_empirical_connection_success() {
@@ -132,7 +132,7 @@ final class ConnectivityManagerTests: XCTestCase {
             empiricalConnectionSuccess.fulfill()
         }
         manager.didComplete(URLRequest(), with: .success(.successful()))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_did_complete_with_non200Status_error_causes_empirical_connection_success() {
@@ -141,7 +141,7 @@ final class ConnectivityManagerTests: XCTestCase {
             empiricalConnectionSuccess.fulfill()
         }
         manager.didComplete(URLRequest(), with: .failure(.non200Status(400)))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_did_complete_with_non_connection_error_causes_nothing() {
@@ -157,16 +157,18 @@ final class ConnectivityManagerTests: XCTestCase {
             empiricalConnectionFailure.fulfill()
         }.addTo(automaticDisposer)
         manager.didComplete(URLRequest(), with: .failure(.urlError(URLError(.appTransportSecurityRequiresSecureConnection))))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
+    @available(tvOS, deprecated: 13.0, message: "URLSessionTask init not supported")
+    @available(macOS, deprecated: 10.15, message: "URLSessionTask init not supported")
     func test_waiting_for_connectivity_causes_empirical_connection_failure() {
         let empiricalConnectionFailure = expectation(description: "Empirical connection failure is reported")
         empiricalConnectivity.onConnectionFail.subscribeOnce {
             empiricalConnectionFailure.fulfill()
         }
         manager.waitingForConnectivity(URLSessionTask())
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }
 

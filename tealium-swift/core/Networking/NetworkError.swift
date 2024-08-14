@@ -27,7 +27,7 @@ extension URLError {
 /**
  * An error reported by the NetworkClient.
  */
-public enum NetworkError: Error {
+public enum NetworkError: Error, TealiumErrorEnum {
     /// A request completed with a non 2xx status code
     case non200Status(Int)
     /// A request was cancelled before completion

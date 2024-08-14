@@ -57,12 +57,13 @@ class SQLQueueRepository: QueueRepository {
     }
 
     func getQueuedDispatches(for processor: String, limit: Int?, excluding: [String] = []) -> [TealiumDispatch] {
-        let query = DispatchSchema.table
-            .where(!excluding.contains(DispatchSchema.uuid))
+        let filterExpiredExpression: Expression<Bool> = DispatchSchema.timestamp > getExpiryTimestamp(expiration: expiration)
+        let dispatchTable: QueryType = DispatchSchema.table
+        let query = dispatchTable.where(!excluding.contains(DispatchSchema.uuid))
             .join(.inner,
                   QueueSchema.table,
                   on: DispatchSchema.tableUUID == QueueSchema.tableDispatchId && QueueSchema.tableProcessor == processor)
-            .filter(DispatchSchema.timestamp > getExpiryTimestamp(expiration: expiration))
+            .filter(filterExpiredExpression)
             .order(DispatchSchema.timestamp)
             .limit(limit)
         return getDispatches(query: query)

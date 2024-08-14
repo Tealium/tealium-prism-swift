@@ -132,13 +132,13 @@ final class TealiumDataOutputTests: XCTestCase {
             "float": Float(3.0),
             "string": "test"
         ] as [String: Any])
-        let array = output.getDictionary()
-        XCTAssertNotNil(array)
-        XCTAssertEqual(array?.getBool(key: "bool"), false)
-        XCTAssertEqual(array?.getInt(key: "int"), 1)
-        XCTAssertEqual(array?.getDouble(key: "double"), Double(2.0))
-        XCTAssertEqual(array?.getDouble(key: "float"), Double(3.0))
-        XCTAssertEqual(array?.getString(key: "string"), "test")
+        let dictionary = output.getDictionary()
+        XCTAssertNotNil(dictionary)
+        XCTAssertEqual(dictionary?.getBool(key: "bool"), false)
+        XCTAssertEqual(dictionary?.getInt(key: "int"), 1)
+        XCTAssertEqual(dictionary?.getDouble(key: "double"), Double(2.0))
+        XCTAssertEqual(dictionary?.getDouble(key: "float"), Double(3.0))
+        XCTAssertEqual(dictionary?.getString(key: "string"), "test")
     }
 
     func test_nested_array_can_be_read() {
@@ -163,15 +163,15 @@ final class TealiumDataOutputTests: XCTestCase {
         XCTAssertEqual(nestedArray?.getString(key: "key"), "Nested Key")
     }
 
-    func test_getDataInput_can_be_read_as_TealiumDataInput() {
-        let int = TealiumDataOutput(stringValue: "1")
-        let double = TealiumDataOutput(stringValue: "1.4")
-        let intDouble = TealiumDataOutput(stringValue: "2.0")
-        let bool = TealiumDataOutput(stringValue: "true")
-        let string = TealiumDataOutput(stringValue: "\"string\"")
-        let array = TealiumDataOutput(stringValue: "[\"1\",2,\"3.5\"]")
-        let dictionary = TealiumDataOutput(stringValue: "{\"1\":1,\"2\":2,\"3\":3.5}")
-        let multiLevelDictionary = TealiumDataOutput(stringValue: "{\"1\":[1,\"1\"],\"2\":[2,\"2\"],\"3\":[3.5,\"3.5\"]}")
+    func test_getDataInput_from_value_can_be_read_as_TealiumDataInput() {
+        let int = TealiumDataOutput(value: 1)
+        let double = TealiumDataOutput(value: 1.4)
+        let intDouble = TealiumDataOutput(value: 2.0)
+        let bool = TealiumDataOutput(value: true)
+        let string = TealiumDataOutput(value: "string")
+        let array = TealiumDataOutput(value: [1, 2, 3.5])
+        let dictionary = TealiumDataOutput(value: ["1": 1, "2": 2, "3": 3.5])
+        let multiLevelDictionary = TealiumDataOutput(value: ["1": [1, "1"], "2": [2, "2"], "3": [3.5, "3.5"]])
         XCTAssertNotNil(int.getDataInput())
         XCTAssertNotNil(int.getDataInput())
         XCTAssertNotNil(double.getDataInput())
@@ -193,7 +193,7 @@ final class TealiumDataOutputTests: XCTestCase {
         XCTAssertEqual(array2?[1] as? String, "2")
         let array3 = tealiumDictionary?["3"] as? [TealiumDataInput]
         XCTAssertNotNil(array3)
-        XCTAssertEqual(array3?[0] as? Double, 3.5) // With double it fails
+        XCTAssertEqual(array3?[0] as? Double, 3.5)
         XCTAssertEqual(array3?[1] as? String, "3.5")
     }
 }

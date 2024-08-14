@@ -23,7 +23,7 @@ final class OperatorsQueuesTests: XCTestCase {
         _ = observable.subscribeOn(queue)
             .subscribe { }
         queue.sync {
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
     }
 
@@ -42,7 +42,7 @@ final class OperatorsQueuesTests: XCTestCase {
         helper?.subscription?.dispose()
         helper = nil
         queue.sync {
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
     }
 
@@ -57,7 +57,7 @@ final class OperatorsQueuesTests: XCTestCase {
             notPublished.fulfill()
         }
         subscription.dispose()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_observeOn_observes_on_provided_queue() {
@@ -70,7 +70,7 @@ final class OperatorsQueuesTests: XCTestCase {
                 expectation.fulfill()
             }
         queue.sync {
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
     }
 
@@ -87,7 +87,7 @@ final class OperatorsQueuesTests: XCTestCase {
         queue.sync {
             helper?.subscription?.dispose()
             helper = nil
-            waitForExpectations(timeout: 1.0)
+            waitForDefaultTimeout()
         }
     }
 
@@ -102,6 +102,6 @@ final class OperatorsQueuesTests: XCTestCase {
             notPublished.fulfill()
         }
         subscription.dispose()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

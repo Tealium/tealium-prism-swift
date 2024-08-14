@@ -36,8 +36,7 @@ final class SettingsManagerTests: XCTestCase {
         return try SettingsManager(config: config,
                                    dataStore: dataStore,
                                    networkHelper: networkHelper,
-                                   onLogger: .Just(TealiumLogger(logger: TealiumOSLogger(),
-                                                                 minLogLevel: .constant(.trace))),
+                                   onLogger: .Just(verboseLogger),
                                    onActivity: onActivity.asObservable())
     }
     func test_init_fills_current_settings_with_programmatic() throws {
@@ -112,7 +111,7 @@ final class SettingsManagerTests: XCTestCase {
             .subscribe { _ in
                 settingsRefreshed.fulfill()
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_onNewSettingsMerged_publishes_merged_settings_on_remote_refresh() throws {
@@ -135,7 +134,7 @@ final class SettingsManagerTests: XCTestCase {
                 settingsRefreshed.fulfill()
             }
         onActivity.publish(.launch(Date()))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_onNewSettingsMerged_doesnt_publish_merged_settings_on_failed_remote_refresh() throws {
@@ -154,7 +153,7 @@ final class SettingsManagerTests: XCTestCase {
                 settingsRefreshed.fulfill()
             }
         onActivity.publish(.launch(Date()))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_onNewRefreshInterval_publishes_new_interval_when_it_changes() throws {
@@ -175,7 +174,7 @@ final class SettingsManagerTests: XCTestCase {
             refreshIntervalUpdated.fulfill()
         }
         onActivity.publish(.launch(Date()))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_onNewRefreshInterval_doesnt_publish_new_interval_when_it_doesnt_change() throws {
@@ -192,7 +191,7 @@ final class SettingsManagerTests: XCTestCase {
             refreshIntervalUpdated.fulfill()
         }
         onActivity.publish(.launch(Date()))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_onShouldRequestRefresh_requests_refreshes_on_launch_and_foreground() {
@@ -205,7 +204,7 @@ final class SettingsManagerTests: XCTestCase {
             }
         publisher.publish(.launch(Date()))
         publisher.publish(.foreground(Date()))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_onShouldRequestRefresh_doesnt_request_refreshes_on_background() {
@@ -217,7 +216,7 @@ final class SettingsManagerTests: XCTestCase {
                 refreshShouldNotBeRequested.fulfill()
             }
         publisher.publish(.background(Date()))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_loadLocalSettings_returns_bundled_settings() {

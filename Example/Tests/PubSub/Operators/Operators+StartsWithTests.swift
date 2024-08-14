@@ -23,7 +23,7 @@ final class OperatorsStartsWithTests: XCTestCase {
             .subscribe { number in
                 expectations[number].fulfill()
             }
-        wait(for: expectations, timeout: 1.0, enforceOrder: true)
+        wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_startWith_subscription_dispose_cleans_retain_cycles() {
@@ -37,6 +37,6 @@ final class OperatorsStartsWithTests: XCTestCase {
         pub.publish(1)
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

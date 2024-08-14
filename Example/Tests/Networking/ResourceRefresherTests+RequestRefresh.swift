@@ -20,7 +20,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
         }
         let refresher = try createResourceRefresher()
         refresher.requestRefresh()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_requestRefresh_causes_resource_to_be_cached_when_successful() throws {
@@ -33,7 +33,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
         }
         XCTAssertNil(refresher.resourceCacher.readResource())
         refresher.requestRefresh()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         XCTAssertEqual(refresher.resourceCacher.readResource(), inputResource)
     }
 
@@ -48,7 +48,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
         }
         XCTAssertNil(refresher.resourceCacher.readResource())
         refresher.requestRefresh()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_requestRefresh_when_cache_is_full_causes_onResourceLoaded_to_publish_two_subsequent_resources() throws {
@@ -71,7 +71,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
             count += 1
         }
         refresher.requestRefresh()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         subscription.dispose()
     }
 
@@ -90,7 +90,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
             refresherError.fulfill()
         }.addTo(automaticDisposer)
         refresher.requestRefresh()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_requestRefresh_failure_is_reported_to_onRefreshError() throws {
@@ -102,7 +102,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
             XCTAssertEqual(error as? NetworkError, .non200Status(400))
         }
         refresher.requestRefresh()
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_requestRefresh_ignores_invalid_objects() throws {
@@ -117,7 +117,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
         refresher.requestRefresh { _ in
             return false
         }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
 }

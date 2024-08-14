@@ -19,7 +19,7 @@ final class OperatorsFirstTests: XCTestCase {
                 expectation.fulfill()
             }
 
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_first_returns_only_first_event_that_is_included() {
@@ -29,7 +29,7 @@ final class OperatorsFirstTests: XCTestCase {
                 XCTAssertEqual(number, 2)
                 expectation.fulfill()
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_first_disposes_subscription_after_the_event_is_reported() {
@@ -39,7 +39,7 @@ final class OperatorsFirstTests: XCTestCase {
                 expectation.fulfill()
             }
         XCTAssertTrue(subscription.isDisposed)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_first_subscription_dispose_cleans_retain_cycles() {
@@ -52,7 +52,7 @@ final class OperatorsFirstTests: XCTestCase {
         })
         helper?.subscription?.dispose()
         helper = nil
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_first_cleans_retain_cycles_after_first_event() {
@@ -64,6 +64,6 @@ final class OperatorsFirstTests: XCTestCase {
             expectation.fulfill()
         })
         pub.publish(1)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

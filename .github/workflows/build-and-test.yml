@@ -1,0 +1,106 @@
+name: Build and Test
+
+on: [pull_request]
+
+jobs:
+  setup:
+    name: Setup machine
+    runs-on: macos-14
+    steps:
+      - uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.0'
+      - name: List available Xcode versions
+        run: ls /Applications | grep Xcode
+      - name: Setup Xcode version
+        uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: '15.4'
+  build_iOS:
+    needs: setup
+    name: iOS Builds | ${{ matrix.scheme }}
+    runs-on: macos-14
+    timeout-minutes: 60
+    env:
+      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+      working-directory: Example
+    strategy:
+      matrix:
+        scheme:
+            - Example_iOS
+        destination: ["platform=iOS Simulator,OS=17.5,name=iPhone 15 Pro"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bundle Install
+        run: bundle install
+      - name: Pod Install
+        run: pod install
+        working-directory: ${{env.working-directory}}
+      - name: Build - "${{ matrix.scheme }}"
+        run: scripts/build.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+  test_iOS:
+    needs: setup
+    name: iOS Tests | ${{ matrix.scheme }}
+    runs-on: macos-14
+    timeout-minutes: 60
+    env:
+      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+      working-directory: Example
+    strategy:
+      matrix:
+        scheme:
+            - CoreTests_iOS
+        destination: ["platform=iOS Simulator,OS=17.5,name=iPhone 15 Pro"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bundle Install
+        run: bundle install
+      - name: Pod Install
+        run: pod install
+        working-directory: ${{env.working-directory}}
+      - name: Test - "${{ matrix.scheme }}"
+        run: scripts/run_tests.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+  test_tvOS:
+    needs: setup
+    name: tvOS Tests | ${{ matrix.scheme }}
+    runs-on: macos-14
+    timeout-minutes: 60
+    env:
+      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+      working-directory: Example
+    strategy:
+      matrix:
+        scheme:
+            - CoreTests_tvOS
+        destination: ["platform=tvOS Simulator,name=Apple TV"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bundle Install
+        run: bundle install
+      - name: Pod Install
+        run: pod install
+        working-directory: ${{env.working-directory}}
+      - name: Test - "${{ matrix.scheme }}"
+        run: scripts/run_tests.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+  test_macOS:
+    needs: setup
+    name: macOS Tests | ${{ matrix.scheme }}
+    runs-on: macos-14
+    timeout-minutes: 60
+    env:
+      DEVELOPER_DIR: /Applications/Xcode.app/Contents/Developer
+      working-directory: Example
+    strategy:
+      matrix:
+        scheme:
+            - CoreTests_macOS
+        destination: ["platform=macOS"]
+    steps:
+      - uses: actions/checkout@v4
+      - name: Bundle Install
+        run: bundle install
+      - name: Pod Install
+        run: pod install
+        working-directory: ${{env.working-directory}}
+      - name: Test - "${{ matrix.scheme }}"
+        run: scripts/run_tests.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"

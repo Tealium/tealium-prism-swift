@@ -136,4 +136,9 @@ class URLProtocolMock: URLProtocol {
     override func stopLoading() {
         // Required to be implemented. Do nothing here.
     }
+
+    static func reset() {
+        waiting = { callback in callback() }
+        reply = .always((nil, nil, nil))
+    }
 }

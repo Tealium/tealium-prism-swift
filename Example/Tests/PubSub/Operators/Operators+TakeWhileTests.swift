@@ -32,7 +32,7 @@ final class OperatorsTakeWhileTests: XCTestCase {
                     expectations[2].fulfill()
                 }
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_events_over_conditions_are_not_emitted_inclusive() {
@@ -53,7 +53,7 @@ final class OperatorsTakeWhileTests: XCTestCase {
                     expectations[2].fulfill()
                 }
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_events_after_unsubscription_are_not_sent() {
@@ -75,7 +75,7 @@ final class OperatorsTakeWhileTests: XCTestCase {
                     expectations[2].fulfill()
                 }
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_events_after_unsubscription_are_not_sent_inclusive() {
@@ -96,7 +96,7 @@ final class OperatorsTakeWhileTests: XCTestCase {
                     expectations[2].fulfill()
                 }
             }
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_async_events_after_unsubscription_are_not_sent() {
@@ -118,7 +118,7 @@ final class OperatorsTakeWhileTests: XCTestCase {
         pub.publish(1)
         pub.publish(2)
         pub.publish(1)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_async_events_after_unsubscription_are_not_sent_inclusive() {
@@ -139,7 +139,7 @@ final class OperatorsTakeWhileTests: XCTestCase {
         pub.publish(1)
         pub.publish(2)
         pub.publish(1)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_subscription_is_disposed_immediately_when_condition_is_not_met() {
@@ -162,7 +162,7 @@ final class OperatorsTakeWhileTests: XCTestCase {
         XCTAssertFalse(subscription.isDisposed)
         pub.publish(2)
         XCTAssertTrue(subscription.isDisposed)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_subscription_is_disposed_immediately_when_condition_is_not_met_inclusive() {
@@ -184,6 +184,6 @@ final class OperatorsTakeWhileTests: XCTestCase {
         XCTAssertFalse(subscription.isDisposed)
         pub.publish(2)
         XCTAssertTrue(subscription.isDisposed)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

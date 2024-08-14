@@ -20,7 +20,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
             eventIsDispatched.fulfill()
         }
         _ = dispatchManager
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_events_are_dispatched_in_order() {
@@ -36,7 +36,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
             eventsAreDispatched.fulfill()
         }
         _ = dispatchManager
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_events_are_dispatched_in_ordered_batches() {
@@ -55,7 +55,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
             eventsAreDispatched.fulfill()
         }
         _ = dispatchManager
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_pulls_from_the_queue_are_stopped_immediately_when_a_partial_batch_is_returned() {
@@ -66,7 +66,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
             eventsAreDequeued.fulfill()
         }
         _ = dispatchManager
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_pulls_from_the_queue_are_stopped_immediately_when_number_of_inflight_reaches_the_maximum() {
@@ -79,6 +79,6 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
             eventsAreDequeued.fulfill()
         }
         _ = dispatchManager
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

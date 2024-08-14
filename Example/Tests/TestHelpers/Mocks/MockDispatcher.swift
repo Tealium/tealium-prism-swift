@@ -45,14 +45,22 @@ class MockDispatcher: MockModule, Dispatcher {
 
     func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
         let subscription = Subscription { }
+        let completion: ([TealiumDispatch]) -> Void = { data in
+            guard !subscription.isDisposed else { return }
+            self._onDispatch.publish(data)
+            completion(data)
+        }
         if let delay = delay {
-            queue.asyncAfter(deadline: .now() + .milliseconds(delay)) {
-                guard !subscription.isDisposed else { return }
-                self._onDispatch.publish(data)
-                completion(data)
+            if delay > 0 {
+                queue.asyncAfter(deadline: .now() + .milliseconds(delay)) {
+                    completion(data)
+                }
+            } else {
+                queue.async {
+                    completion(data)
+                }
             }
         } else {
-            _onDispatch.publish(data)
             completion(data)
         }
         return subscription

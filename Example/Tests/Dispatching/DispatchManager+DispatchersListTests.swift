@@ -25,7 +25,7 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
             eventIsDispatchedToModule2.fulfill()
         }
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_event_is_not_dispatched_to_old_modules_when_they_get_disabled() {
@@ -44,7 +44,7 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
         }
         disableModule(module: module2)
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_disabling_a_module_doesnt_cancel_inProgress_dispatches() {
@@ -53,7 +53,7 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
             XCTFail("module1 not found")
             return
         }
-        module.delay = 500
+        module.delay = 0
         let eventsAreDispatched = expectation(description: "Events are dispatched")
         let eventsAreDequeued = expectation(description: "Events are dequeued")
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
@@ -64,7 +64,7 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
         _ = module.onDispatch.subscribe { _ in
             eventsAreDispatched.fulfill()
         }
-        wait(for: [eventsAreDequeued, eventsAreDispatched], timeout: 2.0, enforceOrder: true)
+        wait(for: [eventsAreDequeued, eventsAreDispatched], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
 }

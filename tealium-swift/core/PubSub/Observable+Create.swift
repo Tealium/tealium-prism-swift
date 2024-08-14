@@ -42,7 +42,7 @@ public extension Observable {
      * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and publish a new event to the subscribers when the function completes.
      */
     static func Callback(fromDisposable asyncFunction: @escaping (@escaping Observer) -> Disposable) -> Observable<Element> {
-        CustomObservable { observer in
+        CustomObservable<Element> { observer in
             asyncFunction { res in
                 observer(res)
             }
@@ -56,7 +56,7 @@ public extension Observable {
 
     /// Returns an observable that just reports the provided elements in order to each new subscriber.
     static func From(_ elements: [Element]) -> Observable<Element> {
-        CustomObservable { observer in
+        CustomObservable<Element> { observer in
             for element in elements {
                 observer(element)
             }
@@ -76,7 +76,7 @@ public extension Observable {
      * All subsequent changes to any observable will be emitted one by one.
      */
     static func CombineLatest(_ observables: [Observable<Element>]) -> Observable<[Element]> {
-        CustomObservable { observer in
+        func subscriptionHandler(_ observer: @escaping ([Element]) -> Void) -> Disposable {
             let container = DisposeContainer()
             let count = observables.count
             guard count > 0 else {
@@ -88,9 +88,8 @@ public extension Observable {
             func notify(element: Element, index: Int) {
                 if temporaryArray != nil {
                     temporaryArray?[index] = element
-                    if temporaryArray?.contains(where: { $0 == nil }) == false,
-                       let unwrappedArray = temporaryArray?.compactMap({ $0 }),
-                        unwrappedArray.count == count {
+                    if let unwrappedArray = temporaryArray?.compactMap({ $0 }),
+                        unwrappedArray.count == count { // true when temporary array is full of non-nil value
                         resultArray = unwrappedArray
                         temporaryArray = nil
                     }
@@ -107,6 +106,7 @@ public extension Observable {
             }
             return container
         }
+        return CustomObservable<[Element]>(subscriptionHandler)
     }
     // swiftlint:enable identifier_name
 }

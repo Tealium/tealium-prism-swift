@@ -25,7 +25,7 @@ final class ReachabilityConnectivityMonitorTests: XCTestCase {
         helper.removeStrongReference()
         queue.async { reachabilityQueueCleared.fulfill() }
 
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         helper.forceAndAssertObjectDeinit()
     }
 
@@ -37,7 +37,7 @@ final class ReachabilityConnectivityMonitorTests: XCTestCase {
             XCTAssertEqual(connection, .unknown)
             connectionChanged.fulfill()
         })
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_connection_changes_after_init() {
@@ -47,7 +47,7 @@ final class ReachabilityConnectivityMonitorTests: XCTestCase {
                 connectionChanged.fulfill()
             }
         })
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
         sub?.dispose()
     }
 }

@@ -101,7 +101,7 @@ public class HTTPClient: NetworkClient {
             }
         }.addTo(disposeContainer)
         return Subscription {
-            self.queue.async {
+            self.queue.async { // TODO: dispatch only if necessary
                 completion.fail(error: .cancelled)
                 disposeContainer.dispose()
             }
@@ -127,7 +127,7 @@ public class HTTPClient: NetworkClient {
             }
             .subscribeOnce { limitedLogger in
                 limitedLogger?.log(category: LogCategory.httpClient,
-                                   message: "Completed request \(String(describing: request.url)) \(String(describing: request.httpBody)) with \(result)")
+                                   message: "Completed request \(String(describing: request.url)) \(String(describing: request.httpBody)) \(result.shortDescription())")
             }
             completion(result)
         }

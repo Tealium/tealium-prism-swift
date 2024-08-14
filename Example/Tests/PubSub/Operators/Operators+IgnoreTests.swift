@@ -23,6 +23,6 @@ final class OperatorsIgnoreTests: XCTestCase {
         sub.publish(1)
         sub.publish(2)
         sub.publish(3)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

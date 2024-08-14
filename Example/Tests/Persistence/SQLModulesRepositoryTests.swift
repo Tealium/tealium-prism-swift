@@ -127,7 +127,7 @@ final class SQLModulesRepositoryTests: XCTestCase {
             eventNotified.fulfill()
         }
         modulesRepository.deleteExpired(expiry: .restart)
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_deleteExpired_doesnt_notify_onExpiredData_event_if_nothing_expired() throws {
@@ -140,7 +140,7 @@ final class SQLModulesRepositoryTests: XCTestCase {
             eventNotified.fulfill()
         }
         modulesRepository.deleteExpired(expiry: .restart)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
         subscription.dispose()
     }
 }

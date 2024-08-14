@@ -25,7 +25,7 @@ final class StateSubjectTests: XCTestCase {
         variableSubject.value = 1
         variableSubject.value = 2
         variableSubject.value = 3
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_value_returns_latest_provided_value() {
@@ -48,7 +48,7 @@ final class StateSubjectTests: XCTestCase {
         variableSubject.value = 1
         variableSubject.value = 2
         variableSubject.value = 3
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_mutateIfChanged_only_emits_new_updates_if_changed() {
@@ -64,7 +64,7 @@ final class StateSubjectTests: XCTestCase {
         variableSubject.publishIfChanged(1)
         variableSubject.publishIfChanged(1)
         variableSubject.publishIfChanged(2)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_mutate_array_emits_new_update() {
@@ -76,7 +76,7 @@ final class StateSubjectTests: XCTestCase {
         }
         variableSubject.value.append(4)
         XCTAssertEqual(variableSubject.value, [1, 2, 3, 4])
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_map_emits_updates() {
@@ -94,6 +94,6 @@ final class StateSubjectTests: XCTestCase {
         variableSubject.value = 2
         variableSubject.value = 3
         variableSubject.value = 4
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 }

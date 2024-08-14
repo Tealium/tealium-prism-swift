@@ -17,7 +17,7 @@ final class DisposableTests: XCTestCase {
             expectation.fulfill()
         }
         subscription.dispose()
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_is_disposed_true_when_subscription_is_disposed() {
@@ -35,7 +35,7 @@ final class DisposableTests: XCTestCase {
         disposeContainer.add(Subscription { subscriptionDisposedExpectation.fulfill() })
         disposeContainer.add(Subscription { subscriptionDisposedExpectation.fulfill() })
         disposeContainer.dispose()
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_is_disposed_true_when_dispose_container_is_disposed() {
@@ -52,7 +52,7 @@ final class DisposableTests: XCTestCase {
         container.add(Subscription(unsubscribe: {
             subscriptionDisposed.fulfill()
         }))
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 
     func test_deinit_disposes_automatically_all_subscriptions_contained_in_automatic_disposer() {
@@ -63,6 +63,6 @@ final class DisposableTests: XCTestCase {
         automaticDisposer?.add(Subscription { subscriptionDisposedExpectation.fulfill() })
         automaticDisposer?.add(Subscription { subscriptionDisposedExpectation.fulfill() })
         automaticDisposer = nil
-        waitForExpectations(timeout: 2.0)
+        waitForDefaultTimeout()
     }
 }

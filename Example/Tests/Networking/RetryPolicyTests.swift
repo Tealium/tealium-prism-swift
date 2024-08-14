@@ -19,7 +19,7 @@ final class RetryPolicyTests: XCTestCase {
             expect.fulfill()
         }
         XCTAssertFalse(result)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_after_delay_should_retry_once_on_queue() {
@@ -31,7 +31,7 @@ final class RetryPolicyTests: XCTestCase {
             expect.fulfill()
         }
         XCTAssertTrue(result)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_after_event_subscribes_once_on_queue() {
@@ -48,7 +48,7 @@ final class RetryPolicyTests: XCTestCase {
         }))
         let result = policy.shouldRetry(onQueue: queue) { }
         XCTAssertTrue(result)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
     func test_after_event_should_retry_once_on_queue() {
@@ -67,7 +67,7 @@ final class RetryPolicyTests: XCTestCase {
             expect.fulfill()
         }
         XCTAssertTrue(result)
-        waitForExpectations(timeout: 1.0)
+        waitForDefaultTimeout()
     }
 
 }
