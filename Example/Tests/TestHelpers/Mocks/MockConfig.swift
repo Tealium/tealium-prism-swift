@@ -25,4 +25,5 @@ let mockContext = TealiumContext(modulesManager: ModulesManager(),
                                  databaseProvider: mockDbProvider,
                                  moduleStoreProvider: ModuleStoreProvider(databaseProvider: mockDbProvider, modulesRepository: MockModulesRepository()),
                                  logger: nil,
-                                 networkHelper: MockNetworkHelper())
+                                 networkHelper: MockNetworkHelper(),
+                                 activityListener: ApplicationStatusListener.shared)

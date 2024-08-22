@@ -27,4 +27,10 @@ extension TealiumImplementation {
             return factoryWithQueueManager
         }
     }
+
+    static func initModuleStoreProvider(config: TealiumConfig) throws -> ModuleStoreProvider {
+        let databaseProvider = try DatabaseProvider(config: config)
+        return ModuleStoreProvider(databaseProvider: databaseProvider,
+                                   modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
+    }
 }

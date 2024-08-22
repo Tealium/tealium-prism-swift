@@ -38,7 +38,8 @@ final class ModulesManagerTests: XCTestCase {
                                       moduleStoreProvider: ModuleStoreProvider(databaseProvider: databaseProvider,
                                                                                modulesRepository: MockModulesRepository()),
                                       logger: nil,
-                                      networkHelper: MockNetworkHelper())
+                                      networkHelper: MockNetworkHelper(),
+                                      activityListener: ApplicationStatusListener.shared)
     var consentManager: MockConsentManager? {
         modulesManager.getModule()
     }

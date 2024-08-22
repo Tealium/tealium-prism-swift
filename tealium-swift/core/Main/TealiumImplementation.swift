@@ -16,22 +16,20 @@ class TealiumImplementation {
     let tracker: TealiumTracker
     let instanceName: String
     private let onLogger = ReplaySubject<TealiumLoggerProvider>()
+    private let appStatusListener = ApplicationStatusListener.shared
 
     init(_ config: TealiumConfig, modulesManager: ModulesManager) throws {
         var config = config
         Self.addMandatoryAndRemoveDuplicateModules(from: &config)
-        let databaseProvider = try DatabaseProvider(config: config)
-        let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
-                                                modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
+        let storeProvider = try Self.initModuleStoreProvider(config: config)
         let onLoggerObservable = onLogger.asObservable()
         let networkHelper = NetworkHelper(networkClient: HTTPClient.shared.newClient(withLogger: onLoggerObservable), onLogger: onLoggerObservable)
         let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
-        // TODO: Add actual onActivity observable
         let settingsManager = try SettingsManager(config: config,
                                                   dataStore: dataStore,
                                                   networkHelper: networkHelper,
                                                   onLogger: onLoggerObservable,
-                                                  onActivity: .Just(.launch(Date())))
+                                                  onActivity: appStatusListener.onApplicationStatus)
         self.settingsManager = settingsManager
         let coreSettings = settingsManager.settings.map { $0.coreSettings }
         let logger = TealiumLogger(logger: config.loggerType.getHandler(),
@@ -40,7 +38,7 @@ class TealiumImplementation {
         logger.debug?.log(category: LogCategory.tealium, message: "Purging expired data from the database")
         storeProvider.modulesRepository.deleteExpired(expiry: .restart)
         let queueManager = QueueManager(processors: Self.queueProcessors(from: modulesManager.modules),
-                                        queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
+                                        queueRepository: SQLQueueRepository(dbProvider: storeProvider.databaseProvider,
                                                                             maxQueueSize: coreSettings.value.maxQueueSize,
                                                                             expiration: coreSettings.value.queueExpiration),
                                         coreSettings: coreSettings,
@@ -61,10 +59,11 @@ class TealiumImplementation {
                                       tracker: tracker,
                                       barrierRegistry: barrierCoordinator,
                                       transformerRegistry: transformerCoordinator,
-                                      databaseProvider: databaseProvider,
+                                      databaseProvider: storeProvider.databaseProvider,
                                       moduleStoreProvider: storeProvider,
                                       logger: logger,
-                                      networkHelper: networkHelper)
+                                      networkHelper: networkHelper,
+                                      activityListener: appStatusListener)
         self.modulesManager = modulesManager
         self.instanceName = "\(config.account)-\(config.profile)"
         logger.info?.log(category: LogCategory.tealium, message: "Instance \(self.instanceName) initialized.")

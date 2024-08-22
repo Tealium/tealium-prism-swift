@@ -354,6 +354,10 @@
 		87BA6E1A2C6A47AF00784784 /* localSettings.json in Resources */ = {isa = PBXBuildFile; fileRef = 870557342C47C9A30010BA89 /* localSettings.json */; };
 		87FEF0A42C2C43DB00340E18 /* XCTAssert+EqualDictionaries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FEF0A32C2C43DB00340E18 /* XCTAssert+EqualDictionaries.swift */; };
 		D50F192E2C0A042F006C44F7 /* ConnectivityBarrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D50F192D2C0A042F006C44F7 /* ConnectivityBarrierTests.swift */; };
+		D57758672C665079006986E0 /* TealiumRepeatingTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57758662C665079006986E0 /* TealiumRepeatingTimerTests.swift */; };
+		D58EE2DD2C74CDDE00FBDF94 /* ApplicationStatusListenerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58EE2DC2C74CDDE00FBDF94 /* ApplicationStatusListenerTests.swift */; };
+		D5AB945C2C6B6BFA00B34B36 /* TealiumRepeatingTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57758662C665079006986E0 /* TealiumRepeatingTimerTests.swift */; };
+		D5AB945D2C6B6BFB00B34B36 /* TealiumRepeatingTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D57758662C665079006986E0 /* TealiumRepeatingTimerTests.swift */; };
 		D5EF2DFA2C171C6100F7BC40 /* ConsentModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EF2DF92C171C6100F7BC40 /* ConsentModuleTests.swift */; };
 		D5EF2DFC2C1731BC00F7BC40 /* MockCMPIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EF2DFB2C1731BC00F7BC40 /* MockCMPIntegration.swift */; };
 		DEA31860BB7AA7BE9D4C937D /* Pods_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C9CFD78A3A8720529719F847 /* Pods_Example_iOS.framework */; };
@@ -505,6 +509,8 @@
 		B7F4AFC349B7500B10B0C401 /* Pods-tealium-swift_Tests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-tealium-swift_Tests.debug.xcconfig"; path = "Target Support Files/Pods-tealium-swift_Tests/Pods-tealium-swift_Tests.debug.xcconfig"; sourceTree = "<group>"; };
 		C9CFD78A3A8720529719F847 /* Pods_Example_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_Example_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		D50F192D2C0A042F006C44F7 /* ConnectivityBarrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivityBarrierTests.swift; sourceTree = "<group>"; };
+		D57758662C665079006986E0 /* TealiumRepeatingTimerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumRepeatingTimerTests.swift; sourceTree = "<group>"; };
+		D58EE2DC2C74CDDE00FBDF94 /* ApplicationStatusListenerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationStatusListenerTests.swift; sourceTree = "<group>"; };
 		D5EF2DF92C171C6100F7BC40 /* ConsentModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsentModuleTests.swift; sourceTree = "<group>"; };
 		D5EF2DFB2C1731BC00F7BC40 /* MockCMPIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCMPIntegration.swift; sourceTree = "<group>"; };
 		DC0D7EDBD3533E3C50791B1C /* tealium-swift.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "tealium-swift.podspec"; path = "../tealium-swift.podspec"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
@@ -665,6 +671,7 @@
 				15C358CC2AEAAD54009E1CDB /* TealiumLimitedLoggerTests.swift */,
 				15C358C82AEA9FEF009E1CDB /* TealiumLoggerTests.swift */,
 				159A31A62C00A12600B58F37 /* TimeFrameTests.swift */,
+				D57758662C665079006986E0 /* TealiumRepeatingTimerTests.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -739,6 +746,7 @@
 				15F518162BECD6E4002689C7 /* TealiumImplementationTests.swift */,
 				876F793C2C525088008BC13B /* ModulesManagerTests.swift */,
 				876F793E2C5270A1008BC13B /* TealiumConfigTests.swift */,
+				D58EE2DC2C74CDDE00FBDF94 /* ApplicationStatusListenerTests.swift */,
 			);
 			path = Main;
 			sourceTree = "<group>";
@@ -1325,6 +1333,7 @@
 				158AE0182C2084A9006F8038 /* ErrorCooldownTests.swift in Sources */,
 				153A68282AB4A40400EE972E /* SQLModulesRepositoryTests.swift in Sources */,
 				150F31EE2B221D090067CC56 /* MockTracker.swift in Sources */,
+				D57758672C665079006986E0 /* TealiumRepeatingTimerTests.swift in Sources */,
 				15D7C1B42AB1E60B0034DE1B /* SQLKeyValueRepositoryTests.swift in Sources */,
 				158AE0162C20564A006F8038 /* ResourceRefresherTests+RequestRefresh.swift in Sources */,
 				152304602B14BC6600AE3DAD /* TransformerCoordinatorTests.swift in Sources */,
@@ -1360,6 +1369,7 @@
 				150F31F22B221E110067CC56 /* DispatchManager+MaximumInflightTests.swift in Sources */,
 				15ED5B052A60463E0027BB20 /* CustomObservableTests.swift in Sources */,
 				1535DC0B2A38B00300CDDD44 /* DebouncerTests.swift in Sources */,
+				D58EE2DD2C74CDDE00FBDF94 /* ApplicationStatusListenerTests.swift in Sources */,
 				15F742AB2C29B6D60093DCFC /* SettingsManager+MergeTests.swift in Sources */,
 				15ED5B032A6031570027BB20 /* BufferedSubjectTests.swift in Sources */,
 				15C358CD2AEAAD54009E1CDB /* TealiumLimitedLoggerTests.swift in Sources */,
@@ -1483,6 +1493,7 @@
 				87BA6D632C6A470C00784784 /* BufferedSubjectTests.swift in Sources */,
 				87BA6D642C6A470C00784784 /* TealiumLimitedLoggerTests.swift in Sources */,
 				87BA6D652C6A470C00784784 /* TealiumLoggerTests.swift in Sources */,
+				D5AB945D2C6B6BFB00B34B36 /* TealiumRepeatingTimerTests.swift in Sources */,
 				87BA6D662C6A470C00784784 /* TealiumCollectTests.swift in Sources */,
 				87BA6D672C6A470C00784784 /* CoreSettingsBuilderTests.swift in Sources */,
 				87BA6D682C6A470C00784784 /* SubscriptionRetainCycleHelper.swift in Sources */,
@@ -1602,6 +1613,7 @@
 				87BA6DE12C6A47AF00784784 /* BufferedSubjectTests.swift in Sources */,
 				87BA6DE22C6A47AF00784784 /* TealiumLimitedLoggerTests.swift in Sources */,
 				87BA6DE32C6A47AF00784784 /* TealiumLoggerTests.swift in Sources */,
+				D5AB945C2C6B6BFA00B34B36 /* TealiumRepeatingTimerTests.swift in Sources */,
 				87BA6DE42C6A47AF00784784 /* TealiumCollectTests.swift in Sources */,
 				87BA6DE52C6A47AF00784784 /* CoreSettingsBuilderTests.swift in Sources */,
 				87BA6DE62C6A47AF00784784 /* SubscriptionRetainCycleHelper.swift in Sources */,

@@ -8,12 +8,6 @@
 
 import Foundation
 
-enum LifecycleActivity {
-    case launch(_ date: Date)
-    case foreground(_ date: Date)
-    case background(_ date: Date)
-}
-
 /**
  * The manager for settings responsible for getting local, remote and programmatic settings and merging them to always provide the most updated verstion to all the modules.
  *
@@ -27,7 +21,7 @@ class SettingsManager {
     let programmaticSettings: SDKSettings
     private let onLogger: Observable<TealiumLoggerProvider>
 
-    init(config: TealiumConfig, dataStore: DataStore, networkHelper: NetworkHelperProtocol, onLogger: Observable<TealiumLoggerProvider>, onActivity: Observable<LifecycleActivity>) throws {
+    init(config: TealiumConfig, dataStore: DataStore, networkHelper: NetworkHelperProtocol, onLogger: Observable<TealiumLoggerProvider>, onActivity: Observable<ApplicationStatus>) throws {
         self.onLogger = onLogger
         // MARK: Initialize Settings StateSubject
         localSettings = Self.loadLocalSettings(config: config)
@@ -69,7 +63,7 @@ class SettingsManager {
         startRefreshing(onActivity: onActivity)
     }
 
-    private func startRefreshing(onActivity: Observable<LifecycleActivity>) {
+    private func startRefreshing(onActivity: Observable<ApplicationStatus>) {
         guard let resourceRefresher else {
             return
         }
@@ -111,10 +105,10 @@ class SettingsManager {
             }
     }
 
-    static func onShouldRequestRefresh(_ onActivity: Observable<LifecycleActivity>) -> Observable<Void> {
-        onActivity.filter { activity in
-            switch activity {
-            case .launch, .foreground:
+    static func onShouldRequestRefresh(_ onActivity: Observable<ApplicationStatus>) -> Observable<Void> {
+        onActivity.filter { status in
+            switch status.type {
+            case .initialized, .foregrounded:
                 return true
             default:
                 return false

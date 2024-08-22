@@ -12,7 +12,7 @@ import XCTest
 final class SettingsManagerTests: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
     let networkHelper = MockNetworkHelper()
-    let onActivity = ReplaySubject<LifecycleActivity>()
+    let onActivity = ReplaySubject<ApplicationStatus>()
     var config = TealiumConfig(account: "test",
                                profile: "test",
                                environment: "dev",
@@ -78,7 +78,7 @@ final class SettingsManagerTests: XCTestCase {
         config.addModule(TealiumModules.customDispatcher(MockDispatcher.self, enforcedSettings: ["key": "value"]))
         networkHelper.codableResult = .success(.successful(object: SDKSettings(modulesSettings: ["remote": ["key": "value"]])))
         let manager = try getManager(url: "someUrl")
-        onActivity.publish(.launch(Date()))
+        onActivity.publish(ApplicationStatus(type: .initialized))
         XCTAssertEqual(manager.settings.value.modulesSettings, [
             MockDispatcher.id: ["key": "value"], // Programmatic settings
             "localModule": ["localKey": "localValue"], // Local file settings
@@ -133,7 +133,7 @@ final class SettingsManagerTests: XCTestCase {
                 ])
                 settingsRefreshed.fulfill()
             }
-        onActivity.publish(.launch(Date()))
+        onActivity.publish(ApplicationStatus(type: .initialized))
         waitForDefaultTimeout()
     }
 
@@ -152,7 +152,7 @@ final class SettingsManagerTests: XCTestCase {
             .subscribe { _ in
                 settingsRefreshed.fulfill()
             }
-        onActivity.publish(.launch(Date()))
+        onActivity.publish(ApplicationStatus(type: .initialized))
         waitForDefaultTimeout()
     }
 
@@ -173,7 +173,7 @@ final class SettingsManagerTests: XCTestCase {
             }
             refreshIntervalUpdated.fulfill()
         }
-        onActivity.publish(.launch(Date()))
+        onActivity.publish(ApplicationStatus(type: .initialized))
         waitForDefaultTimeout()
     }
 
@@ -190,32 +190,32 @@ final class SettingsManagerTests: XCTestCase {
             XCTAssertEqual(newInterval, 900)
             refreshIntervalUpdated.fulfill()
         }
-        onActivity.publish(.launch(Date()))
+        onActivity.publish(ApplicationStatus(type: .initialized))
         waitForDefaultTimeout()
     }
 
     func test_onShouldRequestRefresh_requests_refreshes_on_launch_and_foreground() {
         let refreshShouldBeRequested = expectation(description: "Refresh should be requested")
         refreshShouldBeRequested.expectedFulfillmentCount = 2
-        let publisher = BasePublisher<LifecycleActivity>()
+        let publisher = BasePublisher<ApplicationStatus>()
         _ = SettingsManager.onShouldRequestRefresh(publisher.asObservable())
             .subscribe {
                 refreshShouldBeRequested.fulfill()
             }
-        publisher.publish(.launch(Date()))
-        publisher.publish(.foreground(Date()))
+        publisher.publish(ApplicationStatus(type: .initialized))
+        publisher.publish(ApplicationStatus(type: .foregrounded))
         waitForDefaultTimeout()
     }
 
     func test_onShouldRequestRefresh_doesnt_request_refreshes_on_background() {
         let refreshShouldNotBeRequested = expectation(description: "Refresh should not be requested")
         refreshShouldNotBeRequested.isInverted = true
-        let publisher = BasePublisher<LifecycleActivity>()
+        let publisher = BasePublisher<ApplicationStatus>()
         _ = SettingsManager.onShouldRequestRefresh(publisher.asObservable())
             .subscribe {
                 refreshShouldNotBeRequested.fulfill()
             }
-        publisher.publish(.background(Date()))
+        publisher.publish(ApplicationStatus(type: .backgrounded))
         waitForDefaultTimeout()
     }
 

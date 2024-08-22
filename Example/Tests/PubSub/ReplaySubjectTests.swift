@@ -98,4 +98,62 @@ final class ReplaySubjectTests: SubjectTests {
         let publisher = ReplaySubject<Int>(cacheSize: 2)
         subscribeOnce_calls_the_observer_only_once(publisher)
     }
+
+    func test_resize_to_less_size_leaves_latest_cached_events() {
+        var sum = 0
+        subject.publish(0)
+        subject.publish(1)
+        subject.publish(2)
+        subject.publish(3)
+        subject.publish(4)
+        subject.resize(3)
+        _ = subject.subscribe { number in
+            sum += number
+        }
+        XCTAssertEqual(sum, 9)
+    }
+
+    func test_resize_to_greater_size_leaves_all_cached_events() {
+        var sum = 0
+        subject.publish(5)
+        subject.publish(1)
+        subject.publish(2)
+        subject.publish(3)
+        subject.publish(4)
+        subject.resize(10)
+        _ = subject.subscribe { number in
+            sum += number
+        }
+        XCTAssertEqual(sum, 15)
+    }
+
+    func test_resize_to_negative_size_increases_cache_size() {
+        var sum = 0
+        subject.publish(5)
+        subject.publish(1)
+        subject.publish(2)
+        subject.publish(3)
+        subject.publish(4)
+        subject.resize(-3)
+        subject.publish(10)
+        _ = subject.subscribe { number in
+            sum += number
+        }
+        XCTAssertEqual(sum, 25)
+    }
+
+    func test_resize_to_zero_clears_cache() {
+        let cacheNotEmpty = expectation(description: "Cache is not empty")
+        cacheNotEmpty.isInverted = true
+        subject.publish(5)
+        subject.publish(1)
+        subject.publish(2)
+        subject.publish(3)
+        subject.publish(4)
+        subject.resize(0)
+        _ = subject.subscribe { _ in
+            cacheNotEmpty.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
 }

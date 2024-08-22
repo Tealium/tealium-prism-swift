@@ -10,7 +10,7 @@ import Foundation
 
 /// A subject that, in addition to normal publish behavior, holds a cache of items and sends it, in order, to each new observer that is subscribed.
 public class ReplaySubject<Element>: BaseSubject<Element> {
-    private let cacheSize: Int?
+    private var cacheSize: Int?
     private var cache = [Element]()
     // Having a default value here would cause a crash on Carthage
     public init(cacheSize: Int?) {
@@ -21,8 +21,8 @@ public class ReplaySubject<Element>: BaseSubject<Element> {
         self.init(cacheSize: 1)
     }
 
-    convenience public init(initialValue: Element) {
-        self.init()
+    convenience public init(initialValue: Element, cacheSize: Int? = 1) {
+        self.init(cacheSize: cacheSize)
         self.publish(initialValue)
     }
 
@@ -56,6 +56,13 @@ public class ReplaySubject<Element>: BaseSubject<Element> {
     /// Returns the last item that was published
     public func last() -> Element? {
         return cache.last
+    }
+
+    /// Changes the cache size removing oldest elements not fitting in
+    public func resize(_ size: Int) {
+        let newSize = size >= 0 ? size : Int.max
+        cache = Array(cache.suffix(newSize))
+        cacheSize = newSize
     }
 }
 

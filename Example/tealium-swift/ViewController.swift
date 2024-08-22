@@ -111,7 +111,6 @@ class ViewController: UIViewController {
             teal.dataLayer.events.onDataRemoved { removed in
                 print("some data removed: \(removed)")
             }.addTo(self.automaticDisposer)
-            
             teal.dataLayer.add(data: ["1": "1", "2":"2", "3": "3", "nsnumber": NSNumber(67)])
 //            teal.dataLayer.add(data: ["4": "4", "5":"5", "6": "6"])
             teal.dataLayer.add(data: ["myTimestamp": Date().timeIntervalSince1970], expiry: .untilRestart)

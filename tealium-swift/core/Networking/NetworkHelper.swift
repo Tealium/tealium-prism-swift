@@ -29,7 +29,7 @@ public class NetworkHelper: NetworkHelperProtocol {
             }
             .subscribeOnce { limitedLogger in
                 limitedLogger?.log(category: LogCategory.networkHelper,
-                                   message: "Completed request with result \(result.shortDescription())")
+                                   message: "Completed request with \(result.shortDescription())")
             }
             completion(result)
         }

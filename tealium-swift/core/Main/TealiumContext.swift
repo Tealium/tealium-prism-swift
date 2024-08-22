@@ -19,6 +19,7 @@ public class TealiumContext {
     weak public private(set) var modulesManager: ModulesManager?
     public let logger: TealiumLoggerProvider?
     public let networkHelper: NetworkHelperProtocol
+    public let activityListener: ApplicationStatusListener
 
     init(modulesManager: ModulesManager,
          config: TealiumConfig,
@@ -29,7 +30,8 @@ public class TealiumContext {
          databaseProvider: DatabaseProviderProtocol,
          moduleStoreProvider: ModuleStoreProvider,
          logger: TealiumLoggerProvider?,
-         networkHelper: NetworkHelperProtocol) {
+         networkHelper: NetworkHelperProtocol,
+         activityListener: ApplicationStatusListener) {
         self.modulesManager = modulesManager
         self.config = config
         self.barrierRegistry = barrierRegistry
@@ -40,5 +42,6 @@ public class TealiumContext {
         self.moduleStoreProvider = moduleStoreProvider
         self.logger = logger
         self.networkHelper = networkHelper
+        self.activityListener = activityListener
     }
 }
