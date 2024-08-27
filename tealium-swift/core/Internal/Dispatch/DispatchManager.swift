@@ -12,23 +12,23 @@ import Foundation
  */
 class DispatchManager {
     static let MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER = 50
-    let barrierCoordinator: BarrierCoordinator
-    let transformerCoordinator: TransformerCoordinator
+    private let barrierCoordinator: BarrierCoordinator
+    private let transformerCoordinator: TransformerCoordinator
 
-    var dispatchers: [Dispatcher] {
+    private var dispatchers: [Dispatcher] {
         modulesManager.modules.value.compactMap { $0 as? Dispatcher }
     }
-    var onDispatchers: Observable<[Dispatcher]> {
+    private var onDispatchers: Observable<[Dispatcher]> {
         modulesManager.modules.map { moduleList in moduleList.compactMap { $0 as? Dispatcher } }
     }
-    let modulesManager: ModulesManager
-    let queueManager: QueueManagerProtocol
-    var consentManager: ConsentManager? {
+    private let modulesManager: ModulesManager
+    private let queueManager: QueueManagerProtocol
+    private var consentManager: ConsentManager? {
         modulesManager.modules.value.compactMap { $0 as? ConsentManager }.first
     }
-    let logger: TealiumLoggerProvider?
+    private let logger: TealiumLoggerProvider?
     @ToAnyObservable<BasePublisher<Void>>(BasePublisher<Void>())
-    var onQueuedEvents: Observable<Void>
+    private var onQueuedEvents: Observable<Void>
 
     init(modulesManager: ModulesManager,
          queueManager: QueueManagerProtocol,

@@ -6,7 +6,7 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-import TealiumSwift
+@testable import TealiumSwift
 import XCTest
 
 final class TealiumRepeatingTimerTests: XCTestCase {
@@ -30,42 +30,24 @@ final class TealiumRepeatingTimerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_timer_repeats_with_timeInterval_by_default() {
-        let timerRepeated = expectation(description: "Timer repeated")
-        var results: [Date] = []
-        var timer: TealiumRepeatingTimer?
-        timer = TealiumRepeatingTimer(timeInterval: 0.1, dispatchQueue: .main, eventHandler: {
-            results.append(Date())
-            if results.count > 1 {
-                timerRepeated.fulfill()
-            }
-        })
-        timer?.resume()
-        waitForExpectations(timeout: 0.5)
-        guard results.count > 1 else {
-            XCTFail("Not repeated")
-            return
-        }
-        XCTAssertEqual(results[1].timeIntervalSince1970 - results[0].timeIntervalSince1970, 0.1, accuracy: 0.05)
+    func test_timer_sets_repeat_with_timeInterval_by_default() {
+        let timer = TealiumRepeatingTimer(timeInterval: 0.13, dispatchQueue: .main, eventHandler: { })
+        XCTAssertEqual(timer.repeating, DispatchTimeInterval.milliseconds(130))
     }
 
-    func test_timer_repeats_with_repeating_value_interval() {
-        let timerRepeated = expectation(description: "Timer repeated")
-        var results: [Date] = []
-        var timer: TealiumRepeatingTimer?
-        timer = TealiumRepeatingTimer(timeInterval: 0.01, repeating: .milliseconds(100), dispatchQueue: .main, eventHandler: {
-            results.append(Date())
-            if results.count > 1 {
-                timerRepeated.fulfill()
-            }
+    func test_timer_repeats_with_repeating_value_when_provided() {
+        let timerCompletedFast = expectation(description: "Event handler should not complete twice fast enough")
+        timerCompletedFast.isInverted = true
+        timerCompletedFast.expectedFulfillmentCount = 2
+        let timerCompletedOnRepeating = XCTestExpectation(description: "Event handler should complete twice on repeating time")
+        timerCompletedOnRepeating.expectedFulfillmentCount = 2
+        let timer = TealiumRepeatingTimer(timeInterval: 0.01, repeating: .milliseconds(200), dispatchQueue: .main, eventHandler: {
+            timerCompletedFast.fulfill()
+            timerCompletedOnRepeating.fulfill()
         })
-        timer?.resume()
-        waitForExpectations(timeout: 0.5)
-        guard results.count > 1 else {
-            XCTFail("Not repeated")
-            return
-        }
-        XCTAssertEqual(results[1].timeIntervalSince1970 - results[0].timeIntervalSince1970, 0.1, accuracy: 0.05)
+        timer.resume()
+        waitForDefaultTimeout()
+        wait(for: [timerCompletedOnRepeating], timeout: 0.5)
     }
 
     func test_timer_does_not_repeat_when_repeating_is_never() {

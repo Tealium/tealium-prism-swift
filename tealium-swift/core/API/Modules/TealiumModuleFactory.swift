@@ -40,15 +40,15 @@ public protocol TealiumModuleFactory {
     func getEnforcedSettings() -> [String: Any]?
 }
 
-public extension TealiumModuleFactory {
+extension TealiumModuleFactory {
     /// The unique id for the `Module` that this factory creates
-    var id: String { Module.id }
-    func getEnforcedSettings() -> [String: Any]? {
+    public var id: String { Module.id }
+    public func getEnforcedSettings() -> [String: Any]? {
         nil
     }
 
     /// Returns true if the provided settings allow for the factory's `Module` to be enabled.
     func shouldBeEnabled(by settings: [String: Any]) -> Bool {
-        Module.shouldBeEnabled(by: settings)
+        !Module.canBeDisabled || settings[ModuleSettingsBuilder.enabledKey] as? Bool != false
     }
 }

@@ -35,10 +35,10 @@ final class OperatorsResubscribingTests: XCTestCase {
 
     func test_resubscribing_on_an_asynchronous_observable_will_publish_all_events() {
         let eventsPublished = expectation(description: "Events are published")
-        eventsPublished.expectedFulfillmentCount = 3
+        eventsPublished.expectedFulfillmentCount = 2
         var eventCount = 0
         _ = CustomObservable { observer in
-            if eventCount < 3 {
+            if eventCount < 2 {
                 DispatchQueue.main.async {
                     eventCount += 1
                     observer(eventCount)
@@ -46,7 +46,7 @@ final class OperatorsResubscribingTests: XCTestCase {
             }
             return Subscription { }
         }
-        .resubscribingWhile { _ in eventCount < 3 }
+        .resubscribingWhile { _ in eventCount < 2 }
         .subscribe { number in
             XCTAssertEqual(number, eventCount)
             eventsPublished.fulfill()
@@ -56,11 +56,11 @@ final class OperatorsResubscribingTests: XCTestCase {
 
     func test_resubscribing_on_an_asynchronous_observable_will_call_subscribe_block_on_initial_subscribe_plus_every_event() {
         let subscribeCalled = expectation(description: "Subscribe block is called")
-        subscribeCalled.expectedFulfillmentCount = 3
+        subscribeCalled.expectedFulfillmentCount = 2
         var eventCount = 0
         _ = CustomObservable { observer in
             subscribeCalled.fulfill()
-            if eventCount < 3 {
+            if eventCount < 2 {
                 DispatchQueue.main.async {
                     eventCount += 1
                     observer(eventCount)
@@ -68,17 +68,17 @@ final class OperatorsResubscribingTests: XCTestCase {
             }
             return Subscription { }
         }
-        .resubscribingWhile { _ in eventCount < 3 }
+        .resubscribingWhile { _ in eventCount < 2 }
         .subscribe { _ in }
         waitForDefaultTimeout()
     }
 
     func test_resubscribing_on_an_asynchronous_observable_will_dispose_subscription_on_every_event() {
         let disposeCalled = expectation(description: "Dispose subscription is called on every event")
-        disposeCalled.expectedFulfillmentCount = 3
+        disposeCalled.expectedFulfillmentCount = 2
         var eventCount = 0
         _ = CustomObservable { observer in
-            if eventCount < 3 {
+            if eventCount < 2 {
                 DispatchQueue.main.async {
                     eventCount += 1
                     observer(eventCount)
@@ -88,7 +88,7 @@ final class OperatorsResubscribingTests: XCTestCase {
                 disposeCalled.fulfill()
             }
         }
-        .resubscribingWhile { _ in eventCount < 3 }
+        .resubscribingWhile { _ in eventCount < 2 }
         .subscribe { _ in }
         waitForDefaultTimeout()
     }

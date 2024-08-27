@@ -14,9 +14,9 @@ class QueueManager: QueueManagerProtocol {
     var inflightEvents: ObservableState<[String: [String]]>
     @ToAnyObservable<BasePublisher<[String]>>(BasePublisher<[String]>())
     var onEnqueuedDispatchesForProcessors: Observable<[String]>
-    let queueRepository: QueueRepository
-    let disposer = AutomaticDisposer()
-    let logger: TealiumLogger?
+    private let queueRepository: QueueRepository
+    private let disposer = AutomaticDisposer()
+    private let logger: TealiumLogger?
     init(processors: Observable<[String]>, queueRepository: QueueRepository, coreSettings: ObservableState<CoreSettings>, logger: TealiumLogger? = nil) {
         self.queueRepository = queueRepository
         self.logger = logger

@@ -21,19 +21,19 @@ protocol ConsentManager: TealiumModule {
 
 class ConsentModule: ConsentManager {
     static let id: String = "Consent"
-    let processedPurposesKey = "purposes_with_consent_processed"
-    let unprocessedPurposesKey = "purposes_with_consent_unprocessed"
-    let allPurposesKey = "purposes_with_consent_all"
-    let queueManager: QueueManagerProtocol
-    let settings: StateSubject<ConsentSettings>
-    let cmpIntegration: CMPIntegration
-    weak var modules: ObservableState<[TealiumModule]>?
-    var dispatchers: [String] {
+    private let processedPurposesKey = "purposes_with_consent_processed"
+    private let unprocessedPurposesKey = "purposes_with_consent_unprocessed"
+    private let allPurposesKey = "purposes_with_consent_all"
+    private let queueManager: QueueManagerProtocol
+    private let settings: StateSubject<ConsentSettings>
+    private let cmpIntegration: CMPIntegration
+    private weak var modules: ObservableState<[TealiumModule]>?
+    private var dispatchers: [String] {
         modules?.value
             .filter { $0 is Dispatcher }
             .map { $0.id } ?? []
     }
-    var refireDispatchers: [String] { // From settings
+    private var refireDispatchers: [String] { // From settings
         return dispatchers.filter {
             settings.value.shouldRefireDispatchers.contains($0)
         }

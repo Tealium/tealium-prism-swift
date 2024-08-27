@@ -11,7 +11,7 @@ import TealiumSwift
 
 class MockModule: TealiumBasicModule {
     class var id: String { "MockModule" }
-    class var factory: any TealiumModuleFactory { DefaultModuleFactory(module: Self.self) }
+    class var factory: any TealiumModuleFactory { DefaultModuleFactory<Self>() }
 
     @StateSubject<[String: Any]>([:])
     var moduleSettings: ObservableState<[String: Any]>

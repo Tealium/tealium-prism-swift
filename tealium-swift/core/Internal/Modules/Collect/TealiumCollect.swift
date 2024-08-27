@@ -11,7 +11,7 @@ import Foundation
 /**
  * A `Dispatcher` that sends events to our Tealium Collect service.
  */
-class TealiumCollect: Dispatcher {
+class TealiumCollect: TealiumBasicModule, Dispatcher {
     static let id: String = "Collect"
     let dispatchLimit = 10
     let batcher = CollectBatcher()

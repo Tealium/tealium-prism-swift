@@ -31,9 +31,6 @@ public extension TealiumModule {
         type(of: self).id
     }
     static var canBeDisabled: Bool { true }
-    static func shouldBeEnabled(by settings: [String: Any]) -> Bool {
-        !canBeDisabled || settings[ModuleSettingsBuilder.enabledKey] as? Bool != false
-    }
     func updateSettings(_ settings: [String: Any]) -> Self? {
         return self
     }

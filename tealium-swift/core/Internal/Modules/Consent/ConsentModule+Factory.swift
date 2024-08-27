@@ -11,22 +11,34 @@ import Foundation
 extension ConsentModule {
     struct Factory: TealiumModuleFactory {
         typealias Module = ConsentModule
-        let cmpIntegration: CMPIntegration
-        let enforcedSettings: [String: Any]?
-        private var queueManager: QueueManagerProtocol?
+        private let cmpIntegration: CMPIntegration
+        private let enforcedSettings: [String: Any]?
+        private let queueManager: QueueManagerProtocol?
         init(cmpIntegration: CMPIntegration, forcingSettings block: ((_ enforcedSettings: ConsentSettingsBuilder) -> ConsentSettingsBuilder)? = nil) {
-            self.cmpIntegration = cmpIntegration
-            enforcedSettings = block?(ConsentSettingsBuilder()).build()
+            self.init(cmpIntegration: cmpIntegration,
+                      queueManager: nil,
+                      enforcedSettings: block?(ConsentSettingsBuilder()).build())
         }
+
+        private init(cmpIntegration: CMPIntegration, queueManager: QueueManagerProtocol?, enforcedSettings: [String: Any]?) {
+            self.cmpIntegration = cmpIntegration
+            self.queueManager = queueManager
+            self.enforcedSettings = enforcedSettings
+        }
+
         func create(context: TealiumContext, moduleSettings: [String: Any]) -> ConsentModule? {
             guard let queueManager else { return nil }
             return ConsentModule(context: context, cmpIntegration: cmpIntegration, queueManager: queueManager, moduleSettings: moduleSettings)
         }
+
         func getEnforcedSettings() -> [String: Any]? {
             enforcedSettings
         }
-        mutating func setQueueManager(_ queueManager: QueueManagerProtocol) {
-            self.queueManager = queueManager
+
+        func copy(queueManager: QueueManagerProtocol) -> Self {
+            Factory(cmpIntegration: cmpIntegration,
+                    queueManager: queueManager,
+                    enforcedSettings: enforcedSettings)
         }
     }
 }

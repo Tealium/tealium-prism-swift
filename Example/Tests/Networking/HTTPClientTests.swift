@@ -9,13 +9,12 @@
 @testable import TealiumSwift
 import XCTest
 
-private let queue = tealiumQueue
-
 final class HTTPClientTests: XCTestCase {
-    var config: NetworkConfiguration = NetworkConfiguration(sessionConfiguration: NetworkConfiguration.defaultUrlSessionConfiguration,
-                                                            interceptors: [],
-                                                            interceptorManagerFactory: MockInterceptorManager.self,
-                                                            queue: queue)
+    private let queue = DispatchQueue(label: "testQueue", qos: .userInteractive)
+    lazy var config: NetworkConfiguration = NetworkConfiguration(sessionConfiguration: NetworkConfiguration.defaultUrlSessionConfiguration,
+                                                                 interceptors: [],
+                                                                 interceptorManagerFactory: MockInterceptorManager.self,
+                                                                 queue: queue)
     var interceptorManager: MockInterceptorManager {
         // swiftlint:disable force_cast
         client.interceptorManager as! MockInterceptorManager
@@ -152,7 +151,7 @@ final class HTTPClientTests: XCTestCase {
         mockFailure()
         interceptorManager.interceptResponseBlock = { _, _, shouldRetry in
             expectRetry.fulfill()
-            queue.asyncAfter(deadline: .now() + 1) {
+            self.queue.asyncAfter(deadline: .now() + 1) {
                 shouldRetry(true)
             }
         }
@@ -191,36 +190,36 @@ final class HTTPClientTests: XCTestCase {
         }
         wait(for: [expectCancelled, expectSucceded], timeout: longTimeout, enforceOrder: true)
     }
-}
 
-@discardableResult
-private func mockSuccess(delay: Int? = nil) -> MockReply.Response {
-    URLProtocolMock.succeedingWith(data: Data(), response: .successful())
-    if let delay {
-        mockDelay(delay)
+    @discardableResult
+    private func mockSuccess(delay: Int? = nil) -> MockReply.Response {
+        URLProtocolMock.succeedingWith(data: Data(), response: .successful())
+        if let delay {
+            mockDelay(delay)
+        }
+        return URLProtocolMock.reply.peak()
     }
-    return URLProtocolMock.reply.peak()
-}
 
-private func mockDelay(_ delay: Int) {
-    URLProtocolMock.delaying { completion in
-        if delay > 0 {
-            queue.asyncAfter(deadline: .now() + .milliseconds(delay), execute: completion)
-        } else {
-            queue.async(execute: completion)
+    private func mockDelay(_ delay: Int) {
+        URLProtocolMock.delaying { completion in
+            if delay > 0 {
+                self.queue.asyncAfter(deadline: .now() + .milliseconds(delay), execute: completion)
+            } else {
+                self.queue.async(execute: completion)
+            }
         }
     }
-}
 
-@discardableResult
-private func mockFailure(_ error: Error = URLError(URLError.notConnectedToInternet), withDelay delay: Int? = nil) -> MockReply.Response {
-    URLProtocolMock.failingWith(error: error)
-    if let delay {
-        mockDelay(delay)
+    @discardableResult
+    private func mockFailure(_ error: Error = URLError(URLError.notConnectedToInternet), withDelay delay: Int? = nil) -> MockReply.Response {
+        URLProtocolMock.failingWith(error: error)
+        if let delay {
+            mockDelay(delay)
+        }
+        return URLProtocolMock.reply.peak()
     }
-    return URLProtocolMock.reply.peak()
-}
 
-private func mockWithList(_ list: [MockReply.Response]) {
-    URLProtocolMock.replyingWith(.list(list))
+    private func mockWithList(_ list: [MockReply.Response]) {
+        URLProtocolMock.replyingWith(.list(list))
+    }
 }

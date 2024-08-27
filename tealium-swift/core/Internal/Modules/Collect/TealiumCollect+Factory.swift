@@ -9,18 +9,9 @@
 import Foundation
 
 extension TealiumCollect {
-    struct Factory: TealiumModuleFactory {
-        typealias Module = TealiumCollect
-        let enforcedSettings: [String: Any]?
+    class Factory: DefaultModuleFactory<TealiumCollect> {
         init(forcingSettings block: ((_ enforcedSettings: CollectSettingsBuilder) -> CollectSettingsBuilder)? = nil) {
-            let builder = block?(CollectSettingsBuilder())
-            enforcedSettings = builder?.build()
-        }
-        func create(context: TealiumContext, moduleSettings: [String: Any]) -> TealiumCollect? {
-            TealiumCollect(context: context, moduleSettings: moduleSettings)
-        }
-        func getEnforcedSettings() -> [String: Any]? {
-            enforcedSettings
+            super.init(enforcedSettings: block?(CollectSettingsBuilder()).build())
         }
     }
 }

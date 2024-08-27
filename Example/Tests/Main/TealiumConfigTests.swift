@@ -20,8 +20,8 @@ final class TealiumConfigTests: XCTestCase {
                                    settingsUrl: nil)
         let settings1: [String: Any] = ["module1_key": "module1_value"]
         let settings2: [String: Any] = ["module2_key": "module2_value"]
-        config.addModule(DefaultModuleFactory(module: MockDispatcher1.self, enforcedSettings: settings1))
-        config.addModule(DefaultModuleFactory(module: MockDispatcher2.self, enforcedSettings: settings2))
+        config.addModule(DefaultModuleFactory<MockDispatcher1>(enforcedSettings: settings1))
+        config.addModule(DefaultModuleFactory<MockDispatcher2>(enforcedSettings: settings2))
         let settings = config.getEnforcedSDKSettings()
         XCTAssertEqual(settings.modulesSettings, [
             MockDispatcher1.id: settings1,

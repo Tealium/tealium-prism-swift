@@ -20,11 +20,12 @@ extension TealiumImplementation {
 
     static func addQueueManager(_ queueManager: QueueManagerProtocol, toConsentInConfig config: inout TealiumConfig) {
         config.modules = config.modules.map { factory in
-            guard var factoryWithQueueManager = factory as? ConsentModule.Factory else {
+            guard let consentFactory = factory as? ConsentModule.Factory else {
                  return factory
             }
-            factoryWithQueueManager.setQueueManager(queueManager)
-            return factoryWithQueueManager
+            // Consent is a special case that should be added externally, but needs internal
+            // components that should not be exposed anywhere else.
+            return consentFactory.copy(queueManager: queueManager)
         }
     }
 

@@ -85,16 +85,14 @@ public enum TealiumModules {
 
 /// A basic factory that can be reused to create modules that have no extra dependencies and don't need utility for settings builders.
 public class DefaultModuleFactory<Module: TealiumBasicModule>: TealiumModuleFactory {
-    let module: Module.Type
-    let settings: [String: Any]?
-    public init(module: Module.Type = Module.self, enforcedSettings: [String: Any]? = nil) {
-        self.settings = enforcedSettings
-        self.module = module
+    let enforcedSettings: [String: Any]?
+    public init(enforcedSettings: [String: Any]? = nil) {
+        self.enforcedSettings = enforcedSettings
     }
     public func create(context: TealiumContext, moduleSettings: [String: Any]) -> Module? {
-        module.init(context: context, moduleSettings: moduleSettings)
+        Module(context: context, moduleSettings: moduleSettings)
     }
     public func getEnforcedSettings() -> [String: Any]? {
-        settings
+        enforcedSettings
     }
 }

@@ -8,32 +8,35 @@
 
 @testable import TealiumSwift
 import XCTest
-class NonDisableableModule: TealiumModule {
+class NonDisableableModule: TealiumBasicModule {
+    required init?(context: TealiumContext, moduleSettings: [String: Any]) { }
     static var id: String = "non-disableable"
     static let canBeDisabled: Bool = false
 }
 final class TealiumModulesTests: XCTestCase {
+    let nonDisableableFactory = DefaultModuleFactory<NonDisableableModule>()
+    let disableableFactory = DefaultModuleFactory<MockDispatcher1>()
     func test_shouldBeEnabled_on_NonDisableableModule_returns_true_for_settings_enabled() {
-        XCTAssertTrue(NonDisableableModule.shouldBeEnabled(by: ["enabled": true]))
+        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: ["enabled": true]))
     }
 
     func test_shouldBeEnabled_on_NonDisableableModule_returns_true_for_settings_disabled() {
-        XCTAssertTrue(NonDisableableModule.shouldBeEnabled(by: ["enabled": false]))
+        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: ["enabled": false]))
     }
 
     func test_shouldBeEnabled_on_NonDisableableModule_returns_true_for_settings_without_enabled_key() {
-        XCTAssertTrue(NonDisableableModule.shouldBeEnabled(by: [:]))
+        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: [:]))
     }
 
     func test_shouldBeEnabled_on_DisableableModule_returns_true_for_settings_enabled() {
-        XCTAssertTrue(MockDispatcher1.shouldBeEnabled(by: ["enabled": true]))
+        XCTAssertTrue(disableableFactory.shouldBeEnabled(by: ["enabled": true]))
     }
 
     func test_shouldBeEnabled_on_DisableableModule_returns_false_for_settings_disabled() {
-        XCTAssertFalse(MockDispatcher1.shouldBeEnabled(by: ["enabled": false]))
+        XCTAssertFalse(disableableFactory.shouldBeEnabled(by: ["enabled": false]))
     }
 
     func test_shouldBeEnabled_on_DisableableModule_returns_true_for_settings_without_enabled_key() {
-        XCTAssertTrue(MockDispatcher1.shouldBeEnabled(by: [:]))
+        XCTAssertTrue(disableableFactory.shouldBeEnabled(by: [:]))
     }
 }
