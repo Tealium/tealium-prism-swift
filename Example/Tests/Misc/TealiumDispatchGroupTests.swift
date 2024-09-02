@@ -10,7 +10,7 @@
 import XCTest
 
 final class TealiumDispatchGroupTests: XCTestCase {
-    let queue = DispatchQueue(label: "test.queue")
+    let queue = TealiumQueue(label: "test.queue")
     lazy var group = TealiumDispatchGroup(queue: queue)
 
     func test_completion_is_called_on_provided_queue() {
@@ -22,7 +22,7 @@ final class TealiumDispatchGroupTests: XCTestCase {
                 }
             }
         ]) { _ in
-            dispatchPrecondition(condition: .onQueue(self.queue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             parallelExecutionCompletes.fulfill()
         }
         waitForDefaultTimeout()

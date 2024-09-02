@@ -20,21 +20,21 @@ public class TealiumRepeatingTimer: Repeater {
 
     let timeInterval: TimeInterval
     let repeating: DispatchTimeInterval
-    let dispatchQueue: DispatchQueue
+    let queue: TealiumQueue
 
     /// - Parameters:
     ///     - timeInterval: TimeInterval in seconds until the timed event happens, and repeating interval by default (if 'repeating' is not specified)
     ///     - repeating: The interval to repeat, otherwise the same timeInterval is reused
-    ///     - dispatchQueue: The queue to use for the timer
-    public init(timeInterval: TimeInterval, repeating: DispatchTimeInterval? = nil, dispatchQueue: DispatchQueue = tealiumQueue, eventHandler: @escaping () -> Void) {
+    ///     - queue: The queue to use for the timer
+    public init(timeInterval: TimeInterval, repeating: DispatchTimeInterval? = nil, queue: TealiumQueue, eventHandler: @escaping () -> Void) {
         self.timeInterval = max(0, timeInterval)
         self.repeating = repeating ?? DispatchTimeInterval.milliseconds(Int(timeInterval * 1000))
-        self.dispatchQueue = dispatchQueue
+        self.queue = queue
         self.eventHandler = eventHandler
     }
 
     private lazy var timer: DispatchSourceTimer = {
-        let timer = DispatchSource.makeTimerSource(flags: [], queue: dispatchQueue)
+        let timer = DispatchSource.makeTimerSource(flags: [], queue: queue.dispatchQueue)
 
         timer.schedule(deadline: .now() + self.timeInterval, repeating: self.repeating)
         timer.setEventHandler(handler: { [weak self] in
@@ -66,7 +66,7 @@ public class TealiumRepeatingTimer: Repeater {
 
     /// Resumes this timer instance if suspended
     public func resume() {
-        dispatchQueue.async(flags: .barrier) { [weak self] in
+        queue.ensureOnQueue { [weak self] in
             guard let self = self else {
                 return
             }
@@ -80,7 +80,7 @@ public class TealiumRepeatingTimer: Repeater {
 
     /// Suspends this timer instance if running
     public func suspend() {
-        dispatchQueue.async(flags: .barrier) { [weak self] in
+        queue.ensureOnQueue { [weak self] in
             guard let self = self else {
                 return
             }

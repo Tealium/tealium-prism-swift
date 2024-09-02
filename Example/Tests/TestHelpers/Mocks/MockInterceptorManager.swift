@@ -22,7 +22,7 @@ class MockInterceptorManager: NSObject, InterceptorManagerProtocol {
     @ToAnyObservable(BasePublisher<Void>())
     var onWaitingForConnectivity: Observable<Void>
 
-    required init(interceptors: [RequestInterceptor], queue: DispatchQueue) {
+    required init(interceptors: [RequestInterceptor], queue: TealiumQueue) {
         self.interceptors = interceptors
     }
 

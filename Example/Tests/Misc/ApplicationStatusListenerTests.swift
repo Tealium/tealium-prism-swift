@@ -9,7 +9,7 @@
 @testable import TealiumSwift
 import XCTest
 
-private let queue = tealiumQueue
+private let queue = TealiumQueue.worker.dispatchQueue
 
 final class ApplicationStatusListenerTests: XCTestCase {
     var listener: ApplicationStatusListener?

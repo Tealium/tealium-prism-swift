@@ -20,13 +20,13 @@ import Foundation
 public struct NetworkConfiguration {
     var sessionConfiguration: URLSessionConfiguration
     var interceptors: [RequestInterceptor]
-    var queue: DispatchQueue
+    var queue: TealiumQueue
     var interceptorManagerFactory: InterceptorManagerProtocol.Type
 
     public init(sessionConfiguration: URLSessionConfiguration,
                 interceptors: [RequestInterceptor],
                 interceptorManagerFactory: InterceptorManagerProtocol.Type = InterceptorManager.self,
-                queue: DispatchQueue = tealiumQueue) {
+                queue: TealiumQueue) {
         self.sessionConfiguration = sessionConfiguration
         self.queue = queue
         self.interceptors = interceptors
@@ -55,6 +55,7 @@ public extension NetworkConfiguration {
     /// Creates and returns a new `NetworkConfiguration` with default parameters.
     static var `default`: NetworkConfiguration {
         NetworkConfiguration(sessionConfiguration: defaultUrlSessionConfiguration,
-                             interceptors: defaultInterceptors)
+                             interceptors: defaultInterceptors,
+                             queue: TealiumQueue.worker)
     }
 }

@@ -16,14 +16,19 @@ let mockConfig = TealiumConfig(account: "mock",
                                settingsFile: nil,
                                settingsUrl: nil)
 private let mockDbProvider = MockDatabaseProvider()
-let mockContext = TealiumContext(modulesManager: ModulesManager(),
+private let queue = TealiumQueue.worker
+let mockContext = TealiumContext(modulesManager: ModulesManager(queue: queue),
                                  config: mockConfig,
                                  coreSettings: StateSubject(CoreSettings(coreDictionary: [:])).toStatefulObservable(),
                                  tracker: MockTracker(),
                                  barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
-                                 transformerRegistry: TransformerCoordinator(registeredTransformers: [], scopedTransformations: StateSubject([]).toStatefulObservable()),
+                                 transformerRegistry: TransformerCoordinator(registeredTransformers: [],
+                                                                             scopedTransformations: StateSubject([]).toStatefulObservable(),
+                                                                             queue: queue),
                                  databaseProvider: mockDbProvider,
-                                 moduleStoreProvider: ModuleStoreProvider(databaseProvider: mockDbProvider, modulesRepository: MockModulesRepository()),
+                                 moduleStoreProvider: ModuleStoreProvider(databaseProvider: mockDbProvider,
+                                                                          modulesRepository: MockModulesRepository()),
                                  logger: nil,
                                  networkHelper: MockNetworkHelper(),
-                                 activityListener: ApplicationStatusListener.shared)
+                                 activityListener: ApplicationStatusListener.shared,
+                                 queue: queue)

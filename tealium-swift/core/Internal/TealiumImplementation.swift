@@ -45,7 +45,7 @@ class TealiumImplementation {
                                         logger: logger)
         Self.addQueueManager(queueManager, toConsentInConfig: &config)
         let barrierCoordinator = Self.barrierCoordinator(config: config, coreSettings: coreSettings)
-        let transformerCoordinator = Self.transformerCoordinator(config: config, coreSettings: coreSettings)
+        let transformerCoordinator = Self.transformerCoordinator(config: config, coreSettings: coreSettings, queue: modulesManager.queue)
         let dispatchManager = DispatchManager(modulesManager: modulesManager,
                                               queueManager: queueManager,
                                               barrierCoordinator: barrierCoordinator,
@@ -63,7 +63,8 @@ class TealiumImplementation {
                                       moduleStoreProvider: storeProvider,
                                       logger: logger,
                                       networkHelper: networkHelper,
-                                      activityListener: appStatusListener)
+                                      activityListener: appStatusListener,
+                                      queue: modulesManager.queue)
         self.modulesManager = modulesManager
         self.instanceName = "\(config.account)-\(config.profile)"
         logger.info?.log(category: LogCategory.tealium, message: "Instance \(self.instanceName) initialized.")
@@ -93,11 +94,11 @@ class TealiumImplementation {
                                   onScopedBarriers: coreSettings.asObservable().map { $0.scopedBarriers })
     }
 
-    private static func transformerCoordinator(config: TealiumConfig, coreSettings: ObservableState<CoreSettings>) -> TransformerCoordinator {
+    private static func transformerCoordinator(config: TealiumConfig, coreSettings: ObservableState<CoreSettings>, queue: TealiumQueue) -> TransformerCoordinator {
         let scopedTransformations = coreSettings.map { $0.scopedTransformations }
         return TransformerCoordinator(registeredTransformers: config.transformers,
                                       scopedTransformations: scopedTransformations,
-                                      queue: tealiumQueue)
+                                      queue: queue)
     }
 
     static func queueProcessors(from modules: ObservableState<[TealiumModule]>) -> Observable<[String]> {

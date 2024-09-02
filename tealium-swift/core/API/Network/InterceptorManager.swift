@@ -9,7 +9,7 @@
 import Foundation
 
 public protocol InterceptorManagerProtocol: URLSessionTaskDelegate {
-    init(interceptors: [RequestInterceptor], queue: DispatchQueue)
+    init(interceptors: [RequestInterceptor], queue: TealiumQueue)
     func interceptResult(request: URLRequest, retryCount: Int, result: NetworkResult, shouldRetry: @escaping (Bool) -> Void)
 }
 
@@ -19,8 +19,8 @@ public protocol InterceptorManagerProtocol: URLSessionTaskDelegate {
  */
 public class InterceptorManager: NSObject, InterceptorManagerProtocol {
     var interceptors: [RequestInterceptor]
-    let queue: DispatchQueue
-    public required init(interceptors: [RequestInterceptor], queue: DispatchQueue) {
+    let queue: TealiumQueue
+    public required init(interceptors: [RequestInterceptor], queue: TealiumQueue) {
         self.interceptors = interceptors
         self.queue = queue
     }

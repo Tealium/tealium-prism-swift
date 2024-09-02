@@ -21,7 +21,7 @@ class ViewController: UIViewController {
         TealiumSignposter.enabled = true
         _ = ConnectivityMonitor.shared
             .connection.asObservable()
-            .subscribeOn(tealiumQueue)
+            .subscribeOn(TealiumQueue.worker)
             .subscribe { connection in
                 print("New Connection: \(connection)")
             }

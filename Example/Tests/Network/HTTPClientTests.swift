@@ -10,7 +10,7 @@
 import XCTest
 
 final class HTTPClientTests: XCTestCase {
-    private let queue = DispatchQueue(label: "testQueue", qos: .userInteractive)
+    private let queue = TealiumQueue(label: "testQueue", qos: .userInteractive)
     lazy var config: NetworkConfiguration = NetworkConfiguration(sessionConfiguration: NetworkConfiguration.defaultUrlSessionConfiguration,
                                                                  interceptors: [],
                                                                  interceptorManagerFactory: MockInterceptorManager.self,
@@ -41,14 +41,14 @@ final class HTTPClientTests: XCTestCase {
     }
 
     func test_url_session_has_queue_as_delegate_queue() {
-        XCTAssertIdentical(client.session.delegateQueue.underlyingQueue, self.config.queue)
+        XCTAssertIdentical(client.session.delegateQueue.underlyingQueue, self.config.queue.dispatchQueue)
     }
 
     func test_send_request_succeeds_with_data_and_response() {
         let expect = expectation(description: "Request will complete with a successful Result")
         let predictedResponse = mockSuccess()
         _ = client.sendRequest(URLRequest()) { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue))
+            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
             XCTAssertResultIsSuccess(result) { value in
                 XCTAssertEqual(value.data, predictedResponse.0)
                 XCTAssertEqual(value.urlResponse.statusCode, predictedResponse.1?.statusCode)
@@ -62,7 +62,7 @@ final class HTTPClientTests: XCTestCase {
         let expect = expectation(description: "Request will complete with a failed Result")
         let predictedResponse = mockFailure()
         _ = client.sendRequest(URLRequest()) { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue))
+            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
             XCTAssertResultIsFailure(result) { error in
                 XCTAssertNetworkError(error, equalsURLErrorWith: predictedResponse.2)
                 expect.fulfill()
@@ -75,14 +75,14 @@ final class HTTPClientTests: XCTestCase {
         let expect = expectation(description: "Request will complete with a cancel error")
         mockFailure(withDelay: 10)
         let task = client.sendRequest(URLRequest()) { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue))
+            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
             XCTAssertResultIsFailure(result) { error in
                 XCTAssertEqual(error, .cancelled)
                 expect.fulfill()
             }
         }
         task.dispose()
-        queue.sync {
+        queue.dispatchQueue.sync {
             waitForDefaultTimeout()
         }
     }
@@ -91,7 +91,7 @@ final class HTTPClientTests: XCTestCase {
         let expect = expectation(description: "Request will be sent to the interceptor")
         let predictedResponse = mockSuccess()
         interceptorManager.onInterceptResponse.subscribeOnce { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue))
+            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
             XCTAssertResultIsSuccess(result) { value in
                 XCTAssertEqual(value.data, predictedResponse.0)
                 XCTAssertEqual(value.urlResponse.statusCode, predictedResponse.1?.statusCode)
@@ -99,7 +99,7 @@ final class HTTPClientTests: XCTestCase {
             }
         }
         _ = client.sendRequest(URLRequest()) { _ in
-            dispatchPrecondition(condition: .onQueue(self.config.queue))
+            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
         }
         waitForLongTimeout()
     }
@@ -108,14 +108,14 @@ final class HTTPClientTests: XCTestCase {
         let expect = expectation(description: "Request will be sent to the interceptor")
         let predictedResponse = mockFailure()
         interceptorManager.onInterceptResponse.subscribeOnce { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue))
+            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
             XCTAssertResultIsFailure(result) { error in
                 XCTAssertNetworkError(error, equalsURLErrorWith: predictedResponse.2)
                 expect.fulfill()
             }
         }
         _ = client.sendRequest(URLRequest()) { _ in
-            dispatchPrecondition(condition: .onQueue(self.config.queue))
+            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
         }
         waitForLongTimeout()
     }
@@ -134,7 +134,7 @@ final class HTTPClientTests: XCTestCase {
             shouldRetry(retryCount < numberOfRetriesAllowed)
         }
         _ = client.sendRequest(URLRequest()) { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue))
+            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
             XCTAssertResultIsSuccess(result) { value in
                 XCTAssertEqual(value.data, predictedResponse.0)
                 XCTAssertEqual(value.urlResponse.statusCode, predictedResponse.1?.statusCode)
@@ -151,12 +151,12 @@ final class HTTPClientTests: XCTestCase {
         mockFailure()
         interceptorManager.interceptResponseBlock = { _, _, shouldRetry in
             expectRetry.fulfill()
-            self.queue.asyncAfter(deadline: .now() + 1) {
+            self.queue.dispatchQueue.asyncAfter(deadline: .now() + 1) {
                 shouldRetry(true)
             }
         }
         let task = client.sendRequest(URLRequest()) { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue))
+            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
             XCTAssertResultIsFailure(result) { error in
                 XCTAssertEqual(error, .cancelled)
                 expect.fulfill()
@@ -164,7 +164,7 @@ final class HTTPClientTests: XCTestCase {
         }
         wait(for: [expectRetry], timeout: longTimeout)
         task.dispose()
-        queue.sync {
+        queue.dispatchQueue.sync {
             waitForDefaultTimeout()
         }
     }
@@ -173,8 +173,10 @@ final class HTTPClientTests: XCTestCase {
         let expectCancelled = expectation(description: "Request will complete with a cancel error immediately")
         let expectSucceded = expectation(description: "Request will complete with success and will happen after the first task completed with the cancel")
         mockSuccess(delay: 10)
+        let queue = TealiumQueue.worker
+        XCTAssertFalse(queue.isOnQueue())
         let task = client.sendRequest(URLRequest()) { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue))
+            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
             XCTAssertResultIsFailure(result) { error in
                 XCTAssertEqual(error, .cancelled)
                 expectCancelled.fulfill()
@@ -183,7 +185,7 @@ final class HTTPClientTests: XCTestCase {
         task.dispose()
         mockSuccess()
         _ = client.sendRequest(URLRequest()) { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue))
+            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
             XCTAssertResultIsSuccess(result) { _ in
                 expectSucceded.fulfill()
             }
@@ -203,9 +205,9 @@ final class HTTPClientTests: XCTestCase {
     private func mockDelay(_ delay: Int) {
         URLProtocolMock.delaying { completion in
             if delay > 0 {
-                self.queue.asyncAfter(deadline: .now() + .milliseconds(delay), execute: completion)
+                self.queue.dispatchQueue.asyncAfter(deadline: .now() + .milliseconds(delay), execute: completion)
             } else {
-                self.queue.async(execute: completion)
+                self.queue.dispatchQueue.async(execute: completion)
             }
         }
     }

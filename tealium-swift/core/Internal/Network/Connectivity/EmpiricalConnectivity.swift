@@ -23,7 +23,7 @@ class EmpiricalConnectivity: EmpiricalConnectivityProtocol {
     var numberOfFailedConsecutiveTimeouts = 0
     let debouncer: DebouncerProtocol
     let backoffPolocy: BackoffPolicy
-    init(backoffPolocy: BackoffPolicy = ExponentialBackoff(), debouncer: DebouncerProtocol = Debouncer(queue: tealiumQueue)) {
+    init(backoffPolocy: BackoffPolicy = ExponentialBackoff(), debouncer: DebouncerProtocol) {
         self.backoffPolocy = backoffPolocy
         self.debouncer = debouncer
     }

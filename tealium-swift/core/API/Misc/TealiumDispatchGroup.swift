@@ -15,8 +15,8 @@ import Foundation
  * All the results then are collected and returned in the completion.
  */
 public class TealiumDispatchGroup {
-    let queue: DispatchQueue
-    public init(queue: DispatchQueue = tealiumQueue) {
+    let queue: TealiumQueue
+    public init(queue: TealiumQueue) {
         self.queue = queue
     }
 
@@ -29,13 +29,13 @@ public class TealiumDispatchGroup {
         dispatchGroup.enter()
         var results = [Int: Result]()
         let queue = self.queue
-        dispatchGroup.notify(queue: queue) {
+        dispatchGroup.notify(queue: queue.dispatchQueue) {
             completion(results.sorted { $0.key < $1.key }.map { $0.value })
         }
         for (index, work) in works.enumerated() {
             dispatchGroup.enter()
             work { result in
-                queue.async { // TODO: only dispatch if needed
+                queue.ensureOnQueue {
                     results[index] = result
                     dispatchGroup.leave()
                 }

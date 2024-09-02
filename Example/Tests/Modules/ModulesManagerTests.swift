@@ -17,7 +17,8 @@ final class ModulesManagerTests: XCTestCase {
                                settingsFile: "",
                                settingsUrl: nil)
     let databaseProvider = MockDatabaseProvider()
-    let modulesManager = ModulesManager()
+    let queue = TealiumQueue.worker
+    lazy var modulesManager = ModulesManager(queue: queue)
     lazy var settings: [String: Any] = [ConsentModule.id: ["enabled": false]]
     lazy var _coreSettings = StateSubject(CoreSettings(coreDictionary: settings))
     var coreSettings: ObservableState<CoreSettings> {
@@ -39,7 +40,8 @@ final class ModulesManagerTests: XCTestCase {
                                                                                modulesRepository: MockModulesRepository()),
                                       logger: nil,
                                       networkHelper: MockNetworkHelper(),
-                                      activityListener: ApplicationStatusListener.shared)
+                                      activityListener: ApplicationStatusListener.shared,
+                                      queue: queue)
     var consentManager: MockConsentManager? {
         modulesManager.getModule()
     }
@@ -155,11 +157,11 @@ final class ModulesManagerTests: XCTestCase {
         modulesManager.updateSettings(context: context, settings: [:])
         let getModuleCompleted = expectation(description: "GetModule completes")
         modulesManager.getModule { (module: MockDispatcher1?) in
-            dispatchPrecondition(condition: .onQueue(tealiumQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             getModuleCompleted.fulfill()
             XCTAssertNotNil(module)
         }
-        tealiumQueue.sync {
+        queue.dispatchQueue.sync {
             waitForDefaultTimeout()
         }
     }
@@ -168,11 +170,11 @@ final class ModulesManagerTests: XCTestCase {
         modulesManager.updateSettings(context: context, settings: [:])
         let getModuleCompleted = expectation(description: "GetModule completes")
         modulesManager.getModule { (module: TealiumCollect?) in
-            dispatchPrecondition(condition: .onQueue(tealiumQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             getModuleCompleted.fulfill()
             XCTAssertNil(module)
         }
-        tealiumQueue.sync {
+        queue.dispatchQueue.sync {
             waitForDefaultTimeout()
         }
     }

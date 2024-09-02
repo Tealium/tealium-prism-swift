@@ -36,7 +36,7 @@ class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
      * Reachability treats the 0.0.0.0 address as a special token that causes it to monitor the general routing
      * status of the device, both IPv4 and IPv6.
      */
-    convenience init?(queue: DispatchQueue = tealiumQueue) {
+    convenience init?(queue: TealiumQueue) {
         var zero = sockaddr()
         zero.sa_len = UInt8(MemoryLayout<sockaddr>.size)
         zero.sa_family = sa_family_t(AF_INET)
@@ -46,7 +46,7 @@ class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
         self.init(reachability: reachability, queue: queue)
     }
 
-    private init?(reachability: SCNetworkReachability, queue: DispatchQueue) {
+    private init?(reachability: SCNetworkReachability, queue: TealiumQueue) {
         self.reachability = reachability
         guard startListening(onQueue: queue) else {
             stopListening()
@@ -69,7 +69,7 @@ class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
      * - Returns: `true` if listening was started successfully, `false` otherwise.
      */
     @discardableResult
-    func startListening(onQueue queue: DispatchQueue) -> Bool {
+    func startListening(onQueue queue: TealiumQueue) -> Bool {
 
         let weakManager = WeakManager(manager: self)
 
@@ -100,12 +100,12 @@ class ReachabilityConnectivityMonitor: ConnectivityMonitorProtocol {
             weakManager.manager?.notify(flags)
         }
 
-        let queueAdded = SCNetworkReachabilitySetDispatchQueue(reachability, queue)
+        let queueAdded = SCNetworkReachabilitySetDispatchQueue(reachability, queue.dispatchQueue)
         let callbackAdded = SCNetworkReachabilitySetCallback(reachability, callback, &context)
 
         // Manually call listener to give initial state, since the framework may not.
         if let currentFlags = flags {
-            queue.async {
+            queue.ensureOnQueue {
                 self.notify(currentFlags)
             }
         }

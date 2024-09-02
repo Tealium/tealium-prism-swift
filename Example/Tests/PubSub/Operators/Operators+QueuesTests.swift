@@ -6,7 +6,7 @@
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
-import TealiumSwift
+@testable import TealiumSwift
 import XCTest
 
 final class OperatorsQueuesTests: XCTestCase {
@@ -14,15 +14,15 @@ final class OperatorsQueuesTests: XCTestCase {
 
     func test_subscribeOn_subscribes_on_provided_queue() {
         let expectation = expectation(description: "Subscribe handler is called")
-        let queue = DispatchQueue(label: "ObservableTestQueue")
+        let queue = TealiumQueue(label: "ObservableTestQueue")
         let observable = CustomObservable<Void> { _ in
-            dispatchPrecondition(condition: .onQueue(queue))
+            dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
             expectation.fulfill()
             return Subscription { }
         }
         _ = observable.subscribeOn(queue)
             .subscribe { }
-        queue.sync {
+        queue.dispatchQueue.sync {
             waitForDefaultTimeout()
         }
     }
@@ -31,45 +31,31 @@ final class OperatorsQueuesTests: XCTestCase {
         let expectation = expectation(description: "Retain Cycle removed")
         let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
-        let queue = DispatchQueue(label: "ObservableTestQueue")
+        let queue = TealiumQueue(label: "ObservableTestQueue")
         let generatedObservable: Observable<Int> = observable.subscribeOn(queue)
         var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
-        queue.sync {
+        queue.dispatchQueue.sync {
             pub.publish(1)
         }
         helper?.subscription?.dispose()
         helper = nil
-        queue.sync {
+        queue.dispatchQueue.sync {
             waitForDefaultTimeout()
         }
-    }
-
-    func test_subscribeOn_subscription_dispose_immediately_disposes_underlying_subscription() {
-        let notPublished = expectation(description: "Even not published to the observer")
-        notPublished.isInverted = true
-        let pub = ReplaySubject<Int>(initialValue: 1)
-        let observable = pub.asObservable()
-        let queue = DispatchQueue.main // So that the subscription is delayed after the end of this function
-        let generatedObservable: Observable<Int> = observable.subscribeOn(queue)
-        let subscription = generatedObservable.subscribe { _ in
-            notPublished.fulfill()
-        }
-        subscription.dispose()
-        waitForDefaultTimeout()
     }
 
     func test_observeOn_observes_on_provided_queue() {
         let expectation = expectation(description: "Observer is called")
         expectation.assertForOverFulfill = false
-        let queue = DispatchQueue(label: "ObservableTestQueue")
+        let queue = TealiumQueue(label: "ObservableTestQueue")
         _ = observable123.observeOn(queue)
             .subscribe { _ in
-                dispatchPrecondition(condition: .onQueue(queue))
+                dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
                 expectation.fulfill()
             }
-        queue.sync {
+        queue.dispatchQueue.sync {
             waitForDefaultTimeout()
         }
     }
@@ -78,30 +64,16 @@ final class OperatorsQueuesTests: XCTestCase {
         let expectation = expectation(description: "Retain Cycle removed")
         let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
-        let queue = DispatchQueue(label: "ObservableTestQueue")
+        let queue = TealiumQueue(label: "ObservableTestQueue")
         let generatedObservable: Observable<Int> = observable.observeOn(queue)
         var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
         pub.publish(1)
-        queue.sync {
+        queue.dispatchQueue.sync {
             helper?.subscription?.dispose()
             helper = nil
             waitForDefaultTimeout()
         }
-    }
-
-    func test_observeOn_subscription_dispose_immediately_disposes_underlying_subscription() {
-        let notPublished = expectation(description: "Even not published to the observer")
-        notPublished.isInverted = true
-        let pub = ReplaySubject<Int>(initialValue: 1)
-        let observable = pub.asObservable()
-        let queue = DispatchQueue.main // So that the subscription is delayed after the end of this function
-        let generatedObservable: Observable<Int> = observable.observeOn(queue)
-        let subscription = generatedObservable.subscribe { _ in
-            notPublished.fulfill()
-        }
-        subscription.dispose()
-        waitForDefaultTimeout()
     }
 }

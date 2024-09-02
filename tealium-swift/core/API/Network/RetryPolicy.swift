@@ -25,15 +25,15 @@ public enum RetryPolicy {
      *
      * - Returns: `true` if the policy indicates it needs a retry, `false` otherwise.
      */
-    func shouldRetry(onQueue queue: DispatchQueue, afterPolicy completion: @escaping () -> Void) -> Bool {
+    func shouldRetry(onQueue queue: TealiumQueue, afterPolicy completion: @escaping () -> Void) -> Bool {
         switch self {
         case .doNotRetry:
             return false
         case .afterDelay(let timeInterval):
             if timeInterval > 0 {
-                queue.asyncAfter(deadline: .now() + timeInterval, execute: completion)
+                queue.dispatchQueue.asyncAfter(deadline: .now() + timeInterval, execute: completion)
             } else {
-                queue.async(execute: completion)
+                queue.ensureOnQueue(completion)
             }
         case .afterEvent(let tealiumObservable):
             tealiumObservable

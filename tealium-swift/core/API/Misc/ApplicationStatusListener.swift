@@ -27,11 +27,11 @@ public class ApplicationStatusListener: NSObject {
     var sleepNotificationObserver: NSObjectProtocol?
 
     var initGraceTimer: TealiumRepeatingTimer?
-
+    let queue = TealiumQueue.worker
     init(graceTimeInterval: Double = 10.0) {
         super.init()
         addListeners()
-        initGraceTimer = TealiumRepeatingTimer(timeInterval: graceTimeInterval, repeating: .never, eventHandler: { [weak self] in
+        initGraceTimer = TealiumRepeatingTimer(timeInterval: graceTimeInterval, repeating: .never, queue: queue, eventHandler: { [weak self] in
             self?._onApplicationStatus.publisher.resize(0)
             self?.initGraceTimer = nil
         })
@@ -50,7 +50,7 @@ public class ApplicationStatusListener: NSObject {
         // swiftlint:enable identifier_name
 
         let operationQueue = OperationQueue()
-        operationQueue.underlyingQueue = tealiumQueue
+        operationQueue.underlyingQueue = queue.dispatchQueue
 
         /// Notifies listeners of a sleep event.
         sleepNotificationObserver = NotificationCenter.default.addObserver(forName: notificationNameApplicationWillResignActive, object: nil, queue: operationQueue) { [weak self] _ in

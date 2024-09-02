@@ -10,7 +10,8 @@
 import XCTest
 
 final class InterceptorManagerTests: XCTestCase {
-    let manager = InterceptorManager(interceptors: [], queue: tealiumQueue)
+    // Queue needs to be main or there are some race conditions
+    let manager = InterceptorManager(interceptors: [], queue: TealiumQueue.main)
     func test_retry_after_delay_policy_should_retry() {
         let expectCompletion = expectation(description: "Completion interceptor should be called")
         let expectRetry = expectation(description: "Retry interceptor should be called")

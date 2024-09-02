@@ -47,7 +47,7 @@ public protocol GroupedDisposable: Disposable {
 /// A concrete implementation of the `GroupedDisposable` protocol that handles disposal of all disposable contained.
 public class DisposeContainer: GroupedDisposable {
     private var disposables = [Disposable]()
-    public private(set) var isDisposed: Bool = false
+    public fileprivate(set) var isDisposed: Bool = false
     public init() {}
 
     /**
@@ -66,12 +66,26 @@ public class DisposeContainer: GroupedDisposable {
     }
 
     public func dispose() {
+        isDisposed = true
         let disposables = self.disposables
         self.disposables = []
         for disposable in disposables {
             disposable.dispose()
         }
-        isDisposed = true
+    }
+}
+
+/// A simple wrapper that disposes the provided subscriptions on a specific queue.
+class AsyncDisposer: DisposeContainer {
+    let queue: TealiumQueue
+    init(disposeOn queue: TealiumQueue) {
+        self.queue = queue
+    }
+    override func dispose() {
+        queue.ensureOnQueue {
+            self.isDisposed = true
+            super.dispose()
+        }
     }
 }
 

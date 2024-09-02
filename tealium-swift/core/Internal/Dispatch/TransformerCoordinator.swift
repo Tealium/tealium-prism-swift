@@ -38,10 +38,10 @@ public class TransformerCoordinator: TransformerRegistry {
     private var allTransformations: [ScopedTransformation] {
         scopedTransformations.value + additionalTransformations.value
     }
-    private let queue: DispatchQueue
+    private let queue: TealiumQueue
     typealias TransformationCompletion = (TealiumDispatch?) -> Void
     typealias DispatchesTransformationCompletion = ([TealiumDispatch]) -> Void
-    init(registeredTransformers: [Transformer], scopedTransformations: ObservableState<[ScopedTransformation]>, queue: DispatchQueue = tealiumQueue) {
+    init(registeredTransformers: [Transformer], scopedTransformations: ObservableState<[ScopedTransformation]>, queue: TealiumQueue) {
         self.registeredTransformers = registeredTransformers
         self.scopedTransformations = scopedTransformations
         self.queue = queue

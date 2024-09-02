@@ -11,7 +11,7 @@ import XCTest
 
 final class ConsentModuleTests: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
-    let modulesManager = ModulesManager()
+    let modulesManager = ModulesManager(queue: TealiumQueue.worker)
     lazy var settings: [String: Any] = [ConsentModule.id: ["enabled": true]]
     lazy var _coreSettings = StateSubject(CoreSettings(coreDictionary: settings))
     var coreSettings: ObservableState<CoreSettings> {

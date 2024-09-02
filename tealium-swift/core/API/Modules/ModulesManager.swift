@@ -8,11 +8,13 @@
 
 import Foundation
 
-public let tealiumQueue = DispatchQueue(label: "tealium.queue") // TODO: change this
-
 public class ModulesManager {
     @StateSubject([])
     var modules: ObservableState<[TealiumModule]>
+    let queue: TealiumQueue
+    init(queue: TealiumQueue) {
+        self.queue = queue
+    }
 
     func updateSettings(context: TealiumContext, settings: [String: Any]) {
         let oldModules = self.modules.value
@@ -52,7 +54,7 @@ public class ModulesManager {
     }
 
     public func getModule<T: TealiumModule>(completion: @escaping (T?) -> Void) {
-        tealiumQueue.async {
+        queue.ensureOnQueue {
             completion(self.getModule())
         }
     }

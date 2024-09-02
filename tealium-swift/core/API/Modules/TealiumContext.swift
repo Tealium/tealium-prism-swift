@@ -20,6 +20,7 @@ public class TealiumContext {
     public let logger: TealiumLoggerProvider?
     public let networkHelper: NetworkHelperProtocol
     public let activityListener: ApplicationStatusListener
+    public let queue: TealiumQueue
 
     init(modulesManager: ModulesManager,
          config: TealiumConfig,
@@ -31,7 +32,8 @@ public class TealiumContext {
          moduleStoreProvider: ModuleStoreProvider,
          logger: TealiumLoggerProvider?,
          networkHelper: NetworkHelperProtocol,
-         activityListener: ApplicationStatusListener) {
+         activityListener: ApplicationStatusListener,
+         queue: TealiumQueue) {
         self.modulesManager = modulesManager
         self.config = config
         self.barrierRegistry = barrierRegistry
@@ -43,5 +45,6 @@ public class TealiumContext {
         self.logger = logger
         self.networkHelper = networkHelper
         self.activityListener = activityListener
+        self.queue = queue
     }
 }

@@ -14,18 +14,18 @@ public class Tealium {
     let modulesManager: ModulesManager
     private var onTealiumImplementation = ReplaySubject<TealiumImplementation?>()
     let automaticDisposer = AutomaticDisposer()
-
+    let queue = TealiumQueue.worker
     public init(_ config: TealiumConfig, completion: @escaping (Result<Tealium, Error>) -> Void) {
         let startupInterval = TealiumSignpostInterval(signposter: .startup, name: "Teal Init")
             .begin()
-        let modulesManager = ModulesManager()
+        let modulesManager = ModulesManager(queue: queue)
         self.modulesManager = modulesManager
         trace = TealiumTrace(modulesManager: modulesManager)
         deepLink = TealiumDeepLink(modulesManager: modulesManager)
         dataLayer = TealiumDataLayer(modulesManager: modulesManager)
         timedEvents = TealiumTimedEvents()
         consent = TealiumConsent()
-        tealiumQueue.async {
+        queue.ensureOnQueue {
             do {
                 let tealiumImplementation = try TealiumImplementation(config, modulesManager: modulesManager)
                 startupInterval.end()
@@ -41,7 +41,7 @@ public class Tealium {
 
     private func onImplementationReady(_ completion: @escaping (TealiumImplementation?) -> Void) {
         onTealiumImplementation
-            .subscribeOn(tealiumQueue)
+            .subscribeOn(queue)
             .subscribeOnce(completion)
             .addTo(automaticDisposer)
     }

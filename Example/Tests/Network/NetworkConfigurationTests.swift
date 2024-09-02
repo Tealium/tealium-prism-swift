@@ -28,7 +28,7 @@ final class NetworkConfigurationTests: XCTestCase {
     }
 
     func test_interceptorManager_has_configuration_queue() {
-        let testQueue = DispatchQueue(label: "com.tealium.test_queue")
+        let testQueue = TealiumQueue(label: "com.tealium.test_queue")
         var config = NetworkConfiguration.default
         config.queue = testQueue
         let interceptorManager = config.interceptorManager as? InterceptorManager

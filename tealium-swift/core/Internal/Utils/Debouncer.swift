@@ -18,8 +18,8 @@ protocol DebouncerProtocol {
  */
 class Debouncer: DebouncerProtocol {
     private var timer: TealiumRepeatingTimer?
-    private let queue: DispatchQueue
-    init(queue: DispatchQueue) {
+    private let queue: TealiumQueue
+    init(queue: TealiumQueue) {
         self.queue = queue
     }
 
@@ -31,7 +31,7 @@ class Debouncer: DebouncerProtocol {
      *    - completion: the block that has to be executed once the time has passed
      */
     func debounce(time: TimeInterval, completion: @escaping () -> Void) {
-        timer = TealiumRepeatingTimer(timeInterval: time, repeating: .never, dispatchQueue: queue) { [weak self] in
+        timer = TealiumRepeatingTimer(timeInterval: time, repeating: .never, queue: queue) { [weak self] in
             self?.timer = nil
             completion()
         }

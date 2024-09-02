@@ -29,7 +29,8 @@ final class TransformerCoordinatorTests: XCTestCase {
     var expectedTransformations: [Int] = []
     lazy var allTransformationsAreApplied = expectation(description: "All transformations are applied")
     lazy var coordinator = TransformerCoordinator(registeredTransformers: registeredTransformers,
-                                                  scopedTransformations: scopedTransformations)
+                                                  scopedTransformations: scopedTransformations,
+                                                  queue: TealiumQueue.worker)
 
     func test_getTransformationsForScope_afterCollectors_returns_all_afterCollectors_scopedTransformations() {
         let transformations = coordinator.getTransformations(for: .afterCollectors)

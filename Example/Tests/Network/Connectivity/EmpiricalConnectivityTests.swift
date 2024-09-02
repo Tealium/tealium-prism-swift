@@ -10,7 +10,8 @@
 import XCTest
 
 final class EmpiricalConnectivityTests: XCTestCase {
-    let empiricalConnectivity = EmpiricalConnectivity()
+    let debouncer = Debouncer(queue: TealiumQueue.worker)
+    lazy var empiricalConnectivity = EmpiricalConnectivity(debouncer: debouncer)
 
     func test_connectivity_starts_with_assuming_available() {
         let connectionAvailable = expectation(description: "Empirical connection available")
@@ -109,14 +110,14 @@ final class EmpiricalConnectivityTests: XCTestCase {
     }
 
     func test_increasing_numberOfFailedConsecutiveTimeouts_increases_the_connectivity_timeout() {
-        let empiricalConnectivity = EmpiricalConnectivity(backoffPolocy: MockBackoff())
+        let empiricalConnectivity = EmpiricalConnectivity(backoffPolocy: MockBackoff(), debouncer: debouncer)
         let timeoutOnZeroFailures = empiricalConnectivity.timeoutInterval()
         empiricalConnectivity.numberOfFailedConsecutiveTimeouts = 5
         XCTAssertGreaterThan(empiricalConnectivity.timeoutInterval(), timeoutOnZeroFailures)
     }
 
     func test_connectivity_timeout_adds_1_to_numberOfFailedConsecutiveTimeouts() {
-        let empiricalConnectivity = EmpiricalConnectivity(backoffPolocy: MockBackoff())
+        let empiricalConnectivity = EmpiricalConnectivity(backoffPolocy: MockBackoff(), debouncer: debouncer)
         XCTAssertEqual(empiricalConnectivity.timeoutInterval(), 1)
     }
 }

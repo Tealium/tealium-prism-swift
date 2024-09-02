@@ -38,7 +38,7 @@ public class HTTPClient: NetworkClient {
     /// The shared instance created with the default configuration
     public static let shared: HTTPClient = HTTPClient(onLogger: .Empty())
     let session: URLSession
-    private let queue: DispatchQueue
+    private let queue: TealiumQueue
     let interceptorManager: InterceptorManagerProtocol
     private let onLogger: Observable<TealiumLoggerProvider>
 
@@ -49,7 +49,7 @@ public class HTTPClient: NetworkClient {
      */
     convenience public init(configuration: NetworkConfiguration = .default, onLogger: Observable<TealiumLoggerProvider>) {
         let operationQueue = OperationQueue()
-        operationQueue.underlyingQueue = configuration.queue
+        operationQueue.underlyingQueue = configuration.queue.dispatchQueue
         let interceptorManager = configuration.interceptorManager
         self.init(session: URLSession(configuration: configuration.sessionConfiguration,
                                       delegate: interceptorManager,
@@ -59,7 +59,7 @@ public class HTTPClient: NetworkClient {
                   onLogger: onLogger)
     }
 
-    init(session: URLSession, queue: DispatchQueue, interceptorManager: InterceptorManagerProtocol, onLogger: Observable<TealiumLoggerProvider>) {
+    init(session: URLSession, queue: TealiumQueue, interceptorManager: InterceptorManagerProtocol, onLogger: Observable<TealiumLoggerProvider>) {
         self.session = session
         self.queue = queue
         self.interceptorManager = interceptorManager
@@ -101,7 +101,7 @@ public class HTTPClient: NetworkClient {
             }
         }.addTo(disposeContainer)
         return Subscription {
-            self.queue.async { // TODO: dispatch only if necessary
+            self.queue.ensureOnQueue {
                 completion.fail(error: .cancelled)
                 disposeContainer.dispose()
             }

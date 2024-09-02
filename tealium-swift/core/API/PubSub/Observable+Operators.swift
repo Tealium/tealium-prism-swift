@@ -8,31 +8,13 @@
 
 import Foundation
 
-/// A simple wrapper that disposes the provided subscriptions on a specific queue.
-class AsyncDisposer: DisposeContainer {
-    let queue: DispatchQueue
-    private var _isDisposed = false
-    override var isDisposed: Bool {
-        _isDisposed
-    }
-    init(disposeOn queue: DispatchQueue) {
-        self.queue = queue
-    }
-    override func dispose() {
-        self._isDisposed = true
-        queue.async { // TODO: We might want to add a check if we are already on that queue then don't dispatch
-            super.dispose()
-        }
-    }
-}
-
 public extension Subscribable {
 
     /// Ensures that Observers to the returned observable are always subscribed on the provided queue.
-    func subscribeOn(_ queue: DispatchQueue) -> Observable<Element> {
+    func subscribeOn(_ queue: TealiumQueue) -> Observable<Element> {
         CustomObservable<Element> { observer in
             let subscription = AsyncDisposer(disposeOn: queue)
-            queue.async { // TODO: We might want to add a check if we are already on that queue then don't dispatch
+            queue.ensureOnQueue {
                 guard !subscription.isDisposed else { return }
                 self.subscribe(observer).addTo(subscription)
             }
@@ -41,11 +23,11 @@ public extension Subscribable {
     }
 
     /// Ensures that Observers to the returned observable are always called on the provided queue.
-    func observeOn(_ queue: DispatchQueue) -> Observable<Element> {
+    func observeOn(_ queue: TealiumQueue) -> Observable<Element> {
         CustomObservable<Element> { observer in
             let container = DisposeContainer()
             self.subscribe { element in
-                queue.async { // TODO: We might want to add a check if we are already on that queue then don't dispatch
+                queue.ensureOnQueue {
                     guard !container.isDisposed else { return }
                     observer(element)
                 }

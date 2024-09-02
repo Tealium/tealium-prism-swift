@@ -25,7 +25,8 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
     /// The shared instance of the `ConnectivityManager`
     public static let shared = ConnectivityManager()
 
-    init(connectivityMonitor: ConnectivityMonitorProtocol = ConnectivityMonitor.shared, empiricalConnectivity: EmpiricalConnectivityProtocol = EmpiricalConnectivity()) {
+    init(connectivityMonitor: ConnectivityMonitorProtocol = ConnectivityMonitor.shared,
+         empiricalConnectivity: EmpiricalConnectivityProtocol = EmpiricalConnectivity(debouncer: Debouncer(queue: TealiumQueue.worker))) {
         self.connectivityMonitor = connectivityMonitor
         self.empiricalConnectivity = empiricalConnectivity
         connectivityMonitor.connection.asObservable()

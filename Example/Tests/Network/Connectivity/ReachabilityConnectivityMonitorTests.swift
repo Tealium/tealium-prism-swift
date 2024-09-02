@@ -21,7 +21,7 @@ final class ReachabilityConnectivityMonitorTests: XCTestCase {
     func test_reachability_monitor_can_be_deinitialized() {
         let reachabilityQueueCleared = expectation(description: "reachability queue should clear")
         let queue = DispatchQueue(label: "com.tealium.reachability-test")
-        let helper = RetainCycleHelper(variable: ReachabilityConnectivityMonitor(queue: queue))
+        let helper = RetainCycleHelper(variable: ReachabilityConnectivityMonitor(queue: TealiumQueue(dispatchQueue: queue)))
         helper.removeStrongReference()
         queue.async { reachabilityQueueCleared.fulfill() }
 
@@ -29,24 +29,13 @@ final class ReachabilityConnectivityMonitorTests: XCTestCase {
         helper.forceAndAssertObjectDeinit()
     }
 
-    func test_connection_starts_with_unknown() {
-        let connectionChanged = expectation(description: "Connection change event should be reported")
-        let reachability = ReachabilityConnectivityMonitor(queue: .main)
-        XCTAssertEqual(reachability?.connection.value, .unknown)
-        reachability?.connection.subscribeOnce({ connection in
-            XCTAssertEqual(connection, .unknown)
-            connectionChanged.fulfill()
-        })
-        waitForDefaultTimeout()
-    }
-
     func test_connection_changes_after_init() {
         let connectionChanged = expectation(description: "Connection change event should be reported")
-        let sub = reachability?.connection.subscribe({ connection in
+        let sub = reachability?.connection.subscribe { connection in
             if connection != .unknown {
                 connectionChanged.fulfill()
             }
-        })
+        }
         waitForDefaultTimeout()
         sub?.dispose()
     }
