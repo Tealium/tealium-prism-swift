@@ -74,7 +74,7 @@ class SQLQueueRepository: QueueRepository {
             return []
         }
         return rows.compactMap { row -> TealiumDispatch? in
-            guard let eventData = try? row[DispatchSchema.dispatch].deserialize() as? [String: Any] else {
+            guard let eventData: DataObject = try? row[DispatchSchema.dispatch].deserializeCodable() else {
                 return nil
             }
             return TealiumDispatch(eventData: eventData,

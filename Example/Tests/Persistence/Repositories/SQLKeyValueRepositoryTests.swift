@@ -19,13 +19,13 @@ final class SQLKeyValueRepositoryTests: XCTestCase {
 
     func test_upsert_adds_new_item() throws {
         try repository.upsert(key: "key", value: "value", expiry: .forever)
-        XCTAssertEqual(repository.get(key: "key")?.getString(), "value")
+        XCTAssertEqual(repository.get(key: "key")?.get(), "value")
     }
 
     func test_upsert_updates_old_item() throws {
         try repository.upsert(key: "key", value: "value", expiry: .forever)
         try repository.upsert(key: "key", value: "updated", expiry: .session)
-        XCTAssertEqual(repository.get(key: "key")?.getString(), "updated")
+        XCTAssertEqual(repository.get(key: "key")?.get(), "updated")
         XCTAssertEqual(repository.getExpiry(key: "key"), .session)
     }
 
@@ -38,8 +38,8 @@ final class SQLKeyValueRepositoryTests: XCTestCase {
         try repository.upsert(key: "key2", value: "other", expiry: .forever)
         let allItems = repository.getAll()
         XCTAssertEqual(allItems.count, 2)
-        XCTAssertEqual(allItems["key1"]?.getString(), "value")
-        XCTAssertEqual(allItems["key2"]?.getString(), "other")
+        XCTAssertEqual(allItems.get(key: "key1"), "value")
+        XCTAssertEqual(allItems.get(key: "key2"), "other")
     }
 
     func test_count_returns_number_of_items() throws {
@@ -97,8 +97,8 @@ final class SQLKeyValueRepositoryTests: XCTestCase {
         try repository.upsert(key: "forever", value: "value", expiry: .forever)
         let nonExpiredData = repository.getAll()
         XCTAssertEqual(nonExpiredData.count, 1)
-        XCTAssertEqual(nonExpiredData["forever"]?.getString(), "value")
-        XCTAssertNil(nonExpiredData["expiredDate"])
+        XCTAssertEqual(nonExpiredData.get(key: "forever"), "value")
+        XCTAssertNil(nonExpiredData.getDataItem(key: "expiredDate"))
     }
 
     func test_count_doesnt_count_expired_data() throws {
@@ -149,15 +149,15 @@ final class SQLKeyValueRepositoryTests: XCTestCase {
             try repository.upsert(key: "key", value: "updated", expiry: .forever)
             throw NSError(domain: "test error", code: 1)
         })
-        XCTAssertEqual(repository.get(key: "key")?.getString(), "value", "Value should be the same as the first because of the transaction rollback")
+        XCTAssertEqual(repository.get(key: "key")?.get(), "value", "Value should be the same as the first because of the transaction rollback")
     }
 
     func test_different_moduleId_rows_are_not_affected() throws {
         try repository.upsert(key: "key", value: "value", expiry: .forever)
         let otherRepository = SQLKeyValueRepository(dbProvider: dbProvider, moduleId: 2)
         try otherRepository.upsert(key: "key", value: "updated", expiry: .forever)
-        XCTAssertEqual(otherRepository.get(key: "key")?.getString(), "updated")
-        XCTAssertEqual(repository.get(key: "key")?.getString(), "value")
+        XCTAssertEqual(otherRepository.get(key: "key")?.get(), "updated")
+        XCTAssertEqual(repository.get(key: "key")?.get(), "value")
         let count = try otherRepository.delete(key: "key")
         XCTAssertEqual(count, 1)
         XCTAssertFalse(otherRepository.contains(key: "key"))

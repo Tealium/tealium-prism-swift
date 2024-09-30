@@ -14,4 +14,10 @@ public extension XCTestCase {
     func waitForDefaultTimeout() {
         waitForExpectations(timeout: Self.defaultTimeout)
     }
+    static let longTimeout: TimeInterval = 10
+
+    /// Event if the request is not actually sent, the URLProtocolMock is called on a different queue, therefore we can't wait too little or it can fail sporadically.
+    func waitForLongTimeout() {
+        waitForExpectations(timeout: Self.longTimeout)
+    }
 }

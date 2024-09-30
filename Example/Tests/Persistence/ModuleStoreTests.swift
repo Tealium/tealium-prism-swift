@@ -23,70 +23,70 @@ final class ModuleStoreTests: XCTestCase {
         try store.edit()
             .put(key: "key", value: "value", expiry: .forever)
             .commit()
-        XCTAssertEqual(store.get(key: "key")?.getString(), "value")
+        XCTAssertEqual(store.get(key: "key"), "value")
         try store.edit()
             .remove(key: "key")
             .commit()
-        XCTAssertNil(store.get(key: "key"))
+        XCTAssertNil(store.getDataItem(key: "key"))
     }
 
     func test_put_and_remove_multiple_item() throws {
         let store = try moduleStoreProvider.getModuleStore(name: "test")
         try store.edit()
-            .putAll(dictionary: ["key1": 1, "key2": "2"], expiry: .forever)
+            .putAll(dataObject: ["key1": 1, "key2": "2"], expiry: .forever)
             .commit()
         let allKeyValues = store.getAll()
-        XCTAssertEqual(allKeyValues.getInt(key: "key1"), 1)
-        XCTAssertEqual(allKeyValues.getString(key: "key2"), "2")
+        XCTAssertEqual(allKeyValues.get(key: "key1"), 1)
+        XCTAssertEqual(allKeyValues.get(key: "key2"), "2")
         try store.edit()
             .remove(keys: ["key1", "key2"])
             .commit()
-        XCTAssertNil(store.get(key: "key1"))
-        XCTAssertNil(store.get(key: "key2"))
+        XCTAssertNil(store.getDataItem(key: "key1"))
+        XCTAssertNil(store.getDataItem(key: "key2"))
     }
 
     func test_clear_removes_all_previous_items() throws {
         let store = try moduleStoreProvider.getModuleStore(name: "test")
         try store.edit()
-            .putAll(dictionary: ["key1": 1, "key2": "2"], expiry: .forever)
+            .putAll(dataObject: ["key1": 1, "key2": "2"], expiry: .forever)
             .commit()
         let allKeyValues = store.getAll()
-        XCTAssertEqual(allKeyValues.getInt(key: "key1"), 1)
-        XCTAssertEqual(allKeyValues.getString(key: "key2"), "2")
+        XCTAssertEqual(allKeyValues.get(key: "key1"), 1)
+        XCTAssertEqual(allKeyValues.get(key: "key2"), "2")
         try store.edit()
             .clear()
             .commit()
-        XCTAssertNil(store.get(key: "key1"))
-        XCTAssertNil(store.get(key: "key2"))
+        XCTAssertNil(store.getDataItem(key: "key1"))
+        XCTAssertNil(store.getDataItem(key: "key2"))
     }
 
     func test_clear_is_always_run_first() throws {
         let store = try moduleStoreProvider.getModuleStore(name: "test")
         try store.edit()
-            .putAll(dictionary: ["key1": 1, "key2": "2"], expiry: .forever)
+            .putAll(dataObject: ["key1": 1, "key2": "2"], expiry: .forever)
             .commit()
         let allKeyValues = store.getAll()
-        XCTAssertEqual(allKeyValues.getInt(key: "key1"), 1)
-        XCTAssertEqual(allKeyValues.getString(key: "key2"), "2")
+        XCTAssertEqual(allKeyValues.get(key: "key1"), 1)
+        XCTAssertEqual(allKeyValues.get(key: "key2"), "2")
         try store.edit()
-            .putAll(dictionary: ["key3": 3.0, "key4": true], expiry: .forever)
+            .putAll(dataObject: ["key3": 3.0, "key4": true], expiry: .forever)
             .clear()
             .commit()
         let keyValuesAfterClear = store.getAll()
-        XCTAssertNil(store.get(key: "key1"))
-        XCTAssertNil(store.get(key: "key2"))
-        XCTAssertEqual(keyValuesAfterClear.getDouble(key: "key3"), 3.0)
-        XCTAssertEqual(keyValuesAfterClear.getBool(key: "key4"), true)
+        XCTAssertNil(store.getDataItem(key: "key1"))
+        XCTAssertNil(store.getDataItem(key: "key2"))
+        XCTAssertEqual(keyValuesAfterClear.get(key: "key3"), 3.0)
+        XCTAssertEqual(keyValuesAfterClear.get(key: "key4"), true)
     }
 
     func test_commit_only_commits_once() throws {
         let store = try moduleStoreProvider.getModuleStore(name: "test")
         let editor = store.edit()
-            .putAll(dictionary: ["key1": 1, "key2": "2"], expiry: .forever)
+            .putAll(dataObject: ["key1": 1, "key2": "2"], expiry: .forever)
         try editor.commit()
         XCTAssertEqual(store.keys().sorted(), ["key1", "key2"])
         try editor
-            .putAll(dictionary: ["key3": 3.0, "key4": true], expiry: .forever)
+            .putAll(dataObject: ["key3": 3.0, "key4": true], expiry: .forever)
             .commit()
         XCTAssertEqual(store.keys().sorted(), ["key1", "key2"], "The second commit should do nothing")
     }
@@ -96,19 +96,19 @@ final class ModuleStoreTests: XCTestCase {
         let dataUpdated = expectation(description: "onDataUpdated event is notified")
         dataUpdated.expectedFulfillmentCount = 2
         store.onDataUpdated.subscribeOnce { updatedData in
-            XCTAssertEqual(updatedData["key1"] as? Int, 0)
+            XCTAssertEqual(updatedData.get(key: "key1"), 0)
             dataUpdated.fulfill()
         }
         try store.edit()
             .put(key: "key1", value: 0, expiry: .forever)
             .commit()
         store.onDataUpdated.subscribeOnce { updatedData in
-            XCTAssertEqual(updatedData["key1"] as? Int, 1)
-            XCTAssertEqual(updatedData["key2"] as? String, "2")
+            XCTAssertEqual(updatedData.get(key: "key1"), 1)
+            XCTAssertEqual(updatedData.get(key: "key2"), "2")
             dataUpdated.fulfill()
         }
         try store.edit()
-            .putAll(dictionary: ["key1": 1, "key2": "2"], expiry: .forever)
+            .putAll(dataObject: ["key1": 1, "key2": "2"], expiry: .forever)
             .commit()
         waitForDefaultTimeout()
     }
@@ -118,7 +118,7 @@ final class ModuleStoreTests: XCTestCase {
         let dataRemoved = expectation(description: "onDataRemoved event is notified")
         dataRemoved.expectedFulfillmentCount = 2
         try store.edit()
-            .putAll(dictionary: ["key1": 1, "key2": "2", "key3": 3.0], expiry: .forever)
+            .putAll(dataObject: ["key1": 1, "key2": "2", "key3": 3.0], expiry: .forever)
             .commit()
         store.onDataRemoved.subscribeOnce { removedData in
             XCTAssertTrue(removedData.contains("key1"))
@@ -144,7 +144,7 @@ final class ModuleStoreTests: XCTestCase {
         let store = try moduleStoreProvider.getModuleStore(name: "test")
         let dataRemoved = expectation(description: "onDataRemoved event is notified")
         try store.edit()
-            .putAll(dictionary: ["key1": 1, "key2": "2", "key3": 3.0], expiry: .forever)
+            .putAll(dataObject: ["key1": 1, "key2": "2", "key3": 3.0], expiry: .forever)
             .commit()
         store.onDataRemoved.subscribeOnce { removedData in
             XCTAssertTrue(removedData.contains("key1"))

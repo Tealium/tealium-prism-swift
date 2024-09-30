@@ -42,8 +42,8 @@ class SQLModulesRepository: ModulesRepository {
         }
         let dataExpired = rows.reduce(ExpiredDataEvent()) { result, row in
             var result = result
-            var moduleData = result[row[ModuleStorageSchema.moduleId]] ?? [String: TealiumDataOutput]()
-            moduleData[row[ModuleStorageSchema.key]] = TealiumDataOutput(stringValue: row[ModuleStorageSchema.value])
+            var moduleData = result[row[ModuleStorageSchema.moduleId]] ?? [String: DataItem]()
+            moduleData[row[ModuleStorageSchema.key]] = DataItem(stringValue: row[ModuleStorageSchema.value])
             result[row[ModuleStorageSchema.moduleId]] = moduleData
             return result
         }

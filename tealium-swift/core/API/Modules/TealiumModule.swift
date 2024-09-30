@@ -15,7 +15,7 @@ public protocol TealiumModule {
     /// Returns true if the module is optional and can be disabled, or false otherwise. Default is true.
     static var canBeDisabled: Bool { get }
     /// Updates the settings and, if the settings are valid, return the same class otherwise return nil and the module is considered disabled.
-    func updateSettings(_ settings: [String: Any]) -> Self?
+    func updateSettings(_ settings: DataObject) -> Self?
     /// Called when a previously created module needs to shut down, to allow it to perform some final cleanup before removing it form the available modules.
     func shutdown()
 }
@@ -23,7 +23,7 @@ public protocol TealiumModule {
 /// A stricted `TealiumModule` that can be created with some default parameters.
 public protocol TealiumBasicModule: TealiumModule {
     /// Initializes the module with a `TealiumContext` and this module's specific settings.
-    init?(context: TealiumContext, moduleSettings: [String: Any])
+    init?(context: TealiumContext, moduleSettings: DataObject)
 }
 
 public extension TealiumModule {
@@ -31,7 +31,7 @@ public extension TealiumModule {
         type(of: self).id
     }
     static var canBeDisabled: Bool { true }
-    func updateSettings(_ settings: [String: Any]) -> Self? {
+    func updateSettings(_ settings: DataObject) -> Self? {
         return self
     }
     func shutdown() { }
@@ -40,7 +40,7 @@ public extension TealiumModule {
 /// A `TealiumModule` that implements the functionality of collecting data to enrich the data layer of each track request.
 public protocol Collector: TealiumModule {
     /// The data used to enrich the data layer of a track request.
-    var data: TealiumDictionaryInput { get }
+    var data: DataObject { get }
 }
 
 /// A `TealiumModule` that implements the functionality of dispatching some track requests towards some entity that can handle the events.

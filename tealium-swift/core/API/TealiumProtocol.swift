@@ -9,7 +9,7 @@
 import Foundation
 
 public class TealiumTimedEvents {
-    func start(event name: String, with data: [String: Any]? = [String: Any]()) {}
+    func start(event name: String, with data: DataObject = DataObject()) {}
     func stop(event name: String) {}
     func cancel(event name: String) {}
     func cancelAll() {}

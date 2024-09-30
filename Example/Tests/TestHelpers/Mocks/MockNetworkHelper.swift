@@ -9,13 +9,6 @@
 import Foundation
 @testable import TealiumSwift
 
-extension JSONResponse {
-    static func successful(json: [String: Any]) -> Self {
-        JSONResponse(json: json,
-                     urlResponse: HTTPURLResponse.successful())
-    }
-}
-
 extension ObjectResponse {
     static func successful(object: T) -> ObjectResponse<T> {
         ObjectResponse<T>(object: object,
@@ -28,13 +21,12 @@ class MockNetworkHelper: NetworkHelperProtocol {
         case failedToConvertToExpectedResultType
     }
     var result: NetworkResult = NetworkResult.success(.successful())
-    var jsonResult: JSONResult = JSONResult.success(.successful(json: [:]))
     var codableResult: ObjectResult<Any> = ObjectResult.success(.successful(object: ()))
     var delay: Int?
     var queue = DispatchQueue.main
     enum Requests {
         case get(URLConvertible, String?)
-        case post(URLConvertible, [String: Any])
+        case post(URLConvertible, DataObject)
     }
 
     @ToAnyObservable(ReplaySubject(cacheSize: 10))
@@ -65,19 +57,6 @@ class MockNetworkHelper: NetworkHelperProtocol {
         return sub
     }
 
-    func getJsonAsDictionary(url: URLConvertible, etag: String?, completion: @escaping (JSONResult) -> Void) -> Disposable {
-        let sub = Subscription { }
-        delayBlock {
-            guard !sub.isDisposed else {
-                completion(.failure(.cancelled))
-                return
-            }
-            self._requests.publish(.get(url, etag))
-            completion(JSONResult.success(.successful(json: [:])))
-        }
-        return sub
-    }
-
     func getJsonAsObject<T>(url: URLConvertible, etag: String?, completion: @escaping (ObjectResult<T>) -> Void) -> Disposable where T: Codable {
         let sub = Subscription { }
         delayBlock {
@@ -100,7 +79,7 @@ class MockNetworkHelper: NetworkHelperProtocol {
         return sub
     }
 
-    func post(url: URLConvertible, body: [String: Any], completion: @escaping (NetworkResult) -> Void) -> Disposable {
+    func post(url: URLConvertible, body: DataObject, completion: @escaping (NetworkResult) -> Void) -> Disposable {
         let sub = Subscription { }
         delayBlock {
             guard !sub.isDisposed else {

@@ -71,18 +71,18 @@ class TealiumImplementation {
         self.handleSettingsUpdates()
     }
 
-    public func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
+    func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
         tracker.track(trackable, onTrackResult: onTrackResult)
     }
 
     private func handleSettingsUpdates() {
         self.settingsManager.settings.asObservable().subscribe { [weak self] settings in
             guard let self else { return }
-            self.updateSettings(context: context, settings: settings.modulesSettings)
+            self.updateSettings(context: context, settings: settings)
         }.addTo(self.automaticDisposer)
     }
 
-    private func updateSettings(context: TealiumContext, settings: [String: Any]) {
+    private func updateSettings(context: TealiumContext, settings: SDKSettings) {
         TealiumSignpostInterval(signposter: .settings, name: "Module Updates")
             .signpostedWork {
                 modulesManager.updateSettings(context: context, settings: settings)

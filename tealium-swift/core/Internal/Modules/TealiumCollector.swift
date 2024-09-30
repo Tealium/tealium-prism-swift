@@ -10,20 +10,20 @@ import Foundation
 
 class TealiumCollector: TealiumBasicModule, Collector {
     static var canBeDisabled: Bool { false }
-    var data: TealiumDictionaryInput {
+    var data: DataObject {
         let config = context.config
-        return TealiumDictionaryInput(removingOptionals: [
+        return [
             TealiumDataKey.account: config.account,
             TealiumDataKey.profile: config.profile,
             TealiumDataKey.environment: config.environment,
             TealiumDataKey.enabledModules: context.modulesManager?.modules.value.map { $0.id } ?? []
-        ])
+        ]
     }
 
     static let id: String = "TealiumCollector"
 
     let context: TealiumContext
-    required init(context: TealiumContext, moduleSettings: [String: Any]) {
+    required init(context: TealiumContext, moduleSettings: DataObject) {
         self.context = context
     }
 }

@@ -101,14 +101,8 @@ extension _AnyEncodable {
                 $0 as? AnyCodable ?? AnyCodable($0)
             })
         default:
-            try container.encodeNil()
             let codingPath = container.codingPath
-            let debugFail = { // Need to call this in a block so LLDB doesn't crash trying to access the container and we lose the debuggable state.
-                let message = "EncodingError: AnyCodable value \(type(of:value)) cannot be encoded, codingPath: \(codingPath). You can only add JSON encodable values to the data layer."
-                assertionFailure(message)
-                print(message + " Replacing value with null in this release build.")
-            }
-            debugFail()
+            throw EncodingError.invalidValue(value, EncodingError.Context(codingPath: codingPath, debugDescription: "EncodingError: AnyCodable value \(type(of:value)) cannot be encoded, codingPath: \(codingPath). You can only encode JSON encodable values."))
         }
     }
 
@@ -146,7 +140,7 @@ extension _AnyEncodable {
              *
              * We use then Double.nan, Double.infinity or, eventally Double.greatestFiniteMagnitude, by just using the Double(truncating: nsnumber)
              */
-            if nsnumber == NSDecimalNumber.notANumber || nsnumber.decimalValue.isNaN || d == Double.infinity {
+            if nsnumber == NSDecimalNumber.notANumber || nsnumber.decimalValue.isNaN || !d.isFinite {
                 encodable = d
             } else {
                 encodable = nsnumber.decimalValue

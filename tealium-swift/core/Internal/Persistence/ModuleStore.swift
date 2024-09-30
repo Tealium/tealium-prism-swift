@@ -12,12 +12,12 @@ public class ModuleStore: DataStore {
 
     private let repository: KeyValueRepository
 
-    @ToAnyObservable<BasePublisher<[String: TealiumDataInput]>>(BasePublisher<[String: TealiumDataInput]>())
-    public var onDataUpdated: Observable<[String: TealiumDataInput]>
+    @ToAnyObservable<BasePublisher<DataObject>>(BasePublisher<DataObject>())
+    public var onDataUpdated: Observable<DataObject>
     private let _onDataRemoved: BasePublisher<[String]>
     public let onDataRemoved: Observable<[String]>
 
-    init(repository: KeyValueRepository, onDataExpired: Observable<[String: TealiumDataOutput]>) {
+    init(repository: KeyValueRepository, onDataExpired: Observable<[String: DataItem]>) {
         self.repository = repository
         let onDataRemovedPublisher = BasePublisher<[String]>()
         self._onDataRemoved = onDataRemovedPublisher
@@ -28,29 +28,29 @@ public class ModuleStore: DataStore {
         return Editor(repository: repository) { [weak self] edits in
             guard let self = self else { return }
             var removedKeys = [String]()
-            var updatedData = [String: TealiumDataInput]()
+            var updatedData = DataObject()
             for edit in edits {
                 switch edit {
                 case let .remove(key):
                     removedKeys.append(key)
                 case let .put(key, value, _):
-                    updatedData[key] = value
+                    updatedData.set(value, key: key)
                 }
             }
             if !removedKeys.isEmpty {
                 self._onDataRemoved.publish(removedKeys)
             }
-            if !updatedData.isEmpty {
+            if updatedData.count > 0 {
                 self._onDataUpdated.publish(updatedData)
             }
         }
     }
 
-    public func get(key: String) -> TealiumDataOutput? {
+    public func getDataItem(key: String) -> DataItem? {
         repository.get(key: key)
     }
 
-    public func getAll() -> [String: TealiumDataOutput] {
+    public func getAll() -> DataObject {
         repository.getAll()
     }
 
@@ -64,7 +64,7 @@ public class ModuleStore: DataStore {
 
     enum Edit {
         case remove(String)
-        case put(String, TealiumDataInput, Expiry)
+        case put(String, DataInput, Expiry)
     }
 
     class Editor: DataStoreEditor {
@@ -79,13 +79,13 @@ public class ModuleStore: DataStore {
             self.completion = completion
         }
 
-        func put(key: String, value: TealiumDataInput, expiry: Expiry) -> Self {
+        func put(key: String, value: DataInput, expiry: Expiry) -> Self {
             edits.append(.put(key, value, expiry))
             return self
         }
 
-        func putAll(dictionary: TealiumDictionaryInput, expiry: Expiry) -> Self {
-            for (key, value) in dictionary {
+        func putAll(dataObject: DataObject, expiry: Expiry) -> Self {
+            for (key, value) in dataObject.asDictionary() {
                 _ = put(key: key, value: value, expiry: expiry)
             }
             return self

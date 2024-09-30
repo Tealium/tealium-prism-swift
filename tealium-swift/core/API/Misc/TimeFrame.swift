@@ -77,6 +77,23 @@ public struct TimeFrame {
     }
 }
 
+extension TimeFrame: DataInputConvertible {
+    public func toDataInput() -> any DataInput {
+        seconds()
+    }
+}
+
+extension TimeFrame {
+    struct Converter: DataItemConverter {
+        typealias Convertible = TimeFrame
+        func convert(dataItem: DataItem) -> TimeFrame? {
+            guard let seconds = dataItem.get(as: Double.self) else { return nil }
+            return TimeFrame(unit: .seconds, interval: seconds)
+        }
+    }
+    public static let converter: any DataItemConverter<Self> = Converter()
+}
+
 extension TimeFrame: Comparable, Equatable {
     public static func < (lhs: Self, rhs: Self) -> Bool {
         guard lhs.unit != rhs.unit else {

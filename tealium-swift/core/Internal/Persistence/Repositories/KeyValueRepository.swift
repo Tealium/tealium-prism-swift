@@ -28,16 +28,16 @@ protocol KeyValueRepository {
      *
      * - parameter key: The key to use to lookup the value.
      *
-     * - returns: The `TealiumDataOutput` for the given key, else nil.
+     * - returns: The `DataItem` for the given key, else nil.
      */
-    func get(key: String) -> TealiumDataOutput?
+    func get(key: String) -> DataItem?
 
     /**
      * Fetch all items in the repository.
      *
-     * - returns: The `[String: TealiumDataOutput]` dictionary with all the stored key-values in the repository.
+     * - returns: The `[String: DataItem]` dictionary with all the stored key-values in the repository.
      */
-    func getAll() -> [String: TealiumDataOutput]
+    func getAll() -> DataObject
 
     /**
      * Removes and item from storage given the key.
@@ -59,7 +59,7 @@ protocol KeyValueRepository {
      * - returns: The id of the newly added data
      */
     @discardableResult
-    func upsert(key: String, value: TealiumDataInput, expiry: Expiry) throws -> Int64
+    func upsert(key: String, value: DataInput, expiry: Expiry) throws -> Int64
 
     /**
      * Removes all entries fromt he storage.

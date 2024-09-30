@@ -49,14 +49,6 @@ public struct ScopedBarrier: Codable, Equatable {
         self.scopes = scopes
     }
 
-    init?(from dictionary: [String: Any]) {
-        guard let barrierId = dictionary[CodingKeys.barrierId.rawValue] as? String,
-              let scopes = dictionary[CodingKeys.scopes.rawValue] as? [String] else {
-            return nil
-        }
-        self.init(barrierId: barrierId, scopes: scopes.map { BarrierScope(rawValue: $0) })
-    }
-
     enum CodingKeys: String, CodingKey {
         case barrierId = "barrier_id"
         case scopes
@@ -65,11 +57,27 @@ public struct ScopedBarrier: Codable, Equatable {
     public static func == (lhs: ScopedBarrier, rhs: ScopedBarrier) -> Bool {
         lhs.barrierId == rhs.barrierId && lhs.scopes == rhs.scopes
     }
+}
 
-    func toDictionary() -> [String: Any] {
+extension ScopedBarrier: DataInputConvertible {
+    public func toDataInput() -> any DataInput {
         [
             CodingKeys.barrierId.rawValue: barrierId,
             CodingKeys.scopes.rawValue: scopes.map { $0.rawValue }
         ]
     }
+}
+extension ScopedBarrier {
+    struct Converter: DataItemConverter {
+        typealias Convertible = ScopedBarrier
+        func convert(dataItem: DataItem) -> ScopedBarrier? {
+            guard let dictionary = dataItem.getDataDictionary(),
+                    let barrierId = dictionary.get(key: CodingKeys.barrierId.rawValue, as: String.self),
+                  let scopes = dictionary.getArray(key: CodingKeys.scopes.rawValue, of: String.self)?.compactMap({ $0 }) else {
+                return nil
+            }
+            return ScopedBarrier(barrierId: barrierId, scopes: scopes.map { BarrierScope(rawValue: $0) })
+        }
+    }
+    public static let converter: any DataItemConverter<Self> = Converter()
 }

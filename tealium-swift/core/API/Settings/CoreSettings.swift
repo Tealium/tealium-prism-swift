@@ -21,31 +21,21 @@ public struct CoreSettings {
     enum Defaults {
         static let minLogLevel = TealiumLogLevel.Minimum.error
         static let maxQueueSize = 100
-        static let queueExpirationSeconds: Double = 86_400
-        static let refreshIntervalSeconds: Double = 900
+        static let queueExpiration = TimeFrame(unit: .days, interval: 1)
+        static let refreshInterval = TimeFrame(unit: .minutes, interval: 15)
     }
-    init(coreDictionary: [String: Any]) {
-        if let logLevelString = coreDictionary[Keys.minLogLevel] as? String,
-           let level = TealiumLogLevel.Minimum(from: logLevelString) {
-            minLogLevel = level
-        } else {
-            minLogLevel = Defaults.minLogLevel
-        }
-        if let barriers = coreDictionary[Keys.barriers] as? [[String: Any]] {
-            scopedBarriers = barriers.compactMap { ScopedBarrier(from: $0) }
-        } else {
-            scopedBarriers = []
-        }
-        if let transformations = coreDictionary[Keys.transformations] as? [[String: Any]] {
-            scopedTransformations = transformations.compactMap { ScopedTransformation(from: $0) }
-        } else {
-            scopedTransformations = []
-        }
-        maxQueueSize = coreDictionary[Keys.maxQueueSize] as? Int ?? Defaults.maxQueueSize
-        queueExpiration = TimeFrame(unit: .seconds,
-                                    interval: (coreDictionary[Keys.expirationSeconds] as? NSNumber)?.doubleValue ?? Defaults.queueExpirationSeconds)
-        refreshInterval = TimeFrame(unit: .seconds,
-                                    interval: (coreDictionary[Keys.refreshIntervalSeconds] as? NSNumber)?.doubleValue ?? Defaults.refreshIntervalSeconds)
+    init(coreDataObject: DataObject) {
+        minLogLevel = coreDataObject.get(key: Keys.minLogLevel)
+            .flatMap { TealiumLogLevel.Minimum(from: $0) } ?? Defaults.minLogLevel
+        scopedBarriers = coreDataObject.getDataArray(key: Keys.barriers)?
+            .compactMap { $0.getConvertible(converter: ScopedBarrier.converter) } ?? []
+        scopedTransformations = coreDataObject.getDataArray(key: Keys.transformations)?
+            .compactMap { $0.getConvertible(converter: ScopedTransformation.converter) } ?? []
+        maxQueueSize = coreDataObject.get(key: Keys.maxQueueSize) ?? Defaults.maxQueueSize
+        queueExpiration = coreDataObject.getConvertible(key: Keys.expirationSeconds,
+                                                        converter: TimeFrame.converter) ?? Defaults.queueExpiration
+        refreshInterval = coreDataObject.getConvertible(key: Keys.refreshIntervalSeconds,
+                                                        converter: TimeFrame.converter) ?? Defaults.refreshInterval
     }
     public let minLogLevel: TealiumLogLevel.Minimum
     public let scopedBarriers: [ScopedBarrier]

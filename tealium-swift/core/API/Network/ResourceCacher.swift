@@ -26,7 +26,7 @@ public class ResourceCacher<Resource: Codable> {
 
     /// Returns the stored resource, if present and successfuly decodable.
     public func readResource() -> Resource? {
-        guard let stringValue = dataStore.getString(key: fileName) else {
+        guard let stringValue = dataStore.get(key: fileName, as: String.self) else {
             return nil
         }
         return try? stringValue.deserializeCodable()
@@ -34,13 +34,15 @@ public class ResourceCacher<Resource: Codable> {
 
     /// Returns the stored etag, if present.
     public func readEtag() -> String? {
-        dataStore.getString(key: etagStorageKey)
+        dataStore.get(key: etagStorageKey)
     }
 
     private func serialize(resource: Resource) throws -> String {
         let jsonEncoder = Tealium.jsonEncoder
         let jsonData = try jsonEncoder.encode(resource)
-        return String(decoding: jsonData, as: UTF8.self)
+        // swiftlint:disable optional_data_string_conversion
+        return String(decoding: jsonData, as: UTF8.self) // Safe as we just used encode that returns UTF8 formatted data
+        // swiftlint:enable optional_data_string_conversion
     }
 
     /**

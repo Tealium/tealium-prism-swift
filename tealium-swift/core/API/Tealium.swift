@@ -54,7 +54,7 @@ public class Tealium {
         }
     }
 
-    public func track(_ name: String, type: DispatchType = .event, data: TealiumDictionaryInput? = nil, onTrackResult: TrackResultCompletion? = nil) {
+    public func track(_ name: String, type: DispatchType = .event, data: DataObject? = nil, onTrackResult: TrackResultCompletion? = nil) {
         let dispatch = TealiumDispatch(name: name, type: type, data: data)
         onImplementationReady { implementation in
             implementation?.track(dispatch, onTrackResult: onTrackResult)

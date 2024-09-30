@@ -28,7 +28,7 @@ class DispatchSchema {
     static func insert(dispatch: TealiumDispatch) throws -> Insert {
         table.insert(or: .replace, [ Self.uuid <- dispatch.id,
                                     Self.timestamp <- dispatch.timestamp,
-                                    Self.dispatch <- (try dispatch.eventData.toJSONString())])
+                                     Self.dispatch <- try dispatch.eventData.serialize()])
     }
 
     static func deleteLatestDispatches(_ count: Int) throws -> Delete {

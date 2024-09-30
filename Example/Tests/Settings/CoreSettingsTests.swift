@@ -11,10 +11,10 @@ import XCTest
 
 final class CoreSettingsTests: XCTestCase {
 
-    func test_init_from_json_dictionary() {
-        let jsonDictionary: [String: Any] = [
+    func test_init_from_json_dictionary() throws {
+        let dataObject: DataObject = [
             "log_level": "trace",
-            "barriers": [
+            "barriers": try DataItem(serializing: [
                 [
                     "barrier_id": "barrierId",
                     "scopes": [
@@ -22,8 +22,8 @@ final class CoreSettingsTests: XCTestCase {
                         "custom"
                     ]
                 ]
-            ],
-            "transformations": [
+            ]),
+            "transformations": try DataItem(serializing: [
                 [
                     "transformation_id": "transformationId",
                     "transformer_id": "transformerId",
@@ -32,12 +32,12 @@ final class CoreSettingsTests: XCTestCase {
                         "custom"
                     ]
                 ]
-            ],
+            ]),
             "max_queue_size": 20,
             "expiration": 50.0,
             "refresh_interval": 100.0
         ]
-        let settings = CoreSettings(coreDictionary: jsonDictionary)
+        let settings = CoreSettings(coreDataObject: dataObject)
         XCTAssertEqual(settings.minLogLevel, .trace)
         XCTAssertEqual(settings.scopedBarriers, [ScopedBarrier(barrierId: "barrierId", scopes: [.all, .dispatcher("custom")])])
         XCTAssertEqual(settings.scopedTransformations, [ScopedTransformation(id: "transformationId",
@@ -49,13 +49,13 @@ final class CoreSettingsTests: XCTestCase {
     }
 
     func test_init_from_empty_dictionary_fills_defaults() {
-        let jsonDictionary: [String: Any] = [:]
-        let settings = CoreSettings(coreDictionary: jsonDictionary)
+        let dataObject: DataObject = [:]
+        let settings = CoreSettings(coreDataObject: dataObject)
         XCTAssertEqual(settings.minLogLevel, CoreSettings.Defaults.minLogLevel)
         XCTAssertEqual(settings.scopedBarriers, [])
         XCTAssertEqual(settings.scopedTransformations, [])
         XCTAssertEqual(settings.maxQueueSize, CoreSettings.Defaults.maxQueueSize)
-        XCTAssertEqual(settings.queueExpiration, TimeFrame(unit: .seconds, interval: CoreSettings.Defaults.queueExpirationSeconds))
-        XCTAssertEqual(settings.refreshInterval, TimeFrame(unit: .seconds, interval: CoreSettings.Defaults.refreshIntervalSeconds))
+        XCTAssertEqual(settings.queueExpiration, CoreSettings.Defaults.queueExpiration)
+        XCTAssertEqual(settings.refreshInterval, CoreSettings.Defaults.refreshInterval)
     }
 }

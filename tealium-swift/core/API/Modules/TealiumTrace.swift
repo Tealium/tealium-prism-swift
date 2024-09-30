@@ -40,7 +40,7 @@ class TraceModule: TealiumBasicModule {
     static let id: String = "Trace"
 
     let context: TealiumContext
-    required init(context: TealiumContext, moduleSettings: [String: Any]) {
+    required init(context: TealiumContext, moduleSettings: DataObject) {
         self.context = context
     }
 

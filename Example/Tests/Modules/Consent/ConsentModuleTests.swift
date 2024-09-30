@@ -12,8 +12,8 @@ import XCTest
 final class ConsentModuleTests: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
     let modulesManager = ModulesManager(queue: TealiumQueue.worker)
-    lazy var settings: [String: Any] = [ConsentModule.id: ["enabled": true]]
-    lazy var _coreSettings = StateSubject(CoreSettings(coreDictionary: settings))
+    lazy var settings: [String: DataObject] = [ConsentModule.id: ["enabled": true]]
+    lazy var _coreSettings = StateSubject(CoreSettings(coreDataObject: settings[CoreSettings.id] ?? [:]))
     var coreSettings: ObservableState<CoreSettings> {
         _coreSettings.toStatefulObservable()
     }
@@ -70,7 +70,7 @@ final class ConsentModuleTests: XCTestCase {
             completionCalled.fulfill()
             XCTAssertEqual(result, .accepted)
             XCTAssertNotEqual(dispatch.eventData.count, 2)
-            XCTAssertNotNil(dispatch.eventData["consent_type"])
+            XCTAssertNotNil(dispatch.eventData.getDataItem(key: "consent_type"))
         }
         waitForDefaultTimeout()
     }

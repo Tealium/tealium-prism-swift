@@ -11,28 +11,22 @@ import Foundation
 /// A builder used to enforce some of the ConsentSettings.
 public class ConsentSettingsBuilder: ModuleSettingsBuilder {
     typealias Keys = ConsentSettings.Keys
-    var dispatcherToPurposes: [String: [String]]?
-    var shouldRefireDispatchers: [String]?
     override init() { }
 
     /// Set the dispatcherToPurposes map
     public func setDispatcherToPurposes(_ dispatcherToPurposes: [String: [String]]) -> Self {
-        self.dispatcherToPurposes = dispatcherToPurposes
+        _dataObject.set(converting: dispatcherToPurposes, key: Keys.dispatcherToPurposes)
         return self
     }
 
     /// Set the shouldRefireDispatchers
     public func setShouldRefireDispatchers(_ shouldRefireDispatchers: [String]) -> Self {
-        self.shouldRefireDispatchers = shouldRefireDispatchers
+        _dataObject.set(converting: shouldRefireDispatchers, key: Keys.shouldRefireDispatchers)
         return self
     }
 
     /// Returns a dictionary with the enforced ConsentSettings.
-    override public func build() -> [String: Any] {
-        let dictionaryWithOptionals: [String: Any?] = [
-            Keys.dispatcherToPurposes: dispatcherToPurposes,
-            Keys.shouldRefireDispatchers: shouldRefireDispatchers
-        ]
-        return dictionaryWithOptionals.compactMapValues { $0 } + super.build()
+    override public func build() -> DataObject {
+        _dataObject
     }
 }

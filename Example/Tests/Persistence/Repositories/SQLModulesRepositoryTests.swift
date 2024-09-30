@@ -71,13 +71,13 @@ final class SQLModulesRepositoryTests: XCTestCase {
             return
         }
         modulesRepository.deleteExpired(expiry: .restart)
-        let allKeyValues1 = kvRepository1.getAll()
+        let allKeyValues1 = kvRepository1.getAll().asDictionary()
         XCTAssertNil(allKeyValues1["expired"])
         XCTAssertNil(allKeyValues1["restart"])
         XCTAssertNotNil(allKeyValues1["session"])
         XCTAssertNotNil(allKeyValues1["non-expired"])
         XCTAssertNotNil(allKeyValues1["forever"])
-        let allKeyValues2 = kvRepository2.getAll()
+        let allKeyValues2 = kvRepository2.getAll().asDictionary()
         XCTAssertNil(allKeyValues2["expired"])
         XCTAssertNil(allKeyValues2["restart"])
         XCTAssertNotNil(allKeyValues2["session"])
@@ -91,13 +91,13 @@ final class SQLModulesRepositoryTests: XCTestCase {
             return
         }
         modulesRepository.deleteExpired(expiry: .sessionChange)
-        let allKeyValues1 = kvRepository1.getAll()
+        let allKeyValues1 = kvRepository1.getAll().asDictionary()
         XCTAssertNil(allKeyValues1["expired"])
         XCTAssertNotNil(allKeyValues1["restart"])
         XCTAssertNil(allKeyValues1["session"])
         XCTAssertNotNil(allKeyValues1["non-expired"])
         XCTAssertNotNil(allKeyValues1["forever"])
-        let allKeyValues2 = kvRepository2.getAll()
+        let allKeyValues2 = kvRepository2.getAll().asDictionary()
         XCTAssertNil(allKeyValues2["expired"])
         XCTAssertNotNil(allKeyValues2["restart"])
         XCTAssertNil(allKeyValues2["session"])

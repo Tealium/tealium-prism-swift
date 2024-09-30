@@ -8,16 +8,11 @@
 
 import Foundation
 
-public struct JSONResponse {
-    public let json: [String: Any]
-    public let urlResponse: HTTPURLResponse
-}
 public struct ObjectResponse<T> {
     public let object: T
     public let urlResponse: HTTPURLResponse
 }
 
-public typealias JSONResult = Result<JSONResponse, NetworkError>
 public typealias ObjectResult<T> = Result<ObjectResponse<T>, NetworkError>
 
 public protocol NetworkHelperProtocol {
@@ -32,17 +27,6 @@ public protocol NetworkHelperProtocol {
      * - Returns: the `Disposable` to cancel the in flight operation.
      */
     func get(url: URLConvertible, etag: String?, completion: @escaping (NetworkResult) -> Void) -> Disposable
-    /**
-     * Sends a GET request to the `NetworkClient` and tries to convert the result the returned JSON into a  `[String: Any]`.
-     *
-     * - Parameters:
-     *    - url: the `URLConvertible` instance to build the `URL` to send
-     *    - etag: the etag to be added in order to avoid fetching a cached resource
-     *    - completion: the block that is executed when the request is completed with the `JSONResult`
-     *
-     * - Returns: the `Disposable` to cancel the in flight operation.
-     */
-    func getJsonAsDictionary(url: URLConvertible, etag: String?, completion: @escaping (JSONResult) -> Void) -> Disposable
     /**
      * Sends a GET request to the `NetworkClient` and tries to convert the result into a Codable model.
      *
@@ -59,12 +43,12 @@ public protocol NetworkHelperProtocol {
      *
      * - Parameters:
      *    - url: the `URLConvertible` instance to build the `URL` to send
-     *    - body: the `Dictionary` to be sent as a gzipped JSON data
+     *    - body: the `DataObject` to be sent as a gzipped JSON data
      *    - completion: the block that is executed when the request is completed with the `NetworkResult`
      *
      * - Returns: the `Disposable` to cancel the in flight operation.
      */
-    func post(url: URLConvertible, body: [String: Any], completion: @escaping (NetworkResult) -> Void) -> Disposable
+    func post(url: URLConvertible, body: DataObject, completion: @escaping (NetworkResult) -> Void) -> Disposable
 }
 
 public extension NetworkHelperProtocol {
@@ -81,16 +65,17 @@ public extension NetworkHelperProtocol {
         get(url: url, etag: nil, completion: completion)
     }
     /**
-     * Sends a GET request to the `NetworkClient` and tries to convert the result the returned JSON into a  `[String: Any]`. Same as using the `get` method with nil as the `etag` parameter.
+     * Sends a GET request to the `NetworkClient` and tries to convert the result the returned JSON into a  `DataObject`.
      *
      * - Parameters:
      *    - url: the `URLConvertible` instance to build the `URL` to send
-     *    - completion: the block that is executed when the request is completed with the `JSONResult`
+     *    - etag: the etag to be added in order to avoid fetching a cached resource
+     *    - completion: the block that is executed when the request is completed with the `ObjectResult`
      *
      * - Returns: the `Disposable` to cancel the in flight operation.
      */
-    func getJsonAsDictionary(url: URLConvertible, completion: @escaping (JSONResult) -> Void) -> Disposable {
-        getJsonAsDictionary(url: url, etag: nil, completion: completion)
+    func getJsonAsDataObject(url: URLConvertible, etag: String? = nil, completion: @escaping (ObjectResult<DataObject>) -> Void) -> Disposable {
+        getJsonAsObject<DataObject>(url: url, etag: etag, completion: completion)
     }
     /**
      * Sends a GET request to the `NetworkClient` and tries to convert the result into a Codable model. Same as using the `get` method with nil as the `etag` parameter.

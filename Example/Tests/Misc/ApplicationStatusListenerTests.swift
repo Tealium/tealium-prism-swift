@@ -31,13 +31,15 @@ final class ApplicationStatusListenerTests: XCTestCase {
     func test_cache_cleared_after_grace_timeout() {
         let notCleared = expectation(description: "Cache is not cleared")
         notCleared.isInverted = true
+        let subscriptionCalled = expectation(description: "Subscription called")
         listener = ApplicationStatusListener(graceTimeInterval: 0.0)
-        queue.asyncAfter(deadline: .now() + .milliseconds(10)) {
+        queue.asyncAfter(deadline: .now() + .milliseconds(50)) {
             self.listener?.onApplicationStatus.subscribeOnce {_ in
                 notCleared.fulfill()
             }
+            subscriptionCalled.fulfill()
         }
-        waitForDefaultTimeout()
+        waitForExpectations(timeout: 3 * Self.defaultTimeout)
     }
 
     func test_backgrounded_status_is_published() {

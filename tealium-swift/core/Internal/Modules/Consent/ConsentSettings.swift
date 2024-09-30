@@ -16,8 +16,10 @@ struct ConsentSettings {
         static let shouldRefireDispatchers = "should_refire_dispatchers"
     }
 
-    init(moduleSettings: [String: Any]) {
-        dispatcherToPurposes = moduleSettings[Keys.dispatcherToPurposes] as? [String: [String]] ?? [:]
-        shouldRefireDispatchers = moduleSettings[Keys.shouldRefireDispatchers] as? [String] ?? []
+    init(moduleSettings: DataObject) {
+        dispatcherToPurposes = moduleSettings.getDataDictionary(key: Keys.dispatcherToPurposes)?
+            .compactMapValues { $0.getArray()?.compactMap { $0 } } ?? [:]
+        shouldRefireDispatchers = moduleSettings.getArray(key: Keys.shouldRefireDispatchers)?
+            .compactMap { $0 } ?? []
     }
 }

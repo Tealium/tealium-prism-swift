@@ -20,7 +20,7 @@ class TealiumCollect: TealiumBasicModule, Dispatcher {
     var settings: CollectSettings
 
     /// Generic `Dispatcher` initializer called by the `ModulesManager`.
-    required convenience init?(context: TealiumContext, moduleSettings: [String: Any]) {
+    required convenience init?(context: TealiumContext, moduleSettings: DataObject) {
         self.init(networkHelper: context.networkHelper,
                   settings: CollectSettings(moduleSettings: moduleSettings, logger: context.logger),
                   logger: context.logger)
@@ -37,7 +37,7 @@ class TealiumCollect: TealiumBasicModule, Dispatcher {
     }
 
     /// Method that will be called automatically when new settings are provided.
-    func updateSettings(_ settings: [String: Any]) -> Self? {
+    func updateSettings(_ settings: DataObject) -> Self? {
         guard let tealiumCollectSettings = CollectSettings(moduleSettings: settings, logger: self.logger) else {
             return nil
         }
@@ -80,7 +80,7 @@ class TealiumCollect: TealiumBasicModule, Dispatcher {
      * and then send the gzipped payload with a POST request to the batch endpoint.
      */
     func sendSingleDispatch(_ event: TealiumDispatch, completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
-        var data: [String: Any] = event.eventData
+        var data = event.eventData
         batcher.applyProfileOverride(settings.overrideProfile, to: &data)
         return networkHelper.post(url: settings.url, body: data) { result in
             if case .failure(.cancelled) = result {

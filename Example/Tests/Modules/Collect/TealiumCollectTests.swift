@@ -56,7 +56,7 @@ final class TealiumCollectTests: XCTestCase {
         let postRequestSent = expectation(description: "The POST request is sent")
         networkHelper.requests.subscribeOnce { request in
             if case let .post(_, body) = request {
-                XCTAssertEqual(body[TealiumDataKey.profile] as? String, "override")
+                XCTAssertEqual(body.get(key: TealiumDataKey.profile), "override")
                 postRequestSent.fulfill()
             }
         }
@@ -69,7 +69,7 @@ final class TealiumCollectTests: XCTestCase {
         let postRequestSent = expectation(description: "The POST request is sent")
         networkHelper.requests.subscribeOnce { request in
             if case let .post(_, body) = request {
-                XCTAssertEqual((body["shared"] as? [String: Any])?[TealiumDataKey.profile] as? String, "override")
+                XCTAssertEqual(body.getDataDictionary(key: "shared")?.get(key: TealiumDataKey.profile), "override")
                 postRequestSent.fulfill()
             }
         }
@@ -82,7 +82,7 @@ final class TealiumCollectTests: XCTestCase {
         let secondVisitorSent = expectation(description: "The POST request for the second visitor is sent")
         let subscription = networkHelper.requests.subscribe { request in
             if case let .post(_, body) = request,
-               let visitorId = body[TealiumDataKey.visitorId] as? String {
+               let visitorId = body.get(key: TealiumDataKey.visitorId, as: String.self) {
                 if visitorId == "visitor1" {
                     firstVisitorSent.fulfill()
                 } else if visitorId == "visitor2" {
@@ -103,8 +103,8 @@ final class TealiumCollectTests: XCTestCase {
         let secondVisitorSent = expectation(description: "The POST request for the second visitor is sent")
         let subscription = networkHelper.requests.subscribe { request in
             if case let .post(_, body) = request,
-               let shared = body["shared"] as? [String: Any],
-               let visitorId = shared[TealiumDataKey.visitorId] as? String {
+               let shared = body.getDataDictionary(key: "shared"),
+               let visitorId = shared.get(key: TealiumDataKey.visitorId, as: String.self) {
                 if visitorId == "visitor1" {
                     firstVisitorSent.fulfill()
                 } else if visitorId == "visitor2" {
@@ -130,7 +130,7 @@ final class TealiumCollectTests: XCTestCase {
             TealiumDispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor1"]),
             TealiumDispatch(name: "event3", data: [TealiumDataKey.visitorId: "visitor2"])
         ], completion: { events in
-            let visitorIdsArray = events.map { $0.eventData[TealiumDataKey.visitorId] as? String ?? "" }
+            let visitorIdsArray = events.map { $0.eventData.get(key: TealiumDataKey.visitorId) ?? "" }
             XCTAssertEqual(Set(visitorIdsArray).count, 1, "All visitorIds should be the same in this batch")
             if visitorIdsArray[0] == "visitor1" {
                 firstVisitorSent.fulfill()

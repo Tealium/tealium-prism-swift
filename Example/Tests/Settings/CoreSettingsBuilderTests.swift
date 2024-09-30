@@ -23,6 +23,7 @@ final class CoreSettingsBuilderTests: XCTestCase {
                                                             ])])
             .setScopedBarriers([ScopedBarrier(barrierId: "barrierId", scopes: [.all, .dispatcher("custom")])])
             .build()
+            .asDictionary()
         XCTAssertEqual(settings, [
             "log_level": "trace",
             "barriers": [
@@ -57,6 +58,7 @@ final class CoreSettingsBuilderTests: XCTestCase {
             .setMaxQueueSize(20)
             .setScopedBarriers([ScopedBarrier(barrierId: "barrierId", scopes: [.all, .dispatcher("custom")])])
             .build()
+            .asDictionary()
         XCTAssertEqual(settings, [
             "barriers": [
                 [

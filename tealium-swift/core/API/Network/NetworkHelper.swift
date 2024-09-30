@@ -12,6 +12,9 @@ public class NetworkHelper: NetworkHelperProtocol {
     private static let decoder = Tealium.jsonDecoder
     public let networkClient: NetworkClient
     let onLogger: Observable<TealiumLoggerProvider>
+    public convenience init() {
+        self.init(onLogger: .Empty())
+    }
     init(networkClient: NetworkClient = HTTPClient.shared, onLogger: Observable<TealiumLoggerProvider> = .Just(TealiumLogger(logger: TealiumOSLogger(), minLogLevel: .constant(.trace)))) {
         self.networkClient = networkClient
         self.onLogger = onLogger
@@ -55,23 +58,6 @@ public class NetworkHelper: NetworkHelperProtocol {
              completion: completion)
     }
 
-    public func getJsonAsDictionary(url: URLConvertible, etag: String? = nil, completion: @escaping (JSONResult) -> Void) -> Disposable {
-        get(url: url, etag: etag) { result in
-            completion(result.flatMap { response in
-                do {
-                    let json = try JSONSerialization.jsonObject(with: response.data)
-                    if let dictionary = json as? [String: Any] {
-                        return .success(JSONResponse(json: dictionary, urlResponse: response.urlResponse))
-                    } else {
-                        return .failure(.unknown(ParsingError.jsonIsNotADictionary(json)))
-                    }
-                } catch {
-                    return .failure(.unknown(error))
-                }
-            })
-        }
-    }
-
     public func getJsonAsObject<T: Codable>(url: URLConvertible, etag: String? = nil, completion: @escaping (ObjectResult<T>) -> Void) -> Disposable {
         get(url: url, etag: etag) { result in
             completion(result.flatMap { response in
@@ -85,7 +71,7 @@ public class NetworkHelper: NetworkHelperProtocol {
         }
     }
 
-    public func post(url: URLConvertible, body: [String: Any], completion: @escaping (NetworkResult) -> Void) -> Disposable {
+    public func post(url: URLConvertible, body: DataObject, completion: @escaping (NetworkResult) -> Void) -> Disposable {
         send(requestBuilder: try .makePOST(url: url, gzippedJson: body),
              completion: completion)
     }

@@ -12,7 +12,7 @@ import XCTest
 final class SettingsManagerMergeTests: XCTestCase {
 
     func test_merge_returns_a_merged_settings_with_all_modules_contained_in_all_settings() {
-        let settingsList: [[String: [String: Any]]] = [
+        let settingsList: [[String: DataObject]] = [
             [
                 "module1": ["key": "value"],
                 "module2": ["key": "value"]
@@ -36,7 +36,7 @@ final class SettingsManagerMergeTests: XCTestCase {
     }
 
     func test_merge_merges_same_module_with_all_the_keys_contained_in_all_settings_for_that_module() {
-        let settingsList: [[String: [String: Any]]] = [
+        let settingsList: [[String: DataObject]] = [
             [
                 "module": [
                     "key1": "value1",
@@ -59,7 +59,7 @@ final class SettingsManagerMergeTests: XCTestCase {
                 ]
             ],
         ]
-        let expected = [
+        let expected: DataObject = [
             "key1": "value1",
             "key2": "value1",
             "key3": "value1",
@@ -75,7 +75,7 @@ final class SettingsManagerMergeTests: XCTestCase {
     }
 
     func test_merge_with_same_module_replaces_previous_modules() {
-        let settingsList: [[String: [String: Any]]] = [
+        let settingsList: [[String: DataObject]] = [
             [
                 "module": [
                     "key1": "value1",
@@ -98,7 +98,7 @@ final class SettingsManagerMergeTests: XCTestCase {
                 ]
             ],
         ]
-        let expected = [
+        let expected: DataObject = [
             "key1": "value3",
             "key2": "value3",
             "key3": "value3"
@@ -108,7 +108,7 @@ final class SettingsManagerMergeTests: XCTestCase {
     }
 
     func test_merge_only_merges_first_level_of_dictionary_and_replaces_others() {
-        let settingsList: [[String: [String: Any]]] = [
+        let settingsList: [[String: DataObject]] = [
             [
                 "module": [
                     "complex_object": ["key1": "value1"],
@@ -123,7 +123,7 @@ final class SettingsManagerMergeTests: XCTestCase {
                 ]
             ]
         ]
-        let expected: [String: Any] = [
+        let expected: DataObject = [
             "key1": "value2",
             "key2": "value2",
             "key3": "value2",
@@ -134,7 +134,7 @@ final class SettingsManagerMergeTests: XCTestCase {
     }
 
     func test_merge_with_just_one_settings_returns_that_first_settings() {
-        let settingsList: [[String: [String: Any]]] = [
+        let settingsList: [[String: DataObject]] = [
             [
                 "module": [
                     "key1": "value1",
@@ -143,7 +143,7 @@ final class SettingsManagerMergeTests: XCTestCase {
                 ]
             ]
         ]
-        let expected = [
+        let expected: DataObject = [
             "key1": "value1",
             "key2": "value1",
             "key3": "value1"

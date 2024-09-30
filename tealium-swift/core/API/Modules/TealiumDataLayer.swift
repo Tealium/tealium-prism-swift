@@ -37,17 +37,17 @@ public class TealiumDataLayer { // WRAPPER
         moduleExtractor.getModule(completion: completion)
     }
 
-    public func add(data: TealiumDictionaryInput, expiry: Expiry = .session) {
+    public func add(data: DataObject, expiry: Expiry = .session) {
         getModule { dataLayer in
             dataLayer?.add(data: data, expiry: expiry)
         }
     }
-    public func add(key: String, value: TealiumDataInput, expiry: Expiry = .session) {
+    public func add(key: String, value: DataInput, expiry: Expiry = .session) {
         getModule { dataLayer in
             dataLayer?.add(key: key, value: value, expiry: expiry)
         }
     }
-    public func add(key: String, value: TealiumDataInput?, expiry: Expiry = .session) {
+    public func add(key: String, value: DataInput?, expiry: Expiry = .session) {
         getModule { dataLayer in
             dataLayer?.add(key: key, value: value, expiry: expiry)
         }
@@ -67,12 +67,12 @@ public class TealiumDataLayer { // WRAPPER
             dataLayer?.delete(keys: keys)
         }
     }
-    public func get(forKey key: String, completion: @escaping (TealiumDataOutput?) -> Void) {
+    public func get(forKey key: String, completion: @escaping (DataItem?) -> Void) {
         getModule { dataLayer in
-            completion(dataLayer?.getData(forKey: key))
+            completion(dataLayer?.getDataItem(forKey: key))
         }
     }
-    public func getAllData(completion: @escaping (TealiumDictionaryInput?) -> Void) {
+    public func getAllData(completion: @escaping (DataObject?) -> Void) {
         getModule { dataLayer in
             completion(dataLayer?.data)
         }
@@ -88,13 +88,13 @@ protocol DataLayerUpdateListener {
 
 class DataLayerModule: TealiumBasicModule, Collector {
     static var canBeDisabled: Bool { false }
-    var data: TealiumDictionaryInput {
-        moduleStore.getAll().compactMapValues { $0.getDataInput() }
+    var data: DataObject {
+        moduleStore.getAll()
     }
     static let id: String = "DataLayer"
     let moduleStore: DataStore
 
-    required init?(context: TealiumContext, moduleSettings: [String: Any]) {
+    required init?(context: TealiumContext, moduleSettings: DataObject) {
         do {
             moduleStore = try context.moduleStoreProvider.getModuleStore(name: Self.id)
         } catch {
@@ -104,17 +104,17 @@ class DataLayerModule: TealiumBasicModule, Collector {
 
     let events = DataLayerEventPublishers()
     // TODO: Maybe put?
-    func add(data: TealiumDictionaryInput, expiry: Expiry = .session) {
+    func add(data: DataObject, expiry: Expiry = .session) {
         try? moduleStore.edit()
-            .putAll(dictionary: data, expiry: expiry)
+            .putAll(dataObject: data, expiry: expiry)
             .commit()
     }
-    func add(key: String, value: TealiumDataInput, expiry: Expiry = .session) {
+    func add(key: String, value: DataInput, expiry: Expiry = .session) {
         try? moduleStore.edit()
             .put(key: key, value: value, expiry: expiry)
             .commit()
     }
-    func add(key: String, value: TealiumDataInput?, expiry: Expiry = .session) {
+    func add(key: String, value: DataInput?, expiry: Expiry = .session) {
         if let value = value {
             add(key: key, value: value, expiry: expiry)
         }
@@ -134,18 +134,18 @@ class DataLayerModule: TealiumBasicModule, Collector {
             .remove(keys: keys)
             .commit()
     }
-    func getData(forKey key: String) -> TealiumDataOutput? {
-        moduleStore.get(key: key)
+    func getDataItem(forKey key: String) -> DataItem? {
+        moduleStore.getDataItem(key: key)
     }
 }
 
 public protocol DataLayerEventObservables {
-    var onDataUpdated: Observable<[String: Any]> { get }
+    var onDataUpdated: Observable<DataObject> { get }
     var onDataRemoved: Observable<[String]> { get }
 }
 
 public class DataLayerEventPublishers: DataLayerEventObservables {
-    fileprivate let _onDataUpdated = BasePublisher<[String: Any]>()
+    fileprivate let _onDataUpdated = BasePublisher<DataObject>()
     fileprivate let _onDataRemoved = BasePublisher<[String]>()
     public private(set) lazy var onDataUpdated = _onDataUpdated.asObservable()
     public private(set) lazy var onDataRemoved = _onDataRemoved.asObservable()
@@ -157,7 +157,7 @@ public class DataLayerEvents {
         self.extractor = moduleExtractor
     }
 
-    public func onDataUpdated(_ event: @escaping ([String: Any]) -> Void) -> Disposable {
+    public func onDataUpdated(_ event: @escaping (DataObject) -> Void) -> Disposable {
         extractor.onModule
             .flatMap { $0.events.onDataUpdated }
             .subscribe(event)
@@ -171,18 +171,18 @@ public class DataLayerEvents {
 }
 
 public protocol VisitorServiceEventObservables {
-    var onVisitorProfile: Observable<[String: Any]> { get }
+    var onVisitorProfile: Observable<DataObject> { get }
 }
 
 public class VisitorServiceEventPublishers: VisitorServiceEventObservables {
-    fileprivate let _onVisitorProfile = BasePublisher<[String: Any]>()
+    fileprivate let _onVisitorProfile = BasePublisher<DataObject>()
     public private(set) lazy var onVisitorProfile = _onVisitorProfile.asObservable()
 }
 
 class VisitorServiceModule: TealiumModule {
     static let id: String = "visitorservice"
 
-    required init?(context: TealiumContext, moduleSettings: [String: Any]) {
+    required init?(context: TealiumContext, moduleSettings: DataObject) {
 
     }
 
@@ -194,7 +194,7 @@ public class VisitorServiceEvents {
     init(moduleExtractor: ModuleExtractor<VisitorServiceModule>) {
         self.extractor = moduleExtractor
     }
-    public func onVisitorProfileUpdate(_ event: @escaping ([String: Any]) -> Void) -> Disposable {
+    public func onVisitorProfileUpdate(_ event: @escaping (DataObject) -> Void) -> Disposable {
         extractor.onModule
             .flatMap { $0.events.onVisitorProfile }
             .subscribe(event)

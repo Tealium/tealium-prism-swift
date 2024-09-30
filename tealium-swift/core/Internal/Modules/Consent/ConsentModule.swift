@@ -43,7 +43,7 @@ class ConsentModule: ConsentManager {
     private let automaticDisposer = AutomaticDisposer()
     private let transformerRegistry: TransformerRegistry
 
-    required convenience init?(context: TealiumContext, cmpIntegration: CMPIntegration, queueManager: QueueManagerProtocol, moduleSettings: [String: Any]) {
+    required convenience init?(context: TealiumContext, cmpIntegration: CMPIntegration, queueManager: QueueManagerProtocol, moduleSettings: DataObject) {
         let settings = ConsentSettings(moduleSettings: moduleSettings)
         guard let modules = context.modulesManager?.modules else {
             return nil
@@ -87,7 +87,7 @@ class ConsentModule: ConsentManager {
         }.addTo(automaticDisposer)
     }
 
-    func updateSettings(_ settings: [String: Any]) -> Self? {
+    func updateSettings(_ settings: DataObject) -> Self? {
         self.settings.value = ConsentSettings(moduleSettings: settings)
         return self
     }
@@ -96,7 +96,7 @@ class ConsentModule: ConsentManager {
         let refireKey = "refire"
         let normalDispatchKey = "normal"
         let dispatchesGroups = Dictionary(grouping: dispatches) { dispatch in
-            if let processedPurposes = dispatch.eventData[processedPurposesKey] as? [String],
+            if let processedPurposes = dispatch.eventData.getArray(key: processedPurposesKey, of: String.self)?.compactMap({ $0 }),
                !processedPurposes.isEmpty {
                 return refireKey
             } else {
@@ -152,16 +152,16 @@ class ConsentModule: ConsentManager {
     }
 
     func applyDecision(_ decision: ConsentDecision, toDispatch dispatch: TealiumDispatch) -> TealiumDispatch? {
-        let preProcessedPurposes = dispatch.eventData[allPurposesKey] as? [String] ?? []
+        let preProcessedPurposes = dispatch.eventData.getArray(key: allPurposesKey, of: String.self)?.compactMap { $0 } ?? []
 
         var dispatch = dispatch
         let purposes = decision.purposes
         let unprocessedPurposes = purposes.filter { !preProcessedPurposes.contains($0) }
         guard !unprocessedPurposes.isEmpty else { return nil }
         dispatch.enrich(data: [
-            unprocessedPurposesKey: unprocessedPurposes.toDataInput(),
-            processedPurposesKey: preProcessedPurposes.toDataInput(),
-            allPurposesKey: purposes.toDataInput(),
+            unprocessedPurposesKey: unprocessedPurposes,
+            processedPurposesKey: preProcessedPurposes,
+            allPurposesKey: purposes,
             "consent_type": decision.decisionType.rawValue,
         ])
         return dispatch

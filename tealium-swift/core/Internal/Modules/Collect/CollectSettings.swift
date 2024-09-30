@@ -35,7 +35,7 @@ struct CollectSettings {
     /// The profile to override in the data layer events
     let overrideProfile: String?
 
-    init?(moduleSettings: [String: Any], logger: TealiumLoggerProvider? = nil) {
+    init?(moduleSettings: DataObject, logger: TealiumLoggerProvider? = nil) {
         guard let url = Self.getURL(moduleSettings: moduleSettings),
               let batchUrl = Self.getBatchURL(moduleSettings: moduleSettings) else {
             logger?.error?.log(category: LogCategory.collect,
@@ -44,31 +44,31 @@ struct CollectSettings {
         }
         self.url = url
         self.batchUrl = batchUrl
-        overrideProfile = moduleSettings[Keys.overrideProfile] as? String
+        overrideProfile = moduleSettings.get(key: Keys.overrideProfile)
     }
 
     /// Extracts the event URL from the module settings
-    static func getURL(moduleSettings: [String: Any]) -> URL? {
-        if let overrideUrl = moduleSettings[Keys.url] as? String {
+    static func getURL(moduleSettings: DataObject) -> URL? {
+        if let overrideUrl = moduleSettings.get(key: Keys.url, as: String.self) {
             return URL(string: overrideUrl)
         }
         return overrideDomainURL(moduleSettings: moduleSettings, baseURL: Defaults.url)
     }
 
     /// Extracts the batch URL from the module settings
-    static func getBatchURL(moduleSettings: [String: Any]) -> URL? {
-        if let overrideUrl = moduleSettings[Keys.batchUrl] as? String {
+    static func getBatchURL(moduleSettings: DataObject) -> URL? {
+        if let overrideUrl = moduleSettings.get(key: Keys.batchUrl, as: String.self) {
             return URL(string: overrideUrl)
         }
         return overrideDomainURL(moduleSettings: moduleSettings, baseURL: Defaults.batchUrl)
     }
 
     /// Applies the overrideDomain, if provided in the module settings, to a base URL
-    static func overrideDomainURL(moduleSettings: [String: Any], baseURL: String) -> URL? {
+    static func overrideDomainURL(moduleSettings: DataObject, baseURL: String) -> URL? {
         guard let url = URL(string: baseURL) else {
             return nil
         }
-        guard let overrideDomain = moduleSettings[Keys.overrideDomain] as? String,
+        guard let overrideDomain = moduleSettings.get(key: Keys.overrideDomain, as: String.self),
               var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
             return url
         }

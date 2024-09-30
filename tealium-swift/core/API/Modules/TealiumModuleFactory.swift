@@ -26,7 +26,7 @@ public protocol TealiumModuleFactory {
      *
      * - Returns: the newly created `Module`, if the initialization succeded, or nil.
      */
-    func create(context: TealiumContext, moduleSettings: [String: Any]) -> Module?
+    func create(context: TealiumContext, moduleSettings: DataObject) -> Module?
 
     /** 
      * Returns some optional settings for this module that override any other Local or Remote settings fields.
@@ -37,18 +37,18 @@ public protocol TealiumModuleFactory {
      *
      * - Returns: An optional Dictionary containing some of the settings used by the `Module` that will be enforced and remain constant during the life of this `Module`.
      */
-    func getEnforcedSettings() -> [String: Any]?
+    func getEnforcedSettings() -> DataObject?
 }
 
 extension TealiumModuleFactory {
     /// The unique id for the `Module` that this factory creates
     public var id: String { Module.id }
-    public func getEnforcedSettings() -> [String: Any]? {
+    public func getEnforcedSettings() -> DataObject? {
         nil
     }
 
     /// Returns true if the provided settings allow for the factory's `Module` to be enabled.
-    func shouldBeEnabled(by settings: [String: Any]) -> Bool {
-        !Module.canBeDisabled || settings[ModuleSettingsBuilder.enabledKey] as? Bool != false
+    func shouldBeEnabled(by settings: DataObject) -> Bool {
+        !Module.canBeDisabled || settings.get(key: ModuleSettingsBuilder.enabledKey) != false
     }
 }

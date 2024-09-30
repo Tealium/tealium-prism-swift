@@ -13,7 +13,7 @@ public enum Collectors {}
 
 public enum Dispatchers {}
 
-public enum TealiumValue {
+public enum TealiumConstants {
     public static let libraryName = "swift"
     public static let libraryVersion = "3.0.0"
     // This is the current limit for performance reasons. May be increased in future
@@ -180,8 +180,6 @@ public enum TealiumTrackType: String {
     }
 
 }
-
-public typealias TealiumCompletion = ((_ successful: Bool, _ info: [String: Any]?, _ error: Error?) -> Void)
 
 // swiftlint:disable identifier_name
 public enum HttpStatusCodes: Int {

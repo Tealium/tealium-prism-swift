@@ -48,16 +48,10 @@ public extension Dictionary where Key == String, Value == Any {
 
 }
 
-public extension Dictionary where Key == String, Value == Any {
-    func toJSONString() throws -> String {
-        return try AnyEncodable(self).serialize()
-    }
-}
-
 public extension Tealium {
     static let jsonEncoder: JSONEncoder = {
         let encoder = JSONEncoder()
-        encoder.nonConformingFloatEncodingStrategy = .convertToString(positiveInfinity: "Infinity", negativeInfinity: "Infinity", nan: "NaN")
+        encoder.nonConformingFloatEncodingStrategy = .convertToString(positiveInfinity: "Infinity", negativeInfinity: "-Infinity", nan: "NaN")
         encoder.dateEncodingStrategy = .formatted(Date.Formatter.iso8601)
         encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         return encoder
@@ -65,7 +59,7 @@ public extension Tealium {
 
     static let jsonDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
-        decoder.nonConformingFloatDecodingStrategy = .convertFromString(positiveInfinity: "Infinity", negativeInfinity: "Infinity", nan: "NaN")
+        decoder.nonConformingFloatDecodingStrategy = .convertFromString(positiveInfinity: "Infinity", negativeInfinity: "-Infinity", nan: "NaN")
         decoder.dateDecodingStrategy = .formatted(Date.Formatter.iso8601)
         return decoder
     }()

@@ -28,7 +28,7 @@ class ConsentTransformer: Transformer {
     }
 
     func dispatch(_ dispatch: TealiumDispatch, matchesPurposes requiredPurposes: [String]) -> Bool {
-        guard let consentedPurposes = dispatch.eventData["purposes_with_consent_all"] as? [String] else {
+        guard let consentedPurposes = dispatch.eventData.getArray(key: "purposes_with_consent_all", of: String.self)?.compactMap({ $0 }) else {
             return false
         }
         return requiredPurposes.allSatisfy(consentedPurposes.contains)

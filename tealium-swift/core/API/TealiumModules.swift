@@ -67,7 +67,7 @@ public enum TealiumModules {
      *  - module: The `TealiumBasicModule & Dispatcher` that will be created by this factory.
      *  - enforcedSettings: The settings that will remain constant on initialization and on future settings updates for this module.
      */
-    static public func customDispatcher<Module: TealiumBasicModule & Dispatcher>(_ module: Module.Type, enforcedSettings: [String: Any]? = nil) -> any TealiumModuleFactory {
+    static public func customDispatcher<Module: TealiumBasicModule & Dispatcher>(_ module: Module.Type, enforcedSettings: DataObject? = nil) -> any TealiumModuleFactory {
         DefaultModuleFactory<Module>(enforcedSettings: enforcedSettings)
     }
 
@@ -78,21 +78,21 @@ public enum TealiumModules {
      *  - module: The `TealiumBasicModule & Collector` that will be created by this factory.
      *  - enforcedSettings: The settings that will remain constant on initialization and on future settings updates for this module.
      */
-    static public func customCollector<Module: TealiumBasicModule & Collector>(_ module: Module.Type, enforcedSettings: [String: Any]? = nil) -> any TealiumModuleFactory {
+    static public func customCollector<Module: TealiumBasicModule & Collector>(_ module: Module.Type, enforcedSettings: DataObject? = nil) -> any TealiumModuleFactory {
         DefaultModuleFactory<Module>(enforcedSettings: enforcedSettings)
     }
 }
 
 /// A basic factory that can be reused to create modules that have no extra dependencies and don't need utility for settings builders.
 public class DefaultModuleFactory<Module: TealiumBasicModule>: TealiumModuleFactory {
-    let enforcedSettings: [String: Any]?
-    public init(enforcedSettings: [String: Any]? = nil) {
+    let enforcedSettings: DataObject?
+    public init(enforcedSettings: DataObject? = nil) {
         self.enforcedSettings = enforcedSettings
     }
-    public func create(context: TealiumContext, moduleSettings: [String: Any]) -> Module? {
+    public func create(context: TealiumContext, moduleSettings: DataObject) -> Module? {
         Module(context: context, moduleSettings: moduleSettings)
     }
-    public func getEnforcedSettings() -> [String: Any]? {
+    public func getEnforcedSettings() -> DataObject? {
         enforcedSettings
     }
 }

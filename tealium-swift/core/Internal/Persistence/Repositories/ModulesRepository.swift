@@ -9,7 +9,7 @@
 import Foundation
 
 /// The first dictionary key will contain the relevant module id and the second dictionary will contain the expired key-value pairs.
-typealias ExpiredDataEvent = [Int64: [String: TealiumDataOutput]]
+typealias ExpiredDataEvent = [Int64: [String: DataItem]]
 
 /// A repository class for registering and managing modules.
 protocol ModulesRepository {

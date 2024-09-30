@@ -18,18 +18,18 @@ final class TealiumConfigTests: XCTestCase {
                                    modules: [],
                                    settingsFile: nil,
                                    settingsUrl: nil)
-        let settings1: [String: Any] = ["module1_key": "module1_value"]
-        let settings2: [String: Any] = ["module2_key": "module2_value"]
+        let settings1: DataObject = ["module1_key": "module1_value"]
+        let settings2: DataObject = ["module2_key": "module2_value"]
         config.addModule(DefaultModuleFactory<MockDispatcher1>(enforcedSettings: settings1))
         config.addModule(DefaultModuleFactory<MockDispatcher2>(enforcedSettings: settings2))
         let settings = config.getEnforcedSDKSettings()
-        XCTAssertEqual(settings.modulesSettings, [
+        XCTAssertEqual(settings, SDKSettings(modulesSettings: [
             MockDispatcher1.id: settings1,
             MockDispatcher2.id: settings2,
-        ])
+        ]))
     }
 
-    func test_getEnforcedSDKSettings_returns_settings_with_coreSettings() {
+    func test_getEnforcedSDKSettings_returns_settings_with_coreSettings() throws {
         let config = TealiumConfig(account: "test",
                                    profile: "test",
                                    environment: "dev",
@@ -42,15 +42,16 @@ final class TealiumConfigTests: XCTestCase {
                                                   scopes: [.all, .dispatcher("custom")])])
         })
         let settings = config.getEnforcedSDKSettings()
-        XCTAssertEqual(settings.modulesSettings, [
+        XCTAssertEqual(settings, SDKSettings(modulesSettings: [
             CoreSettings.id: [
                 "max_queue_size": 17,
-                "barriers": [
+                "barriers": try DataItem(serializing: [
                     [
                         "barrier_id": "someId",
-                        "scopes": ["all", "custom"]]
-                ]
+                        "scopes": ["all", "custom"]
+                    ]
+                ])
             ]
-        ])
+        ]))
     }
 }

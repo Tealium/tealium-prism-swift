@@ -14,8 +14,8 @@ final class QueueManagerTests: XCTestCase {
     @StateSubject([MockDispatcher1(), MockDispatcher2()])
     var modules: ObservableState<[TealiumModule]>
     let dbProvider = MockDatabaseProvider()
-    lazy var settings: [String: Any] = [:]
-    lazy var _coreSettings = StateSubject(CoreSettings(coreDictionary: settings))
+    lazy var settings: DataObject = [:]
+    lazy var _coreSettings = StateSubject(CoreSettings(coreDataObject: settings))
     var coreSettings: ObservableState<CoreSettings> {
         _coreSettings.toStatefulObservable()
     }
@@ -233,14 +233,14 @@ final class QueueManagerTests: XCTestCase {
     func test_coreSettings_change_causes_expiration_change() {
         _ = queueManager
         XCTAssertEqual(queueRepository.expiration, TimeFrame(unit: .days, interval: 1))
-        _coreSettings.publish(CoreSettings(coreDictionary: [CoreSettings.Keys.expirationSeconds: 500]))
+        _coreSettings.publish(CoreSettings(coreDataObject: [CoreSettings.Keys.expirationSeconds: 500]))
         XCTAssertEqual(queueRepository.expiration, TimeFrame(unit: .seconds, interval: 500))
     }
 
     func test_coreSettings_change_causes_queueSize_change() {
         _ = queueManager
         XCTAssertEqual(queueRepository.maxQueueSize, 100)
-        _coreSettings.publish(CoreSettings(coreDictionary: [CoreSettings.Keys.maxQueueSize: 20]))
+        _coreSettings.publish(CoreSettings(coreDataObject: [CoreSettings.Keys.maxQueueSize: 20]))
         XCTAssertEqual(queueRepository.maxQueueSize, 20)
     }
 }

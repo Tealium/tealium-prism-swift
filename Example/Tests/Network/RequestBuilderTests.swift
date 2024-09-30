@@ -27,12 +27,26 @@ final class RequestBuilderTests: XCTestCase {
     }
 
     func test_gzip_zips_body_and_sets_headers() {
-        let jsonDictionary = ["key": "value"]
+        let dataObject: DataObject = ["key": "value"]
         let urlRequest = XCTAssertNoThrowReturn(try RequestBuilder(url: url, method: .post)
-            .gzip(json: jsonDictionary).build())
+            .gzip(json: dataObject).build())
         XCTAssertEqual(urlRequest?.httpBody?.isGzipped, true, "Data is not compressed")
-        XCTAssertEqual(urlRequest?.httpBody, try? JSONSerialization.data(withJSONObject: jsonDictionary).gzipped(level: .bestCompression))
+        XCTAssertEqual(urlRequest?.httpBody, try? Tealium.jsonEncoder.encode(AnyCodable(dataObject.asDictionary())).gzipped(level: .bestCompression))
         XCTAssertEqual(urlRequest?.value(forHTTPHeaderField: "Content-Type"), "application/json")
         XCTAssertEqual(urlRequest?.value(forHTTPHeaderField: "Content-Encoding"), "gzip")
+    }
+
+    func test_gzip_converts_invalid_numbers_to_strings() {
+        let dataObject: DataObject = ["nan": Double.nan, "infinity": Double.infinity]
+        let urlRequest = XCTAssertNoThrowReturn(try RequestBuilder(url: url, method: .post)
+            .gzip(json: dataObject).build())
+        XCTAssertEqual(urlRequest?.httpBody?.isGzipped, true, "Data is not compressed")
+        guard let body = try? urlRequest?.httpBody?.gunzipped(),
+              let deserializedBody = try? JSONSerialization.jsonObject(with: body) as? [String: Any] else {
+            XCTFail("Can't deserialize body")
+            return
+        }
+        XCTAssertEqual(deserializedBody["nan"] as? String, "NaN")
+        XCTAssertEqual(deserializedBody["infinity"] as? String, "Infinity")
     }
 }

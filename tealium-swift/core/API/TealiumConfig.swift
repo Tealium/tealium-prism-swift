@@ -19,7 +19,7 @@ public struct TealiumConfig {
     public var transformers: [Transformer] = []
     public var loggerType: TealiumLoggerType = .os
     public var bundle: Bundle = .main
-    let coreSettings: [String: Any]?
+    let coreSettings: DataObject?
 
     public init(account: String, profile: String, environment: String, modules: [any TealiumModuleFactory],
                 settingsFile: String?, settingsUrl: String?, forcingSettings block: ((_ builder: CoreSettingsBuilder) -> CoreSettingsBuilder)? = nil) {

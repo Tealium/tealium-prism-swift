@@ -19,7 +19,7 @@ private let mockDbProvider = MockDatabaseProvider()
 private let queue = TealiumQueue.worker
 let mockContext = TealiumContext(modulesManager: ModulesManager(queue: queue),
                                  config: mockConfig,
-                                 coreSettings: StateSubject(CoreSettings(coreDictionary: [:])).toStatefulObservable(),
+                                 coreSettings: StateSubject(CoreSettings(coreDataObject: [:])).toStatefulObservable(),
                                  tracker: MockTracker(),
                                  barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
                                  transformerRegistry: TransformerCoordinator(registeredTransformers: [],

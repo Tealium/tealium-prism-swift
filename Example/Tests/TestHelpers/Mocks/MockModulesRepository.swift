@@ -12,10 +12,10 @@ import Foundation
 class MockModulesRepository: ModulesRepository {
     var onDataExpired: Observable<ExpiredDataEvent> = Observable.Just([
         1: [
-            "key1": TealiumDataOutput(value: "")
+            "key1": DataItem(value: "")
         ],
         2: [
-            "key2": TealiumDataOutput(value: "")
+            "key2": DataItem(value: "")
         ]
     ])
     func getModules() -> [String: Int64] {

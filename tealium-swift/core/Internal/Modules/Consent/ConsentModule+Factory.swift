@@ -12,7 +12,7 @@ extension ConsentModule {
     struct Factory: TealiumModuleFactory {
         typealias Module = ConsentModule
         private let cmpIntegration: CMPIntegration
-        private let enforcedSettings: [String: Any]?
+        private let enforcedSettings: DataObject?
         private let queueManager: QueueManagerProtocol?
         init(cmpIntegration: CMPIntegration, forcingSettings block: ((_ enforcedSettings: ConsentSettingsBuilder) -> ConsentSettingsBuilder)? = nil) {
             self.init(cmpIntegration: cmpIntegration,
@@ -20,18 +20,18 @@ extension ConsentModule {
                       enforcedSettings: block?(ConsentSettingsBuilder()).build())
         }
 
-        private init(cmpIntegration: CMPIntegration, queueManager: QueueManagerProtocol?, enforcedSettings: [String: Any]?) {
+        private init(cmpIntegration: CMPIntegration, queueManager: QueueManagerProtocol?, enforcedSettings: DataObject?) {
             self.cmpIntegration = cmpIntegration
             self.queueManager = queueManager
             self.enforcedSettings = enforcedSettings
         }
 
-        func create(context: TealiumContext, moduleSettings: [String: Any]) -> ConsentModule? {
+        func create(context: TealiumContext, moduleSettings: DataObject) -> ConsentModule? {
             guard let queueManager else { return nil }
             return ConsentModule(context: context, cmpIntegration: cmpIntegration, queueManager: queueManager, moduleSettings: moduleSettings)
         }
 
-        func getEnforcedSettings() -> [String: Any]? {
+        func getEnforcedSettings() -> DataObject? {
             enforcedSettings
         }
 

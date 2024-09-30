@@ -43,7 +43,7 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
             completionCalled.fulfill()
             XCTAssertEqual(result, .accepted)
             XCTAssertNotEqual(dispatch.eventData.count, 2)
-            XCTAssertNotNil(dispatch.eventData["transformation-afterCollectors"])
+            XCTAssertNotNil(dispatch.eventData.getDataItem(key: "transformation-afterCollectors"))
         }
         waitForDefaultTimeout()
     }

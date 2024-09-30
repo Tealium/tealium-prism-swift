@@ -14,14 +14,14 @@ import Foundation
  * To be sure that the completion block is not called by someone else, you should name the variable holding the instance of this class with the same name of the completion block that was passed as a parameters.
  *
  * Example where completion block has the same parameter of the inner  function:
- * ```
+ * ```swift
  *  func doSomeAsyncOperation(request: URLRequest, completion: @escaping (Result<Any, Error>) -> Void) {
  *      let completion = SelfDestructingResultCompletion(completion: completion)
  *      _ = NetworkingClient.shared.send(request, completion: completion.complete)
  *  }
  * ```
  * Example where completion block has different parameters of the inner  function:
- * ```
+ * ```swift
  *  func doSomeAsyncOperation(request: URLRequest, completion: @escaping (Result<Any, Error>) -> Void) {
  *      let completion = SelfDestructingResultCompletion(completion: completion)
  *      URLSession.shared.dataTask(request) { data, request, error in

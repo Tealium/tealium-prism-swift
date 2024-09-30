@@ -9,7 +9,7 @@
 import Foundation
 
 /**
- * Generic data storage for storing `TealiumDataInput` and retrieving `TealiumDataOutput` objects.
+ * Generic data storage for storing `DataInput` and retrieving `DataItem` objects.
  *
  * Implementations are not guaranteed to be persistent. For instance, in cases where there may be
  * insufficient storage space on the device, or other reasons such as write permissions etc.
@@ -18,7 +18,7 @@ import Foundation
  * included in any retrieval operations; that is, expired data won't be returned by `get` or `getAll`
  * but it will also not be included in any aggregate methods such as `keys` or `count`.
  */
-public protocol DataStore {
+public protocol DataStore: DataItemExtractor {
     /**
      * Returns a `DataStoreEditor` able to mutate the data in this storage.
      *
@@ -27,20 +27,11 @@ public protocol DataStore {
     func edit() -> DataStoreEditor
 
     /**
-     * Gets the `TealiumDataOutput` stored at the given key if there is one.
-     *
-     * - parameter key: The key for the required value.
-     *
-     * - returns: The `TealiumDataOutput` or nil.
-     */
-    func get(key: String) -> TealiumDataOutput?
-
-    /**
      * Gets a dictionary containing all data stored.
      *
-     * - returns: A `[String: TealiumDataOutput]` dictionary with all the data contained in the storage.
+     * - returns: A `DataObject` dictionary with all the data contained in the storage.
      */
-    func getAll() -> [String: TealiumDataOutput]
+    func getAll() -> DataObject
 
     /**
      * Returns all keys stored in this DataStore
@@ -57,7 +48,7 @@ public protocol DataStore {
     func count() -> Int
 
     /// Observable of key-value pairs from this DataStore that have been updated
-    var onDataUpdated: Observable<[String: TealiumDataInput]> { get }
+    var onDataUpdated: Observable<DataObject> { get }
 
     /**
      * Observable of key-value pairs from this DataStore that have been removed or expired
@@ -73,22 +64,22 @@ public protocol DataStoreEditor {
      * Adds a single key-value pair into the storage.
      *
      * - parameter key: The key to store the value under.
-     * - parameter value: The `TealiumDataInput` to be stored.
+     * - parameter value: The `DataInput` to be stored.
      * - parameter expiry: The time frame for this data to remain stored.
      *
      * - returns: the same `DataStoreEditor` to continue editing this storage.
      */
-    func put(key: String, value: TealiumDataInput, expiry: Expiry) -> Self
+    func put(key: String, value: DataInput, expiry: Expiry) -> Self
 
     /**
      * Adds all key-value pairs from the dictionary into the storage.
      *
-     * - parameter dictionary: A `TealiumDictionaryInput` containing the key-value pairs to be stored.
+     * - parameter dataObject: A `DataObject` containing the key-value pairs to be stored.
      * - parameter expiry: The time frame for this data to remain stored.
      *
      * - returns: the same `DataStoreEditor` to continue editing this storage.
      */
-    func putAll(dictionary: TealiumDictionaryInput, expiry: Expiry) -> Self
+    func putAll(dataObject: DataObject, expiry: Expiry) -> Self
 
     /**
      * Removes and individual key from storage.
@@ -122,96 +113,4 @@ public protocol DataStoreEditor {
      * are ignored.
      */
     func commit() throws
-}
-
-public extension DataStore {
-    /**
-     * Returns the `NSNumber` stored at the given key if present and if it is the correct type.
-     *
-     * - Parameters:
-     *  - key: The key from which to extract the number.
-     *
-     *  - Returns: The `NSNumber` stored at that key, if present and if it is the correct type.
-     */
-    func getNSNumber(key: String) -> NSNumber? {
-        get(key: key)?.getNSNumber()
-    }
-
-    /**
-     * Returns the `Int64` stored at the given key if present and if it is the correct type.
-     *
-     * Any `NSNumber` convertible data will be read as such and then converted to `Int64`.
-     *
-     * - Parameters:
-     *  - key: The key from which to extract the number.
-     *
-     *  - Returns: The `Int64` stored at that key, if present and if it is the correct type.
-     */
-    func getInt(key: String) -> Int64? {
-        get(key: key)?.getInt()
-    }
-
-    /**
-     * Returns the `Double` stored at the given key if present and if it is the correct type.
-     *
-     * Any `NSNumber` convertible data will be read as such and then converted to `Double`.
-     *
-     * - Parameters:
-     *  - key: The key from which to extract the number.
-     *
-     *  - Returns: The `Double` stored at that key, if present and if it is the correct type.
-     */
-    func getDouble(key: String) -> Double? {
-        get(key: key)?.getDouble()
-    }
-
-    /**
-     * Returns the `Bool` stored at the given key if present and if it is the correct type.
-     *
-     * Any `NSNumber` convertible data will be read as such and then converted to `Bool`.
-     *
-     * - Parameters:
-     *  - key: The key from which to extract the number.
-     *
-     *  - Returns: The `Bool` stored at that key, if present and if it is the correct type.
-     */
-    func getBool(key: String) -> Bool? {
-        get(key: key)?.getBool()
-    }
-
-    /**
-     * Returns the `String` stored at the given key if present and if it is the correct type.
-     *
-     * - Parameters:
-     *  - key: The key from which to extract the `String`.
-     *
-     *  - Returns: The `String` stored at that key, if present and if it is the correct type.
-     */
-    func getString(key: String) -> String? {
-        get(key: key)?.getString()
-    }
-
-    /**
-     * Returns the `Array` stored at the given key if present and if it is the correct type.
-     *
-     * - Parameters:
-     *  - key: The key from which to extract the `Array`.
-     *
-     *  - Returns: The `Array` stored at that key, if present and if it is the correct type.
-     */
-    func getArray(key: String) -> [TealiumDataOutput]? {
-        get(key: key)?.getArray()
-    }
-
-    /**
-     * Returns the `Dictionary` stored at the given key if present and if it is the correct type.
-     *
-     * - Parameters:
-     *  - key: The key from which to extract the `Dictionary`.
-     *
-     *  - Returns: The `Dictionary` stored at that key, if present and if it is the correct type.
-     */
-    func getDictionary(key: String) -> [String: TealiumDataOutput]? {
-        get(key: key)?.getDictionary()
-    }
 }

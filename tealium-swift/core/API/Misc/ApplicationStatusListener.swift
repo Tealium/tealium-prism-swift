@@ -27,8 +27,9 @@ public class ApplicationStatusListener: NSObject {
     var sleepNotificationObserver: NSObjectProtocol?
 
     var initGraceTimer: TealiumRepeatingTimer?
-    let queue = TealiumQueue.worker
-    init(graceTimeInterval: Double = 10.0) {
+    let queue: TealiumQueue
+    init(graceTimeInterval: Double = 10.0, queue: TealiumQueue = .worker) {
+        self.queue = queue
         super.init()
         addListeners()
         initGraceTimer = TealiumRepeatingTimer(timeInterval: graceTimeInterval, repeating: .never, queue: queue, eventHandler: { [weak self] in

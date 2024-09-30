@@ -28,7 +28,7 @@ class RequestBuilder {
         self.method = method
     }
 
-    static func makePOST(url: URLConvertible, gzippedJson json: [String: Any]) throws -> RequestBuilder {
+    static func makePOST(url: URLConvertible, gzippedJson json: DataObject) throws -> RequestBuilder {
         try RequestBuilder(url: url, method: .post)
             .gzip(json: json)
     }
@@ -54,12 +54,9 @@ class RequestBuilder {
         return self
     }
 
-    func gzip(json: [String: Any]) throws -> Self {
+    func gzip(json: DataObject) throws -> Self {
         header("application/json", forField: HeaderKeys.contentType)
-        guard JSONSerialization.isValidJSONObject(json) else {
-            throw ParsingError.nonConvertibleToJSONObject(json)
-        }
-        let data = try JSONSerialization.data(withJSONObject: json)
+        let data = try Tealium.jsonEncoder.encode(AnyCodable(json.asDictionary()))
         if let gzippedData = try? data.gzipped(level: .bestCompression) {
             header("gzip", forField: HeaderKeys.contentEncoding)
             body(gzippedData)

@@ -18,12 +18,12 @@ public protocol TealiumLoggerProvider: AnyObject {
  * Use this class by extrapolating the appropriate logger for each desired log level and log with that specific logger.
  *
  * Normal usecase is to get one of the loggers and optional chain it to an in-line log like so:
- * ```
+ * ```swift
  * logger.debug?.log(category: "Some Category", message: "Some Message")
  * ```
  * Do not keep a reference of those loggers unless it's for logging multiple logs in a short sequence like:
  *
- * ```
+ * ```swift
  * if let trace = logger.trace {
  *    trace.log(category: "Some Category", message: "First Message")
  *    trace.log(category: "Some Category", message: "Second Message")

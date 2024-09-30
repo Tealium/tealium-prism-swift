@@ -11,7 +11,7 @@ import XCTest
 
 final class CollectBatcherTests: XCTestCase {
     let batcher = CollectBatcher()
-    let stubEvent: TealiumDictionaryInput = [
+    let stubEvent: DataObject = [
         TealiumDataKey.account: "account",
         TealiumDataKey.profile: "profile",
         TealiumDataKey.visitorId: "visitorId",
@@ -20,15 +20,16 @@ final class CollectBatcherTests: XCTestCase {
 
     func test_extractSharedKeys_returns_the_shared_keys() {
         let shared = batcher.extractSharedKeys(from: stubEvent, profileOverride: nil)
-        XCTAssertEqual(shared.count, 3)
-        XCTAssertEqual(shared[TealiumDataKey.account] as? String, "account")
-        XCTAssertEqual(shared[TealiumDataKey.profile] as? String, "profile")
-        XCTAssertEqual(shared[TealiumDataKey.visitorId] as? String, "visitorId")
+        XCTAssertEqual(shared, [
+            TealiumDataKey.account: "account",
+            TealiumDataKey.profile: "profile",
+            TealiumDataKey.visitorId: "visitorId"
+        ])
     }
 
     func test_extractSharedKeys_removes_non_shared_keys() {
         let shared = batcher.extractSharedKeys(from: stubEvent, profileOverride: nil)
-        XCTAssertNil(shared["key"])
+        XCTAssertNil(shared.getDataItem(key: "key"))
     }
 
     func test_compressDispatches_returns_nil_for_empty_dispatches() {
@@ -44,13 +45,15 @@ final class CollectBatcherTests: XCTestCase {
             XCTFail("Compress dispatches should return a result")
             return
         }
-        guard let shared = result["shared"] as? [String: Any] else {
+        guard let shared = result.getDataItem(key: "shared")?.toDataInput() as? [String: Any] else {
             XCTFail("Shared not returned from compress dispatches")
             return
         }
-        XCTAssertEqual(shared[TealiumDataKey.account] as? String, "account")
-        XCTAssertEqual(shared[TealiumDataKey.profile] as? String, "profile")
-        XCTAssertEqual(shared[TealiumDataKey.visitorId] as? String, "visitorId")
+        XCTAssertEqual(shared, [
+            TealiumDataKey.account: "account",
+            TealiumDataKey.profile: "profile",
+            TealiumDataKey.visitorId: "visitorId"
+        ])
     }
 
     func test_compressDispatches_puts_events_array_in_events_property() {
@@ -62,7 +65,7 @@ final class CollectBatcherTests: XCTestCase {
             XCTFail("Compress dispatches should return a result")
             return
         }
-        guard let events = result["events"] as? [[String: Any]] else {
+        guard let events = result.getDataItem(key: "events")?.toDataInput() as? [[String: Any]] else {
             XCTFail("Shared not returned from compress dispatches")
             return
         }
@@ -80,7 +83,7 @@ final class CollectBatcherTests: XCTestCase {
             XCTFail("Compress dispatches should return a result")
             return
         }
-        guard let events = result["events"] as? [[String: Any]] else {
+        guard let events = result.getDataItem(key: "events")?.toDataInput() as? [[String: Any]], events.count > 0 else {
             XCTFail("Shared not returned from compress dispatches")
             return
         }
@@ -100,7 +103,7 @@ final class CollectBatcherTests: XCTestCase {
             XCTFail("Compress dispatches should return a result")
             return
         }
-        guard let shared = result["shared"] as? [String: Any] else {
+        guard let shared = result.getDataItem(key: "shared")?.toDataInput() as? [String: Any] else {
             XCTFail("Shared not returned from compress dispatches")
             return
         }
@@ -115,9 +118,9 @@ final class CollectBatcherTests: XCTestCase {
             [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"]
         ]
         let result = batcher.splitDispatchesByVisitorId(events.map { TealiumDispatch(name: "some_event", data: $0) })
-        let mappedResult = result.map { $0.map { $0.eventData[TealiumDataKey.visitorId] as? String } }
-        for array in mappedResult {
-            let nonOptionalVisitorIdsArray = array.map { $0 ?? "" }
+        let dataItemsMatrix = result.map { $0.map { $0.eventData.getDataItem(key: TealiumDataKey.visitorId) } }
+        for dataItems in dataItemsMatrix {
+            let nonOptionalVisitorIdsArray = dataItems.map { $0?.get() ?? "" }
             XCTAssertEqual(Set(nonOptionalVisitorIdsArray).count, 1, "All visitorIds should be the same in each batch")
         }
     }
@@ -130,10 +133,10 @@ final class CollectBatcherTests: XCTestCase {
             [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"]
         ]
         let result = batcher.splitDispatchesByVisitorId(events.map { TealiumDispatch(name: "some_event", data: $0) })
-        let mappedResult = result.map { $0.map { $0.eventData[TealiumDataKey.visitorId] as? String } }
+        let visitorIdMatrix = result.map { $0.map { $0.eventData.get(key: TealiumDataKey.visitorId, as: String.self) } }
         for event in events {
-            let visitorId = event[TealiumDataKey.visitorId] as? String
-            XCTAssertTrue(mappedResult.contains(where: { $0.first == visitorId }), "All visitor IDs should've been split in different batches")
+            let visitorId = event.get(key: TealiumDataKey.visitorId, as: String.self)
+            XCTAssertTrue(visitorIdMatrix.contains(where: { $0.first == visitorId }), "All visitor IDs should've been split in different batches")
         }
     }
 
@@ -145,10 +148,10 @@ final class CollectBatcherTests: XCTestCase {
             [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile", "event": "4"]
         ]
         let result = batcher.splitDispatchesByVisitorId(events.map { TealiumDispatch(name: "some_event", data: $0) })
-        let mappedResult = result.map { $0.map { $0.eventData["event"] as? String } }
+        let eventsMatrix = result.map { $0.map { $0.eventData.get(key: "event", as: String.self) } }
         for event in events {
-            let eventId = event["event"] as? String
-            XCTAssertTrue(mappedResult.contains(where: { $0.contains(eventId) }), "All events should be contained in the batch")
+            let eventId = event.get(key: "event", as: String.self)
+            XCTAssertTrue(eventsMatrix.contains(where: { $0.contains(eventId) }), "All events should be contained in the batch")
         }
     }
 
@@ -160,11 +163,11 @@ final class CollectBatcherTests: XCTestCase {
             [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile", "event": "4"]
         ]
         let result = batcher.splitDispatchesByVisitorId(events.map { TealiumDispatch(name: "some_event", data: $0) })
-        let mappedResult = result.map { $0.map { $0.eventData["event"] as? String } }
+        let eventsMatrix = result.map { $0.map { $0.eventData.get(key: "event", as: String.self) } }
         for event in events {
-            let eventId = event["event"] as? String
+            let eventId = event.get(key: "event", as: String.self)
             var count = 0
-            for array in mappedResult {
+            for array in eventsMatrix {
                 for singleResult in array where singleResult == eventId {
                     count += 1
                 }
@@ -174,14 +177,14 @@ final class CollectBatcherTests: XCTestCase {
     }
 
     func test_applyProfileOverride_with_override_changes_the_profile_data() {
-        var event: [String: Any] = [TealiumDataKey.profile: "profile"]
+        var event: DataObject = [TealiumDataKey.profile: "profile"]
         batcher.applyProfileOverride("override", to: &event)
-        XCTAssertEqual(event[TealiumDataKey.profile] as? String, "override")
+        XCTAssertEqual(event.get(key: TealiumDataKey.profile), "override")
     }
 
     func test_applyProfileOverride_with_nil_does_nothing() {
-        var event: [String: Any] = [TealiumDataKey.profile: "profile"]
+        var event: DataObject = [TealiumDataKey.profile: "profile"]
         batcher.applyProfileOverride(nil, to: &event)
-        XCTAssertEqual(event[TealiumDataKey.profile] as? String, "profile")
+        XCTAssertEqual(event.get(key: TealiumDataKey.profile), "profile")
     }
 }

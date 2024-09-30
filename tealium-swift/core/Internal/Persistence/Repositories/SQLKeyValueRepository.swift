@@ -25,20 +25,20 @@ final class SQLKeyValueRepository: KeyValueRepository {
         }
     }
 
-    func get(key: String) -> TealiumDataOutput? {
+    func get(key: String) -> DataItem? {
         guard let row = try? database.pluck(Schema.getValue(key: key, moduleId: self.moduleId)) else {
             return nil
         }
-        return TealiumDataOutput(stringValue: row[Schema.value])
+        return DataItem(stringValue: row[Schema.value])
     }
 
-    func getAll() -> [String: TealiumDataOutput] {
+    func getAll() -> DataObject {
         guard let rows = try? database.prepare(Schema.getAllRows(moduleId: moduleId)) else {
             return [:]
         }
-        return [String: TealiumDataOutput](rows.compactMap({ row in
-            (row[Schema.key], TealiumDataOutput(stringValue: row[Schema.value]))
-        }), uniquingKeysWith: { _, second in second })
+        return DataObject(pairs: rows.map { row in
+            (row[Schema.key], DataItem(stringValue: row[Schema.value]))
+        })
     }
 
     func delete(key: String) throws -> Int {
@@ -46,7 +46,7 @@ final class SQLKeyValueRepository: KeyValueRepository {
     }
 
     @discardableResult
-    func upsert(key: String, value: TealiumDataInput, expiry: Expiry) throws -> Int64 {
+    func upsert(key: String, value: DataInput, expiry: Expiry) throws -> Int64 {
         try database.run(Schema.insertOrReplace(moduleId: moduleId,
                                                 key: key,
                                                 value: try value.serialize(),

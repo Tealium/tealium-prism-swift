@@ -94,6 +94,12 @@ public enum TealiumLogLevel: Int, Comparable, CaseIterable, CustomStringConverti
     }
 }
 
+extension TealiumLogLevel.Minimum: DataInputConvertible {
+    public func toDataInput() -> any DataInput {
+        toString()
+    }
+}
+
 // swiftlint:disable identifier_name
 public enum TealiumLoggerType {
     case os

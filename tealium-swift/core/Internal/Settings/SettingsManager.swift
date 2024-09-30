@@ -120,11 +120,11 @@ class SettingsManager {
         guard let configFile = config.settingsFile,
               let path = TealiumFileManager.fullJSONPath(from: config.bundle, relativePath: configFile),
               let jsonData = try? Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe),
-              let settings = try? JSONSerialization.jsonObject(with: jsonData) as? [String: [String: Any]]
+              let settings = try? Tealium.jsonDecoder.decode(SDKSettings.self, from: jsonData)
         else {
             return nil
         }
-        return SDKSettings(modulesSettings: settings)
+        return settings
     }
 
     static func loadCachedSettings(resourceCacher: ResourceCacher<SDKSettings>) -> SDKSettings? {
@@ -136,9 +136,9 @@ class SettingsManager {
             return orderedSettings.first ?? SDKSettings(modulesSettings: [:])
         }
         let sdkSettingsResult = orderedSettings
-            .reduce(into: [String: [String: Any]]()) { partialResult, higherPrioritySettings in
+            .reduce(into: [String: DataObject]()) { partialResult, higherPrioritySettings in
                 partialResult.merge(higherPrioritySettings.modulesSettings) { oldModuleSettings, newModuleSettings in
-                    oldModuleSettings.merging(newModuleSettings) { _, newValue in newValue }
+                    oldModuleSettings + newModuleSettings
                 }
             }
         return SDKSettings(modulesSettings: sdkSettingsResult)

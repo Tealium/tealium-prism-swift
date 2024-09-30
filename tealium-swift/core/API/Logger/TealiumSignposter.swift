@@ -54,7 +54,7 @@ public extension OSSignpostIntervalState {
  * For normal usecases of intervals being signposted you can use the `TealiumSignpostInterval` instead of this class, so you can avoid handling the SignpostStateWrapper yourself.
  * If instead you want to handle it yourself, or you have to send singular events, you can use this class like so:
  *
- * ```
+ * ```swift
  * let signposter = TealiumSignposter("Networking")
  * let state = signposter.beginInterval("Start Request", "\(request)")
  * urlSession.dataTask(request) { _, response, _ in
@@ -205,7 +205,7 @@ public class TealiumSignposter {
  * The suggested way to use this would be to create and begin a new interval everytime it's needed and then end it once the interval is completed.
  *
  * Usage:
- * ```
+ * ```swift
  * let signpostInterval = TealiumSignpostInterval(signposter: .networking, name: "HTTP Call Sent").begin("URL: \(request.url!)"
  * session.dataTask(request) { _, response, _ in
  *    signpostInterval.end("Response \(response)")

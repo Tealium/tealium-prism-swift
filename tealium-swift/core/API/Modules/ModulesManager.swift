@@ -16,13 +16,13 @@ public class ModulesManager {
         self.queue = queue
     }
 
-    func updateSettings(context: TealiumContext, settings: [String: Any]) {
+    func updateSettings(context: TealiumContext, settings: SDKSettings) {
         let oldModules = self.modules.value
         _modules.value = context.config.modules.compactMap({ moduleFactory in
             let updateInterval = TealiumSignpostInterval(signposter: .settings, name: "Module Update")
                 .begin(moduleFactory.id)
             defer { updateInterval.end() }
-            let moduleSettings = settings[moduleFactory.id] as? [String: Any] ?? [:]
+            let moduleSettings = settings.modulesSettings[moduleFactory.id] ?? DataObject()
             if let module = oldModules.first(where: { $0.id == moduleFactory.id }) {
                 guard moduleFactory.shouldBeEnabled(by: moduleSettings),
                       let module = module.updateSettings(moduleSettings) else {

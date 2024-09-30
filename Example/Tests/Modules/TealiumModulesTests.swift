@@ -9,7 +9,7 @@
 @testable import TealiumSwift
 import XCTest
 class NonDisableableModule: TealiumBasicModule {
-    required init?(context: TealiumContext, moduleSettings: [String: Any]) { }
+    required init?(context: TealiumContext, moduleSettings: DataObject) { }
     static var id: String = "non-disableable"
     static let canBeDisabled: Bool = false
 }

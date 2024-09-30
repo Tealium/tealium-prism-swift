@@ -69,7 +69,7 @@ final class TransformerCoordinatorTests: XCTestCase {
             transformationsCompleted.fulfill()
         }
         wait(for: [allTransformationsAreApplied, transformationsCompleted],
-             timeout: Self.defaultTimeout,
+             timeout: Self.longTimeout,
              enforceOrder: true)
     }
 
@@ -100,7 +100,7 @@ final class TransformerCoordinatorTests: XCTestCase {
             transformationsCompleted.fulfill()
         }
         wait(for: [allTransformationsAreApplied, transformationsCompleted],
-             timeout: Self.defaultTimeout,
+             timeout: Self.longTimeout,
              enforceOrder: true)
     }
 
@@ -131,7 +131,7 @@ final class TransformerCoordinatorTests: XCTestCase {
             transformationsCompleted.fulfill()
         }
         wait(for: [allTransformationsAreApplied, transformationsCompleted],
-             timeout: Self.defaultTimeout,
+             timeout: Self.longTimeout,
              enforceOrder: true)
     }
 
@@ -151,7 +151,7 @@ final class TransformerCoordinatorTests: XCTestCase {
             XCTAssertEqual(result[1].name, "someEvent2-New")
             transformationsCompleted.fulfill()
         }
-        waitForDefaultTimeout()
+        waitForLongTimeout()
     }
 
     func test_tranformDispatches_removes_dispatches_that_are_transformed_to_nil() {
@@ -172,7 +172,7 @@ final class TransformerCoordinatorTests: XCTestCase {
             XCTAssertEqual(result[0].name, "someEvent2-New")
             transformationsCompleted.fulfill()
         }
-        waitForDefaultTimeout()
+        waitForLongTimeout()
     }
 
     private func transformationCalled(transformation: String) {

@@ -33,16 +33,16 @@ class CustomCMP: CMPIntegration {
 }
 
 class SomeModule: TealiumBasicModule, Collector {
-    var data: TealiumDictionaryInput = ["someKey": "someValue"]
+    var data: DataObject = ["someKey": "someValue"]
     
     
     static var id: String = "someModule"
     
-    required init?(context: TealiumContext, moduleSettings: [String : Any]) {
+    required init?(context: TealiumContext, moduleSettings: DataObject) {
         
     }
     
-    func updateSettings(_ settings: [String : Any]) -> Self? {
+    func updateSettings(_ settings: DataObject) -> Self? {
         return self
     }
 }
@@ -52,7 +52,7 @@ class ModuleWithExternalDependencies: TealiumModule {
     init(otherDependencies: Any) {
         
     }
-    func updateSettings(_ settings: [String : Any]) -> Self? {
+    func updateSettings(_ settings: DataObject) -> Self? {
         return self
     }
     
@@ -62,7 +62,7 @@ class ModuleWithExternalDependencies: TealiumModule {
         init(otherDependencies: Any) {
             self.object = otherDependencies
         }
-        func create(context: TealiumContext, moduleSettings: [String : Any]) -> ModuleWithExternalDependencies? {
+        func create(context: TealiumContext, moduleSettings: DataObject) -> ModuleWithExternalDependencies? {
             ModuleWithExternalDependencies(otherDependencies: object)
         }
     }

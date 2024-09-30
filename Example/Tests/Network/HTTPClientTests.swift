@@ -29,13 +29,6 @@ final class HTTPClientTests: XCTestCase {
         URLProtocolMock.reset()
     }
 
-    let longTimeout: TimeInterval = 10
-
-    /// Event if the request is not actually sent, the URLProtocolMock is called on a different queue, therefore we can't wait too little or it can fail sporadically.
-    func waitForLongTimeout() {
-        waitForExpectations(timeout: longTimeout)
-    }
-
     func test_url_session_has_interceptor_as_delegate() {
         XCTAssertIdentical(client.session.delegate, client.interceptorManager)
     }
@@ -162,7 +155,7 @@ final class HTTPClientTests: XCTestCase {
                 expect.fulfill()
             }
         }
-        wait(for: [expectRetry], timeout: longTimeout)
+        wait(for: [expectRetry], timeout: Self.longTimeout)
         task.dispose()
         queue.dispatchQueue.sync {
             waitForDefaultTimeout()
@@ -190,7 +183,7 @@ final class HTTPClientTests: XCTestCase {
                 expectSucceded.fulfill()
             }
         }
-        wait(for: [expectCancelled, expectSucceded], timeout: longTimeout, enforceOrder: true)
+        wait(for: [expectCancelled, expectSucceded], timeout: Self.longTimeout, enforceOrder: true)
     }
 
     @discardableResult

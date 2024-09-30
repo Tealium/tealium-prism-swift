@@ -39,8 +39,11 @@ class DispatchManagerTestCase: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
     lazy var modulesManager = ModulesManager(queue: queue)
-    lazy var settings: [String: Any] = [ConsentModule.id: ["enabled": false]]
-    lazy var _coreSettings = StateSubject(CoreSettings(coreDictionary: settings))
+    lazy var settings: [String: DataObject] = [ConsentModule.id: ["enabled": false]]
+    var sdkSettings: SDKSettings {
+        SDKSettings(modulesSettings: settings)
+    }
+    lazy var _coreSettings = StateSubject(CoreSettings(coreDataObject: settings[CoreSettings.id] ?? [:]))
     var coreSettings: ObservableState<CoreSettings> {
         _coreSettings.toStatefulObservable()
     }
@@ -89,7 +92,7 @@ class DispatchManagerTestCase: XCTestCase {
     override func setUp() {
         super.setUp()
         modulesManager.updateSettings(context: context,
-                                      settings: settings)
+                                      settings: sdkSettings)
     }
 
     override func tearDown() {
@@ -99,11 +102,11 @@ class DispatchManagerTestCase: XCTestCase {
     func disableModule<T: TealiumModule>(module: T?) {
         guard let module = module else { return }
         settings += [module.id: ["enabled": false]]
-        modulesManager.updateSettings(context: context, settings: settings)
+        modulesManager.updateSettings(context: context, settings: sdkSettings)
     }
 
     func enableModule(_ moduleId: String) {
         settings += [moduleId: ["enabled": true]]
-        modulesManager.updateSettings(context: context, settings: settings)
+        modulesManager.updateSettings(context: context, settings: sdkSettings)
     }
 }
