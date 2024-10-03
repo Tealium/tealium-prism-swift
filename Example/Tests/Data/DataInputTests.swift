@@ -120,18 +120,23 @@ class DataInputTests: XCTestCase {
     func test_non_conforming_types() {
         let nanDouble = Double.nan
         let infinityDouble = Double.infinity
+        let nonConformingArray: [DataInput] = [Float.infinity, -Float.infinity, Float.nan]
         let nanString = "NaN"
         let infinityString = "Infinity"
         let serializedNan = try? nanDouble.serialize()
         let serializedInfinity = try? infinityDouble.serialize()
         let serializedNanString = try? nanString.serialize()
         let serializedInfinityString = try? infinityString.serialize()
-        XCTAssertNotNil(serializedNan)
-        XCTAssertNotNil(serializedInfinity)
-        XCTAssertNaN(try? serializedNan?.deserialize() as? Double)
-        XCTAssertEqual(try? serializedInfinity?.deserialize() as? Double, Double.infinity)
-        XCTAssertNaN(try? serializedNanString?.deserialize() as? Double)
-        XCTAssertEqual(try? serializedInfinityString?.deserialize() as? Double, Double.infinity)
+        let serializedArray = try? nonConformingArray.serialize()
+        XCTAssertEqual(try? serializedNan?.deserialize() as? String, nanString)
+        XCTAssertEqual(try? serializedInfinity?.deserialize() as? String, infinityString)
+        XCTAssertEqual(try? serializedNanString?.deserialize() as? String, nanString)
+        XCTAssertEqual(try? serializedInfinityString?.deserialize() as? String, infinityString)
+        XCTAssertEqual(try? serializedArray?.deserialize() as? [String], [
+            infinityString,
+            "-" + infinityString,
+            nanString
+        ])
     }
 
     func test_int_back_to_type() {

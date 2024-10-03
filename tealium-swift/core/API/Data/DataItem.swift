@@ -69,6 +69,8 @@ final public class DataItem {
      * Additionally you can pass any valid `DataInput`, including any sort of Dictionary or Array that only contain a mix of valid `DataInput`.
      * Prefer using other methods when dealing with valid `DataInput` whose type are known at compile time (like if you have a `String` or an array of `Int` for example).
      *
+     * - Warning: Non conforming floats like `Double.nan` or `Float.infinity` will be silently converted to strings "NaN" and "Infinity" (or "-Infinity" for negative "Infinity") immediately by this function.
+     *
      * - throws: An `EncodingError` if any other type of values are passed in the parameter or in eventual nested values.
      */
     public convenience init(serializing value: Any) throws {

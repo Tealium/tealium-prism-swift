@@ -144,13 +144,11 @@ final class DataItemSerializingTests: XCTestCase {
 
     func test_nan_and_infinity_are_converted_to_string() throws {
         let value = try DataItem(serializing: [NSNumber(value: Double.nan), NSNumber(value: Float.infinity), NSNumber(value: -Float.infinity), -Double.infinity, Double.infinity, Float.nan])
-        let result = value.getArray(of: Double.self)
-        XCTAssertTrueOptional(result?[0]?.isNaN)
-        XCTAssertEqual(result?[1], Double.infinity)
-        XCTAssertEqual(result?[2], -Double.infinity)
-        XCTAssertEqual(result?[3], -Double.infinity)
-        XCTAssertEqual(result?[4], Double.infinity)
-        XCTAssertTrueOptional(result?[5]?.isNaN)
+        let result = value.getArray(of: String.self)
+        let nan = "NaN"
+        let infinity = "Infinity"
+        let negInfinity = "-Infinity"
+        XCTAssertEqual(result, [nan, infinity, negInfinity, negInfinity, infinity, nan])
     }
 
     func test_iso_date_strings_remain_strings() throws {

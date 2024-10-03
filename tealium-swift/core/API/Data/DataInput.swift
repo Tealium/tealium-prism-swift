@@ -18,9 +18,11 @@ import Foundation
  *
  * Valid `DataInput` can only be:
  * - a String
- * - a Number: Int, Int64, Double, Float
+ * - a Number: Int, Int64, Double, Float, NSNumber
  * - a Bool
  * - an Array or Dictionary containing only Strings, Numbers or Booleans or other nested Arrays and Dictionaries containing other valid `DataInput`
+ *
+ * - Warning: Non conforming floats like `Double.nan` or `Float.infinity` will be silently converted to strings "NaN" and "Infinity" (or "-Infinity" for negative "Infinity") upon serialization inside of the library.
  */
 public protocol DataInput { }
 

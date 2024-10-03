@@ -53,13 +53,11 @@ public extension Tealium {
         let encoder = JSONEncoder()
         encoder.nonConformingFloatEncodingStrategy = .convertToString(positiveInfinity: "Infinity", negativeInfinity: "-Infinity", nan: "NaN")
         encoder.dateEncodingStrategy = .formatted(Date.Formatter.iso8601)
-        encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
         return encoder
     }()
 
     static let jsonDecoder: JSONDecoder = {
         let decoder = JSONDecoder()
-        decoder.nonConformingFloatDecodingStrategy = .convertFromString(positiveInfinity: "Infinity", negativeInfinity: "-Infinity", nan: "NaN")
         decoder.dateDecodingStrategy = .formatted(Date.Formatter.iso8601)
         return decoder
     }()
