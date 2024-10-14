@@ -13,12 +13,15 @@ final class SettingsManagerTests: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
     let networkHelper = MockNetworkHelper()
     let onActivity = ReplaySubject<ApplicationStatus>()
-    var config = TealiumConfig(account: "test",
-                               profile: "test",
-                               environment: "dev",
-                               modules: [],
-                               settingsFile: "localSettings.json",
-                               settingsUrl: nil)
+    lazy var config = createConfig(url: "someUrl")
+    func createConfig(url: String?) -> TealiumConfig {
+        TealiumConfig(account: "test",
+                      profile: "test",
+                      environment: "dev",
+                      modules: [],
+                      settingsFile: "localSettings.json",
+                      settingsUrl: url)
+    }
     func createCacher() throws -> ResourceCacher<SDKSettings> {
         let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
                                                 modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
@@ -36,7 +39,7 @@ final class SettingsManagerTests: XCTestCase {
         return try SettingsManager(config: config,
                                    dataStore: dataStore,
                                    networkHelper: networkHelper,
-                                   onLogger: .Just(verboseLogger),
+                                   logger: MockLogger(),
                                    onActivity: onActivity.asObservable())
     }
     func test_init_fills_current_settings_with_programmatic() throws {
@@ -70,6 +73,20 @@ final class SettingsManagerTests: XCTestCase {
             MockDispatcher.id: ["key": "value"], // Programmatic settings
             "localModule": ["localKey": "localValue"], // Local file settings
             "cached": ["key": "value"] // Cached settings
+        ]))
+    }
+
+    func test_init_without_url_fills_current_settings_with_local_and_programmatic() throws {
+        config = createConfig(url: nil)
+        config.bundle = Bundle(for: type(of: self))
+        config.addModule(TealiumModules.customDispatcher(MockDispatcher.self, enforcedSettings: ["key": "value"]))
+        let cacher = try createCacher()
+        try cacher.saveResource(SDKSettings(modulesSettings: ["cached": ["key": "value"]]), etag: nil)
+        let manager = try getManager()
+        let modulesSettings = manager.settings.value
+        XCTAssertEqual(modulesSettings, SDKSettings(modulesSettings: [
+            MockDispatcher.id: ["key": "value"], // Programmatic settings
+            "localModule": ["localKey": "localValue"], // Local file settings
         ]))
     }
 

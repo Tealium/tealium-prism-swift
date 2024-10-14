@@ -1,5 +1,5 @@
 //
-//  TealiumLogHandler.swift
+//  LogHandler.swift
 //  tealium-swift
 //
 //  Copyright © 2020 Tealium, Inc. All rights reserved.
@@ -8,12 +8,12 @@
 import Foundation
 import os.log
 
-public protocol TealiumLogHandler: AnyObject {
-    func log(category: String, message: String, level: TealiumLogLevel)
+public protocol LogHandler: AnyObject {
+    func log(category: String, message: String, level: LogLevel)
 }
 
 /// A basic implementation of `TealiumLogHandler` using system's OSLog API.
-class TealiumOSLogger: TealiumLogHandler {
+class OSLogger: LogHandler {
     var osLogs: [String: OSLog] = [:]
 
     func getOSLog(forCategory category: String) -> OSLog {
@@ -25,7 +25,7 @@ class TealiumOSLogger: TealiumLogHandler {
         return newLog
     }
 
-    func log(category: String, message: String, level: TealiumLogLevel) {
+    func log(category: String, message: String, level: LogLevel) {
         os_log("%{public}@",
                log: getOSLog(forCategory: category),
                type: OSLogType.from(logLevel: level),
@@ -34,7 +34,7 @@ class TealiumOSLogger: TealiumLogHandler {
 }
 
 extension OSLogType {
-    static func from(logLevel: TealiumLogLevel) -> Self {
+    static func from(logLevel: LogLevel) -> Self {
         switch logLevel {
         case .trace:
             /// `OSLog` doesn't have `trace`, so use `debug`

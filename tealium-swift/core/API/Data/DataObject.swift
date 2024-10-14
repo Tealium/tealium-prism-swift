@@ -100,3 +100,9 @@ public func += (left: inout DataObject, right: DataObject) {
         left.dictionary.updateValue(value, forKey: key)
     }
 }
+
+extension DataObject: CustomStringConvertible {
+    public var description: String {
+        dictionary.description
+    }
+}

@@ -1,6 +1,6 @@
 //
 //  Array+DataItem.swift
-//  Pods
+//  tealium-swift
 //
 //  Created by Enrico Zannini on 02/09/24.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.

@@ -1,6 +1,6 @@
 //
 //  TealiumDispatch.swift
-//  Pods-tealium-swift_Example
+//  tealium-swift
 //
 //  Created by Enrico Zannini on 24/07/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.

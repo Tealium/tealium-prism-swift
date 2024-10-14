@@ -19,14 +19,14 @@ public struct CoreSettings {
         static let refreshIntervalSeconds = "refresh_interval"
     }
     enum Defaults {
-        static let minLogLevel = TealiumLogLevel.Minimum.error
+        static let minLogLevel = LogLevel.Minimum.error
         static let maxQueueSize = 100
         static let queueExpiration = TimeFrame(unit: .days, interval: 1)
         static let refreshInterval = TimeFrame(unit: .minutes, interval: 15)
     }
     init(coreDataObject: DataObject) {
         minLogLevel = coreDataObject.get(key: Keys.minLogLevel)
-            .flatMap { TealiumLogLevel.Minimum(from: $0) } ?? Defaults.minLogLevel
+            .flatMap { LogLevel.Minimum(from: $0) } ?? Defaults.minLogLevel
         scopedBarriers = coreDataObject.getDataArray(key: Keys.barriers)?
             .compactMap { $0.getConvertible(converter: ScopedBarrier.converter) } ?? []
         scopedTransformations = coreDataObject.getDataArray(key: Keys.transformations)?
@@ -37,7 +37,7 @@ public struct CoreSettings {
         refreshInterval = coreDataObject.getConvertible(key: Keys.refreshIntervalSeconds,
                                                         converter: TimeFrame.converter) ?? Defaults.refreshInterval
     }
-    public let minLogLevel: TealiumLogLevel.Minimum
+    public let minLogLevel: LogLevel.Minimum
     public let scopedBarriers: [ScopedBarrier]
     public let scopedTransformations: [ScopedTransformation]
     public let maxQueueSize: Int

@@ -19,10 +19,9 @@ struct NonCodableObject {}
 final class NetworkHelperTests: XCTestCase {
     let url = "https://www.tealium.com"
     let mockClient = MockNetworkClient(result: .success(.init(data: Data(), urlResponse: .successful())))
-
+    lazy var networkHelper = NetworkHelper(networkClient: mockClient, logger: nil)
     func test_get_returns_mocked_result() {
         let networkCallCompleted = expectation(description: "Network Call completed")
-        let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.get(url: url) { result in
             XCTAssertResultIsSuccess(result)
             networkCallCompleted.fulfill()
@@ -37,7 +36,6 @@ final class NetworkHelperTests: XCTestCase {
             XCTAssertEqual(request.value(forHTTPHeaderField: "If-None-Match"), "some etag")
             requestSended.fulfill()
         }
-        let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.get(url: url, etag: "some etag") { _ in }
         waitForDefaultTimeout()
     }
@@ -50,7 +48,6 @@ final class NetworkHelperTests: XCTestCase {
             return
         }
         mockClient.result = .success(NetworkResponse(data: data, urlResponse: .successful()))
-        let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.getJsonAsObject(url: url) { result in
             XCTAssertResultIsSuccess(result) { response in
                 XCTAssertEqual(response.object, object)
@@ -67,7 +64,6 @@ final class NetworkHelperTests: XCTestCase {
             XCTAssertEqual(request.value(forHTTPHeaderField: "If-None-Match"), "some etag")
             requestSended.fulfill()
         }
-        let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.getJsonAsObject(url: url, etag: "some etag") { (_: ObjectResult<MockResultObject>) in }
         waitForDefaultTimeout()
     }
@@ -75,7 +71,6 @@ final class NetworkHelperTests: XCTestCase {
     func test_getJsonAsObject_fails_when_data_is_malformed() {
         let networkCallCompleted = expectation(description: "Network Call completed")
         mockClient.result = .success(NetworkResponse(data: Data(), urlResponse: .successful()))
-        let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.getJsonAsObject(url: url) { (result: ObjectResult<MockResultObject>)  in
             XCTAssertResultIsFailure(result)
             networkCallCompleted.fulfill()
@@ -91,7 +86,6 @@ final class NetworkHelperTests: XCTestCase {
             return
         }
         mockClient.result = .success(NetworkResponse(data: data, urlResponse: .successful()))
-        let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.getJsonAsDataObject(url: url) { result in
             XCTAssertResultIsSuccess(result) { response in
                 XCTAssertEqual(response.object.get(key: "keyString"), "value")
@@ -109,7 +103,6 @@ final class NetworkHelperTests: XCTestCase {
             XCTAssertEqual(request.value(forHTTPHeaderField: "If-None-Match"), "some etag")
             requestSent.fulfill()
         }
-        let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.getJsonAsDataObject(url: url, etag: "some etag") { _ in }
         waitForDefaultTimeout()
     }
@@ -122,7 +115,6 @@ final class NetworkHelperTests: XCTestCase {
             return
         }
         mockClient.result = .success(NetworkResponse(data: data, urlResponse: .successful()))
-        let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.getJsonAsDataObject(url: url) { result in
             XCTAssertResultIsFailure(result)
             networkCallCompleted.fulfill()
@@ -132,7 +124,6 @@ final class NetworkHelperTests: XCTestCase {
 
     func test_post_returns_mocked_result() {
         let networkCallCompleted = expectation(description: "Network Call completed")
-        let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.post(url: url, body: DataObject()) { result in
             XCTAssertResultIsSuccess(result)
             networkCallCompleted.fulfill()
@@ -149,7 +140,6 @@ final class NetworkHelperTests: XCTestCase {
             XCTAssertEqual(request.httpBody, try? Tealium.jsonEncoder.encode(AnyCodable(dataObject.asDictionary())).gzipped(level: .bestCompression))
             requestSended.fulfill()
         }
-        let networkHelper = NetworkHelper(networkClient: mockClient)
         _ = networkHelper.post(url: url, body: dataObject) { _ in }
         waitForDefaultTimeout()
     }

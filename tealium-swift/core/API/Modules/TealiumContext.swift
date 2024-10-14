@@ -17,7 +17,7 @@ public class TealiumContext {
     public let databaseProvider: DatabaseProviderProtocol
     public let moduleStoreProvider: ModuleStoreProvider
     weak public private(set) var modulesManager: ModulesManager?
-    public let logger: TealiumLoggerProvider?
+    public let logger: LoggerProtocol?
     public let networkHelper: NetworkHelperProtocol
     public let activityListener: ApplicationStatusListener
     public let queue: TealiumQueue
@@ -30,7 +30,7 @@ public class TealiumContext {
          transformerRegistry: TransformerRegistry,
          databaseProvider: DatabaseProviderProtocol,
          moduleStoreProvider: ModuleStoreProvider,
-         logger: TealiumLoggerProvider?,
+         logger: LoggerProtocol?,
          networkHelper: NetworkHelperProtocol,
          activityListener: ApplicationStatusListener,
          queue: TealiumQueue) {

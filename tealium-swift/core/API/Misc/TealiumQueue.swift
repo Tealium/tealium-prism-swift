@@ -1,6 +1,6 @@
 //
 //  TealiumQueue.swift
-//  Pods
+//  tealium-swift
 //
 //  Created by Enrico Zannini on 23/08/24.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.

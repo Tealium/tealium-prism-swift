@@ -15,27 +15,35 @@ class TealiumImplementation {
     let modulesManager: ModulesManager
     let tracker: TealiumTracker
     let instanceName: String
-    private let onLogger = ReplaySubject<TealiumLoggerProvider>()
     private let appStatusListener = ApplicationStatusListener.shared
 
+    // swiftlint:disable function_body_length
     init(_ config: TealiumConfig, modulesManager: ModulesManager) throws {
         var config = config
         Self.addMandatoryAndRemoveDuplicateModules(from: &config)
         let storeProvider = try Self.initModuleStoreProvider(config: config)
-        let onLoggerObservable = onLogger.asObservable()
-        let networkHelper = NetworkHelper(networkClient: HTTPClient.shared.newClient(withLogger: onLoggerObservable), onLogger: onLoggerObservable)
+        let onLogLevel = ReplaySubject<LogLevel.Minimum>()
+        let logger = TealiumLogger(logHandler: config.loggerType.getHandler(),
+                                   onLogLevel: onLogLevel.asObservable(),
+                                   forceLevel: config.coreSettings?
+            .get(key: CoreSettings.Keys.minLogLevel, as: String.self)
+            .flatMap { LogLevel.Minimum(from: $0) })
+        let networkHelper = NetworkHelper(networkClient: HTTPClient.shared.newClient(withLogger: logger), logger: logger)
         let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
         let settingsManager = try SettingsManager(config: config,
                                                   dataStore: dataStore,
                                                   networkHelper: networkHelper,
-                                                  onLogger: onLoggerObservable,
+                                                  logger: logger,
                                                   onActivity: appStatusListener.onApplicationStatus)
         self.settingsManager = settingsManager
         let coreSettings = settingsManager.settings.map { $0.coreSettings }
-        let logger = TealiumLogger(logger: config.loggerType.getHandler(),
-                                   minLogLevel: coreSettings.map { $0.minLogLevel })
-        onLogger.publish(logger)
-        logger.debug?.log(category: LogCategory.tealium, message: "Purging expired data from the database")
+        settingsManager.settings
+            .map { $0.coreSettings.minLogLevel }
+            .distinct()
+            .subscribe { logLevel in
+                onLogLevel.publish(logLevel)
+            }.addTo(automaticDisposer)
+        logger.debug(category: LogCategory.tealium, "Purging expired data from the database")
         storeProvider.modulesRepository.deleteExpired(expiry: .restart)
         let queueManager = QueueManager(processors: Self.queueProcessors(from: modulesManager.modules),
                                         queueRepository: SQLQueueRepository(dbProvider: storeProvider.databaseProvider,
@@ -67,9 +75,10 @@ class TealiumImplementation {
                                       queue: modulesManager.queue)
         self.modulesManager = modulesManager
         self.instanceName = "\(config.account)-\(config.profile)"
-        logger.info?.log(category: LogCategory.tealium, message: "Instance \(self.instanceName) initialized.")
+        logger.info(category: LogCategory.tealium, "Instance \(self.instanceName) initialized.")
         self.handleSettingsUpdates()
     }
+    // swiftlint:enable function_body_length
 
     func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
         tracker.track(trackable, onTrackResult: onTrackResult)
@@ -110,6 +119,7 @@ class TealiumImplementation {
     }
 
     deinit {
-        context.logger?.info?.log(category: LogCategory.tealium, message: "Instance \(instanceName) shutting down.")
+        let instanceName = self.instanceName
+        context.logger?.info(category: LogCategory.tealium, "Instance \(instanceName) shutting down.")
     }
 }

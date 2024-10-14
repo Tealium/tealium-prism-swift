@@ -24,7 +24,8 @@ final class QueueManagerTests: XCTestCase {
                                                   expiration: coreSettings.value.queueExpiration)
     lazy var queueManager = QueueManager(processors: TealiumImplementation.queueProcessors(from: modules),
                                          queueRepository: queueRepository,
-                                         coreSettings: coreSettings)
+                                         coreSettings: coreSettings,
+                                         logger: nil)
 
     func test_init_removes_dispatches_queued_to_old_processors_in_db() {
         let dispatch = TealiumDispatch(name: "some_event")

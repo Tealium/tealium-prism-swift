@@ -26,7 +26,8 @@ public class InterceptorManager: NSObject, InterceptorManagerProtocol {
     }
 
     public func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
-        TealiumSignposter.networking.event("URLSession WaitingForConnectivity", message: "\(task.originalRequest?.url?.absoluteString ?? "")")
+        TealiumSignposter.networking.event("URLSession WaitingForConnectivity",
+                                           "\(task.originalRequest?.url?.absoluteString ?? "")")
         interceptors.forEach { interceptor in
             interceptor.waitingForConnectivity(task)
         }

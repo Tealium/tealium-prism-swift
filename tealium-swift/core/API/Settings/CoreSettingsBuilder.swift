@@ -14,7 +14,7 @@ public class CoreSettingsBuilder {
     var dataObject = DataObject()
 
     /// Set the minimum level for logs to be logged by the entire library.
-    public func setMinLogLevel(_ minLogLevel: TealiumLogLevel.Minimum) -> Self {
+    public func setMinLogLevel(_ minLogLevel: LogLevel.Minimum) -> Self {
         dataObject.set(converting: minLogLevel, key: Keys.minLogLevel)
         return self
     }

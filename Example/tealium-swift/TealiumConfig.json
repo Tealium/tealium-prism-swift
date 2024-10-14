@@ -1,9 +1,9 @@
 {
-    "core": {
+    "Core": {
         "log_level": "trace",
         "expiration": 200
     },
-    "collect": {
+    "Collect": {
         "enabled": false
     },
 }

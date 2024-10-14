@@ -35,11 +35,11 @@ struct CollectSettings {
     /// The profile to override in the data layer events
     let overrideProfile: String?
 
-    init?(moduleSettings: DataObject, logger: TealiumLoggerProvider? = nil) {
+    init?(moduleSettings: DataObject, logger: LoggerProtocol?) {
         guard let url = Self.getURL(moduleSettings: moduleSettings),
               let batchUrl = Self.getBatchURL(moduleSettings: moduleSettings) else {
-            logger?.error?.log(category: LogCategory.collect,
-                               message: "Unable to init settings due to invalid URL")
+            logger?.error(category: LogCategory.collect,
+                          "Unable to init settings due to invalid URL")
             return nil
         }
         self.url = url

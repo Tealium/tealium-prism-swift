@@ -16,7 +16,7 @@ class TealiumCollect: TealiumBasicModule, Dispatcher {
     let dispatchLimit = 10
     let batcher = CollectBatcher()
     let networkHelper: NetworkHelperProtocol
-    let logger: TealiumLoggerProvider?
+    let logger: LoggerProtocol?
     var settings: CollectSettings
 
     /// Generic `Dispatcher` initializer called by the `ModulesManager`.
@@ -27,7 +27,7 @@ class TealiumCollect: TealiumBasicModule, Dispatcher {
     }
 
     /// Internal initializer called by the generic one and by the tests.
-    init?(networkHelper: NetworkHelperProtocol, settings: CollectSettings?, logger: TealiumLoggerProvider? = nil) {
+    init?(networkHelper: NetworkHelperProtocol, settings: CollectSettings?, logger: LoggerProtocol?) {
         guard let settings else {
             return nil
         }
@@ -57,8 +57,8 @@ class TealiumCollect: TealiumBasicModule, Dispatcher {
             return sendSingleDispatch(events[0], completion: completion)
         } else {
             let batches = batcher.splitDispatchesByVisitorId(events)
-            logger?.trace?.log(category: LogCategory.collect,
-                               message: "Collect events split in batches \(batches)")
+            logger?.trace(category: LogCategory.collect,
+                          "Collect events split in batches \(batches)")
             let container = DisposeContainer()
             for batch in batches where !batch.isEmpty {
                 if batch.count == 1 {

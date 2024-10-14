@@ -22,7 +22,7 @@ final class HTTPClientTests: XCTestCase {
     }
     lazy var client: HTTPClient = {
         config.sessionConfiguration.protocolClasses = [URLProtocolMock.self]
-        return HTTPClient(configuration: config, onLogger: .Just(verboseLogger))
+        return HTTPClient(configuration: config, logger: nil)
     }()
 
     override func tearDown() {

@@ -18,7 +18,7 @@ public class ModulesManager {
 
     func updateSettings(context: TealiumContext, settings: SDKSettings) {
         let oldModules = self.modules.value
-        _modules.value = context.config.modules.compactMap({ moduleFactory in
+        _modules.value = context.config.modules.compactMap({ moduleFactory -> TealiumModule? in
             let updateInterval = TealiumSignpostInterval(signposter: .settings, name: "Module Update")
                 .begin(moduleFactory.id)
             defer { updateInterval.end() }
@@ -26,18 +26,18 @@ public class ModulesManager {
             if let module = oldModules.first(where: { $0.id == moduleFactory.id }) {
                 guard moduleFactory.shouldBeEnabled(by: moduleSettings),
                       let module = module.updateSettings(moduleSettings) else {
-                    context.logger?.debug?.log(category: moduleFactory.id,
-                                               message: "Module failed to update settings. Module will be shut down.")
+                    context.logger?.debug(category: moduleFactory.id,
+                                          "Module failed to update settings. Module will be shut down.")
                     module.shutdown()
                     return nil
                 }
-                context.logger?.trace?.log(category: moduleFactory.id, message: "Settings updated to \(moduleSettings)")
+                context.logger?.trace(category: moduleFactory.id, "Settings updated to \(moduleSettings)")
                 return module
             } else {
                 guard moduleFactory.shouldBeEnabled(by: moduleSettings),
                     let module = moduleFactory.create(context: context, moduleSettings: moduleSettings) else {
-                    context.logger?.debug?.log(category: moduleFactory.id,
-                                               message: "Module failed to initialize.")
+                    context.logger?.debug(category: moduleFactory.id,
+                                          "Module failed to initialize.")
                     return nil
                 }
                 return module

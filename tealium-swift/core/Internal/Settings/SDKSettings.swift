@@ -9,13 +9,11 @@
 import Foundation
 
 /// A container of settings for each module.
-struct SDKSettings: Codable {
+final class SDKSettings: Codable, CustomStringConvertible {
     /// A Dictionary containing all the settings for each module, keyed by `Module.id`.
     let modulesSettings: [String: DataObject]
     /// A utility to return a type safe representation of the Core settings, potentially used by all the modules.
-    var coreSettings: CoreSettings {
-        CoreSettings(coreDataObject: modulesSettings[CoreSettings.id] ?? [:])
-    }
+    lazy private(set) var coreSettings = CoreSettings(coreDataObject: modulesSettings[CoreSettings.id] ?? [:])
 
     init(modulesSettings: [String: DataObject]) {
         self.modulesSettings = modulesSettings
@@ -29,5 +27,9 @@ struct SDKSettings: Codable {
     func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(modulesSettings)
+    }
+
+    var description: String {
+        modulesSettings.description
     }
 }

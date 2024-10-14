@@ -51,7 +51,8 @@ class DispatchManagerTestCase: XCTestCase {
                                              queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
                                                                                  maxQueueSize: 10,
                                                                                  expiration: TimeFrame(unit: .days, interval: 1)),
-                                             coreSettings: coreSettings)
+                                             coreSettings: coreSettings,
+                                             logger: nil)
     lazy var barrierCoordinator = BarrierCoordinator(registeredBarriers: [barrier],
                                                      onScopedBarriers: scopedBarriers)
     lazy var transformerCoordinator = TransformerCoordinator(registeredTransformers: [transformer],
@@ -78,7 +79,8 @@ class DispatchManagerTestCase: XCTestCase {
         DispatchManager(modulesManager: modulesManager,
                         queueManager: queueManager,
                         barrierCoordinator: barrierCoordinator,
-                        transformerCoordinator: transformerCoordinator)
+                        transformerCoordinator: transformerCoordinator,
+                        logger: nil)
     }
 
     var module1: MockDispatcher1? {

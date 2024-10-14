@@ -117,16 +117,16 @@ public class TealiumSignposter {
      *
      * - Parameters:
      *    - name: the `StaticString` used to name this interval
-     *    - message: the autoclosure `String` used to describe some parameters for this begin interval
+     *    - messageProvider: the autoclosure `String` used to describe some parameters for this begin interval
      *
      * - Returns: an optional `SignpostStateWrapper` used to pass it to the `endInterval` method. Nil on iOS < 15
      */
-    public func beginInterval(_ name: StaticString, _ message: @autoclosure @escaping () -> String) -> SignpostStateWrapper? {
+    public func beginInterval(_ name: StaticString, _ messageProvider: @autoclosure @escaping () -> String) -> SignpostStateWrapper? {
         if #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) {
             return signposter
                 .beginInterval(name,
                                id: signposter.makeSignpostID(),
-                               "\(message(), privacy: .public)")
+                               "\(messageProvider(), privacy: .public)")
                 .toWrapper()
         }
         return nil
@@ -158,15 +158,15 @@ public class TealiumSignposter {
      * - Parameters:
      *    - name: the `StaticString` used to name the interval. Must be an exact match with the begin interval call
      *    - state: the `SignpostStateWrapper` returned by the begin interval call
-     *    - message: the autoclosure `String` used to describe some parameters for this end interval call
+     *    - messageProvider: the autoclosure `String` used to describe some parameters for this end interval call
      *
      * - Returns: an optional `SignpostStateWrapper` used to pass it to the `endInterval` method. Nil on iOS < 15
      */
-    public func endInterval(_ name: StaticString, state: SignpostStateWrapper?, _ message: @autoclosure @escaping () -> String) {
+    public func endInterval(_ name: StaticString, state: SignpostStateWrapper?, _ messageProvider: @autoclosure @escaping () -> String) {
         if #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *), let state = state?.state() {
             signposter.endInterval(name,
                                    state,
-                                   "\(message(), privacy: .public)")
+                                   "\(messageProvider(), privacy: .public)")
         }
     }
 
@@ -187,13 +187,13 @@ public class TealiumSignposter {
      *
      * - Parameters:
      *    - name: the `StaticString` used to name the event
-     *    - message: the autoclosure `String` used to describe some parameters for this event call
+     *    - messageProvider: the autoclosure `String` used to describe some parameters for this event call
      */
-    public func event(_ name: StaticString, message: @autoclosure @escaping () -> String) {
+    public func event(_ name: StaticString, _ messageProvider: @autoclosure @escaping () -> String) {
         if #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) {
             signposter.emitEvent(name,
                                  id: signposter.makeSignpostID(),
-                                 "\(message(), privacy: .public)")
+                                 "\(messageProvider(), privacy: .public)")
         }
     }
 }
@@ -247,12 +247,12 @@ public class TealiumSignpostInterval {
      *
      * No-op on iOS < 15.
      *
-     * - Parameter message: the autoclosure `String` used to describe some parameters for this begin interval
+     * - Parameter messageProvider: the autoclosure `String` used to describe some parameters for this begin interval
      *
      * - Returns: self for ease of use
      */
-    public func begin(_ message: @autoclosure @escaping () -> String) -> Self {
-        state = signposter.beginInterval(name, message())
+    public func begin(_ messageProvider: @autoclosure @escaping () -> String) -> Self {
+        state = signposter.beginInterval(name, messageProvider())
         return self
     }
 
@@ -271,10 +271,10 @@ public class TealiumSignpostInterval {
      *
      * No-op on iOS < 15.
      *
-     * - Parameter message: the autoclosure `String` used to describe some parameters for this end interval call
+     * - Parameter messageProvider: the autoclosure `String` used to describe some parameters for this end interval call
      */
-    public func end(_ message: @autoclosure @escaping () -> String) {
-        signposter.endInterval(name, state: state, message())
+    public func end(_ messageProvider: @autoclosure @escaping () -> String) {
+        signposter.endInterval(name, state: state, messageProvider())
         self.state = nil
     }
 
@@ -300,12 +300,12 @@ public class TealiumSignpostInterval {
      *
      * - Parameters:
      *    - work: the block to be run while surrounded by the signpost interval
-     *    - message: the autoclosure `String` used to describe some parameters for the begin interval call
+     *    - messageProvider: the autoclosure `String` used to describe some parameters for the begin interval call
      *
      * - Returns: the same `Output` of the block passed as parameter
      */
-    public func signpostedWork<Output>(_ message: @autoclosure @escaping () -> String, _ work: @escaping () throws -> Output) rethrows -> Output {
-        _ = begin(message())
+    public func signpostedWork<Output>(_ messageProvider: @autoclosure @escaping () -> String, _ work: @escaping () throws -> Output) rethrows -> Output {
+        _ = begin(messageProvider())
         defer { end() }
         return try work()
     }

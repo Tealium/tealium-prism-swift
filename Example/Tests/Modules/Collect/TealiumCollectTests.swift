@@ -12,7 +12,9 @@ import XCTest
 final class TealiumCollectTests: XCTestCase {
     let networkHelper = MockNetworkHelper()
     var settings = CollectSettings(moduleSettings: [:])
-    lazy var collect = TealiumCollect(networkHelper: networkHelper, settings: settings)
+    lazy var collect = TealiumCollect(networkHelper: networkHelper,
+                                      settings: settings,
+                                      logger: nil)
     let stubDispatches = [
         TealiumDispatch(name: "event1", data: [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"]),
         TealiumDispatch(name: "event2", data: [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"])

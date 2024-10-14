@@ -19,29 +19,29 @@ class SettingsManager {
     private let automaticDisposer = AutomaticDisposer()
     let localSettings: SDKSettings?
     let programmaticSettings: SDKSettings
-    private let onLogger: Observable<TealiumLoggerProvider>
+    private let logger: LoggerProtocol
 
-    init(config: TealiumConfig, dataStore: DataStore, networkHelper: NetworkHelperProtocol, onLogger: Observable<TealiumLoggerProvider>, onActivity: Observable<ApplicationStatus>) throws {
-        self.onLogger = onLogger
+    init(config: TealiumConfig, dataStore: DataStore, networkHelper: NetworkHelperProtocol, logger: LoggerProtocol, onActivity: Observable<ApplicationStatus>) throws {
+        self.logger = logger
         // MARK: Initialize Settings StateSubject
+        var settingsToMerge = [SDKSettings]()
         localSettings = Self.loadLocalSettings(config: config)
         if let settings = localSettings {
-            onLogger.subscribeOnce { logger in
-                logger.trace?.log(category: LogCategory.settingsManager, message: "Settings loaded from local file:\n\(settings)")
-            }.addTo(automaticDisposer)
+            logger.trace(category: LogCategory.settingsManager, "Settings loaded from local file:\n\(settings)")
+            settingsToMerge.append(settings)
         }
         let settingsCacher = ResourceCacher<SDKSettings>(dataStore: dataStore, fileName: "settings")
-        let cachedSettings = Self.loadCachedSettings(resourceCacher: settingsCacher)
-        if let settings = cachedSettings {
-            onLogger.subscribeOnce { logger in
-                logger.trace?.log(category: LogCategory.settingsManager, message: "Settings loaded from cache:\n\(settings)")
-            }.addTo(automaticDisposer)
+        if config.settingsUrl != nil {
+            let cachedSettings = Self.loadCachedSettings(resourceCacher: settingsCacher)
+            if let settings = cachedSettings {
+                logger.trace(category: LogCategory.settingsManager, "Settings loaded from cache:\n\(settings)")
+                settingsToMerge.append(settings)
+            }
         }
         self.programmaticSettings = config.getEnforcedSDKSettings()
-        onLogger.subscribeOnce { [programmaticSettings = self.programmaticSettings] logger in
-            logger.trace?.log(category: LogCategory.settingsManager, message: "Settings loaded from config:\n\(programmaticSettings)")
-        }.addTo(automaticDisposer)
-        _settings = StateSubject<SDKSettings>(Self.merge(orderedSettings: [localSettings, cachedSettings, programmaticSettings].compactMap { $0 }))
+        logger.trace(category: LogCategory.settingsManager, "Settings loaded from config:\n\(self.programmaticSettings)")
+        settingsToMerge.append(programmaticSettings)
+        _settings = StateSubject<SDKSettings>(Self.merge(orderedSettings: settingsToMerge))
         // MARK: Initialize ResourceRefresher
         if let urlString = config.settingsUrl {
             let refreshParameters = RefreshParameters(id: "settings",
@@ -50,16 +50,16 @@ class SettingsManager {
                                                       errorCooldownBaseInterval: 20)
             let settingsRefresher = ResourceRefresher<SDKSettings>(networkHelper: networkHelper,
                                                                    resourceCacher: settingsCacher,
-                                                                   parameters: refreshParameters)
+                                                                   parameters: refreshParameters,
+                                                                   logger: logger)
             self.resourceRefresher = settingsRefresher
         } else {
             self.resourceRefresher = nil
         }
-        settings.combineLatest(onLogger.first())
-            .subscribe { settings, logger in
-                logger.debug?.log(category: LogCategory.settingsManager,
-                                  message: "Applying settings:\n\(settings)")
-            }.addTo(automaticDisposer)
+        settings.subscribe { [weak self] settings in
+            self?.logger.debug(category: LogCategory.settingsManager,
+                               "Applying settings:\n\(settings)")
+        }.addTo(automaticDisposer)
         startRefreshing(onActivity: onActivity)
     }
 
@@ -78,9 +78,7 @@ class SettingsManager {
         Self.onShouldRequestRefresh(onActivity)
             .subscribe { [weak self] in
                 if resourceRefresher.shouldRefresh {
-                    self?.onLogger.subscribeOnce { logger in
-                        logger.debug?.log(category: LogCategory.settingsManager, message: "Refreshing remote settings")
-                    }
+                    self?.logger.debug(category: LogCategory.settingsManager, "Refreshing remote settings")
                     resourceRefresher.requestRefresh()
                 }
             }.addTo(automaticDisposer)
@@ -95,11 +93,10 @@ class SettingsManager {
          resourceRefresher.onResourceLoaded
             .compactMap { [weak self] newSettingsLoaded in
                 guard let self else { return nil }
-                self.onLogger.subscribeOnce { logger in
-                    if let debug = logger.debug {
-                        debug.log(category: LogCategory.settingsManager, message: "New SDK settings downloaded")
-                        logger.trace?.log(category: LogCategory.settingsManager, message: "Downloaded settings:\n\(newSettingsLoaded)")
-                    }
+                if self.logger.shouldLog(level: .debug) {
+                    self.logger.debug(category: LogCategory.settingsManager, "New SDK settings downloaded")
+                    self.logger.trace(category: LogCategory.settingsManager,
+                                      "Downloaded settings:\n\(newSettingsLoaded)")
                 }
                 return Self.merge(orderedSettings: [self.localSettings, newSettingsLoaded, programmaticSettings].compactMap { $0 })
             }

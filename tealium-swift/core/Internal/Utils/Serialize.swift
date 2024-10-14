@@ -1,6 +1,6 @@
 //
 //  Serialize.swift
-//  Pods
+//  tealium-swift
 //
 //  Created by Enrico Zannini on 19/09/24.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.

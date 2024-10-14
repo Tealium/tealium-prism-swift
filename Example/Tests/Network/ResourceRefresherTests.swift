@@ -21,7 +21,8 @@ class ResourceRefresherBaseTests: ResourceCacherBaseTests {
         return ResourceRefresher<TestResourceObject>(networkHelper: networkHelper,
                                                      resourceCacher: cacher,
                                                      parameters: parameters,
-                                                     errorCooldown: errorCooldown)
+                                                     errorCooldown: errorCooldown,
+                                                     logger: MockLogger())
     }
 }
 

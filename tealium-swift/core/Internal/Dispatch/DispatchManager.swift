@@ -26,7 +26,7 @@ class DispatchManager {
     private var consentManager: ConsentManager? {
         modulesManager.modules.value.compactMap { $0 as? ConsentManager }.first
     }
-    private let logger: TealiumLoggerProvider?
+    private let logger: LoggerProtocol?
     @ToAnyObservable<BasePublisher<Void>>(BasePublisher<Void>())
     private var onQueuedEvents: Observable<Void>
 
@@ -34,7 +34,7 @@ class DispatchManager {
          queueManager: QueueManagerProtocol,
          barrierCoordinator: BarrierCoordinator,
          transformerCoordinator: TransformerCoordinator,
-         logger: TealiumLoggerProvider? = nil) {
+         logger: LoggerProtocol?) {
         self.modulesManager = modulesManager
         self.queueManager = queueManager
         self.barrierCoordinator = barrierCoordinator
@@ -60,21 +60,25 @@ class DispatchManager {
 
     func track(_ dispatch: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
         guard !tealiumPurposeExplicitlyBlocked() else {
-            logger?.debug?.log(category: LogCategory.dispatchManager, message: "Tealium consent purpose is explicitly blocked. Event \(dispatch.logDescription()) will be dropped.")
+            logger?.debug(category: LogCategory.dispatchManager,
+                          "Tealium consent purpose is explicitly blocked. Event \(dispatch.logDescription()) will be dropped.")
             onTrackResult?(dispatch, .dropped)
             return
         }
         transformerCoordinator.transform(dispatch: dispatch, for: .afterCollectors) { [weak self] transformed in
             guard let self, let transformed else {
-                self?.logger?.debug?.log(category: LogCategory.dispatchManager, message: "Event \(dispatch.logDescription()) dropped due to transformer")
+                self?.logger?.debug(category: LogCategory.dispatchManager,
+                                    "Event \(dispatch.logDescription()) dropped due to transformer")
                 onTrackResult?(dispatch, .dropped)
                 return
             }
             if let consentManager = self.consentManager {
-                self.logger?.debug?.log(category: LogCategory.dispatchManager, message: "Event \(transformed.logDescription()) consent applied")
+                self.logger?.debug(category: LogCategory.dispatchManager,
+                                   "Event \(transformed.logDescription()) consent applied")
                 consentManager.applyConsent(to: transformed, completion: onTrackResult)
             } else {
-                self.logger?.debug?.log(category: LogCategory.dispatchManager, message: "Event \(transformed.logDescription()) accepted for processing")
+                self.logger?.debug(category: LogCategory.dispatchManager,
+                                   "Event \(transformed.logDescription()) accepted for processing")
                 self.queueManager.storeDispatches([transformed], enqueueingFor: dispatchers.map { $0.id })
                 onTrackResult?(transformed, .accepted)
             }
@@ -93,7 +97,8 @@ class DispatchManager {
         }.flatMap { [weak self, coordinator = barrierCoordinator] dispatcher in
             coordinator.onBarrierState(for: dispatcher.id)
                 .flatMapLatest { [weak self] barriersState in
-                    self?.logger?.debug?.log(category: LogCategory.dispatchManager, message: "BarrierState changed for \(dispatcher.id): \(barriersState)")
+                    self?.logger?.debug(category: LogCategory.dispatchManager,
+                                        "BarrierState changed for \(dispatcher.id): \(barriersState)")
                     if barriersState == .open,
                        let newLoop = self?.startDequeueLoop(for: dispatcher) {
                         return newLoop
@@ -105,8 +110,8 @@ class DispatchManager {
                         guard let self = self else {
                             return Subscription { }
                         }
-                        self.logger?.debug?.log(category: LogCategory.dispatchManager,
-                                                message: "Sending events to dispatcher \(dispatcher.id): \(dispatches.shortDescription())")
+                        self.logger?.debug(category: LogCategory.dispatchManager,
+                                           "Sending events to dispatcher \(dispatcher.id): \(dispatches.shortDescription())")
                         return self.transformAndDispatch(dispatches: dispatches, for: dispatcher) { processedDispatches in
                             observer((dispatcher, processedDispatches))
                         }
@@ -115,8 +120,8 @@ class DispatchManager {
         }
         .subscribe { [weak self] dispatcher, processedDispatches in
             self?.queueManager.deleteDispatches(processedDispatches.map { $0.id }, for: dispatcher.id)
-            self?.logger?.debug?.log(category: LogCategory.dispatchManager,
-                                     message: "Dispatcher: \(dispatcher.id) processed events: \(processedDispatches.shortDescription())")
+            self?.logger?.debug(category: LogCategory.dispatchManager,
+                                "Dispatcher: \(dispatcher.id) processed events: \(processedDispatches.shortDescription())")
         }.addTo(self.managerContainer)
     }
 

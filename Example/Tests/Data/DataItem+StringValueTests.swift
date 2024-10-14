@@ -173,9 +173,9 @@ final class DataItemStringValueTests: XCTestCase {
         XCTAssertNil(boolDictionary)
     }
 
-    func test_nan_and_infinity_strings_are_converted_to_numbers() throws {
+    func test_nan_and_infinity_strings_remain_strings() throws {
         let value = DataItem(stringValue: "[\"NaN\", \"Infinity\", \"-Infinity\"]")
-        var result = value.getArray(of: String.self)
+        let result = value.getArray(of: String.self)
         XCTAssertEqual(result, ["NaN", "Infinity", "-Infinity"])
     }
 

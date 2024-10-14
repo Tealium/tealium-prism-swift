@@ -9,14 +9,29 @@
 import Foundation
 @testable import TealiumSwift
 
-class MockLogHandler: TealiumLogHandler {
-    typealias LogEvent = (String, String, TealiumLogLevel)
+class MockLogHandler: LogHandler {
+    struct LogEvent {
+        let category: String
+        let message: String
+        let level: LogLevel
+    }
     @ToAnyObservable<ReplaySubject<LogEvent>>(ReplaySubject<LogEvent>())
     var onLogged: Observable<LogEvent>
-    func log(category: String, message: String, level: TealiumLogLevel) {
-        _onLogged.publish((category, message, level))
+    func log(category: String, message: String, level: LogLevel) {
+        _onLogged.publish(LogEvent(category: category, message: message, level: level))
     }
 }
 
-let verboseLogger = TealiumLogger(logger: TealiumOSLogger(),
-                                  minLogLevel: .constant(.trace))
+struct MockLogger: LoggerProtocol {
+    func shouldLog(level: LogLevel) -> Bool {
+        return true
+    }
+
+    func log(level: LogLevel, category: String, _ messageProvider: @autoclosure @escaping () -> String) {
+
+    }
+}
+
+let verboseLogger = TealiumLogger(logHandler: OSLogger(),
+                                  onLogLevel: .Empty(),
+                                  forceLevel: .trace)

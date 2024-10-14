@@ -13,21 +13,21 @@ import Foundation
  * The higher the rawValue of the log level, the more important it is to be logged.
  * The log level can be used by a `TealiumLogHandler` to log differently the data it receives
  * (e.g.: Red color for `error`, or more data for `trace` vs `debug`)
- * but it will always be used by a logger to compare it with the `TealiumLogLevel.Minimum`
+ * but it will always be used by a logger to compare it with the `LogLevel.Minimum`
  * minimum log level and only send logs with higher severity than the configured minimum.
  */
-public enum TealiumLogLevel: Int, Comparable, CaseIterable, CustomStringConvertible {
+public enum LogLevel: Int, Comparable, CaseIterable, CustomStringConvertible {
     case trace  = 0
     case debug  = 100
     case info   = 200
     case warn   = 300
     case error  = 400
 
-    public static func >= (lhs: TealiumLogLevel, rhs: Minimum) -> Bool {
+    public static func >= (lhs: LogLevel, rhs: Minimum) -> Bool {
         lhs.rawValue >= rhs.rawValue
     }
 
-    public static func < (lhs: TealiumLogLevel, rhs: TealiumLogLevel) -> Bool {
+    public static func < (lhs: LogLevel, rhs: LogLevel) -> Bool {
         lhs.rawValue < rhs.rawValue
     }
 
@@ -48,7 +48,7 @@ public enum TealiumLogLevel: Int, Comparable, CaseIterable, CustomStringConverti
     /**
      * The minimum log level that will be used by a logger to limit the amount of logs produced.
      *
-     * It includes the same log levels as the TealiumLogLevel plus an additional `silent` level to stop all logging.
+     * It includes the same log levels as the `LogLevel` plus an additional `silent` level to stop all logging.
      */
     public enum Minimum: Int, Comparable {
         case trace  = 0
@@ -94,7 +94,7 @@ public enum TealiumLogLevel: Int, Comparable, CaseIterable, CustomStringConverti
     }
 }
 
-extension TealiumLogLevel.Minimum: DataInputConvertible {
+extension LogLevel.Minimum: DataInputConvertible {
     public func toDataInput() -> any DataInput {
         toString()
     }
@@ -103,12 +103,12 @@ extension TealiumLogLevel.Minimum: DataInputConvertible {
 // swiftlint:disable identifier_name
 public enum TealiumLoggerType {
     case os
-    case custom(TealiumLogHandler)
+    case custom(LogHandler)
 
-    func getHandler() -> TealiumLogHandler {
+    func getHandler() -> LogHandler {
         switch self {
         case .os:
-            return TealiumOSLogger()
+            return OSLogger()
         case .custom(let handler):
             return handler
         }

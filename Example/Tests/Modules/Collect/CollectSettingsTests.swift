@@ -9,6 +9,12 @@
 @testable import TealiumSwift
 import XCTest
 
+extension CollectSettings {
+    init?(moduleSettings: DataObject) {
+        self.init(moduleSettings: moduleSettings, logger: nil)
+    }
+}
+
 final class CollectSettingsTests: XCTestCase {
     typealias Settings = CollectSettings
     let customUrl = "https://www.tealium.com/somePath?somekey=someValue"

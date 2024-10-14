@@ -21,7 +21,8 @@ final class ConsentModuleTests: XCTestCase {
                                              queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
                                                                                  maxQueueSize: 10,
                                                                                  expiration: TimeFrame(unit: .days, interval: 1)),
-                                             coreSettings: coreSettings)
+                                             coreSettings: coreSettings,
+                                             logger: nil)
     @StateSubject([])
     var scopedTransformations: ObservableState<[ScopedTransformation]>
     lazy var transformerCoordinator = TransformerCoordinator(registeredTransformers: [],

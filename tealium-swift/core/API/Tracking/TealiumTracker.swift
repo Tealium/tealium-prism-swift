@@ -30,8 +30,8 @@ public extension Tracker {
 public class TealiumTracker: Tracker {
     let modulesManager: ModulesManager
     let dispatchManager: DispatchManager
-    let logger: TealiumLoggerProvider?
-    init(modulesManager: ModulesManager, dispatchManager: DispatchManager, logger: TealiumLoggerProvider? = nil) {
+    let logger: LoggerProtocol?
+    init(modulesManager: ModulesManager, dispatchManager: DispatchManager, logger: LoggerProtocol?) {
         self.modulesManager = modulesManager
         self.dispatchManager = dispatchManager
         self.logger = logger
@@ -40,8 +40,8 @@ public class TealiumTracker: Tracker {
     public func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
         let trackingInterval = TealiumSignpostInterval(signposter: .tracking, name: "TrackingCall")
             .begin(trackable.name ?? "unknown")
-        logger?.debug?.log(category: LogCategory.tealium, message: "New tracking event received: \(trackable.logDescription())")
-        logger?.trace?.log(category: LogCategory.tealium, message: "Event data: \(trackable.eventData)")
+        logger?.debug(category: LogCategory.tealium, "New tracking event received: \(trackable.logDescription())")
+        logger?.trace(category: LogCategory.tealium, "Event data: \(trackable.eventData)")
         var trackable = trackable
         let modules = self.modulesManager.modules.value
         modules.compactMap { $0 as? Collector }
@@ -51,8 +51,8 @@ public class TealiumTracker: Tracker {
                         trackable.enrich(data: collector.data) // collector.collect() maybe?
                     }
             }
-        self.logger?.debug?.log(category: LogCategory.tealium, message: "Event: \(trackable.logDescription()) has been enriched by collectors")
-        self.logger?.trace?.log(category: LogCategory.tealium, message: "Enriched event data: \(trackable.eventData)")
+        self.logger?.debug(category: LogCategory.tealium, "Event: \(trackable.logDescription()) has been enriched by collectors")
+        self.logger?.trace(category: LogCategory.tealium, "Enriched event data: \(trackable.eventData)")
         self.dispatchManager.track(trackable, onTrackResult: onTrackResult)
         trackingInterval.end()
     }
