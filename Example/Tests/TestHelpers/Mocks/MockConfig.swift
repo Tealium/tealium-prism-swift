@@ -9,14 +9,15 @@
 import Foundation
 @testable import TealiumSwift
 
-let mockConfig = TealiumConfig(account: "mock",
-                               profile: "mock",
+let mockConfig = TealiumConfig(account: "mock_account",
+                               profile: "mock_profile",
                                environment: "dev",
                                modules: [],
                                settingsFile: nil,
                                settingsUrl: nil)
 private let mockDbProvider = MockDatabaseProvider()
 private let queue = TealiumQueue.worker
+let mockVisitorId = ObservableState(valueProvider: "visitorId", subscriptionHandler: { _ in Subscription(unsubscribe: {}) })
 let mockContext = TealiumContext(modulesManager: ModulesManager(queue: queue),
                                  config: mockConfig,
                                  coreSettings: StateSubject(CoreSettings(coreDataObject: [:])).toStatefulObservable(),
@@ -31,4 +32,5 @@ let mockContext = TealiumContext(modulesManager: ModulesManager(queue: queue),
                                  logger: nil,
                                  networkHelper: MockNetworkHelper(),
                                  activityListener: ApplicationStatusListener.shared,
-                                 queue: queue)
+                                 queue: queue,
+                                 visitorId: mockVisitorId)

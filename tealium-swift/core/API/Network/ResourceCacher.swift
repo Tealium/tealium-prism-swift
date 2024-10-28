@@ -52,8 +52,8 @@ public class ResourceCacher<Resource: Codable> {
      * In case of a `nil` etag any previous etag present will be deleted.
      *
      * - Parameters:
-     *  - resource: the resource to be stored.
-     *  - etag: the etag to save along with this resource.
+     *   - resource: the resource to be stored.
+     *   - etag: the etag to save along with this resource.
      */
     public func saveResource(_ resource: Resource, etag: String?) throws {
         let serializedResource = try serialize(resource: resource)

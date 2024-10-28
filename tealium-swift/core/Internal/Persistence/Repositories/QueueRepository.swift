@@ -18,7 +18,7 @@ protocol QueueRepository {
      * If a dispatch has remained unprocessed by any of the `processors`s it is registered for, then
      * this property will include it in the returned size.
      *
-     * - returns: The number of `dispatch`es that are not completely processed.
+     * - Returns: The number of `dispatch`es that are not completely processed.
      */
     var size: Int { get }
 
@@ -54,7 +54,7 @@ protocol QueueRepository {
      *
      *
      * - Parameters:
-     *    - dispatchIds: The `TealiumDispatch` IDs to remove from the queue.
+     *    - dispatchUUIds: The `TealiumDispatch` IDs to remove from the queue.
      *    - processor: The `processor` from which the dispatches needs to be removed form.
      */
     func deleteDispatches(_ dispatchUUIds: [String], for processor: String) throws
@@ -80,7 +80,7 @@ protocol QueueRepository {
      * Changes the current expiration and deletes all the expired items according to both the new and old expiration.
      *
      * - Parameters:
-     *  - expiration: The `TimeFrame` used to validate if the currently enqueued items are expired or not.
+     *   - expiration: The `TimeFrame` used to validate if the currently enqueued items are expired or not.
      */
     func setExpiration(_ expiration: TimeFrame) throws
 }

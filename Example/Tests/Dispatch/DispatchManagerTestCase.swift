@@ -70,7 +70,8 @@ class DispatchManagerTestCase: XCTestCase {
                                       logger: nil,
                                       networkHelper: MockNetworkHelper(),
                                       activityListener: ApplicationStatusListener.shared,
-                                      queue: queue)
+                                      queue: queue,
+                                      visitorId: mockVisitorId)
     var consentManager: MockConsentManager? {
         modulesManager.getModule()
     }

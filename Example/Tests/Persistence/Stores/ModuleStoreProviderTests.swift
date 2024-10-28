@@ -31,4 +31,13 @@ final class ModuleStoreProviderTests: XCTestCase {
         }
         waitForDefaultTimeout()
     }
+
+    func test_getModuleStore_returns_cached_store_when_available() {
+        let storeProvider = ModuleStoreProvider(databaseProvider: dbProvider, modulesRepository: MockModulesRepository())
+        let store = XCTAssertNoThrowReturn(try storeProvider.getModuleStore(name: "test"))
+        XCTAssertNotNil(store)
+        let store2 = XCTAssertNoThrowReturn(try storeProvider.getModuleStore(name: "test"))
+        XCTAssertNotNil(store2)
+        XCTAssertIdentical(store, store2)
+    }
 }

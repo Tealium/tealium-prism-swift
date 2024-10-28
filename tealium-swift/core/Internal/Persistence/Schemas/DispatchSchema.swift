@@ -9,6 +9,8 @@
 import Foundation
 import SQLite
 
+typealias Expression = SQLite.Expression
+
 class DispatchSchema {
     static let table = Table("dispatch")
     static let uuid = Expression<String>("uuid")

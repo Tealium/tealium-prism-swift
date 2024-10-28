@@ -127,4 +127,5 @@ enum LogCategory {
     static let networkHelper = "NetworkHelper"
     static let resourceRefresher = "ResourceRefresher"
     static let queueManager = "QueueManager"
+    static let visitorIdProvider = "VisitorIdProvider"
 }

@@ -17,6 +17,7 @@ public struct CoreSettings {
         static let maxQueueSize = "max_queue_size"
         static let expirationSeconds = "expiration"
         static let refreshIntervalSeconds = "refresh_interval"
+        static let visitorIdentityKey = "visitor_identity_key"
     }
     enum Defaults {
         static let minLogLevel = LogLevel.Minimum.error
@@ -36,6 +37,7 @@ public struct CoreSettings {
                                                         converter: TimeFrame.converter) ?? Defaults.queueExpiration
         refreshInterval = coreDataObject.getConvertible(key: Keys.refreshIntervalSeconds,
                                                         converter: TimeFrame.converter) ?? Defaults.refreshInterval
+        visitorIdentityKey = coreDataObject.get(key: Keys.visitorIdentityKey)
     }
     public let minLogLevel: LogLevel.Minimum
     public let scopedBarriers: [ScopedBarrier]
@@ -43,4 +45,5 @@ public struct CoreSettings {
     public let maxQueueSize: Int
     public let queueExpiration: TimeFrame
     public let refreshInterval: TimeFrame
+    public let visitorIdentityKey: String?
 }

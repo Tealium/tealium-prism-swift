@@ -16,9 +16,9 @@ public protocol QueueManagerProtocol {
     /**
      * Returns an observable that emits an event every time the amount of inflight `TealiumDispatch`es for a specific processor changes.
      *
-     * - parameter processor: The `processor` for which to listen for the events count change
+     * - Parameter processor: The `processor` for which to listen for the events count change
      *
-     * - returns: A `Observable<Int>` that emits events with the count of `TealiumDispatch`es that are currently inflight.
+     * - Returns: A `Observable<Int>` that emits events with the count of `TealiumDispatch`es that are currently inflight.
      */
     func onInflightDispatchesCount(for processor: String) -> Observable<Int>
 
@@ -26,10 +26,10 @@ public protocol QueueManagerProtocol {
      * Returns the `TealiumDispatch`es in the queue, up to an optional limit, excluding the current inflight events.
      *
      * - Parameters:
-     *  - processor: The `processor` from which `TealiumDispatch`es need to be dequeued from.
-     *  - limit: The optional maximum amount of dispatches to dequeue.
+     *   - processor: The `processor` from which `TealiumDispatch`es need to be dequeued from.
+     *   - limit: The optional maximum amount of dispatches to dequeue.
      *
-     * - returns: A list of `TealiumDispatch`es, ordered by timestamp, starting from the latest inflight dispatch.
+     * - Returns: A list of `TealiumDispatch`es, ordered by timestamp, starting from the latest inflight dispatch.
      */
     func getQueuedDispatches(for processor: String, limit: Int?) -> [TealiumDispatch]
 
@@ -40,8 +40,8 @@ public protocol QueueManagerProtocol {
      * Empty dispatches and/or empty processors result in a no-op.
      *
      * - Parameters:
-     *  - dispatches: The `TealiumDispatch`es that will be stored in the queues
-     *  - processors: The `processor`s for which to store the dispatches in the queue.
+     *   - dispatches: The `TealiumDispatch`es that will be stored in the queues
+     *   - processors: The `processor`s for which to store the dispatches in the queue.
      */
     func storeDispatches(_ dispatches: [TealiumDispatch], enqueueingFor processors: [String])
 
@@ -49,8 +49,8 @@ public protocol QueueManagerProtocol {
      * Deletes the provided `TealiumDispatches` from the queue and from the list of inflight for the given `processor`.
      *
      * - Parameters:
-     *  - dispatchUUIDs: A list of `TealiumDispatch` UUIDs to delete from the queue and from the inflights
-     *  - processor: The `processor` for which to delete the dispatches.
+     *   - dispatchUUIDs: A list of `TealiumDispatch` UUIDs to delete from the queue and from the inflights
+     *   - processor: The `processor` for which to delete the dispatches.
      */
     func deleteDispatches(_ dispatchUUIDs: [String], for processor: String)
 
@@ -58,7 +58,7 @@ public protocol QueueManagerProtocol {
      * Deletes all the `TealiumDispatches` from the queue and from the list of inflight for the given `processor`.
      *
      * - Parameters:
-     *  - processor: The `processor` for which to delete the dispatches.
+     *   - processor: The `processor` for which to delete the dispatches.
      */
     func deleteAllDispatches(for processor: String)
 }

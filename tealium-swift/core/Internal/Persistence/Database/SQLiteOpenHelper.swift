@@ -24,12 +24,12 @@ class SQLiteOpenHelper {
      *  - Parameters:
      *     - databaseName: the name of the database used to store the file to disk. Nil for in memory DB.
      *     - version: the current version of the DB, used to compare with the stored version and perform upgrades/downgrades
-     *     - coreSettings: the settings used to get the correct DB for account/profile
+     *     - config: the configuration used to get the correct DB for account/profile
      */
     init(databaseName: String?, version: Int, config: TealiumConfig) {
         if let databaseName = databaseName {
             databaseUrl = TealiumFileManager.getApplicationFileUrl(for: config.account,
-                                                                   profile: config.account,
+                                                                   profile: config.profile,
                                                                    fileName: "\(databaseName).sqlite3")
         } else {
             databaseUrl = nil

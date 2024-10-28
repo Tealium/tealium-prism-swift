@@ -49,6 +49,12 @@ public class CoreSettingsBuilder {
         return self
     }
 
+    /// Sets the `visitorIdentityKey` to be looked at in the `DataLayer` to perform automatic visitor switching.
+    public func setVisitorIdentityKey(_ visitorIdentityKey: String) -> Self {
+        dataObject.set(visitorIdentityKey, key: Keys.visitorIdentityKey)
+        return self
+    }
+
     func build() -> DataObject {
         dataObject
     }

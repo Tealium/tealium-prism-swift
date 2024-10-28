@@ -22,7 +22,9 @@ public enum TealiumModules {
      * Returns a factory for creating the `TealiumCollect` dispatcher.
      *
      * - Parameters:
-     *  - forcingSettings: A block with a utility builder that can be used to enforce some of the `CollectSettings` instead of relying on Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `TealiumCollect` module, other settings will still be affected by Local and Remote settings and updates.
+     *   -  block: A block with a utility builder that can be used to enforce some of the `CollectSettings` instead of relying on Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `TealiumCollect` module, other settings will still be affected by Local and Remote settings and updates.
+     *
+     *
      */
     static public func collect(forcingSettings block: ((_ enforcedSettings: CollectSettingsBuilder) -> CollectSettingsBuilder)? = nil) -> any TealiumModuleFactory {
         TealiumCollect.Factory(forcingSettings: block)
@@ -32,8 +34,8 @@ public enum TealiumModules {
      * Returns a factory for creating the `ConsentModule`.
      *
      * - Parameters:
-     *  - cmpIntegration: The integration that provides the module with the CMP data to guide the consent management decisions.
-     *  - forcingSettings: A block with a utility builder that can be used to enforce some of the `ConsentSettings` instead of relying on Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `ConsentModule`, other settings will still be affected by Local and Remote settings and updates.
+     *    - cmpIntegration: The integration that provides the module with the CMP data to guide the consent management decisions.
+     *    - block: A block with a utility builder that can be used to enforce some of the `ConsentSettings` instead of relying on Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `ConsentModule`, other settings will still be affected by Local and Remote settings and updates.
      */
     static public func consent(cmpIntegration: CMPIntegration,
                                forcingSettings block: ((_ enforcedSettings: ConsentSettingsBuilder) -> ConsentSettingsBuilder)? = nil) -> any TealiumModuleFactory {
@@ -64,8 +66,8 @@ public enum TealiumModules {
      * Returns a factory for creating a custom Dispatcher.
      *
      * - Parameters:
-     *  - module: The `TealiumBasicModule & Dispatcher` that will be created by this factory.
-     *  - enforcedSettings: The settings that will remain constant on initialization and on future settings updates for this module.
+     *   - module: The `TealiumBasicModule & Dispatcher` that will be created by this factory.
+     *   - enforcedSettings: The settings that will remain constant on initialization and on future settings updates for this module.
      */
     static public func customDispatcher<Module: TealiumBasicModule & Dispatcher>(_ module: Module.Type, enforcedSettings: DataObject? = nil) -> any TealiumModuleFactory {
         DefaultModuleFactory<Module>(enforcedSettings: enforcedSettings)
@@ -75,8 +77,8 @@ public enum TealiumModules {
      * Returns a factory for creating a custom Collector.
      *
      * - Parameters:
-     *  - module: The `TealiumBasicModule & Collector` that will be created by this factory.
-     *  - enforcedSettings: The settings that will remain constant on initialization and on future settings updates for this module.
+     *   - module: The `TealiumBasicModule & Collector` that will be created by this factory.
+     *   - enforcedSettings: The settings that will remain constant on initialization and on future settings updates for this module.
      */
     static public func customCollector<Module: TealiumBasicModule & Collector>(_ module: Module.Type, enforcedSettings: DataObject? = nil) -> any TealiumModuleFactory {
         DefaultModuleFactory<Module>(enforcedSettings: enforcedSettings)

@@ -23,7 +23,7 @@ public protocol LoggerProtocol {
      * a `LogLevel.Minimum` has been set, deferring the decision on whether to log, or not, until then.
      *
      * - Parameters:
-     *  - level: The `LogLevel` to compare against the currently configured `LogLevel.Minimum`.
+     *   - level: The `LogLevel` to compare against the currently configured `LogLevel.Minimum`.
      */
     func shouldLog(level: LogLevel) -> Bool
 
@@ -31,8 +31,8 @@ public protocol LoggerProtocol {
      * Logs a `trace` level message by evaluating the message passed in an autoclosure when and if log needs to take place.
      *
      * - Parameters:
-     *  - category: The category or identifier associated with the log message.
-     *  - messageProvider: The message to be recorded, only evaluated when and if log needs to take place.
+     *   - category: The category or identifier associated with the log message.
+     *   - messageProvider: The message to be recorded, only evaluated when and if log needs to take place.
      */
     func trace(category: String, _ messageProvider: @autoclosure @escaping () -> String)
 
@@ -40,8 +40,8 @@ public protocol LoggerProtocol {
      * Logs a `debug` level message by evaluating the message passed in an autoclosure when and if log needs to take place.
      *
      * - Parameters:
-     *  - category: The category or identifier associated with the log message.
-     *  - messageProvider: The message to be recorded, only evaluated when and if log needs to take place.
+     *   - category: The category or identifier associated with the log message.
+     *   - messageProvider: The message to be recorded, only evaluated when and if log needs to take place.
      */
     func debug(category: String, _ messageProvider: @autoclosure @escaping () -> String)
 
@@ -49,8 +49,8 @@ public protocol LoggerProtocol {
      * Logs an `info` level message by evaluating the message passed in an autoclosure when and if log needs to take place.
      *
      * - Parameters:
-     *  - category: The category or identifier associated with the log message.
-     *  - messageProvider: The message to be recorded, only evaluated when and if log needs to take place.
+     *   - category: The category or identifier associated with the log message.
+     *   - messageProvider: The message to be recorded, only evaluated when and if log needs to take place.
      */
     func info(category: String, _ messageProvider: @autoclosure @escaping () -> String)
 
@@ -58,8 +58,8 @@ public protocol LoggerProtocol {
      * Logs a `warn` level message by evaluating the message passed in an autoclosure when and if log needs to take place.
      *
      * - Parameters:
-     *  - category: The category or identifier associated with the log message.
-     *  - messageProvider: The message to be recorded, only evaluated when and if log needs to take place.
+     *   - category: The category or identifier associated with the log message.
+     *   - messageProvider: The message to be recorded, only evaluated when and if log needs to take place.
      */
     func warn(category: String, _ messageProvider: @autoclosure @escaping () -> String)
 
@@ -67,8 +67,8 @@ public protocol LoggerProtocol {
      * Logs an `error` level message by evaluating the message passed in an autoclosure when and if log needs to take place.
      *
      * - Parameters:
-     *  - category: The category or identifier associated with the log message.
-     *  - messageProvider: The message to be recorded, only evaluated when and if log needs to take place.
+     *   - category: The category or identifier associated with the log message.
+     *   - messageProvider: The message to be recorded, only evaluated when and if log needs to take place.
      */
     func error(category: String, _ messageProvider: @autoclosure @escaping () -> String)
 
@@ -76,9 +76,9 @@ public protocol LoggerProtocol {
      * Logs the provided level message by evaluating the message passed in an autoclosure when and if log needs to take place.
      *
      * - Parameters:
-     *  - level: The level of the log.
-     *  - category: The category or identifier associated with the log message.
-     *  - messageProvider: The message to be recorded, only evaluated when and if log needs to take place.
+     *   - level: The level of the log.
+     *   - category: The category or identifier associated with the log message.
+     *   - messageProvider: The message to be recorded, only evaluated when and if log needs to take place.
      */
     func log(level: LogLevel, category: String, _ messageProvider: @autoclosure @escaping () -> String)
 }

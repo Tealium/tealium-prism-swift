@@ -19,6 +19,7 @@ public struct TealiumConfig {
     public var transformers: [Transformer] = []
     public var loggerType: TealiumLoggerType = .os
     public var bundle: Bundle = .main
+    public var existingVisitorId: String?
     let coreSettings: DataObject?
 
     public init(account: String, profile: String, environment: String, modules: [any TealiumModuleFactory],

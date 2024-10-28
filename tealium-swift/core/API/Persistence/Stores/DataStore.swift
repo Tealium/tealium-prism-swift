@@ -18,7 +18,7 @@ import Foundation
  * included in any retrieval operations; that is, expired data won't be returned by `get` or `getAll`
  * but it will also not be included in any aggregate methods such as `keys` or `count`.
  */
-public protocol DataStore: DataItemExtractor {
+public protocol DataStore: AnyObject, DataItemExtractor {
     /**
      * Returns a `DataStoreEditor` able to mutate the data in this storage.
      *

@@ -26,25 +26,25 @@ protocol KeyValueRepository {
     /**
      * Fetch and item given its key.
      *
-     * - parameter key: The key to use to lookup the value.
+     * - Parameter key: The key to use to lookup the value.
      *
-     * - returns: The `DataItem` for the given key, else nil.
+     * - Returns: The `DataItem` for the given key, else nil.
      */
     func get(key: String) -> DataItem?
 
     /**
      * Fetch all items in the repository.
      *
-     * - returns: The `[String: DataItem]` dictionary with all the stored key-values in the repository.
+     * - Returns: The `[String: DataItem]` dictionary with all the stored key-values in the repository.
      */
     func getAll() -> DataObject
 
     /**
      * Removes and item from storage given the key.
      *
-     * - parameter key: The storage key to remove.
+     * - Parameter key: The storage key to remove.
      *
-     * - returns: Then number of rows removed.
+     * - Returns: Then number of rows removed.
      */
     func delete(key: String) throws -> Int
 
@@ -52,11 +52,11 @@ protocol KeyValueRepository {
      * Inserts a new item or updates a preexisting one.
      *
      * - Parameters:
-     *  - key: The key to be updated.
-     *  - value: The value insert or replace.
-     *  - expiry: The expiry to update.
+     *   - key: The key to be updated.
+     *   - value: The value insert or replace.
+     *   - expiry: The expiry to update.
      *
-     * - returns: The id of the newly added data
+     * - Returns: The id of the newly added data
      */
     @discardableResult
     func upsert(key: String, value: DataInput, expiry: Expiry) throws -> Int64
@@ -64,7 +64,7 @@ protocol KeyValueRepository {
     /**
      * Removes all entries fromt he storage.
      *
-     * - returns: Then number of rows removed.
+     * - Returns: Then number of rows removed.
      */
     func clear() throws -> Int
 

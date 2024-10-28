@@ -16,7 +16,8 @@ class TealiumCollector: TealiumBasicModule, Collector {
             TealiumDataKey.account: config.account,
             TealiumDataKey.profile: config.profile,
             TealiumDataKey.environment: config.environment,
-            TealiumDataKey.enabledModules: context.modulesManager?.modules.value.map { $0.id } ?? []
+            TealiumDataKey.enabledModules: context.modulesManager?.modules.value.map { $0.id } ?? [],
+            TealiumDataKey.visitorId: context.visitorId.value
         ]
     }
 

@@ -15,6 +15,18 @@ class SQLiteOpenHelperTests: XCTestCase {
                                       version: 1,
                                       config: mockConfig)
 
+    func test_init_sets_right_url() throws {
+        let openHelper = SQLiteOpenHelper(databaseName: "database_name",
+                                          version: 1,
+                                          config: mockConfig)
+        guard let url = openHelper.databaseUrl?.absoluteString else {
+            XCTFail("Database url is nil")
+            return
+        }
+        let suffix = "/Tealium/mock_account.mock_profile/database_name.sqlite3"
+        XCTAssertTrue(url.hasSuffix(suffix), "URL \(url) should have suffix \(suffix)")
+    }
+
     func test_prepare_runs_all_functions_in_order() throws {
         let configureExpectation = expectation(description: "onConfigure is called.")
         let createExpectation = expectation(description: "onCreate is called.")

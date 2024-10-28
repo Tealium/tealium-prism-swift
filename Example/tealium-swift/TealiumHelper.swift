@@ -36,6 +36,8 @@ class TealiumHelper {
                                    settingsUrl: "https://api.npoint.io/f55d57e09b802cde39f9",
                                    forcingSettings: { builder in
             builder.setMinLogLevel(.trace)
+                .setVisitorIdentityKey("email")
+                .setScopedBarriers([ScopedBarrier(barrierId: "ConnectivityBarrier", scopes: [.dispatcher("Collect")])])
         })
         let teal = Tealium(config) { result in
             

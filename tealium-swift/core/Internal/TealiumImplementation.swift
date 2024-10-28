@@ -14,6 +14,7 @@ class TealiumImplementation {
     let context: TealiumContext
     let modulesManager: ModulesManager
     let tracker: TealiumTracker
+    let visitorIdProvider: VisitorIdProvider
     let instanceName: String
     private let appStatusListener = ApplicationStatusListener.shared
 
@@ -61,6 +62,14 @@ class TealiumImplementation {
                                               logger: logger)
         let tracker = TealiumTracker(modulesManager: modulesManager, dispatchManager: dispatchManager, logger: logger)
         self.tracker = tracker
+
+        visitorIdProvider = VisitorIdProvider(config: config,
+                                              visitorDataStore: try storeProvider.getModuleStore(name: "visitor"),
+                                              logger: logger)
+        let dataLayerStore = try storeProvider.getModuleStore(name: DataLayerModule.id)
+        VisitorSwitcher.handleIdentitySwitches(visitorIdProvider: visitorIdProvider,
+                                               onCoreSettings: coreSettings,
+                                               dataLayerStore: dataLayerStore).addTo(automaticDisposer)
         self.context = TealiumContext(modulesManager: modulesManager,
                                       config: config,
                                       coreSettings: coreSettings,
@@ -72,7 +81,8 @@ class TealiumImplementation {
                                       logger: logger,
                                       networkHelper: networkHelper,
                                       activityListener: appStatusListener,
-                                      queue: modulesManager.queue)
+                                      queue: modulesManager.queue,
+                                      visitorId: visitorIdProvider.visitorId)
         self.modulesManager = modulesManager
         self.instanceName = "\(config.account)-\(config.profile)"
         logger.info(category: LogCategory.tealium, "Instance \(self.instanceName) initialized.")

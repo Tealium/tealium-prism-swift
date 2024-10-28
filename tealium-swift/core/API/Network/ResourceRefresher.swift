@@ -93,7 +93,7 @@ public class ResourceRefresher<Resource: Codable> {
      * Only valid resources are reported in the `onResourceLoaded` callback and stored on disk.
      *
      * - Parameters:
-     *  - validatingResource: A callback that passes the refreshed resource as a parameter and needs to return `true` if the resource is valid or `false` if it is not valid.
+     *   - validatingResource: A callback that passes the refreshed resource as a parameter and needs to return `true` if the resource is valid or `false` if it is not valid.
      */
     public func requestRefresh(validatingResource: @escaping (Resource) -> Bool = { _ in true }) {
         guard shouldRefresh else {
@@ -159,7 +159,7 @@ public class ResourceRefresher<Resource: Codable> {
      * Updates the refreshInterval to the specified seconds.
      *
      * - Parameters:
-     *  - seconds: The amound of seconds to wait between refreshes.
+     *   - seconds: The amound of seconds to wait between refreshes.
      */
     public func setRefreshInterval(_ seconds: Double) {
         parameters.refreshInterval = seconds

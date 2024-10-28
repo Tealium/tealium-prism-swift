@@ -51,8 +51,8 @@ public protocol Dispatcher: TealiumModule {
      * Sends the provided `TealiumDispatch`es to some specific entity to handle them.
      *
      * - Parameters:
-     * - data: The `TealiumDispatch`es that have to be sent. They will always be less then or equal to the `dispatchLimit`.
-     * - completion: The callback that needs to be called when one or more `TealiumDispatch`es have completed. Completed in this case means both if it succeded, or if it failed and won't be retried. This callback can be called multiple times, but must contain each `TealiumDispatch` exactly once. All `TealiumDisaptches` provided in the data parameter need to be passed back in the completion block at some point to allow for it to be cleared from the queue and avoid multiple dispatches of the same events.
+     *    - data: The `TealiumDispatch`es that have to be sent. They will always be less then or equal to the `dispatchLimit`.
+     *    - completion: The callback that needs to be called when one or more `TealiumDispatch`es have completed. Completed in this case means both if it succeded, or if it failed and won't be retried. This callback can be called multiple times, but must contain each `TealiumDispatch` exactly once. All `TealiumDisaptches` provided in the data parameter need to be passed back in the completion block at some point to allow for it to be cleared from the queue and avoid multiple dispatches of the same events.
      *
      * - Returns: A `Disposable` that can be used to cancel the dispatch process if still in progress.
      */

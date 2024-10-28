@@ -20,15 +20,15 @@ public protocol TealiumModuleFactory {
      * Creates a new `Module` if the received module settings are correct for it's initialization.
      *
      * - Parameters:
-     *  - context: The `TealiumContext` shared by all modules.
-     *  - moduleSettings: The settings for this specific module, used to initialize it
+     *   - context: The `TealiumContext` shared by all modules.
+     *   - moduleSettings: The settings for this specific module, used to initialize it
      *  and potentially disable it if some mandatory settings are missing or invalid.
      *
      * - Returns: the newly created `Module`, if the initialization succeded, or nil.
      */
     func create(context: TealiumContext, moduleSettings: DataObject) -> Module?
 
-    /** 
+    /**
      * Returns some optional settings for this module that override any other Local or Remote settings fields.
      *
      * Only the values at the specific keys returned in this Dictionary will be enforced and remain constant during the life of this `Module`.

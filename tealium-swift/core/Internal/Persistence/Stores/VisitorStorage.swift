@@ -48,7 +48,7 @@ class VisitorStorage {
      * can be retrieved using `getKnownVisitorId` providing the same identity.
      *
      * - Parameters:
-     *  - visitorId: The visitor id to store as the current visitor id.
+     *   - visitorId: The visitor id to store as the current visitor id.
      */
     func changeVisitor(_ visitorId: String) throws {
         try storage.edit()
@@ -65,8 +65,8 @@ class VisitorStorage {
      * can be retrieved using `getKnownVisitorId` providing the same `identity`.
      *
      * - Parameters:
-     *  - visitorId: The visitor id to store as the current visitor id.
-     *  - identity: The identity to store as the current identity, and to associate with the `visitorId`.
+     *   - visitorId: The visitor id to store as the current visitor id.
+     *   - identity: The identity to store as the current identity, and to associate with the `visitorId`.
      */
     func changeVisitor(_ visitorId: String, withIdentity identity: String) throws {
         try storage.edit()
@@ -82,7 +82,7 @@ class VisitorStorage {
      * It does not create any associations between the `currentIdentity` and the `visitorId`.
      *
      * - Parameters:
-     *  - identity: The identity to change to.
+     *   - identity: The identity to change to.
      */
     func changeIdentity(identity: String) throws {
         try storage.edit()
@@ -98,12 +98,12 @@ class VisitorStorage {
     }
 
     /**
-     * Clears all stored VisitorId's and identities, and replaces the [visitorId] with the [newVisitorId]
+     * Clears all stored VisitorId's and identities, and replaces the `visitorId` with the `newVisitorId`
      *
      * - Parameters:
-     *  - newVisitorId: the replacement visitor to save after clearing.
+     *   - newVisitorId: the replacement visitor to save after clearing.
      */
-    func clear(newVisitorId: String) throws {
+    func clear(settingNewVisitorId newVisitorId: String) throws {
         try storage.edit()
             .clear()
             .setVisitorId(newVisitorId)

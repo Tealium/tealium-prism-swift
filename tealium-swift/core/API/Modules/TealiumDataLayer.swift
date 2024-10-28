@@ -67,9 +67,9 @@ public class TealiumDataLayer { // WRAPPER
             dataLayer?.delete(keys: keys)
         }
     }
-    public func get(forKey key: String, completion: @escaping (DataItem?) -> Void) {
+    public func get(key: String, completion: @escaping (DataItem?) -> Void) {
         getModule { dataLayer in
-            completion(dataLayer?.getDataItem(forKey: key))
+            completion(dataLayer?.getDataItem(key: key))
         }
     }
     public func getAllData(completion: @escaping (DataObject?) -> Void) {
@@ -86,7 +86,7 @@ protocol DataLayerUpdateListener {
     func onDataUpdate()
 }
 
-class DataLayerModule: TealiumBasicModule, Collector {
+class DataLayerModule: TealiumBasicModule, Collector, DataItemExtractor {
     static var canBeDisabled: Bool { false }
     var data: DataObject {
         moduleStore.getAll()
@@ -97,12 +97,13 @@ class DataLayerModule: TealiumBasicModule, Collector {
     required init?(context: TealiumContext, moduleSettings: DataObject) {
         do {
             moduleStore = try context.moduleStoreProvider.getModuleStore(name: Self.id)
+            events = DataLayerEventPublishers(moduleStore)
         } catch {
             return nil
         }
     }
 
-    let events = DataLayerEventPublishers()
+    let events: DataLayerEventPublishers
     // TODO: Maybe put?
     func add(data: DataObject, expiry: Expiry = .session) {
         try? moduleStore.edit()
@@ -134,7 +135,7 @@ class DataLayerModule: TealiumBasicModule, Collector {
             .remove(keys: keys)
             .commit()
     }
-    func getDataItem(forKey key: String) -> DataItem? {
+    func getDataItem(key: String) -> DataItem? {
         moduleStore.getDataItem(key: key)
     }
 }
@@ -145,10 +146,12 @@ public protocol DataLayerEventObservables {
 }
 
 public class DataLayerEventPublishers: DataLayerEventObservables {
-    fileprivate let _onDataUpdated = BasePublisher<DataObject>()
-    fileprivate let _onDataRemoved = BasePublisher<[String]>()
-    public private(set) lazy var onDataUpdated = _onDataUpdated.asObservable()
-    public private(set) lazy var onDataRemoved = _onDataRemoved.asObservable()
+    init(_ store: DataStore) {
+        onDataUpdated = store.onDataUpdated
+        onDataRemoved = store.onDataRemoved
+    }
+    public let onDataUpdated: Observable<DataObject>
+    public let onDataRemoved: Observable<[String]>
 }
 
 public class DataLayerEvents {

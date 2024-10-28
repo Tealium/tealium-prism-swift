@@ -25,12 +25,11 @@ public enum BarrierScope: RawRepresentable, Codable, Equatable {
     }
 
     public init(rawValue: String) {
-        let lowercasedScope = rawValue.lowercased()
-        switch lowercasedScope {
+        switch rawValue {
         case "all":
             self = .all
         default:
-            self = .dispatcher(lowercasedScope)
+            self = .dispatcher(rawValue)
         }
     }
 }

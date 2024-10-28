@@ -80,7 +80,7 @@ final class VisitorStorageTests: XCTestCase {
         try storage.changeVisitor("aVisitor1", withIdentity: "anIdentity1")
         try storage.changeVisitor("aVisitor2", withIdentity: "anIdentity2")
         try storage.changeVisitor("aVisitor3", withIdentity: "anIdentity3")
-        try storage.clear(newVisitorId: "newVisitor")
+        try storage.clear(settingNewVisitorId: "newVisitor")
         XCTAssertNil(storage.getKnownVisitorId(identity: "anIdentity1"))
         XCTAssertNil(storage.getKnownVisitorId(identity: "anIdentity2"))
         XCTAssertNil(storage.getKnownVisitorId(identity: "anIdentity3"))
