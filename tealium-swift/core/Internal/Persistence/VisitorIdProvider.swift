@@ -11,15 +11,15 @@ import Foundation
 class VisitorIdProvider {
     private let visitorCategory = LogCategory.visitorIdProvider
     private let visitorStorage: VisitorStorage
-    private let logger: TealiumLogger?
+    private let logger: LoggerProtocol?
 
-    convenience init(config: TealiumConfig, visitorDataStore: DataStore, logger: TealiumLogger?) {
+    convenience init(config: TealiumConfig, visitorDataStore: DataStore, logger: LoggerProtocol?) {
         self.init(existingVisitorId: config.existingVisitorId,
                   visitorStorage: VisitorStorage(storage: visitorDataStore),
                   logger: logger)
     }
 
-    init(existingVisitorId: String?, visitorStorage: VisitorStorage, logger: TealiumLogger?) {
+    init(existingVisitorId: String?, visitorStorage: VisitorStorage, logger: LoggerProtocol?) {
         self.visitorStorage = visitorStorage
         self.logger = logger
         let visitorId = Self.getOrCreateVisitorId(visitorStorage: visitorStorage,
@@ -45,7 +45,7 @@ class VisitorIdProvider {
     func resetVisitorId() throws -> String {
         logger?.debug(category: visitorCategory, "Resetting current visitor id.")
         let newId = Self.generateVisitorId()
-        _visitorId.publish(newId)
+        defer { _visitorId.publish(newId) }
         try visitorStorage.changeVisitor(newId)
         return newId
     }
@@ -59,7 +59,7 @@ class VisitorIdProvider {
     func clearStoredVisitorIds() throws -> String {
         logger?.debug(category: visitorCategory, "Clearing stored visitor ids.")
         let newId = Self.generateVisitorId()
-        _visitorId.publish(newId)
+        defer { _visitorId.publish(newId) }
         try visitorStorage.clear(settingNewVisitorId: newId)
         return newId
     }
@@ -132,7 +132,7 @@ class VisitorIdProvider {
     }
 
     private func changeVisitor(_ visitorId: String, withIdentity identity: String? = nil) {
-        _visitorId.publishIfChanged(visitorId)
+        defer { _visitorId.publishIfChanged(visitorId) }
         do {
             if let identity {
                 try visitorStorage.changeVisitor(visitorId, withIdentity: identity)
