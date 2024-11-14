@@ -12,12 +12,15 @@ import XCTest
 private let queue = TealiumQueue.worker.dispatchQueue
 
 final class ApplicationStatusListenerTests: XCTestCase {
-    var listener: ApplicationStatusListener?
+    let notificationCenter = NotificationCenter()
+    var graceTimeInterval: TimeInterval = 1.0
+    lazy var listener = ApplicationStatusListener(graceTimeInterval: graceTimeInterval,
+                                                  notificationCenter: notificationCenter)
 
     func test_initialized_status_is_published_on_launch() {
         let published = expectation(description: "Initialized status published")
-        listener = ApplicationStatusListener(graceTimeInterval: 1.0)
-        listener?.onApplicationStatus.subscribeOnce { status in
+        graceTimeInterval = 1.0
+        listener.onApplicationStatus.subscribeOnce { status in
             switch status.type {
             case .initialized:
                 published.fulfill()
@@ -32,23 +35,24 @@ final class ApplicationStatusListenerTests: XCTestCase {
         let notCleared = expectation(description: "Cache is not cleared")
         notCleared.isInverted = true
         let subscriptionCalled = expectation(description: "Subscription called")
-        listener = ApplicationStatusListener(graceTimeInterval: 0.0)
-        queue.asyncAfter(deadline: .now() + .milliseconds(50)) {
-            self.listener?.onApplicationStatus.subscribeOnce {_ in
+        graceTimeInterval = 0.0
+        _ = listener
+        queue.asyncAfter(deadline: .now() + .milliseconds(100)) {
+            self.listener.onApplicationStatus.subscribeOnce {_ in
                 notCleared.fulfill()
             }
             subscriptionCalled.fulfill()
         }
-        waitForExpectations(timeout: 3 * Self.defaultTimeout)
+        waitForExpectations(timeout: 6 * Self.defaultTimeout)
     }
 
     func test_backgrounded_status_is_published() {
         let published = expectation(description: "Backgrounded status published")
         published.assertForOverFulfill = false
         published.expectedFulfillmentCount = 2
-        listener = ApplicationStatusListener(graceTimeInterval: 1.0)
+        graceTimeInterval = 1.0
         let automaticDisposer = AutomaticDisposer()
-        listener?.onApplicationStatus.subscribe { status in
+        listener.onApplicationStatus.subscribe { status in
             switch status.type {
             case .backgrounded, .initialized:
                 published.fulfill()
@@ -56,7 +60,7 @@ final class ApplicationStatusListenerTests: XCTestCase {
                 return
             }
         }.addTo(automaticDisposer)
-        NotificationCenter.default.post(name: UIApplication.willResignActiveNotification, object: nil)
+        notificationCenter.post(name: UIApplication.willResignActiveNotification, object: nil)
         waitForDefaultTimeout()
     }
 
@@ -64,9 +68,9 @@ final class ApplicationStatusListenerTests: XCTestCase {
         let published = expectation(description: "Foregrounded status published")
         published.assertForOverFulfill = false
         published.expectedFulfillmentCount = 2
-        listener = ApplicationStatusListener(graceTimeInterval: 1.0)
+        graceTimeInterval = 1.0
         let automaticDisposer = AutomaticDisposer()
-        listener?.onApplicationStatus.subscribe { status in
+        listener.onApplicationStatus.subscribe { status in
             switch status.type {
             case .foregrounded, .initialized:
                 published.fulfill()
@@ -74,7 +78,7 @@ final class ApplicationStatusListenerTests: XCTestCase {
                 return
             }
         }.addTo(automaticDisposer)
-        NotificationCenter.default.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+        notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
         waitForDefaultTimeout()
     }
 

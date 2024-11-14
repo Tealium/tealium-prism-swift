@@ -28,8 +28,10 @@ public class ApplicationStatusListener: NSObject {
 
     var initGraceTimer: TealiumRepeatingTimer?
     let queue: TealiumQueue
-    init(graceTimeInterval: Double = 10.0, queue: TealiumQueue = .worker) {
+    let notificationCenter: NotificationCenter
+    init(graceTimeInterval: Double = 10.0, queue: TealiumQueue = .worker, notificationCenter: NotificationCenter = NotificationCenter.default) {
         self.queue = queue
+        self.notificationCenter = notificationCenter
         super.init()
         addListeners()
         initGraceTimer = TealiumRepeatingTimer(timeInterval: graceTimeInterval, repeating: .never, queue: queue, eventHandler: { [weak self] in
@@ -54,12 +56,12 @@ public class ApplicationStatusListener: NSObject {
         operationQueue.underlyingQueue = queue.dispatchQueue
 
         /// Notifies listeners of a sleep event.
-        sleepNotificationObserver = NotificationCenter.default.addObserver(forName: notificationNameApplicationWillResignActive, object: nil, queue: operationQueue) { [weak self] _ in
+        sleepNotificationObserver = notificationCenter.addObserver(forName: notificationNameApplicationWillResignActive, object: nil, queue: operationQueue) { [weak self] _ in
             self?._onApplicationStatus.publish(ApplicationStatus(type: .backgrounded))
         }
 
         /// Notifies listeners of a wake event.
-        wakeNotificationObserver = NotificationCenter.default.addObserver(forName: notificationNameApplicationDidBecomeActive, object: nil, queue: operationQueue) { [weak self] _ in
+        wakeNotificationObserver = notificationCenter.addObserver(forName: notificationNameApplicationDidBecomeActive, object: nil, queue: operationQueue) { [weak self] _ in
             self?._onApplicationStatus.publish(ApplicationStatus(type: .foregrounded))
         }
 
@@ -68,8 +70,8 @@ public class ApplicationStatusListener: NSObject {
     }
 
     deinit {
-        NotificationCenter.default.removeObserver(sleepNotificationObserver as Any)
-        NotificationCenter.default.removeObserver(wakeNotificationObserver as Any)
+        notificationCenter.removeObserver(sleepNotificationObserver as Any)
+        notificationCenter.removeObserver(wakeNotificationObserver as Any)
     }
 }
 
