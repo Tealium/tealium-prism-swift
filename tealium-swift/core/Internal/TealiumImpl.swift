@@ -1,5 +1,5 @@
 //
-//  TealiumImplementation.swift
+//  TealiumImpl.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 20/11/23.
@@ -8,18 +8,18 @@
 
 import Foundation
 
-class TealiumImplementation {
+class TealiumImpl {
     let settingsManager: SettingsManager
     let automaticDisposer = AutomaticDisposer()
     let context: TealiumContext
-    let modulesManager: ModulesManager
+    let modulesManager = ModulesManager(queue: .worker)
     let tracker: TealiumTracker
     let visitorIdProvider: VisitorIdProvider
     let instanceName: String
     private let appStatusListener = ApplicationStatusListener.shared
 
     // swiftlint:disable function_body_length
-    init(_ config: TealiumConfig, modulesManager: ModulesManager) throws {
+    init(_ config: TealiumConfig) throws {
         var config = config
         Self.addMandatoryAndRemoveDuplicateModules(from: &config)
         let storeProvider = try Self.initModuleStoreProvider(config: config)
@@ -37,13 +37,11 @@ class TealiumImplementation {
                                                   logger: logger,
                                                   onActivity: appStatusListener.onApplicationStatus)
         self.settingsManager = settingsManager
-        let coreSettings = settingsManager.settings.map { $0.coreSettings }
+        let coreSettings = settingsManager.settings.mapState { $0.coreSettings }
         settingsManager.settings
-            .map { $0.coreSettings.minLogLevel }
+            .mapState { $0.coreSettings.minLogLevel }
             .distinct()
-            .subscribe { logLevel in
-                onLogLevel.publish(logLevel)
-            }.addTo(automaticDisposer)
+            .subscribe(onLogLevel).addTo(automaticDisposer)
         logger.debug(category: LogCategory.tealium, "Purging expired data from the database")
         storeProvider.modulesRepository.deleteExpired(expiry: .restart)
         let queueManager = QueueManager(processors: Self.queueProcessors(from: modulesManager.modules),
@@ -83,7 +81,6 @@ class TealiumImplementation {
                                       activityListener: appStatusListener,
                                       queue: modulesManager.queue,
                                       visitorId: visitorIdProvider.visitorId)
-        self.modulesManager = modulesManager
         self.instanceName = "\(config.account)-\(config.profile)"
         logger.info(category: LogCategory.tealium, "Instance \(self.instanceName) initialized.")
         self.handleSettingsUpdates()
@@ -114,7 +111,7 @@ class TealiumImplementation {
     }
 
     private static func transformerCoordinator(config: TealiumConfig, coreSettings: ObservableState<CoreSettings>, queue: TealiumQueue) -> TransformerCoordinator {
-        let scopedTransformations = coreSettings.map { $0.scopedTransformations }
+        let scopedTransformations = coreSettings.mapState { $0.scopedTransformations }
         return TransformerCoordinator(registeredTransformers: config.transformers,
                                       scopedTransformations: scopedTransformations,
                                       queue: queue)

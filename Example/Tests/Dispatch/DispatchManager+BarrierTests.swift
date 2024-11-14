@@ -64,7 +64,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         let eventsAreDispatched = expectation(description: "Events are dispatched")
         let eventsAreDequeued = expectation(description: "Events are dequeued")
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        queueManager.inflightEvents.asObservable().subscribeOnce { _ in
+        queueManager.inflightEvents.subscribeOnce { _ in
             self.barrier.setState(.closed)
             eventsAreDequeued.fulfill()
         }

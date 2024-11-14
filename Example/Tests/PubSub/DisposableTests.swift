@@ -65,4 +65,18 @@ final class DisposableTests: XCTestCase {
         automaticDisposer = nil
         waitForDefaultTimeout()
     }
+
+    func test_AsyncDisposer_disposes_on_given_queue() {
+        let queue = TealiumQueue.worker
+        let disposer = AsyncDisposer(disposeOn: queue)
+        let disposed = expectation(description: "Subscription is disposed")
+        disposer.add(Subscription {
+            dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
+            disposed.fulfill()
+        })
+        disposer.dispose()
+        queue.dispatchQueue.sync {
+            waitForDefaultTimeout()
+        }
+    }
 }

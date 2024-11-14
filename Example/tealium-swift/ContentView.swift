@@ -11,8 +11,8 @@ import SwiftUI
 class ContentViewModel: ObservableObject {
     @Published var email: String = ""
     init() {
-        TealiumHelper.shared.teal?.dataLayer.get(key: "email", completion: { item in
-            guard let email = item?.get(as: String.self) else { return }
+        TealiumHelper.shared.teal?.dataLayer.get(key: "emai", as: String.self, completion: { email in
+            guard let email else { return }
             DispatchQueue.main.async {
                 self.email = email
             }
@@ -72,9 +72,9 @@ struct ContentView: View {
     }
     func applyEmail() {
         if model.email.isEmpty {
-            TealiumHelper.shared.teal?.dataLayer.delete(key: "email")
+            TealiumHelper.shared.teal?.dataLayer.remove(key: "email")
         } else {
-            TealiumHelper.shared.teal?.dataLayer.add(key: "email", value: model.email, expiry: .forever)
+            TealiumHelper.shared.teal?.dataLayer.put(key: "email", value: model.email, expiry: .forever)
         }
     }
 }

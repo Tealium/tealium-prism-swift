@@ -44,7 +44,7 @@ public class ObservableState<Element>: CustomObservable<Element> {
 }
 
 extension ObservableState {
-    func map<NewElement>(transform: @escaping (Element) -> NewElement) -> ObservableState<NewElement> {
+    func mapState<NewElement>(transform: @escaping (Element) -> NewElement) -> ObservableState<NewElement> {
         ObservableState<NewElement>(valueProvider: transform(self.value)) { observer in
             self.subscribe { element in
                 observer(transform(element))

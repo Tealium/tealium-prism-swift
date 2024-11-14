@@ -38,9 +38,10 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
                 case .connected:
                     return true
                 }
-            }.subscribe { [weak self] available in
-                self?._connectionAssumedAvailable.publishIfChanged(available)
-            }.addTo(automaticDisposer)
+            }
+            .distinct()
+            .subscribe(_connectionAssumedAvailable)
+            .addTo(automaticDisposer)
     }
 
     public func waitingForConnectivity(_ task: URLSessionTask) {

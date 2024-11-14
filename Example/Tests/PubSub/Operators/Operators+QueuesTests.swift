@@ -9,6 +9,15 @@
 @testable import TealiumSwift
 import XCTest
 
+private extension Observable {
+    func onSubscription(block: @escaping () -> Void) -> Observable<Element> {
+        CustomObservable { observer in
+            block()
+            return self.subscribe(observer)
+        }
+    }
+}
+
 final class OperatorsQueuesTests: XCTestCase {
     let observable123 = Observable.Just(1, 2, 3)
 
@@ -27,13 +36,32 @@ final class OperatorsQueuesTests: XCTestCase {
         }
     }
 
+    func test_subscribeOn_only_subscribes_prior_operators_on_provided_queue() {
+        let expectation = expectation(description: "Subscribe handler is called")
+        let queue = TealiumQueue(label: "ObservableTestQueue")
+        let replaySubject = ReplaySubject<Void>(initialValue: ())
+        let observable = replaySubject.asObservable()
+
+        _ = observable
+            .onSubscription {
+                dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
+            }
+            .subscribeOn(queue)
+            .subscribe {
+                expectation.fulfill()
+            }
+        queue.dispatchQueue.sync {
+            waitForDefaultTimeout()
+        }
+    }
+
     func test_subscribeOn_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
         let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
         let queue = TealiumQueue(label: "ObservableTestQueue")
-        let generatedObservable: Observable<Int> = observable.subscribeOn(queue)
-        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
+        let generatedObservable: any Subscribable<Int> = observable.subscribeOn(queue)
+        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable.asObservable(), onDeinit: {
             expectation.fulfill()
         })
         queue.dispatchQueue.sync {

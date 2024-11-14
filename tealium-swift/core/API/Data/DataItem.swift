@@ -134,7 +134,7 @@ final public class DataItem {
      * let anInt = dataItem.get(as: Int.self)
      *  ```
      *
-     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangebely and the conversion will be made following `NSNumber` conversion methods.
+     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangeably and the conversion will be made following `NSNumber` conversion methods.
      *  ```swift
      * let nsNumber = NSNumber(1.5)
      * let dataItem = DataItem(value: nsNumber)
@@ -198,7 +198,7 @@ final public class DataItem {
      * let anIntArray = dataItem.getArray(of: Int.self)
      *  ```
      *
-     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangebely and the conversion will be made following `NSNumber` conversion methods.
+     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangeably and the conversion will be made following `NSNumber` conversion methods.
      *  ```swift
      * let nsNumber = NSNumber(1.5)
      * let dataItem = DataItem(value: [nsNumber])
@@ -235,7 +235,7 @@ final public class DataItem {
      * let anIntDictionary = dataItem.getDictionary(of: Int.self)
      *  ```
      *
-     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangebely and the conversion will be made following `NSNumber` conversion methods.
+     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangeably and the conversion will be made following `NSNumber` conversion methods.
      *  ```swift
      * let nsNumber = NSNumber(1.5)
      * let dataItem = DataItem(value: ["key": nsNumber])

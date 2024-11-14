@@ -16,6 +16,11 @@ public extension Subject {
     func subscribe(_ observer: @escaping Observer) -> Disposable {
         asObservable().subscribe(observer)
     }
+
+    @discardableResult
+    func subscribeOnce(_ observer: @escaping Observer) -> Disposable {
+        asObservable().subscribeOnce(observer)
+    }
 }
 
 /// A concrete implementation of the `Subject` that allows to just publish and subscribe to events.

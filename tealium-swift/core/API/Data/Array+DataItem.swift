@@ -36,7 +36,7 @@ public extension Array where Element == DataItem {
      * let anInt = dataItems.get(index: 0, as: Int.self)
      *  ```
      *
-     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangebely and the conversion will be made following `NSNumber` conversion methods.
+     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangeably and the conversion will be made following `NSNumber` conversion methods.
      *  ```swift
      * let nsNumber = NSNumber(1.5)
      * let dataItems: [DataItem] = [DataItem(value: nsNumber)]
@@ -96,7 +96,7 @@ public extension Array where Element == DataItem {
      * let anIntArray = dataItems.getArray(index: 0, of: Int.self)
      *  ```
      *
-     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangebely and the conversion will be made following `NSNumber` conversion methods.
+     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangeably and the conversion will be made following `NSNumber` conversion methods.
      *  ```swift
      * let nsNumber = NSNumber(1.5)
      * let dataItems: [DataItem] = [DataItem(value: nsNumber)]
@@ -133,7 +133,7 @@ public extension Array where Element == DataItem {
      * let anIntDictionary = dataItems.getDictionary(index: 0, of: Int.self)
      *  ```
      *
-     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangebely and the conversion will be made following `NSNumber` conversion methods.
+     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangeably and the conversion will be made following `NSNumber` conversion methods.
      *  ```swift
      * let nsNumber = NSNumber(1.5)
      * let dataItems: [DataItem] = [DataItem(value: nsNumber)]

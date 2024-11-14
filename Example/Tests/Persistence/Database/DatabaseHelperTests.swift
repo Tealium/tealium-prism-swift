@@ -34,7 +34,7 @@ extension Connection {
     }
 }
 
-extension Connection: Equatable {
+extension SQLite.Connection: Swift.Equatable {
      public static func == (lhs: Connection, rhs: Connection) -> Bool {
          return lhs.handle == rhs.handle
      }

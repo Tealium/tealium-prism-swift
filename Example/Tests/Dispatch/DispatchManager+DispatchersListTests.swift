@@ -57,7 +57,7 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
         let eventsAreDispatched = expectation(description: "Events are dispatched")
         let eventsAreDequeued = expectation(description: "Events are dequeued")
         dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        queueManager.inflightEvents.asObservable().subscribeOnce { _ in
+        queueManager.inflightEvents.subscribeOnce { _ in
             self.disableModule(module: module)
             eventsAreDequeued.fulfill()
         }

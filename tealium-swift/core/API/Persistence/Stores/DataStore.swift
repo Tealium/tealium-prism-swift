@@ -61,6 +61,15 @@ public protocol DataStore: AnyObject, DataItemExtractor {
 /// Enables editing multiple entries in the module storage in a transactional way.
 public protocol DataStoreEditor {
     /**
+     * Applies a `DataStoreEdit` to this editor.
+     *
+     * - parameter edit: The `DataStireEdit` to apply.
+     *
+     * - returns: the same `DataStoreEditor` to continue editing this storage.
+     */
+    func apply(edit: DataStoreEdit) -> Self
+
+    /**
      * Adds a single key-value pair into the storage.
      *
      * - parameter key: The key to store the value under.
@@ -113,4 +122,9 @@ public protocol DataStoreEditor {
      * are ignored.
      */
     func commit() throws
+}
+
+public enum DataStoreEdit {
+    case remove(String)
+    case put(String, DataInput, Expiry)
 }

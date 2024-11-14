@@ -12,6 +12,7 @@ public struct TealiumConfig {
     public let account: String
     public let profile: String
     public let environment: String
+    public var key: String { "\(account)-\(profile)" }
     public internal(set) var settingsFile: String?
     public internal(set) var settingsUrl: String?
     public var modules: [any TealiumModuleFactory]

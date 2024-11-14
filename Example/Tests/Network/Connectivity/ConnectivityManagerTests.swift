@@ -172,7 +172,7 @@ final class ConnectivityManagerTests: XCTestCase {
     }
 }
 
-extension RetryPolicy: Equatable {
+extension TealiumSwift.RetryPolicy: Swift.Equatable {
     /// Only for comparing during tests
     public static func == (lhs: RetryPolicy, rhs: RetryPolicy) -> Bool {
         switch (lhs, rhs) {

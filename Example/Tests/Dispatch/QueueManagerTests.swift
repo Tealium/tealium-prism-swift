@@ -22,7 +22,7 @@ final class QueueManagerTests: XCTestCase {
     lazy var queueRepository = SQLQueueRepository(dbProvider: dbProvider,
                                                   maxQueueSize: coreSettings.value.maxQueueSize,
                                                   expiration: coreSettings.value.queueExpiration)
-    lazy var queueManager = QueueManager(processors: TealiumImplementation.queueProcessors(from: modules),
+    lazy var queueManager = QueueManager(processors: TealiumImpl.queueProcessors(from: modules),
                                          queueRepository: queueRepository,
                                          coreSettings: coreSettings,
                                          logger: nil)

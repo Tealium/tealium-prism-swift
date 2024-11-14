@@ -11,52 +11,42 @@ import Foundation
 public typealias TrackResultCompletion = (_ dispatch: TealiumDispatch, _ result: TrackResult) -> Void
 
 /// An error happened during `Tealium` initialization process. Use the `underlyingError` to understand the root cause.
-struct TealiumInitializationError: Error {
+public struct TealiumInitializationError: Error {
     let underlyingError: Error?
 }
 public class Tealium {
-    let modulesManager: ModulesManager
-    private var onTealiumImplementation = ReplaySubject<TealiumImplementation?>()
-    let automaticDisposer = AutomaticDisposer()
+    public typealias InitializationResult = Result<Tealium, TealiumInitializationError>
+    typealias ImplementationResult = Result<TealiumImpl, TealiumInitializationError>
+    typealias ImplementationObservable = Observable<ImplementationResult>
+    private let onModulesManager: Observable<ModulesManager?>
+    private let onTealiumImplementation: ImplementationObservable
+    let asyncDisposer = AsyncDisposer(disposeOn: .worker)
     let queue = TealiumQueue.worker
     var initializationError: Error?
-    public init(_ config: TealiumConfig, completion: @escaping (Result<Tealium, Error>) -> Void) {
-        let startupInterval = TealiumSignpostInterval(signposter: .startup, name: "Teal Init")
-            .begin()
-        let modulesManager = ModulesManager(queue: queue)
-        self.modulesManager = modulesManager
-        trace = TealiumTrace(modulesManager: modulesManager)
-        deepLink = TealiumDeepLink(modulesManager: modulesManager)
-        dataLayer = TealiumDataLayer(modulesManager: modulesManager)
-        timedEvents = TealiumTimedEvents()
-        consent = TealiumConsent()
-        queue.ensureOnQueue {
-            do {
-                let tealiumImplementation = try TealiumImplementation(config, modulesManager: modulesManager)
-                startupInterval.end()
-                self.onTealiumImplementation.publish(tealiumImplementation)
-                completion(.success(self))
-            } catch {
-                startupInterval.end()
-                self.initializationError = error
-                self.onTealiumImplementation.publish(nil)
-                completion(.failure(error))
-            }
-        }
+
+    public static func create(config: TealiumConfig, completion: @escaping (InitializationResult) -> Void) -> Tealium {
+        TealiumInstanceManager.shared.create(config: config, completion: completion)
     }
 
-    private func onImplementationReady(_ completion: @escaping (Result<TealiumImplementation, TealiumInitializationError>) -> Void) {
-        onTealiumImplementation
-            .subscribeOn(queue)
-            .map { implementation in
-                if let implementation {
-                    Result.success(implementation)
-                } else {
-                    Result.failure(TealiumInitializationError(underlyingError: self.initializationError))
-                }
+    init(onTealiumImplementation: ImplementationObservable) {
+        onModulesManager = onTealiumImplementation.map { result in
+            if case .success(let implementation) = result {
+                return implementation.modulesManager
+            } else {
+                return nil
             }
-            .subscribeOnce(completion)
-            .addTo(automaticDisposer)
+        }
+        timedEvents = TealiumTimedEvents()
+        consent = TealiumConsent()
+        self.onTealiumImplementation = onTealiumImplementation
+    }
+
+    private func onImplementationReady(_ completion: @escaping (ImplementationResult) -> Void) {
+        onTealiumImplementation
+            .first()
+            .subscribeOn(queue)
+            .subscribe(completion)
+            .addTo(asyncDisposer)
     }
 
     public func onReady(_ completion: @escaping (Tealium) -> Void) {
@@ -110,7 +100,7 @@ public class Tealium {
         }
     }
 
-    private func onTealiumSuccess<T>(completion: ((Result<T, Error>) -> Void)?, execute: @escaping (TealiumImplementation) throws -> T) {
+    private func onTealiumSuccess<T>(completion: ((Result<T, Error>) -> Void)?, execute: @escaping (TealiumImpl) throws -> T) {
         onImplementationReady { result in
             do {
                 switch result {
@@ -126,17 +116,30 @@ public class Tealium {
         }
     }
 
-    public let trace: TealiumTrace
+    public private(set) lazy var trace: TealiumTrace = TealiumTrace(moduleProxy: createModuleProxy())
 
-    public let deepLink: TealiumDeepLink
+    public private(set) lazy var deepLink: TealiumDeepLink = TealiumDeepLink(moduleProxy: createModuleProxy())
 
-    public let dataLayer: TealiumDataLayer
+    public private(set) lazy var dataLayer: DataLayer = DataLayerWrapper(moduleProxy: createModuleProxy())
 
     public let timedEvents: TealiumTimedEvents
 
     public let consent: TealiumConsent
 
-    public func getModule<T: TealiumModule>(completion: @escaping (T?) -> Void) {
-        modulesManager.getModule(completion: completion)
+    /**
+     * Creates a `ModuleProxy` for the given module to allow for an easy creation of Module Wrappers.
+     *
+     * This method should only be used when creating a `Module` wrapper. Use the already prebuilt wrappers for modules included in the SDK.
+     *
+     * - Parameters:
+     *      - module: The `Module` type that the Proxy needs to wrap.
+     * - Returns: The `ModuleProxy` for the given module.
+     */
+    public func createModuleProxy<T: TealiumModule>(for module: T.Type = T.self) -> ModuleProxy<T> {
+        ModuleProxy(onModulesManager: onModulesManager)
+    }
+
+    deinit {
+        asyncDisposer.dispose()
     }
 }

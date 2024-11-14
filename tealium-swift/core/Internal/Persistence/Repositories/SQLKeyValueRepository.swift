@@ -19,7 +19,7 @@ final class SQLKeyValueRepository: KeyValueRepository {
         self.moduleId = moduleId
     }
 
-    func transactionally(_ block: (SQLKeyValueRepository) throws -> Void) throws {
+    func transactionally(execute block: (SQLKeyValueRepository) throws -> Void) throws {
         try database.transaction {
             try block(self)
         }

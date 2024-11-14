@@ -8,10 +8,11 @@
 
 import Foundation
 
-public extension Subscribable {
+public extension Observable {
 
     /// Ensures that Observers to the returned observable are always subscribed on the provided queue.
-    func subscribeOn(_ queue: TealiumQueue) -> Observable<Element> {
+    /// - Warning: Must be called as a last item in the observable chain. Failing to do so will result in subsequent operators to be subscribed on the calling Thread.
+    func subscribeOn(_ queue: TealiumQueue) -> any Subscribable<Element> {
         CustomObservable<Element> { observer in
             let subscription = AsyncDisposer(disposeOn: queue)
             queue.ensureOnQueue {
@@ -245,20 +246,28 @@ public extension Subscribable {
             return container
         }
     }
-}
 
-public extension Subscribable where Element: Equatable {
-    /// Only emits new events if the last one is different from the new one.
-    func distinct() -> Observable<Element> {
+    func distinct(isEqual: @escaping (Element, Element) -> Bool) -> Observable<Element> {
         CustomObservable<Element> { observer in
             var lastElement: Element?
             return self.subscribe { element in
-                let isDistinct = lastElement == nil || lastElement != element
+                let isDistinct = if let lastElement {
+                    !isEqual(lastElement, element)
+                } else {
+                    true
+                }
                 lastElement = element
                 if isDistinct {
                    observer(element)
                 }
             }
         }
+    }
+}
+
+public extension Observable where Element: Equatable {
+    /// Only emits new events if the last one is different from the new one.
+    func distinct() -> Observable<Element> {
+        distinct(isEqual: { $0 == $1 })
     }
 }

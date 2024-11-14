@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension TealiumImplementation {
+extension TealiumImpl {
     static func addMandatoryAndRemoveDuplicateModules(from config: inout TealiumConfig) {
         var moduleIdSet = Set<String>()
         let modules = (config.modules + [

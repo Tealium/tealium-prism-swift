@@ -39,10 +39,23 @@ class TealiumHelper {
                 .setVisitorIdentityKey("email")
                 .setScopedBarriers([ScopedBarrier(barrierId: "ConnectivityBarrier", scopes: [.dispatcher("Collect")])])
         })
-        let teal = Tealium(config) { result in
+        let teal = Tealium.create(config: config) { result in
             
         }
         self.teal = teal
+        teal.dataLayer.transactionally { apply, getDataItem, commit in
+            apply(.put("key", "value", .forever))
+            apply(.put("key2", "value2", .forever))
+            apply(.remove("key3"))
+            if let count = getDataItem("key4")?.get(as: Int.self) {
+                apply(.put("key4", count + 1, .forever))
+            }
+            do {
+                try commit()
+            } catch {
+                print(error)
+            }
+        }
     }
 
     func stopTealium() {

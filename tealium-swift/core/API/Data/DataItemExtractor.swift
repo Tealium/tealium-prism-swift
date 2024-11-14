@@ -44,7 +44,7 @@ public extension DataItemExtractor {
      * let anInt = dataExtractor.get(key: "someKey", as: Int.self)
      *  ```
      *
-     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangebely and the conversion will be made following `NSNumber` conversion methods.
+     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangeably and the conversion will be made following `NSNumber` conversion methods.
      *  ```swift
      * let nsNumber = NSNumber(1.5)
      * let dataExtractor: DataItemExtractor = DataObject(dictionary: ["someKey": nsNumber])
@@ -104,7 +104,7 @@ public extension DataItemExtractor {
      * let anIntArray = dataExtractor.getArray(key: "someKey", of: Int.self)
      *  ```
      *
-     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangebely and the conversion will be made following `NSNumber` conversion methods.
+     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangeably and the conversion will be made following `NSNumber` conversion methods.
      *  ```swift
      * let nsNumber = NSNumber(1.5)
      * let dataExtractor: DataItemExtractor = DataObject(dictionary: ["someKey": [nsNumber]])
@@ -141,7 +141,7 @@ public extension DataItemExtractor {
      * let anIntDictionary = dataExtractor.getDictionary(key: "someKey", of: Int.self)
      *  ```
      *
-     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangebely and the conversion will be made following `NSNumber` conversion methods.
+     *  Every numeric type (`Int`, `Int64`, `Float`, `Double`, `NSNumber`) can be used interchangeably and the conversion will be made following `NSNumber` conversion methods.
      *  ```swift
      * let nsNumber = NSNumber(1.5)
      * let dataExtractor: DataItemExtractor = DataObject(dictionary: ["someKey": nsNumber])

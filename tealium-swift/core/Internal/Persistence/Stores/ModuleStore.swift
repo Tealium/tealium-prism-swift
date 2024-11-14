@@ -62,26 +62,25 @@ public class ModuleStore: DataStore {
         repository.count()
     }
 
-    enum Edit {
-        case remove(String)
-        case put(String, DataInput, Expiry)
-    }
-
     class Editor: DataStoreEditor {
         let repository: KeyValueRepository
         var shouldClear = false
         var committed = false
-        var edits = [Edit]()
-        let completion: ([Edit]) -> Void
+        var edits = [DataStoreEdit]()
+        let completion: ([DataStoreEdit]) -> Void
 
-        init(repository: KeyValueRepository, completion: @escaping ([Edit]) -> Void) {
+        init(repository: KeyValueRepository, completion: @escaping ([DataStoreEdit]) -> Void) {
             self.repository = repository
             self.completion = completion
         }
 
-        func put(key: String, value: DataInput, expiry: Expiry) -> Self {
-            edits.append(.put(key, value, expiry))
+        func apply(edit: DataStoreEdit) -> Self {
+            edits.append(edit)
             return self
+        }
+
+        func put(key: String, value: DataInput, expiry: Expiry) -> Self {
+            apply(edit: .put(key, value, expiry))
         }
 
         func putAll(dataObject: DataObject, expiry: Expiry) -> Self {
@@ -92,8 +91,7 @@ public class ModuleStore: DataStore {
         }
 
         func remove(key: String) -> Self {
-            edits.append(.remove(key))
-            return self
+            apply(edit: .remove(key))
         }
 
         func remove(keys: [String]) -> Self {
@@ -108,7 +106,7 @@ public class ModuleStore: DataStore {
             return self
         }
 
-        private func apply(_ edit: Edit, on repository: KeyValueRepository) throws -> Bool {
+        private func apply(_ edit: DataStoreEdit, on repository: KeyValueRepository) throws -> Bool {
             switch edit {
             case let .remove(key):
                 let affectedRows = try repository.delete(key: key)
@@ -124,7 +122,7 @@ public class ModuleStore: DataStore {
             let isThereSomethingToCommit = !edits.isEmpty || shouldClear
             guard isThereSomethingToCommit else { return }
             committed = true
-            var appliedEdits = [Edit]()
+            var appliedEdits = [DataStoreEdit]()
             try repository.transactionally { repo in
                 if shouldClear {
                     appliedEdits.append(contentsOf: repo.keys().map { .remove($0) })

@@ -68,9 +68,8 @@ class SettingsManager {
             return
         }
         onNewSettingsMerged(resourceRefresher: resourceRefresher)
-            .subscribe { [weak self] mergedSettings in
-                self?._settings.publish(mergedSettings)
-            }.addTo(automaticDisposer)
+            .subscribe(_settings)
+            .addTo(automaticDisposer)
         onNewRefreshInterval()
             .subscribe { interval in
                 resourceRefresher.setRefreshInterval(interval)
@@ -85,7 +84,8 @@ class SettingsManager {
     }
 
     func onNewRefreshInterval() -> Observable<Double> {
-        settings.map { $0.coreSettings.refreshInterval.seconds() }
+        settings.asObservable()
+            .map { $0.coreSettings.refreshInterval.seconds() }
             .distinct()
     }
 

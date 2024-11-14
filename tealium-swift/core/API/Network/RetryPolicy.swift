@@ -36,10 +36,11 @@ public enum RetryPolicy {
                 queue.ensureOnQueue(completion)
             }
         case .afterEvent(let tealiumObservable):
-            tealiumObservable
-                .subscribeOn(queue)
+            _ = tealiumObservable
+                .first()
                 .observeOn(queue)
-                .subscribeOnce(completion)
+                .subscribeOn(queue)
+                .subscribe(completion)
         }
         return true
     }

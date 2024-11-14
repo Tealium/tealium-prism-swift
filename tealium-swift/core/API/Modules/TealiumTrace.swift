@@ -10,12 +10,12 @@ import Foundation
 
 public class TealiumTrace {
     typealias Module = TraceModule
-    private let modulesManager: ModulesManager
-    init(modulesManager: ModulesManager) {
-        self.modulesManager = modulesManager
+    private let moduleProxy: ModuleProxy<Module>
+    init(moduleProxy: ModuleProxy<Module>) {
+        self.moduleProxy = moduleProxy
     }
     private func getModule(completion: @escaping (Module?) -> Void) {
-        modulesManager.getModule(completion: completion)
+        moduleProxy.getModule(completion: completion)
     }
     public func join(id: String) {
         getModule { module in
@@ -57,9 +57,9 @@ class TraceModule: TealiumBasicModule {
     }
 
     func join(id: String) {
-        dataLayer?.add(key: "trace_id", value: id)
+        dataLayer?.put(key: "trace_id", value: id)
     }
     func leave() {
-        dataLayer?.delete(key: "trace_id")
+        dataLayer?.remove(key: "trace_id")
     }
 }

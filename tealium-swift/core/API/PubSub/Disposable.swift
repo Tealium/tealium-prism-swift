@@ -87,6 +87,12 @@ class AsyncDisposer: DisposeContainer {
             super.dispose()
         }
     }
+
+    override func add(_ disposable: any Disposable) {
+        queue.ensureOnQueue {
+            super.add(disposable)
+        }
+    }
 }
 
 /// A subclass of the `DisposeContainer` that will automatically dispose the contained disposables when it is deinitialized.

@@ -21,7 +21,7 @@ import Foundation
  */
 protocol KeyValueRepository {
     /// Runs all methods in a transaction
-    func transactionally(_ block: (Self) throws -> Void) throws
+    func transactionally(execute block: (Self) throws -> Void) throws
 
     /**
      * Fetch and item given its key.

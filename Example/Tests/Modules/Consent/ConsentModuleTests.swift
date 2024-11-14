@@ -17,7 +17,7 @@ final class ConsentModuleTests: XCTestCase {
     var coreSettings: ObservableState<CoreSettings> {
         _coreSettings.toStatefulObservable()
     }
-    lazy var queueManager = MockQueueManager(processors: TealiumImplementation.queueProcessors(from: modulesManager.modules),
+    lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: modulesManager.modules),
                                              queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
                                                                                  maxQueueSize: 10,
                                                                                  expiration: TimeFrame(unit: .days, interval: 1)),

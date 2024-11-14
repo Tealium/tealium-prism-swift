@@ -10,12 +10,14 @@ import Foundation
 
 public class TealiumDeepLink {
     typealias Module = DeepLinkModule
-    private let modulesManager: ModulesManager
-    init(modulesManager: ModulesManager) {
-        self.modulesManager = modulesManager
+    private let moduleProxy: ModuleProxy<Module>
+
+    init(moduleProxy: ModuleProxy<Module>) {
+        self.moduleProxy = moduleProxy
     }
+
     private func getModule(completion: @escaping (Module?) -> Void) {
-        modulesManager.getModule(completion: completion)
+        moduleProxy.getModule(completion: completion)
     }
     public func handle(link: URL, referrer: Referrer? = nil) {
         getModule { deepLinkModule in
@@ -72,21 +74,21 @@ class DeepLinkModule: TealiumBasicModule {
         let deeplinkTrackingEnabled = true
         if deeplinkTrackingEnabled {
             let oldQueryParamKeys: [String] = dataLayer.data.keys.filter { $0.starts(with: TealiumDataKey.deepLinkQueryPrefix) }
-            dataLayer.delete(keys: oldQueryParamKeys + [TealiumDataKey.deepLinkReferrerUrl, TealiumDataKey.deepLinkReferrerApp])
+            dataLayer.remove(keys: oldQueryParamKeys + [TealiumDataKey.deepLinkReferrerUrl, TealiumDataKey.deepLinkReferrerApp])
             switch referrer {
             case .url(let url):
-                dataLayer.add(key: TealiumDataKey.deepLinkReferrerUrl, value: url.absoluteString, expiry: .session)
+                dataLayer.put(key: TealiumDataKey.deepLinkReferrerUrl, value: url.absoluteString, expiry: .session)
             case .app(let identifier):
-                dataLayer.add(key: TealiumDataKey.deepLinkReferrerApp, value: identifier, expiry: .session)
+                dataLayer.put(key: TealiumDataKey.deepLinkReferrerApp, value: identifier, expiry: .session)
             default:
                 break
             }
-            dataLayer.add(key: TealiumDataKey.deepLinkURL, value: link.absoluteString, expiry: .session)
+            dataLayer.put(key: TealiumDataKey.deepLinkURL, value: link.absoluteString, expiry: .session)
             queryItems?.forEach {
                 guard let value = $0.value else {
                     return
                 }
-                dataLayer.add(key: "\(TealiumDataKey.deepLinkQueryPrefix)_\($0.name)", value: value, expiry: .session)
+                dataLayer.put(key: "\(TealiumDataKey.deepLinkQueryPrefix)_\($0.name)", value: value, expiry: .session)
             }
         }
     }

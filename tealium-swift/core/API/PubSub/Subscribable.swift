@@ -9,35 +9,28 @@
 import Foundation
 
 /// A protocol to provide all publisher-like classes access to a corresponding observable.
-public protocol ObservableConvertible {
+public protocol ObservableConvertible<Element> {
     associatedtype Element
 
     func asObservable() -> Observable<Element>
 }
 
 /// A protocol to provide all observable-like classes some utilities like subscribeOnce or the operators.
-public protocol Subscribable: ObservableConvertible {
+public protocol Subscribable<Element>: ObservableConvertible {
     typealias Observer = (Element) -> Void
 
-    @discardableResult
     func subscribe(_ observer: @escaping Observer) -> any Disposable
 }
 
 public extension Subscribable {
-    /**
-     * Subscribes the observer only once and then automatically disposes it.
-     *
-     * This is meant to be used when you only need one observer to be registered once.
-     * Use the standalone `first()` operator if multiple observers all need to register for one event.
-     *
-     * - returns: a `Disposable` that can be used to dispose this observer before the first event is sent to the observer, in case it's not needed any longer.
-     */
-    @discardableResult
-    func subscribeOnce(_ observer: @escaping Observer) -> Disposable {
-        first().subscribe(observer)
-    }
-
     func asObservable() -> Observable<Element> {
         CustomObservable<Element> { observer in self.subscribe(observer) }
+    }
+
+    /// Subscribe a `Subject` to this `Subscribable`.
+    func subscribe<S: Subject>(_ subject: S) -> any Disposable where S.Element == Element {
+        subscribe { element in
+            subject.publish(element)
+        }
     }
 }

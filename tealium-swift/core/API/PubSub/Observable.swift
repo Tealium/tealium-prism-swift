@@ -24,6 +24,21 @@ public class Observable<Element>: Subscribable {
     }
 }
 
+public extension Observable {
+    /**
+     * Subscribes the observer only once and then automatically disposes it.
+     *
+     * This is meant to be used when you only need one observer to be registered once.
+     * Use the standalone `first()` operator if multiple observers all need to register for one event.
+     *
+     * - returns: a `Disposable` that can be used to dispose this observer before the first event is sent to the observer, in case it's not needed any longer.
+     */
+    @discardableResult
+    func subscribeOnce(_ observer: @escaping Observer) -> Disposable {
+        first().subscribe(observer)
+    }
+}
+
 /**
  * A concrete implementation of `Observable` which holds a list of observers that can be added via the subscribe method and forwards them every event it receives.
  *
