@@ -15,17 +15,18 @@ class DataLayerWrapper: DataLayer {
     private let moduleProxy: ModuleProxy<Module>
     init(moduleProxy: ModuleProxy<Module>) {
         self.moduleProxy = moduleProxy
-        onDataUpdated = moduleProxy.observeModule { $0.moduleStore.onDataUpdated }
-        onDataRemoved = moduleProxy.observeModule { $0.moduleStore.onDataRemoved }
+        onDataUpdated = moduleProxy.observeModule(\.dataStore.onDataUpdated)
+        onDataRemoved = moduleProxy.observeModule(\.dataStore.onDataRemoved)
     }
 
     private func getModule(completion: @escaping (Module?) -> Void) {
         moduleProxy.getModule(completion: completion)
     }
+
     func transactionally(execute block: @escaping TransactionBlock) {
         getModule { dataLayer in
             guard let dataLayer else { return }
-            let dataStore = dataLayer.moduleStore
+            let dataStore = dataLayer.dataStore
             let editor = dataStore.edit()
             block({ edit in
                 _ = editor.apply(edit: edit)
@@ -34,36 +35,43 @@ class DataLayerWrapper: DataLayer {
             }, { try editor.commit() })
         }
     }
-    func put(data: DataObject, expiry: Expiry = .session) {
+
+    func put(data: DataObject, expiry: Expiry) {
         getModule { dataLayer in
             dataLayer?.put(data: data, expiry: expiry)
         }
     }
-    func put(key: String, value: DataInput, expiry: Expiry = .session) {
+
+    func put(key: String, value: DataInput, expiry: Expiry) {
         getModule { dataLayer in
             dataLayer?.put(key: key, value: value, expiry: expiry)
         }
     }
+
     func remove(key: String) {
         getModule { dataLayer in
             dataLayer?.remove(key: key)
         }
     }
+
     func remove(keys: [String]) {
         getModule { dataLayer in
             dataLayer?.remove(keys: keys)
         }
     }
+
     func clear() {
         getModule { dataLayer in
-            dataLayer?.removeAll()
+            dataLayer?.clear()
         }
     }
+
     func getDataItem(key: String, completion: @escaping (DataItem?) -> Void) {
         getModule { dataLayer in
             completion(dataLayer?.getDataItem(key: key))
         }
     }
+
     func getAll(completion: @escaping (DataObject) -> Void) {
         getModule { dataLayer in
             guard let dataLayer else { return }

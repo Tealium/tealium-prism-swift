@@ -10,6 +10,7 @@ import Foundation
 
 /// A container of key-value pairs that can return a `DataItem` for a given `String` key.
 public protocol DataItemExtractor {
+    /// - parameter key: The key at which to look for the `DataItem`.
     /// - returns: A `DataItem` if one can be found for the given key.
     func getDataItem(key: String) -> DataItem?
 }

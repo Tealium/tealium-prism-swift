@@ -33,7 +33,7 @@ class DispatchSchema {
                                      Self.dispatch <- try dispatch.eventData.serialize()])
     }
 
-    static func deleteLatestDispatches(_ count: Int) throws -> Delete {
+    static func deleteOldestDispatches(_ count: Int) throws -> Delete {
         table.order(DispatchSchema.timestamp)
             .limit(count)
             .delete()

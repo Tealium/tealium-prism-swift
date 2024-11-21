@@ -116,7 +116,7 @@ class SQLQueueRepository: QueueRepository {
         guard spaceRequired > 0 else {
             return
         }
-        try database.run(DispatchSchema.deleteLatestDispatches(spaceRequired))
+        try database.run(DispatchSchema.deleteOldestDispatches(spaceRequired))
     }
 
     private func spaceRequired(incomingCount: Int) -> Int {

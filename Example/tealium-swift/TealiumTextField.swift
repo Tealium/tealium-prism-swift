@@ -13,17 +13,20 @@ public struct TealiumTextField: View {
     var isSecure: Bool
     var imageName: String?
     var placeholder: String?
+    let applyButtonText: String
     let onCommit: (() -> ())?
     
     public init(_ value: Binding<String>,
                 secure: Bool = false,
                 imageName: String? = nil,
                 placeholder: String? = nil,
+                applyButtonText: String = "Apply",
                 onCommit: (() -> ())? = nil) {
         self._value = value
         self.isSecure = secure
         self.imageName = imageName
         self.placeholder = placeholder
+        self.applyButtonText = applyButtonText
         self.onCommit = onCommit
     }
     
@@ -55,15 +58,15 @@ public struct TealiumTextField: View {
                 Button {
                     onCommit()
                 } label: {
-                    Text("Apply")
-                        .frame(width: 60, height: 50)
+                    Text(applyButtonText)
+                        .frame(width: 100, height: 50)
                         .background(Color.tealBlue)
                         .foregroundColor(.white)
                         .cornerRadius(10)
                 }
             }
           }
-        .frame(width: 200.0)
+        .frame(width: 250.0)
         .padding()
         .overlay(RoundedRectangle(cornerRadius: 10)
                     .stroke(Color.tealBlue, lineWidth: 1))

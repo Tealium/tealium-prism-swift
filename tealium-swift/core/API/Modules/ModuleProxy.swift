@@ -8,13 +8,47 @@
 
 import Foundation
 
+/**
+ * A `ModuleProxy` is to be used for proxying access to modules that are or were available
+ * to access from the main `Tealium` implementation.
+ *
+ * Any external `Module` implementation that provides functionality expected to be used by a
+ * developer should wrap their access to `Tealium` through a `ModuleProxy`.
+ */
 public class ModuleProxy<Module: TealiumModule> {
     private let onModulesManager: Observable<ModulesManager?>
     private let queue: TealiumQueue
-    init(queue: TealiumQueue = TealiumQueue.worker, onModulesManager: Observable<ModulesManager?>) {
+
+    /**
+     * Initialize the `ModuleProxy` for a specific `TealiumModule`.
+     *
+     * - Parameters:
+     *      - onModulesManager: An `Observable` that will only emit 1 `ModulesManager` when it will be created.
+     *      The event must be emitted on the `TealiumQueue.worker` queue.
+     */
+    convenience public init(onModulesManager: Observable<ModulesManager?>) {
+        self.init(queue: .worker, onModulesManager: onModulesManager)
+    }
+
+    /**
+     * Initialize the `ModuleProxy` for a specific `TealiumModule`.
+     *
+     * - Parameters:
+     *      - queue: The `TealiumQueue` onto which events need to be subscribed upon
+     *      - onModulesManager: An `Observable` that will only emit 1 `ModulesManager` when it will be created.
+     *      The event must be emitted on the same queue as the other parameter.
+     */
+    init(queue: TealiumQueue, onModulesManager: Observable<ModulesManager?>) {
         self.queue = queue
         self.onModulesManager = onModulesManager
     }
+
+    /**
+     * Observe an observable of the `Module` regardless of if the `Module` is currently enabled or not.
+     *
+     * - parameter transform: The transformation that maps the `Module` to one of it's `Observable`s.
+     * - returns: A `Subscribable` for the inner `Observable`.
+     */
     public func observeModule<Other>(transform: @escaping (Module) -> Observable<Other>) -> any Subscribable<Other> {
         onModulesManager.flatMapLatest { $0?.modules.asObservable() ?? .Empty() }
             .map { $0.compactMap { $0 as? Module }.first }
@@ -27,6 +61,24 @@ public class ModuleProxy<Module: TealiumModule> {
             }
             .subscribeOn(queue)
     }
+
+    /**
+     * Observe an observable of the `Module` regardless of if the `Module` is currently enabled or not.
+     *
+     * - parameter keyPath: The `KeyPath` to the `Observable` inside of the `Module`.
+     * - returns: A `Subscribable` for the inner `Observable`.
+     */
+    public func observeModule<Other>(_ keyPath: KeyPath<Module, Observable<Other>>) -> any Subscribable<Other> {
+        observeModule { module in
+            module[keyPath: keyPath]
+        }
+    }
+
+    /**
+     * Retrieves the `Module`, providing it in the `completion`.
+     *
+     * - parameter completion: The block of code to receive the `Module` in, if present, or nil.
+     */
     public func getModule(completion: @escaping (Module?) -> Void) {
         _ = onModulesManager
             .first()

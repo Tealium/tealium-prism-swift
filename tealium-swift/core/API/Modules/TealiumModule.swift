@@ -20,9 +20,15 @@ public protocol TealiumModule: AnyObject {
     func shutdown()
 }
 
-/// A stricted `TealiumModule` that can be created with some default parameters.
+/// A restricted `TealiumModule` that can be created with some default parameters.
 public protocol TealiumBasicModule: TealiumModule {
-    /// Initializes the module with a `TealiumContext` and this module's specific settings.
+    /**
+     *  Initializes the module with a `TealiumContext` and this module's specific settings.
+     *
+     * - Parameters:
+     *      - context: The `TealiumContext` shared among all the modules
+     *      - moduleSettings: The `DataObject` containing the settings for this specific module. It should be empty if the module uses no settings.
+     */
     init?(context: TealiumContext, moduleSettings: DataObject)
 }
 

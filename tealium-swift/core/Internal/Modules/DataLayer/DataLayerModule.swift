@@ -6,48 +6,62 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-class DataLayerModule: TealiumBasicModule, Collector, DataItemExtractor {
+class DataLayerModule: TealiumBasicModule {
     static var canBeDisabled: Bool { false }
-    var data: DataObject {
-        moduleStore.getAll()
-    }
     static let id: String = "DataLayer"
-    let moduleStore: DataStore
+    let dataStore: DataStore
 
-    required init?(context: TealiumContext, moduleSettings: DataObject) {
+    convenience required init?(context: TealiumContext, moduleSettings: DataObject) {
         do {
-            moduleStore = try context.moduleStoreProvider.getModuleStore(name: Self.id)
+            self.init(dataStore: try context.moduleStoreProvider.getModuleStore(name: Self.id))
         } catch {
             return nil
         }
     }
 
-    func put(data: DataObject, expiry: Expiry = .session) {
-        try? moduleStore.edit()
+    init(dataStore: DataStore) {
+        self.dataStore = dataStore
+    }
+
+    func put(data: DataObject, expiry: Expiry) {
+        try? dataStore.edit()
             .putAll(dataObject: data, expiry: expiry)
             .commit()
     }
-    func put(key: String, value: DataInput, expiry: Expiry = .session) {
-        try? moduleStore.edit()
+
+    func put(key: String, value: DataInput, expiry: Expiry) {
+        try? dataStore.edit()
             .put(key: key, value: value, expiry: expiry)
             .commit()
     }
+
     func remove(key: String) {
-        try? moduleStore.edit()
+        try? dataStore.edit()
             .remove(key: key)
             .commit()
     }
-    func removeAll() {
-        try? moduleStore.edit()
-            .clear()
-            .commit()
-    }
+
     func remove(keys: [String]) {
-        try? moduleStore.edit()
+        try? dataStore.edit()
             .remove(keys: keys)
             .commit()
     }
+
+    func clear() {
+        try? dataStore.edit()
+            .clear()
+            .commit()
+    }
+}
+
+extension DataLayerModule: Collector {
+    var data: DataObject {
+        dataStore.getAll()
+    }
+}
+
+extension DataLayerModule: DataItemExtractor {
     func getDataItem(key: String) -> DataItem? {
-        moduleStore.getDataItem(key: key)
+        dataStore.getDataItem(key: key)
     }
 }

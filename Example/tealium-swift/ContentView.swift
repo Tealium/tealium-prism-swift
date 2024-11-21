@@ -56,18 +56,41 @@ struct ContentView: View {
                         }
                     }
                     Group {
-                        TealiumTextField($model.email, placeholder: "Enter email") {
-                            applyEmail()
-                        }
-                        TealiumTextButton(title: "Clear Stored Visitor IDs") {
-                            TealiumHelper.shared.teal?.clearStoredVisitorIds()
-                        }
-                        TealiumTextButton(title: "Reset Visitor ID") {
-                            TealiumHelper.shared.teal?.resetVisitorId()
-                        }
+                        NavigationLink("Login (VisitorId)") {
+                            ScrollView {
+                                VStack(spacing: 16) {
+                                    TealiumTextField($model.email, placeholder: "Enter email") {
+                                        applyEmail()
+                                    }
+                                    TealiumTextButton(title: "Clear Stored Visitor IDs") {
+                                        TealiumHelper.shared.teal?.clearStoredVisitorIds()
+                                    }
+                                    TealiumTextButton(title: "Reset Visitor ID") {
+                                        TealiumHelper.shared.teal?.resetVisitorId()
+                                    }
+                                }
+                            }
+                        }.tealiumButtonUI()
+                        NavigationLink("DataLayer") {
+                            ScrollView {
+                                VStack(spacing: 16) {
+                                    NavigationLink("Add to DataLayer") {
+                                        AddToDataLayerView()
+                                            .navigationTitle("Add to DataLayer")
+                                    }.tealiumButtonUI()
+                                        
+                                    NavigationLink("Remove from DataLayer") {
+                                        RemoveFromDataLayerView()
+                                            .navigationTitle("Remove from DataLayer")
+                                    }.tealiumButtonUI()
+                                        
+                                }
+                            }.navigationTitle("DataLayer")
+                        }.tealiumButtonUI()
+                            
                     }
                 }
-            }
+            }.navigationTitle("Tealium Sample")
         }
     }
     func applyEmail() {
@@ -75,6 +98,36 @@ struct ContentView: View {
             TealiumHelper.shared.teal?.dataLayer.remove(key: "email")
         } else {
             TealiumHelper.shared.teal?.dataLayer.put(key: "email", value: model.email, expiry: .forever)
+        }
+    }
+}
+
+struct AddToDataLayerView: View {
+    @State var key: String = ""
+    @State var value: String = ""
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                TealiumTextField($key, placeholder: "Enter key")
+                TealiumTextField($value, placeholder: "Enter Value", applyButtonText: "Insert") {
+                    TealiumHelper.shared.teal?.dataLayer.put(key: key, value: value)
+                }
+            }
+        }
+    }
+    
+    
+}
+
+struct RemoveFromDataLayerView: View {
+    @State var key: String = ""
+    var body: some View {
+        ScrollView {
+            VStack(spacing: 16) {
+                TealiumTextField($key, placeholder: "Enter key", applyButtonText: "Remove") {
+                    TealiumHelper.shared.teal?.dataLayer.remove(key: key)
+                }
+            }
         }
     }
 }

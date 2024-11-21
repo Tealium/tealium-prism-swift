@@ -57,7 +57,7 @@ class TraceModule: TealiumBasicModule {
     }
 
     func join(id: String) {
-        dataLayer?.put(key: "trace_id", value: id)
+        dataLayer?.put(key: "trace_id", value: id, expiry: .session)
     }
     func leave() {
         dataLayer?.remove(key: "trace_id")
