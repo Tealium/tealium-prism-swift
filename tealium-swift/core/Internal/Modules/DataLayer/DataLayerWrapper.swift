@@ -72,10 +72,9 @@ class DataLayerWrapper: DataLayer {
         }
     }
 
-    func getAll(completion: @escaping (DataObject) -> Void) {
+    func getAll(completion: @escaping (DataObject?) -> Void) {
         getModule { dataLayer in
-            guard let dataLayer else { return }
-            completion(dataLayer.data)
+            completion(dataLayer?.data)
         }
     }
 }

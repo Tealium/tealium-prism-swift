@@ -131,7 +131,7 @@ public protocol DataLayer {
      *
      * - parameter completion: A block called with a `DataObject` dictionary containing all the data from the `DataLayer`.
      */
-    func getAll(completion: @escaping (DataObject) -> Void)
+    func getAll(completion: @escaping (DataObject?) -> Void)
 
     // MARK: - Deletions
 
