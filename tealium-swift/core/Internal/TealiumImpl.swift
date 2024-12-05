@@ -34,8 +34,8 @@ class TealiumImpl {
         let settingsManager = try SettingsManager(config: config,
                                                   dataStore: dataStore,
                                                   networkHelper: networkHelper,
-                                                  logger: logger,
-                                                  onActivity: appStatusListener.onApplicationStatus)
+                                                  logger: logger)
+        settingsManager.startRefreshing(onActivity: appStatusListener.onApplicationStatus)
         self.settingsManager = settingsManager
         let coreSettings = settingsManager.settings.mapState { $0.coreSettings }
         settingsManager.settings

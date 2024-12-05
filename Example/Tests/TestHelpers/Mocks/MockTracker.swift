@@ -10,6 +10,10 @@ import Foundation
 @testable import TealiumSwift
 
 class MockTracker: Tracker {
+    @ToAnyObservable<BasePublisher<TealiumDispatch>>(BasePublisher<TealiumDispatch>())
+    var onTrack: Observable<TealiumDispatch>
     func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
+        _onTrack.publish(trackable)
+        onTrackResult?(trackable, .accepted)
     }
 }

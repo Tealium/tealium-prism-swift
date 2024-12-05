@@ -1,5 +1,5 @@
 //
-//  LifecycleObservable.swift
+//  ApplicationStatusListener.swift
 //  tealium-swift
 //
 //  Created by Denis Guzov on 02/08/2024.
@@ -9,10 +9,15 @@
 import Foundation
 
 public struct ApplicationStatus {
-    public let type: LifecycleStatus
-    public let timestamp: Int64 = Int64(Date().timeIntervalSince1970)
+    public let type: StatusType
+    public let timestamp: Int64
 
-    public enum LifecycleStatus {
+    public init(type: StatusType, timestamp: Int64 = Date().unixTimeMillisecondsInt) {
+        self.type = type
+        self.timestamp = timestamp
+    }
+
+    public enum StatusType {
         case initialized, foregrounded, backgrounded
     }
 }
@@ -35,7 +40,7 @@ public class ApplicationStatusListener: NSObject {
         super.init()
         addListeners()
         initGraceTimer = TealiumRepeatingTimer(timeInterval: graceTimeInterval, repeating: .never, queue: queue, eventHandler: { [weak self] in
-            self?._onApplicationStatus.publisher.resize(0)
+            self?._onApplicationStatus.publisher.resize(1)
             self?.initGraceTimer = nil
         })
         initGraceTimer?.resume()

@@ -2,24 +2,30 @@ use_frameworks!
 
 target 'Example_iOS' do
   platform :ios, '14.1'
-  pod 'tealium-swift', :path => '../'
+  pod 'tealium-swift/Core', :path => '../'
+  pod 'tealium-swift/Lifecycle', :path => '../'
 end
 
 target 'CoreTests_iOS' do
   platform :ios, '14.1'
-  pod 'tealium-swift', :path => '../'
+  pod 'tealium-swift/Core', :path => '../'
 end
 
 target 'CoreTests_macOS' do
   platform :osx, '10.14'
-  pod 'tealium-swift', :path => '../'
+  pod 'tealium-swift/Core', :path => '../'
 end
 
 target 'CoreTests_tvOS' do
-  platform :tvos, '12.0'
-  pod 'tealium-swift', :path => '../'
+  platform :tvos, '14.1'
+  pod 'tealium-swift/Core', :path => '../'
 end
 
+target 'LifecycleTests_iOS' do
+  platform :ios, '14.1'
+  pod 'tealium-swift/Core', :path => '../'
+  pod 'tealium-swift/Lifecycle', :path => '../'
+end
 
 post_install do |installer|
     installer.pods_project.root_object.attributes["ORGANIZATIONNAME"] = "Tealium, Inc"

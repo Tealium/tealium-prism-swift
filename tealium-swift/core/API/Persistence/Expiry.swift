@@ -32,7 +32,7 @@ public enum Expiry: Equatable {
         case -1:
             self = .forever
         default:
-            self = .after(Date(timeIntervalSince1970: Double(milliseconds) / 1000))
+            self = .after(Date(unixMilliseconds: milliseconds))
         }
     }
 

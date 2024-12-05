@@ -27,9 +27,7 @@ final class TealiumInstanceManagerTests: XCTestCase {
             XCTAssertResultIsSuccess(result)
             creationCompleted.fulfill()
         }
-        manager.queue.dispatchQueue.sync {
-            waitForDefaultTimeout()
-        }
+        waitOnQueue(queue: manager.queue)
     }
 
     func test_create_with_same_config_completes_with_success() {
@@ -43,9 +41,7 @@ final class TealiumInstanceManagerTests: XCTestCase {
             XCTAssertResultIsSuccess(result)
             creationCompleted.fulfill()
         }
-        manager.queue.dispatchQueue.sync {
-            waitForDefaultTimeout()
-        }
+        waitOnQueue(queue: manager.queue)
     }
 
     func test_create_with_same_config_returns_different_tealium_instances() {
@@ -71,9 +67,7 @@ final class TealiumInstanceManagerTests: XCTestCase {
                 }
                 creationCompleted.fulfill()
             }
-        manager.queue.dispatchQueue.sync {
-            waitForDefaultTimeout()
-        }
+        waitOnQueue(queue: manager.queue)
     }
 
     func test_get_completes_with_nil_if_instance_is_not_previously_created() {
@@ -82,9 +76,7 @@ final class TealiumInstanceManagerTests: XCTestCase {
             XCTAssertNil(teal)
             getCompleted.fulfill()
         }
-        manager.queue.dispatchQueue.sync {
-            waitForDefaultTimeout()
-        }
+        waitOnQueue(queue: manager.queue)
     }
 
     func test_get_completes_with_previous_tealium_instance_if_created_for_that_config() {
@@ -95,9 +87,7 @@ final class TealiumInstanceManagerTests: XCTestCase {
             XCTAssertIdentical(teal1, teal2)
             getCompleted.fulfill()
         }
-        manager.queue.dispatchQueue.sync {
-            waitForDefaultTimeout()
-        }
+        waitOnQueue(queue: manager.queue)
     }
 
     func test_tealium_proxies_denitialize_when_no_external_reference_are_kept_alive() {

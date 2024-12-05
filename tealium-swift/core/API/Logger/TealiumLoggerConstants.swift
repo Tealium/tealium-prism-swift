@@ -58,7 +58,10 @@ public enum LogLevel: Int, Comparable, CaseIterable, CustomStringConvertible {
         case error  = 400
         case silent = 999_999
 
-        public init?(from string: String) {
+        public init?(from string: String?) {
+            guard let string else {
+                return nil
+            }
             switch string {
             case "trace":
                 self = .trace
@@ -117,15 +120,15 @@ public enum TealiumLoggerType {
 // swiftlint:enable identifier_name
 
 enum LogCategory {
+    static let collect = "Collect"
+    static let dispatchManager = "DispatchManager"
+    static let httpClient = "HTTPClient"
+    static let networkHelper = "NetworkHelper"
+    static let queueManager = "QueueManager"
+    static let resourceRefresher = "ResourceRefresher"
+    static let settingsManager = "SettingsManager"
     static let startup = "Startup"
     static let tealium = "Tealium"
     static let tracking = "Tracking"
-    static let collect = "Collect"
-    static let dispatchManager = "DispatchManager"
-    static let settingsManager = "SettingsManager"
-    static let httpClient = "HTTPClient"
-    static let networkHelper = "NetworkHelper"
-    static let resourceRefresher = "ResourceRefresher"
-    static let queueManager = "QueueManager"
     static let visitorIdProvider = "VisitorIdProvider"
 }

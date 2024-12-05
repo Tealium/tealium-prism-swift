@@ -50,6 +50,7 @@ jobs:
       matrix:
         scheme:
             - CoreTests_iOS
+            - LifecycleTests_iOS
         destination: ["platform=iOS Simulator,OS=17.5,name=iPhone 15 Pro"]
     steps:
       - uses: actions/checkout@v4

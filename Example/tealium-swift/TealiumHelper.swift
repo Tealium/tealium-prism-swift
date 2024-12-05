@@ -29,6 +29,9 @@ class TealiumHelper {
                                                            forcingSettings: { enforcedSettings in
                                         enforcedSettings.setEnabled(false)
                                     }),
+                                    TealiumModules.lifecycle(forcingSettings: { enforcedSettings in
+                                        enforcedSettings.setEnabled(true)
+                                    }),
                                     TealiumModules.customCollector(SomeModule.self),
                                     ModuleWithExternalDependencies.Factory(otherDependencies: NSObject())
                                    ],

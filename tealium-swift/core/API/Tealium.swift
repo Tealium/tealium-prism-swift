@@ -10,19 +10,15 @@ import Foundation
 
 public typealias TrackResultCompletion = (_ dispatch: TealiumDispatch, _ result: TrackResult) -> Void
 
-/// An error happened during `Tealium` initialization process. Use the `underlyingError` to understand the root cause.
-public struct TealiumInitializationError: Error {
-    let underlyingError: Error?
-}
 public class Tealium {
-    public typealias InitializationResult = Result<Tealium, TealiumInitializationError>
-    typealias ImplementationResult = Result<TealiumImpl, TealiumInitializationError>
+    public typealias InitializationResult = Result<Tealium, TealiumError>
+    typealias ImplementationResult = Result<TealiumImpl, TealiumError>
     typealias ImplementationObservable = Observable<ImplementationResult>
     private let onModulesManager: Observable<ModulesManager?>
     private let onTealiumImplementation: ImplementationObservable
     let asyncDisposer = AsyncDisposer(disposeOn: .worker)
     let queue = TealiumQueue.worker
-    var initializationError: Error?
+    var initializationError: TealiumError?
 
     public static func create(config: TealiumConfig, completion: @escaping (InitializationResult) -> Void) -> Tealium {
         TealiumInstanceManager.shared.create(config: config, completion: completion)

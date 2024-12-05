@@ -63,7 +63,7 @@ public protocol DataStoreEditor {
     /**
      * Applies a `DataStoreEdit` to this editor.
      *
-     * - parameter edit: The `DataStireEdit` to apply.
+     * - parameter edit: The `DataStoreEdit` to apply.
      *
      * - returns: the same `DataStoreEditor` to continue editing this storage.
      */

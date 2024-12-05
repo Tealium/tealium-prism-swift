@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
+import TealiumSwift
 import XCTest
 
 public extension XCTestCase {
@@ -19,5 +20,11 @@ public extension XCTestCase {
     /// Event if the request is not actually sent, the URLProtocolMock is called on a different queue, therefore we can't wait too little or it can fail sporadically.
     func waitForLongTimeout() {
         waitForExpectations(timeout: Self.longTimeout)
+    }
+
+    func waitOnQueue(queue: TealiumQueue, timeout: TimeInterval = defaultTimeout) {
+        queue.dispatchQueue.sync {
+            waitForExpectations(timeout: timeout)
+        }
     }
 }

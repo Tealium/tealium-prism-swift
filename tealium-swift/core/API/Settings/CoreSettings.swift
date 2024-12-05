@@ -26,8 +26,7 @@ public struct CoreSettings {
         static let refreshInterval = TimeFrame(unit: .minutes, interval: 15)
     }
     init(coreDataObject: DataObject) {
-        minLogLevel = coreDataObject.get(key: Keys.minLogLevel)
-            .flatMap { LogLevel.Minimum(from: $0) } ?? Defaults.minLogLevel
+        minLogLevel = LogLevel.Minimum(from: coreDataObject.get(key: Keys.minLogLevel)) ?? Defaults.minLogLevel
         scopedBarriers = coreDataObject.getDataArray(key: Keys.barriers)?
             .compactMap { $0.getConvertible(converter: ScopedBarrier.converter) } ?? []
         scopedTransformations = coreDataObject.getDataArray(key: Keys.transformations)?

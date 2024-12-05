@@ -20,8 +20,9 @@ class SettingsManager {
     let localSettings: SDKSettings?
     let programmaticSettings: SDKSettings
     private let logger: LoggerProtocol
+    private var refreshing = false
 
-    init(config: TealiumConfig, dataStore: DataStore, networkHelper: NetworkHelperProtocol, logger: LoggerProtocol, onActivity: Observable<ApplicationStatus>) throws {
+    init(config: TealiumConfig, dataStore: DataStore, networkHelper: NetworkHelperProtocol, logger: LoggerProtocol) throws {
         self.logger = logger
         // MARK: Initialize Settings StateSubject
         var settingsToMerge = [SDKSettings]()
@@ -60,13 +61,13 @@ class SettingsManager {
             self?.logger.debug(category: LogCategory.settingsManager,
                                "Applying settings:\n\(settings)")
         }.addTo(automaticDisposer)
-        startRefreshing(onActivity: onActivity)
     }
 
-    private func startRefreshing(onActivity: Observable<ApplicationStatus>) {
-        guard let resourceRefresher else {
+    func startRefreshing(onActivity: Observable<ApplicationStatus>) {
+        guard let resourceRefresher, !refreshing else {
             return
         }
+        refreshing = true
         onNewSettingsMerged(resourceRefresher: resourceRefresher)
             .subscribe(_settings)
             .addTo(automaticDisposer)
@@ -103,14 +104,10 @@ class SettingsManager {
     }
 
     static func onShouldRequestRefresh(_ onActivity: Observable<ApplicationStatus>) -> Observable<Void> {
-        onActivity.filter { status in
-            switch status.type {
-            case .initialized, .foregrounded:
-                return true
-            default:
-                return false
-            }
-        }.map { _ in return () }
+        onActivity
+            .filter { $0.type == .foregrounded }
+            .map { _ in () }
+            .startWith(())
     }
 
     static func loadLocalSettings(config: TealiumConfig) -> SDKSettings? {

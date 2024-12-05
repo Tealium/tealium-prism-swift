@@ -75,7 +75,7 @@ public class ResourceRefresher<Resource: Codable> {
             return false
         }
         guard let lastFetch = lastFetch else {
-            return true
+            return true // always true at the app start
         }
         guard errorCooldown == nil || isFileCached else {
             return errorCooldown?.isInCooldown(lastFetch: lastFetch) == false
@@ -103,6 +103,7 @@ public class ResourceRefresher<Resource: Codable> {
     }
 
     private func refresh(validatingResource: @escaping (Resource) -> Bool) {
+        var isCompletionRun = false
         disposableRequest = networkHelper.getJsonAsObject(url: parameters.url, etag: lastEtag) { [weak self] (result: ObjectResult<Resource>) in
             guard let self = self else { return }
             switch result {
@@ -130,6 +131,10 @@ public class ResourceRefresher<Resource: Codable> {
                 }
             }
             self.lastFetch = Date()
+            self.disposableRequest = nil
+            isCompletionRun = true
+        }
+        if isCompletionRun { // Added for cases in which the network helper returns synchronously (mainly tests)
             self.disposableRequest = nil
         }
     }

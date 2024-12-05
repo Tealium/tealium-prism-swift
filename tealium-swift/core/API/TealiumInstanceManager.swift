@@ -40,7 +40,7 @@ public class TealiumInstanceManager {
                     instances[config.key] = Weak(value: instance)
                     subject.publish(.success(instance))
                 } catch {
-                    subject.publish(.failure(TealiumInitializationError(underlyingError: error)))
+                    subject.publish(.failure(TealiumError.initializationError(error)))
                 }
             }
         }

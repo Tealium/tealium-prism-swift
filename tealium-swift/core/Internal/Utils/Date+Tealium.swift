@@ -9,6 +9,9 @@
 import Foundation
 
 public extension Date {
+    init(unixMilliseconds: Int64) {
+        self.init(timeIntervalSince1970: Double(unixMilliseconds) / 1000)
+    }
 
     struct Formatter {
         static let iso8601: DateFormatter = {

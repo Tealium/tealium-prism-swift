@@ -42,4 +42,9 @@ Pod::Spec.new do |s|
   s.subspec "Core" do |core|
       core.source_files = "tealium-swift/Core/**/*.{swift,h,m}"
     end
+
+  s.subspec "Lifecycle" do |lifecycle|
+      lifecycle.source_files = "tealium-swift/Lifecycle/**/*.{swift,h,m}"
+      lifecycle.dependency "tealium-swift/Core"
+    end
 end
