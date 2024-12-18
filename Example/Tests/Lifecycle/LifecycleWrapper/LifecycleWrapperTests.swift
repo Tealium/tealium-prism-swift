@@ -50,7 +50,7 @@ final class LifecycleWrapperTests: XCTestCase {
             launchTracked.fulfill()
         })
         wrapper.launch()
-        waitForDefaultTimeout()
+        waitOnQueue(queue: queue)
     }
 
     func test_launch_gets_tracked_with_passed_data_on_calling_launch() {
@@ -61,7 +61,7 @@ final class LifecycleWrapperTests: XCTestCase {
             launchTracked.fulfill()
         })
         wrapper.launch(["customAttr": 42])
-        waitForDefaultTimeout()
+        waitOnQueue(queue: queue)
     }
 
     func test_sleep_gets_tracked_on_calling_sleep() {
@@ -73,7 +73,7 @@ final class LifecycleWrapperTests: XCTestCase {
         }).addTo(autoDisposer)
         wrapper.launch()
         wrapper.sleep()
-        waitForDefaultTimeout()
+        waitOnQueue(queue: queue)
     }
 
     func test_sleep_gets_tracked_with_passed_data_on_calling_sleep() {
@@ -86,7 +86,7 @@ final class LifecycleWrapperTests: XCTestCase {
         }).addTo(autoDisposer)
         wrapper.launch()
         wrapper.sleep(["customAttr": 42])
-        waitForDefaultTimeout()
+        waitOnQueue(queue: queue)
     }
 
     func test_wake_gets_tracked_on_calling_wake() {
@@ -99,7 +99,7 @@ final class LifecycleWrapperTests: XCTestCase {
         wrapper.launch()
         wrapper.sleep()
         wrapper.wake()
-        waitForDefaultTimeout()
+        waitOnQueue(queue: queue)
     }
 
     func test_wake_gets_tracked_with_passed_data_on_calling_wake() {
@@ -113,7 +113,7 @@ final class LifecycleWrapperTests: XCTestCase {
         wrapper.launch()
         wrapper.sleep()
         wrapper.wake(["customAttr": 42])
-        waitForDefaultTimeout()
+        waitOnQueue(queue: queue)
     }
 
     func test_launch_completion_gets_called_without_error_and_with_one_when_order_is_invalid() {
@@ -127,7 +127,7 @@ final class LifecycleWrapperTests: XCTestCase {
             XCTAssertEqual(error as? LifecycleError, LifecycleError.invalidEventOrder)
             calledWithError.fulfill()
         }
-        waitForDefaultTimeout()
+        waitOnQueue(queue: queue)
     }
 
     func test_sleep_completion_gets_called_without_error_and_with_one_when_order_is_invalid() {
@@ -142,7 +142,7 @@ final class LifecycleWrapperTests: XCTestCase {
             XCTAssertEqual(error as? LifecycleError, LifecycleError.invalidEventOrder)
             calledWithError.fulfill()
         }
-        waitForDefaultTimeout()
+        waitOnQueue(queue: queue)
     }
 
     func test_wake_completion_gets_called_without_error_and_with_one_when_order_is_invalid() {
@@ -158,6 +158,6 @@ final class LifecycleWrapperTests: XCTestCase {
             XCTAssertEqual(error as? LifecycleError, LifecycleError.invalidEventOrder)
             calledWithError.fulfill()
         }
-        waitForDefaultTimeout()
+        waitOnQueue(queue: queue)
     }
 }

@@ -6,17 +6,8 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-class LifecycleModule: Collector {
+class LifecycleModule {
     static let id: String = "Lifecycle"
-
-    // MARK: Collector
-    var data: DataObject {
-        return if lifecycleSettings.dataTarget == LifecycleDataTarget.allEvents {
-            lifecycleService.getCurrentState(timestamp: Date().unixTimeMillisecondsInt)
-        } else {
-            DataObject()
-        }
-    }
 
     private var lifecycleSettings: LifecycleSettings
     internal let lifecycleService: LifecycleService
@@ -114,7 +105,7 @@ class LifecycleModule: Collector {
                     state += data
                 }
                 let dispatch = TealiumDispatch(name: event.rawValue, data: state)
-                self.tracker?.track(dispatch)
+                self.tracker?.track(dispatch, source: .module(LifecycleModule.self))
             }
             if !hasLaunched {
                 hasLaunched = true
@@ -228,29 +219,14 @@ class LifecycleModule: Collector {
 //        get() = BuildConfig.TEALIUM_LIBRARY_VERSION
 }
 
-extension LifecycleModule {
-    class Factory: TealiumModuleFactory {
-        typealias Module = LifecycleModule
-
-        private var settings: DataObject?
-
-        init(forcingSettings block: ((_ enforcedSettings: LifecycleSettingsBuilder) -> LifecycleSettingsBuilder)? = nil) {
-            settings = block?(LifecycleSettingsBuilder()).build()
+extension LifecycleModule: Collector {
+    // MARK: Collector
+    func collect(_ dispatchContext: DispatchContext) -> DataObject {
+        guard lifecycleSettings.dataTarget == LifecycleDataTarget.allEvents
+                && dispatchContext.source.moduleType != LifecycleModule.self
+        else {
+            return DataObject()
         }
-
-        func getEnforcedSettings() -> DataObject? {
-            return settings
-        }
-
-        func create(context: TealiumContext, moduleSettings settings: DataObject) -> Module? {
-            guard let dataStore = try? context.moduleStoreProvider.getModuleStore(name: LifecycleModule.id) else {
-                return nil
-            }
-            return LifecycleModule(
-                context: context,
-                settings: LifecycleSettings(moduleSettings: settings),
-                service: LifecycleService(lifecycleStorage: LifecycleStorage(dataStore: dataStore), bundle: context.config.bundle)
-            )
-        }
+        return lifecycleService.getCurrentState(timestamp: Date().unixTimeMillisecondsInt)
     }
 }

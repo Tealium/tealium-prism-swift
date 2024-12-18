@@ -41,7 +41,7 @@ final class FirstLaunchTests: LifecycleServiceBaseTests {
     }
 
     func test_daysSinceLastWake_is_correct() {
-        XCTAssertEqual(lifecycleEventState.getDataItem(key: LifecycleStateKey.daysSinceLastWake)?.get(), 0)
+        XCTAssertNil(lifecycleEventState.getDataItem(key: LifecycleStateKey.daysSinceLastWake))
         XCTAssertEqual(customEventState.getDataItem(key: LifecycleStateKey.daysSinceLastWake)?.get(), 1)
     }
 

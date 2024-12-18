@@ -10,7 +10,15 @@ import Foundation
 
 class TealiumCollector: TealiumBasicModule, Collector {
     static var canBeDisabled: Bool { false }
-    var data: DataObject {
+
+    static let id: String = "TealiumCollector"
+
+    let context: TealiumContext
+    required init(context: TealiumContext, moduleSettings: DataObject) {
+        self.context = context
+    }
+
+    func collect(_ dispatchContext: DispatchContext) -> DataObject {
         let config = context.config
         return [
             TealiumDataKey.account: config.account,
@@ -19,12 +27,5 @@ class TealiumCollector: TealiumBasicModule, Collector {
             TealiumDataKey.enabledModules: context.modulesManager?.modules.value.map { $0.id } ?? [],
             TealiumDataKey.visitorId: context.visitorId.value
         ]
-    }
-
-    static let id: String = "TealiumCollector"
-
-    let context: TealiumContext
-    required init(context: TealiumContext, moduleSettings: DataObject) {
-        self.context = context
     }
 }

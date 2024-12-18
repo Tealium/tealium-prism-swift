@@ -17,13 +17,13 @@ public enum TrackResult {
 }
 
 public protocol Tracker: AnyObject {
-    func track(_ trackable: TealiumDispatch)
-    func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?)
+    func track(_ trackable: TealiumDispatch, source: DispatchContext.Source)
+    func track(_ trackable: TealiumDispatch, source: DispatchContext.Source, onTrackResult: TrackResultCompletion?)
 }
 
 public extension Tracker {
-    func track(_ trackable: TealiumDispatch) {
-        track(trackable, onTrackResult: nil)
+    func track(_ trackable: TealiumDispatch, source: DispatchContext.Source) {
+        track(trackable, source: source, onTrackResult: nil)
     }
 }
 
@@ -37,23 +37,43 @@ public class TealiumTracker: Tracker {
         self.logger = logger
     }
 
-    public func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
+    public func track(_ trackable: TealiumDispatch, source: DispatchContext.Source, onTrackResult: TrackResultCompletion?) {
         let trackingInterval = TealiumSignpostInterval(signposter: .tracking, name: "TrackingCall")
             .begin(trackable.name ?? "unknown")
         logger?.debug(category: LogCategory.tealium, "New tracking event received: \(trackable.logDescription())")
         logger?.trace(category: LogCategory.tealium, "Event data: \(trackable.eventData)")
         var trackable = trackable
-        let modules = self.modulesManager.modules.value
-        modules.compactMap { $0 as? Collector }
-            .forEach { collector in
-                TealiumSignpostInterval(signposter: .tracking, name: "Collecting")
-                    .signpostedWork("Collector: \(collector.id)") {
-                        trackable.enrich(data: collector.data) // collector.collect() maybe?
+        self.modulesManager.modules.filter { !$0.isEmpty }
+            .subscribeOnce { [weak self] modules in
+                guard let self else { return }
+                modules.compactMap { $0 as? Collector }
+                    .forEach { collector in
+                        TealiumSignpostInterval(signposter: .tracking, name: "Collecting")
+                            .signpostedWork("Collector: \(collector.id)") {
+                                trackable.enrich(data: collector.collect(DispatchContext(source: source)))
+                            }
                     }
+                self.logger?.debug(category: LogCategory.tealium, "Event: \(trackable.logDescription()) has been enriched by collectors")
+                self.logger?.trace(category: LogCategory.tealium, "Enriched event data: \(trackable.eventData)")
+                self.dispatchManager.track(trackable, onTrackResult: onTrackResult)
+                trackingInterval.end()
             }
-        self.logger?.debug(category: LogCategory.tealium, "Event: \(trackable.logDescription()) has been enriched by collectors")
-        self.logger?.trace(category: LogCategory.tealium, "Enriched event data: \(trackable.eventData)")
-        self.dispatchManager.track(trackable, onTrackResult: onTrackResult)
-        trackingInterval.end()
     }
+}
+
+public struct DispatchContext {
+    public enum Source {
+        case application
+        case module(TealiumModule.Type)
+
+        var moduleType: TealiumModule.Type? {
+            switch self {
+            case .application:
+                nil
+            case .module(let type):
+                type
+            }
+        }
+    }
+    public let source: Source
 }

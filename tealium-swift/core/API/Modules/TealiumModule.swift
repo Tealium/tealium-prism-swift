@@ -45,8 +45,8 @@ public extension TealiumModule {
 
 /// A `TealiumModule` that implements the functionality of collecting data to enrich the data layer of each track request.
 public protocol Collector: TealiumModule {
-    /// The data used to enrich the data layer of a track request.
-    var data: DataObject { get }
+    /// Returns data used to enrich the data layer of a track request.
+    func collect(_ dispatchContext: DispatchContext) -> DataObject
 }
 
 /// A `TealiumModule` that implements the functionality of dispatching some track requests towards some entity that can handle the events.

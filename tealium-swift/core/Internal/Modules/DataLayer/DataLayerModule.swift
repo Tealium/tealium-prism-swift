@@ -52,14 +52,21 @@ class DataLayerModule: TealiumBasicModule {
             .clear()
             .commit()
     }
-}
 
-extension DataLayerModule: Collector {
-    var data: DataObject {
+    // the difference between this method and collect(): this one is for arbitrary request for data, not in collection phase
+    func getAll() -> DataObject {
         dataStore.getAll()
     }
 }
 
+// MARK: Collector
+extension DataLayerModule: Collector {
+    func collect(_ dispatchContext: DispatchContext) -> DataObject {
+        dataStore.getAll()
+    }
+}
+
+// MARK: DataItemExtractor
 extension DataLayerModule: DataItemExtractor {
     func getDataItem(key: String) -> DataItem? {
         dataStore.getDataItem(key: key)

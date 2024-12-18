@@ -6,7 +6,6 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-// swiftlint:disable type_body_length
 /**
  * The `LifecycleService` manages lifecycle events and provides methods for registering
  * launch, wake, and sleep events, as well as retrieving the current lifecycle state.
@@ -57,14 +56,8 @@ class LifecycleService {
         }
         // we should cache the following values before timestamps are updated inside registerLaunch ...
         let daysSinceLastWake = daysSince(startEventMs: lifecycleStorage.timestampLastWake, endEventMs: timestamp)
-        var prevLaunchString: String?
-        var prevWakeString: String?
-        if let lastLaunchString = lastLaunchString ?? setFormattedLastLaunch() {
-            prevLaunchString = lastLaunchString
-        }
-        if let lastWakeString = lastWakeString ?? setFormattedLastWake() {
-            prevWakeString = lastWakeString
-        }
+        let prevLaunchString = lastLaunchString ?? setFormattedLastLaunch()
+        let prevWakeString = lastWakeString ?? setFormattedLastWake()
 
         try lifecycleStorage.registerLaunch(timestamp: timestamp)
         lastLaunchString = Date(unixMilliseconds: timestamp).iso8601String
@@ -86,6 +79,8 @@ class LifecycleService {
         // ... and override corresponding state values afterwards
         if let daysSinceLastWake {
             state.set(daysSinceLastWake, key: LifecycleStateKey.daysSinceLastWake)
+        } else {
+            state.removeValue(forKey: LifecycleStateKey.daysSinceLastWake)
         }
         if let prevLaunchString {
             state.set(prevLaunchString, key: LifecycleStateKey.lastLaunchDate)
@@ -112,10 +107,7 @@ class LifecycleService {
         var state = try getStateWithFirstWake(lastWake: lastWake, timestamp: timestamp)
         // we should cache the following values before timestamps are updated inside registerWake ...
         let daysSinceLastWake = daysSince(startEventMs: lifecycleStorage.timestampLastWake, endEventMs: timestamp)
-        var prevWakeString: String?
-        if let lastWakeString = lastWakeString ?? setFormattedLastWake() {
-            prevWakeString = lastWakeString
-        }
+        let prevWakeString = lastWakeString ?? setFormattedLastWake()
 
         try lifecycleStorage.registerWake(timestamp: timestamp)
         lastWakeString = Date(unixMilliseconds: timestamp).iso8601String
@@ -125,6 +117,8 @@ class LifecycleService {
         // ... and override corresponding state values afterwards
         if let daysSinceLastWake {
             state.set(daysSinceLastWake, key: LifecycleStateKey.daysSinceLastWake)
+        } else {
+            state.removeValue(forKey: LifecycleStateKey.daysSinceLastWake)
         }
         if let prevWakeString {
             state.set(prevWakeString, key: LifecycleStateKey.lastWakeDate)
@@ -144,10 +138,7 @@ class LifecycleService {
         let foregroundStart: Int64 = lifecycleStorage.timestampLastWake ?? timestamp
         let secondsAwakeDelta: Int64 = (timestamp - foregroundStart) / 1000
         // we should cache the following value before timestamp is updated inside registerSleep ...
-        var prevSleepString: String?
-        if let lastSleepString = lastSleepString ?? setFormattedLastSleep() {
-            prevSleepString = lastSleepString
-        }
+        let prevSleepString = lastSleepString ?? setFormattedLastSleep()
 
         try lifecycleStorage.registerSleep(timestamp: timestamp, secondsAwake: secondsAwakeDelta)
         lastSleepString = Date(unixMilliseconds: timestamp).iso8601String
@@ -382,4 +373,3 @@ extension Bundle {
             object(forInfoDictionaryKey: "CFBundleVersion") as? String
     }
 }
-// swiftlint:enable type_body_length

@@ -73,7 +73,8 @@ class DeepLinkModule: TealiumBasicModule {
         guard let dataLayer = self.dataLayer else { return }
         let deeplinkTrackingEnabled = true
         if deeplinkTrackingEnabled {
-            let oldQueryParamKeys: [String] = dataLayer.data.keys.filter { $0.starts(with: TealiumDataKey.deepLinkQueryPrefix) }
+            // TODO: replace the whole thing with custom storage (since deeplink is module with its own storage)
+            let oldQueryParamKeys: [String] = dataLayer.getAll().keys.filter { $0.starts(with: TealiumDataKey.deepLinkQueryPrefix) }
             dataLayer.remove(keys: oldQueryParamKeys + [TealiumDataKey.deepLinkReferrerUrl, TealiumDataKey.deepLinkReferrerApp])
             switch referrer {
             case .url(let url):

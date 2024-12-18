@@ -33,7 +33,9 @@ class CustomCMP: CMPIntegration {
 }
 
 class SomeModule: TealiumBasicModule, Collector {
-    var data: DataObject = ["someKey": "someValue"]
+    func collect(_ dispatchContext: DispatchContext) -> DataObject {
+        ["someKey": "someValue"]
+    }
     
     
     static var id: String = "someModule"

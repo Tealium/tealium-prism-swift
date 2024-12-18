@@ -48,12 +48,12 @@ public extension AppDataCollection {
 
 class AppDataCollector: AppDataCollection, TealiumBasicModule, Collector {
 
-    var data: DataObject
-
     static let id: String = "AppData"
 
-    required init?(context: TealiumContext, moduleSettings: DataObject) {
-        data = [
+    required init?(context: TealiumContext, moduleSettings: DataObject) {}
+
+    func collect(_ dispatchContext: DispatchContext) -> DataObject {
+        [
             TealiumDataKey.appBuild: Self.build(bundle: Bundle.main) ?? NSNull(),
             TealiumDataKey.appName: Self.name(bundle: Bundle.main) ?? NSNull(),
             TealiumDataKey.appRDNS: Self.rdns(bundle: Bundle.main) ?? NSNull(),

@@ -8,7 +8,7 @@
 
 @testable import TealiumSwift
 import XCTest
-
+// TODO: check tests naming after Enrico's change here and in other files
 final class GetCurrentStateTests: LifecycleServiceBaseTests {
     override func setUpWithError() throws {
         try super.setUpWithError()

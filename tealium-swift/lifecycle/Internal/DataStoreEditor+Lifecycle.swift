@@ -1,6 +1,6 @@
 //
 //  DataStoreEditor+Lifecycle.swift
-//  tealium-swift-Core-Lifecycle
+//  tealium-swift
 //
 //  Created by Den Guzov on 28/11/2024.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.

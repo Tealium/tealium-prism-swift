@@ -456,6 +456,7 @@
 		EC454C852CF5F34F000CD849 /* LifecycleWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC454C842CF5F34F000CD849 /* LifecycleWrapperTests.swift */; };
 		EC454C872CF60E21000CD849 /* LaunchSleepLaunchInAMonthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC454C862CF60E21000CD849 /* LaunchSleepLaunchInAMonthTests.swift */; };
 		EC7191872CFF209E00CDDC13 /* TwoLaunchSleepWakeSleepWithUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7191862CFF209E00CDDC13 /* TwoLaunchSleepWakeSleepWithUpdateTests.swift */; };
+		EC71918C2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC71918B2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift */; };
 		EC97BDD92CFDC41800D07B45 /* LifecycleServiceBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC97BDD82CFDC41800D07B45 /* LifecycleServiceBaseTests.swift */; };
 		ECC2B4722CE3B61C0066B022 /* LaunchSleepWakeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2B4712CE3B61C0066B022 /* LaunchSleepWakeTests.swift */; };
 		FBF804B6CDFD0F823706B8AB /* Pods_CoreTests_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = AF59143E47D237F11AC66B99 /* Pods_CoreTests_tvOS.framework */; };
@@ -649,6 +650,7 @@
 		EC454C842CF5F34F000CD849 /* LifecycleWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleWrapperTests.swift; sourceTree = "<group>"; };
 		EC454C862CF60E21000CD849 /* LaunchSleepLaunchInAMonthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSleepLaunchInAMonthTests.swift; sourceTree = "<group>"; };
 		EC7191862CFF209E00CDDC13 /* TwoLaunchSleepWakeSleepWithUpdateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoLaunchSleepWakeSleepWithUpdateTests.swift; sourceTree = "<group>"; };
+		EC71918B2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Lifecycle+TrackerTests.swift"; sourceTree = "<group>"; };
 		EC97BDD82CFDC41800D07B45 /* LifecycleServiceBaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleServiceBaseTests.swift; sourceTree = "<group>"; };
 		ECC2B4712CE3B61C0066B022 /* LaunchSleepWakeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSleepWakeTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -1131,6 +1133,7 @@
 		EC1AA4B92CCF9CA400D1D9D1 /* Lifecycle */ = {
 			isa = PBXGroup;
 			children = (
+				EC71918A2D088DEB00CDDC13 /* Lifecycle+Tracker */,
 				EC454C832CF5F330000CD849 /* LifecycleWrapper */,
 				EC454C7E2CF4CA61000CD849 /* LifecycleSettings */,
 				87AA17502CF08F9E003E99A8 /* LifecycleModule */,
@@ -1172,6 +1175,14 @@
 				EC454C842CF5F34F000CD849 /* LifecycleWrapperTests.swift */,
 			);
 			path = LifecycleWrapper;
+			sourceTree = "<group>";
+		};
+		EC71918A2D088DEB00CDDC13 /* Lifecycle+Tracker */ = {
+			isa = PBXGroup;
+			children = (
+				EC71918B2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift */,
+			);
+			path = "Lifecycle+Tracker";
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2130,6 +2141,7 @@
 				EC1AA4CF2CCF9FEC00D1D9D1 /* MockDispatcher.swift in Sources */,
 				87AA17522CF08FC0003E99A8 /* LifecycleModuleSubscriptionTests.swift in Sources */,
 				EC454C802CF4CA92000CD849 /* LifecycleSettingsBuilderTests.swift in Sources */,
+				EC71918C2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift in Sources */,
 				EC1AA4D02CCF9FEC00D1D9D1 /* MockQueueManager.swift in Sources */,
 				EC1AA4D12CCF9FEC00D1D9D1 /* MockInstantDebouncer.swift in Sources */,
 				EC1AA4D22CCF9FEC00D1D9D1 /* XCTAssert+Errors.swift in Sources */,

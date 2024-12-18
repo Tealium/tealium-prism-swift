@@ -88,7 +88,7 @@ class TealiumImpl {
     // swiftlint:enable function_body_length
 
     func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
-        tracker.track(trackable, onTrackResult: onTrackResult)
+        tracker.track(trackable, source: .application, onTrackResult: onTrackResult)
     }
 
     private func handleSettingsUpdates() {
