@@ -16,6 +16,8 @@ class LifecycleModuleBaseTests: XCTestCase {
     let tracker = MockTracker()
     lazy var settings = LifecycleSettings(moduleSettings: [:])
     var module: LifecycleModule!
+    let lifecycleDispatchContext = DispatchContext(source: .module(LifecycleModule.self),
+                                                   initialData: TealiumDispatch(name: "lifecycle").eventData)
     let autoDisposer = AutomaticDisposer()
 
     override func setUpWithError() throws {

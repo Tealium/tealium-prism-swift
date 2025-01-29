@@ -33,6 +33,7 @@ class TealiumHelper {
                                         enforcedSettings.setEnabled(true)
                                     }),
                                     TealiumModules.customCollector(SomeModule.self),
+                                    TealiumModules.timeCollector(),
                                     ModuleWithExternalDependencies.Factory(otherDependencies: NSObject())
                                    ],
                                    settingsFile: "TealiumConfig",

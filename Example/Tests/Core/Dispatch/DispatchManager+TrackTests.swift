@@ -60,7 +60,7 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
         dispatchManager.track(TealiumDispatch(name: "someEvent")) { dispatch, result in
             completionCalled.fulfill()
             XCTAssertEqual(result, .dropped)
-            XCTAssertEqual(dispatch.eventData.count, 2)
+            XCTAssertEqual(dispatch.eventData.count, 3)
         }
         waitForDefaultTimeout()
     }
@@ -73,7 +73,7 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
         dispatchManager.track(TealiumDispatch(name: "someEvent")) { dispatch, result in
             completionCalled.fulfill()
             XCTAssertEqual(result, .dropped)
-            XCTAssertEqual(dispatch.eventData.count, 2)
+            XCTAssertEqual(dispatch.eventData.count, 3)
         }
         waitForDefaultTimeout()
     }

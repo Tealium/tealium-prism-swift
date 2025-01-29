@@ -50,7 +50,8 @@ public class TealiumTracker: Tracker {
                     .forEach { collector in
                         TealiumSignpostInterval(signposter: .tracking, name: "Collecting")
                             .signpostedWork("Collector: \(collector.id)") {
-                                trackable.enrich(data: collector.collect(DispatchContext(source: source)))
+                                let dispatchContext = DispatchContext(source: source, initialData: trackable.eventData)
+                                trackable.enrich(data: collector.collect(dispatchContext))
                             }
                     }
                 self.logger?.debug(category: LogCategory.tealium, "Event: \(trackable.logDescription()) has been enriched by collectors")
@@ -76,4 +77,5 @@ public struct DispatchContext {
         }
     }
     public let source: Source
+    public let initialData: DataObject
 }

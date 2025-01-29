@@ -111,4 +111,15 @@ public extension Date {
         return addingTimeInterval(timeInterval)
     }
 
+    var timeZoneOffset: String {
+        let timezone = TimeZone.current
+        let offsetSeconds = timezone.secondsFromGMT()
+        let offsetHours = offsetSeconds / 3600
+        return String(format: "%i", offsetHours)
+    }
+
+    var timestampInSeconds: String {
+        let timestamp = self.timeIntervalSince1970
+        return "\(Int(timestamp))"
+    }
 }

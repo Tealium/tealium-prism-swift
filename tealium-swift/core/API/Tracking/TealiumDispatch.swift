@@ -31,6 +31,7 @@ public struct TealiumDispatch {
         self.eventData = eventData
         self.id = id
         self.timestamp = timestamp
+        self.eventData.set(timestamp, key: TealiumDataKey.timestampUnixMilliseconds)
     }
 
     public var name: String? {

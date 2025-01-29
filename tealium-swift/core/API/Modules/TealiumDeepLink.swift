@@ -53,9 +53,7 @@ class DeepLinkModule: TealiumBasicModule {
         let queryItems = URLComponents(string: link.absoluteString)?.queryItems
 
         if let queryItems = queryItems,
-           let traceId = self.extractTraceId(from: queryItems)
-        //   self.zz_internal_modulesManager?.config.qrTraceEnabled == true
-        {
+           let traceId = self.extractTraceId(from: queryItems) {
             // Kill visitor session to trigger session end events
             // Session can be killed without needing to leave the trace
             if link.query?.contains(TealiumKey.killVisitorSession) == true {

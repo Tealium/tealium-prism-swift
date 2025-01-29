@@ -15,6 +15,7 @@ final class TealiumCollectTests: XCTestCase {
     lazy var collect = TealiumCollect(networkHelper: networkHelper,
                                       settings: settings,
                                       logger: nil)
+
     let stubDispatches = [
         TealiumDispatch(name: "event1", data: [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"]),
         TealiumDispatch(name: "event2", data: [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"])
@@ -38,13 +39,18 @@ final class TealiumCollectTests: XCTestCase {
         networkHelper.requests.subscribeOnce { request in
             if case let .post(url, body) = request {
                 XCTAssertEqual(try? url.asUrl(), self.collect?.settings.batchUrl)
+                let expectedEvents = [
+                                    DataObject(dictionary: [TealiumDataKey.event: "event1",
+                                                            TealiumDataKey.eventType: "event",
+                                                            TealiumDataKey.timestampUnixMilliseconds: self.stubDispatches[0].timestamp]),
+                                    DataObject(dictionary: [TealiumDataKey.event: "event2",
+                                                            TealiumDataKey.eventType: "event",
+                                                            TealiumDataKey.timestampUnixMilliseconds: self.stubDispatches[1].timestamp])
+                ]
                 XCTAssertEqual(body,
                                [
                                 "shared": [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"],
-                                "events": [
-                                    [TealiumDataKey.event: "event1", TealiumDataKey.eventType: "event"],
-                                    [TealiumDataKey.event: "event2", TealiumDataKey.eventType: "event"]
-                                ]
+                                "events": expectedEvents
                                ])
                 postRequestSent.fulfill()
             }
