@@ -137,5 +137,10 @@ public class Tealium {
 
     deinit {
         asyncDisposer.dispose()
+        queue.ensureOnQueue { [onTealiumImplementation = self.onTealiumImplementation] in // Avoid capturing self in deinit
+            // Hold an extra reference to `TeliumImpl` to make sure that it,
+            // and all its dependencies, are only deallocated from the right thread.
+            _ = onTealiumImplementation
+        }
     }
 }

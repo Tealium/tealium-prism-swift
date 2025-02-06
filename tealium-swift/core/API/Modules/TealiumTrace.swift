@@ -37,6 +37,7 @@ public class TealiumTrace {
 }
 
 class TraceModule: TealiumBasicModule {
+    var version: String = TealiumConstants.libraryVersion
     static let id: String = "Trace"
 
     let context: TealiumContext

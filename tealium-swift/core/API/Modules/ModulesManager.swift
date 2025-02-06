@@ -50,8 +50,13 @@ public class ModulesManager {
     }
 
     public func getModule<T: TealiumModule>(completion: @escaping (T?) -> Void) {
-        queue.ensureOnQueue {
-            completion(self.getModule())
+        queue.ensureOnQueue { [weak self] in
+            completion(self?.getModule())
+        }
+    }
+    deinit {
+        modules.value.forEach {
+            $0.shutdown()
         }
     }
 }

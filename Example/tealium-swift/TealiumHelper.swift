@@ -13,8 +13,8 @@ class TealiumHelper {
     private(set) var teal: Tealium?
     var automaticDisposer = AutomaticDisposer()
     static let shared = TealiumHelper()
-    
-    func startTealium() {
+
+    func createTeal() -> Tealium {
         let config = TealiumConfig(account: "tealiummobile",
                                    profile: "enrico-test",
                                    environment: "dev",
@@ -27,7 +27,7 @@ class TealiumHelper {
                                     }),
                                     TealiumModules.consent(cmpIntegration: CustomCMP(),
                                                            forcingSettings: { enforcedSettings in
-                                        enforcedSettings.setEnabled(false)
+                                        enforcedSettings.setEnabled(true)
                                     }),
                                     TealiumModules.lifecycle(forcingSettings: { enforcedSettings in
                                         enforcedSettings.setEnabled(true)
@@ -43,9 +43,10 @@ class TealiumHelper {
                 .setVisitorIdentityKey("email")
                 .setScopedBarriers([ScopedBarrier(barrierId: "ConnectivityBarrier", scopes: [.dispatcher("Collect")])])
         })
-        let teal = Tealium.create(config: config) { result in
-            
-        }
+        return Tealium.create(config: config) { _ in }
+    }
+    func startTealium() {
+        let teal = createTeal()
         self.teal = teal
         teal.dataLayer.transactionally { apply, getDataItem, commit in
             apply(.put("key", "value", .forever))

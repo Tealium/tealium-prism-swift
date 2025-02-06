@@ -7,6 +7,7 @@
 //
 
 class LifecycleModule {
+    var version: String = TealiumConstants.libraryVersion
     static let id: String = "Lifecycle"
 
     private var lifecycleSettings: LifecycleSettings

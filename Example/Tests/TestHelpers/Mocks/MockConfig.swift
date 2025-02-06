@@ -18,19 +18,22 @@ let mockConfig = TealiumConfig(account: "mock_account",
 private let mockDbProvider = MockDatabaseProvider()
 private let queue = TealiumQueue.worker
 let mockVisitorId = ObservableState(valueProvider: "visitorId", subscriptionHandler: { _ in Subscription(unsubscribe: {}) })
-let mockContext = TealiumContext(modulesManager: ModulesManager(queue: queue),
-                                 config: mockConfig,
-                                 coreSettings: StateSubject(CoreSettings(coreDataObject: [:])).toStatefulObservable(),
-                                 tracker: MockTracker(),
-                                 barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
-                                 transformerRegistry: TransformerCoordinator(registeredTransformers: [],
-                                                                             scopedTransformations: StateSubject([]).toStatefulObservable(),
-                                                                             queue: queue),
-                                 databaseProvider: mockDbProvider,
-                                 moduleStoreProvider: ModuleStoreProvider(databaseProvider: mockDbProvider,
-                                                                          modulesRepository: MockModulesRepository()),
-                                 logger: nil,
-                                 networkHelper: MockNetworkHelper(),
-                                 activityListener: ApplicationStatusListener.shared,
-                                 queue: queue,
-                                 visitorId: mockVisitorId)
+let mockContext = createContext(config: mockConfig, modulesManager: ModulesManager(queue: queue))
+func createContext(config: TealiumConfig, modulesManager: ModulesManager) -> TealiumContext {
+    TealiumContext(modulesManager: modulesManager,
+                   config: config,
+                   coreSettings: StateSubject(CoreSettings(coreDataObject: [:])).toStatefulObservable(),
+                   tracker: MockTracker(),
+                   barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
+                   transformerRegistry: TransformerCoordinator(registeredTransformers: [],
+                                                               scopedTransformations: StateSubject([]).toStatefulObservable(),
+                                                               queue: queue),
+                   databaseProvider: mockDbProvider,
+                   moduleStoreProvider: ModuleStoreProvider(databaseProvider: mockDbProvider,
+                                                            modulesRepository: MockModulesRepository()),
+                   logger: nil,
+                   networkHelper: MockNetworkHelper(),
+                   activityListener: ApplicationStatusListener.shared,
+                   queue: queue,
+                   visitorId: mockVisitorId)
+}

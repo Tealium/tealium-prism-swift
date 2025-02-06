@@ -9,23 +9,37 @@
 import Foundation
 
 class TealiumCollector: TealiumBasicModule, Collector {
+    var version: String = TealiumConstants.libraryVersion
     static var canBeDisabled: Bool { false }
-
     static let id: String = "TealiumCollector"
-
     let context: TealiumContext
-    required init(context: TealiumContext, moduleSettings: DataObject) {
-        self.context = context
+    private let baseData: DataObject
+
+    /// - Returns: `String` format of random 16 digit number
+    private var random: String {
+        (0..<16).reduce(into: "") { string, _ in string += String(Int.random(in: 0..<10)) }
     }
 
-    func collect(_ dispatchContext: DispatchContext) -> DataObject {
+    required init(context: TealiumContext, moduleSettings: DataObject) {
+        self.context = context
         let config = context.config
-        return [
+        baseData = [
             TealiumDataKey.account: config.account,
             TealiumDataKey.profile: config.profile,
             TealiumDataKey.environment: config.environment,
-            TealiumDataKey.enabledModules: context.modulesManager?.modules.value.map { $0.id } ?? [],
-            TealiumDataKey.visitorId: context.visitorId.value
+            TealiumDataKey.dataSource: config.dataSource,
+            TealiumDataKey.libraryName: TealiumConstants.libraryName,
+            TealiumDataKey.libraryVersion: TealiumConstants.libraryVersion
         ]
+    }
+
+    func collect(_ dispatchContext: DispatchContext) -> DataObject {
+        let modules = context.modulesManager?.modules.value
+        return [
+            TealiumDataKey.enabledModules: modules?.map { $0.id },
+            TealiumDataKey.enabledModulesVersions: modules?.map { $0.version },
+            TealiumDataKey.visitorId: context.visitorId.value,
+            TealiumDataKey.random: random
+        ] + baseData
     }
 }

@@ -28,7 +28,7 @@ public extension Tracker {
 }
 
 public class TealiumTracker: Tracker {
-    let modulesManager: ModulesManager
+    private weak var modulesManager: ModulesManager?
     let dispatchManager: DispatchManager
     let logger: LoggerProtocol?
     init(modulesManager: ModulesManager, dispatchManager: DispatchManager, logger: LoggerProtocol?) {
@@ -38,12 +38,16 @@ public class TealiumTracker: Tracker {
     }
 
     public func track(_ trackable: TealiumDispatch, source: DispatchContext.Source, onTrackResult: TrackResultCompletion?) {
+        guard let modulesManager = modulesManager else {
+            onTrackResult?(trackable, .dropped)
+            return
+        }
         let trackingInterval = TealiumSignpostInterval(signposter: .tracking, name: "TrackingCall")
             .begin(trackable.name ?? "unknown")
         logger?.debug(category: LogCategory.tealium, "New tracking event received: \(trackable.logDescription())")
         logger?.trace(category: LogCategory.tealium, "Event data: \(trackable.eventData)")
         var trackable = trackable
-        self.modulesManager.modules.filter { !$0.isEmpty }
+        modulesManager.modules.filter { !$0.isEmpty }
             .subscribeOnce { [weak self] modules in
                 guard let self else { return }
                 modules.compactMap { $0 as? Collector }

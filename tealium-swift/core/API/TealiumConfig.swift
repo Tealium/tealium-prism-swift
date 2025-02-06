@@ -12,6 +12,7 @@ public struct TealiumConfig {
     public let account: String
     public let profile: String
     public let environment: String
+    public let dataSource: String?
     public var key: String { "\(account)-\(profile)" }
     public internal(set) var settingsFile: String?
     public internal(set) var settingsUrl: String?
@@ -23,11 +24,12 @@ public struct TealiumConfig {
     public var existingVisitorId: String?
     let coreSettings: DataObject?
 
-    public init(account: String, profile: String, environment: String, modules: [any TealiumModuleFactory],
+    public init(account: String, profile: String, environment: String, dataSource: String? = nil, modules: [any TealiumModuleFactory],
                 settingsFile: String?, settingsUrl: String?, forcingSettings block: ((_ builder: CoreSettingsBuilder) -> CoreSettingsBuilder)? = nil) {
         self.account = account
         self.profile = profile
         self.environment = environment
+        self.dataSource = dataSource
         self.settingsFile = settingsFile
         self.settingsUrl = settingsUrl
         self.modules = modules

@@ -47,7 +47,7 @@ public extension AppDataCollection {
 }
 
 class AppDataCollector: AppDataCollection, TealiumBasicModule, Collector {
-
+    var version: String = TealiumConstants.libraryVersion
     static let id: String = "AppData"
 
     required init?(context: TealiumContext, moduleSettings: DataObject) {}

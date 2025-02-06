@@ -84,6 +84,7 @@ public extension TealiumDataKey {
     static let resolution = "device_resolution"
     static let logicalResolution = "device_logical_resolution"
     static let enabledModules = "enabled_modules"
+    static let enabledModulesVersions = "enabled_modules_versions"
     static let deepLinkURL = "deep_link_url"
     static let deepLinkQueryPrefix = "deep_link_param"
     static let deepLinkReferrerUrl = "deep_link_referrer_url"

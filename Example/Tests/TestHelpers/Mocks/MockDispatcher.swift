@@ -10,6 +10,7 @@ import Foundation
 import TealiumSwift
 
 class MockModule: TealiumBasicModule {
+    var version = "1.0.0"
     class var id: String { "MockModule" }
     class var factory: any TealiumModuleFactory { DefaultModuleFactory<Self>() }
 
@@ -36,7 +37,7 @@ class MockModule: TealiumBasicModule {
 
 class MockDispatcher: MockModule, Dispatcher {
     var dispatchLimit: Int = 1
-    class override var id: String { "MockDispacher" }
+    class override var id: String { "MockDispatcher" }
     var delay: Int?
     var queue = DispatchQueue.main
 

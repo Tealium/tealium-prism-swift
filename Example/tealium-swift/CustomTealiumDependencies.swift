@@ -10,6 +10,7 @@ import Foundation
 import TealiumSwift
 
 class CustomDispatcher: Dispatcher {
+    var version: String = "1.0.0"
     func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
         print("CustomDispatcher dispatch: \(data.compactMap { $0.name })")
         completion(data)
@@ -33,6 +34,7 @@ class CustomCMP: CMPIntegration {
 }
 
 class SomeModule: TealiumBasicModule, Collector {
+    var version: String = "1.0.0"
     func collect(_ dispatchContext: DispatchContext) -> DataObject {
         ["someKey": "someValue"]
     }
@@ -50,6 +52,7 @@ class SomeModule: TealiumBasicModule, Collector {
 }
 
 class ModuleWithExternalDependencies: TealiumModule {
+    var version: String = "1.0.0"
     static var id: String = "complexModule"
     init(otherDependencies: Any) {
         

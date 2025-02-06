@@ -16,15 +16,15 @@ class DispatchManager {
     private let transformerCoordinator: TransformerCoordinator
 
     private var dispatchers: [Dispatcher] {
-        modulesManager.modules.value.compactMap { $0 as? Dispatcher }
+        modulesManager?.modules.value.compactMap { $0 as? Dispatcher } ?? []
     }
     private var onDispatchers: Observable<[Dispatcher]> {
-        modulesManager.modules.map { moduleList in moduleList.compactMap { $0 as? Dispatcher } }
+        modulesManager?.modules.map { moduleList in moduleList.compactMap { $0 as? Dispatcher } } ?? .Just([])
     }
-    private let modulesManager: ModulesManager
+    private weak var modulesManager: ModulesManager?
     private let queueManager: QueueManagerProtocol
     private var consentManager: ConsentManager? {
-        modulesManager.modules.value.compactMap { $0 as? ConsentManager }.first
+        modulesManager?.modules.value.compactMap { $0 as? ConsentManager }.first
     }
     private let logger: LoggerProtocol?
     @ToAnyObservable<BasePublisher<Void>>(BasePublisher<Void>())

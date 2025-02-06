@@ -20,6 +20,7 @@ protocol ConsentManager: TealiumModule {
 }
 
 class ConsentModule: ConsentManager {
+    var version: String = TealiumConstants.libraryVersion
     static let id: String = "Consent"
     private let processedPurposesKey = "purposes_with_consent_processed"
     private let unprocessedPurposesKey = "purposes_with_consent_unprocessed"

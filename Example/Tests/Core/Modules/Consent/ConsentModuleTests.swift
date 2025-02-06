@@ -46,7 +46,7 @@ final class ConsentModuleTests: XCTestCase {
         consentManager.applyConsent(to: TealiumDispatch(name: "event1")) { dispatch, result in
             completionCalled.fulfill()
             XCTAssertEqual(result, .dropped)
-            XCTAssertEqual(dispatch.eventData.count, 2)
+            XCTAssertEqual(dispatch.eventData.count, 3)
         }
         waitForDefaultTimeout()
     }
@@ -58,7 +58,7 @@ final class ConsentModuleTests: XCTestCase {
         consentManager.applyConsent(to: TealiumDispatch(name: "event1")) { dispatch, result in
             completionCalled.fulfill()
             XCTAssertEqual(result, .accepted)
-            XCTAssertEqual(dispatch.eventData.count, 2)
+            XCTAssertEqual(dispatch.eventData.count, 3)
         }
         waitForDefaultTimeout()
     }
@@ -70,7 +70,7 @@ final class ConsentModuleTests: XCTestCase {
         consentManager.applyConsent(to: TealiumDispatch(name: "event1")) { dispatch, result in
             completionCalled.fulfill()
             XCTAssertEqual(result, .accepted)
-            XCTAssertNotEqual(dispatch.eventData.count, 2)
+            XCTAssertNotEqual(dispatch.eventData.count, 3)
             XCTAssertNotNil(dispatch.eventData.getDataItem(key: "consent_type"))
         }
         waitForDefaultTimeout()
@@ -85,7 +85,7 @@ final class ConsentModuleTests: XCTestCase {
         consentManager.applyConsent(to: dispatch) { dispatch, result in
             completionCalled.fulfill()
             XCTAssertEqual(result, .dropped)
-            XCTAssertEqual(dispatch.eventData.count, 3) // ...that's why 3 is here
+            XCTAssertEqual(dispatch.eventData.count, 4) // ...that's why 4 is here
         }
         waitForDefaultTimeout()
     }

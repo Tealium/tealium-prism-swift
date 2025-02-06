@@ -42,6 +42,7 @@ public enum Referrer {
 }
 
 class DeepLinkModule: TealiumBasicModule {
+    var version: String = TealiumConstants.libraryVersion
     static let id: String = "Deeplink"
 
     let context: TealiumContext

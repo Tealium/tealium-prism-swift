@@ -10,6 +10,8 @@ import Foundation
 
 /// A module used by the Tealium SDK to provide some plugin functionality.
 public protocol TealiumModule: AnyObject {
+    /// The version of this module
+    var version: String { get }
     /// The unique id for this module, used to uniquely identify each module.
     static var id: String { get }
     /// Returns true if the module is optional and can be disabled, or false otherwise. Default is true.
