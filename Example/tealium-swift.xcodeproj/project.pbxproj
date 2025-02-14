@@ -8,8 +8,8 @@
 
 /* Begin PBXBuildFile section */
 		074DDF7E677215416711540A /* Pods_CoreTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 33E96D63F013AC4217597F95 /* Pods_CoreTests_macOS.framework */; };
-		080159342C88A356005CD2C2 /* (null) in Sources */ = {isa = PBXBuildFile; };
-		080159352C88A356005CD2C2 /* (null) in Sources */ = {isa = PBXBuildFile; };
+		080159342C88A356005CD2C2 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
+		080159352C88A356005CD2C2 /* BuildFile in Sources */ = {isa = PBXBuildFile; };
 		08A7773D2D2FF0A8005F7229 /* TimeCollectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A777392D2FE617005F7229 /* TimeCollectorTests.swift */; };
 		08BD03232D356BBB00FA2E2E /* CollectSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08BD031D2D356BB500FA2E2E /* CollectSettingsTests.swift */; };
 		08BD03242D356BBB00FA2E2E /* CollectBatcherTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08BD031A2D356BB500FA2E2E /* CollectBatcherTests.swift */; };
@@ -1501,7 +1501,7 @@
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-CoreTests_iOS/Pods-CoreTests_iOS-frameworks.sh",
 				"${BUILT_PRODUCTS_DIR}/SQLite.swift-iOS/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-swift-Core-iOS/TealiumSwift.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-swift-Core-Lifecycle/TealiumSwift.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -1759,7 +1759,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				486956A72A5DE5660014AC58 /* TealiumFileManagerTests.swift in Sources */,
-				080159342C88A356005CD2C2 /* (null) in Sources */,
+				080159342C88A356005CD2C2 /* BuildFile in Sources */,
 				15BBA9CB2B16360D00677037 /* MockTransformer.swift in Sources */,
 				D54BBFCF2C78C01A003687C7 /* NetworkHelperTests.swift in Sources */,
 				D54BBFC62C78C01A003687C7 /* HTTPClientTests.swift in Sources */,
@@ -2034,7 +2034,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				87BA6DA92C6A47AF00784784 /* TealiumFileManagerTests.swift in Sources */,
-				080159352C88A356005CD2C2 /* (null) in Sources */,
+				080159352C88A356005CD2C2 /* BuildFile in Sources */,
 				87BA6DAC2C6A47AF00784784 /* MockTransformer.swift in Sources */,
 				87BA6DAD2C6A47AF00784784 /* Operators+FlatMapTests.swift in Sources */,
 				D54BBFE52C78C01A003687C7 /* BarrierCoordinator+GetBarriersStateTests.swift in Sources */,

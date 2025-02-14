@@ -1,14 +1,18 @@
 use_frameworks!
 
-target 'Example_iOS' do
-  platform :ios, '14.1'
+def tealium_libs
   pod 'tealium-swift/Core', :path => '../'
   pod 'tealium-swift/Lifecycle', :path => '../'
 end
 
+target 'Example_iOS' do
+  platform :ios, '14.1'
+  tealium_libs
+  end
+
 target 'CoreTests_iOS' do
   platform :ios, '14.1'
-  pod 'tealium-swift/Core', :path => '../'
+  tealium_libs
 end
 
 target 'CoreTests_macOS' do
@@ -23,8 +27,7 @@ end
 
 target 'LifecycleTests_iOS' do
   platform :ios, '14.1'
-  pod 'tealium-swift/Core', :path => '../'
-  pod 'tealium-swift/Lifecycle', :path => '../'
+  tealium_libs
 end
 
 post_install do |installer|
