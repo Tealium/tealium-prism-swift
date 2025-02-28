@@ -11,7 +11,7 @@ import Foundation
 /// The connection as it's reported by the system monitors
 public enum NetworkConnection: Equatable {
     /// The type of connection that we have at the moment
-    public enum ConnectionType {
+    public enum ConnectionType: String, Equatable {
         /// The connection is cellular or connected via hotspot to another phone
         case cellular
         /// The device is connected to the wifi network
@@ -31,5 +31,16 @@ public enum NetworkConnection: Equatable {
             return type
         }
         return nil
+    }
+
+    func toString() -> String {
+        switch self {
+        case .connected(let type):
+            return type.rawValue
+        case .notConnected:
+            return "none"
+        default:
+            return "unknown"
+        }
     }
 }

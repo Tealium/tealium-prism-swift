@@ -34,6 +34,7 @@ class TealiumHelper {
                                     }),
                                     TealiumModules.customCollector(SomeModule.self),
                                     TealiumModules.timeCollector(),
+                                    TealiumModules.connectivityCollector(),
                                     ModuleWithExternalDependencies.Factory(otherDependencies: NSObject())
                                    ],
                                    settingsFile: "TealiumConfig",

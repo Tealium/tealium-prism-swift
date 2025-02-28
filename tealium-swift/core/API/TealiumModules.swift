@@ -62,6 +62,11 @@ public enum TealiumModules {
         DefaultModuleFactory<TimeCollector>()
     }
 
+    /// Returns a factory for creating the `ConnectivityCollector`.
+    static public func connectivityCollector() -> any TealiumModuleFactory {
+        DefaultModuleFactory<ConnectivityCollector>()
+    }
+
     /// Returns a factory for creating the `TraceModule`.
     static public func trace() -> any TealiumModuleFactory {
         DefaultModuleFactory<TraceModule>()
