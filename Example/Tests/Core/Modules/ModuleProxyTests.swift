@@ -26,7 +26,7 @@ final class ModuleProxyTests: XCTestCase {
                        coreSettings: StateSubject(CoreSettings(coreDataObject: [:])).toStatefulObservable(),
                        tracker: MockTracker(),
                        barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
-                       transformerRegistry: TransformerCoordinator(registeredTransformers: [],
+                       transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                                    scopedTransformations: StateSubject([]).toStatefulObservable(),
                                                                    queue: queue),
                        databaseProvider: mockDbProvider,

@@ -9,9 +9,7 @@
 import Foundation
 
 /// An object that will apply different transformations, selected by `transformationId`, to a dispatch.
-public protocol Transformer: AnyObject {
-    /// The Transformer ID used to match it with the `ScopedTransformation` in the settings
-    var id: String { get }
+public protocol Transformer: TealiumModule {
     /// Applies a transformation, identified by a `transformationId`, to a `TealiumDispatch` for the `DispatchScope` in which this transformation is called.
     func applyTransformation(_ transformationId: String,
                              to dispatch: TealiumDispatch,
@@ -20,8 +18,6 @@ public protocol Transformer: AnyObject {
 }
 
 public protocol TransformerRegistry {
-    func registerTransformer(_ transformer: Transformer)
-    func unregisterTransformer(_ transformer: Transformer)
     func registerTransformation(_ scopedTransformation: ScopedTransformation)
     func unregisterTransformation(_ scopedTransformation: ScopedTransformation)
 }
@@ -32,7 +28,7 @@ public protocol TransformerRegistry {
  * The `scopedTransformations` are used to select the right transformer when we are transforming each event.
  */
 public class TransformerCoordinator: TransformerRegistry {
-    private var registeredTransformers: [Transformer]
+    private var transformers: ObservableState<[Transformer]>
     private let scopedTransformations: ObservableState<[ScopedTransformation]>
     private let additionalTransformations = StateSubject<[ScopedTransformation]>([])
     private var allTransformations: [ScopedTransformation] {
@@ -41,8 +37,8 @@ public class TransformerCoordinator: TransformerRegistry {
     private let queue: TealiumQueue
     typealias TransformationCompletion = (TealiumDispatch?) -> Void
     typealias DispatchesTransformationCompletion = ([TealiumDispatch]) -> Void
-    init(registeredTransformers: [Transformer], scopedTransformations: ObservableState<[ScopedTransformation]>, queue: TealiumQueue) {
-        self.registeredTransformers = registeredTransformers
+    init(transformers: ObservableState<[Transformer]>, scopedTransformations: ObservableState<[ScopedTransformation]>, queue: TealiumQueue) {
+        self.transformers = transformers
         self.scopedTransformations = scopedTransformations
         self.queue = queue
     }
@@ -89,19 +85,11 @@ public class TransformerCoordinator: TransformerRegistry {
     }
 
     private func apply(singleTransformation transformation: ScopedTransformation, to dispatch: TealiumDispatch, scope: DispatchScope, completion: @escaping TransformationCompletion) {
-        guard let transformer = registeredTransformers.first(where: { $0.id == transformation.transformerId }) else {
+        guard let transformer = transformers.value.first(where: { $0.id == transformation.transformerId }) else {
             completion(dispatch)
             return
         }
         return transformer.applyTransformation(transformation.id, to: dispatch, scope: scope, completion: completion)
-    }
-
-    public func registerTransformer(_ transformer: Transformer) {
-        registeredTransformers.append(transformer)
-    }
-
-    public func unregisterTransformer(_ transformer: Transformer) {
-        registeredTransformers.removeAll { $0 === transformer }
     }
 
     public func registerTransformation(_ scopedTransformation: ScopedTransformation) {
@@ -121,7 +109,8 @@ public class TransformerCoordinator: TransformerRegistry {
  * - some JSON backed API that triggers some operations like concatenations/additions/other for people that don't want to use the javascript engine but prefer some "safer" approach.
  */
 class JavascriptTransformer: Transformer {
-    var id: String = "javascript_transformer"
+    let version: String = TealiumConstants.libraryVersion
+    static let id: String = "JavascriptTransformer"
     let transformations = [String: String]() // ID : javascript code
     init() {
         // download a list of all possible transformations, they will later be searched by ID

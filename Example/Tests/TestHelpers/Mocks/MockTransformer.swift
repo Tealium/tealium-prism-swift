@@ -9,14 +9,24 @@
 import Foundation
 import TealiumSwift
 
+class MockTransformer1: MockTransformer {
+    class override var id: String { "transformer1" }
+}
+class MockTransformer2: MockTransformer {
+    class override var id: String { "transformer2" }
+}
+class MockTransformer3: MockTransformer {
+    class override var id: String { "transformer3" }
+}
+
 class MockTransformer: Transformer {
-    let id: String
+    var version: String = TealiumConstants.libraryVersion
+    class var id: String { "MockTransformer" }
     typealias TransformationBlock = (String, TealiumDispatch, DispatchScope) -> TealiumDispatch?
     var transformation: TransformationBlock
     var delay: Int?
     var queue = DispatchQueue.main
-    init(id: String, transformation: @escaping TransformationBlock = { _, dispatch, _ in dispatch }, delay milliseconds: Int? = nil) {
-        self.id = id
+    init(transformation: @escaping TransformationBlock = { _, dispatch, _ in dispatch }, delay milliseconds: Int? = nil) {
         self.transformation = transformation
         self.delay = milliseconds
     }

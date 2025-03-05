@@ -52,13 +52,17 @@ class TealiumImpl {
                                         logger: logger)
         Self.addQueueManager(queueManager, toConsentInConfig: &config)
         let barrierCoordinator = Self.barrierCoordinator(config: config, coreSettings: coreSettings)
-        let transformerCoordinator = Self.transformerCoordinator(config: config, coreSettings: coreSettings, queue: modulesManager.queue)
+        let transformers = modulesManager.modules
+            .mapState { $0.compactMap { $0 as? Transformer } }
+        let transformerCoordinator = Self.transformerCoordinator(transformers: transformers,
+                                                                 coreSettings: coreSettings,
+                                                                 queue: modulesManager.queue)
         let dispatchManager = DispatchManager(modulesManager: modulesManager,
                                               queueManager: queueManager,
                                               barrierCoordinator: barrierCoordinator,
                                               transformerCoordinator: transformerCoordinator,
                                               logger: logger)
-        let tracker = TealiumTracker(modulesManager: modulesManager, dispatchManager: dispatchManager, logger: logger)
+        let tracker = TealiumTracker(modules: modulesManager.modules, dispatchManager: dispatchManager, logger: logger)
         self.tracker = tracker
 
         visitorIdProvider = VisitorIdProvider(config: config,
@@ -110,9 +114,9 @@ class TealiumImpl {
                                   onScopedBarriers: coreSettings.asObservable().map { $0.scopedBarriers })
     }
 
-    private static func transformerCoordinator(config: TealiumConfig, coreSettings: ObservableState<CoreSettings>, queue: TealiumQueue) -> TransformerCoordinator {
+    private static func transformerCoordinator(transformers: ObservableState<[Transformer]>, coreSettings: ObservableState<CoreSettings>, queue: TealiumQueue) -> TransformerCoordinator {
         let scopedTransformations = coreSettings.mapState { $0.scopedTransformations }
-        return TransformerCoordinator(registeredTransformers: config.transformers,
+        return TransformerCoordinator(transformers: transformers,
                                       scopedTransformations: scopedTransformations,
                                       queue: queue)
     }
@@ -126,6 +130,7 @@ class TealiumImpl {
     }
 
     deinit {
+        self.modulesManager.shutdown()
         let instanceName = self.instanceName
         context.logger?.info(category: LogCategory.tealium, "Instance \(instanceName) shutting down.")
     }

@@ -21,14 +21,15 @@ final class TransformerCoordinatorTests: XCTestCase {
     ])
     var scopedTransformations: ObservableState<[ScopedTransformation]>
     var registeredTransformers: [MockTransformer] = [
-        MockTransformer(id: "transformer1"),
-        MockTransformer(id: "transformer2"),
-        MockTransformer(id: "transformer3")
+        MockTransformer1(),
+        MockTransformer2(),
+        MockTransformer3()
     ]
+    lazy var transformers = StateSubject<[Transformer]>(registeredTransformers)
     var transformationsCount = 0
     var expectedTransformations: [Int] = []
     lazy var allTransformationsAreApplied = expectation(description: "All transformations are applied")
-    lazy var coordinator = TransformerCoordinator(registeredTransformers: registeredTransformers,
+    lazy var coordinator = TransformerCoordinator(transformers: transformers.toStatefulObservable(),
                                                   scopedTransformations: scopedTransformations,
                                                   queue: TealiumQueue.worker)
 

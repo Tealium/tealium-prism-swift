@@ -9,11 +9,11 @@
 import Foundation
 import XCTest
 
-class RetainCycleHelper {
-    private(set) var strongVariable: AnyObject?
-    private(set) weak var weakVariable: AnyObject?
+class RetainCycleHelper<T: AnyObject> {
+    private(set) var strongVariable: T?
+    private(set) weak var weakVariable: T?
 
-    init(variable: AnyObject?) {
+    init(variable: T?) {
         strongVariable = variable
         weakVariable = variable
     }

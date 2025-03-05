@@ -958,7 +958,6 @@
 				EC1AA4B92CCF9CA400D1D9D1 /* Lifecycle */,
 				EC1AA4B32CCF994800D1D9D1 /* Core */,
 				150410E92A6EBC5700B91F30 /* TestHelpers */,
-				87060A972CDD0DCF00F120BA /* TealiumInstanceManagerTests.swift */,
 			);
 			path = Tests;
 			sourceTree = "<group>";
@@ -1182,6 +1181,7 @@
 		EC1AA4B32CCF994800D1D9D1 /* Core */ = {
 			isa = PBXGroup;
 			children = (
+				87060A972CDD0DCF00F120BA /* TealiumInstanceManagerTests.swift */,
 				876F793E2C5270A1008BC13B /* TealiumConfigTests.swift */,
 				15F518162BECD6E4002689C7 /* TealiumImplementationTests.swift */,
 				D5FC7D122C78C8890063CEF6 /* Logger */,

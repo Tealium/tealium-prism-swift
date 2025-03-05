@@ -54,9 +54,15 @@ public class ModulesManager {
             completion(self?.getModule())
         }
     }
-    deinit {
+    func shutdown() {
         modules.value.forEach {
             $0.shutdown()
         }
+        /*
+         Clearing the modules list in the observable will propagate the event
+         to any StateObserver created from it,
+         therefore removing all of the references to the modules and avoiding retain cycles.
+         */
+        _modules.value = []
     }
 }

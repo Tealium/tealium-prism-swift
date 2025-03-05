@@ -15,9 +15,6 @@
  */
 public class TealiumInstanceManager {
     let queue = TealiumQueue.worker
-    struct Weak<T: AnyObject> {
-        weak var value: T?
-    }
     var proxies = [String: Weak<Tealium>]()
     var instances = [String: Weak<TealiumImpl>]()
     private init() { }

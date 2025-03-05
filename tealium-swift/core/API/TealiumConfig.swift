@@ -18,7 +18,6 @@ public struct TealiumConfig {
     public internal(set) var settingsUrl: String?
     public var modules: [any TealiumModuleFactory]
     public var barriers: [Barrier] = []
-    public var transformers: [Transformer] = []
     public var loggerType: TealiumLoggerType = .os
     public var bundle: Bundle = .main
     public var existingVisitorId: String?

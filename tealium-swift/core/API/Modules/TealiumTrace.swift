@@ -50,11 +50,11 @@ class TraceModule: TealiumBasicModule {
                                        data: [
                                         TealiumDataKey.killVisitorSessionEvent: TealiumKey.killVisitorSession
                                        ])
-        context.tracker?.track(dispatch, source: .module(TraceModule.self), onTrackResult: onTrackResult)
+        context.tracker.track(dispatch, source: .module(TraceModule.self), onTrackResult: onTrackResult)
     }
 
     var dataLayer: DataLayerModule? {
-        context.modulesManager?.getModule()
+        context.modulesManager.getModule()
     }
 
     func join(id: String) {

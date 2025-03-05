@@ -11,12 +11,12 @@ import Foundation
 public class TealiumContext {
     public let config: TealiumConfig
     public let coreSettings: ObservableState<CoreSettings>
-    weak public private(set) var tracker: Tracker?
+    public let tracker: Tracker
     public let barrierRegistry: BarrierRegistry
     public let transformerRegistry: TransformerRegistry
     public let databaseProvider: DatabaseProviderProtocol
     public let moduleStoreProvider: ModuleStoreProvider
-    weak public private(set) var modulesManager: ModulesManager?
+    public let modulesManager: ModulesManager
     public let logger: LoggerProtocol?
     public let networkHelper: NetworkHelperProtocol
     public let activityListener: ApplicationStatusListener

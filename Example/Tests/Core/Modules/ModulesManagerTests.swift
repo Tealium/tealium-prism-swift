@@ -10,7 +10,7 @@
 import XCTest
 
 final class ModulesManagerTests: XCTestCase {
-    let config = TealiumConfig(account: "test",
+    var config = TealiumConfig(account: "test",
                                profile: "test",
                                environment: "dev",
                                modules: [MockDispatcher1.factory, MockDispatcher2.factory],
@@ -26,23 +26,26 @@ final class ModulesManagerTests: XCTestCase {
     }
     lazy var barrierCoordinator = BarrierCoordinator(registeredBarriers: [],
                                                      onScopedBarriers: .Just([]))
-    lazy var transformerCoordinator = TransformerCoordinator(registeredTransformers: [],
+    lazy var transformerCoordinator = TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                              scopedTransformations: StateSubject([]).toStatefulObservable(),
                                                              queue: .main)
-    lazy var context = TealiumContext(modulesManager: modulesManager,
-                                      config: config,
-                                      coreSettings: coreSettings,
-                                      tracker: MockTracker(),
-                                      barrierRegistry: barrierCoordinator,
-                                      transformerRegistry: transformerCoordinator,
-                                      databaseProvider: databaseProvider,
-                                      moduleStoreProvider: ModuleStoreProvider(databaseProvider: databaseProvider,
-                                                                               modulesRepository: MockModulesRepository()),
-                                      logger: nil,
-                                      networkHelper: MockNetworkHelper(),
-                                      activityListener: ApplicationStatusListener.shared,
-                                      queue: queue,
-                                      visitorId: mockVisitorId)
+    lazy var context = createContext()
+    func createContext() -> TealiumContext {
+        TealiumContext(modulesManager: modulesManager,
+                       config: config,
+                       coreSettings: coreSettings,
+                       tracker: MockTracker(),
+                       barrierRegistry: barrierCoordinator,
+                       transformerRegistry: transformerCoordinator,
+                       databaseProvider: databaseProvider,
+                       moduleStoreProvider: ModuleStoreProvider(databaseProvider: databaseProvider,
+                                                                modulesRepository: MockModulesRepository()),
+                       logger: nil,
+                       networkHelper: MockNetworkHelper(),
+                       activityListener: ApplicationStatusListener.shared,
+                       queue: queue,
+                       visitorId: mockVisitorId)
+    }
     var consentManager: MockConsentManager? {
         modulesManager.getModule()
     }
@@ -174,5 +177,38 @@ final class ModulesManagerTests: XCTestCase {
             XCTAssertNil(module)
         }
         waitOnQueue(queue: queue)
+    }
+
+    func test_shutdown_removes_all_modules() {
+        modulesManager.updateSettings(context: context, settings: SDKSettings(modulesSettings: [:]))
+        XCTAssertGreaterThan(modulesManager.modules.value.count, 0)
+        modulesManager.shutdown()
+        XCTAssertEqual(modulesManager.modules.value.count, 0)
+    }
+
+    func test_shutdown_clears_retain_cycles() {
+        // Could use RetainCycleHelper here but it makes the code harder to read actually
+        config.addModule(DefaultModuleFactory<LeakingModule>())
+        modulesManager.updateSettings(context: context, settings: SDKSettings(modulesSettings: [:]))
+        weak var leakingModule = modulesManager.getModule(LeakingModule.self)
+        XCTAssertNotNil(leakingModule)
+        weak var weakManager = modulesManager
+        modulesManager.shutdown()
+        // Clear all properties with references to modulesManager
+        modulesManager = ModulesManager(queue: queue)
+        context = createContext()
+        XCTAssertNil(leakingModule)
+        XCTAssertNil(weakManager)
+    }
+}
+
+private class LeakingModule: MockModule {
+    override class var id: String { "leaking" }
+    let modulesManager: ModulesManager
+    let context: TealiumContext
+    required init?(context: TealiumContext, moduleSettings: DataObject) {
+        self.modulesManager = context.modulesManager
+        self.context = context
+        super.init(context: context, moduleSettings: moduleSettings)
     }
 }

@@ -47,10 +47,10 @@ final class LifecycleTrackerTests: XCTestCase {
                                              logger: nil)
     lazy var barrierCoordinator = BarrierCoordinator(registeredBarriers: [],
                                                      onScopedBarriers: scopedBarriers)
-    lazy var transformerCoordinator = TransformerCoordinator(registeredTransformers: [],
+    lazy var transformerCoordinator = TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                              scopedTransformations: scopedTransformations,
                                                              queue: .main)
-    lazy var tracker = TealiumTracker(modulesManager: modulesManager, dispatchManager: dispatchManager, logger: nil)
+    lazy var tracker = TealiumTracker(modules: modulesManager.modules, dispatchManager: dispatchManager, logger: nil)
     lazy var context = TealiumContext(modulesManager: modulesManager,
                                       config: config,
                                       coreSettings: coreSettings,

@@ -8,13 +8,7 @@
 
 import Foundation
 
-class ConsentTransformer: Transformer {
-    let id: String = "ConsentTransformer"
-    let settings: ObservableState<ConsentSettings>
-    private let automaticDisposer = AutomaticDisposer()
-    init(consentSettings: ObservableState<ConsentSettings>) {
-        self.settings = consentSettings
-    }
+extension ConsentModule: Transformer {
 
     func applyTransformation(_ id: String, to dispatch: TealiumDispatch, scope: DispatchScope, completion: @escaping (TealiumDispatch?) -> Void) {
         guard case let DispatchScope.dispatcher(dispatcherId) = scope,

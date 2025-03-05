@@ -27,7 +27,7 @@ class TealiumHelper {
                                     }),
                                     TealiumModules.consent(cmpIntegration: CustomCMP(),
                                                            forcingSettings: { enforcedSettings in
-                                        enforcedSettings.setEnabled(true)
+                                        enforcedSettings.setEnabled(false)
                                     }),
                                     TealiumModules.lifecycle(forcingSettings: { enforcedSettings in
                                         enforcedSettings.setEnabled(true)

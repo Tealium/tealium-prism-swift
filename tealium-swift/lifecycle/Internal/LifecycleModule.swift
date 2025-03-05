@@ -13,7 +13,7 @@ class LifecycleModule {
     private var lifecycleSettings: LifecycleSettings
     internal let lifecycleService: LifecycleService
 
-    weak private var tracker: Tracker? // it's weak in the context, so should be kept that way
+    private var tracker: Tracker
     private let logger: LoggerProtocol?
     private let automaticDisposer: AutomaticDisposer = AutomaticDisposer()
 
@@ -32,7 +32,7 @@ class LifecycleModule {
                   logger: context.logger)
     }
 
-    init(tracker: Tracker?, onApplicationStatus: Observable<ApplicationStatus>, settings: LifecycleSettings, service: LifecycleService, logger: LoggerProtocol?) {
+    init(tracker: Tracker, onApplicationStatus: Observable<ApplicationStatus>, settings: LifecycleSettings, service: LifecycleService, logger: LoggerProtocol?) {
         self.tracker = tracker
         self.lifecycleSettings = settings
         self.lifecycleService = service
@@ -106,7 +106,7 @@ class LifecycleModule {
                     state += data
                 }
                 let dispatch = TealiumDispatch(name: event.rawValue, data: state)
-                self.tracker?.track(dispatch, source: .module(LifecycleModule.self))
+                self.tracker.track(dispatch, source: .module(LifecycleModule.self))
             }
             if !hasLaunched {
                 hasLaunched = true

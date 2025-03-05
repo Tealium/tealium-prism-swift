@@ -25,7 +25,7 @@ final class ConsentModuleTests: XCTestCase {
                                              logger: nil)
     @StateSubject([])
     var scopedTransformations: ObservableState<[ScopedTransformation]>
-    lazy var transformerCoordinator = TransformerCoordinator(registeredTransformers: [],
+    lazy var transformerCoordinator = TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                              scopedTransformations: scopedTransformations,
                                                              queue: .main)
     @StateSubject(ConsentSettings(moduleSettings: [:]))
