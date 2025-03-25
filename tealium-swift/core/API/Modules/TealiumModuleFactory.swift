@@ -17,16 +17,16 @@ public protocol TealiumModuleFactory {
     associatedtype Module: TealiumModule
 
     /**
-     * Creates a new `Module` if the received module settings are correct for it's initialization.
+     * Creates a new `Module` if the received module configuration is correct for it's initialization.
      *
      * - Parameters:
      *   - context: The `TealiumContext` shared by all modules.
-     *   - moduleSettings: The settings for this specific module, used to initialize it
+     *   - moduleConfiguration: The `DataObject` configuration for this specific module, used to initialize it
      *  and potentially disable it if some mandatory settings are missing or invalid.
      *
-     * - Returns: the newly created `Module`, if the initialization succeded, or nil.
+     * - Returns: the newly created `Module`, if the initialization succeeded, or nil.
      */
-    func create(context: TealiumContext, moduleSettings: DataObject) -> Module?
+    func create(context: TealiumContext, moduleConfiguration: DataObject) -> Module?
 
     /**
      * Returns some optional settings for this module that override any other Local or Remote settings fields.
@@ -35,7 +35,7 @@ public protocol TealiumModuleFactory {
      * Other values at other keys that are not present in this Dictionary can be set by Local or Remote settings
      * and be updated by future Remote settings refreshes during the life of this `Module`.
      *
-     * - Returns: An optional Dictionary containing some of the settings used by the `Module` that will be enforced and remain constant during the life of this `Module`.
+     * - Returns: An optional `DataObject` representing the `ModuleSettings`, containing some of the settings used by the `Module` that will be enforced and remain constant during the life of this `Module`.
      */
     func getEnforcedSettings() -> DataObject?
 }
@@ -48,7 +48,7 @@ extension TealiumModuleFactory {
     }
 
     /// Returns true if the provided settings allow for the factory's `Module` to be enabled.
-    func shouldBeEnabled(by settings: DataObject) -> Bool {
-        !Module.canBeDisabled || settings.get(key: ModuleSettingsBuilder.enabledKey) != false
+    func shouldBeEnabled(by settings: ModuleSettings) -> Bool {
+        !Module.canBeDisabled || settings.enabled != false
     }
 }

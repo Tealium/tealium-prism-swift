@@ -23,8 +23,6 @@ public enum TealiumModules {
      *
      * - Parameters:
      *   -  block: A block with a utility builder that can be used to enforce some of the `CollectSettings` instead of relying on Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `TealiumCollect` module, other settings will still be affected by Local and Remote settings and updates.
-     *
-     *
      */
     static public func collect(forcingSettings block: ((_ enforcedSettings: CollectSettingsBuilder) -> CollectSettingsBuilder)? = nil) -> any TealiumModuleFactory {
         TealiumCollect.Factory(forcingSettings: block)
@@ -98,12 +96,16 @@ public enum TealiumModules {
 /// A basic factory that can be reused to create modules that have no extra dependencies and don't need utility for settings builders.
 public class DefaultModuleFactory<Module: TealiumBasicModule>: TealiumModuleFactory {
     let enforcedSettings: DataObject?
+
+    /// - parameter enforcedSettings: The `DataObject` representation of the full `ModuleSettings` object
     public init(enforcedSettings: DataObject? = nil) {
         self.enforcedSettings = enforcedSettings
     }
-    public func create(context: TealiumContext, moduleSettings: DataObject) -> Module? {
-        Module(context: context, moduleSettings: moduleSettings)
+
+    public func create(context: TealiumContext, moduleConfiguration: DataObject) -> Module? {
+        Module(context: context, moduleConfiguration: moduleConfiguration)
     }
+
     public func getEnforcedSettings() -> DataObject? {
         enforcedSettings
     }

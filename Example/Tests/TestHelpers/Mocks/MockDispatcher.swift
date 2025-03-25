@@ -15,18 +15,18 @@ class MockModule: TealiumBasicModule {
     class var factory: any TealiumModuleFactory { DefaultModuleFactory<Self>() }
 
     @StateSubject<DataObject>([:])
-    var moduleSettings: ObservableState<DataObject>
+    var moduleConfiguration: ObservableState<DataObject>
 
     @ToAnyObservable<BasePublisher<Void>>(BasePublisher<Void>())
     var onShutdown: Observable<Void>
 
     init() { }
-    required init?(context: TealiumContext, moduleSettings: DataObject) {
-        _moduleSettings.value = moduleSettings
+    required init?(context: TealiumContext, moduleConfiguration: DataObject) {
+        _moduleConfiguration.value = moduleConfiguration
     }
 
-    func updateSettings(_ settings: DataObject) -> Self? {
-        _moduleSettings.value = settings
+    func updateConfiguration(_ configuration: DataObject) -> Self? {
+        _moduleConfiguration.value = configuration
         return self
     }
 
@@ -73,8 +73,8 @@ class MockDispatcher1: MockDispatcher {
     override init() {
         super.init()
     }
-    required init?(context: TealiumContext, moduleSettings: DataObject) {
-        super.init(context: context, moduleSettings: moduleSettings)
+    required init?(context: TealiumContext, moduleConfiguration: DataObject) {
+        super.init(context: context, moduleConfiguration: moduleConfiguration)
     }
 }
 class MockDispatcher2: MockDispatcher {
@@ -83,8 +83,8 @@ class MockDispatcher2: MockDispatcher {
         super.init()
         dispatchLimit = 3
     }
-    required init?(context: TealiumContext, moduleSettings: DataObject) {
-        super.init(context: context, moduleSettings: moduleSettings)
+    required init?(context: TealiumContext, moduleConfiguration: DataObject) {
+        super.init(context: context, moduleConfiguration: moduleConfiguration)
         dispatchLimit = 3
     }
 }

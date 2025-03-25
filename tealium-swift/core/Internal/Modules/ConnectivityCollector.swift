@@ -14,7 +14,7 @@ class ConnectivityCollector: TealiumBasicModule, Collector {
     static let id: String = "Connectivity"
     let monitor: ConnectivityMonitorProtocol
 
-    required convenience init?(context: TealiumContext, moduleSettings: DataObject) {
+    required convenience init?(context: TealiumContext, moduleConfiguration: DataObject) {
         self.init()
     }
 

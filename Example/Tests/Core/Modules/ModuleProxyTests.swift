@@ -20,10 +20,12 @@ final class ModuleProxyTests: XCTestCase {
     var onModulesManager: Observable<ModulesManager?>
     lazy var proxy = ModuleProxy<ModuleWithObservable>(onModulesManager: onModulesManager)
     lazy var config: TealiumConfig = mockConfig
+    @StateSubject(CoreSettings())
+    var coreSettings
     func context() -> TealiumContext {
         TealiumContext(modulesManager: ModulesManager(queue: queue),
                        config: config,
-                       coreSettings: StateSubject(CoreSettings(coreDataObject: [:])).toStatefulObservable(),
+                       coreSettings: coreSettings,
                        tracker: MockTracker(),
                        barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
                        transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
@@ -66,7 +68,7 @@ final class ModuleProxyTests: XCTestCase {
         let completed = expectation(description: "GetModule completes")
         config.modules = [ModuleWithObservable.factory]
         manager.updateSettings(context: context(),
-                               settings: SDKSettings(modulesSettings: [:]))
+                               settings: SDKSettings(modules: [:]))
         _onModulesManager.publish(manager)
         proxy.getModule { module in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -80,7 +82,7 @@ final class ModuleProxyTests: XCTestCase {
         let completed = expectation(description: "ObserveModule completes")
         config.modules = [ModuleWithObservable.factory]
         manager.updateSettings(context: context(),
-                               settings: SDKSettings(modulesSettings: [:]))
+                               settings: SDKSettings(modules: [:]))
         _onModulesManager.publish(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule { module in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -97,7 +99,7 @@ final class ModuleProxyTests: XCTestCase {
         let completed = expectation(description: "ObserveModule completes")
         config.modules = [ModuleWithObservable.factory]
         manager.updateSettings(context: context(),
-                               settings: SDKSettings(modulesSettings: [:]))
+                               settings: SDKSettings(modules: [:]))
         _onModulesManager.publish(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule(\.someObservable)
         _ = subscribable.subscribe { _ in
@@ -112,7 +114,7 @@ final class ModuleProxyTests: XCTestCase {
         completed.isInverted = true
         config.modules = [ModuleWithObservable.factory]
         manager.updateSettings(context: context(),
-                               settings: SDKSettings(modulesSettings: ["MockModule": ["enabled": false]]))
+                               settings: SDKSettings(modules: ["MockModule": ["enabled": false]]))
         _onModulesManager.publish(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule { module in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -130,7 +132,7 @@ final class ModuleProxyTests: XCTestCase {
         completed.isInverted = true
         config.modules = [ModuleWithObservable.factory]
         manager.updateSettings(context: context(),
-                               settings: SDKSettings(modulesSettings: ["MockModule": ["enabled": false]]))
+                               settings: SDKSettings(modules: ["MockModule": ["enabled": false]]))
         _onModulesManager.publish(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule(\.someObservable)
         _ = subscribable.subscribe { _ in
@@ -144,7 +146,7 @@ final class ModuleProxyTests: XCTestCase {
         let completed = expectation(description: "ObserveModule completes")
         config.modules = [ModuleWithObservable.factory]
         manager.updateSettings(context: context(),
-                               settings: SDKSettings(modulesSettings: ["MockModule": ["enabled": false]]))
+                               settings: SDKSettings(modules: ["MockModule": ["enabled": false]]))
         _onModulesManager.publish(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule { module in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -156,7 +158,7 @@ final class ModuleProxyTests: XCTestCase {
         }
         queue.ensureOnQueue {
             self.manager.updateSettings(context: self.context(),
-                                        settings: SDKSettings(modulesSettings: ["MockModule": ["enabled": true]]))
+                                        settings: SDKSettings(modules: ["MockModule": ["enabled": true]]))
         }
         waitOnQueue(queue: queue)
     }
@@ -165,7 +167,7 @@ final class ModuleProxyTests: XCTestCase {
         let completed = expectation(description: "ObserveModule completes")
         config.modules = [ModuleWithObservable.factory]
         manager.updateSettings(context: context(),
-                               settings: SDKSettings(modulesSettings: ["MockModule": ["enabled": false]]))
+                               settings: SDKSettings(modules: ["MockModule": ["enabled": false]]))
         _onModulesManager.publish(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule(\.someObservable)
         _ = subscribable.subscribe { _ in
@@ -174,7 +176,7 @@ final class ModuleProxyTests: XCTestCase {
         }
         queue.ensureOnQueue {
             self.manager.updateSettings(context: self.context(),
-                                        settings: SDKSettings(modulesSettings: ["MockModule": ["enabled": true]]))
+                                        settings: SDKSettings(modules: ["MockModule": ["enabled": true]]))
         }
         waitOnQueue(queue: queue)
     }
@@ -184,7 +186,7 @@ final class ModuleProxyTests: XCTestCase {
         completed.expectedFulfillmentCount = 2
         config.modules = [ModuleWithObservable.factory]
         manager.updateSettings(context: context(),
-                               settings: SDKSettings(modulesSettings: ["MockModule": ["enabled": false]]))
+                               settings: SDKSettings(modules: ["MockModule": ["enabled": false]]))
         _onModulesManager.publish(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule { module in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -196,11 +198,11 @@ final class ModuleProxyTests: XCTestCase {
         }
         queue.ensureOnQueue {
             self.manager.updateSettings(context: self.context(),
-                                        settings: SDKSettings(modulesSettings: ["MockModule": ["enabled": true]]))
+                                        settings: SDKSettings(modules: ["MockModule": ["enabled": true]]))
             self.manager.updateSettings(context: self.context(),
-                                        settings: SDKSettings(modulesSettings: ["MockModule": ["enabled": false]]))
+                                        settings: SDKSettings(modules: ["MockModule": ["enabled": false]]))
             self.manager.updateSettings(context: self.context(),
-                                        settings: SDKSettings(modulesSettings: ["MockModule": ["enabled": true]]))
+                                        settings: SDKSettings(modules: ["MockModule": ["enabled": true]]))
         }
         waitOnQueue(queue: queue)
     }
@@ -210,7 +212,7 @@ final class ModuleProxyTests: XCTestCase {
         completed.expectedFulfillmentCount = 2
         config.modules = [ModuleWithObservable.factory]
         manager.updateSettings(context: context(),
-                               settings: SDKSettings(modulesSettings: ["MockModule": ["enabled": false]]))
+                               settings: SDKSettings(modules: ["MockModule": ["enabled": false]]))
         _onModulesManager.publish(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule(\.someObservable)
         _ = subscribable.subscribe { _ in
@@ -219,11 +221,11 @@ final class ModuleProxyTests: XCTestCase {
         }
         queue.ensureOnQueue {
             self.manager.updateSettings(context: self.context(),
-                                        settings: SDKSettings(modulesSettings: ["MockModule": ["enabled": true]]))
+                                        settings: SDKSettings(modules: ["MockModule": ["enabled": true]]))
             self.manager.updateSettings(context: self.context(),
-                                        settings: SDKSettings(modulesSettings: ["MockModule": ["enabled": false]]))
+                                        settings: SDKSettings(modules: ["MockModule": ["enabled": false]]))
             self.manager.updateSettings(context: self.context(),
-                                        settings: SDKSettings(modulesSettings: ["MockModule": ["enabled": true]]))
+                                        settings: SDKSettings(modules: ["MockModule": ["enabled": true]]))
         }
         waitOnQueue(queue: queue)
     }

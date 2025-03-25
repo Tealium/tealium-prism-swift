@@ -12,11 +12,9 @@ import XCTest
 final class ConsentModuleTests: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
     let modulesManager = ModulesManager(queue: TealiumQueue.worker)
-    lazy var settings: [String: DataObject] = [ConsentModule.id: ["enabled": true]]
-    lazy var _coreSettings = StateSubject(CoreSettings(coreDataObject: settings[CoreSettings.id] ?? [:]))
-    var coreSettings: ObservableState<CoreSettings> {
-        _coreSettings.toStatefulObservable()
-    }
+
+    @StateSubject(CoreSettings())
+    var coreSettings
     lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: modulesManager.modules),
                                              queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
                                                                                  maxQueueSize: 10,
@@ -28,14 +26,14 @@ final class ConsentModuleTests: XCTestCase {
     lazy var transformerCoordinator = TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                              scopedTransformations: scopedTransformations,
                                                              queue: .main)
-    @StateSubject(ConsentSettings(moduleSettings: [:]))
-    var consentSettings: ObservableState<ConsentSettings>
+    @StateSubject(ConsentConfiguration(configuration: [:]))
+    var consentConfiguration: ObservableState<ConsentConfiguration>
     func buildConsentManager(cmpIntegration: CMPIntegration) -> ConsentManager {
         return ConsentModule(queueManager: queueManager,
                              modules: modulesManager.modules,
                              transformerRegistry: transformerCoordinator,
                              cmpIntegration: cmpIntegration,
-                             consentSettings: _consentSettings)
+                             consentConfiguration: _consentConfiguration)
     }
     let completionCalledDescription = "Completion was called"
 

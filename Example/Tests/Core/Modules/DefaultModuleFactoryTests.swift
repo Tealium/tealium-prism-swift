@@ -16,10 +16,10 @@ final class DefaultModuleFactoryTests: XCTestCase {
         XCTAssertEqual(factory.getEnforcedSettings(), settings)
     }
 
-    func test_create_initializes_module_with_provided_settings() {
-        let settings: DataObject = ["key": "value"]
+    func test_create_initializes_module_with_provided_configuration() {
+        let configuration: DataObject = ["key": "value"]
         let factory = DefaultModuleFactory<MockModule>()
-        let module = factory.create(context: mockContext, moduleSettings: settings)
-        XCTAssertEqual(module?.moduleSettings.value, settings)
+        let module = factory.create(context: mockContext, moduleConfiguration: configuration)
+        XCTAssertEqual(module?.moduleConfiguration.value, configuration)
     }
 }

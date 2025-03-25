@@ -10,18 +10,20 @@ import Foundation
 
 /// A base class that adds the enabled setter for SettingsBuilders that are Optional and therefore can be disabled.
 open class ModuleSettingsBuilder {
-    public static let enabledKey = "enabled"
-    /// A custom dictionary that holds the settings for this builder.
-    /// Do not use this directly unless you are subclassing this class.
-    public var _dataObject = DataObject()
+    // TODO: rules and mappings
+    private var _dataObject = DataObject()
+    /// A custom dictionary that holds the configuration for this module.
+    /// Do not use this one directly unless you are subclassing this class.
+    public var _configurationObject = DataObject()
     public init() { }
     /// Set the enabled flag for these settings.
     public func setEnabled(_ enabled: Bool) -> Self {
-        _dataObject.set(enabled, key: Self.enabledKey)
+        _dataObject.set(enabled, key: ModuleSettings.Keys.enabled)
         return self
     }
-    /// Returns a dictionary with just the enabled flag, if present, or otherwise returns an empty dictionary.
+    /// Returns the `DataObject` representing the `ModuleSettings` object.
     public func build() -> DataObject {
-        _dataObject
+        _dataObject.set(converting: _configurationObject, key: ModuleSettings.Keys.configuration)
+        return _dataObject
     }
 }

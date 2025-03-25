@@ -22,10 +22,10 @@ public class ModulesManager {
             let updateInterval = TealiumSignpostInterval(signposter: .settings, name: "Module Update")
                 .begin(moduleFactory.id)
             defer { updateInterval.end() }
-            let moduleSettings = settings.modulesSettings[moduleFactory.id] ?? DataObject()
+            let moduleSettings = settings.modules[moduleFactory.id] ?? ModuleSettings()
             if let module = oldModules.first(where: { $0.id == moduleFactory.id }) {
                 guard moduleFactory.shouldBeEnabled(by: moduleSettings),
-                      let module = module.updateSettings(moduleSettings) else {
+                      let module = module.updateConfiguration(moduleSettings.configuration) else {
                     context.logger?.debug(category: moduleFactory.id,
                                           "Module failed to update settings. Module will be shut down.")
                     module.shutdown()
@@ -35,7 +35,7 @@ public class ModulesManager {
                 return module
             } else {
                 guard moduleFactory.shouldBeEnabled(by: moduleSettings),
-                    let module = moduleFactory.create(context: context, moduleSettings: moduleSettings) else {
+                      let module = moduleFactory.create(context: context, moduleConfiguration: moduleSettings.configuration) else {
                     context.logger?.debug(category: moduleFactory.id,
                                           "Module failed to initialize.")
                     return nil

@@ -18,31 +18,32 @@ class TealiumCollect: TealiumBasicModule, Dispatcher {
     let batcher = CollectBatcher()
     let networkHelper: NetworkHelperProtocol
     let logger: LoggerProtocol?
-    var settings: CollectSettings
+    var configuration: CollectConfiguration
 
     /// Generic `Dispatcher` initializer called by the `ModulesManager`.
-    required convenience init?(context: TealiumContext, moduleSettings: DataObject) {
+    required convenience init?(context: TealiumContext, moduleConfiguration: DataObject) {
         self.init(networkHelper: context.networkHelper,
-                  settings: CollectSettings(moduleSettings: moduleSettings, logger: context.logger),
+                  configuration: CollectConfiguration(configuration: moduleConfiguration,
+                                                      logger: context.logger),
                   logger: context.logger)
     }
 
     /// Internal initializer called by the generic one and by the tests.
-    init?(networkHelper: NetworkHelperProtocol, settings: CollectSettings?, logger: LoggerProtocol?) {
-        guard let settings else {
+    init?(networkHelper: NetworkHelperProtocol, configuration: CollectConfiguration?, logger: LoggerProtocol?) {
+        guard let configuration else {
             return nil
         }
         self.networkHelper = networkHelper
-        self.settings = settings
+        self.configuration = configuration
         self.logger = logger
     }
 
-    /// Method that will be called automatically when new settings are provided.
-    func updateSettings(_ settings: DataObject) -> Self? {
-        guard let tealiumCollectSettings = CollectSettings(moduleSettings: settings, logger: self.logger) else {
+    /// Method that will be called automatically when new configuration is provided.
+    func updateConfiguration(_ configuration: DataObject) -> Self? {
+        guard let tealiumCollectConfiguration = CollectConfiguration(configuration: configuration, logger: self.logger) else {
             return nil
         }
-        self.settings = tealiumCollectSettings
+        self.configuration = tealiumCollectConfiguration
         return self
     }
 
@@ -82,8 +83,8 @@ class TealiumCollect: TealiumBasicModule, Dispatcher {
      */
     func sendSingleDispatch(_ event: TealiumDispatch, completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
         var data = event.eventData
-        batcher.applyProfileOverride(settings.overrideProfile, to: &data)
-        return networkHelper.post(url: settings.url, body: data) { result in
+        batcher.applyProfileOverride(configuration.overrideProfile, to: &data)
+        return networkHelper.post(url: configuration.url, body: data) { result in
             if case .failure(.cancelled) = result {
                 completion([])
                 return
@@ -101,10 +102,10 @@ class TealiumCollect: TealiumBasicModule, Dispatcher {
      * and then send the payload with a gzipped POST requst to the batch endpoint.
      */
     func sendBatchDispatches(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
-        guard let batchData = batcher.compressDispatches(events, profileOverride: settings.overrideProfile) else {
+        guard let batchData = batcher.compressDispatches(events, profileOverride: configuration.overrideProfile) else {
             return Subscription { }
         }
-        return networkHelper.post(url: settings.batchUrl, body: batchData) { result in
+        return networkHelper.post(url: configuration.batchUrl, body: batchData) { result in
             if case .failure(.cancelled) = result {
                 completion([])
                 return

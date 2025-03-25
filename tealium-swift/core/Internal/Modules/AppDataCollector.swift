@@ -50,7 +50,7 @@ class AppDataCollector: AppDataCollection, TealiumBasicModule, Collector {
     var version: String = TealiumConstants.libraryVersion
     static let id: String = "AppData"
 
-    required init?(context: TealiumContext, moduleSettings: DataObject) {}
+    required init?(context: TealiumContext, moduleConfiguration: DataObject) {}
 
     func collect(_ dispatchContext: DispatchContext) -> DataObject {
         [

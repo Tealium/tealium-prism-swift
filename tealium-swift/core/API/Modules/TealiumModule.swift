@@ -16,8 +16,8 @@ public protocol TealiumModule: AnyObject {
     static var id: String { get }
     /// Returns true if the module is optional and can be disabled, or false otherwise. Default is true.
     static var canBeDisabled: Bool { get }
-    /// Updates the settings and, if the settings are valid, return the same class otherwise return nil and the module is considered disabled.
-    func updateSettings(_ settings: DataObject) -> Self?
+    /// Updates the configuration and, if the configuration is valid, return the same class otherwise return nil and the module is considered disabled.
+    func updateConfiguration(_ configuration: DataObject) -> Self?
     /// Called when a previously created module needs to shut down, to allow it to perform some final cleanup before removing it form the available modules.
     func shutdown()
 }
@@ -25,13 +25,13 @@ public protocol TealiumModule: AnyObject {
 /// A restricted `TealiumModule` that can be created with some default parameters.
 public protocol TealiumBasicModule: TealiumModule {
     /**
-     *  Initializes the module with a `TealiumContext` and this module's specific settings.
+     *  Initializes the module with a `TealiumContext` and this module's specific configuration.
      *
      * - Parameters:
      *      - context: The `TealiumContext` shared among all the modules
-     *      - moduleSettings: The `DataObject` containing the settings for this specific module. It should be empty if the module uses no settings.
+     *      - moduleConfiguration: The `DataObject` containing the configuration for this specific module. It should be empty if the module uses no configuration.
      */
-    init?(context: TealiumContext, moduleSettings: DataObject)
+    init?(context: TealiumContext, moduleConfiguration: DataObject)
 }
 
 public extension TealiumModule {
@@ -39,7 +39,7 @@ public extension TealiumModule {
         type(of: self).id
     }
     static var canBeDisabled: Bool { true }
-    func updateSettings(_ settings: DataObject) -> Self? {
+    func updateConfiguration(_ configuration: DataObject) -> Self? {
         return self
     }
     func shutdown() { }
@@ -60,7 +60,7 @@ public protocol Dispatcher: TealiumModule {
      *
      * - Parameters:
      *    - data: The `TealiumDispatch`es that have to be sent. They will always be less then or equal to the `dispatchLimit`.
-     *    - completion: The callback that needs to be called when one or more `TealiumDispatch`es have completed. Completed in this case means both if it succeded, or if it failed and won't be retried. This callback can be called multiple times, but must contain each `TealiumDispatch` exactly once. All `TealiumDisaptches` provided in the data parameter need to be passed back in the completion block at some point to allow for it to be cleared from the queue and avoid multiple dispatches of the same events.
+     *    - completion: The callback that needs to be called when one or more `TealiumDispatch`es have completed. Completed in this case means both if it succeeded, or if it failed and won't be retried. This callback can be called multiple times, but must contain each `TealiumDispatch` exactly once. All `TealiumDisaptches` provided in the data parameter need to be passed back in the completion block at some point to allow for it to be cleared from the queue and avoid multiple dispatches of the same events.
      *
      * - Returns: A `Disposable` that can be used to cancel the dispatch process if still in progress.
      */

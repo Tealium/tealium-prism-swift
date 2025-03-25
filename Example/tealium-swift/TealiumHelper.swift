@@ -38,7 +38,7 @@ class TealiumHelper {
                                     ModuleWithExternalDependencies.Factory(otherDependencies: NSObject())
                                    ],
                                    settingsFile: "TealiumConfig",
-                                   settingsUrl: "https://api.npoint.io/f55d57e09b802cde39f9",
+                                   settingsUrl: "https://api.npoint.io/e6449d2df760465f7d7f",
                                    forcingSettings: { builder in
             builder.setMinLogLevel(.trace)
                 .setVisitorIdentityKey("email")

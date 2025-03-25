@@ -10,7 +10,7 @@
 import XCTest
 class NonDisableableModule: TealiumBasicModule {
     var version: String = "1.0.0"
-    required init?(context: TealiumContext, moduleSettings: DataObject) { }
+    required init?(context: TealiumContext, moduleConfiguration: DataObject) { }
     static var id: String = "non-disableable"
     static let canBeDisabled: Bool = false
 }
@@ -18,26 +18,26 @@ final class TealiumModulesTests: XCTestCase {
     let nonDisableableFactory = DefaultModuleFactory<NonDisableableModule>()
     let disableableFactory = DefaultModuleFactory<MockDispatcher1>()
     func test_shouldBeEnabled_on_NonDisableableModule_returns_true_for_settings_enabled() {
-        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: ["enabled": true]))
+        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: ModuleSettings(enabled: true)))
     }
 
     func test_shouldBeEnabled_on_NonDisableableModule_returns_true_for_settings_disabled() {
-        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: ["enabled": false]))
+        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: ModuleSettings(enabled: false)))
     }
 
     func test_shouldBeEnabled_on_NonDisableableModule_returns_true_for_settings_without_enabled_key() {
-        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: [:]))
+        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: ModuleSettings()))
     }
 
     func test_shouldBeEnabled_on_DisableableModule_returns_true_for_settings_enabled() {
-        XCTAssertTrue(disableableFactory.shouldBeEnabled(by: ["enabled": true]))
+        XCTAssertTrue(disableableFactory.shouldBeEnabled(by: ModuleSettings(enabled: true)))
     }
 
     func test_shouldBeEnabled_on_DisableableModule_returns_false_for_settings_disabled() {
-        XCTAssertFalse(disableableFactory.shouldBeEnabled(by: ["enabled": false]))
+        XCTAssertFalse(disableableFactory.shouldBeEnabled(by: ModuleSettings(enabled: false)))
     }
 
     func test_shouldBeEnabled_on_DisableableModule_returns_true_for_settings_without_enabled_key() {
-        XCTAssertTrue(disableableFactory.shouldBeEnabled(by: [:]))
+        XCTAssertTrue(disableableFactory.shouldBeEnabled(by: ModuleSettings()))
     }
 }

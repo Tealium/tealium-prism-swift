@@ -20,10 +20,12 @@ final class CollectSettingsBuilderTests: XCTestCase {
             .setEnabled(true)
             .build()
         XCTAssertEqual(settings, [
-            "url": "url",
-            "batch_url": "batchUrl",
-            "override_domain": "overrideDomain",
-            "override_profile": "overrideProfile",
+            "configuration": [
+                "url": "url",
+                "batch_url": "batchUrl",
+                "override_domain": "overrideDomain",
+                "override_profile": "overrideProfile",
+            ],
             "enabled": true
         ])
     }
@@ -35,14 +37,16 @@ final class CollectSettingsBuilderTests: XCTestCase {
             .setOverrideProfile("overrideProfile")
             .build()
         XCTAssertEqual(settings, [
-            "url": "url",
-            "override_domain": "overrideDomain",
-            "override_profile": "overrideProfile",
+            "configuration": [
+                "url": "url",
+                "override_domain": "overrideDomain",
+                "override_profile": "overrideProfile",
+            ],
         ])
     }
 
-    func test_build_without_setters_returns_empty_dictionary() {
+    func test_build_without_setters_returns_empty_configuration() {
         let settings = CollectSettingsBuilder().build()
-        XCTAssertEqual(settings, [:])
+        XCTAssertEqual(settings, ["configuration": DataObject()])
     }
 }

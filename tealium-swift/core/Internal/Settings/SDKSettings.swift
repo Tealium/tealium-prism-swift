@@ -9,27 +9,26 @@
 import Foundation
 
 /// A container of settings for each module.
-final class SDKSettings: Codable, CustomStringConvertible {
-    /// A Dictionary containing all the settings for each module, keyed by `Module.id`.
-    let modulesSettings: [String: DataObject]
-    /// A utility to return a type safe representation of the Core settings, potentially used by all the modules.
-    lazy private(set) var coreSettings = CoreSettings(coreDataObject: modulesSettings[CoreSettings.id] ?? [:])
+struct SDKSettings: Equatable {
+    enum Keys {
+        static let core = "core"
+        static let modules = "modules"
+        static let loadRules = "load_rules"
+    }
+    let core: CoreSettings
+    let modules: [String: ModuleSettings]
 
-    init(modulesSettings: [String: DataObject]) {
-        self.modulesSettings = modulesSettings
+    init(_ settings: DataObject) {
+        self.core = settings.getConvertible(key: Keys.core, converter: CoreSettings.converter) ?? CoreSettings()
+        self.modules = settings.getDataDictionary(key: Keys.modules)?.compactMapValues { $0.getConvertible(converter: ModuleSettings.converter) } ?? [:]
     }
 
-    init(from decoder: Decoder) throws {
-        let container = try decoder.singleValueContainer()
-        modulesSettings = try container.decode([String: DataObject].self)
+    init(modules: [String: DataObject] = [:]) {
+        self.init([Keys.modules: modules])
     }
 
-    func encode(to encoder: Encoder) throws {
-        var container = encoder.singleValueContainer()
-        try container.encode(modulesSettings)
-    }
-
-    var description: String {
-        modulesSettings.description
+    init(core: CoreSettings, modules: [String: ModuleSettings] = [:]) {
+        self.core = core
+        self.modules = modules
     }
 }

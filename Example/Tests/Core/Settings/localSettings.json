@@ -1,5 +1,9 @@
 {
-    "localModule": {
-        "localKey": "localValue"
+    "modules": {
+        "localModule": {
+            "configuration": {
+                "localKey": "localValue"
+            }
+        }
     }
 }

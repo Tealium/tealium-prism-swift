@@ -35,15 +35,19 @@ public struct TealiumConfig {
         coreSettings = block?(CoreSettingsBuilder()).build()
     }
 
-    func getEnforcedSDKSettings() -> SDKSettings {
-        let accumulator = [CoreSettings.id: coreSettings].compactMapValues { $0 }
-        let modulesSettings = modules.reduce(into: accumulator) { partialResult, factory in
+    func getEnforcedSDKSettings() -> DataObject {
+        var accumulator = [CoreSettings.id: coreSettings].compactMapValues { $0 }
+        let modulesSettings = modules.reduce(into: [String: DataObject]()) { partialResult, factory in
             guard let moduleEnforcedSettings = factory.getEnforcedSettings() else {
                 return
             }
             partialResult[factory.id] = moduleEnforcedSettings
         }
-        return SDKSettings(modulesSettings: modulesSettings)
+        // TODO: Add load rules and stuff?
+        if !modulesSettings.isEmpty {
+            accumulator["modules"] = DataObject(dictionary: modulesSettings)
+        }
+        return DataObject(dictionary: accumulator)
     }
 
     mutating public func addModule<ModuleFactory: TealiumModuleFactory>(_ module: ModuleFactory) {

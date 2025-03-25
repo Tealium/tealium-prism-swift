@@ -19,8 +19,8 @@ class CustomDispatcher: Dispatcher {
 
     static let id: String = "CustomDispatcher"
     
-    required init?(context: TealiumContext, moduleSettings: [String : Any]) {
-        
+    required init?(context: TealiumContext, moduleConfiguration: [String : Any]) {
+
     }
 }
 
@@ -42,11 +42,11 @@ class SomeModule: TealiumBasicModule, Collector {
     
     static var id: String = "someModule"
     
-    required init?(context: TealiumContext, moduleSettings: DataObject) {
-        
+    required init?(context: TealiumContext, moduleConfiguration: DataObject) {
+
     }
     
-    func updateSettings(_ settings: DataObject) -> Self? {
+    func updateConfiguration(_ configuration: DataObject) -> Self? {
         return self
     }
 }
@@ -57,7 +57,7 @@ class ModuleWithExternalDependencies: TealiumModule {
     init(otherDependencies: Any) {
         
     }
-    func updateSettings(_ settings: DataObject) -> Self? {
+    func updateConfiguration(_ configuration: DataObject) -> Self? {
         return self
     }
     
@@ -67,7 +67,7 @@ class ModuleWithExternalDependencies: TealiumModule {
         init(otherDependencies: Any) {
             self.object = otherDependencies
         }
-        func create(context: TealiumContext, moduleSettings: DataObject) -> ModuleWithExternalDependencies? {
+        func create(context: TealiumContext, moduleConfiguration: DataObject) -> ModuleWithExternalDependencies? {
             ModuleWithExternalDependencies(otherDependencies: object)
         }
     }

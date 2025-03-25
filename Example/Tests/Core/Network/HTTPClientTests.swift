@@ -78,7 +78,7 @@ final class HTTPClientTests: XCTestCase {
         waitOnQueue(queue: queue)
     }
 
-    func test_succeded_request_is_sent_to_intercept_response() {
+    func test_succeeded_request_is_sent_to_intercept_response() {
         let expect = expectation(description: "Request will be sent to the interceptor")
         let predictedResponse = mockSuccess()
         interceptorManager.onInterceptResponse.subscribeOnce { result in
@@ -160,7 +160,7 @@ final class HTTPClientTests: XCTestCase {
 
     func test_retries_get_cancelled_and_subsequent_request_completes_after_the_cancelled_one() {
         let expectCancelled = expectation(description: "Request will complete with a cancel error immediately")
-        let expectSucceded = expectation(description: "Request will complete with success and will happen after the first task completed with the cancel")
+        let expectsucceeded = expectation(description: "Request will complete with success and will happen after the first task completed with the cancel")
         mockSuccess(delay: 10)
         let queue = TealiumQueue.worker
         XCTAssertFalse(queue.isOnQueue())
@@ -176,10 +176,10 @@ final class HTTPClientTests: XCTestCase {
         _ = client.sendRequest(URLRequest()) { result in
             dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
             XCTAssertResultIsSuccess(result) { _ in
-                expectSucceded.fulfill()
+                expectsucceeded.fulfill()
             }
         }
-        wait(for: [expectCancelled, expectSucceded], timeout: Self.longTimeout, enforceOrder: true)
+        wait(for: [expectCancelled, expectsucceeded], timeout: Self.longTimeout, enforceOrder: true)
     }
 
     @discardableResult

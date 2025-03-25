@@ -19,10 +19,10 @@ final class TealiumCollectorTests: XCTestCase {
                                settingsFile: nil,
                                settingsUrl: nil)
     lazy var context = createContext(config: config, modulesManager: modulesManager)
-    lazy var collector = TealiumCollector(context: context, moduleSettings: [:])
+    lazy var collector = TealiumCollector(context: context, moduleConfiguration: [:])
     lazy var data = collector.collect(DispatchContext(source: .application, initialData: [:]))
     override func setUp() {
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modulesSettings: [:]))
+        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [:]))
     }
 
     func test_collect_returns_static_data() {

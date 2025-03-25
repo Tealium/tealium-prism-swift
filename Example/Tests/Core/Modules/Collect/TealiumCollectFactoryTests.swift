@@ -17,7 +17,7 @@ final class TealiumCollectFactoryTests: XCTestCase {
                 .setUrl("url")
                 .setBatchUrl("batchUrl")
         }
-        XCTAssertEqual(factory.getEnforcedSettings(), ["url": "url", "batch_url": "batchUrl"])
+        XCTAssertEqual(factory.getEnforcedSettings(), ["configuration": ["url": "url", "batch_url": "batchUrl"]])
     }
 
     func test_changing_builder_after_init_doesnt_change_the_enforcedSettings() {
@@ -30,6 +30,6 @@ final class TealiumCollectFactoryTests: XCTestCase {
             return builder
         }
         XCTAssertNotNil(settingsBuilder?.setOverrideProfile("overrideProfile"))
-        XCTAssertEqual(factory.getEnforcedSettings(), ["url": "url", "batch_url": "batchUrl"])
+        XCTAssertEqual(factory.getEnforcedSettings(), ["configuration": ["url": "url", "batch_url": "batchUrl"]])
     }
 }

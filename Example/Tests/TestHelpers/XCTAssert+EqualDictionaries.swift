@@ -45,27 +45,3 @@ func XCTAssertNotEqual(
 ) {
     XCTAssertNotEqual(lhs as? NSArray, rhs as? NSArray, file: file, line: line)
 }
-
-extension TealiumSwift.DataObject: Swift.Equatable {
-    public static func == (lhs: DataObject, rhs: DataObject) -> Bool {
-        lhs.asDictionary() == rhs.asDictionary()
-    }
-}
-
-func XCTAssertEqual(
-    _ lhs: SDKSettings?,
-    _ rhs: SDKSettings?,
-    file: StaticString = #filePath,
-    line: UInt = #line
-) {
-    XCTAssertEqual(lhs?.modulesSettings, rhs?.modulesSettings, file: file, line: line)
-}
-
-func XCTAssertNotEqual(
-    _ lhs: SDKSettings?,
-    _ rhs: SDKSettings?,
-    file: StaticString = #filePath,
-    line: UInt = #line
-) {
-    XCTAssertNotEqual(lhs?.modulesSettings, rhs?.modulesSettings, file: file, line: line)
-}

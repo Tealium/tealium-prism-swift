@@ -11,11 +11,11 @@ import XCTest
 
 final class ModuleSettingsBuilderTests: XCTestCase {
     func test_build_returns_enabled_key_when_passed() {
-        XCTAssertEqual(ModuleSettingsBuilder().setEnabled(true).build(), ["enabled": true])
-        XCTAssertEqual(ModuleSettingsBuilder().setEnabled(false).build(), ["enabled": false])
+        XCTAssertEqual(ModuleSettingsBuilder().setEnabled(true).build(), ["enabled": true, "configuration": DataObject()])
+        XCTAssertEqual(ModuleSettingsBuilder().setEnabled(false).build(), ["enabled": false, "configuration": DataObject()])
     }
 
     func test_build_returns_empty_dictionary_when_enabled_not_passed() {
-        XCTAssertEqual(ModuleSettingsBuilder().build(), [:])
+        XCTAssertEqual(ModuleSettingsBuilder().build(), ["configuration": DataObject()])
     }
 }

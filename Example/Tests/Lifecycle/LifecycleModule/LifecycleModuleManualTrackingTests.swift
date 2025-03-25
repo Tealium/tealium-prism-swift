@@ -11,7 +11,7 @@ import XCTest
 
 final class LifecycleModuleManualTrackingTests: LifecycleModuleBaseTests {
     override func setUpWithError() throws {
-        settings = LifecycleSettings(moduleSettings: LifecycleSettingsBuilder().setAutoTrackingEnabled(false).build())
+        configuration = LifecycleConfiguration(configuration: ["autotracking_enabled": false])
         try super.setUpWithError()
     }
 

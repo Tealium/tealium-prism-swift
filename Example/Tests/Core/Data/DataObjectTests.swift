@@ -6,7 +6,7 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-import TealiumSwift
+@testable import TealiumSwift
 import XCTest
 
 /// These tests are mainly used to showcase how the dictionary input can be used

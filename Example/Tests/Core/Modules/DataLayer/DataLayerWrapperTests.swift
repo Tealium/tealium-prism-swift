@@ -16,11 +16,12 @@ class BaseDataLayerWrapperTests: XCTestCase {
     lazy var onManager: ReplaySubject<ModulesManager?> = ReplaySubject(initialValue: manager)
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = DataLayerWrapper(moduleProxy: ModuleProxy(onModulesManager: onManager.asObservable()))
-
+    @StateSubject(CoreSettings())
+    var coreSettings
     func context() -> TealiumContext {
         TealiumContext(modulesManager: manager,
                        config: config,
-                       coreSettings: StateSubject(CoreSettings(coreDataObject: [:])).toStatefulObservable(),
+                       coreSettings: coreSettings,
                        tracker: MockTracker(),
                        barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
                        transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
@@ -38,7 +39,7 @@ class BaseDataLayerWrapperTests: XCTestCase {
 
     override func setUp() {
         config.modules = [TealiumModules.dataLayer()]
-        manager.updateSettings(context: context(), settings: SDKSettings(modulesSettings: [:]))
+        manager.updateSettings(context: context(), settings: SDKSettings(core: coreSettings.value))
     }
 }
 

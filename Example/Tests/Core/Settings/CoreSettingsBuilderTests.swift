@@ -10,7 +10,7 @@
 import XCTest
 
 final class CoreSettingsBuilderTests: XCTestCase {
-    func test_build_returns_core_moduleSettings() {
+    func test_build_returns_core_settings() {
         let settings = CoreSettingsBuilder()
             .setMinLogLevel(.trace)
             .setQueueExpiration(TimeFrame(unit: .seconds, interval: 50))
@@ -51,7 +51,7 @@ final class CoreSettingsBuilderTests: XCTestCase {
         ])
     }
 
-    func test_build_with_nil_values_returns_core_moduleSettings_without_nils() {
+    func test_build_with_nil_values_returns_core_settings_without_nils() {
         let settings = CoreSettingsBuilder()
             .setQueueExpiration(TimeFrame(unit: .seconds, interval: 50))
             .setRefreshInterval(TimeFrame(unit: .seconds, interval: 100))

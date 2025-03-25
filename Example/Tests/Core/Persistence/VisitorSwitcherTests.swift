@@ -24,7 +24,7 @@ final class VisitorSwitcherTests: XCTestCase {
                                                              visitorStorage: dataStorage,
                                                              logger: nil)
     var dataLayerStore: DataStore?
-    @StateSubject(CoreSettings(coreDataObject: [CoreSettings.Keys.visitorIdentityKey: VisitorSwitcherTests.identityKey]))
+    @StateSubject(CoreSettings(visitorIdentityKey: VisitorSwitcherTests.identityKey))
     var coreSettings: ObservableState<CoreSettings>
     override func setUpWithError() throws {
         let dataStore = try storeProvider.getModuleStore(name: "visitor")
@@ -100,7 +100,7 @@ final class VisitorSwitcherTests: XCTestCase {
         XCTAssertEqual(dataStorage.visitorId, initialVisitorId)
         XCTAssertEqual(dataStorage.currentIdentity, hashedIdentityValue)
         try storeIdentityInDataLayer("newIdentity", forKey: "newIdentityKey")
-        _coreSettings.value = CoreSettings(coreDataObject: [CoreSettings.Keys.visitorIdentityKey: "newIdentityKey"])
+        _coreSettings.value = CoreSettings(visitorIdentityKey: "newIdentityKey")
         XCTAssertNotEqual(dataStorage.visitorId, initialVisitorId)
         XCTAssertEqual(dataStorage.currentIdentity, "newIdentity".sha256())
     }
@@ -110,7 +110,7 @@ final class VisitorSwitcherTests: XCTestCase {
         try storeIdentityInDataLayer(identityValue)
         XCTAssertEqual(dataStorage.visitorId, initialVisitorId)
         XCTAssertEqual(dataStorage.currentIdentity, hashedIdentityValue)
-        _coreSettings.value = CoreSettings(coreDataObject: [CoreSettings.Keys.visitorIdentityKey: "newIdentityKey"])
+        _coreSettings.value = CoreSettings(visitorIdentityKey: "newIdentityKey")
         XCTAssertEqual(dataStorage.visitorId, initialVisitorId)
         XCTAssertEqual(dataStorage.currentIdentity, hashedIdentityValue)
     }

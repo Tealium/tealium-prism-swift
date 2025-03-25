@@ -1,5 +1,5 @@
 //
-//  CollectSettings.swift
+//  CollectConfiguration.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 14/11/23.
@@ -9,7 +9,7 @@
 import Foundation
 
 /// The settings used by the `TealiumCollect` module.
-struct CollectSettings {
+struct CollectConfiguration {
     enum Keys {
         /// The URL used to send single events
         static let url = "url"
@@ -35,40 +35,40 @@ struct CollectSettings {
     /// The profile to override in the data layer events
     let overrideProfile: String?
 
-    init?(moduleSettings: DataObject, logger: LoggerProtocol?) {
-        guard let url = Self.getURL(moduleSettings: moduleSettings),
-              let batchUrl = Self.getBatchURL(moduleSettings: moduleSettings) else {
+    init?(configuration: DataObject, logger: LoggerProtocol?) {
+        guard let url = Self.getURL(configuration: configuration),
+              let batchUrl = Self.getBatchURL(configuration: configuration) else {
             logger?.error(category: LogCategory.collect,
                           "Unable to init settings due to invalid URL")
             return nil
         }
         self.url = url
         self.batchUrl = batchUrl
-        overrideProfile = moduleSettings.get(key: Keys.overrideProfile)
+        overrideProfile = configuration.get(key: Keys.overrideProfile)
     }
 
     /// Extracts the event URL from the module settings
-    static func getURL(moduleSettings: DataObject) -> URL? {
-        if let overrideUrl = moduleSettings.get(key: Keys.url, as: String.self) {
+    static func getURL(configuration: DataObject) -> URL? {
+        if let overrideUrl = configuration.get(key: Keys.url, as: String.self) {
             return URL(string: overrideUrl)
         }
-        return overrideDomainURL(moduleSettings: moduleSettings, baseURL: Defaults.url)
+        return overrideDomainURL(configuration: configuration, baseURL: Defaults.url)
     }
 
     /// Extracts the batch URL from the module settings
-    static func getBatchURL(moduleSettings: DataObject) -> URL? {
-        if let overrideUrl = moduleSettings.get(key: Keys.batchUrl, as: String.self) {
+    static func getBatchURL(configuration: DataObject) -> URL? {
+        if let overrideUrl = configuration.get(key: Keys.batchUrl, as: String.self) {
             return URL(string: overrideUrl)
         }
-        return overrideDomainURL(moduleSettings: moduleSettings, baseURL: Defaults.batchUrl)
+        return overrideDomainURL(configuration: configuration, baseURL: Defaults.batchUrl)
     }
 
     /// Applies the overrideDomain, if provided in the module settings, to a base URL
-    static func overrideDomainURL(moduleSettings: DataObject, baseURL: String) -> URL? {
+    static func overrideDomainURL(configuration: DataObject, baseURL: String) -> URL? {
         guard let url = URL(string: baseURL) else {
             return nil
         }
-        guard let overrideDomain = moduleSettings.get(key: Keys.overrideDomain, as: String.self),
+        guard let overrideDomain = configuration.get(key: Keys.overrideDomain, as: String.self),
               var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else {
             return url
         }

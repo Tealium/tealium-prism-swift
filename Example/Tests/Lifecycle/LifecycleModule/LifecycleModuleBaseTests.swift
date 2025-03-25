@@ -14,7 +14,7 @@ class LifecycleModuleBaseTests: XCTestCase {
     @ToAnyObservable<ReplaySubject<ApplicationStatus>>(ReplaySubject<ApplicationStatus>())
     var applicationStatus: Observable<ApplicationStatus>
     let tracker = MockTracker()
-    lazy var settings = LifecycleSettings(moduleSettings: [:])
+    lazy var configuration = LifecycleConfiguration(configuration: [:])
     var module: LifecycleModule!
     let lifecycleDispatchContext = DispatchContext(source: .module(LifecycleModule.self),
                                                    initialData: TealiumDispatch(name: "lifecycle").eventData)
@@ -25,7 +25,7 @@ class LifecycleModuleBaseTests: XCTestCase {
         let dataStore = try dataStoreProvider.getModuleStore(name: LifecycleModule.id)
         module = LifecycleModule(tracker: tracker,
                                  onApplicationStatus: applicationStatus,
-                                 settings: settings,
+                                 configuration: configuration,
                                  service: LifecycleService(lifecycleStorage: LifecycleStorage(dataStore: dataStore),
                                                            bundle: Bundle(for: type(of: self))),
                                  logger: nil)
@@ -33,5 +33,11 @@ class LifecycleModuleBaseTests: XCTestCase {
 
     func publishApplicationStatus(_ applicationStatus: ApplicationStatus) {
         _applicationStatus.publish(applicationStatus)
+    }
+
+    func updateSettings(_ builder: LifecycleSettingsBuilder) {
+        let configuration = DataObject(dictionary: builder.build()
+            .getDataDictionary(key: "configuration") ?? [:])
+        _ = module.updateConfiguration(configuration)
     }
 }

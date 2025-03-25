@@ -146,7 +146,7 @@ final class LifecycleModuleSubscriptionTests: LifecycleModuleBaseTests {
     }
 
     func test_launch_is_tracked_on_foregrounded_when_session_timed_out() {
-        _ = module.updateSettings(LifecycleSettingsBuilder().setSessionTimeoutInMinutes(0).build())
+        updateSettings(LifecycleSettingsBuilder().setSessionTimeoutInMinutes(0))
         let launchTracked = expectation(description: "Launch event is tracked twice")
         let wakeTracked = expectation(description: "Wake event should not be tracked")
         wakeTracked.isInverted = true
@@ -188,7 +188,7 @@ final class LifecycleModuleSubscriptionTests: LifecycleModuleBaseTests {
     }
 
     func test_events_not_tracked_when_not_selected_in_settings() {
-        _ = module.updateSettings(LifecycleSettingsBuilder().setTrackedLifecycleEvents([]).build())
+        updateSettings(LifecycleSettingsBuilder().setTrackedLifecycleEvents([]))
         let launchTracked = expectation(description: "Launch should not be tracked")
         launchTracked.isInverted = true
         let sleepTracked = expectation(description: "Sleep should not be tracked")
@@ -213,7 +213,7 @@ final class LifecycleModuleSubscriptionTests: LifecycleModuleBaseTests {
     }
 
     func test_events_not_tracked_when_autotracking_disabled_in_settings() {
-        _ = module.updateSettings(LifecycleSettingsBuilder().setAutoTrackingEnabled(false).build())
+            updateSettings(LifecycleSettingsBuilder().setAutoTrackingEnabled(false))
         let launchTracked = expectation(description: "Launch should not be tracked")
         launchTracked.isInverted = true
         let sleepTracked = expectation(description: "Sleep should not be tracked")

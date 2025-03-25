@@ -30,16 +30,16 @@ class TealiumImpl {
             .get(key: CoreSettings.Keys.minLogLevel, as: String.self)
             .flatMap { LogLevel.Minimum(from: $0) })
         let networkHelper = NetworkHelper(networkClient: HTTPClient.shared.newClient(withLogger: logger), logger: logger)
-        let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
+        let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id) // TODO: Should this be a module store?
         let settingsManager = try SettingsManager(config: config,
                                                   dataStore: dataStore,
                                                   networkHelper: networkHelper,
                                                   logger: logger)
         settingsManager.startRefreshing(onActivity: appStatusListener.onApplicationStatus)
         self.settingsManager = settingsManager
-        let coreSettings = settingsManager.settings.mapState { $0.coreSettings }
+        let coreSettings = settingsManager.settings.mapState { $0.core }
         settingsManager.settings
-            .mapState { $0.coreSettings.minLogLevel }
+            .mapState { $0.core.minLogLevel }
             .distinct()
             .subscribe(onLogLevel).addTo(automaticDisposer)
         logger.debug(category: LogCategory.tealium, "Purging expired data from the database")

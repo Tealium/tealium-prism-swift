@@ -46,7 +46,7 @@ class DeepLinkModule: TealiumBasicModule {
     static let id: String = "Deeplink"
 
     let context: TealiumContext
-    required init(context: TealiumContext, moduleSettings: DataObject) {
+    required init(context: TealiumContext, moduleConfiguration: DataObject) {
         self.context = context
     }
 

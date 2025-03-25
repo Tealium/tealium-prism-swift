@@ -21,6 +21,17 @@ public enum LifecycleDataTarget: String, DataInputConvertible {
         self.init(rawValue: rawValue)
     }
 
+    public init?(rawValue: String) {
+        switch rawValue.lowercased() {
+        case Self.allEvents.rawValue.lowercased():
+            self = .allEvents
+        case Self.lifecycleEventsOnly.rawValue.lowercased():
+            self = .lifecycleEventsOnly
+        default:
+            return nil
+        }
+    }
+
     public func toDataInput() -> any DataInput {
         self.rawValue
     }

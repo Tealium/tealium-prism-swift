@@ -22,7 +22,7 @@ let mockContext = createContext(config: mockConfig, modulesManager: ModulesManag
 func createContext(config: TealiumConfig, modulesManager: ModulesManager) -> TealiumContext {
     TealiumContext(modulesManager: modulesManager,
                    config: config,
-                   coreSettings: StateSubject(CoreSettings(coreDataObject: [:])).toStatefulObservable(),
+                   coreSettings: StateSubject(CoreSettings()).toStatefulObservable(),
                    tracker: MockTracker(),
                    barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
                    transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),

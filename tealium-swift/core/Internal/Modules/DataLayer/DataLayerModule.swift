@@ -12,7 +12,7 @@ class DataLayerModule: TealiumBasicModule {
     static let id: String = "DataLayer"
     let dataStore: DataStore
 
-    convenience required init?(context: TealiumContext, moduleSettings: DataObject) {
+    convenience required init?(context: TealiumContext, moduleConfiguration: DataObject) {
         do {
             self.init(dataStore: try context.moduleStoreProvider.getModuleStore(name: Self.id))
         } catch {

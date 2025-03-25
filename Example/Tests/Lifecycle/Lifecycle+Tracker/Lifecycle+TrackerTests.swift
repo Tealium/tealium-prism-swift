@@ -32,12 +32,10 @@ final class LifecycleTrackerTests: XCTestCase {
     let queue = TealiumQueue.worker
     lazy var modulesManager = ModulesManager(queue: queue)
     lazy var settings: [String: DataObject] = [ConsentModule.id: ["enabled": false]]
-    var sdkSettings: SDKSettings {
-        SDKSettings(modulesSettings: settings)
-    }
-    lazy var _coreSettings = StateSubject(CoreSettings(coreDataObject: settings[CoreSettings.id] ?? [:]))
+    private(set) lazy var sdkSettings = StateSubject(SDKSettings(modules: settings))
     var coreSettings: ObservableState<CoreSettings> {
-        _coreSettings.toStatefulObservable()
+        sdkSettings.toStatefulObservable()
+            .mapState(transform: { $0.core })
     }
     lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: modulesManager.modules),
                                              queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
@@ -79,7 +77,7 @@ final class LifecycleTrackerTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        modulesManager.updateSettings(context: context, settings: sdkSettings)
+        modulesManager.updateSettings(context: context, settings: sdkSettings.value)
     }
 
     override func tearDown() {

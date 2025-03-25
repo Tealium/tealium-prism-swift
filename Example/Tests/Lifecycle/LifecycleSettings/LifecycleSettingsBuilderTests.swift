@@ -10,23 +10,29 @@
 import XCTest
 
 final class LifecycleSettingsBuilderTests: XCTestCase {
-    func test_build_without_setters_returns_empty_dictionary() {
+    func test_build_without_setters_returns_empty_configuration() {
         let settings = LifecycleSettingsBuilder().build()
-        XCTAssertEqual(settings, [:])
+        XCTAssertEqual(settings, ["configuration": DataObject()])
     }
 
-    func test_build_returns_correct_module_settings() {
+    func test_build_returns_correct_module_settings() throws {
         let settings = LifecycleSettingsBuilder()
+            .setEnabled(true)
             .setAutoTrackingEnabled(false)
             .setDataTarget(.allEvents)
             .setSessionTimeoutInMinutes(1)
             .setTrackedLifecycleEvents([])
             .build()
-        XCTAssertEqual(settings, [
-            "autotracking_enabled": false,
-            "data_target": "allEvents",
-            "session_timeout": 1,
-            "tracked_lifecycle_events": [String]()
-        ])
+        XCTAssertEqual(settings,
+                       [
+                        "enabled": true,
+                        "configuration":
+                            try DataItem(serializing: [
+                                "autotracking_enabled": false,
+                                "data_target": "allEvents",
+                                "session_timeout": 1,
+                                "tracked_lifecycle_events": [String]()
+                            ])
+                       ])
     }
 }

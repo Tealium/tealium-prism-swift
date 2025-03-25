@@ -20,20 +20,14 @@ public class NetworkHelper: NetworkHelperProtocol {
 
     private func send(requestBuilder: RequestBuilder, completion: @escaping (NetworkResult) -> Void) -> Disposable {
         let completion: (NetworkResult) -> Void = { [weak self] result in
-            let logLevel: LogLevel = switch result {
-            case .success:
-                .trace
-            case .failure:
-                .error
-            }
-            self?.logger?.log(level: logLevel,
+            self?.logger?.log(level: result.logLevel(),
                               category: LogCategory.networkHelper,
-                              "Completed request with \(result.shortDescription())")
+                              "Completed request: \(result.shortDescription())")
             completion(result)
         }
         do {
-                logger?.trace(category: LogCategory.networkHelper,
-                              "Building request\n\(requestBuilder)")
+            logger?.trace(category: LogCategory.networkHelper,
+                          "Building request\n\(requestBuilder)")
             let request = try requestBuilder.build()
                 logger?.trace(category: LogCategory.networkHelper,
                               "Built request \(request)")

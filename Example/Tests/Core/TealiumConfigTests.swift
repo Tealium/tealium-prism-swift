@@ -23,10 +23,10 @@ final class TealiumConfigTests: XCTestCase {
         config.addModule(DefaultModuleFactory<MockDispatcher1>(enforcedSettings: settings1))
         config.addModule(DefaultModuleFactory<MockDispatcher2>(enforcedSettings: settings2))
         let settings = config.getEnforcedSDKSettings()
-        XCTAssertEqual(settings, SDKSettings(modulesSettings: [
+        XCTAssertEqual(settings, ["modules": [
             MockDispatcher1.id: settings1,
             MockDispatcher2.id: settings2,
-        ]))
+        ]])
     }
 
     func test_getEnforcedSDKSettings_returns_settings_with_coreSettings() throws {
@@ -42,9 +42,9 @@ final class TealiumConfigTests: XCTestCase {
                                                   scopes: [.all, .dispatcher("custom")])])
         })
         let settings = config.getEnforcedSDKSettings()
-        XCTAssertEqual(settings, SDKSettings(modulesSettings: [
-            CoreSettings.id: [
-                "max_queue_size": 17,
+        XCTAssertEqual(settings, [
+            "core": [
+                "max_queue_size": DataItem(value: 17),
                 "barriers": try DataItem(serializing: [
                     [
                         "barrier_id": "someId",
@@ -52,6 +52,6 @@ final class TealiumConfigTests: XCTestCase {
                     ]
                 ])
             ]
-        ]))
+        ])
     }
 }

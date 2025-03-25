@@ -26,9 +26,9 @@ extension ConsentModule {
             self.enforcedSettings = enforcedSettings
         }
 
-        func create(context: TealiumContext, moduleSettings: DataObject) -> ConsentModule? {
+        func create(context: TealiumContext, moduleConfiguration: DataObject) -> ConsentModule? {
             guard let queueManager else { return nil }
-            return ConsentModule(context: context, cmpIntegration: cmpIntegration, queueManager: queueManager, moduleSettings: moduleSettings)
+            return ConsentModule(context: context, cmpIntegration: cmpIntegration, queueManager: queueManager, moduleConfiguration: moduleConfiguration)
         }
 
         func getEnforcedSettings() -> DataObject? {

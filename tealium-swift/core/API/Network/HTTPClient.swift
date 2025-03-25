@@ -113,15 +113,9 @@ public class HTTPClient: NetworkClient {
             .begin("HTTP Request: \(request)")
         return session.send(request) { [weak self] result in
             signposterInterval.end("\(result)")
-            let logLevel: LogLevel = switch result {
-            case .success:
-                    .trace
-            case .failure:
-                    .error
-            }
-            self?.logger?.log(level: logLevel,
+            self?.logger?.log(level: result.logLevel(),
                               category: LogCategory.httpClient,
-                              "Completed request \(request) \(result.shortDescription())")
+                              "Completed request \(request): \(result.shortDescription())")
             completion(result)
         }
     }

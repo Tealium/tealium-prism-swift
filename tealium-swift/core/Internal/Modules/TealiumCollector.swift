@@ -20,7 +20,7 @@ class TealiumCollector: TealiumBasicModule, Collector {
         (0..<16).reduce(into: "") { string, _ in string += String(Int.random(in: 0..<10)) }
     }
 
-    required init(context: TealiumContext, moduleSettings: DataObject) {
+    required init(context: TealiumContext, moduleConfiguration: DataObject) {
         self.context = context
         let config = context.config
         baseData = [

@@ -26,7 +26,7 @@ class ConsentModule: ConsentManager {
     private let unprocessedPurposesKey = "purposes_with_consent_unprocessed"
     private let allPurposesKey = "purposes_with_consent_all"
     private let queueManager: QueueManagerProtocol
-    let settings: StateSubject<ConsentSettings>
+    let configuration: StateSubject<ConsentConfiguration>
     private let cmpIntegration: CMPIntegration
     private weak var modules: ObservableState<[TealiumModule]>?
     private var dispatchers: [String] {
@@ -36,34 +36,34 @@ class ConsentModule: ConsentManager {
     }
     private var refireDispatchers: [String] { // From settings
         return dispatchers.filter {
-            settings.value.shouldRefireDispatchers.contains($0)
+            configuration.value.shouldRefireDispatchers.contains($0)
         }
     }
     let consentTransformation: ScopedTransformation
     private let automaticDisposer = AutomaticDisposer()
     private let transformerRegistry: TransformerRegistry
 
-    required convenience init?(context: TealiumContext, cmpIntegration: CMPIntegration, queueManager: QueueManagerProtocol, moduleSettings: DataObject) {
-        let settings = ConsentSettings(moduleSettings: moduleSettings)
+    required convenience init?(context: TealiumContext, cmpIntegration: CMPIntegration, queueManager: QueueManagerProtocol, moduleConfiguration: DataObject) {
+        let configuration = ConsentConfiguration(configuration: moduleConfiguration)
         self.init(queueManager: queueManager,
                   modules: context.modulesManager.modules,
                   transformerRegistry: context.transformerRegistry,
                   cmpIntegration: cmpIntegration,
-                  consentSettings: StateSubject(settings))
+                  consentConfiguration: StateSubject(configuration))
     }
 
     init(queueManager: QueueManagerProtocol,
          modules: ObservableState<[TealiumModule]>,
          transformerRegistry: TransformerRegistry,
          cmpIntegration: CMPIntegration,
-         consentSettings: StateSubject<ConsentSettings>) {
+         consentConfiguration: StateSubject<ConsentConfiguration>) {
         self.queueManager = queueManager
         self.cmpIntegration = cmpIntegration
         self.modules = modules
         consentTransformation = ScopedTransformation(id: "verify_consent",
                                                      transformerId: Self.id,
                                                      scopes: [TransformationScope.allDispatchers])
-        settings = consentSettings
+        configuration = consentConfiguration
         self.transformerRegistry = transformerRegistry
         transformerRegistry.registerTransformation(consentTransformation)
         cmpIntegration.consentDecision.asObservable().compactMap { $0 }.subscribe { [weak self] (consentDecision: ConsentDecision) in
@@ -82,8 +82,8 @@ class ConsentModule: ConsentManager {
         }.addTo(automaticDisposer)
     }
 
-    func updateSettings(_ settings: DataObject) -> Self? {
-        self.settings.value = ConsentSettings(moduleSettings: settings)
+    func updateConfiguration(_ configuration: DataObject) -> Self? {
+        self.configuration.value = ConsentConfiguration(configuration: configuration)
         return self
     }
 

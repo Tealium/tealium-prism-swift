@@ -46,7 +46,7 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
      * Creates a `DataObject` from a `[String: DataInputConvertible]` dictionary literal.
      *
      * The Convertible elements will be converted immediately before being stored.
-     * In case of duplicate keys the second occurrance of the same key will replace the first one.
+     * In case of duplicate keys the second occurrence of the same key will replace the first one.
      */
     public init(dictionaryLiteral elements: (String, DataInputConvertible)...) {
         self.init(pairs: elements)
@@ -58,7 +58,11 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
      * The Convertible elements will be converted immediately before being stored.
      */
     public init(dictionary: [String: DataInputConvertible] = [:]) {
-        self.dictionary = dictionary.compactMapValues { $0.toDataInput() }
+        self.init(dictionaryInput: dictionary.compactMapValues { $0.toDataInput() })
+    }
+
+    public init(dictionaryInput: [String: DataInput]) {
+        self.dictionary = dictionaryInput
     }
 
     /**
@@ -84,6 +88,14 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
     public func asDictionary() -> [String: DataInput] {
         dictionary
     }
+
+    func toDataItem() -> DataItem {
+        DataItem(value: asDictionary())
+    }
+
+    func getConvertible<T>(converter: any DataItemConverter<T>) -> T? {
+        toDataItem().getConvertible(converter: converter)
+    }
 }
 
 /// Allows use of plus operator for DataObject.
@@ -104,5 +116,110 @@ public func += (left: inout DataObject, right: DataObject) {
 extension DataObject: CustomStringConvertible {
     public var description: String {
         dictionary.description
+    }
+}
+
+extension DataObject {
+    /**
+     * Deep merges two `DataObject`s together, returning a new `DataObject` containing the merged data.
+     *
+     * This method will merge data according to the following rules
+     *  - `DataObject`s - will have all keys from `self` and `other` in the returned `DataObject`
+     *  - Arrays - will always prefer the value in the `other` object if present. Array contents are never merged.
+     *
+     * The `depth` parameter controls how many levels of `DataObject` nesting should be merged. After
+     * the given depth, if a `DataObject` is found in both `self` and `other` objects, then the
+     * latter is chosen in its entirety.
+     *
+     * Example
+     * ```swift
+     * let lhs: DataObject = [
+     *     "key1": "string",
+     *     "key2": true,
+     *     "lvl-1": try DataItem(serializing: [
+     *         "key1": "string",
+     *         "key2": true,
+     *         "lvl-2": [
+     *             "key1": "string",
+     *             "key2": true,
+     *             "lvl-3": [
+     *                 "key1": "string",
+     *                 "key2": true,
+     *             ]
+     *         ]
+     *     ])
+     * ]
+     *
+     * let rhs: DataObject = [
+     *     "key1": "new string",
+     *     "lvl-1": try DataItem(serializing: [
+     *         "key1": "new string",
+     *         "lvl-2": [
+     *             "key1": "new string",
+     *             "lvl-3": [
+     *                 "key1": "new string",
+     *             ]
+     *         ]
+     *     ])
+     * ]
+     * let merged = lhs.deepMerge(with: rhs)
+     *
+     * // merged will be the equivalent of this:
+     *
+     * let result: DataObject = [
+     *     "key1": "new string",            // from rhs
+     *     "key2": true,                    // from lhs
+     *     "lvl-1": try DataItem(serializing: [
+     *         "key1": "new string",        // from rhs
+     *         "key2": true,                // from lhs
+     *         "lvl-2": [
+     *             "key1": "new string",    // from rhs
+     *             "key2": true,            // from lhs
+     *             "lvl-3": [
+     *                 "key1": "new string",// from rhs
+     *                 "key2": true,        // from lhs
+     *             ]
+     *         ]
+     *     ])
+     * ]
+     * ```
+     *
+     * The default value for `depth` is `Int.max`, and will deep merge all levels. Zero or
+     * negative values will be equivalent to the `DataObject.plus` operator.
+     *
+     * - Parameters:
+     *      - other: The incoming object, whose key/values are to merged into the current object.
+     *      - depth: Optional limit on the number of levels deep to merge.
+     */
+    func deepMerge(with other: DataObject, depth: Int = Int.max) -> DataObject {
+        DataObject(dictionaryInput: self.asDictionary().deepMerge(other: other.asDictionary(), depth: depth))
+    }
+}
+
+extension DataObject: Equatable {
+    public static func == (lhs: DataObject, rhs: DataObject) -> Bool {
+        (lhs.dictionary as NSDictionary).isEqual(to: rhs.dictionary)
+    }
+}
+
+extension [String: DataInput] {
+    fileprivate func deepMerge(other: [String: DataInput], depth: Int) -> [String: DataInput] {
+        return recursiveMerge(self, other, depth)
+    }
+
+    private func recursiveMerge(_ left: [String: DataInput], _ right: [String: DataInput], _ depth: Int) -> [String: DataInput] {
+        guard depth > 0 else {
+            return left + right
+        }
+        var result = left
+        for key in right.keys {
+            if let dictR = right[key] as? [String: DataInput],
+                let dictL = left[key] as? [String: DataInput] {
+                result[key] = recursiveMerge(dictL, dictR, depth - 1)
+            } else if let value = right[key] {
+                result[key] = value
+            }
+        }
+        return result
     }
 }

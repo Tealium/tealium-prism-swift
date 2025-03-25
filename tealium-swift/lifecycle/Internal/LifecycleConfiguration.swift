@@ -1,12 +1,12 @@
 //
-//  LifecycleSettings.swift
+//  LifecycleConfiguration.swift
 //  tealium-swift
 //
 //  Created by Denis Guzov on 27/08/24.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-struct LifecycleSettings {
+struct LifecycleConfiguration {
     /// If this timeout has been exceeded while the app is backgrounded, the next foreground event will be treated as a launch, rather than a wake.
     let sessionTimeoutInMinutes: Int
     /// If disabled, lifecycle calls must be made manually, or lifecycle metrics will be incorrect
@@ -29,12 +29,12 @@ struct LifecycleSettings {
         static let dataTarget: LifecycleDataTarget = .lifecycleEventsOnly
     }
 
-    init(moduleSettings: DataObject) {
-        sessionTimeoutInMinutes = moduleSettings.get(key: Keys.sessionTimeoutInMinutes) ?? Defaults.sessionTimeoutInMinutes
-        autoTrackingEnabled = moduleSettings.get(key: Keys.autoTrackingEnabled) ?? Defaults.autoTrackingEnabled
-        trackedLifecycleEvents = moduleSettings.getDataArray(key: Keys.trackedLifecycleEvents)?.compactMap({
+    init(configuration: DataObject) {
+        sessionTimeoutInMinutes = configuration.get(key: Keys.sessionTimeoutInMinutes) ?? Defaults.sessionTimeoutInMinutes
+        autoTrackingEnabled = configuration.get(key: Keys.autoTrackingEnabled) ?? Defaults.autoTrackingEnabled
+        trackedLifecycleEvents = configuration.getDataArray(key: Keys.trackedLifecycleEvents)?.compactMap({
             LifecycleEvent(rawValue: $0.get())
         }) ?? Defaults.trackedLifecycleEvents
-        dataTarget = LifecycleDataTarget(rawValue: moduleSettings.get(key: Keys.dataTarget)) ?? Defaults.dataTarget
+        dataTarget = LifecycleDataTarget(rawValue: configuration.get(key: Keys.dataTarget)) ?? Defaults.dataTarget
     }
 }

@@ -21,9 +21,26 @@ extension NetworkResult {
     func shortDescription() -> String {
         switch self {
         case .failure(let error):
-            return "failed with \(error.localizedDescription)"
+            if case let .non200Status(status) = error, status == 304 {
+                return "resource not modified"
+            } else {
+                return "failed with \(error.localizedDescription)"
+            }
         case .success(let response):
-            return "succeded with \(response.urlResponse.statusCode) status code"
+            return "succeeded with \(response.urlResponse.statusCode) status code"
+        }
+    }
+
+    func logLevel() -> LogLevel {
+        switch self {
+        case .success:
+            .trace
+        case .failure(let error):
+            if case let .non200Status(statusCode) = error, statusCode == 304 {
+                .trace
+            } else {
+                .error
+            }
         }
     }
 }

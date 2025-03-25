@@ -20,14 +20,15 @@ extension LifecycleModule {
             return settings
         }
 
-        func create(context: TealiumContext, moduleSettings settings: DataObject) -> Module? {
+        func create(context: TealiumContext, moduleConfiguration: DataObject) -> Module? {
             guard let dataStore = try? context.moduleStoreProvider.getModuleStore(name: LifecycleModule.id) else {
                 return nil
             }
             return LifecycleModule(
                 context: context,
-                settings: LifecycleSettings(moduleSettings: settings),
-                service: LifecycleService(lifecycleStorage: LifecycleStorage(dataStore: dataStore), bundle: context.config.bundle)
+                configuration: LifecycleConfiguration(configuration: moduleConfiguration),
+                service: LifecycleService(lifecycleStorage: LifecycleStorage(dataStore: dataStore),
+                                          bundle: context.config.bundle)
             )
         }
     }

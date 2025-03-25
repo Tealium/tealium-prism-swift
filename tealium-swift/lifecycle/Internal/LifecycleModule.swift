@@ -10,7 +10,7 @@ class LifecycleModule {
     var version: String = TealiumConstants.libraryVersion
     static let id: String = "Lifecycle"
 
-    private var lifecycleSettings: LifecycleSettings
+    private var configuration: LifecycleConfiguration
     internal let lifecycleService: LifecycleService
 
     private var tracker: Tracker
@@ -21,27 +21,27 @@ class LifecycleModule {
     private var hasLaunched = false
     private var shouldSkipNextForeground = false
     private var isInfiniteSession: Bool {
-        lifecycleSettings.sessionTimeoutInMinutes <= LifecycleConstants.infiniteSession
+        configuration.sessionTimeoutInMinutes <= LifecycleConstants.infiniteSession
     }
 
-    convenience init(context: TealiumContext, settings: LifecycleSettings, service: LifecycleService) {
+    convenience init(context: TealiumContext, configuration: LifecycleConfiguration, service: LifecycleService) {
         self.init(tracker: context.tracker,
                   onApplicationStatus: context.activityListener.onApplicationStatus,
-                  settings: settings,
+                  configuration: configuration,
                   service: service,
                   logger: context.logger)
     }
 
-    init(tracker: Tracker, onApplicationStatus: Observable<ApplicationStatus>, settings: LifecycleSettings, service: LifecycleService, logger: LoggerProtocol?) {
+    init(tracker: Tracker, onApplicationStatus: Observable<ApplicationStatus>, configuration: LifecycleConfiguration, service: LifecycleService, logger: LoggerProtocol?) {
         self.tracker = tracker
-        self.lifecycleSettings = settings
+        self.configuration = configuration
         self.lifecycleService = service
         self.logger = logger
         subscribeToApplicationStatus(onApplicationStatus).addTo(automaticDisposer)
     }
 
     func launch(data: DataObject? = nil) throws {
-        if lifecycleSettings.autoTrackingEnabled {
+        if configuration.autoTrackingEnabled {
             throw LifecycleError.manualTrackNotAllowed
         }
 
@@ -49,7 +49,7 @@ class LifecycleModule {
     }
 
     func wake(data: DataObject? = nil) throws {
-        if lifecycleSettings.autoTrackingEnabled {
+        if configuration.autoTrackingEnabled {
             throw LifecycleError.manualTrackNotAllowed
         }
 
@@ -57,7 +57,7 @@ class LifecycleModule {
     }
 
     func sleep(data: DataObject? = nil) throws {
-        if lifecycleSettings.autoTrackingEnabled {
+        if configuration.autoTrackingEnabled {
             throw LifecycleError.manualTrackNotAllowed
         }
 
@@ -118,12 +118,12 @@ class LifecycleModule {
     }
 
     private func isTrackableEvent(event: LifecycleEvent) -> Bool {
-        return lifecycleSettings.trackedLifecycleEvents.contains(event)
+        return configuration.trackedLifecycleEvents.contains(event)
     }
 
     private func subscribeToApplicationStatus(_ onApplicationStatus: Observable<ApplicationStatus>) -> Disposable {
         onApplicationStatus.filter { [weak self] _ in
-            self?.lifecycleSettings.autoTrackingEnabled ?? false
+            self?.configuration.autoTrackingEnabled ?? false
         }
         .subscribe { [weak self] newStatus in
             guard let self else {
@@ -198,8 +198,8 @@ class LifecycleModule {
     }
 
     // MARK: TealiumModule
-    func updateSettings(_ settings: DataObject) -> Self? {
-        lifecycleSettings = LifecycleSettings(moduleSettings: settings)
+    func updateConfiguration(_ configuration: DataObject) -> Self? {
+        self.configuration = LifecycleConfiguration(configuration: configuration)
         return self
     }
 
@@ -208,22 +208,18 @@ class LifecycleModule {
     }
 
     private func isExpiredSession(timeElapsed: Int64) -> Bool {
-        return timeElapsed > minutesToMillis(minutes: lifecycleSettings.sessionTimeoutInMinutes)
+        return timeElapsed > minutesToMillis(minutes: configuration.sessionTimeoutInMinutes)
     }
 
     private func minutesToMillis(minutes: Int) -> Int64 {
         return Int64(minutes * 60 * 1000)
     }
-
-// TODO: do we need this property on LifecycleModule ?
-//    override let version: String
-//        get() = BuildConfig.TEALIUM_LIBRARY_VERSION
 }
 
 extension LifecycleModule: Collector {
     // MARK: Collector
     func collect(_ dispatchContext: DispatchContext) -> DataObject {
-        guard lifecycleSettings.dataTarget == LifecycleDataTarget.allEvents
+        guard configuration.dataTarget == LifecycleDataTarget.allEvents
                 && dispatchContext.source.moduleType != LifecycleModule.self
         else {
             return DataObject()

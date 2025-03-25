@@ -7,7 +7,7 @@
 //
 
 public class LifecycleSettingsBuilder: ModuleSettingsBuilder {
-    typealias Keys = LifecycleSettings.Keys
+    typealias Keys = LifecycleConfiguration.Keys
     override init() { } // making init internal instead of public
 
     /**
@@ -15,7 +15,7 @@ public class LifecycleSettingsBuilder: ModuleSettingsBuilder {
      *  You can pass -1 for the infinite session duration. Default is 24 * 60 (1 day).
      */
     public func setSessionTimeoutInMinutes(_ sessionTimeoutInMinutes: Int) -> LifecycleSettingsBuilder {
-        _dataObject.set(sessionTimeoutInMinutes, key: Keys.sessionTimeoutInMinutes)
+        _configurationObject.set(sessionTimeoutInMinutes, key: Keys.sessionTimeoutInMinutes)
         return self
     }
 
@@ -24,7 +24,7 @@ public class LifecycleSettingsBuilder: ModuleSettingsBuilder {
      *  If it's `true`, manual tracking calls are discarded. Default is `true`.
      */
     public func setAutoTrackingEnabled(_ autoTrackingEnabled: Bool) -> LifecycleSettingsBuilder {
-        _dataObject.set(autoTrackingEnabled, key: Keys.autoTrackingEnabled)
+        _configurationObject.set(autoTrackingEnabled, key: Keys.autoTrackingEnabled)
         return self
     }
 
@@ -32,7 +32,7 @@ public class LifecycleSettingsBuilder: ModuleSettingsBuilder {
      * - parameter trackedLifecycleEvents: Lifecycle events to be tracked. By default all of them are.
      */
     public func setTrackedLifecycleEvents(_ trackedLifecycleEvents: [LifecycleEvent]) -> LifecycleSettingsBuilder {
-        _dataObject.set(converting: trackedLifecycleEvents, key: Keys.trackedLifecycleEvents)
+        _configurationObject.set(converting: trackedLifecycleEvents, key: Keys.trackedLifecycleEvents)
         return self
     }
 
@@ -40,7 +40,7 @@ public class LifecycleSettingsBuilder: ModuleSettingsBuilder {
      * - parameter dataTarget: If it's `.lifecycleEventsOnly`, lifecycle data will only be attached to lifecycle events, and not to any others.
      */
     public func setDataTarget(_ dataTarget: LifecycleDataTarget) -> LifecycleSettingsBuilder {
-        _dataObject.set(converting: dataTarget, key: Keys.dataTarget)
+        _configurationObject.set(converting: dataTarget, key: Keys.dataTarget)
         return self
     }
 }

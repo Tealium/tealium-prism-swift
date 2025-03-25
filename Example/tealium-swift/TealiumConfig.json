@@ -1,9 +1,11 @@
 {
-    "Core": {
+    "core": {
         "log_level": "trace",
         "expiration": 200
     },
-    "Collect": {
-        "enabled": false
-    },
+    "modules": {
+        "Collect": {
+            "enabled": false
+        }
+    }
 }

@@ -3,7 +3,7 @@ import XCTest
 
 final class TimeCollectorTests: XCTestCase {
 
-    let timeCollector: TimeCollector! = TimeCollector(context: mockContext, moduleSettings: [:])
+    let timeCollector: TimeCollector! = TimeCollector(context: mockContext, moduleConfiguration: [:])
     let dispatchContext = DispatchContext(source: .application, initialData: TealiumDispatch(name: "time").eventData)
 
     // MARK: - Initialization Tests

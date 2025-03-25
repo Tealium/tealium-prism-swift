@@ -18,11 +18,12 @@ final class LifecycleWrapperTests: XCTestCase {
     lazy var onManager: ReplaySubject<ModulesManager?> = ReplaySubject(initialValue: manager)
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = LifecycleWrapper(moduleProxy: ModuleProxy(onModulesManager: onManager.asObservable()))
-
+    @StateSubject(CoreSettings())
+    var coreSettings
     func context() -> TealiumContext {
         TealiumContext(modulesManager: manager,
                        config: config,
-                       coreSettings: StateSubject(CoreSettings(coreDataObject: [:])).toStatefulObservable(),
+                       coreSettings: coreSettings,
                        tracker: tracker,
                        barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
                        transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
@@ -40,7 +41,7 @@ final class LifecycleWrapperTests: XCTestCase {
 
     override func setUp() {
         config.modules = [TealiumModules.lifecycle()]
-        manager.updateSettings(context: context(), settings: SDKSettings(modulesSettings: [LifecycleModule.id: LifecycleSettingsBuilder().setAutoTrackingEnabled(false).build()]))
+        manager.updateSettings(context: context(), settings: SDKSettings(modules: [LifecycleModule.id: LifecycleSettingsBuilder().setAutoTrackingEnabled(false).build()]))
     }
 
     func test_launch_gets_tracked_on_calling_launch() {
