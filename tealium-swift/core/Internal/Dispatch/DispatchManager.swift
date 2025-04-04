@@ -7,10 +7,21 @@
 //
 
 import Foundation
+
+protocol DispatchManagerProtocol {
+    func track(_ dispatch: TealiumDispatch, onTrackResult: TrackResultCompletion?)
+}
+
+extension DispatchManagerProtocol {
+    func track(_ dispatch: TealiumDispatch) {
+        track(dispatch, onTrackResult: nil)
+    }
+}
+
 /**
  * The class containing the core logic of the library, taking `TealiumDispatch`es from the queue, transforming and dispatching them to each individual `Dispatcher` when they are ready.
  */
-class DispatchManager {
+class DispatchManager: DispatchManagerProtocol {
     static let MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER = 50
     private let barrierCoordinator: BarrierCoordinator
     private let transformerCoordinator: TransformerCoordinator
@@ -29,12 +40,14 @@ class DispatchManager {
     private let logger: LoggerProtocol?
     @ToAnyObservable<BasePublisher<Void>>(BasePublisher<Void>())
     private var onQueuedEvents: Observable<Void>
-
-    init(modulesManager: ModulesManager,
+    private let loadRuleEngine: LoadRuleEngine
+    init(loadRuleEngine: LoadRuleEngine,
+         modulesManager: ModulesManager,
          queueManager: QueueManagerProtocol,
          barrierCoordinator: BarrierCoordinator,
          transformerCoordinator: TransformerCoordinator,
          logger: LoggerProtocol?) {
+        self.loadRuleEngine = loadRuleEngine
         self.modulesManager = modulesManager
         self.queueManager = queueManager
         self.barrierCoordinator = barrierCoordinator
@@ -52,10 +65,6 @@ class DispatchManager {
             return false
         }
         return !consentManager.tealiumConsented(forPurposes: decision.purposes)
-    }
-
-    func track(_ dispatch: TealiumDispatch) {
-        track(dispatch, onTrackResult: nil)
     }
 
     func track(_ dispatch: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
@@ -146,15 +155,16 @@ class DispatchManager {
 
     private func transformAndDispatch(dispatches: [TealiumDispatch], for dispatcher: Dispatcher, onProcessedDispatches: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
         let container = DisposeContainer()
-        self.transformerCoordinator.transform(dispatches: dispatches, for: .dispatcher(dispatcher.id)) { transformedDispatches in
-            guard !container.isDisposed else { return }
-            let missingDispatchesAfterTransformations = dispatches.filter { oldDispatch in
-                !transformedDispatches.contains { transformedDispatch in oldDispatch.id == transformedDispatch.id }
+        self.transformerCoordinator.transform(dispatches: dispatches,
+                                              for: .dispatcher(dispatcher.id)) { [weak self] transformedDispatches in
+            guard !container.isDisposed, let self else { return }
+            let filteredDispatches = self.loadRuleEngine.filterDispatches(transformedDispatches,
+                                                                          forModule: dispatcher)
+            let removedDispatches = dispatches.diff(filteredDispatches, by: \.id)
+            if !removedDispatches.isEmpty {
+                onProcessedDispatches(removedDispatches)
             }
-            if !missingDispatchesAfterTransformations.isEmpty {
-                onProcessedDispatches(missingDispatchesAfterTransformations)
-            }
-            dispatcher.dispatch(transformedDispatches) { processedDispatches in
+            dispatcher.dispatch(filteredDispatches) { processedDispatches in
                 guard !container.isDisposed else { return }
                 onProcessedDispatches(processedDispatches)
             }.addTo(container)

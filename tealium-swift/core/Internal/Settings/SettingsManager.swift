@@ -9,26 +9,25 @@
 import Foundation
 
 /**
- * The manager for settings responsible for getting local, remote and programmatic settings and merging them to always provide the most updated verstion to all the modules.
+ * The manager for settings responsible for getting local, remote and programmatic settings and merging them to always provide the most updated version to all the modules.
  *
  * Settings are merged following the priority: `local < remote < programmatic`
  */
 class SettingsManager {
-    private var settingsData = BufferedSubject<DataObject>(bufferSize: 0)
     @StateSubject var settings: ObservableState<SDKSettings>
     let resourceRefresher: ResourceRefresher<DataObject>?
     private let automaticDisposer = AutomaticDisposer()
-    let localSettings: DataObject?
     let programmaticSettings: DataObject
     private let logger: LoggerProtocol
     private var refreshing = false
+    let config: TealiumConfig
 
     init(config: TealiumConfig, dataStore: DataStore, networkHelper: NetworkHelperProtocol, logger: LoggerProtocol) throws {
         self.logger = logger
+        self.config = config
         // MARK: Initialize Settings StateSubject
         var settingsToMerge = [DataObject]()
-        localSettings = Self.loadLocalSettings(config: config)
-        if let settings = localSettings {
+        if let settings = Self.loadLocalSettings(config: config) {
             logger.trace(category: LogCategory.settingsManager, "Settings loaded from local file:\n\(settings)")
             settingsToMerge.append(settings)
         }
@@ -61,15 +60,6 @@ class SettingsManager {
         } else {
             self.resourceRefresher = nil
         }
-        // MARK: Subscribe to Settings Data changes
-        settingsData.asObservable()
-            .map { [weak self] settings in
-                self?.logger.debug(category: LogCategory.settingsManager,
-                                   "Applying settings:\n\(settings)")
-                return SDKSettings(settings)
-            }
-            .subscribe(_settings)
-            .addTo(automaticDisposer)
     }
 
     func startRefreshing(onActivity: Observable<ApplicationStatus>) {
@@ -78,7 +68,12 @@ class SettingsManager {
         }
         refreshing = true
         onNewSettingsMerged(resourceRefresher: resourceRefresher)
-            .subscribe(settingsData)
+            .map { [weak self] settings in
+                self?.logger.debug(category: LogCategory.settingsManager,
+                                   "Applying settings:\n\(settings)")
+                return SDKSettings(settings)
+            }
+            .subscribe(_settings)
             .addTo(automaticDisposer)
         onNewRefreshInterval()
             .subscribe { interval in
@@ -108,7 +103,10 @@ class SettingsManager {
                     self.logger.trace(category: LogCategory.settingsManager,
                                       "Downloaded settings:\n\(newSettingsLoaded)")
                 }
-                return Self.merge(orderedSettings: [self.localSettings, newSettingsLoaded, programmaticSettings].compactMap { $0 })
+                return Self.merge(orderedSettings: [
+                    Self.loadLocalSettings(config: self.config),
+                    newSettingsLoaded,
+                    programmaticSettings].compactMap { $0 })
             }
     }
 

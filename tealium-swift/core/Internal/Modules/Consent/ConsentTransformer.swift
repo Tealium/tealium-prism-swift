@@ -10,7 +10,7 @@ import Foundation
 
 extension ConsentModule: Transformer {
 
-    func applyTransformation(_ id: String, to dispatch: TealiumDispatch, scope: DispatchScope, completion: @escaping (TealiumDispatch?) -> Void) {
+    func applyTransformation(_ transformation: TransformationSettings, to dispatch: TealiumDispatch, scope: DispatchScope, completion: @escaping (TealiumDispatch?) -> Void) {
         guard case let DispatchScope.dispatcher(dispatcherId) = scope,
               let requiredPurposes = configuration.value.dispatcherToPurposes[dispatcherId],
               !requiredPurposes.isEmpty,

@@ -24,7 +24,7 @@ final class ModulesManagerTests: XCTestCase {
     lazy var barrierCoordinator = BarrierCoordinator(registeredBarriers: [],
                                                      onScopedBarriers: .Just([]))
     lazy var transformerCoordinator = TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
-                                                             scopedTransformations: StateSubject([]).toStatefulObservable(),
+                                                             transformations: StateSubject([]).toStatefulObservable(),
                                                              queue: .main)
     lazy var context = createContext()
     func createContext() -> TealiumContext {

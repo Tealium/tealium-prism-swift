@@ -1,6 +1,6 @@
 //
 //  TealiumTimeCollector.swift
-//  Pods
+//  tealium-swift
 //
 //  Created by Craig Rouse on 19/08/2024.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.

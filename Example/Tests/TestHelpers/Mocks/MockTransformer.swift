@@ -22,7 +22,7 @@ class MockTransformer3: MockTransformer {
 class MockTransformer: Transformer {
     var version: String = TealiumConstants.libraryVersion
     class var id: String { "MockTransformer" }
-    typealias TransformationBlock = (String, TealiumDispatch, DispatchScope) -> TealiumDispatch?
+    typealias TransformationBlock = (TransformationSettings, TealiumDispatch, DispatchScope) -> TealiumDispatch?
     var transformation: TransformationBlock
     var delay: Int?
     var queue = DispatchQueue.main
@@ -31,13 +31,13 @@ class MockTransformer: Transformer {
         self.delay = milliseconds
     }
 
-    func applyTransformation(_ transformationId: String, to dispatch: TealiumDispatch, scope: DispatchScope, completion: @escaping (TealiumDispatch?) -> Void) {
+    func applyTransformation(_ transformation: TransformationSettings, to dispatch: TealiumDispatch, scope: DispatchScope, completion: @escaping (TealiumDispatch?) -> Void) {
         if let delay = delay {
             queue.asyncAfter(deadline: .now() + .milliseconds(delay)) {
-                completion(self.transformation(transformationId, dispatch, scope))
+                completion(self.transformation(transformation, dispatch, scope))
             }
         } else {
-            completion(transformation(transformationId, dispatch, scope))
+            completion(self.transformation(transformation, dispatch, scope))
         }
     }
 }

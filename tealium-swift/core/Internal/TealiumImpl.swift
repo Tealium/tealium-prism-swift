@@ -16,6 +16,7 @@ class TealiumImpl {
     let tracker: TealiumTracker
     let visitorIdProvider: VisitorIdProvider
     let instanceName: String
+    let loadRuleEngine: LoadRuleEngine
     private let appStatusListener = ApplicationStatusListener.shared
 
     // swiftlint:disable function_body_length
@@ -30,13 +31,14 @@ class TealiumImpl {
             .get(key: CoreSettings.Keys.minLogLevel, as: String.self)
             .flatMap { LogLevel.Minimum(from: $0) })
         let networkHelper = NetworkHelper(networkClient: HTTPClient.shared.newClient(withLogger: logger), logger: logger)
-        let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id) // TODO: Should this be a module store?
+        let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
         let settingsManager = try SettingsManager(config: config,
                                                   dataStore: dataStore,
                                                   networkHelper: networkHelper,
                                                   logger: logger)
         settingsManager.startRefreshing(onActivity: appStatusListener.onApplicationStatus)
         self.settingsManager = settingsManager
+        self.loadRuleEngine = LoadRuleEngine(sdkSettings: settingsManager.settings)
         let coreSettings = settingsManager.settings.mapState { $0.core }
         settingsManager.settings
             .mapState { $0.core.minLogLevel }
@@ -55,14 +57,18 @@ class TealiumImpl {
         let transformers = modulesManager.modules
             .mapState { $0.compactMap { $0 as? Transformer } }
         let transformerCoordinator = Self.transformerCoordinator(transformers: transformers,
-                                                                 coreSettings: coreSettings,
+                                                                 sdkSettings: settingsManager.settings,
                                                                  queue: modulesManager.queue)
-        let dispatchManager = DispatchManager(modulesManager: modulesManager,
+        let dispatchManager = DispatchManager(loadRuleEngine: loadRuleEngine,
+                                              modulesManager: modulesManager,
                                               queueManager: queueManager,
                                               barrierCoordinator: barrierCoordinator,
                                               transformerCoordinator: transformerCoordinator,
                                               logger: logger)
-        let tracker = TealiumTracker(modules: modulesManager.modules, dispatchManager: dispatchManager, logger: logger)
+        let tracker = TealiumTracker(modules: modulesManager.modules,
+                                     loadRuleEngine: loadRuleEngine,
+                                     dispatchManager: dispatchManager,
+                                     logger: logger)
         self.tracker = tracker
 
         visitorIdProvider = VisitorIdProvider(config: config,
@@ -114,10 +120,10 @@ class TealiumImpl {
                                   onScopedBarriers: coreSettings.asObservable().map { $0.scopedBarriers })
     }
 
-    private static func transformerCoordinator(transformers: ObservableState<[Transformer]>, coreSettings: ObservableState<CoreSettings>, queue: TealiumQueue) -> TransformerCoordinator {
-        let scopedTransformations = coreSettings.mapState { $0.scopedTransformations }
+    private static func transformerCoordinator(transformers: ObservableState<[Transformer]>, sdkSettings: ObservableState<SDKSettings>, queue: TealiumQueue) -> TransformerCoordinator {
+        let transformations = sdkSettings.mapState { $0.transformations.map { $0.value } }
         return TransformerCoordinator(transformers: transformers,
-                                      scopedTransformations: scopedTransformations,
+                                      transformations: transformations,
                                       queue: queue)
     }
 

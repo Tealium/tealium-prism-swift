@@ -39,7 +39,7 @@ class ConsentModule: ConsentManager {
             configuration.value.shouldRefireDispatchers.contains($0)
         }
     }
-    let consentTransformation: ScopedTransformation
+    let consentTransformation: TransformationSettings
     private let automaticDisposer = AutomaticDisposer()
     private let transformerRegistry: TransformerRegistry
 
@@ -60,9 +60,9 @@ class ConsentModule: ConsentManager {
         self.queueManager = queueManager
         self.cmpIntegration = cmpIntegration
         self.modules = modules
-        consentTransformation = ScopedTransformation(id: "verify_consent",
-                                                     transformerId: Self.id,
-                                                     scopes: [TransformationScope.allDispatchers])
+        consentTransformation = TransformationSettings(id: "verify_consent",
+                                                       transformerId: Self.id,
+                                                       scopes: [TransformationScope.allDispatchers])
         configuration = consentConfiguration
         self.transformerRegistry = transformerRegistry
         transformerRegistry.registerTransformation(consentTransformation)

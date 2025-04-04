@@ -12,8 +12,15 @@ import Foundation
 class MockQueueManager: QueueManager {
     @ToAnyObservable(BasePublisher())
     var onDequeueRequest: Observable<Void>
+    @ToAnyObservable(BasePublisher())
+    var onDeleteRequest: Observable<([String], String)>
     override func getQueuedDispatches(for processor: String, limit: Int?) -> [TealiumDispatch] {
         _onDequeueRequest.publish()
         return super.getQueuedDispatches(for: processor, limit: limit)
+    }
+
+    override func deleteDispatches(_ dispatchUUIDs: [String], for processor: String) {
+        _onDeleteRequest.publish((dispatchUUIDs, processor))
+        return super.deleteDispatches(dispatchUUIDs, for: processor)
     }
 }

@@ -9,57 +9,22 @@
 @testable import TealiumSwift
 import XCTest
 
-final class SettingsManagerTests: XCTestCase {
-    let databaseProvider = MockDatabaseProvider()
-    let networkHelper = MockNetworkHelper()
-    let onActivity = ReplaySubject<ApplicationStatus>()
-    lazy var config = createConfig(url: "someUrl")
-    func createConfig(url: String?) -> TealiumConfig {
-        TealiumConfig(account: "test",
-                      profile: "test",
-                      environment: "dev",
-                      modules: [],
-                      settingsFile: "localSettings.json",
-                      settingsUrl: url)
-    }
-    func createCacher() throws -> ResourceCacher<DataObject> {
-        let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
-                                                modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
-        let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
-        return ResourceCacher<DataObject>(dataStore: dataStore,
-                                          fileName: "settings")
-    }
-    func getManager(url: String? = nil) throws -> SettingsManager {
-        if let url {
-            config.settingsUrl = url
-        }
-        let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
-                                                modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
-        let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
-        return try SettingsManager(config: config,
-                                   dataStore: dataStore,
-                                   networkHelper: networkHelper,
-                                   logger: MockLogger())
-    }
+final class SettingsManagerTests: SettingsManagerTestCase {
+
     func test_init_fills_current_settings_with_programmatic() throws {
         config.addModule(TealiumModules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
         let manager = try getManager()
-        let modulesSettings = manager.settings.value
-        let expected = SDKSettings(modules: [
-            MockDispatcher.id: ["configuration": ["key": "value"]], // Programmatic settings
-        ])
-        XCTAssertEqual(modulesSettings, expected)
+        let settings = manager.settings.value
+        XCTAssertEqual(settings.modules[MockDispatcher.id]?.configuration, ["key": "value"])
     }
 
     func test_init_fills_current_settings_with_local_and_programmatic() throws {
         config.bundle = Bundle(for: type(of: self))
         config.addModule(TealiumModules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
         let manager = try getManager()
-        let modulesSettings = manager.settings.value
-        XCTAssertEqual(modulesSettings, SDKSettings(modules: [
-            MockDispatcher.id: ["configuration": ["key": "value"]], // Programmatic settings
-            "localModule": ["configuration": ["localKey": "localValue"]], // Local file settings
-        ]))
+        let settings = manager.settings.value
+        XCTAssertEqual(settings.modules[MockDispatcher.id]?.configuration, ["key": "value"])
+        XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
     }
 
     func test_init_fills_current_settings_with_local_cached_and_programmatic() throws {
@@ -69,12 +34,10 @@ final class SettingsManagerTests: XCTestCase {
         try cacher.saveResource(["modules": ["cached": ["configuration": ["key": "value"]]]],
                                 etag: nil)
         let manager = try getManager()
-        let modulesSettings = manager.settings.value
-        XCTAssertEqual(modulesSettings, SDKSettings(modules: [
-            MockDispatcher.id: ["configuration": ["key": "value"]], // Programmatic settings
-            "localModule": ["configuration": ["localKey": "localValue"]], // Local file settings
-            "cached": ["configuration": ["key": "value"]] // Cached settings
-        ]))
+        let settings = manager.settings.value
+        XCTAssertEqual(settings.modules[MockDispatcher.id]?.configuration, ["key": "value"])
+        XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
+        XCTAssertEqual(settings.modules["cached"]?.configuration, ["key": "value"])
     }
 
     func test_init_without_url_fills_current_settings_with_local_and_programmatic() throws {
@@ -85,11 +48,9 @@ final class SettingsManagerTests: XCTestCase {
         try cacher.saveResource(["modules": ["cached": ["configuration": ["key": "value"]]]],
                                 etag: nil)
         let manager = try getManager()
-        let modulesSettings = manager.settings.value
-        XCTAssertEqual(modulesSettings, SDKSettings(modules: [
-            MockDispatcher.id: ["configuration": ["key": "value"]], // Programmatic settings
-            "localModule": ["configuration": ["localKey": "localValue"]], // Local file settings
-        ]))
+        let settings = manager.settings.value
+        XCTAssertEqual(settings.modules[MockDispatcher.id]?.configuration, ["key": "value"])
+        XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
     }
 
     func test_refresh_fills_merged_settings_with_local_remote_and_programmatic() throws {
@@ -98,22 +59,20 @@ final class SettingsManagerTests: XCTestCase {
         networkHelper.codableResult = .success(.successful(object: DataObject(dictionary: ["modules": ["remote": ["configuration": ["key": "value"]]]])))
         let manager = try getManager(url: "someUrl")
         manager.startRefreshing(onActivity: onActivity.asObservable())
-        XCTAssertEqual(manager.settings.value, SDKSettings(modules: [
-            MockDispatcher.id: ["configuration": ["key": "value"]], // Programmatic settings
-            "localModule": ["configuration": ["localKey": "localValue"]], // Local file settings
-            "remote": ["configuration": ["key": "value"]] // Remote settings
-        ]))
+        let settings = manager.settings.value
+        XCTAssertEqual(settings.modules[MockDispatcher.id]?.configuration, ["key": "value"])
+        XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
+        XCTAssertEqual(settings.modules["remote"]?.configuration, ["key": "value"])
     }
 
-    func test_failed_refresh_doesnt_fill_merged_settings_with_local_remote_and_programmatic() throws {
+    func test_failed_refresh_doesnt_fill_merged_settings_with_remote() throws {
         config.bundle = Bundle(for: type(of: self))
         config.addModule(TealiumModules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
         networkHelper.codableResult = .failure(.non200Status(404))
         let manager = try getManager(url: "someUrl")
-        XCTAssertEqual(manager.settings.value, SDKSettings(modules: [
-            MockDispatcher.id: ["configuration": ["key": "value"]], // Programmatic settings
-            "localModule": ["configuration": ["localKey": "localValue"]], // Local file settings
-        ]))
+        let settings = manager.settings.value
+        XCTAssertEqual(settings.modules[MockDispatcher.id]?.configuration, ["key": "value"])
+        XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
     }
 
     func test_onNewSettingsMerged_doesnt_publish_merged_settings_without_remote_refresh() throws {
@@ -143,13 +102,23 @@ final class SettingsManagerTests: XCTestCase {
             XCTFail("Refresher unexpectedly found nil")
             return
         }
+        let localRule = try localRules()
+        let localTransformation = try self.localTransformation()
         _ = manager.onNewSettingsMerged(resourceRefresher: refresher)
             .subscribe { settings in
-                XCTAssertEqual(settings, ["modules": [
-                    MockDispatcher.id: ["configuration": ["key": "value"]], // Programmatic settings
-                    "localModule": ["configuration": ["localKey": "localValue"]], // Local file settings
-                    "remote": ["configuration": ["key": "value"]] // Remote settings
-                ]])
+                XCTAssertEqual(settings, [
+                    "modules": [
+                        MockDispatcher.id: ["configuration": ["key": "value"]], // Programmatic settings
+                        "localModule": ["configuration": ["localKey": "localValue"]], // Local file settings
+                        "remote": ["configuration": ["key": "value"]] // Remote settings
+                    ],
+                    "load_rules": [
+                        "localRule": localRule
+                    ],
+                    "transformations": [
+                        "transformerId-transformationId": localTransformation
+                    ]
+                ])
                 settingsRefreshed.fulfill()
             }
         manager.startRefreshing(onActivity: onActivity.asObservable())
@@ -239,11 +208,17 @@ final class SettingsManagerTests: XCTestCase {
         config.bundle = Bundle(for: type(of: self))
         let localSettings = SettingsManager.loadLocalSettings(config: config)
         XCTAssertNotNil(localSettings)
-        XCTAssertEqual(localSettings, [
+        XCTAssertEqual(localSettings, DataObject(dictionary: [
             "modules": [
                 "localModule": ["configuration": ["localKey": "localValue"]]
+            ],
+            "load_rules": [
+                "localRule": try localRules()
+            ],
+            "transformations": [
+                "transformerId-transformationId": try localTransformation()
             ]
-        ])
+        ]))
     }
 
     func test_startRefreshing_only_starts_once() throws {
@@ -269,5 +244,27 @@ final class SettingsManagerTests: XCTestCase {
             manager.startRefreshing(onActivity: .Empty())
         }
         waitForDefaultTimeout()
+    }
+
+    func test_merge_merges_loadRules() throws {
+        config.bundle = Bundle(for: type(of: self))
+        let condition = Condition(path: nil, variable: "variable", operator: .equals(true), filter: "value")
+        config.setLoadRule(.just(condition), forId: "programmaticRule")
+        let manager = try getManager()
+        let settings = manager.settings.value
+        guard case let .just(item) = settings.loadRules["programmaticRule"]?.conditions else {
+            XCTFail("Failed to extract programmatic JUST rule")
+            return
+        }
+        XCTAssertEqual(item as? Condition, condition)
+        guard case let .and(children) = settings.loadRules["localRule"]?.conditions else {
+            XCTFail("Failed to extract local AND rule")
+            return
+        }
+        guard case let .just(localItem) = children.first else {
+            XCTFail("Failed to extract local JUST rule")
+            return
+        }
+        XCTAssertEqual(localItem as? Condition, Condition(path: nil, variable: "variable", operator: .isDefined, filter: nil))
     }
 }

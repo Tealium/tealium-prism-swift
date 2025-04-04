@@ -15,3 +15,11 @@ extension Array {
         }
     }
 }
+
+extension Array {
+    func diff<T: Equatable>(_ other: Self, by key: KeyPath<Element, T>) -> Self {
+        self.filter { element in
+            !other.contains(where: { $0[keyPath: key] == element[keyPath: key] })
+        }
+    }
+}

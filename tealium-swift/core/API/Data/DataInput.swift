@@ -18,7 +18,7 @@ import Foundation
  *
  * Valid `DataInput` can only be:
  * - a String
- * - a Number: Int, Int64, Double, Float, NSNumber
+ * - a Number: Int, Int64, Double, Float, Decimal, NSNumber
  * - a Bool
  * - an Array or Dictionary containing only Strings, Numbers or Booleans or other nested Arrays and Dictionaries containing other valid `DataInput`
  *

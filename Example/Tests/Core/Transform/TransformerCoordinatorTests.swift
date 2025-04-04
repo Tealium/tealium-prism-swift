@@ -11,15 +11,15 @@ import XCTest
 
 final class TransformerCoordinatorTests: XCTestCase {
     @StateSubject([
-        ScopedTransformation(id: "transformation1", transformerId: "transformer1", scopes: [.afterCollectors]),
-        ScopedTransformation(id: "transformation2", transformerId: "transformer2", scopes: [.allDispatchers]),
-        ScopedTransformation(id: "transformation3", transformerId: "transformer3", scopes: [.dispatcher("someDispatcher")]),
-        ScopedTransformation(id: "transformation4", transformerId: "transformer1", scopes: [.allDispatchers]),
-        ScopedTransformation(id: "transformation5", transformerId: "transformer2", scopes: [.dispatcher("someOtherDispatcher")]),
-        ScopedTransformation(id: "transformation6", transformerId: "transformer3", scopes: [.afterCollectors]),
-        ScopedTransformation(id: "transformation7", transformerId: "transformer1", scopes: [.dispatcher("someDispatcher"), .dispatcher("someOtherDispatcher")]),
+        TransformationSettings(id: "transformation1", transformerId: "transformer1", scopes: [.afterCollectors]),
+        TransformationSettings(id: "transformation2", transformerId: "transformer2", scopes: [.allDispatchers]),
+        TransformationSettings(id: "transformation3", transformerId: "transformer3", scopes: [.dispatcher("someDispatcher")]),
+        TransformationSettings(id: "transformation4", transformerId: "transformer1", scopes: [.allDispatchers]),
+        TransformationSettings(id: "transformation5", transformerId: "transformer2", scopes: [.dispatcher("someOtherDispatcher")]),
+        TransformationSettings(id: "transformation6", transformerId: "transformer3", scopes: [.afterCollectors]),
+        TransformationSettings(id: "transformation7", transformerId: "transformer1", scopes: [.dispatcher("someDispatcher"), .dispatcher("someOtherDispatcher")]),
     ])
-    var scopedTransformations: ObservableState<[ScopedTransformation]>
+    var transformations: ObservableState<[TransformationSettings]>
     var registeredTransformers: [MockTransformer] = [
         MockTransformer1(),
         MockTransformer2(),
@@ -30,20 +30,20 @@ final class TransformerCoordinatorTests: XCTestCase {
     var expectedTransformations: [Int] = []
     lazy var allTransformationsAreApplied = expectation(description: "All transformations are applied")
     lazy var coordinator = TransformerCoordinator(transformers: transformers.toStatefulObservable(),
-                                                  scopedTransformations: scopedTransformations,
+                                                  transformations: transformations,
                                                   queue: TealiumQueue.worker)
 
-    func test_getTransformationsForScope_afterCollectors_returns_all_afterCollectors_scopedTransformations() {
+    func test_getTransformationsForScope_afterCollectors_returns_all_afterCollectors_transformations() {
         let transformations = coordinator.getTransformations(for: .afterCollectors)
         XCTAssertEqual(transformations.map { $0.id }, ["transformation1", "transformation6"])
     }
 
-    func test_getTransformationsForScope_dispatcher_returns_allDispatchers_and_dispatcherSpecific_scopedTransformations() {
+    func test_getTransformationsForScope_dispatcher_returns_allDispatchers_and_dispatcherSpecific_transformations() {
         let transformations = coordinator.getTransformations(for: .dispatcher("someDispatcher"))
         XCTAssertEqual(transformations.map { $0.id }, ["transformation2", "transformation3", "transformation4", "transformation7"])
     }
 
-    func test_tranformDispatches_forAfterCollectors_applies_all_related_transformations_in_scopedTransformation_order() {
+    func test_tranformDispatches_forAfterCollectors_applies_all_related_transformations_in_transformation_order() {
         expectedTransformations = [1, 6]
         allTransformationsAreApplied.expectedFulfillmentCount = expectedTransformations.count
         let transformationsCompleted = expectation(description: "All transformations completed")
@@ -74,7 +74,7 @@ final class TransformerCoordinatorTests: XCTestCase {
              enforceOrder: true)
     }
 
-    func test_tranformDispatches_forDispatcher_applies_all_related_transformations_in_scopedTransformation_order() {
+    func test_tranformDispatches_forDispatcher_applies_all_related_transformations_in_transformation_order() {
         expectedTransformations = [2, 3, 4, 7]
         allTransformationsAreApplied.expectedFulfillmentCount = expectedTransformations.count
         let transformationsCompleted = expectation(description: "All transformations completed")
@@ -176,8 +176,8 @@ final class TransformerCoordinatorTests: XCTestCase {
         waitForLongTimeout()
     }
 
-    private func transformationCalled(transformation: String) {
-        if transformation == "transformation\(expectedTransformations[transformationsCount])" {
+    private func transformationCalled(transformation: TransformationSettings) {
+        if transformation.id == "transformation\(expectedTransformations[transformationsCount])" {
             allTransformationsAreApplied.fulfill()
             transformationsCount += 1
         } else {

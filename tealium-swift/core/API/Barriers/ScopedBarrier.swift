@@ -69,7 +69,7 @@ extension ScopedBarrier: DataInputConvertible {
 extension ScopedBarrier {
     struct Converter: DataItemConverter {
         typealias Convertible = ScopedBarrier
-        func convert(dataItem: DataItem) -> ScopedBarrier? {
+        func convert(dataItem: DataItem) -> Convertible? {
             guard let dictionary = dataItem.getDataDictionary(),
                     let barrierId = dictionary.get(key: CodingKeys.barrierId.rawValue, as: String.self),
                   let scopes = dictionary.getArray(key: CodingKeys.scopes.rawValue, of: String.self)?.compactMap({ $0 }) else {

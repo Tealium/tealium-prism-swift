@@ -1,5 +1,5 @@
 //
-//  ScopedTransformation.swift
+//  TransformationSettings.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 24/11/23.
@@ -39,14 +39,16 @@ public enum TransformationScope: RawRepresentable, Codable, Equatable {
     }
 }
 
-public struct ScopedTransformation: Codable, Equatable {
+public struct TransformationSettings {
     let id: String
     let transformerId: String
     let scopes: [TransformationScope]
-    public init(id: String, transformerId: String, scopes: [TransformationScope]) {
+    let configuration: DataObject
+    public init(id: String, transformerId: String, scopes: [TransformationScope], configuration: DataObject = [:]) {
         self.id = id
         self.transformerId = transformerId
         self.scopes = scopes
+        self.configuration = configuration
     }
 
     func matchesScope(_ dispatchScope: DispatchScope) -> Bool {
@@ -64,38 +66,41 @@ public struct ScopedTransformation: Codable, Equatable {
         }
     }
 
-    enum CodingKeys: String, CodingKey {
-        case id = "transformation_id"
-        case transformerId = "transformer_id"
-        case scopes
-    }
-
-    public static func == (lhs: ScopedTransformation, rhs: ScopedTransformation) -> Bool {
-        return lhs.id == rhs.id && lhs.transformerId == rhs.transformerId && lhs.scopes == rhs.scopes
+    enum Keys {
+        static let id = "transformation_id"
+        static let transformerId = "transformer_id"
+        static let scopes = "scopes"
+        static let configuration = "configuration"
     }
 }
 
-extension ScopedTransformation: DataInputConvertible {
+extension TransformationSettings: DataInputConvertible {
     public func toDataInput() -> any DataInput {
         [
-            CodingKeys.id.rawValue: id,
-            CodingKeys.transformerId.rawValue: transformerId,
-            CodingKeys.scopes.rawValue: scopes.map { $0.rawValue }
+            Keys.id: id,
+            Keys.transformerId: transformerId,
+            Keys.scopes: scopes.map { $0.rawValue },
+            Keys.configuration: configuration.toDataInput()
         ]
     }
 }
 
-extension ScopedTransformation {
+extension TransformationSettings {
     struct Converter: DataItemConverter {
-        typealias Convertible = ScopedTransformation
-        func convert(dataItem: DataItem) -> ScopedTransformation? {
+        typealias Convertible = TransformationSettings
+        func convert(dataItem: DataItem) -> Convertible? {
             guard let dictionary = dataItem.getDataDictionary(),
-                  let id = dictionary.get(key: CodingKeys.id.rawValue, as: String.self),
-                  let transformerId = dictionary.get(key: CodingKeys.transformerId.rawValue, as: String.self),
-                  let scopes = dictionary.getArray(key: CodingKeys.scopes.rawValue, of: String.self)?.compactMap({ $0 }) else {
+                  let id = dictionary.get(key: Keys.id, as: String.self),
+                  let transformerId = dictionary.get(key: Keys.transformerId, as: String.self),
+                  let scopes = dictionary.getArray(key: Keys.scopes, of: String.self)?.compactMap({ $0 }) else {
                 return nil
             }
-            return ScopedTransformation(id: id, transformerId: transformerId, scopes: scopes.map { TransformationScope(rawValue: $0) })
+            let configuration = DataObject(dictionary: dictionary
+                .getDataDictionary(key: Keys.configuration) ?? [:])
+            return TransformationSettings(id: id,
+                                          transformerId: transformerId,
+                                          scopes: scopes.map { TransformationScope(rawValue: $0) },
+                                          configuration: configuration)
         }
     }
     public static let converter: any DataItemConverter<Self> = Converter()

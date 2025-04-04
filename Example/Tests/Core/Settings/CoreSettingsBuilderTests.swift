@@ -16,11 +16,6 @@ final class CoreSettingsBuilderTests: XCTestCase {
             .setQueueExpiration(TimeFrame(unit: .seconds, interval: 50))
             .setRefreshInterval(TimeFrame(unit: .seconds, interval: 100))
             .setMaxQueueSize(20)
-            .setScopedTransformations([ScopedTransformation(id: "transformationId",
-                                                            transformerId: "transformerId", scopes: [
-                                                                .allDispatchers,
-                                                                .dispatcher("custom")
-                                                            ])])
             .setScopedBarriers([ScopedBarrier(barrierId: "barrierId", scopes: [.all, .dispatcher("custom")])])
             .build()
             .asDictionary()
@@ -31,16 +26,6 @@ final class CoreSettingsBuilderTests: XCTestCase {
                     "barrier_id": "barrierId",
                     "scopes": [
                         "all",
-                        "custom"
-                    ]
-                ]
-            ],
-            "transformations": [
-                [
-                    "transformation_id": "transformationId",
-                    "transformer_id": "transformerId",
-                    "scopes": [
-                        "alldispatchers",
                         "custom"
                     ]
                 ]

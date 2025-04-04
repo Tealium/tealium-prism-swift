@@ -23,16 +23,6 @@ final class CoreSettingsConverterTests: XCTestCase {
                     ]
                 ]
             ],
-            "transformations": [
-                [
-                    "transformation_id": "transformationId",
-                    "transformer_id": "transformerId",
-                    "scopes": [
-                        "alldispatchers",
-                        "custom"
-                    ]
-                ]
-            ],
             "max_queue_size": 20,
             "expiration": 50.0,
             "refresh_interval": 100.0
@@ -43,9 +33,6 @@ final class CoreSettingsConverterTests: XCTestCase {
         }
         XCTAssertEqual(settings.minLogLevel, .trace)
         XCTAssertEqual(settings.scopedBarriers, [ScopedBarrier(barrierId: "barrierId", scopes: [.all, .dispatcher("custom")])])
-        XCTAssertEqual(settings.scopedTransformations, [ScopedTransformation(id: "transformationId",
-                                                                             transformerId: "transformerId",
-                                                                             scopes: [.allDispatchers, .dispatcher("custom")])])
         XCTAssertEqual(settings.maxQueueSize, 20)
         XCTAssertEqual(settings.queueExpiration, TimeFrame(unit: .seconds, interval: 50.0))
         XCTAssertEqual(settings.refreshInterval, TimeFrame(unit: .seconds, interval: 100.0))
@@ -59,7 +46,6 @@ final class CoreSettingsConverterTests: XCTestCase {
         }
         XCTAssertEqual(settings.minLogLevel, CoreSettings.Defaults.minLogLevel)
         XCTAssertEqual(settings.scopedBarriers, [])
-        XCTAssertEqual(settings.scopedTransformations, [])
         XCTAssertEqual(settings.maxQueueSize, CoreSettings.Defaults.maxQueueSize)
         XCTAssertEqual(settings.queueExpiration, CoreSettings.Defaults.queueExpiration)
         XCTAssertEqual(settings.refreshInterval, CoreSettings.Defaults.refreshInterval)

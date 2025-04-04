@@ -86,7 +86,7 @@ extension TimeFrame: DataInputConvertible {
 extension TimeFrame {
     struct Converter: DataItemConverter {
         typealias Convertible = TimeFrame
-        func convert(dataItem: DataItem) -> TimeFrame? {
+        func convert(dataItem: DataItem) -> Convertible? {
             guard let seconds = dataItem.get(as: Double.self) else { return nil }
             return TimeFrame(unit: .seconds, interval: seconds)
         }

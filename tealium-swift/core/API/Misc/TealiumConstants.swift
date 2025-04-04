@@ -197,3 +197,33 @@ extension TealiumErrorEnum {
         return "\(type(of: self)).\(self)"
     }
 }
+
+enum ConditionOperators {
+    static let equals = "equals"
+    static let equalsIgnoreCase = "equals_ignore_case"
+    static let startsWith = "starts_with"
+    static let startsWithIgnoreCase = "starts_with_ignore_case"
+    static let doesNotStartWith = "does_not_start_with"
+    static let doesNotStartWithIgnoreCase = "does_not_start_with_ignore_case"
+    static let doesNotEqual = "does_not_equal"
+    static let doesNotEqualIgnoreCase = "does_not_equal_ignore_case"
+    static let endsWith = "ends_with"
+    static let endsWithIgnoreCase = "ends_with_ignore_case"
+    static let doesNotEndWith = "does_not_end_with"
+    static let doesNotEndWithIgnoreCase = "does_not_end_with_ignore_case"
+    static let contains = "contains"
+    static let containsIgnoreCase = "contains_ignore_case"
+    static let doesNotContain = "does_not_contain"
+    static let doesNotContainIgnoreCase = "does_not_contain_ignore_case"
+    static let defined = "defined"
+    static let notDefined = "notdefined"
+    static let populated = "populated"
+    static let notPopulated = "notpopulated"
+    static let greaterThan = "greater_than"
+    static let greaterThanEqualTo = "greater_than_equal_to"
+    static let lessThan = "less_than"
+    static let lessThanEqualTo = "less_than_equal_to"
+    static let regularExpression = "regular_expression"
+    static let isBadgeAssigned = "is_badge_assigned"
+    static let isBadgeNotAssigned = "is_badge_not_assigned"
+}

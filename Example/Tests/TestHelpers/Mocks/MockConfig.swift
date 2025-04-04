@@ -26,7 +26,7 @@ func createContext(config: TealiumConfig, modulesManager: ModulesManager) -> Tea
                    tracker: MockTracker(),
                    barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
                    transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
-                                                               scopedTransformations: StateSubject([]).toStatefulObservable(),
+                                                               transformations: StateSubject([]).toStatefulObservable(),
                                                                queue: queue),
                    databaseProvider: mockDbProvider,
                    moduleStoreProvider: ModuleStoreProvider(databaseProvider: mockDbProvider,

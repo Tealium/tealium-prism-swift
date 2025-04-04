@@ -14,7 +14,3 @@ public class TealiumTimedEvents {
     func cancel(event name: String) {}
     func cancelAll() {}
 }
-
-public class TealiumConsent {
-    // func grant(withPurpose: )
-}

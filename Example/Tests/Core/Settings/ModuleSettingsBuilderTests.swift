@@ -10,12 +10,30 @@
 import XCTest
 
 final class ModuleSettingsBuilderTests: XCTestCase {
+    let builder = ModuleSettingsBuilder()
     func test_build_returns_enabled_key_when_passed() {
-        XCTAssertEqual(ModuleSettingsBuilder().setEnabled(true).build(), ["enabled": true, "configuration": DataObject()])
-        XCTAssertEqual(ModuleSettingsBuilder().setEnabled(false).build(), ["enabled": false, "configuration": DataObject()])
+        XCTAssertEqual(builder.setEnabled(true).build(),
+                       ["enabled": true, "configuration": DataObject()])
+        XCTAssertEqual(builder.setEnabled(false).build(),
+                       ["enabled": false, "configuration": DataObject()])
     }
 
     func test_build_returns_empty_dictionary_when_enabled_not_passed() {
-        XCTAssertEqual(ModuleSettingsBuilder().build(), ["configuration": DataObject()])
+        XCTAssertEqual(builder.build(), ["configuration": DataObject()])
+    }
+
+    func test_build_returns_rules_when_passed() {
+        XCTAssertEqual(builder.setRules(.just("ruleId")).build(),
+                       ["rules": "ruleId", "configuration": DataObject()])
+        XCTAssertEqual(builder.setRules(.and([.just("ruleId")])).build(),
+                       [
+                        "configuration": DataObject(),
+                        "rules": try DataItem(serializing: [
+                            "operator": "and",
+                            "children": [
+                                "ruleId"
+                            ]
+                        ])
+                       ])
     }
 }

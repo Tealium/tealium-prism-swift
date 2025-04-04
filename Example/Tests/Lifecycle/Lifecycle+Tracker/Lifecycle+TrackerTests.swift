@@ -13,8 +13,10 @@ final class LifecycleTrackerTests: XCTestCase {
     @StateSubject([ScopedBarrier(barrierId: "barrier1", scopes: [.all])])
     var scopedBarriers: ObservableState<[ScopedBarrier]>
 
-    @StateSubject([ScopedTransformation(id: "transformation1", transformerId: "transformer1", scopes: [.afterCollectors, .allDispatchers])])
-    var scopedTransformations: ObservableState<[ScopedTransformation]>
+    @StateSubject([TransformationSettings(id: "transformation1",
+                                          transformerId: "transformer1",
+                                          scopes: [.afterCollectors, .allDispatchers])])
+    var transformations: ObservableState<[TransformationSettings]>
     let config = TealiumConfig(account: "test",
                                profile: "test",
                                environment: "dev",
@@ -46,9 +48,12 @@ final class LifecycleTrackerTests: XCTestCase {
     lazy var barrierCoordinator = BarrierCoordinator(registeredBarriers: [],
                                                      onScopedBarriers: scopedBarriers)
     lazy var transformerCoordinator = TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
-                                                             scopedTransformations: scopedTransformations,
+                                                             transformations: transformations,
                                                              queue: .main)
-    lazy var tracker = TealiumTracker(modules: modulesManager.modules, dispatchManager: dispatchManager, logger: nil)
+    lazy var tracker = TealiumTracker(modules: modulesManager.modules,
+                                      loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings.toStatefulObservable()),
+                                      dispatchManager: dispatchManager,
+                                      logger: nil)
     lazy var context = TealiumContext(modulesManager: modulesManager,
                                       config: config,
                                       coreSettings: coreSettings,
@@ -68,7 +73,8 @@ final class LifecycleTrackerTests: XCTestCase {
     }
     lazy var dispatchManager = getDispatchManager()
     func getDispatchManager() -> DispatchManager {
-        DispatchManager(modulesManager: modulesManager,
+        DispatchManager(loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings.toStatefulObservable()),
+                        modulesManager: modulesManager,
                         queueManager: queueManager,
                         barrierCoordinator: barrierCoordinator,
                         transformerCoordinator: transformerCoordinator,

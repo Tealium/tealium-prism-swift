@@ -100,6 +100,8 @@ final public class DataItem {
             number.floatValue
         case is Double.Type:
             number.doubleValue
+        case is Decimal.Type:
+            number.decimalValue
         default:
             number
         }
@@ -147,7 +149,8 @@ final public class DataItem {
         case is Int.Type,
             is Int64.Type,
             is Float.Type,
-            is Double.Type:
+            is Double.Type,
+            is Decimal.Type:
             getNumber(as: type)
         default:
             toDataInput()

@@ -36,6 +36,7 @@ identifier_name:
   allowed_symbols: "_"
   excluded:
     - id
+    - or
 line_length: 
     warning: 200
     error: 500
@@ -45,7 +46,13 @@ number_separator:
 large_tuple: 4
 nesting:
   ignore_typealiases_and_associatedtypes: true
+cyclomatic_complexity:
+  ignores_case_statements: true
 overridden_super_call:
   excluded:
   - tearDown()
   - setUp()
+type_name:
+  excluded:
+  - Or
+

@@ -25,12 +25,6 @@ public class CoreSettingsBuilder {
         return self
     }
 
-    /// Set the `ScopedTransformation`s that will be used to determine in what scope the relative `Transformation` will have to take place.
-    public func setScopedTransformations(_ scopedTransformations: [ScopedTransformation]) -> Self {
-        dataObject.set(converting: scopedTransformations, key: Keys.transformations)
-        return self
-    }
-
     /// Set the maximum number of `Dispatch`es that can be stored in the queue, in FIFO order: the first element added in the queue will be the first one to be deleted when the maximum is reached.
     public func setMaxQueueSize(_ maxQueueSize: Int) -> Self {
         dataObject.set(maxQueueSize, key: Keys.maxQueueSize)

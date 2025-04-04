@@ -1,0 +1,88 @@
+//
+//  Condition+EndsWithTests.swift
+//  tealium-swift
+//
+//  Created by Enrico Zannini on 04/03/25.
+//  Copyright © 2025 Tealium, Inc. All rights reserved.
+//
+
+@testable import TealiumSwift
+import XCTest
+
+final class ConditionEndsWithTests: XCTestCase {
+    let payload: DataObject = [
+        "string": "Value",
+        "int": 345,
+        "double": 3.14,
+        "bool": true,
+        "array": ["a", "b", "c"],
+        "dictionary": ["key": "Value"],
+        "null": NSNull()
+    ]
+
+    func test_endsWith_matches_string() {
+        let condition = Condition.endsWith(ignoreCase: false, variable: "string", suffix: "alue")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_endsWith_doesnt_match_different_string() {
+        let condition = Condition.endsWith(ignoreCase: false, variable: "string", suffix: "something_else")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_endsWith_doesnt_match_string_with_different_casing() {
+        let condition = Condition.endsWith(ignoreCase: false, variable: "string", suffix: "Alue")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_endsWith_matches_string_ignoring_case() {
+        let condition = Condition.endsWith(ignoreCase: true, variable: "string", suffix: "ALUE")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_endsWith_matches_int() {
+        let condition = Condition.endsWith(ignoreCase: false, variable: "int", suffix: "45")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_endsWith_matches_double() {
+        let condition = Condition.endsWith(ignoreCase: false, variable: "double", suffix: ".14")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_endsWith_matches_bool() {
+        let condition = Condition.endsWith(ignoreCase: false, variable: "bool", suffix: "ue")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_endsWith_matches_nested_value() {
+        let condition = Condition.endsWith(ignoreCase: false,
+                                           path: ["dictionary"],
+                                           variable: "key",
+                                           suffix: "alue")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_endsWith_matches_array() {
+        let condition = Condition.endsWith(ignoreCase: false, variable: "array", suffix: "c\"]")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_endsWith_matches_nested_value_ignoring_case() {
+        let condition = Condition.endsWith(ignoreCase: true,
+                                           path: ["dictionary"],
+                                           variable: "key",
+                                           suffix: "UE")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_endsWith_matches_null() {
+        let condition = Condition.endsWith(ignoreCase: false, variable: "null", suffix: "ull>")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_endsWith_doesnt_match_keys_missing_from_the_payload() {
+        let condition = Condition.endsWith(ignoreCase: false, variable: "missing", suffix: "something")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+}

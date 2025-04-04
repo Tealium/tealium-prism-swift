@@ -38,6 +38,7 @@ identifier_name:
   allowed_symbols: "_"
   excluded:
     - id
+    - or
 line_length: 
     warning: 200
     error: 500
@@ -47,6 +48,8 @@ number_separator:
 large_tuple: 4
 nesting:
   ignore_typealiases_and_associatedtypes: true
+cyclomatic_complexity:
+  ignores_case_statements: true
 custom_rules:
   any_observable_generics:
     included: ./tealium
@@ -54,3 +57,6 @@ custom_rules:
     message: ToAnyObservable must always specify Generics type to avoid compile issues
     regex: \@ToAnyObservable\s*\(
     severity: error
+type_name:
+  excluded:
+  - Or

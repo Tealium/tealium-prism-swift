@@ -25,7 +25,7 @@ class BaseDataLayerWrapperTests: XCTestCase {
                        tracker: MockTracker(),
                        barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
                        transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
-                                                                   scopedTransformations: StateSubject([]).toStatefulObservable(),
+                                                                   transformations: StateSubject([]).toStatefulObservable(),
                                                                    queue: queue),
                        databaseProvider: dbProvider,
                        moduleStoreProvider: ModuleStoreProvider(databaseProvider: dbProvider,

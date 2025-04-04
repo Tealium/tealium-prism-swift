@@ -33,7 +33,6 @@ public class Tealium {
             }
         }
         timedEvents = TealiumTimedEvents()
-        consent = TealiumConsent()
         self.onTealiumImplementation = onTealiumImplementation
     }
 
@@ -119,8 +118,6 @@ public class Tealium {
     public private(set) lazy var dataLayer: DataLayer = DataLayerWrapper(moduleProxy: createModuleProxy())
 
     public let timedEvents: TealiumTimedEvents
-
-    public let consent: TealiumConsent
 
     /**
      * Creates a `ModuleProxy` for the given module to allow for an easy creation of Module Wrappers.

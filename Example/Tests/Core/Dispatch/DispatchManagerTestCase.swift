@@ -20,8 +20,8 @@ class DispatchManagerTestCase: XCTestCase {
     @StateSubject([ScopedBarrier(barrierId: "barrier1", scopes: [.all])])
     var scopedBarriers: ObservableState<[ScopedBarrier]>
 
-    @StateSubject([ScopedTransformation(id: "transformation1", transformerId: "transformer1", scopes: [.afterCollectors, .allDispatchers])])
-    var scopedTransformations: ObservableState<[ScopedTransformation]>
+    @StateSubject([TransformationSettings(id: "transformation1", transformerId: "transformer1", scopes: [.afterCollectors, .allDispatchers])])
+    var transformations: ObservableState<[TransformationSettings]>
 
     let transformer = MockTransformer1 { transformation, dispatch, scope in
         var dispatch = dispatch
@@ -58,7 +58,7 @@ class DispatchManagerTestCase: XCTestCase {
     lazy var barrierCoordinator = BarrierCoordinator(registeredBarriers: [barrier],
                                                      onScopedBarriers: scopedBarriers)
     lazy var transformerCoordinator = TransformerCoordinator(transformers: transformers.toStatefulObservable(),
-                                                             scopedTransformations: scopedTransformations,
+                                                             transformations: transformations,
                                                              queue: .main)
     lazy var context = TealiumContext(modulesManager: modulesManager,
                                       config: config,
@@ -78,8 +78,10 @@ class DispatchManagerTestCase: XCTestCase {
         modulesManager.getModule()
     }
     lazy var dispatchManager = getDispatchManager()
+    lazy var loadRuleEngine = LoadRuleEngine(sdkSettings: sdkSettings.toStatefulObservable())
     func getDispatchManager() -> DispatchManager {
-        DispatchManager(modulesManager: modulesManager,
+        DispatchManager(loadRuleEngine: loadRuleEngine,
+                        modulesManager: modulesManager,
                         queueManager: queueManager,
                         barrierCoordinator: barrierCoordinator,
                         transformerCoordinator: transformerCoordinator,

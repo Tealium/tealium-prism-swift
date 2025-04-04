@@ -9,6 +9,7 @@
 import Foundation
 
 extension NSNull: DataInput, DataInputConvertible {}
+extension Decimal: DataInput, DataInputConvertible {}
 extension Double: DataInput, DataInputConvertible {}
 extension Float: DataInput, DataInputConvertible {}
 extension Int: DataInput, DataInputConvertible {}
