@@ -12,8 +12,9 @@ import Foundation
 class MockTracker: Tracker {
     @ToAnyObservable<BasePublisher<TealiumDispatch>>(BasePublisher<TealiumDispatch>())
     var onTrack: Observable<TealiumDispatch>
+    var result: TrackResult = .accepted
     func track(_ trackable: TealiumDispatch, source: DispatchContext.Source, onTrackResult: TrackResultCompletion?) {
         _onTrack.publish(trackable)
-        onTrackResult?(trackable, .accepted)
+        onTrackResult?(trackable, result)
     }
 }

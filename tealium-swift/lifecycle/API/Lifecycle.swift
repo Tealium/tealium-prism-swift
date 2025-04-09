@@ -18,7 +18,7 @@ public protocol Lifecycle {
      *   - dataObject: Optional data to be sent with launch event.
      *   - completion: Optional completion block, which is going to be called with error if operation is unsuccessful, or without any arguments otherwise.
      */
-    func launch(_ dataObject: DataObject?, _ completion: ((Error?) -> Void)?)
+    func launch(_ dataObject: DataObject?, _ completion: ErrorHandlingCompletion?)
 
     /**
      * Sends a wake event and gathers all lifecycle data at the time event is triggered.
@@ -27,7 +27,7 @@ public protocol Lifecycle {
      *   - dataObject: Optional data to be sent with wake event.
      *   - completion: Optional completion block, which is going to be called with error if operation is unsuccessful, or without any arguments otherwise.
      */
-    func wake(_ dataObject: DataObject?, _ completion: ((Error?) -> Void)?)
+    func wake(_ dataObject: DataObject?, _ completion: ErrorHandlingCompletion?)
 
     /**
      * Sends a sleep event and gathers all lifecycle data at the time event is triggered.
@@ -36,7 +36,7 @@ public protocol Lifecycle {
      *   - dataObject: Optional data to be sent with sleep event.
      *   - completion: Optional completion block, which is going to be called with error if operation is unsuccessful, or without any arguments otherwise.
      */
-    func sleep(_ dataObject: DataObject?, _ completion: ((Error?) -> Void)?)
+    func sleep(_ dataObject: DataObject?, _ completion: ErrorHandlingCompletion?)
 }
 
 public extension Lifecycle {

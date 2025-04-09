@@ -67,7 +67,7 @@ public enum TealiumModules {
 
     /// Returns a factory for creating the `TraceModule`.
     static public func trace() -> any TealiumModuleFactory {
-        DefaultModuleFactory<TraceModule>()
+        TraceManagerModule.Factory()
     }
 
     /**

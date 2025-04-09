@@ -51,7 +51,7 @@ public protocol DataStore: AnyObject, DataItemExtractor {
     var onDataUpdated: Observable<DataObject> { get }
 
     /**
-     * Observable of key-value pairs from this DataStore that have been removed or expired
+     * Observable of keys from this DataStore that have been removed or expired
      *
      * Note that expiration may not happen immediately when the value is expired but may happen asynchronously on a later check
      */

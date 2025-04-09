@@ -42,7 +42,7 @@ public enum Referrer {
 }
 
 class DeepLinkModule: TealiumBasicModule {
-    var version: String = TealiumConstants.libraryVersion
+    let version: String = TealiumConstants.libraryVersion
     static let id: String = "Deeplink"
 
     let context: TealiumContext
@@ -102,7 +102,7 @@ class DeepLinkModule: TealiumBasicModule {
         return nil
     }
 
-    var trace: TraceModule? {
+    var trace: TraceManagerModule? {
         self.context.modulesManager.getModule()
     }
 
@@ -114,18 +114,18 @@ class DeepLinkModule: TealiumBasicModule {
     ///
     /// - Parameter id: String representing the Trace ID
     func joinTrace(id: String) {
-        trace?.join(id: id)
+        try? trace?.join(id: id)
     }
 
     /// Sends a request to modules to leave a trace, and end the trace session￼.
     ///
     func leaveTrace() {
-        trace?.leave()
+        try? trace?.leave()
     }
 
     /// Ends the current visitor session. Trace remains active, but visitor session is terminated.
-    func killTraceVisitorSession(completion onTrackResult: TrackResultCompletion? = nil) {
-        trace?.killVisitorSession(completion: onTrackResult)
+    func killTraceVisitorSession(completion: ErrorHandlingCompletion? = nil) {
+        trace?.killVisitorSession(completion: completion)
     }
 
 }

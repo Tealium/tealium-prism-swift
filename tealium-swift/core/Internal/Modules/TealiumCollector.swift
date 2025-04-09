@@ -9,7 +9,7 @@
 import Foundation
 
 class TealiumCollector: TealiumBasicModule, Collector {
-    var version: String = TealiumConstants.libraryVersion
+    let version: String = TealiumConstants.libraryVersion
     static var canBeDisabled: Bool { false }
     static let id: String = "TealiumCollector"
     let context: TealiumContext

@@ -9,7 +9,7 @@
 import Foundation
 
 class TimeCollector: Collector, TealiumBasicModule {
-    var version: String = TealiumConstants.libraryVersion
+    let version: String = TealiumConstants.libraryVersion
     static var id = "Time"
     static var canBeDisabled: Bool { true }
     required init?(context: TealiumContext, moduleConfiguration: DataObject) {}

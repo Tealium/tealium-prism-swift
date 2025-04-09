@@ -578,6 +578,15 @@
 		EC7191872CFF209E00CDDC13 /* TwoLaunchSleepWakeSleepWithUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7191862CFF209E00CDDC13 /* TwoLaunchSleepWakeSleepWithUpdateTests.swift */; };
 		EC71918C2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC71918B2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift */; };
 		EC97BDD92CFDC41800D07B45 /* LifecycleServiceBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC97BDD82CFDC41800D07B45 /* LifecycleServiceBaseTests.swift */; };
+		EC9C453D2DA015940046AB3A /* TraceManagerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C453C2DA015940046AB3A /* TraceManagerWrapperTests.swift */; };
+		EC9C453E2DA015940046AB3A /* TraceManagerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C453C2DA015940046AB3A /* TraceManagerWrapperTests.swift */; };
+		EC9C453F2DA015940046AB3A /* TraceManagerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C453C2DA015940046AB3A /* TraceManagerWrapperTests.swift */; };
+		EC9C45412DA015B30046AB3A /* TraceManagerModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C45402DA015B30046AB3A /* TraceManagerModuleTests.swift */; };
+		EC9C45422DA015B30046AB3A /* TraceManagerModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C45402DA015B30046AB3A /* TraceManagerModuleTests.swift */; };
+		EC9C45432DA015B30046AB3A /* TraceManagerModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C45402DA015B30046AB3A /* TraceManagerModuleTests.swift */; };
+		EC9C455E2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C455D2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift */; };
+		EC9C455F2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C455D2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift */; };
+		EC9C45602DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C455D2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift */; };
 		ECC2B4722CE3B61C0066B022 /* LaunchSleepWakeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2B4712CE3B61C0066B022 /* LaunchSleepWakeTests.swift */; };
 		F517AE7FD10708E09D817DEB /* Pods_CoreTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D80F5A9B7BE61AB743BD008 /* Pods_CoreTests_iOS.framework */; };
 /* End PBXBuildFile section */
@@ -807,6 +816,9 @@
 		EC7191862CFF209E00CDDC13 /* TwoLaunchSleepWakeSleepWithUpdateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoLaunchSleepWakeSleepWithUpdateTests.swift; sourceTree = "<group>"; };
 		EC71918B2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Lifecycle+TrackerTests.swift"; sourceTree = "<group>"; };
 		EC97BDD82CFDC41800D07B45 /* LifecycleServiceBaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleServiceBaseTests.swift; sourceTree = "<group>"; };
+		EC9C453C2DA015940046AB3A /* TraceManagerWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceManagerWrapperTests.swift; sourceTree = "<group>"; };
+		EC9C45402DA015B30046AB3A /* TraceManagerModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceManagerModuleTests.swift; sourceTree = "<group>"; };
+		EC9C455D2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModuleProxy+ExecuteTaskTests.swift"; sourceTree = "<group>"; };
 		ECC2B4712CE3B61C0066B022 /* LaunchSleepWakeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSleepWakeTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1214,6 +1226,7 @@
 		D54BBF7C2C78C015003687C7 /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				EC9C453B2DA0155E0046AB3A /* Trace */,
 				EC0D84E52D6F667700436087 /* ConnectivityCollector */,
 				87C6C2552D5282A4008B91D8 /* TealiumCollector */,
 				08BD03322D3A5B5E00FA2E2E /* TimeCollector */,
@@ -1224,6 +1237,7 @@
 				87C6C2352D528056008B91D8 /* DefaultModuleFactoryTests.swift */,
 				87C6C2362D528056008B91D8 /* ModulesManagerTests.swift */,
 				87C6C2372D528056008B91D8 /* TealiumModulesTests.swift */,
+				EC9C455D2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift */,
 			);
 			path = Modules;
 			sourceTree = "<group>";
@@ -1413,6 +1427,15 @@
 				EC71918B2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift */,
 			);
 			path = "Lifecycle+Tracker";
+			sourceTree = "<group>";
+		};
+		EC9C453B2DA0155E0046AB3A /* Trace */ = {
+			isa = PBXGroup;
+			children = (
+				EC9C453C2DA015940046AB3A /* TraceManagerWrapperTests.swift */,
+				EC9C45402DA015B30046AB3A /* TraceManagerModuleTests.swift */,
+			);
+			path = Trace;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -1952,6 +1975,7 @@
 				87FC085C2D92F79200E1041D /* DataObject+DeepMergeTests.swift in Sources */,
 				486956A52A449A8B0014AC58 /* DataInputTests.swift in Sources */,
 				D54BBFCC2C78C01A003687C7 /* NetworkConfigurationTests.swift in Sources */,
+				EC9C453D2DA015940046AB3A /* TraceManagerWrapperTests.swift in Sources */,
 				87EE77082D7879FE00BB1D77 /* Condition+NotEndsWithTests.swift in Sources */,
 				87AF54722C7E389C00F1C114 /* TealiumDispatchGroupTests.swift in Sources */,
 				87FC08662D92FB2C00E1041D /* LoadRuleEngineTests.swift in Sources */,
@@ -2013,6 +2037,7 @@
 				15C358CF2AEAB008009E1CDB /* MockLogHandler.swift in Sources */,
 				D54BBFF92C78C01A003687C7 /* DispatchManager+QueueTests.swift in Sources */,
 				15A223892B19F00600191132 /* MockConsentManager.swift in Sources */,
+				EC9C45602DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift in Sources */,
 				876F79862C53A904008BC13B /* CoreSettingsConverterTests.swift in Sources */,
 				15A473882A5FEB7F00A7B7AE /* Operators+MapTests.swift in Sources */,
 				D54BBFFC2C78C01A003687C7 /* DispatchManager+TrackTests.swift in Sources */,
@@ -2032,6 +2057,7 @@
 				15ED5B052A60463E0027BB20 /* CustomObservableTests.swift in Sources */,
 				87ED26E82CE4E47D0086FFA4 /* DataLayerModuleTests.swift in Sources */,
 				87EE76D42D7865D300BB1D77 /* Condition+NotEqualsTests.swift in Sources */,
+				EC9C45432DA015B30046AB3A /* TraceManagerModuleTests.swift in Sources */,
 				D54BBFE72C78C01A003687C7 /* BarrierCoordinator+GetBarriersTests.swift in Sources */,
 				D58EE2DD2C74CDDE00FBDF94 /* ApplicationStatusListenerTests.swift in Sources */,
 				87C6C2432D528070008B91D8 /* ConsentModuleTests.swift in Sources */,
@@ -2117,6 +2143,7 @@
 				87BA6D2E2C6A470C00784784 /* MockTransformer.swift in Sources */,
 				87BA6D2F2C6A470C00784784 /* Operators+FlatMapTests.swift in Sources */,
 				D54BBFE62C78C01A003687C7 /* BarrierCoordinator+GetBarriersStateTests.swift in Sources */,
+				EC9C453E2DA015940046AB3A /* TraceManagerWrapperTests.swift in Sources */,
 				87BA6D302C6A470C00784784 /* DatabaseHelperTests.swift in Sources */,
 				877C5F662CBD4F40008D4B78 /* TealiumLoggerTests.swift in Sources */,
 				87EE770A2D7879FE00BB1D77 /* Condition+NotEndsWithTests.swift in Sources */,
@@ -2177,6 +2204,7 @@
 				877C5F702CBD6C99008D4B78 /* Sha256Tests.swift in Sources */,
 				87BA6D562C6A470C00784784 /* ObservableTests.swift in Sources */,
 				D54BBFC52C78C01A003687C7 /* ErrorCooldownTests.swift in Sources */,
+				EC9C45412DA015B30046AB3A /* TraceManagerModuleTests.swift in Sources */,
 				87BA6D572C6A470C00784784 /* CreateDispatches.swift in Sources */,
 				87BA6D582C6A470C00784784 /* MockConfig.swift in Sources */,
 				87ED26E72CE4E47D0086FFA4 /* DataLayerModuleTests.swift in Sources */,
@@ -2275,6 +2303,7 @@
 				08BD032E2D356BBC00FA2E2E /* CollectBatcherTests.swift in Sources */,
 				08BD032F2D356BBC00FA2E2E /* TealiumCollectTests.swift in Sources */,
 				08BD03302D356BBC00FA2E2E /* TealiumCollectFactoryTests.swift in Sources */,
+				EC9C455E2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift in Sources */,
 				08BD03312D356BBC00FA2E2E /* CollectSettingsBuilderTests.swift in Sources */,
 				87BA6D972C6A470C00784784 /* MockInterceptorManager.swift in Sources */,
 				D54BBFE32C78C01A003687C7 /* URLConvertibleTests.swift in Sources */,
@@ -2290,6 +2319,7 @@
 				87BA6DA92C6A47AF00784784 /* TealiumFileManagerTests.swift in Sources */,
 				87EE771A2D789EE200BB1D77 /* OrTests.swift in Sources */,
 				87EE76D12D77443C00BB1D77 /* Condition+EqualsTests.swift in Sources */,
+				EC9C453F2DA015940046AB3A /* TraceManagerWrapperTests.swift in Sources */,
 				87BA6DAC2C6A47AF00784784 /* MockTransformer.swift in Sources */,
 				87BA6DAD2C6A47AF00784784 /* Operators+FlatMapTests.swift in Sources */,
 				D54BBFE52C78C01A003687C7 /* BarrierCoordinator+GetBarriersStateTests.swift in Sources */,
@@ -2350,6 +2380,7 @@
 				87BA6DCC2C6A47AF00784784 /* MockConsentManager.swift in Sources */,
 				87BA6DCD2C6A47AF00784784 /* CoreSettingsConverterTests.swift in Sources */,
 				87BA6DCE2C6A47AF00784784 /* Operators+MapTests.swift in Sources */,
+				EC9C45422DA015B30046AB3A /* TraceManagerModuleTests.swift in Sources */,
 				87BA6DD02C6A47AF00784784 /* Operators+DistinctTests.swift in Sources */,
 				D54BBFB82C78C01A003687C7 /* ConnectivityBarrierTests.swift in Sources */,
 				87BA6DD22C6A47AF00784784 /* Operators+FilterTests.swift in Sources */,
@@ -2448,6 +2479,7 @@
 				87060A992CDD0DCF00F120BA /* TealiumInstanceManagerTests.swift in Sources */,
 				87AA174D2CEE429C003E99A8 /* DataLayerTests.swift in Sources */,
 				877C5F822CBFADC4008D4B78 /* VisitorSwitcherTests.swift in Sources */,
+				EC9C455F2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift in Sources */,
 				D54BC0032C78C01A003687C7 /* QueueManagerTests.swift in Sources */,
 				87BA6E152C6A47AF00784784 /* MockInterceptorManager.swift in Sources */,
 				D54BBFE22C78C01A003687C7 /* URLConvertibleTests.swift in Sources */,

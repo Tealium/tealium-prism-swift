@@ -111,7 +111,7 @@ public class Tealium {
         }
     }
 
-    public private(set) lazy var trace: TealiumTrace = TealiumTrace(moduleProxy: createModuleProxy())
+    public private(set) lazy var trace: TraceManager = TraceManagerWrapper(moduleProxy: createModuleProxy())
 
     public private(set) lazy var deepLink: TealiumDeepLink = TealiumDeepLink(moduleProxy: createModuleProxy())
 

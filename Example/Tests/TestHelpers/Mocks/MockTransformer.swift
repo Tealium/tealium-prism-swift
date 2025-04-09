@@ -20,7 +20,7 @@ class MockTransformer3: MockTransformer {
 }
 
 class MockTransformer: Transformer {
-    var version: String = TealiumConstants.libraryVersion
+    let version: String = TealiumConstants.libraryVersion
     class var id: String { "MockTransformer" }
     typealias TransformationBlock = (TransformationSettings, TealiumDispatch, DispatchScope) -> TealiumDispatch?
     var transformation: TransformationBlock

@@ -7,7 +7,7 @@
 //
 
 class DataLayerModule: TealiumBasicModule {
-    var version: String = TealiumConstants.libraryVersion
+    let version: String = TealiumConstants.libraryVersion
     static var canBeDisabled: Bool { false }
     static let id: String = "DataLayer"
     let dataStore: DataStore

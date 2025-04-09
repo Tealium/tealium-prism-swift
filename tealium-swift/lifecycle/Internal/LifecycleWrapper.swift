@@ -7,47 +7,26 @@
 //
 
 class LifecycleWrapper: Lifecycle {
-    typealias Module = LifecycleModule
-    private let moduleProxy: ModuleProxy<Module>
-    init(moduleProxy: ModuleProxy<Module>) {
+    private let moduleProxy: ModuleProxy<LifecycleModule>
+    init(moduleProxy: ModuleProxy<LifecycleModule>) {
         self.moduleProxy = moduleProxy
     }
 
-    private func getModule(completion: @escaping (Module?) -> Void) {
-        moduleProxy.getModule(completion: completion)
+    public func launch(_ event: DataObject?, _ completion: ErrorHandlingCompletion? = nil) {
+        moduleProxy.executeModuleTask({ module in
+            try module.launch(data: event)
+        }, completion: completion)
     }
 
-    private func handleEvent(completion: ((Error?) -> Void)?, handler: @escaping (LifecycleModule) throws -> Void) {
-        getModule { lifecycleModule in
-            guard let lifecycleModule else {
-                completion?(TealiumError.moduleNotEnabled)
-                return
-            }
-            do {
-                try handler(lifecycleModule)
-                completion?(nil)
-            } catch {
-                completion?(error)
-            }
-        }
+    public func wake(_ event: DataObject?, _ completion: ErrorHandlingCompletion? = nil) {
+        moduleProxy.executeModuleTask({ module in
+            try module.wake(data: event)
+        }, completion: completion)
     }
 
-    public func launch(_ event: DataObject?, _ completion: ((Error?) -> Void)? = nil) {
-        handleEvent(completion: completion) { lifecycleModule in
-            try lifecycleModule.launch(data: event)
-        }
-
-    }
-
-    public func wake(_ event: DataObject?, _ completion: ((Error?) -> Void)? = nil) {
-        handleEvent(completion: completion) { lifecycleModule in
-            try lifecycleModule.wake(data: event)
-        }
-    }
-
-    public func sleep(_ event: DataObject?, _ completion: ((Error?) -> Void)? = nil) {
-        handleEvent(completion: completion) { lifecycleModule in
-            try lifecycleModule.sleep(data: event)
-        }
+    public func sleep(_ event: DataObject?, _ completion: ErrorHandlingCompletion? = nil) {
+        moduleProxy.executeModuleTask({ module in
+            try module.sleep(data: event)
+        }, completion: completion)
     }
 }

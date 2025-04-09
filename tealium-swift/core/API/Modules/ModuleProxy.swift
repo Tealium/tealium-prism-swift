@@ -8,6 +8,8 @@
 
 import Foundation
 
+public typealias ErrorHandlingCompletion = (Error?) -> Void
+
 /**
  * A `ModuleProxy` is to be used for proxying access to modules that are or were available
  * to access from the main `Tealium` implementation.
@@ -87,4 +89,45 @@ public class ModuleProxy<Module: TealiumModule> {
                 completion(manager?.getModule())
             }
     }
+
+    /**
+     * Executes task for the `Module` and calls the completion block either with `nil` or `error` (if task throws or module is disabled).
+     *
+     * Example of usage inside a custom module wrapper:
+     *
+     *     class MyModuleWrapper {
+     *         private let moduleProxy: ModuleProxy<MyModule>
+     *         init(moduleProxy: ModuleProxy<MyModule>) {
+     *             self.moduleProxy = moduleProxy
+     *         }
+     *         func doStuff(_ completion: ErrorHandlingCompletion? = nil) {
+     *             moduleProxy.executeModuleTask({ module in
+     *                 module.doStuff()
+     *             }, completion: completion)
+     *         }
+     *         func throwStuff(_ completion: ErrorHandlingCompletion? = nil) {
+     *             moduleProxy.executeModuleTask({ module in
+     *                 try module.throwStuff()
+     *             }, completion: completion)
+     *         }
+     *     }
+     *
+     * - Parameters:
+     *   - task: the task to be executed if module is enabled
+     *   - completion: the completion block to handle an optional error
+     */
+    public func executeModuleTask(_ task: @escaping (Module) throws -> Void, completion: ErrorHandlingCompletion?) {
+            getModule { module in
+                guard let module else {
+                    completion?(TealiumError.moduleNotEnabled)
+                    return
+                }
+                do {
+                    try task(module)
+                    completion?(nil)
+                } catch {
+                    completion?(error)
+                }
+            }
+        }
 }

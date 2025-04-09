@@ -1,0 +1,83 @@
+//
+//  ModuleProxy+ExecuteTaskTests.swift
+//  tealium-swift
+//
+//  Created by Den Guzov on 08/04/2025.
+//  Copyright © 2025 Tealium, Inc. All rights reserved.
+//
+
+@testable import TealiumSwift
+import XCTest
+
+final class ModuleProxyExecuteTaskTests: XCTestCase {
+    let dbProvider = MockDatabaseProvider()
+    let queue = TealiumQueue.worker
+    let tracker = MockTracker()
+    lazy var manager = ModulesManager(queue: queue)
+    lazy var onManager: ReplaySubject<ModulesManager?> = ReplaySubject(initialValue: manager)
+    lazy var config: TealiumConfig = mockConfig
+    @StateSubject(CoreSettings())
+    var coreSettings
+    lazy var moduleProxy = ModuleProxy<MockModule>(onModulesManager: onManager.asObservable())
+    func context() -> TealiumContext {
+        TealiumContext(modulesManager: manager,
+                       config: config,
+                       coreSettings: coreSettings,
+                       tracker: tracker,
+                       barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
+                       transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
+                                                                   transformations: StateSubject([]).toStatefulObservable(),
+                                                                   queue: queue),
+                       databaseProvider: dbProvider,
+                       moduleStoreProvider: ModuleStoreProvider(databaseProvider: dbProvider,
+                                                                modulesRepository: SQLModulesRepository(dbProvider: dbProvider)),
+                       logger: nil,
+                       networkHelper: MockNetworkHelper(),
+                       activityListener: ApplicationStatusListener.shared,
+                       queue: queue,
+                       visitorId: mockVisitorId)
+    }
+
+    override func setUp() {
+        config.modules = [DefaultModuleFactory<MockModule>()]
+        manager.updateSettings(context: context(), settings: SDKSettings([:]))
+    }
+
+    func test_executeModuleTask_completes_with_error_which_task_has_thrown() {
+        let errorCaught = expectation(description: "Error caught")
+        moduleProxy.executeModuleTask { _ in
+            throw TealiumError.genericError("test error")
+        } completion: { error in
+            guard case .genericError("test error") = error as? TealiumError else {
+                XCTFail("Unexpected error: \(String(describing: error))")
+                return
+            }
+            errorCaught.fulfill()
+        }
+        waitOnQueue(queue: queue)
+    }
+
+    func test_executeModuleTask_completes_without_error_when_task_completes_successfully() {
+        let errorNotCaught = expectation(description: "Error not caught")
+        moduleProxy.executeModuleTask { _ in
+        } completion: { error in
+            XCTAssertNil(error)
+            errorNotCaught.fulfill()
+        }
+        waitOnQueue(queue: queue)
+    }
+
+    func test_executeModuleTask_completes_with_moduleNotEnabled_error_when_module_disabled() {
+        manager.updateSettings(context: context(), settings: SDKSettings(modules: [MockModule.id: ModuleSettingsBuilder().setEnabled(false).build()]))
+        let errorCaught = expectation(description: "Error caught")
+        moduleProxy.executeModuleTask { _ in
+        } completion: { error in
+            guard case .moduleNotEnabled = error as? TealiumError else {
+                XCTFail("Unexpected error: \(String(describing: error))")
+                return
+            }
+            errorCaught.fulfill()
+        }
+        waitOnQueue(queue: queue)
+    }
+}

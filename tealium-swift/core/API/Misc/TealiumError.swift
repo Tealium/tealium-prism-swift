@@ -9,5 +9,5 @@
 import Foundation
 
 public enum TealiumError: Error, TealiumErrorEnum {
-    case moduleNotEnabled, initializationError(Error?)
+    case moduleNotEnabled, initializationError(Error?), genericError(String?)
 }

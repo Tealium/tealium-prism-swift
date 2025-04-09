@@ -9,7 +9,7 @@
 import Foundation
 
 class ConnectivityCollector: TealiumBasicModule, Collector {
-    var version: String = TealiumConstants.libraryVersion
+    let version: String = TealiumConstants.libraryVersion
     static var canBeDisabled: Bool { true }
     static let id: String = "Connectivity"
     let monitor: ConnectivityMonitorProtocol
