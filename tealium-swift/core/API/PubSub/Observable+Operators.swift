@@ -228,7 +228,8 @@ public extension Observable {
         }
     }
 
-    /// Returns an observable that automatically unsubscribes when the provided condition is no longer met. If inclusive is `true` the last element will also be published.
+    /// Returns an observable that automatically unsubscribes when the provided condition is no longer met.
+    /// If inclusive is `true` the last element will also be published.
     func takeWhile(_ isIncluded: @escaping (Element) -> Bool, inclusive: Bool = false) -> Observable<Element> {
         CustomObservable<Element> { observer in
             let container = DisposeContainer()
@@ -247,6 +248,7 @@ public extension Observable {
         }
     }
 
+    /// Returns an observable that emits subsequent values only if they are different from the last one emitted by the underlying observable.
     func distinct(isEqual: @escaping (Element, Element) -> Bool) -> Observable<Element> {
         CustomObservable<Element> { observer in
             var lastElement: Element?
@@ -262,6 +264,11 @@ public extension Observable {
                 }
             }
         }
+    }
+
+    /// Returns a `Single` that only emits the first value from the underlying observable, on the given `TealiumQueue`.
+    func asSingle(queue: TealiumQueue) -> any Single<Element> {
+        SingleImpl(observable: self, queue: queue)
     }
 }
 

@@ -17,28 +17,17 @@ public protocol TraceManager {
      * Joins a Trace for the given `id`. The trace id will be added to all future
      * events that are tracked until either `leave` is called, or the current session expires.
      */
-    func join(id: String, _ completion: ErrorHandlingCompletion?)
+    @discardableResult
+    func join(id: String) -> any Single<Result<Void, Error>>
     /**
      * Leaves the current trace if one has been joined.
      */
-    func leave(_ completion: ErrorHandlingCompletion?)
+    @discardableResult
+    func leave() -> any Single<Result<Void, Error>>
     /**
      * Attempts to kill the visitor session for the current trace.
      * The Trace will remain active until `leave` is called.
      */
-    func killVisitorSession(_ completion: ErrorHandlingCompletion?)
-}
-
-public extension TraceManager {
-    func join(id: String) {
-        join(id: id, nil)
-    }
-
-    func leave() {
-        leave(nil)
-    }
-
-    func killVisitorSession() {
-        killVisitorSession(nil)
-    }
+    @discardableResult
+    func killVisitorSession() -> any Single<Result<Void, Error>>
 }

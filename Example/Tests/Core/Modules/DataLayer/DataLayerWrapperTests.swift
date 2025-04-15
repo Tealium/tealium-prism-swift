@@ -48,7 +48,7 @@ final class DataLayerWrapperTests: BaseDataLayerWrapperTests {
     func test_put_and_remove_single_value() {
         let completionCalled = expectation(description: "Completion is called")
         wrapper.put(key: "key", value: "value")
-        wrapper.get(key: "key") { value in
+        wrapper.get(key: "key", as: String.self).onSuccess { value in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertEqual(value, "value")
             completionCalled.fulfill()
@@ -56,7 +56,7 @@ final class DataLayerWrapperTests: BaseDataLayerWrapperTests {
         waitOnQueue(queue: queue)
         let secondCompletionCalled = expectation(description: "Second completion is called")
         wrapper.remove(key: "key")
-        wrapper.getDataItem(key: "key") { value in
+        wrapper.getDataItem(key: "key").onSuccess { value in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertNil(value)
             secondCompletionCalled.fulfill()
@@ -68,12 +68,12 @@ final class DataLayerWrapperTests: BaseDataLayerWrapperTests {
         let completionCalled = expectation(description: "Completion is called")
         completionCalled.expectedFulfillmentCount = 2
         wrapper.put(data: ["key1": "value1", "key2": "value2"])
-        wrapper.get(key: "key1") { value in
+        wrapper.get(key: "key1", as: String.self).onSuccess { value in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertEqual(value, "value1")
             completionCalled.fulfill()
         }
-        wrapper.get(key: "key2") { value in
+        wrapper.get(key: "key2", as: String.self).onSuccess { value in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertEqual(value, "value2")
             completionCalled.fulfill()
@@ -82,12 +82,12 @@ final class DataLayerWrapperTests: BaseDataLayerWrapperTests {
         let secondCompletionCalled = expectation(description: "Second completion is called")
         secondCompletionCalled.expectedFulfillmentCount = 2
         wrapper.remove(keys: ["key1", "key2"])
-        wrapper.getDataItem(key: "key1") { value in
+        wrapper.getDataItem(key: "key1").onSuccess { value in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertNil(value)
             secondCompletionCalled.fulfill()
         }
-        wrapper.getDataItem(key: "key2") { value in
+        wrapper.getDataItem(key: "key2").onSuccess { value in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertNil(value)
             secondCompletionCalled.fulfill()
@@ -99,12 +99,12 @@ final class DataLayerWrapperTests: BaseDataLayerWrapperTests {
         let completionCalled = expectation(description: "Completion is called")
         completionCalled.expectedFulfillmentCount = 2
         wrapper.put(data: ["key1": "value1", "key2": "value2"])
-        wrapper.get(key: "key1") { value in
+        wrapper.get(key: "key1", as: String.self).onSuccess { value in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertEqual(value, "value1")
             completionCalled.fulfill()
         }
-        wrapper.get(key: "key2") { value in
+        wrapper.get(key: "key2", as: String.self).onSuccess { value in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertEqual(value, "value2")
             completionCalled.fulfill()
@@ -113,12 +113,12 @@ final class DataLayerWrapperTests: BaseDataLayerWrapperTests {
         let secondCompletionCalled = expectation(description: "Second completion is called")
         secondCompletionCalled.expectedFulfillmentCount = 2
         wrapper.clear()
-        wrapper.getDataItem(key: "key1") { value in
+        wrapper.getDataItem(key: "key1").onSuccess { value in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertNil(value)
             secondCompletionCalled.fulfill()
         }
-        wrapper.getDataItem(key: "key2") { value in
+        wrapper.getDataItem(key: "key2").onSuccess { value in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertNil(value)
             secondCompletionCalled.fulfill()

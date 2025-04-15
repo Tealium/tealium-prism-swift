@@ -120,13 +120,15 @@ final class LifecycleWrapperTests: XCTestCase {
     func test_launch_completion_gets_called_without_error_and_with_one_when_order_is_invalid() {
         let calledWithoutError = expectation(description: "Completion is called without error")
         let calledWithError = expectation(description: "Completion is called with error")
-        wrapper.launch(nil) { error in
-            XCTAssertNil(error)
+        _ = wrapper.launch(nil).subscribe { result in
+            XCTAssertResultIsSuccess(result)
             calledWithoutError.fulfill()
         }
-        wrapper.launch(nil) { error in
-            XCTAssertEqual(error as? LifecycleError, LifecycleError.invalidEventOrder)
-            calledWithError.fulfill()
+        _ = wrapper.launch(nil).subscribe { result in
+            XCTAssertResultIsFailure(result) { error in
+                XCTAssertEqual(error as? LifecycleError, LifecycleError.invalidEventOrder)
+                calledWithError.fulfill()
+            }
         }
         waitOnQueue(queue: queue)
     }
@@ -135,13 +137,15 @@ final class LifecycleWrapperTests: XCTestCase {
         let calledWithoutError = expectation(description: "Completion is called without error")
         let calledWithError = expectation(description: "Completion is called with error")
         wrapper.launch()
-        wrapper.sleep(nil) { error in
-            XCTAssertNil(error)
+        _ = wrapper.sleep(nil).subscribe { result in
+            XCTAssertResultIsSuccess(result)
             calledWithoutError.fulfill()
         }
-        wrapper.sleep(nil) { error in
-            XCTAssertEqual(error as? LifecycleError, LifecycleError.invalidEventOrder)
-            calledWithError.fulfill()
+        _ = wrapper.sleep(nil).subscribe { result in
+            XCTAssertResultIsFailure(result) { error in
+                XCTAssertEqual(error as? LifecycleError, LifecycleError.invalidEventOrder)
+                calledWithError.fulfill()
+            }
         }
         waitOnQueue(queue: queue)
     }
@@ -151,13 +155,15 @@ final class LifecycleWrapperTests: XCTestCase {
         let calledWithError = expectation(description: "Completion is called with error")
         wrapper.launch()
         wrapper.sleep()
-        wrapper.wake(nil) { error in
-            XCTAssertNil(error)
+        _ = wrapper.wake(nil).subscribe { result in
+            XCTAssertResultIsSuccess(result)
             calledWithoutError.fulfill()
         }
-        wrapper.wake(nil) { error in
-            XCTAssertEqual(error as? LifecycleError, LifecycleError.invalidEventOrder)
-            calledWithError.fulfill()
+        _ = wrapper.wake(nil).subscribe { result in
+            XCTAssertResultIsFailure(result) { error in
+                XCTAssertEqual(error as? LifecycleError, LifecycleError.invalidEventOrder)
+                calledWithError.fulfill()
+            }
         }
         waitOnQueue(queue: queue)
     }

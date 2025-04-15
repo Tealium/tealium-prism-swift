@@ -16,73 +16,60 @@ public protocol Lifecycle {
      * - Warning: Only use if lifecycle auto-tracking is disabled.
      * - Parameters:
      *   - dataObject: Optional data to be sent with launch event.
-     *   - completion: Optional completion block, which is going to be called with error if operation is unsuccessful, or without any arguments otherwise.
+     * - Returns: A `Single` onto which to subscribe to receive the completion with the eventual error in case of failure.
      */
-    func launch(_ dataObject: DataObject?, _ completion: ErrorHandlingCompletion?)
+    @discardableResult
+    func launch(_ dataObject: DataObject?) -> any Single<Result<Void, Error>>
 
     /**
      * Sends a wake event and gathers all lifecycle data at the time event is triggered.
      * - Warning: Only use if lifecycle auto-tracking is disabled.
      * - Parameters:
      *   - dataObject: Optional data to be sent with wake event.
-     *   - completion: Optional completion block, which is going to be called with error if operation is unsuccessful, or without any arguments otherwise.
+     * - Returns: A `Single` onto which to subscribe to receive the completion with the eventual error in case of failure.
      */
-    func wake(_ dataObject: DataObject?, _ completion: ErrorHandlingCompletion?)
+    @discardableResult
+    func wake(_ dataObject: DataObject?) -> any Single<Result<Void, Error>>
 
     /**
      * Sends a sleep event and gathers all lifecycle data at the time event is triggered.
      * - Warning: Only use if lifecycle auto-tracking is disabled.
      * - Parameters:
      *   - dataObject: Optional data to be sent with sleep event.
-     *   - completion: Optional completion block, which is going to be called with error if operation is unsuccessful, or without any arguments otherwise.
+     * - Returns: A `Single` onto which to subscribe to receive the completion with the eventual error in case of failure.
      */
-    func sleep(_ dataObject: DataObject?, _ completion: ErrorHandlingCompletion?)
+    @discardableResult
+    func sleep(_ dataObject: DataObject?) -> any Single<Result<Void, Error>>
 }
 
 public extension Lifecycle {
     /**
      * Sends a launch event and gathers all lifecycle data at the time event is triggered.
      * - Warning: Only use if lifecycle auto-tracking is disabled.
+     * - Returns: A `Single` onto which to subscribe to receive the completion with the eventual error in case of failure.
      */
-    func launch() {
+    @discardableResult
+    func launch() -> any Single<Result<Void, Error>> {
         launch(nil)
     }
-    /**
-     * Sends a launch event and gathers all lifecycle data at the time event is triggered.
-     * - Warning: Only use if lifecycle auto-tracking is disabled.
-     * - parameter dataObject: Optional data to be sent with event.
-     */
-    func launch(_ dataObject: DataObject?) {
-        launch(dataObject, nil)
-    }
+
     /**
      * Sends a wake event and gathers all lifecycle data at the time event is triggered.
      * - Warning: Only use if lifecycle auto-tracking is disabled.
+     * - Returns: A `Single` onto which to subscribe to receive the completion with the eventual error in case of failure.
      */
-    func wake() {
+    @discardableResult
+    func wake() -> any Single<Result<Void, Error>> {
         wake(nil)
     }
-    /**
-     * Sends a wake event and gathers all lifecycle data at the time event is triggered.
-     * - Warning: Only use if lifecycle auto-tracking is disabled.
-     * - parameter dataObject: Optional data to be sent with event.
-     */
-    func wake(_ dataObject: DataObject?) {
-        wake(dataObject, nil)
-    }
+
     /**
      * Sends a sleep event and gathers all lifecycle data at the time event is triggered.
      * - Warning: Only use if lifecycle auto-tracking is disabled.
+     * - Returns: A `Single` onto which to subscribe to receive the completion with the eventual error in case of failure.
      */
-    func sleep() {
+    @discardableResult
+    func sleep() -> any Single<Result<Void, Error>> {
         sleep(nil)
-    }
-    /**
-     * Sends a sleep event and gathers all lifecycle data at the time event is triggered.
-     * - Warning: Only use if lifecycle auto-tracking is disabled.
-     * - parameter dataObject: Optional data to be sent with event.
-     */
-    func sleep(_ dataObject: DataObject?) {
-        sleep(dataObject, nil)
     }
 }

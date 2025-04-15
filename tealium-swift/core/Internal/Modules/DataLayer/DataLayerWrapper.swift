@@ -36,45 +36,86 @@ class DataLayerWrapper: DataLayer {
         }
     }
 
-    func put(data: DataObject, expiry: Expiry) {
-        getModule { dataLayer in
-            dataLayer?.put(data: data, expiry: expiry)
+    @discardableResult
+    func put(data: DataObject, expiry: Expiry) -> any Single<Result<Void, Error>> {
+        moduleProxy.executeModuleTask { module in
+            try module.put(data: data, expiry: expiry)
         }
     }
 
-    func put(key: String, value: DataInput, expiry: Expiry) {
-        getModule { dataLayer in
-            dataLayer?.put(key: key, value: value, expiry: expiry)
+    @discardableResult
+    func put(key: String, value: DataInput, expiry: Expiry) -> any Single<Result<Void, Error>> {
+        moduleProxy.executeModuleTask { module in
+            try module.put(key: key, value: value, expiry: expiry)
         }
     }
 
-    func remove(key: String) {
-        getModule { dataLayer in
-            dataLayer?.remove(key: key)
+    @discardableResult
+    func remove(key: String) -> any Single<Result<Void, Error>> {
+        moduleProxy.executeModuleTask { module in
+            try module.remove(key: key)
         }
     }
 
-    func remove(keys: [String]) {
-        getModule { dataLayer in
-            dataLayer?.remove(keys: keys)
+    @discardableResult
+    func remove(keys: [String]) -> any Single<Result<Void, Error>> {
+        moduleProxy.executeModuleTask { module in
+            try module.remove(keys: keys)
         }
     }
 
-    func clear() {
-        getModule { dataLayer in
-            dataLayer?.clear()
+    @discardableResult
+    func clear() -> any Single<Result<Void, Error>> {
+        moduleProxy.executeModuleTask { module in
+            try module.clear()
         }
     }
 
-    func getDataItem(key: String, completion: @escaping (DataItem?) -> Void) {
-        getModule { dataLayer in
-            completion(dataLayer?.getDataItem(key: key))
+    func getDataItem(key: String) -> any Single<Result<DataItem?, Error>> {
+        moduleProxy.executeModuleTask { module in
+            module.getDataItem(key: key)
         }
     }
 
-    func getAll(completion: @escaping (DataObject?) -> Void) {
-        getModule { dataLayer in
-            completion(dataLayer?.getAll())
+    func getAll() -> any Single<Result<DataObject, Error>> {
+        moduleProxy.executeModuleTask { module in
+            module.getAll()
+        }
+    }
+
+    func get<T: DataInput>(key: String, as type: T.Type) -> any Single<Result<T?, any Error>> {
+        moduleProxy.executeModuleTask { module in
+            module.get(key: key, as: type)
+        }
+    }
+
+    func getConvertible<T>(key: String, converter: any DataItemConverter<T>) -> any Single<Result<T?, any Error>> {
+        moduleProxy.executeModuleTask { module in
+            module.getConvertible(key: key, converter: converter)
+        }
+    }
+
+    func getDataArray(key: String) -> any Single<Result<[DataItem]?, any Error>> {
+        moduleProxy.executeModuleTask { module in
+            module.getDataArray(key: key)
+        }
+    }
+
+    func getDataDictionary(key: String) -> any Single<Result<[String: DataItem]?, any Error>> {
+        moduleProxy.executeModuleTask { module in
+            module.getDataDictionary(key: key)
+        }
+    }
+
+    func getArray<T: DataInput>(key: String, of type: T.Type) -> any Single<Result<[T?]?, any Error>> {
+        moduleProxy.executeModuleTask { module in
+            module.getArray(key: key, of: type)
+        }
+    }
+
+    func getDictionary<T: DataInput>(key: String, of type: T.Type) -> any Single<Result<[String: T?]?, any Error>> {
+        moduleProxy.executeModuleTask { module in
+            module.getDictionary(key: key, of: type)
         }
     }
 }

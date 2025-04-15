@@ -11,12 +11,12 @@ import SwiftUI
 class ContentViewModel: ObservableObject {
     @Published var email: String = ""
     init() {
-        TealiumHelper.shared.teal?.dataLayer.get(key: "emai", as: String.self, completion: { email in
+        TealiumHelper.shared.teal?.dataLayer.get(key: "email", as: String.self).onSuccess { email in
             guard let email else { return }
             DispatchQueue.main.async {
                 self.email = email
             }
-        })
+        }
     }
 }
 

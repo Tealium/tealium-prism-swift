@@ -12,21 +12,24 @@ class LifecycleWrapper: Lifecycle {
         self.moduleProxy = moduleProxy
     }
 
-    public func launch(_ event: DataObject?, _ completion: ErrorHandlingCompletion? = nil) {
-        moduleProxy.executeModuleTask({ module in
+    @discardableResult
+    func launch(_ event: DataObject?) -> any Single<Result<Void, Error>> {
+        moduleProxy.executeModuleTask { module in
             try module.launch(data: event)
-        }, completion: completion)
+        }
     }
 
-    public func wake(_ event: DataObject?, _ completion: ErrorHandlingCompletion? = nil) {
-        moduleProxy.executeModuleTask({ module in
+    @discardableResult
+    func wake(_ event: DataObject?) -> any Single<Result<Void, Error>> {
+        moduleProxy.executeModuleTask { module in
             try module.wake(data: event)
-        }, completion: completion)
+        }
     }
 
-    public func sleep(_ event: DataObject?, _ completion: ErrorHandlingCompletion? = nil) {
-        moduleProxy.executeModuleTask({ module in
+    @discardableResult
+    func sleep(_ event: DataObject?) -> any Single<Result<Void, Error>> {
+        moduleProxy.executeModuleTask { module in
             try module.sleep(data: event)
-        }, completion: completion)
+        }
     }
 }

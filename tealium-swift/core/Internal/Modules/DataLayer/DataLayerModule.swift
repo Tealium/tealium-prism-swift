@@ -24,32 +24,32 @@ class DataLayerModule: TealiumBasicModule {
         self.dataStore = dataStore
     }
 
-    func put(data: DataObject, expiry: Expiry) {
-        try? dataStore.edit()
+    func put(data: DataObject, expiry: Expiry) throws {
+        try dataStore.edit()
             .putAll(dataObject: data, expiry: expiry)
             .commit()
     }
 
-    func put(key: String, value: DataInput, expiry: Expiry) {
-        try? dataStore.edit()
+    func put(key: String, value: DataInput, expiry: Expiry) throws {
+        try dataStore.edit()
             .put(key: key, value: value, expiry: expiry)
             .commit()
     }
 
-    func remove(key: String) {
-        try? dataStore.edit()
+    func remove(key: String) throws {
+        try dataStore.edit()
             .remove(key: key)
             .commit()
     }
 
-    func remove(keys: [String]) {
-        try? dataStore.edit()
+    func remove(keys: [String]) throws {
+        try dataStore.edit()
             .remove(keys: keys)
             .commit()
     }
 
-    func clear() {
-        try? dataStore.edit()
+    func clear() throws {
+        try dataStore.edit()
             .clear()
             .commit()
     }

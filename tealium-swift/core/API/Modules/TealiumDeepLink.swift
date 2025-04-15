@@ -74,21 +74,21 @@ class DeepLinkModule: TealiumBasicModule {
         if deeplinkTrackingEnabled {
             // TODO: replace the whole thing with custom storage (since deeplink is module with its own storage)
             let oldQueryParamKeys: [String] = dataLayer.getAll().keys.filter { $0.starts(with: TealiumDataKey.deepLinkQueryPrefix) }
-            dataLayer.remove(keys: oldQueryParamKeys + [TealiumDataKey.deepLinkReferrerUrl, TealiumDataKey.deepLinkReferrerApp])
+            try? dataLayer.remove(keys: oldQueryParamKeys + [TealiumDataKey.deepLinkReferrerUrl, TealiumDataKey.deepLinkReferrerApp])
             switch referrer {
             case .url(let url):
-                dataLayer.put(key: TealiumDataKey.deepLinkReferrerUrl, value: url.absoluteString, expiry: .session)
+                try? dataLayer.put(key: TealiumDataKey.deepLinkReferrerUrl, value: url.absoluteString, expiry: .session)
             case .app(let identifier):
-                dataLayer.put(key: TealiumDataKey.deepLinkReferrerApp, value: identifier, expiry: .session)
+                try? dataLayer.put(key: TealiumDataKey.deepLinkReferrerApp, value: identifier, expiry: .session)
             default:
                 break
             }
-            dataLayer.put(key: TealiumDataKey.deepLinkURL, value: link.absoluteString, expiry: .session)
+            try? dataLayer.put(key: TealiumDataKey.deepLinkURL, value: link.absoluteString, expiry: .session)
             queryItems?.forEach {
                 guard let value = $0.value else {
                     return
                 }
-                dataLayer.put(key: "\(TealiumDataKey.deepLinkQueryPrefix)_\($0.name)", value: value, expiry: .session)
+                try? dataLayer.put(key: "\(TealiumDataKey.deepLinkQueryPrefix)_\($0.name)", value: value, expiry: .session)
             }
         }
     }
@@ -125,7 +125,7 @@ class DeepLinkModule: TealiumBasicModule {
 
     /// Ends the current visitor session. Trace remains active, but visitor session is terminated.
     func killTraceVisitorSession(completion: ErrorHandlingCompletion? = nil) {
-        trace?.killVisitorSession(completion: completion)
+//        trace?.killVisitorSession(completion: completion)
     }
 
 }

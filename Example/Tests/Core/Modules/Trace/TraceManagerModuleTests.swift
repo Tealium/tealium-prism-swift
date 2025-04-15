@@ -22,12 +22,14 @@ final class TraceManagerModuleTests: XCTestCase {
 
     func test_killVisitorSession_completes_with_exception_when_not_in_trace() {
         let completesWithException = expectation(description: "Exception expected")
-        traceManager.killVisitorSession { error in
-            guard case .genericError = error as? TealiumError else {
-                XCTFail("Unexpected error: \(String(describing: error))")
-                return
+        traceManager.killVisitorSession { result in
+            XCTAssertResultIsFailure(result) { error in
+                guard case .genericError = error as? TealiumError else {
+                    XCTFail("Unexpected error: \(String(describing: error))")
+                    return
+                }
+                completesWithException.fulfill()
             }
-            completesWithException.fulfill()
         }
         waitForDefaultTimeout()
     }
@@ -57,8 +59,8 @@ final class TraceManagerModuleTests: XCTestCase {
     func test_killVisitorSession_completes_without_error_when_dispatch_accepted() throws {
         let completedSuccesfully = expectation(description: "Should complete successfully")
         try traceManager.join(id: "12345")
-        traceManager.killVisitorSession { error in
-            XCTAssertNil(error)
+        traceManager.killVisitorSession { result in
+            XCTAssertResultIsSuccess(result)
             completedSuccesfully.fulfill()
         }
         waitForDefaultTimeout()
@@ -68,12 +70,14 @@ final class TraceManagerModuleTests: XCTestCase {
         let completesWithException = expectation(description: "Exception expected")
         tracker.result = .dropped
         try traceManager.join(id: "12345")
-        traceManager.killVisitorSession { error in
-            guard case .genericError = error as? TealiumError else {
-                XCTFail("Unexpected error: \(String(describing: error))")
-                return
+        traceManager.killVisitorSession { result in
+            XCTAssertResultIsFailure(result) { error in
+                guard case .genericError = error as? TealiumError else {
+                    XCTFail("Unexpected error: \(String(describing: error))")
+                    return
+                }
+                completesWithException.fulfill()
             }
-            completesWithException.fulfill()
         }
         waitForDefaultTimeout()
     }

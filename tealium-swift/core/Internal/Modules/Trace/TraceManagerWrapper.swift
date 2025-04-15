@@ -12,25 +12,24 @@ class TraceManagerWrapper: TraceManager {
         self.moduleProxy = moduleProxy
     }
 
-    public func join(id: String, _ completion: ErrorHandlingCompletion? = nil) {
-        moduleProxy.executeModuleTask({ module in
+    @discardableResult
+    public func join(id: String) -> any Single<Result<Void, Error>> {
+        moduleProxy.executeModuleTask { module in
             try module.join(id: id)
-        }, completion: completion)
+        }
     }
 
-    public func leave(_ completion: ErrorHandlingCompletion? = nil) {
-        moduleProxy.executeModuleTask({ module in
+    @discardableResult
+    public func leave() -> any Single<Result<Void, Error>> {
+        moduleProxy.executeModuleTask { module in
             try module.leave()
-        }, completion: completion)
+        }
     }
 
-    public func killVisitorSession(_ completion: ErrorHandlingCompletion? = nil) {
-        moduleProxy.executeModuleTask({ module in
+    @discardableResult
+    public func killVisitorSession() -> any Single<Result<Void, Error>> {
+        moduleProxy.executeModuleAsyncTask { module, completion in
             module.killVisitorSession(completion: completion)
-        }, completion: { error in
-            if let error {
-                completion?(error)
-            }
-        })
+        }
     }
 }

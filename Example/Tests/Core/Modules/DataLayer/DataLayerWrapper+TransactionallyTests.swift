@@ -27,7 +27,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
         }
-        wrapper.getDataItem(key: "key") { item in
+        wrapper.getDataItem(key: "key").onSuccess { item in
             XCTAssertNil(item)
             getCompleted.fulfill()
         }
@@ -43,7 +43,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
         }
-        wrapper.getDataItem(key: "key") { item in
+        wrapper.getDataItem(key: "key").onSuccess { item in
             XCTAssertNil(item)
             getCompleted.fulfill()
         }
@@ -59,7 +59,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
         }
-        wrapper.get(key: "key") { item in
+        wrapper.get(key: "key", as: String.self).onSuccess { item in
             XCTAssertEqual(item, "value")
             getCompleted.fulfill()
         }
@@ -76,7 +76,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
         }
-        wrapper.get(key: "key") { item in
+        wrapper.get(key: "key", as: String.self).onSuccess { item in
             XCTAssertEqual(item, "value")
             getCompleted.fulfill()
         }
@@ -92,7 +92,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
         }
-        wrapper.get(key: "key") { item in
+        wrapper.get(key: "key", as: String.self).onSuccess { item in
             XCTAssertEqual(item, "value")
             getCompleted.fulfill()
         }
@@ -109,7 +109,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
         }
-        wrapper.getDataItem(key: "key") { item in
+        wrapper.getDataItem(key: "key").onSuccess { item in
             XCTAssertNil(item)
             getCompleted.fulfill()
         }
@@ -188,7 +188,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
         }
-        wrapper.get(key: "key") { item in
+        wrapper.get(key: "key", as: String.self).onSuccess { item in
             XCTAssertEqual(item, "value")
             getCompleted.fulfill()
         }

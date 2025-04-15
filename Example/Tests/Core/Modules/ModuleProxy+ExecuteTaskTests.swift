@@ -45,11 +45,12 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
 
     func test_executeModuleTask_completes_with_error_which_task_has_thrown() {
         let errorCaught = expectation(description: "Error caught")
-        moduleProxy.executeModuleTask { _ in
+        let single = moduleProxy.executeModuleTask { _ in
             throw TealiumError.genericError("test error")
-        } completion: { error in
-            guard case .genericError("test error") = error as? TealiumError else {
-                XCTFail("Unexpected error: \(String(describing: error))")
+        }
+        _ = single.subscribe { result in
+            guard case .genericError("test error") = result.getError() as? TealiumError else {
+                XCTFail("Unexpected result: \(result)")
                 return
             }
             errorCaught.fulfill()
@@ -59,9 +60,10 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
 
     func test_executeModuleTask_completes_without_error_when_task_completes_successfully() {
         let errorNotCaught = expectation(description: "Error not caught")
-        moduleProxy.executeModuleTask { _ in
-        } completion: { error in
-            XCTAssertNil(error)
+        let single = moduleProxy.executeModuleTask { _ in
+        }
+        _ = single.subscribe { result in
+            XCTAssertNil(result.getError())
             errorNotCaught.fulfill()
         }
         waitOnQueue(queue: queue)
@@ -70,10 +72,54 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
     func test_executeModuleTask_completes_with_moduleNotEnabled_error_when_module_disabled() {
         manager.updateSettings(context: context(), settings: SDKSettings(modules: [MockModule.id: ModuleSettingsBuilder().setEnabled(false).build()]))
         let errorCaught = expectation(description: "Error caught")
-        moduleProxy.executeModuleTask { _ in
-        } completion: { error in
-            guard case .moduleNotEnabled = error as? TealiumError else {
-                XCTFail("Unexpected error: \(String(describing: error))")
+        let single = moduleProxy.executeModuleTask { _ in
+        }
+        _ = single.subscribe { result in
+            guard case .moduleNotEnabled = result.getError() as? TealiumError else {
+                XCTFail("Unexpected result: \(result)")
+                return
+            }
+            errorCaught.fulfill()
+        }
+        waitOnQueue(queue: queue)
+    }
+
+    func test_executeModuleAsyncTask_completes_with_error_which_task_has_thrown() {
+        let errorCaught = expectation(description: "Error caught")
+        let single: any Single<Result<Void, Error>> = moduleProxy.executeModuleAsyncTask { _, completion in
+            completion(.failure(TealiumError.genericError("test error")))
+        }
+        _ = single.subscribe { result in
+            guard case .genericError("test error") = result.getError() as? TealiumError else {
+                XCTFail("Unexpected result: \(result)")
+                return
+            }
+            errorCaught.fulfill()
+        }
+        waitOnQueue(queue: queue)
+    }
+
+    func test_executeModuleAsyncTask_completes_without_error_when_task_completes_successfully() {
+        let errorNotCaught = expectation(description: "Error not caught")
+        let single: any Single<Result<Void, Error>> = moduleProxy.executeModuleAsyncTask { _, completion in
+            completion(.success(()))
+        }
+        _ = single.subscribe { result in
+            XCTAssertNil(result.getError())
+            errorNotCaught.fulfill()
+        }
+        waitOnQueue(queue: queue)
+    }
+
+    func test_executeModuleAsyncTask_completes_with_moduleNotEnabled_error_when_module_disabled() {
+        manager.updateSettings(context: context(), settings: SDKSettings(modules: [MockModule.id: ModuleSettingsBuilder().setEnabled(false).build()]))
+        let errorCaught = expectation(description: "Error caught")
+        let single: any Single<Result<Void, Error>> = moduleProxy.executeModuleAsyncTask { _, completion in
+            completion(.success(()))
+        }
+        _ = single.subscribe { result in
+            guard case .moduleNotEnabled = result.getError() as? TealiumError else {
+                XCTFail("Unexpected result: \(result)")
                 return
             }
             errorCaught.fulfill()

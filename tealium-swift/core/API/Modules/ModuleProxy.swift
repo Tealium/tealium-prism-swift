@@ -21,6 +21,9 @@ public class ModuleProxy<Module: TealiumModule> {
     private let onModulesManager: Observable<ModulesManager?>
     private let queue: TealiumQueue
 
+    public typealias Task<T> = (_ module: Module) throws -> T
+    public typealias AsyncTask<T> = (_ module: Module, _ completion: @escaping (Result<T, Error>) -> Void) -> Void
+
     /**
      * Initialize the `ModuleProxy` for a specific `TealiumModule`.
      *
@@ -91,43 +94,112 @@ public class ModuleProxy<Module: TealiumModule> {
     }
 
     /**
-     * Executes task for the `Module` and calls the completion block either with `nil` or `error` (if task throws or module is disabled).
+     * Executes a task for the `Module` and returns a `Single` with the `Result`.
      *
      * Example of usage inside a custom module wrapper:
      *
-     *     class MyModuleWrapper {
-     *         private let moduleProxy: ModuleProxy<MyModule>
-     *         init(moduleProxy: ModuleProxy<MyModule>) {
-     *             self.moduleProxy = moduleProxy
-     *         }
-     *         func doStuff(_ completion: ErrorHandlingCompletion? = nil) {
-     *             moduleProxy.executeModuleTask({ module in
-     *                 module.doStuff()
-     *             }, completion: completion)
-     *         }
-     *         func throwStuff(_ completion: ErrorHandlingCompletion? = nil) {
-     *             moduleProxy.executeModuleTask({ module in
-     *                 try module.throwStuff()
-     *             }, completion: completion)
+     * ```swift
+     * class MyModuleWrapper {
+     *     private let moduleProxy: ModuleProxy<MyModule>
+     *     init(moduleProxy: ModuleProxy<MyModule>) {
+     *         self.moduleProxy = moduleProxy
+     *     }
+     *     func doStuff() -> any Single<Result<SomeValue, Error>> {
+     *         moduleProxy.executeModuleTask { module in
+     *             module.doStuff() // returns `SomeValue`
      *         }
      *     }
+     *     func throwStuff() -> any Single<Result<SomeValue, Error>> {
+     *         moduleProxy.executeModuleTask { module in
+     *             try module.throwStuff() // throws an `Error`
+     *         }
+     *     }
+     * }
+     * ```
      *
      * - Parameters:
      *   - task: the task to be executed if module is enabled
-     *   - completion: the completion block to handle an optional error
+     * - Returns: the `Single` with the `Result`
      */
-    public func executeModuleTask(_ task: @escaping (Module) throws -> Void, completion: ErrorHandlingCompletion?) {
-            getModule { module in
-                guard let module else {
-                    completion?(TealiumError.moduleNotEnabled)
-                    return
-                }
-                do {
-                    try task(module)
-                    completion?(nil)
-                } catch {
-                    completion?(error)
-                }
+    public func executeModuleTask<T>(_ task: @escaping Task<T>) -> any Single<Result<T, Error>> {
+        executeModuleAsyncTask { module, completion in
+            do {
+                let result = try task(module)
+                completion(.success(result))
+            } catch {
+                completion(.failure(error))
             }
         }
+    }
+
+    /**
+     * Executes an async task for the `Module` and returns a `Single` with the `Result`.
+     *
+     * Example of usage inside a custom module wrapper:
+     *
+     * ```swift
+     * class MyModuleWrapper {
+     *     private let moduleProxy: ModuleProxy<MyModule>
+     *     init(moduleProxy: ModuleProxy<MyModule>) {
+     *         self.moduleProxy = moduleProxy
+     *     }
+     *     func doStuff() -> any Single<Result<SomeValue, Error>> {
+     *         moduleProxy.executeModuleTask { module, completion in
+     *             module.doStuff(completion: completion) // Completes with a `Result<SomeValue, Error>`
+     *         }
+     *     }
+     * }
+     * ```
+     *
+     * Note that the completion of the module method needs to be with a `Result` as well
+     * or the completion parameter needs to be converted to one like so:
+     *
+     * ```swift
+     * class MyModuleWrapper {
+     *     private let moduleProxy: ModuleProxy<MyModule>
+     *     init(moduleProxy: ModuleProxy<MyModule>) {
+     *         self.moduleProxy = moduleProxy
+     *     }
+     *     func doStuff() -> any Single<Result<Void, Error>> {
+     *         moduleProxy.executeModuleTask { module, completion in
+     *             module.doStuff { optionalData, optionalError in
+     *                  if let data = optionalData {
+     *                      completion(.success(data))
+     *                  } else if error = optionalError {
+     *                      completion(.failure(error))
+     *                  } else {
+     *                      completion(.failure(TealiumError.genericError("Unexpected completion data")
+     *                  }
+     *             }
+     *         }
+     *     }
+     * }
+     * ```
+     * - Parameters:
+     *   - task: the task to be executed if module is enabled
+     * - Returns: the `Single` with the `Result`.
+     */
+    public func executeModuleAsyncTask<T>(_ asyncTask: @escaping AsyncTask<T>) -> any Single<Result<T, Error>> {
+        // Use the replay subject to make the returned Single a HOT observable.
+        // A HOT observable doesn't require a subscription to start emitting events.
+        let replay = ReplaySubject<Result<T, Error>>()
+        _ = SingleImpl(observable: .Callback(from: { [weak self] observer in
+            guard let self else {
+                observer(.failure(TealiumError.moduleNotEnabled))
+                return
+            }
+            self.getModule { module in
+                guard let module else {
+                    observer(.failure(TealiumError.moduleNotEnabled))
+                    return
+                }
+                asyncTask(module) { result in
+                    observer(result)
+                }
+            }
+        }),
+                   queue: queue)
+            .subscribe(replay)
+        return replay.asObservable().asSingle(queue: queue)
+    }
 }

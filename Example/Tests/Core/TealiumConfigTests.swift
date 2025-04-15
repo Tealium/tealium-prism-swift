@@ -54,4 +54,34 @@ final class TealiumConfigTests: XCTestCase {
             ]
         ])
     }
+
+    func test_getEnforcedSDKSettings_returns_settings_with_loadRules() throws {
+        var config = TealiumConfig(account: "test",
+                                   profile: "test",
+                                   environment: "dev",
+                                   modules: [],
+                                   settingsFile: nil,
+                                   settingsUrl: nil)
+        config.setLoadRule(.just(.isDefined(variable: "key1")), forId: "rule1")
+        config.setLoadRule(.just(.isDefined(variable: "key2")), forId: "rule2")
+        let settings = config.getEnforcedSDKSettings()
+        XCTAssertEqual(settings, [
+            "load_rules": try DataItem(serializing: [
+                "rule1": [
+                    "id": "rule1",
+                    "conditions": [
+                        "variable": "key1",
+                        "operator": "defined"
+                    ]
+                ],
+                "rule2": [
+                    "id": "rule2",
+                    "conditions": [
+                        "variable": "key2",
+                        "operator": "defined"
+                    ]
+                ]
+            ])
+        ])
+    }
 }

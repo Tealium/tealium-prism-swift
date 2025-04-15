@@ -83,12 +83,14 @@ final class TraceManagerWrapperTests: XCTestCase {
     func test_killVisitorSession_completes_with_moduleNotEnabled_error_when_module_disabled() {
         let errorCaught = expectation(description: "Error caught")
         manager.updateSettings(context: context(), settings: SDKSettings(modules: [TraceManagerModule.id: ModuleSettingsBuilder().setEnabled(false).build()]))
-        wrapper.killVisitorSession { error in
-            guard case .moduleNotEnabled = error as? TealiumError else {
-                XCTFail("Unexpected error: \(String(describing: error))")
-                return
+        _ = wrapper.killVisitorSession().subscribe { result in
+            XCTAssertResultIsFailure(result) { error in
+                guard case .moduleNotEnabled = error as? TealiumError else {
+                    XCTFail("Unexpected error: \(String(describing: error))")
+                    return
+                }
+                errorCaught.fulfill()
             }
-            errorCaught.fulfill()
         }
         waitOnQueue(queue: queue)
     }
@@ -96,8 +98,8 @@ final class TraceManagerWrapperTests: XCTestCase {
     func test_killVisitorSession_completion_called_only_once_with_nil_on_successful_track() {
         let completionCalled = expectation(description: "Completion is called")
         wrapper.join(id: "12345")
-        wrapper.killVisitorSession { error in
-            XCTAssertNil(error)
+        _ = wrapper.killVisitorSession().subscribe { result in
+            XCTAssertResultIsSuccess(result)
             completionCalled.fulfill()
         }
         waitOnQueue(queue: queue)
@@ -107,8 +109,8 @@ final class TraceManagerWrapperTests: XCTestCase {
         let completionCalled = expectation(description: "Completion is called")
         tracker.result = .dropped
         wrapper.join(id: "12345")
-        wrapper.killVisitorSession { error in
-            XCTAssertNotNil(error)
+        _ = wrapper.killVisitorSession().subscribe { result in
+            XCTAssertResultIsFailure(result)
             completionCalled.fulfill()
         }
         waitOnQueue(queue: queue)
