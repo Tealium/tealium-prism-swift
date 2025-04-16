@@ -1,5 +1,5 @@
 //
-//  LifecycleObservableLoader.h
+//  SwiftClassesLoader.h
 //  tealium-swift
 //
 //  Created by Denis Guzov on 02/08/2024.
@@ -11,7 +11,7 @@
 
 //NS_ASSUME_NONNULL_BEGIN
 
-@interface LifecycleObservableLoader: NSObject
+@interface SwiftClassesLoader: NSObject
 
 @end
 

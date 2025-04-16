@@ -6,7 +6,7 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-#import "LifecycleObservableLoader.h"
+#import "SwiftClassesLoader.h"
 #if TARGET_OS_IOS
 
 #if COCOAPODS
@@ -23,10 +23,11 @@
 #endif
 #endif
 
-@implementation LifecycleObservableLoader
+@implementation SwiftClassesLoader
 
 +(void)load {
     [ApplicationStatusListener setup];
+    [TealiumDelegateProxy setup];
 }
 
 @end

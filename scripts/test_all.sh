@@ -1,7 +1,7 @@
 #!/bin/bash
 # Use this script to run all tests for all target locally before opening a PR to make sure they all pass
 cd "$(dirname "$0")" || { echo "cd failure"; exit 1; }
-declare -a SCHEMES=( "CoreTests_iOS" "CoreTests_tvOS" "CoreTests_macOS" "LifecycleTests_iOS")
+declare -a SCHEMES=( "CoreTests_iOS" "CoreTests_tvOS" "CoreTests_macOS" "DelegateProxyTests_iOS" "LifecycleTests_iOS")
 IOS_DESTINATION='platform=iOS Simulator,OS=17.5,name=iPhone 15 Pro'
 TVOS_DESTINATION='platform=tvOS Simulator,name=Apple TV'
 MACOS_DESTINATION='platform=macOS'

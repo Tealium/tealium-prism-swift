@@ -14,7 +14,7 @@ protocol DebouncerProtocol {
 }
 
 /**
- * A class that delays the exeution of a block of code until the time between debounce calls expires, resetting the timer on each subsequent debounce call.
+ * A class that delays the execution of a block of code until the time between debounce calls expires, resetting the timer on each subsequent debounce call.
  */
 class Debouncer: DebouncerProtocol {
     private var timer: TealiumRepeatingTimer?
