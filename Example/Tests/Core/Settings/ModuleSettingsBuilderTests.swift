@@ -10,7 +10,7 @@
 import XCTest
 
 final class ModuleSettingsBuilderTests: XCTestCase {
-    let builder = ModuleSettingsBuilder()
+    let builder = DispatcherSettingsBuilder()
     func test_build_returns_enabled_key_when_passed() {
         XCTAssertEqual(builder.setEnabled(true).build(),
                        ["enabled": true, "configuration": DataObject()])
@@ -35,5 +35,29 @@ final class ModuleSettingsBuilderTests: XCTestCase {
                             ]
                         ])
                        ])
+    }
+
+    func test_build_returns_mappings_when_passed() {
+        let mappingParameters = MappingParameters(key: VariableAccessor(variable: "inputVariable", path: nil),
+                                                  filter: nil,
+                                                  mapTo: nil)
+        let build = builder
+            .setMappings([TransformationOperation<MappingParameters>(output: VariableAccessor(variable: "outputVariable",
+                                                                                              path: nil),
+                                                           parameters: mappingParameters)])
+            .build()
+        XCTAssertEqual(build, [
+            "configuration": DataObject(),
+            "mappings": try DataItem(serializing: [[
+                "output": [
+                    "variable": "outputVariable"
+                ],
+                "parameters": [
+                    "key": [
+                        "variable": "inputVariable"
+                    ]
+                ]
+            ]])
+        ])
     }
 }

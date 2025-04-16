@@ -59,6 +59,7 @@ class DispatchManagerTestCase: XCTestCase {
                                                      onScopedBarriers: scopedBarriers)
     lazy var transformerCoordinator = TransformerCoordinator(transformers: transformers.toStatefulObservable(),
                                                              transformations: transformations,
+                                                             moduleMappings: StateSubject([:]).toStatefulObservable(),
                                                              queue: .main)
     lazy var context = TealiumContext(modulesManager: modulesManager,
                                       config: config,

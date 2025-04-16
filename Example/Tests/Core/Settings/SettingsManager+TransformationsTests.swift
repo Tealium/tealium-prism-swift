@@ -18,8 +18,8 @@ final class SettingsManagerTransformationsTests: SettingsManagerTestCase {
                                                         scopes: [.allDispatchers],
                                                         configuration: ["someKey": "someValue"]))
         let manager = try getManager()
-        let modulesSettings = manager.settings.value
-        guard let programmaticTransformation = modulesSettings.transformations.first(where: { $0.value.id == "programmaticTransformation" })?.value else {
+        let sdkSettings = manager.settings.value
+        guard let programmaticTransformation = sdkSettings.transformations.first(where: { $0.value.id == "programmaticTransformation" })?.value else {
             XCTFail("Programmatic transformation not found")
             return
         }
@@ -27,7 +27,7 @@ final class SettingsManagerTransformationsTests: SettingsManagerTestCase {
         XCTAssertEqual(programmaticTransformation.transformerId, "someTransformer")
         XCTAssertEqual(programmaticTransformation.scopes, [.allDispatchers])
         XCTAssertEqual(programmaticTransformation.configuration, ["someKey": "someValue"])
-        guard let localTransformation = modulesSettings.transformations.first(where: { $0.value.id == "transformationId" })?.value else {
+        guard let localTransformation = sdkSettings.transformations.first(where: { $0.value.id == "transformationId" })?.value else {
             XCTFail("Local transformation not found")
             return
         }
@@ -44,8 +44,8 @@ final class SettingsManagerTransformationsTests: SettingsManagerTestCase {
                                                         scopes: [.allDispatchers],
                                                         configuration: ["someKey": "someValue"]))
         let manager = try getManager()
-        let modulesSettings = manager.settings.value
-        guard let transformation = modulesSettings.transformations.first(where: { $0.value.id == "transformationId" })?.value else {
+        let sdkSettings = manager.settings.value
+        guard let transformation = sdkSettings.transformations.first(where: { $0.value.id == "transformationId" })?.value else {
             XCTFail("Transformation not found")
             return
         }

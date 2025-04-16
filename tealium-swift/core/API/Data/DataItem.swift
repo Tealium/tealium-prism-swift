@@ -254,9 +254,9 @@ final public class DataItem {
 extension DataItem: DataInputConvertible {
     public func toDataInput() -> DataInput {
         if let array = getDataArray() {
-            return array.map { $0.toDataInput() }
+            return array.toDataInput()
         } else if let dictionary = getDataDictionary() {
-            return dictionary.mapValues { $0.toDataInput() }
+            return dictionary.toDataInput()
         } else {
             return value as? DataInput ?? NSNull()
         }

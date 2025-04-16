@@ -37,7 +37,7 @@ public class SignpostStateWrapper {
 @available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *)
 public extension OSSignpostIntervalState {
     /**
-     * Utility method to inline add an `OSSignpostIntervalState` to it's own `SignpostStateWrapper` and return that wrapper
+     * Utility method to inline add an `OSSignpostIntervalState` to its own `SignpostStateWrapper` and return that wrapper
      *
      * - Returns: the `SignpostStateWrapper` that wraps the `OSSignpostIntervalState` instance.
      */

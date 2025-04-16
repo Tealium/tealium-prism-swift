@@ -120,10 +120,27 @@ class TealiumImpl {
                                   onScopedBarriers: coreSettings.asObservable().map { $0.scopedBarriers })
     }
 
-    private static func transformerCoordinator(transformers: ObservableState<[Transformer]>, sdkSettings: ObservableState<SDKSettings>, queue: TealiumQueue) -> TransformerCoordinator {
+    static func mappings(from sdkSettings: ObservableState<SDKSettings>) -> ObservableState<[String: TransformationSettings]> {
+        sdkSettings.mapState { settings in
+            Dictionary(uniqueKeysWithValues: settings.modules.compactMap { dispatcherId, moduleSettings in
+                guard let mappings = moduleSettings.mappings else { return nil }
+                let configuration = JsonTransformationConfiguration(operationsType: .map,
+                                                                    operations: mappings)
+                return (dispatcherId, TransformationSettings(id: "\(dispatcherId)-mapping",
+                                                             transformerId: Transformers.jsonTransformer,
+                                                             scopes: [.dispatcher(dispatcherId)],
+                                                             configuration: configuration.toDataObject()))
+            })
+        }
+    }
+
+    private static func transformerCoordinator(transformers: ObservableState<[Transformer]>,
+                                               sdkSettings: ObservableState<SDKSettings>,
+                                               queue: TealiumQueue) -> TransformerCoordinator {
         let transformations = sdkSettings.mapState { $0.transformations.map { $0.value } }
         return TransformerCoordinator(transformers: transformers,
                                       transformations: transformations,
+                                      moduleMappings: mappings(from: sdkSettings),
                                       queue: queue)
     }
 

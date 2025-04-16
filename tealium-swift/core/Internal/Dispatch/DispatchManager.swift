@@ -162,6 +162,8 @@ class DispatchManager: DispatchManagerProtocol {
                                                                           forModule: dispatcher)
             let removedDispatches = dispatches.diff(filteredDispatches, by: \.id)
             if !removedDispatches.isEmpty {
+                self.logger?.debug(category: LogCategory.dispatchManager,
+                                   "Dispatching disallowed for Dispatcher \(dispatcher.id) and Dispatches \(removedDispatches.shortDescription())")
                 onProcessedDispatches(removedDispatches)
             }
             dispatcher.dispatch(filteredDispatches) { processedDispatches in

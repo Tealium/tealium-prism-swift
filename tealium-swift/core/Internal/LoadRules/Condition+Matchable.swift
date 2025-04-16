@@ -133,7 +133,7 @@ extension Condition: Matchable {
             guard let container = current.getDataDictionary(key: component) else {
                 return nil
             }
-            current = DataObject(dictionary: container)
+            current = container.toDataObject()
         }
         return current.getDataItem(key: variable)
     }

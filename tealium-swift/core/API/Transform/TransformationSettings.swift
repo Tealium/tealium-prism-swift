@@ -74,13 +74,13 @@ public struct TransformationSettings {
     }
 }
 
-extension TransformationSettings: DataInputConvertible {
-    public func toDataInput() -> any DataInput {
+extension TransformationSettings: DataObjectConvertible {
+    public func toDataObject() -> DataObject {
         [
             Keys.id: id,
             Keys.transformerId: transformerId,
             Keys.scopes: scopes.map { $0.rawValue },
-            Keys.configuration: configuration.toDataInput()
+            Keys.configuration: configuration
         ]
     }
 }
@@ -95,8 +95,8 @@ extension TransformationSettings {
                   let scopes = dictionary.getArray(key: Keys.scopes, of: String.self)?.compactMap({ $0 }) else {
                 return nil
             }
-            let configuration = DataObject(dictionary: dictionary
-                .getDataDictionary(key: Keys.configuration) ?? [:])
+            let configuration = dictionary.getDataDictionary(key: Keys.configuration)?
+                .toDataObject() ?? [:]
             return TransformationSettings(id: id,
                                           transformerId: transformerId,
                                           scopes: scopes.map { TransformationScope(rawValue: $0) },

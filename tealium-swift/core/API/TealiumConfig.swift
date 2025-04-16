@@ -45,7 +45,7 @@ public struct TealiumConfig {
             }
             partialResult[factory.id] = moduleEnforcedSettings
         }
-        // TODO: Add transformations and barriers
+        // TODO: Add barriers
         if let coreSettings {
             accumulator.set(converting: coreSettings, key: SDKSettings.Keys.core)
         }

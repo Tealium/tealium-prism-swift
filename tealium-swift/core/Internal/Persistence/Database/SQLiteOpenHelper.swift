@@ -11,7 +11,7 @@ import SQLite
 import SQLite3
 
 /**
- * An abstract class that is used to open a Database connection but defers all creation/configuration/upgrade/downgrade to it's sub class.
+ * An abstract class that is used to open a Database connection but defers all creation/configuration/upgrade/downgrade to its sub class.
  */
 class SQLiteOpenHelper {
 

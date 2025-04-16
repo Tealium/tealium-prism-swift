@@ -9,7 +9,7 @@
 import Foundation
 
 /// A builder used to enforce some of the `CollectSettings`.
-public class CollectSettingsBuilder: ModuleSettingsBuilder {
+public class CollectSettingsBuilder: DispatcherSettingsBuilder {
     typealias Keys = CollectConfiguration.Keys
     override init() { }
     /// Set the URL used to send single events

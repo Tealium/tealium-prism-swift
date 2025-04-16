@@ -208,7 +208,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         config.bundle = Bundle(for: type(of: self))
         let localSettings = SettingsManager.loadLocalSettings(config: config)
         XCTAssertNotNil(localSettings)
-        XCTAssertEqual(localSettings, DataObject(dictionary: [
+        XCTAssertEqual(localSettings, [
             "modules": [
                 "localModule": ["configuration": ["localKey": "localValue"]]
             ],
@@ -218,7 +218,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
             "transformations": [
                 "transformerId-transformationId": try localTransformation()
             ]
-        ]))
+        ])
     }
 
     func test_startRefreshing_only_starts_once() throws {

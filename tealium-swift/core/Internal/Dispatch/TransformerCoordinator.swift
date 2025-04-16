@@ -32,22 +32,35 @@ public protocol TransformerRegistry {
  */
 public class TransformerCoordinator: TransformerRegistry {
     private var transformers: ObservableState<[Transformer]>
+    /// The `TransformationSettings` defined in the `SDKSettings`.
     private let transformations: ObservableState<[TransformationSettings]>
+    /// The `TransformationSettings` added internally by other modules.
     private let additionalTransformations = StateSubject<[TransformationSettings]>([])
     private var allTransformations: [TransformationSettings] {
         transformations.value + additionalTransformations.value
     }
+    /// The mappings settings defined on the `ModuleSettings`, which will be applied at the end of the other transformations for a specific dispatcher.
+    private let moduleMappings: ObservableState<[String: TransformationSettings]>
     private let queue: TealiumQueue
     typealias TransformationCompletion = (TealiumDispatch?) -> Void
     typealias DispatchesTransformationCompletion = ([TealiumDispatch]) -> Void
-    init(transformers: ObservableState<[Transformer]>, transformations: ObservableState<[TransformationSettings]>, queue: TealiumQueue) {
+    init(transformers: ObservableState<[Transformer]>,
+         transformations: ObservableState<[TransformationSettings]>,
+         moduleMappings: ObservableState<[String: TransformationSettings]>,
+         queue: TealiumQueue) {
         self.transformers = transformers
         self.transformations = transformations
+        self.moduleMappings = moduleMappings
         self.queue = queue
     }
 
     func getTransformations(for scope: DispatchScope) -> [TransformationSettings] {
-        allTransformations.filter { $0.matchesScope(scope) }
+        var transformations = allTransformations.filter { $0.matchesScope(scope) }
+        if case let .dispatcher(dispatcherId) = scope,
+           let mapping = moduleMappings.value[dispatcherId] {
+            transformations.append(mapping)
+        }
+        return transformations
     }
 
     /**
@@ -96,12 +109,16 @@ public class TransformerCoordinator: TransformerRegistry {
     }
 
     public func registerTransformation(_ transformation: TransformationSettings) {
-        if !additionalTransformations.value.contains(where: { $0.id == transformation.id && $0.transformerId == transformation.transformerId }) {
+        if !additionalTransformations.value.contains(where: { self.transformation($0, matchesIdsOf: transformation) }) {
             additionalTransformations.value.append(transformation)
         }
     }
     public func unregisterTransformation(_ transformation: TransformationSettings) {
-        additionalTransformations.value.removeAll { $0.id == transformation.id && $0.transformerId == transformation.transformerId }
+        additionalTransformations.value.removeAll { self.transformation($0, matchesIdsOf: transformation) }
+    }
+
+    func transformation(_ transformation: TransformationSettings, matchesIdsOf otherTransformation: TransformationSettings) -> Bool {
+        transformation.id == otherTransformation.id && transformation.transformerId == otherTransformation.transformerId
     }
 }
 

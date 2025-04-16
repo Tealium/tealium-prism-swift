@@ -28,9 +28,12 @@ final class TransformerCoordinatorTests: XCTestCase {
     lazy var transformers = StateSubject<[Transformer]>(registeredTransformers)
     var transformationsCount = 0
     var expectedTransformations: [Int] = []
+    @StateSubject<[String: TransformationSettings]>([:])
+    var mappings: ObservableState<[String: TransformationSettings]>
     lazy var allTransformationsAreApplied = expectation(description: "All transformations are applied")
     lazy var coordinator = TransformerCoordinator(transformers: transformers.toStatefulObservable(),
                                                   transformations: transformations,
+                                                  moduleMappings: mappings,
                                                   queue: TealiumQueue.worker)
 
     func test_getTransformationsForScope_afterCollectors_returns_all_afterCollectors_transformations() {
@@ -43,7 +46,16 @@ final class TransformerCoordinatorTests: XCTestCase {
         XCTAssertEqual(transformations.map { $0.id }, ["transformation2", "transformation3", "transformation4", "transformation7"])
     }
 
-    func test_tranformDispatches_forAfterCollectors_applies_all_related_transformations_in_transformation_order() {
+    func test_getTransformationsForScope_dispatcher_returns_dispatcher_mappings() {
+        let transformation = TransformationSettings(id: "mapping",
+                                                    transformerId: "JsonTransformer",
+                                                    scopes: [.dispatcher("someDispatcher")])
+        _mappings.value = ["someDispatcher": transformation]
+        let transformations = coordinator.getTransformations(for: .dispatcher("someDispatcher"))
+        XCTAssertEqual(transformations.last?.id, transformation.id)
+    }
+
+    func test_transformDispatches_forAfterCollectors_applies_all_related_transformations_in_transformation_order() {
         expectedTransformations = [1, 6]
         allTransformationsAreApplied.expectedFulfillmentCount = expectedTransformations.count
         let transformationsCompleted = expectation(description: "All transformations completed")
@@ -105,7 +117,7 @@ final class TransformerCoordinatorTests: XCTestCase {
              enforceOrder: true)
     }
 
-    func test_tranformDispatches_stops_after_first_nil() {
+    func test_transformDispatches_stops_after_first_nil() {
         expectedTransformations = [2, 3]
         allTransformationsAreApplied.expectedFulfillmentCount = expectedTransformations.count
         let transformationsCompleted = expectation(description: "All transformations completed")
@@ -136,7 +148,7 @@ final class TransformerCoordinatorTests: XCTestCase {
              enforceOrder: true)
     }
 
-    func test_tranformDispatches_completes_with_transformed_dispatches() {
+    func test_transformDispatches_completes_with_transformed_dispatches() {
         let transformationsCompleted = expectation(description: "All transformations completed")
         let dispatchScope = DispatchScope.dispatcher("someThirdDispatcher")
         registeredTransformers[0].transformation = { _, dispatch, scope in
@@ -155,7 +167,7 @@ final class TransformerCoordinatorTests: XCTestCase {
         waitForLongTimeout()
     }
 
-    func test_tranformDispatches_removes_dispatches_that_are_transformed_to_nil() {
+    func test_transformDispatches_removes_dispatches_that_are_transformed_to_nil() {
         let transformationsCompleted = expectation(description: "All transformations completed")
         let dispatchScope = DispatchScope.dispatcher("someThirdDispatcher")
         registeredTransformers[0].transformation = { _, dispatch, scope in
@@ -183,5 +195,46 @@ final class TransformerCoordinatorTests: XCTestCase {
         } else {
             XCTFail("Unexpected \(transformation) called at count \(transformationsCount)")
         }
+    }
+
+    func test_registerTransformation_Adds_Transformation_When_Not_Already_Registered() {
+        let newTransformation = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers])
+        XCTAssertFalse(coordinator.getTransformations(for: .dispatcher("new"))
+            .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
+        coordinator.registerTransformation(newTransformation)
+        XCTAssertTrue(coordinator.getTransformations(for: .dispatcher("new"))
+            .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
+    }
+
+    func test_registerTransformation_Does_Not_Add_Transformation_When_Another_Already_Registered_With_Same_Ids() {
+        let newTransformation = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers])
+        let differentTransformation = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers], configuration: ["some": "value"])
+        coordinator.registerTransformation(newTransformation)
+        coordinator.registerTransformation(differentTransformation)
+        XCTAssertTrue(coordinator.getTransformations(for: .dispatcher("new"))
+            .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) && $0.configuration.keys.isEmpty }))
+        XCTAssertFalse(coordinator.getTransformations(for: .dispatcher("new"))
+            .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) && $0.configuration == ["some": "value"] }))
+    }
+
+    func test_unregisterTransformation_Removes_Transformation_When_Already_Registered() {
+        let newTransformation = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers])
+        coordinator.registerTransformation(newTransformation)
+        XCTAssertTrue(coordinator.getTransformations(for: .dispatcher("new"))
+            .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
+        coordinator.unregisterTransformation(newTransformation)
+        XCTAssertFalse(coordinator.getTransformations(for: .dispatcher("new"))
+            .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
+    }
+
+    func test_unregisterTransformation_Removes_Transformation_When_Another_Already_Registered_With_Same_Ids() {
+        let newTransformation = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers])
+        let duplicated = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers], configuration: ["something": "different"])
+        coordinator.registerTransformation(newTransformation)
+        XCTAssertTrue(coordinator.getTransformations(for: .dispatcher("new"))
+            .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
+        coordinator.unregisterTransformation(duplicated)
+        XCTAssertFalse(coordinator.getTransformations(for: .dispatcher("new"))
+            .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
     }
 }

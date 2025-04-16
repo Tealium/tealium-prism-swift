@@ -227,3 +227,7 @@ enum ConditionOperators {
     static let isBadgeAssigned = "is_badge_assigned"
     static let isBadgeNotAssigned = "is_badge_not_assigned"
 }
+
+enum Transformers {
+    static let jsonTransformer = "JsonTransformer"
+}

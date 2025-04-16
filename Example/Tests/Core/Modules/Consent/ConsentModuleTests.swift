@@ -25,6 +25,7 @@ final class ConsentModuleTests: XCTestCase {
     var transformations: ObservableState<[TransformationSettings]>
     lazy var transformerCoordinator = TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                              transformations: transformations,
+                                                             moduleMappings: StateSubject([:]).toStatefulObservable(),
                                                              queue: .main)
     @StateSubject(ConsentConfiguration(configuration: [:]))
     var consentConfiguration: ObservableState<ConsentConfiguration>

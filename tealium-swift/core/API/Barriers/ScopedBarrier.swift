@@ -9,7 +9,7 @@
 import Foundation
 
 /// The scope used to define a `ScopedBarrier` in the `CoreSettings`.
-public enum BarrierScope: RawRepresentable, Codable, Equatable {
+public enum BarrierScope: RawRepresentable, Equatable {
     public typealias RawValue = String
 
     case all
@@ -34,8 +34,14 @@ public enum BarrierScope: RawRepresentable, Codable, Equatable {
     }
 }
 
+extension BarrierScope: DataInputConvertible {
+    public func toDataInput() -> any DataInput {
+        self.rawValue
+    }
+}
+
 /// A model that defines which scopes a specific barrier, identified by its `barrierId`, should be applied to.
-public struct ScopedBarrier: Codable, Equatable {
+public struct ScopedBarrier: Equatable {
     let barrierId: String
     let scopes: [BarrierScope]
 
@@ -48,9 +54,9 @@ public struct ScopedBarrier: Codable, Equatable {
         self.scopes = scopes
     }
 
-    enum CodingKeys: String, CodingKey {
-        case barrierId = "barrier_id"
-        case scopes
+    enum Keys {
+        static let barrierId = "barrier_id"
+        static let scopes = "scopes"
     }
 
     public static func == (lhs: ScopedBarrier, rhs: ScopedBarrier) -> Bool {
@@ -58,11 +64,11 @@ public struct ScopedBarrier: Codable, Equatable {
     }
 }
 
-extension ScopedBarrier: DataInputConvertible {
-    public func toDataInput() -> any DataInput {
+extension ScopedBarrier: DataObjectConvertible {
+    public func toDataObject() -> DataObject {
         [
-            CodingKeys.barrierId.rawValue: barrierId,
-            CodingKeys.scopes.rawValue: scopes.map { $0.rawValue }
+            Keys.barrierId: barrierId,
+            Keys.scopes: scopes
         ]
     }
 }
@@ -71,8 +77,8 @@ extension ScopedBarrier {
         typealias Convertible = ScopedBarrier
         func convert(dataItem: DataItem) -> Convertible? {
             guard let dictionary = dataItem.getDataDictionary(),
-                    let barrierId = dictionary.get(key: CodingKeys.barrierId.rawValue, as: String.self),
-                  let scopes = dictionary.getArray(key: CodingKeys.scopes.rawValue, of: String.self)?.compactMap({ $0 }) else {
+                    let barrierId = dictionary.get(key: Keys.barrierId, as: String.self),
+                  let scopes = dictionary.getArray(key: Keys.scopes, of: String.self)?.compactMap({ $0 }) else {
                 return nil
             }
             return ScopedBarrier(barrierId: barrierId, scopes: scopes.map { BarrierScope(rawValue: $0) })

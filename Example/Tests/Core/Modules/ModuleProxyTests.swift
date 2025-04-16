@@ -30,6 +30,7 @@ final class ModuleProxyTests: XCTestCase {
                        barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
                        transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                                    transformations: StateSubject([]).toStatefulObservable(),
+                                                                   moduleMappings: StateSubject([:]).toStatefulObservable(),
                                                                    queue: queue),
                        databaseProvider: mockDbProvider,
                        moduleStoreProvider: ModuleStoreProvider(databaseProvider: mockDbProvider,

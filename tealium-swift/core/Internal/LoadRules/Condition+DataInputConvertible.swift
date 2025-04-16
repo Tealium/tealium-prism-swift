@@ -20,13 +20,13 @@ struct AlwaysTrue: Matchable {
     }
 }
 
-extension Condition: DataInputConvertible {
-    public func toDataInput() -> any DataInput {
-        [
-            Condition.Keys.path: path?.toDataInput(),
+extension Condition: DataObjectConvertible {
+    public func toDataObject() -> DataObject {
+        DataObject(compacting: [
+            Condition.Keys.path: path,
             Condition.Keys.variable: variable,
             Condition.Keys.operator: self.operator.rawValue,
             Condition.Keys.filter: filter,
-        ].compactMapValues { $0 }
+        ])
     }
 }

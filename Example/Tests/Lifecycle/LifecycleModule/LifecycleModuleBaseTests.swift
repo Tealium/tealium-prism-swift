@@ -36,8 +36,8 @@ class LifecycleModuleBaseTests: XCTestCase {
     }
 
     func updateSettings(_ builder: LifecycleSettingsBuilder) {
-        let configuration = DataObject(dictionary: builder.build()
-            .getDataDictionary(key: "configuration") ?? [:])
+        let configuration = builder.build()
+            .getDataDictionary(key: "configuration")?.toDataObject() ?? [:]
         _ = module.updateConfiguration(configuration)
     }
 }

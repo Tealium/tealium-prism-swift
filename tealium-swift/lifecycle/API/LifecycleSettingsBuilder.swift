@@ -6,7 +6,7 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-public class LifecycleSettingsBuilder: ModuleSettingsBuilder {
+public class LifecycleSettingsBuilder: CollectorSettingsBuilder {
     typealias Keys = LifecycleConfiguration.Keys
     override init() { } // making init internal instead of public
 

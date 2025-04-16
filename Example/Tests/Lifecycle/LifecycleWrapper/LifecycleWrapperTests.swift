@@ -28,6 +28,7 @@ final class LifecycleWrapperTests: XCTestCase {
                        barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
                        transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                                    transformations: StateSubject([]).toStatefulObservable(),
+                                                                   moduleMappings: StateSubject([:]).toStatefulObservable(),
                                                                    queue: queue),
                        databaseProvider: dbProvider,
                        moduleStoreProvider: ModuleStoreProvider(databaseProvider: dbProvider,

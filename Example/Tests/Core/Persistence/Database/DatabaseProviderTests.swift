@@ -38,9 +38,10 @@ final class DatabaseProviderTests: XCTestCase {
     func test_downgraded_db_is_recreated() throws {
         DatabaseHelper.DATABASE_VERSION = 2
         // This simulates a past launch with a greater DB version
-        let dbProviderV2 = try DatabaseProvider(config: config)
-        XCTAssertEqual(dbProviderV2.database.userVersion, 2)
+        var dbProviderV2: DatabaseProvider? = try DatabaseProvider(config: config)
+        XCTAssertEqual(dbProviderV2?.database.userVersion, 2)
         DatabaseHelper.DATABASE_VERSION = 1
+        dbProviderV2 = nil
         // This simulates the new launch after a downgrade
         let dbProviderV1 = try DatabaseProvider(config: config)
         XCTAssertEqual(dbProviderV1.database.userVersion, 1)

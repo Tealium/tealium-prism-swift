@@ -49,6 +49,7 @@ final class LifecycleTrackerTests: XCTestCase {
                                                      onScopedBarriers: scopedBarriers)
     lazy var transformerCoordinator = TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                              transformations: transformations,
+                                                             moduleMappings: StateSubject([:]).toStatefulObservable(),
                                                              queue: .main)
     lazy var tracker = TealiumTracker(modules: modulesManager.modules,
                                       loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings.toStatefulObservable()),

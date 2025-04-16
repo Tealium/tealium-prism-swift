@@ -32,7 +32,7 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
      *
      * The first element in the tuple is the key that can be used to access the item back,
      * the second element is a convertible that will be converted immediately before being stored.
-     * In case of duplicate keys the second occurrance of the same key will replace the first one.
+     * In case of duplicate keys the second occurrence of the same key will replace the first one.
      */
     public init(pairs elements: [(String, DataInputConvertible)]) {
         dictionary = Dictionary(elements.map { key, value in
@@ -58,7 +58,17 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
      * The Convertible elements will be converted immediately before being stored.
      */
     public init(dictionary: [String: DataInputConvertible] = [:]) {
-        self.init(dictionaryInput: dictionary.compactMapValues { $0.toDataInput() })
+        self.init(dictionaryInput: dictionary.mapValues { $0.toDataInput() })
+    }
+
+    /**
+     * Creates a `DataObject` from a `[String: DataInputConvertible?]` dictionary.
+     *
+     * The Convertible elements will be converted immediately before being stored.
+     * `nil`s in root object will be removed.
+     */
+    init(compacting dictionary: [String: DataInputConvertible?] = [:]) {
+        self.init(dictionary: dictionary.compactMapValues { $0 })
     }
 
     public init(dictionaryInput: [String: DataInput]) {

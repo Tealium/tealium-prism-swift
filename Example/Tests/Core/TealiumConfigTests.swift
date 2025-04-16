@@ -55,6 +55,34 @@ final class TealiumConfigTests: XCTestCase {
         ])
     }
 
+    func test_getEnforcedSDKSettings_returns_settings_with_transformations() throws {
+        var config = TealiumConfig(account: "test",
+                                   profile: "test",
+                                   environment: "dev",
+                                   modules: [],
+                                   settingsFile: nil,
+                                   settingsUrl: nil)
+        config.setTransformation(TransformationSettings(id: "transformationId1", transformerId: "transformerId", scopes: [.allDispatchers]))
+        config.setTransformation(TransformationSettings(id: "transformationId2", transformerId: "transformerId", scopes: [.dispatcher("123")]))
+        let settings = config.getEnforcedSDKSettings()
+        XCTAssertEqual(settings, [
+            "transformations": try DataItem(serializing: [
+                "transformerId-transformationId1": [
+                    "transformation_id": "transformationId1",
+                    "transformer_id": "transformerId",
+                    "scopes": ["alldispatchers"],
+                    "configuration": [:]
+                ],
+                "transformerId-transformationId2": [
+                    "transformation_id": "transformationId2",
+                    "transformer_id": "transformerId",
+                    "scopes": ["123"],
+                    "configuration": [:]
+                ]
+            ])
+        ])
+    }
+
     func test_getEnforcedSDKSettings_returns_settings_with_loadRules() throws {
         var config = TealiumConfig(account: "test",
                                    profile: "test",
