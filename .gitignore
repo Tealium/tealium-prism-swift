@@ -21,3 +21,4 @@ builder/build/
 veracode/
 builder/veracode/
 test_output/
+.aider*
