@@ -33,23 +33,6 @@ public enum TealiumConstants {
     public static let timedEvent = "timed_event"
 }
 
-public enum ModuleNames {
-    public static let autotracking = "AutoTracking"
-    public static let appdata = "AppData"
-    public static let attribution = "Attribution"
-    public static let collect = "Collect"
-    public static let connectivity = "Connectivity"
-    public static let consentmanager = "ConsentManager"
-    public static let crash = "Crash"
-    public static let devicedata = "DeviceData"
-    public static let lifecycle = "Lifecycle"
-    public static let inapppurchase = "InAppPurchase"
-    public static let location = "Location"
-    public static let remotecommands = "RemoteCommands"
-    public static let tagmanagement = "TagManagement"
-    public static let visitorservice = "VisitorService"
-}
-
 public enum TealiumDataKey {
 }
 
