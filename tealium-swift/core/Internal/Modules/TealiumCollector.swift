@@ -23,14 +23,14 @@ class TealiumCollector: TealiumBasicModule, Collector {
     required init(context: TealiumContext, moduleConfiguration: DataObject) {
         self.context = context
         let config = context.config
-        baseData = [
+        baseData = DataObject(compacting: [
             TealiumDataKey.account: config.account,
             TealiumDataKey.profile: config.profile,
             TealiumDataKey.environment: config.environment,
             TealiumDataKey.dataSource: config.dataSource,
             TealiumDataKey.libraryName: TealiumConstants.libraryName,
             TealiumDataKey.libraryVersion: TealiumConstants.libraryVersion
-        ]
+        ])
     }
 
     func collect(_ dispatchContext: DispatchContext) -> DataObject {

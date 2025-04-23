@@ -11,18 +11,22 @@ import XCTest
 
 final class TealiumCollectorTests: XCTestCase {
     let modulesManager = ModulesManager(queue: TealiumQueue.main)
-    let config = TealiumConfig(account: "mock_account",
-                               profile: "mock_profile",
-                               environment: "mock_env",
-                               dataSource: "mock_source",
-                               modules: [DefaultModuleFactory<MockDispatcher>()],
-                               settingsFile: nil,
-                               settingsUrl: nil)
+    let config = TealiumCollectorTests.getConfig(source: "mock_source")
     lazy var context = createContext(config: config, modulesManager: modulesManager)
     lazy var collector = TealiumCollector(context: context, moduleConfiguration: [:])
     lazy var data = collector.collect(DispatchContext(source: .application, initialData: [:]))
     override func setUp() {
         modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [:]))
+    }
+
+    static func getConfig(source: String?) -> TealiumConfig {
+        TealiumConfig(account: "mock_account",
+                      profile: "mock_profile",
+                      environment: "mock_env",
+                      dataSource: source,
+                      modules: [DefaultModuleFactory<MockDispatcher>()],
+                      settingsFile: nil,
+                      settingsUrl: nil)
     }
 
     func test_collect_returns_static_data() {
@@ -32,6 +36,13 @@ final class TealiumCollectorTests: XCTestCase {
         XCTAssertEqual(data.get(key: "tealium_datasource"), "mock_source")
         XCTAssertEqual(data.get(key: "tealium_library_name"), TealiumConstants.libraryName)
         XCTAssertEqual(data.get(key: "tealium_library_version"), TealiumConstants.libraryVersion)
+    }
+
+    func test_collect_doesnt_contain_source_when_nil() {
+        let config = Self.getConfig(source: nil)
+        context = createContext(config: config, modulesManager: modulesManager)
+        XCTAssertFalse(data.keys.contains("tealium_datasource"),
+                       "tealium_datasource should not be present in the collected data")
     }
 
     func test_collect_returns_16_digit_random_number_as_string() {
