@@ -13,7 +13,7 @@ class LifecycleModule {
     private var configuration: LifecycleConfiguration
     internal let lifecycleService: LifecycleService
 
-    private var tracker: Tracker
+    private let tracker: Tracker
     private let logger: LoggerProtocol?
     private let automaticDisposer: AutomaticDisposer = AutomaticDisposer()
 

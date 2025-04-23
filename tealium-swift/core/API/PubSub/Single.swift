@@ -1,6 +1,6 @@
 //
 //  Single.swift
-//  Pods
+//  tealium-swift
 //
 //  Created by Enrico Zannini on 10/04/25.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.

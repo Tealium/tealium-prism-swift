@@ -54,11 +54,8 @@ final class URLConvertibleTests: XCTestCase {
         }
     }
 
-    func test_URL_converts_to_itself() {
-        guard let url = URL(string: urlString) else {
-            XCTFail("Failed to return URL from \(urlString)")
-            return
-        }
+    func test_URL_converts_to_itself() throws {
+        let url = try urlString.asUrl()
         let urlResult = XCTAssertNoThrowReturn(try url.asUrl())
         XCTAssertEqual(url, urlResult)
     }

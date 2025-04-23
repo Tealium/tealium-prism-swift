@@ -39,9 +39,7 @@ class SceneDelegateProxyTests: BaseProxyTests {
     }
 
     func sendWillConnectWithOptions(urlString: String, isActivity: Bool) throws {
-        guard let url = URL(string: urlString) else {
-            throw ParsingError.invalidUrl(urlString)
-        }
+        let url = try urlString.asUrl()
         UIApplication.shared.manualSceneWillConnect(with: MockConnectionOptions(url: url,
                                                                                 isActivity: isActivity))
     }

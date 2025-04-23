@@ -10,6 +10,10 @@
 import XCTest
 
 final class LifecycleModuleCollectorTests: LifecycleModuleBaseTests {
+    func test_the_module_id_is_correct() {
+        XCTAssertNotNil(dataStoreProvider.modulesRepository.getModules()[LifecycleModule.id])
+    }
+
     func test_collect_returns_empty_object_if_dataTarget_is_allEvents_and_dispatchContext_has_source_lifecycle() {
         updateSettings(LifecycleSettingsBuilder().setDataTarget(.allEvents))
         XCTAssertEqual(module.collect(lifecycleDispatchContext).count, 0)

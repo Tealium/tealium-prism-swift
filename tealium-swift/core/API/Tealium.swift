@@ -21,25 +21,25 @@ public typealias TrackResultCompletion = (_ dispatch: TealiumDispatch, _ result:
 public class Tealium {
     /// Result type for Tealium initialization operations.
     public typealias InitializationResult = Result<Tealium, TealiumError>
-    
+
     /// Result type for internal implementation operations.
     typealias ImplementationResult = Result<TealiumImpl, TealiumError>
-    
+
     /// Observable type for implementation results.
     typealias ImplementationObservable = Observable<ImplementationResult>
-    
+
     /// Observable for the modules manager.
     private let onModulesManager: Observable<ModulesManager?>
-    
+
     /// Observable for the Tealium implementation.
     private let onTealiumImplementation: ImplementationObservable
-    
+
     /// Disposer for async operations.
     let asyncDisposer = AsyncDisposer(disposeOn: .worker)
-    
+
     /// Queue for Tealium operations.
     let queue = TealiumQueue.worker
-    
+
     /// Error that occurred during initialization, if any.
     var initializationError: TealiumError?
 
@@ -177,7 +177,7 @@ public class Tealium {
     public private(set) lazy var trace: TraceManager = TraceManagerWrapper(moduleProxy: createModuleProxy())
 
     /// Manager for deep link functionality.
-    public private(set) lazy var deepLink: TealiumDeepLink = TealiumDeepLink(moduleProxy: createModuleProxy())
+    public private(set) lazy var deepLink: DeepLinkHandler = DeepLinkHandlerWrapper(moduleProxy: createModuleProxy())
 
     /// Interface for accessing and manipulating the data layer.
     public private(set) lazy var dataLayer: DataLayer = DataLayerWrapper(moduleProxy: createModuleProxy())

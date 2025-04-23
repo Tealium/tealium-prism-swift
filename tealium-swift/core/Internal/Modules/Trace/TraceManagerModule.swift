@@ -6,11 +6,18 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-class TraceManagerModule: Collector {
+class TraceManagerModule: Collector, TealiumBasicModule {
     let version: String = TealiumConstants.libraryVersion
     static let id: String = "Trace"
     let dataStore: DataStore
     let tracker: Tracker
+
+    required convenience init?(context: TealiumContext, moduleConfiguration: DataObject) {
+        guard let dataStore = try? context.moduleStoreProvider.getModuleStore(name: TraceManagerModule.id) else {
+            return nil
+        }
+        self.init(dataStore: dataStore, tracker: context.tracker)
+    }
 
     init(dataStore: DataStore, tracker: Tracker) {
         self.dataStore = dataStore

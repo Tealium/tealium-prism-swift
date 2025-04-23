@@ -594,6 +594,10 @@
 		EC1AA4DC2CCF9FEC00D1D9D1 /* MockLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C358CE2AEAB008009E1CDB /* MockLogHandler.swift */; };
 		EC1AA4DD2CCF9FEC00D1D9D1 /* XCTAssert+EqualDictionaries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FEF0A32C2C43DB00340E18 /* XCTAssert+EqualDictionaries.swift */; };
 		EC1AA4DF2CCFA34200D1D9D1 /* FirstLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1AA4DE2CCFA34200D1D9D1 /* FirstLaunchTests.swift */; };
+		EC2EA5F52DB140B300CCB144 /* DeepLinkHandlerSubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2EA5F42DB140B300CCB144 /* DeepLinkHandlerSubscriptionTests.swift */; };
+		EC2EA5F72DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2EA5F62DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift */; };
+		EC2EA5F82DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2EA5F62DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift */; };
+		EC2EA5F92DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2EA5F62DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift */; };
 		EC2EA5FF2DB2B9E500CCB144 /* AppDataCollectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2EA5FE2DB2B9E500CCB144 /* AppDataCollectorTests.swift */; };
 		EC2EA6002DB2B9E500CCB144 /* AppDataCollectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2EA5FE2DB2B9E500CCB144 /* AppDataCollectorTests.swift */; };
 		EC2EA6012DB2B9E500CCB144 /* AppDataCollectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2EA5FE2DB2B9E500CCB144 /* AppDataCollectorTests.swift */; };
@@ -619,6 +623,18 @@
 		EC9C455E2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C455D2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift */; };
 		EC9C455F2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C455D2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift */; };
 		EC9C45602DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C455D2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift */; };
+		ECAB83562DAFDD2600B2CF64 /* DeepLinkHandlerModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB83542DAFDD2600B2CF64 /* DeepLinkHandlerModuleTests.swift */; };
+		ECAB83572DAFDD2600B2CF64 /* DeepLinkHandlerModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB83542DAFDD2600B2CF64 /* DeepLinkHandlerModuleTests.swift */; };
+		ECAB83582DAFDD2600B2CF64 /* DeepLinkHandlerModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB83542DAFDD2600B2CF64 /* DeepLinkHandlerModuleTests.swift */; };
+		ECAB835A2DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB83592DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift */; };
+		ECAB835B2DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB83592DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift */; };
+		ECAB835C2DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB83592DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift */; };
+		ECAB835F2DB0124E00B2CF64 /* DeepLinkConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB835D2DB0124E00B2CF64 /* DeepLinkConfigurationTests.swift */; };
+		ECAB83602DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB835E2DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift */; };
+		ECAB83612DB0124E00B2CF64 /* DeepLinkConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB835D2DB0124E00B2CF64 /* DeepLinkConfigurationTests.swift */; };
+		ECAB83622DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB835E2DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift */; };
+		ECAB83632DB0124E00B2CF64 /* DeepLinkConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB835D2DB0124E00B2CF64 /* DeepLinkConfigurationTests.swift */; };
+		ECAB83642DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB835E2DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift */; };
 		ECC2B4722CE3B61C0066B022 /* LaunchSleepWakeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2B4712CE3B61C0066B022 /* LaunchSleepWakeTests.swift */; };
 		F517AE7FD10708E09D817DEB /* Pods_CoreTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D80F5A9B7BE61AB743BD008 /* Pods_CoreTests_iOS.framework */; };
 /* End PBXBuildFile section */
@@ -863,6 +879,8 @@
 		EC1AA4B82CCF9CA400D1D9D1 /* LifecycleTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LifecycleTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EC1AA4BA2CCF9CA400D1D9D1 /* LaunchSleepTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSleepTests.swift; sourceTree = "<group>"; };
 		EC1AA4DE2CCFA34200D1D9D1 /* FirstLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstLaunchTests.swift; sourceTree = "<group>"; };
+		EC2EA5F42DB140B300CCB144 /* DeepLinkHandlerSubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandlerSubscriptionTests.swift; sourceTree = "<group>"; };
+		EC2EA5F62DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandlerBaseTests.swift; sourceTree = "<group>"; };
 		EC2EA5FE2DB2B9E500CCB144 /* AppDataCollectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDataCollectorTests.swift; sourceTree = "<group>"; };
 		EC454C6E2CED007C000CD849 /* GetCurrentStateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GetCurrentStateTests.swift; sourceTree = "<group>"; };
 		EC454C702CEE2244000CD849 /* LaunchCrashLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchCrashLaunchTests.swift; sourceTree = "<group>"; };
@@ -880,6 +898,10 @@
 		EC9C453C2DA015940046AB3A /* TraceManagerWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceManagerWrapperTests.swift; sourceTree = "<group>"; };
 		EC9C45402DA015B30046AB3A /* TraceManagerModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceManagerModuleTests.swift; sourceTree = "<group>"; };
 		EC9C455D2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModuleProxy+ExecuteTaskTests.swift"; sourceTree = "<group>"; };
+		ECAB83542DAFDD2600B2CF64 /* DeepLinkHandlerModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandlerModuleTests.swift; sourceTree = "<group>"; };
+		ECAB83592DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandlerWrapperTests.swift; sourceTree = "<group>"; };
+		ECAB835D2DB0124E00B2CF64 /* DeepLinkConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkConfigurationTests.swift; sourceTree = "<group>"; };
+		ECAB835E2DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkSettingsBuilderTests.swift; sourceTree = "<group>"; };
 		ECC2B4712CE3B61C0066B022 /* LaunchSleepWakeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSleepWakeTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1330,6 +1352,7 @@
 		D54BBF7C2C78C015003687C7 /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				ECAB83552DAFDD2600B2CF64 /* DeepLink */,
 				EC2EA5FE2DB2B9E500CCB144 /* AppDataCollectorTests.swift */,
 				EC9C453B2DA0155E0046AB3A /* Trace */,
 				EC0D84E52D6F667700436087 /* ConnectivityCollector */,
@@ -1541,6 +1564,19 @@
 				EC9C45402DA015B30046AB3A /* TraceManagerModuleTests.swift */,
 			);
 			path = Trace;
+			sourceTree = "<group>";
+		};
+		ECAB83552DAFDD2600B2CF64 /* DeepLink */ = {
+			isa = PBXGroup;
+			children = (
+				EC2EA5F42DB140B300CCB144 /* DeepLinkHandlerSubscriptionTests.swift */,
+				ECAB835D2DB0124E00B2CF64 /* DeepLinkConfigurationTests.swift */,
+				ECAB835E2DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift */,
+				ECAB83542DAFDD2600B2CF64 /* DeepLinkHandlerModuleTests.swift */,
+				ECAB83592DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift */,
+				EC2EA5F62DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift */,
+			);
+			path = DeepLink;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -2217,6 +2253,8 @@
 				87EE77002D78791500BB1D77 /* Condition+NotStartsWithTests.swift in Sources */,
 				87AF546F2C7E389C00F1C114 /* TimeFrameTests.swift in Sources */,
 				153A68282AB4A40400EE972E /* SQLModulesRepositoryTests.swift in Sources */,
+				ECAB83632DB0124E00B2CF64 /* DeepLinkConfigurationTests.swift in Sources */,
+				ECAB83642DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift in Sources */,
 				87F8E6C22CAAD00E00F65EA1 /* XCTAssert+NaN.swift in Sources */,
 				150F31EE2B221D090067CC56 /* MockTracker.swift in Sources */,
 				15D7C1B42AB1E60B0034DE1B /* SQLKeyValueRepositoryTests.swift in Sources */,
@@ -2261,6 +2299,7 @@
 				15BBB28A2B07E362009D4CB5 /* MockConfig.swift in Sources */,
 				15F518172BECD6E4002689C7 /* TealiumImplementationTests.swift in Sources */,
 				D5EF2DFC2C1731BC00F7BC40 /* MockCMPIntegration.swift in Sources */,
+				ECAB83572DAFDD2600B2CF64 /* DeepLinkHandlerModuleTests.swift in Sources */,
 				87EE76EC2D786FFD00BB1D77 /* Condition+LessThanOrEqualTests.swift in Sources */,
 				87FC089F2D95B09C00E1041D /* SettingsManager+LoadRulesTests.swift in Sources */,
 				87EE76F02D78720000BB1D77 /* Condition+LessThanTests.swift in Sources */,
@@ -2321,12 +2360,14 @@
 				1504FE7D2AB4B71F002C0103 /* ModuleStoreProviderTests.swift in Sources */,
 				D54BBFD82C78C01A003687C7 /* ResourceRefresherTests.swift in Sources */,
 				15C0DCBF2B0CF5430007F6BE /* Operators+QueuesTests.swift in Sources */,
+				EC2EA5F52DB140B300CCB144 /* DeepLinkHandlerSubscriptionTests.swift in Sources */,
 				48F9CE082A5F2BBE00A7376F /* SQLiteOpenHelperTests.swift in Sources */,
 				87FEF0A42C2C43DB00340E18 /* XCTAssert+EqualDictionaries.swift in Sources */,
 				15AB12982BD7B5C300AF1A08 /* SQLQueueRepositoryTests.swift in Sources */,
 				87EF5ACC2CE3A4BD00DB753C /* ModuleProxyTests.swift in Sources */,
 				1532E7D92B1F49A70071327A /* Operators+TakeWhileTests.swift in Sources */,
 				87D64D6D2CB4157A0084F43D /* TealiumLoggerTests.swift in Sources */,
+				ECAB835C2DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift in Sources */,
 				D54BBFF62C78C01A003687C7 /* DispatchManager+MaximumInflightTests.swift in Sources */,
 				870557332C47C9390010BA89 /* SettingsManagerTests.swift in Sources */,
 				15243A222A65526F006E429C /* SubjectTests.swift in Sources */,
@@ -2335,6 +2376,7 @@
 				15C0DCC82B0CF6530007F6BE /* Operators+StartsWithTests.swift in Sources */,
 				1597DC7D2A446B1400C394D3 /* MockBackoff.swift in Sources */,
 				87EE76E82D786F1F00BB1D77 /* Condition+GreaterThanOrEqualTests.swift in Sources */,
+				EC2EA5F72DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift in Sources */,
 				87FC086D2D94133500E1041D /* SDKSettingsTests.swift in Sources */,
 				87FC08A52D95B16B00E1041D /* SettingsManagerTestCase.swift in Sources */,
 				155396E32B0B793000ED973A /* StateSubjectTests.swift in Sources */,
@@ -2426,6 +2468,7 @@
 				87BA6D522C6A470C00784784 /* Operators+DistinctTests.swift in Sources */,
 				87FC08692D931B9500E1041D /* LoadRule+ConverterTests.swift in Sources */,
 				87EE77062D78799C00BB1D77 /* Condition+EndsWithTests.swift in Sources */,
+				EC2EA5F92DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift in Sources */,
 				873B782D2DA7D8F50026A356 /* VariableAccessorTests.swift in Sources */,
 				87FC087F2D94532000E1041D /* MockDispatchManager.swift in Sources */,
 				D54BBFB92C78C01A003687C7 /* ConnectivityBarrierTests.swift in Sources */,
@@ -2492,11 +2535,14 @@
 				87EE76F22D78720000BB1D77 /* Condition+LessThanTests.swift in Sources */,
 				87BA6D822C6A470C00784784 /* SQLiteOpenHelperTests.swift in Sources */,
 				87BA6D832C6A470C00784784 /* XCTAssert+EqualDictionaries.swift in Sources */,
+				ECAB83582DAFDD2600B2CF64 /* DeepLinkHandlerModuleTests.swift in Sources */,
 				D54BBFB62C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */,
 				87BA6D842C6A470C00784784 /* SQLQueueRepositoryTests.swift in Sources */,
 				873B78382DA7DDDD0026A356 /* TransformationOperationTests.swift in Sources */,
 				EC0E52D62D887F77002B0FD8 /* DataObject+DeepMergeTests.swift in Sources */,
 				87BA6D852C6A470C00784784 /* Operators+TakeWhileTests.swift in Sources */,
+				ECAB83612DB0124E00B2CF64 /* DeepLinkConfigurationTests.swift in Sources */,
+				ECAB83622DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift in Sources */,
 				87BA6D862C6A470C00784784 /* SettingsManagerTests.swift in Sources */,
 				87BA6D872C6A470C00784784 /* SubjectTests.swift in Sources */,
 				87EE76F62D78751E00BB1D77 /* Condition+ContainsTests.swift in Sources */,
@@ -2524,6 +2570,7 @@
 				87EE76D62D7865D300BB1D77 /* Condition+NotEqualsTests.swift in Sources */,
 				873B78362DA7DB530026A356 /* MappingParametersTests.swift in Sources */,
 				87FC086E2D94133500E1041D /* SDKSettingsTests.swift in Sources */,
+				ECAB835B2DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift in Sources */,
 				87EE76E22D786B6400BB1D77 /* Condition+IsBadgeAssignedTests.swift in Sources */,
 				87EE76FE2D78785900BB1D77 /* Condition+StartsWithTests.swift in Sources */,
 				87FC08722D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift in Sources */,
@@ -2610,6 +2657,7 @@
 				08BD032B2D356BBB00FA2E2E /* TealiumCollectFactoryTests.swift in Sources */,
 				87FC086B2D931B9500E1041D /* LoadRule+ConverterTests.swift in Sources */,
 				87EE770D2D787A6900BB1D77 /* Condition+RegexTests.swift in Sources */,
+				EC2EA5F82DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift in Sources */,
 				873B782B2DA7D8F50026A356 /* VariableAccessorTests.swift in Sources */,
 				87FC08802D94532000E1041D /* MockDispatchManager.swift in Sources */,
 				08BD032C2D356BBB00FA2E2E /* CollectSettingsBuilderTests.swift in Sources */,
@@ -2676,11 +2724,14 @@
 				87BA6DFA2C6A47AF00784784 /* Operators+ResubscribingWhileTests.swift in Sources */,
 				87EE76E52D786C4500BB1D77 /* Condition+GreaterThanTests.swift in Sources */,
 				87BA6DFB2C6A47AF00784784 /* RetainCycleHelper.swift in Sources */,
+				ECAB83562DAFDD2600B2CF64 /* DeepLinkHandlerModuleTests.swift in Sources */,
 				87FC085E2D92F7E100E1041D /* TimeCollectorTests.swift in Sources */,
 				87BA6DFC2C6A47AF00784784 /* ModuleStoreProviderTests.swift in Sources */,
 				873B78392DA7DDDD0026A356 /* TransformationOperationTests.swift in Sources */,
 				D54BBFFA2C78C01A003687C7 /* DispatchManager+QueueTests.swift in Sources */,
 				87BA6DFE2C6A47AF00784784 /* Operators+QueuesTests.swift in Sources */,
+				ECAB835F2DB0124E00B2CF64 /* DeepLinkConfigurationTests.swift in Sources */,
+				ECAB83602DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift in Sources */,
 				D54BBFCD2C78C01A003687C7 /* NetworkConfigurationTests.swift in Sources */,
 				87BA6E002C6A47AF00784784 /* SQLiteOpenHelperTests.swift in Sources */,
 				87C6C24D2D528189008B91D8 /* SelfDestructingCompletionTests.swift in Sources */,
@@ -2708,6 +2759,7 @@
 				87AF54702C7E389C00F1C114 /* TimeFrameTests.swift in Sources */,
 				873B78342DA7DB530026A356 /* MappingParametersTests.swift in Sources */,
 				87FC086F2D94133500E1041D /* SDKSettingsTests.swift in Sources */,
+				ECAB835A2DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift in Sources */,
 				87BA6E0D2C6A47AF00784784 /* MockNetworkClient.swift in Sources */,
 				87EE76F92D78773000BB1D77 /* Condition+NotContainsTests.swift in Sources */,
 				87FC08732D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift in Sources */,

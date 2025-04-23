@@ -11,13 +11,17 @@ import XCTest
 
 final class TraceManagerModuleTests: XCTestCase {
     let dbProvider = MockDatabaseProvider()
+    lazy var dataStoreProvider = ModuleStoreProvider(databaseProvider: dbProvider, modulesRepository: SQLModulesRepository(dbProvider: dbProvider))
     let tracker: MockTracker = MockTracker()
     var traceManager: TraceManagerModule!
 
     override func setUpWithError() throws {
-        let dataStoreProvider = ModuleStoreProvider(databaseProvider: dbProvider, modulesRepository: SQLModulesRepository(dbProvider: dbProvider))
         let dataStore = try dataStoreProvider.getModuleStore(name: TraceManagerModule.id)
         traceManager = TraceManagerModule(dataStore: dataStore, tracker: tracker)
+    }
+
+    func test_the_module_id_is_correct() {
+        XCTAssertNotNil(dataStoreProvider.modulesRepository.getModules()[TraceManagerModule.id])
     }
 
     func test_killVisitorSession_completes_with_exception_when_not_in_trace() {

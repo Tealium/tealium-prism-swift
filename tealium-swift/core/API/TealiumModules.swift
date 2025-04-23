@@ -46,8 +46,8 @@ public enum TealiumModules {
     }
 
     /// Returns a factory for creating the `DeepLinkModule`.
-    static public func deepLink() -> any TealiumModuleFactory {
-        DefaultModuleFactory<DeepLinkModule>()
+    static public func deepLink(forcingSettings block: ((_ enforcedSettings: DeepLinkSettingsBuilder) -> DeepLinkSettingsBuilder)? = nil) -> any TealiumModuleFactory {
+        DeepLinkHandlerModule.Factory(forcingSettings: block)
     }
 
     /// Returns a factory for creating the `TealiumCollector`.
@@ -66,8 +66,8 @@ public enum TealiumModules {
     }
 
     /// Returns a factory for creating the `TraceModule`.
-    static public func trace() -> any TealiumModuleFactory {
-        TraceManagerModule.Factory()
+    static public func trace(forcingSettings block: ((_ enforcedSettings: CollectorSettingsBuilder) -> CollectorSettingsBuilder)? = nil) -> any TealiumModuleFactory {
+        TraceManagerModule.Factory(forcingSettings: block)
     }
 
     /**

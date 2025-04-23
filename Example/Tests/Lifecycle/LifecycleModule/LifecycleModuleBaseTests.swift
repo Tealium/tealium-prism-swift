@@ -11,6 +11,7 @@ import XCTest
 
 class LifecycleModuleBaseTests: XCTestCase {
     let dbProvider = MockDatabaseProvider()
+    lazy var dataStoreProvider = ModuleStoreProvider(databaseProvider: dbProvider, modulesRepository: SQLModulesRepository(dbProvider: dbProvider))
     @ToAnyObservable<ReplaySubject<ApplicationStatus>>(ReplaySubject<ApplicationStatus>())
     var applicationStatus: Observable<ApplicationStatus>
     let tracker = MockTracker()
@@ -21,7 +22,6 @@ class LifecycleModuleBaseTests: XCTestCase {
     let autoDisposer = AutomaticDisposer()
 
     override func setUpWithError() throws {
-        let dataStoreProvider = ModuleStoreProvider(databaseProvider: dbProvider, modulesRepository: SQLModulesRepository(dbProvider: dbProvider))
         let dataStore = try dataStoreProvider.getModuleStore(name: LifecycleModule.id)
         module = LifecycleModule(tracker: tracker,
                                  onApplicationStatus: applicationStatus,

@@ -20,8 +20,12 @@ class TealiumHelper {
                                    environment: "dev",
                                    modules: [
                                     TealiumModules.appData(),
-                                    TealiumModules.deepLink(),
-                                    TealiumModules.trace(),
+                                    TealiumModules.deepLink(forcingSettings: { enforcedSettings in
+                                        enforcedSettings.setSendDeepLinkEvent(true)
+                                    }),
+                                    TealiumModules.trace(forcingSettings: { enforcedSettings in
+                                        enforcedSettings.setEnabled(true)
+                                    }),
                                     TealiumModules.collect(forcingSettings: { enforcedSettings in
                                         enforcedSettings.setEnabled(true)
                                     }),

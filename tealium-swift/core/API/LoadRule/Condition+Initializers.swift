@@ -1,6 +1,6 @@
 //
 //  Condition+Initializers.swift
-//  Pods
+//  tealium-swift
 //
 //  Created by Enrico Zannini on 28/03/25.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.

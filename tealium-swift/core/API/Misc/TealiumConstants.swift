@@ -117,8 +117,6 @@ public enum TealiumConfigKey {
     public static let collectors = "collectors"
     public static let dispatchers = "dispatchers"
     static let lifecycleAutotrackingEnabled = "enable_lifecycle_autotracking"
-    static let deepLinkTrackingEnabled = "deep_link_tracking_enabled"
-    static let qrTraceEnabled = "qr_trace_enabled"
     static let shouldMigrate = "should_migrate_data"
     public static let enableBackgroundMedia = "enable_background_media_tracking"
     public static let autoEndSesssionTime = "media_auto_end_session_time"
@@ -148,6 +146,7 @@ public enum TealiumKey {
     static let killVisitorSession = "kill_visitor_session"
     static let leaveTraceQueryParam = "leave_trace"
     static let traceIdQueryParam = "tealium_trace_id"
+    static let deepLink = "deep_link"
 }
 
 public enum TealiumTrackType: String {

@@ -28,6 +28,10 @@ final class DataLayerModuleTests: XCTestCase {
         dataLayerModule = DataLayerModule(dataStore: try storeProvider.getModuleStore(name: DataLayerModule.id))
     }
 
+    func test_the_module_id_is_correct() {
+        XCTAssertNotNil(storeProvider.modulesRepository.getModules()[DataLayerModule.id])
+    }
+
     func test_put_and_remove_single_value() throws {
         try dataLayerModule.put(key: "key", value: "value")
         XCTAssertEqual(dataLayerModule.get(key: "key"), "value")

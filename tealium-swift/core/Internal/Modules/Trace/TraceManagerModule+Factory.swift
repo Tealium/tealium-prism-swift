@@ -7,14 +7,9 @@
 //
 
 extension TraceManagerModule {
-    class Factory: TealiumModuleFactory {
-        typealias Module = TraceManagerModule
-
-        func create(context: TealiumContext, moduleConfiguration: DataObject) -> Module? {
-            guard let dataStore = try? context.moduleStoreProvider.getModuleStore(name: TraceManagerModule.id) else {
-                return nil
-            }
-            return TraceManagerModule(dataStore: dataStore, tracker: context.tracker)
+    class Factory: DefaultModuleFactory<TraceManagerModule> {
+        init(forcingSettings block: ((_ enforcedSettings: CollectorSettingsBuilder) -> CollectorSettingsBuilder)? = nil) {
+            super.init(enforcedSettings: block?(CollectorSettingsBuilder()).build())
         }
     }
 }

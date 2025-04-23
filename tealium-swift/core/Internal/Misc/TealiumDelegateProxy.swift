@@ -28,7 +28,7 @@ public class TealiumDelegateProxy: NSProxy {
     private static let _onOpenUrl = ReplaySubject<(URL, Referrer?)>()
 
     /**
-     * If autotracking of deeplink is enabled it returns a subscribable to register on.
+     * If autotracking of deep link is enabled it returns a subscribable to register on.
      *
      * The subscribable always emits on the `TealiumQueue.worker`.
      */

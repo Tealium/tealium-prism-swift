@@ -11,9 +11,7 @@ import XCTest
 
 class ResourceRefresherBaseTests: ResourceCacherBaseTests {
     func createResourceRefresher(urlString: String = "someUrl", refreshInterval: Double = 1.0, errorCooldown: ErrorCooldown? = nil) throws -> ResourceRefresher<TestResourceObject> {
-        guard let url = URL(string: urlString) else {
-            throw ParsingError.invalidUrl(urlString)
-        }
+        let url = try urlString.asUrl()
         let cacher = try createResourceCacher()
         let parameters = RefreshParameters(id: "refresher_id",
                                            url: url,

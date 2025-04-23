@@ -22,9 +22,7 @@ class BaseProxyTests: XCTestCase {
         disposer.dispose()
     }
     func sendOpenUrlEvent(urlString: String) throws {
-        guard let url = URL(string: urlString) else {
-            throw ParsingError.invalidUrl(urlString)
-        }
+        let url = try urlString.asUrl()
         if #available(iOS 13.0, *), TealiumDelegateProxy.sceneEnabled {
             guard let scene = UIApplication.shared.connectedScenes.first,
                   let sceneDelegate = scene.delegate else {
@@ -40,9 +38,7 @@ class BaseProxyTests: XCTestCase {
     }
 
     func sendContinueUserActivityEvent(urlString: String) throws {
-        guard let url = URL(string: urlString) else {
-            throw ParsingError.invalidUrl(urlString)
-        }
+        let url = try urlString.asUrl()
         let activity = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
         activity.webpageURL = url
         if #available(iOS 13.0, *), TealiumDelegateProxy.sceneEnabled {
