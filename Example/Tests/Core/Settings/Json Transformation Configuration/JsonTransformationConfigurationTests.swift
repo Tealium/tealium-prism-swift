@@ -12,14 +12,14 @@ import XCTest
 final class JsonTransformationConfigurationTests: XCTestCase {
     let configuration = JsonTransformationConfiguration(operationsType: .map,
                                                         operations: [
-                                                            TransformationOperation<String>(output: VariableAccessor(variable: "key", path: nil),
+                                                            TransformationOperation<String>(destination: "key",
                                                                                             parameters: "parameter")
                                                         ])
     func test_toDataObject_returns_object_with_value() throws {
         XCTAssertEqual(configuration.toDataObject(), [
             "operations_type": "map",
             "operations": try DataItem(serializing: [[
-                "output": [ "variable": "key"],
+                "destination": [ "variable": "key"],
                 "parameters": "parameter"
             ]])
         ])
@@ -29,7 +29,7 @@ final class JsonTransformationConfigurationTests: XCTestCase {
         XCTAssertEqual(configuration.toDataInput() as? [String: DataInput], [
             "operations_type": "map",
             "operations": [[
-                "output": [ "variable": "key"],
+                "destination": [ "variable": "key"],
                 "parameters": "parameter"
             ]]
         ])

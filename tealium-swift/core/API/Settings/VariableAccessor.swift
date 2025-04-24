@@ -35,7 +35,7 @@ public struct VariableAccessor {
      */
     let path: [String]?
 
-    public init(variable: String, path: [String]?) {
+    public init(variable: String, path: [String]? = nil) {
         self.variable = variable
         self.path = path
     }
@@ -64,4 +64,13 @@ extension VariableAccessor {
     }
 
     static let converter: any DataItemConverter<Self> = Converter()
+}
+
+extension VariableAccessor: ExpressibleByStringLiteral {
+    /// Creates a `VariableAccessor` from a string literal.
+    /// The string literal will be used as the variable name with no path.
+    /// - Parameter value: The string literal to use as the variable name.
+    public init(stringLiteral value: StringLiteralType) {
+        self.init(variable: value)
+    }
 }

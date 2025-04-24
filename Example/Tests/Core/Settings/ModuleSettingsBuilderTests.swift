@@ -38,19 +38,16 @@ final class ModuleSettingsBuilderTests: XCTestCase {
     }
 
     func test_build_returns_mappings_when_passed() {
-        let mappingParameters = MappingParameters(key: VariableAccessor(variable: "inputVariable", path: nil),
-                                                  filter: nil,
-                                                  mapTo: nil)
         let build = builder
-            .setMappings([TransformationOperation<MappingParameters>(output: VariableAccessor(variable: "outputVariable",
-                                                                                              path: nil),
-                                                           parameters: mappingParameters)])
+            .setMappings([
+                .from("inputVariable", to: "destinationVariable")
+            ])
             .build()
         XCTAssertEqual(build, [
             "configuration": DataObject(),
             "mappings": try DataItem(serializing: [[
-                "output": [
-                    "variable": "outputVariable"
+                "destination": [
+                    "variable": "destinationVariable"
                 ],
                 "parameters": [
                     "key": [

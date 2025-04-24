@@ -61,7 +61,7 @@ final class TealiumImplementationTests: XCTestCase {
         let settings = StateSubject(SDKSettings(modules: [
             MockModule.id: ["mappings": try DataItem(serializing: [
                 [
-                    "output": ["variable": "key"],
+                    "destination": ["variable": "key"],
                     "parameters": ["key": ["variable": "key"]]
                 ]
             ])]
@@ -78,7 +78,7 @@ final class TealiumImplementationTests: XCTestCase {
             "operations_type": "map",
             "operations": try DataItem(serializing: [
                 [
-                    "output": ["variable": "key"],
+                    "destination": ["variable": "key"],
                     "parameters": ["key": ["variable": "key"]]
                 ]
             ])

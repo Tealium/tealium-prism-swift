@@ -10,7 +10,7 @@
 import XCTest
 
 final class VariableAccessorTests: XCTestCase {
-    let rootAccessor = VariableAccessor(variable: "key", path: nil)
+    let rootAccessor = VariableAccessor(variable: "key")
     let nestedAccessor = VariableAccessor(variable: "key", path: ["somePath"])
 
     func test_toDataObject_on_nestedAccessor_returns_complete_object() {
@@ -50,5 +50,11 @@ final class VariableAccessorTests: XCTestCase {
         let item = DataItem(value: [])
         let result = VariableAccessor.converter.convert(dataItem: item)
         XCTAssertNil(result)
+    }
+
+    func test_init_from_stringLiteral_creates_accessor_without_path() {
+        let accessor: VariableAccessor = "key"
+        XCTAssertEqual(accessor.variable, "key")
+        XCTAssertNil(accessor.path)
     }
 }

@@ -11,7 +11,7 @@ import XCTest
 
 final class MappingParametersTests: XCTestCase {
 
-    let basicParameters = MappingParameters(key: VariableAccessor(variable: "key", path: nil),
+    let basicParameters = MappingParameters(key: "key",
                                             filter: nil,
                                             mapTo: nil)
     let detailedParameters = MappingParameters(key: VariableAccessor(variable: "key", path: ["somePath"]),

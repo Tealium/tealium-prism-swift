@@ -24,7 +24,7 @@ open class ModuleSettingsBuilder {
         return self
     }
 
-    /// Returns the `DataObject` representing the `ModuleSettings` object.
+    /// - Returns: the `DataObject` representing the `ModuleSettings` object.
     public func build() -> DataObject {
         _dataObject.set(converting: _configurationObject, key: ModuleSettings.Keys.configuration)
         return _dataObject
@@ -43,7 +43,7 @@ open class CollectorSettingsBuilder: ModuleSettingsBuilder {
      * - parameter rules: A `Rule` of `LoadRule` IDs, composed by AND, OR and NOT.
      */
     public func setRules(_ rules: Rule<String>) -> Self {
-        _dataObject.set(rules.toDataInput(), key: Keys.rules)
+        _dataObject.set(converting: rules, key: Keys.rules)
         return self
     }
 }
@@ -60,7 +60,7 @@ open class DispatcherSettingsBuilder: ModuleSettingsBuilder {
      * - parameter rules: A `Rule` of `LoadRule` IDs, composed by AND, OR and NOT.
      */
     public func setRules(_ rules: Rule<String>) -> Self {
-        _dataObject.set(rules.toDataInput(), key: Keys.rules)
+        _dataObject.set(converting: rules, key: Keys.rules)
         return self
     }
 
@@ -70,10 +70,27 @@ open class DispatcherSettingsBuilder: ModuleSettingsBuilder {
      * Mappings will only be used if the module is a `Dispatcher`.
      * When defined only mapped variables will be passed to the `Dispatcher`.
      *
+     * Basic usage is very simple:
+     * ```swift
+     * DispatcherSettingsBuilder().setMappings([
+     *  .from("input1", to: "destination1"),
+     *  .from("input2", to: "destination2")
+     * ])
+     * ```
+     *
+     * For more complex use cases you can leverage the `MappingOperationBuilder` methods and the `VariableAccessor` constructor:
+     * ```swift
+     * DispatcherSettingsBuilder().setMappings([
+     *  .from(VariableAccessor(variable: "input1", path: ["container"]),
+     *        to: VariableAccessor(variable: "destination", path: ["otherContainer"]))
+     *      .ifInputEquals("value")
+     *      .mapTo("otherValue")
+     * ])
+     * ```
      * - parameter mappings: A list of `Mapping`s to be applied to each `TealiumDispatch` before sending it to the `Dispatcher`.
      */
-    public func setMappings(_ mappings: [TransformationOperation<MappingParameters>]) -> Self {
-        _dataObject.set(mappings.toDataInput(), key: Keys.mappings)
+    public func setMappings(_ mappings: [MappingOperationBuilder]) -> Self {
+        _dataObject.set(converting: mappings.map { $0.build() }, key: Keys.mappings)
         return self
     }
 }

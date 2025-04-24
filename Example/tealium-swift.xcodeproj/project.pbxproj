@@ -154,6 +154,9 @@
 		879CC0B42CB6835200A51BF2 /* VisitorStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879CC0B32CB6835200A51BF2 /* VisitorStorageTests.swift */; };
 		879CC0B52CB6835200A51BF2 /* VisitorStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879CC0B32CB6835200A51BF2 /* VisitorStorageTests.swift */; };
 		879CC0B62CB6835200A51BF2 /* VisitorStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879CC0B32CB6835200A51BF2 /* VisitorStorageTests.swift */; };
+		87A05CDE2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05CDD2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift */; };
+		87A05CDF2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05CDD2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift */; };
+		87A05CE02DB7F79F00D280F4 /* MappingOperationBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05CDD2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift */; };
 		87AA174B2CEE429C003E99A8 /* DataLayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA174A2CEE429C003E99A8 /* DataLayerTests.swift */; };
 		87AA174C2CEE429C003E99A8 /* DataLayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA174A2CEE429C003E99A8 /* DataLayerTests.swift */; };
 		87AA174D2CEE429C003E99A8 /* DataLayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA174A2CEE429C003E99A8 /* DataLayerTests.swift */; };
@@ -767,6 +770,7 @@
 		87908E552DA94BF900193F08 /* SingleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTests.swift; sourceTree = "<group>"; };
 		87908E592DA95DD800193F08 /* Operator+AsSingleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Operator+AsSingleTests.swift"; sourceTree = "<group>"; };
 		879CC0B32CB6835200A51BF2 /* VisitorStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitorStorageTests.swift; sourceTree = "<group>"; };
+		87A05CDD2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MappingOperationBuilderTests.swift; sourceTree = "<group>"; };
 		87AA174A2CEE429C003E99A8 /* DataLayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLayerTests.swift; sourceTree = "<group>"; };
 		87AA174E2CF08ED4003E99A8 /* LifecycleModuleManualTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleModuleManualTrackingTests.swift; sourceTree = "<group>"; };
 		87AA17512CF08FC0003E99A8 /* LifecycleModuleSubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleModuleSubscriptionTests.swift; sourceTree = "<group>"; };
@@ -1089,6 +1093,7 @@
 				87FC086C2D94133500E1041D /* SDKSettingsTests.swift */,
 				873B78262DA7D8050026A356 /* ValueContainerTests.swift */,
 				873B782A2DA7D8F50026A356 /* VariableAccessorTests.swift */,
+				87A05CDD2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -2335,6 +2340,7 @@
 				87ED26EF2CE509EE0086FFA4 /* DataLayerWrapper+TransactionallyTests.swift in Sources */,
 				D54BBFB42C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */,
 				153781292A617FC5007BCA70 /* DisposableTests.swift in Sources */,
+				87A05CDE2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift in Sources */,
 				87FC08552D91ADF300E1041D /* Rule+DataInputConvertibleTests.swift in Sources */,
 				15AE2B842A127D280093D154 /* MockUrlSession.swift in Sources */,
 				15C0DCCA2B0CF6730007F6BE /* Operators+IgnoreTests.swift in Sources */,
@@ -2507,6 +2513,7 @@
 				87BA6D6F2C6A470C00784784 /* XCTAssert+Result.swift in Sources */,
 				D54BBFF82C78C01A003687C7 /* DispatchManager+MaximumInflightTests.swift in Sources */,
 				87BA6D732C6A470C00784784 /* DisposableTests.swift in Sources */,
+				87A05CDF2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift in Sources */,
 				877C5F742CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift in Sources */,
 				87AF54782C7F4CCA00F1C114 /* DataObjectTests.swift in Sources */,
 				87EE76CF2D77443C00BB1D77 /* Condition+EqualsTests.swift in Sources */,
@@ -2696,6 +2703,7 @@
 				87BA6DE82C6A47AF00784784 /* XCTestCase+WaitForDefaultTimeout.swift in Sources */,
 				D54BBFF12C78C01A003687C7 /* DispatchManager+DeinitTests.swift in Sources */,
 				87BA6DEA2C6A47AF00784784 /* ReplaySubjectTests.swift in Sources */,
+				87A05CE02DB7F79F00D280F4 /* MappingOperationBuilderTests.swift in Sources */,
 				87FC085D2D92F79200E1041D /* DataObject+DeepMergeTests.swift in Sources */,
 				87BA6DEB2C6A47AF00784784 /* MockModulesRepository.swift in Sources */,
 				87AF54832C8211B100F1C114 /* DataItem+SerializingTests.swift in Sources */,
