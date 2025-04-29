@@ -638,6 +638,12 @@
 		ECAB83622DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB835E2DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift */; };
 		ECAB83632DB0124E00B2CF64 /* DeepLinkConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB835D2DB0124E00B2CF64 /* DeepLinkConfigurationTests.swift */; };
 		ECAB83642DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB835E2DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift */; };
+		ECBF304B2DC0EFA8007A1A42 /* TransformationSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF304A2DC0EFA8007A1A42 /* TransformationSettingsTests.swift */; };
+		ECBF304C2DC0EFA8007A1A42 /* TransformationSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF304A2DC0EFA8007A1A42 /* TransformationSettingsTests.swift */; };
+		ECBF304D2DC0EFA8007A1A42 /* TransformationSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF304A2DC0EFA8007A1A42 /* TransformationSettingsTests.swift */; };
+		ECBF304F2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF304E2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift */; };
+		ECBF30502DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF304E2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift */; };
+		ECBF30512DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF304E2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift */; };
 		ECC2B4722CE3B61C0066B022 /* LaunchSleepWakeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2B4712CE3B61C0066B022 /* LaunchSleepWakeTests.swift */; };
 		F517AE7FD10708E09D817DEB /* Pods_CoreTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D80F5A9B7BE61AB743BD008 /* Pods_CoreTests_iOS.framework */; };
 /* End PBXBuildFile section */
@@ -906,6 +912,8 @@
 		ECAB83592DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandlerWrapperTests.swift; sourceTree = "<group>"; };
 		ECAB835D2DB0124E00B2CF64 /* DeepLinkConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkConfigurationTests.swift; sourceTree = "<group>"; };
 		ECAB835E2DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkSettingsBuilderTests.swift; sourceTree = "<group>"; };
+		ECBF304A2DC0EFA8007A1A42 /* TransformationSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransformationSettingsTests.swift; sourceTree = "<group>"; };
+		ECBF304E2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransformationSettings+ConverterTests.swift"; sourceTree = "<group>"; };
 		ECC2B4712CE3B61C0066B022 /* LaunchSleepWakeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSleepWakeTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1379,6 +1387,8 @@
 			isa = PBXGroup;
 			children = (
 				D54BBF7D2C78C015003687C7 /* TransformerCoordinatorTests.swift */,
+				ECBF304A2DC0EFA8007A1A42 /* TransformationSettingsTests.swift */,
+				ECBF304E2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift */,
 			);
 			path = Transform;
 			sourceTree = "<group>";
@@ -2350,6 +2360,7 @@
 				87AF54822C8211B100F1C114 /* DataItem+SerializingTests.swift in Sources */,
 				87EE76E02D786B6400BB1D77 /* Condition+IsBadgeAssignedTests.swift in Sources */,
 				87FC086A2D931B9500E1041D /* LoadRule+ConverterTests.swift in Sources */,
+				ECBF304B2DC0EFA8007A1A42 /* TransformationSettingsTests.swift in Sources */,
 				D54BBFED2C78C01A003687C7 /* DispatchManager+ConsentTests.swift in Sources */,
 				155F91542A791E2F007A3548 /* XCTAssert+Errors.swift in Sources */,
 				158C1AFB2B04F80200FF02E6 /* MockNetworkHelper.swift in Sources */,
@@ -2370,6 +2381,7 @@
 				48F9CE082A5F2BBE00A7376F /* SQLiteOpenHelperTests.swift in Sources */,
 				87FEF0A42C2C43DB00340E18 /* XCTAssert+EqualDictionaries.swift in Sources */,
 				15AB12982BD7B5C300AF1A08 /* SQLQueueRepositoryTests.swift in Sources */,
+				ECBF304F2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift in Sources */,
 				87EF5ACC2CE3A4BD00DB753C /* ModuleProxyTests.swift in Sources */,
 				1532E7D92B1F49A70071327A /* Operators+TakeWhileTests.swift in Sources */,
 				87D64D6D2CB4157A0084F43D /* TealiumLoggerTests.swift in Sources */,
@@ -2417,6 +2429,7 @@
 				87BA6D2F2C6A470C00784784 /* Operators+FlatMapTests.swift in Sources */,
 				D54BBFE62C78C01A003687C7 /* BarrierCoordinator+GetBarriersStateTests.swift in Sources */,
 				EC9C453E2DA015940046AB3A /* TraceManagerWrapperTests.swift in Sources */,
+				ECBF304D2DC0EFA8007A1A42 /* TransformationSettingsTests.swift in Sources */,
 				87BA6D302C6A470C00784784 /* DatabaseHelperTests.swift in Sources */,
 				877C5F662CBD4F40008D4B78 /* TealiumLoggerTests.swift in Sources */,
 				87EE770A2D7879FE00BB1D77 /* Condition+NotEndsWithTests.swift in Sources */,
@@ -2508,6 +2521,7 @@
 				87BA6D6C2C6A470C00784784 /* ReplaySubjectTests.swift in Sources */,
 				87BA6D6D2C6A470C00784784 /* MockModulesRepository.swift in Sources */,
 				87EE76EE2D786FFD00BB1D77 /* Condition+LessThanOrEqualTests.swift in Sources */,
+				ECBF30502DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift in Sources */,
 				87AF54842C8211B100F1C114 /* DataItem+SerializingTests.swift in Sources */,
 				87BA6D6E2C6A470C00784784 /* ToAnyObservableTests.swift in Sources */,
 				87BA6D6F2C6A470C00784784 /* XCTAssert+Result.swift in Sources */,
@@ -2607,6 +2621,7 @@
 				87EE771A2D789EE200BB1D77 /* OrTests.swift in Sources */,
 				87EE76D12D77443C00BB1D77 /* Condition+EqualsTests.swift in Sources */,
 				EC9C453F2DA015940046AB3A /* TraceManagerWrapperTests.swift in Sources */,
+				ECBF304C2DC0EFA8007A1A42 /* TransformationSettingsTests.swift in Sources */,
 				87BA6DAC2C6A47AF00784784 /* MockTransformer.swift in Sources */,
 				87BA6DAD2C6A47AF00784784 /* Operators+FlatMapTests.swift in Sources */,
 				D54BBFE52C78C01A003687C7 /* BarrierCoordinator+GetBarriersStateTests.swift in Sources */,
@@ -2698,6 +2713,7 @@
 				87BA6DE52C6A47AF00784784 /* CoreSettingsBuilderTests.swift in Sources */,
 				87EE77112D78856100BB1D77 /* AndTests.swift in Sources */,
 				87BA6DE62C6A47AF00784784 /* SubscriptionRetainCycleHelper.swift in Sources */,
+				ECBF30512DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift in Sources */,
 				D54BBFD32C78C01A003687C7 /* RequestBuilderTests.swift in Sources */,
 				87BA6DE72C6A47AF00784784 /* ModuleStoreTests.swift in Sources */,
 				87BA6DE82C6A47AF00784784 /* XCTestCase+WaitForDefaultTimeout.swift in Sources */,

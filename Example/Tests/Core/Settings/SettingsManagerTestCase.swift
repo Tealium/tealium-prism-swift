@@ -64,6 +64,12 @@ class SettingsManagerTestCase: XCTestCase {
             "scopes": ["afterCollectors"],
             "configuration": [
                 "key": "value"
+            ],
+            "conditions": [
+                "variable": "pageName",
+                "path": ["container"],
+                "operator": "equals",
+                "filter": "Home"
             ]
         ])
     }

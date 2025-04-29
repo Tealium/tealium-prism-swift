@@ -44,11 +44,17 @@ public struct TransformationSettings {
     let transformerId: String
     let scopes: [TransformationScope]
     let configuration: DataObject
-    public init(id: String, transformerId: String, scopes: [TransformationScope], configuration: DataObject = [:]) {
+    let conditions: Rule<Condition>?
+    public init(id: String,
+                transformerId: String,
+                scopes: [TransformationScope],
+                configuration: DataObject = [:],
+                conditions: Rule<Condition>? = nil) {
         self.id = id
         self.transformerId = transformerId
         self.scopes = scopes
         self.configuration = configuration
+        self.conditions = conditions
     }
 
     func matchesScope(_ dispatchScope: DispatchScope) -> Bool {
@@ -66,22 +72,31 @@ public struct TransformationSettings {
         }
     }
 
+    func matchesDispatch(_ dispatch: TealiumDispatch) -> Bool {
+        guard let conditions else {
+            return true
+        }
+        return conditions.asMatchable().matches(payload: dispatch.eventData)
+    }
+
     enum Keys {
         static let id = "transformation_id"
         static let transformerId = "transformer_id"
         static let scopes = "scopes"
         static let configuration = "configuration"
+        static let conditions = "conditions"
     }
 }
 
 extension TransformationSettings: DataObjectConvertible {
     public func toDataObject() -> DataObject {
-        [
+        DataObject(compacting: [
             Keys.id: id,
             Keys.transformerId: transformerId,
             Keys.scopes: scopes.map { $0.rawValue },
-            Keys.configuration: configuration
-        ]
+            Keys.configuration: configuration,
+            Keys.conditions: conditions,
+        ])
     }
 }
 
@@ -97,10 +112,13 @@ extension TransformationSettings {
             }
             let configuration = dictionary.getDataDictionary(key: Keys.configuration)?
                 .toDataObject() ?? [:]
+            let conditions = dictionary.getConvertible(key: Keys.conditions,
+                                                       converter: Rule.converter(ruleItemConverter: Condition.converter))
             return TransformationSettings(id: id,
                                           transformerId: transformerId,
                                           scopes: scopes.map { TransformationScope(rawValue: $0) },
-                                          configuration: configuration)
+                                          configuration: configuration,
+                                          conditions: conditions)
         }
     }
     public static let converter: any DataItemConverter<Self> = Converter()

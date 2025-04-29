@@ -54,8 +54,10 @@ public class TransformerCoordinator: TransformerRegistry {
         self.queue = queue
     }
 
-    func getTransformations(for scope: DispatchScope) -> [TransformationSettings] {
-        var transformations = allTransformations.filter { $0.matchesScope(scope) }
+    func getTransformations(for dispatch: TealiumDispatch, _ scope: DispatchScope) -> [TransformationSettings] {
+        var transformations = allTransformations.filter {
+            $0.matchesScope(scope) && $0.matchesDispatch(dispatch)
+        }
         if case let .dispatcher(dispatcherId) = scope,
            let mapping = moduleMappings.value[dispatcherId] {
             transformations.append(mapping)
@@ -67,7 +69,7 @@ public class TransformerCoordinator: TransformerRegistry {
      * Transforms a single `TealiumDispatch`, intended to be mainly used on a dispatch after it's been enriched by the collectors.
      */
     func transform(dispatch: TealiumDispatch, for scope: DispatchScope, completion: @escaping TransformationCompletion) {
-        recursiveSerialApply(transformations: getTransformations(for: scope),
+        recursiveSerialApply(transformations: getTransformations(for: dispatch, scope),
                              to: dispatch,
                              scope: scope,
                              completion: completion)

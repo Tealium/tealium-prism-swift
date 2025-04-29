@@ -18,6 +18,10 @@ final class TransformerCoordinatorTests: XCTestCase {
         TransformationSettings(id: "transformation5", transformerId: "transformer2", scopes: [.dispatcher("someOtherDispatcher")]),
         TransformationSettings(id: "transformation6", transformerId: "transformer3", scopes: [.afterCollectors]),
         TransformationSettings(id: "transformation7", transformerId: "transformer1", scopes: [.dispatcher("someDispatcher"), .dispatcher("someOtherDispatcher")]),
+        TransformationSettings(id: "transformation8",
+                               transformerId: "transformer1",
+                               scopes: [.allDispatchers],
+                               conditions: .just(Condition.equals(ignoreCase: false, variable: "tealium_event", target: "test_event")))
     ])
     var transformations: ObservableState<[TransformationSettings]>
     var registeredTransformers: [MockTransformer] = [
@@ -35,15 +39,25 @@ final class TransformerCoordinatorTests: XCTestCase {
                                                   transformations: transformations,
                                                   moduleMappings: mappings,
                                                   queue: TealiumQueue.worker)
+    let testEvent = TealiumDispatch(name: "test_event")
 
     func test_getTransformationsForScope_afterCollectors_returns_all_afterCollectors_transformations() {
-        let transformations = coordinator.getTransformations(for: .afterCollectors)
+        let transformations = coordinator.getTransformations(for: testEvent, .afterCollectors)
         XCTAssertEqual(transformations.map { $0.id }, ["transformation1", "transformation6"])
     }
 
+    func test_getTransformationsForScope_with_dispatch_filters_by_conditions() {
+        let transformations = coordinator.getTransformations(for: testEvent, .dispatcher("someDispatcher"))
+        XCTAssertEqual(transformations.map { $0.id }, ["transformation2", "transformation3", "transformation4", "transformation7", "transformation8"])
+
+        let nonMatchingDispatch = TealiumDispatch(name: "other_event")
+        let filteredTransformations = coordinator.getTransformations(for: nonMatchingDispatch, .dispatcher("someDispatcher"))
+        XCTAssertEqual(filteredTransformations.map { $0.id }, ["transformation2", "transformation3", "transformation4", "transformation7"])
+    }
+
     func test_getTransformationsForScope_dispatcher_returns_allDispatchers_and_dispatcherSpecific_transformations() {
-        let transformations = coordinator.getTransformations(for: .dispatcher("someDispatcher"))
-        XCTAssertEqual(transformations.map { $0.id }, ["transformation2", "transformation3", "transformation4", "transformation7"])
+        let transformations = coordinator.getTransformations(for: testEvent, .dispatcher("someDispatcher"))
+        XCTAssertEqual(transformations.map { $0.id }, ["transformation2", "transformation3", "transformation4", "transformation7", "transformation8"])
     }
 
     func test_getTransformationsForScope_dispatcher_returns_dispatcher_mappings() {
@@ -51,7 +65,7 @@ final class TransformerCoordinatorTests: XCTestCase {
                                                     transformerId: "JsonTransformer",
                                                     scopes: [.dispatcher("someDispatcher")])
         _mappings.value = ["someDispatcher": transformation]
-        let transformations = coordinator.getTransformations(for: .dispatcher("someDispatcher"))
+        let transformations = coordinator.getTransformations(for: testEvent, .dispatcher("someDispatcher"))
         XCTAssertEqual(transformations.last?.id, transformation.id)
     }
 
@@ -199,10 +213,10 @@ final class TransformerCoordinatorTests: XCTestCase {
 
     func test_registerTransformation_Adds_Transformation_When_Not_Already_Registered() {
         let newTransformation = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers])
-        XCTAssertFalse(coordinator.getTransformations(for: .dispatcher("new"))
+        XCTAssertFalse(coordinator.getTransformations(for: testEvent, .dispatcher("new"))
             .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
         coordinator.registerTransformation(newTransformation)
-        XCTAssertTrue(coordinator.getTransformations(for: .dispatcher("new"))
+        XCTAssertTrue(coordinator.getTransformations(for: testEvent, .dispatcher("new"))
             .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
     }
 
@@ -211,19 +225,19 @@ final class TransformerCoordinatorTests: XCTestCase {
         let differentTransformation = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers], configuration: ["some": "value"])
         coordinator.registerTransformation(newTransformation)
         coordinator.registerTransformation(differentTransformation)
-        XCTAssertTrue(coordinator.getTransformations(for: .dispatcher("new"))
+        XCTAssertTrue(coordinator.getTransformations(for: testEvent, .dispatcher("new"))
             .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) && $0.configuration.keys.isEmpty }))
-        XCTAssertFalse(coordinator.getTransformations(for: .dispatcher("new"))
+        XCTAssertFalse(coordinator.getTransformations(for: testEvent, .dispatcher("new"))
             .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) && $0.configuration == ["some": "value"] }))
     }
 
     func test_unregisterTransformation_Removes_Transformation_When_Already_Registered() {
         let newTransformation = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers])
         coordinator.registerTransformation(newTransformation)
-        XCTAssertTrue(coordinator.getTransformations(for: .dispatcher("new"))
+        XCTAssertTrue(coordinator.getTransformations(for: testEvent, .dispatcher("new"))
             .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
         coordinator.unregisterTransformation(newTransformation)
-        XCTAssertFalse(coordinator.getTransformations(for: .dispatcher("new"))
+        XCTAssertFalse(coordinator.getTransformations(for: testEvent, .dispatcher("new"))
             .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
     }
 
@@ -231,10 +245,10 @@ final class TransformerCoordinatorTests: XCTestCase {
         let newTransformation = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers])
         let duplicated = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers], configuration: ["something": "different"])
         coordinator.registerTransformation(newTransformation)
-        XCTAssertTrue(coordinator.getTransformations(for: .dispatcher("new"))
+        XCTAssertTrue(coordinator.getTransformations(for: testEvent, .dispatcher("new"))
             .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
         coordinator.unregisterTransformation(duplicated)
-        XCTAssertFalse(coordinator.getTransformations(for: .dispatcher("new"))
+        XCTAssertFalse(coordinator.getTransformations(for: testEvent, .dispatcher("new"))
             .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
     }
 }
