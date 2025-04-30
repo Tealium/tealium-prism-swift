@@ -10,12 +10,13 @@ import Foundation
 
 public protocol ConnectivityManagerProtocol: RequestInterceptor {
     var connectionAssumedAvailable: ObservableState<Bool> { get }
+    var connection: ObservableState<NetworkConnection> { get }
 }
 
 /**
  * A manager that handles system connectivity monitor and empirical connectivity monitor to establish when connectivity is actually available or not on the device.
  *
- * The default behavior would be to always assume that connectivity is available until system monitor or empirical connectivity result unavaialble or unknown.
+ * The default behavior would be to always assume that connectivity is available until system monitor or empirical connectivity result unavailable or unknown.
  */
 public class ConnectivityManager: ConnectivityManagerProtocol {
     let connectivityMonitor: ConnectivityMonitorProtocol
@@ -30,16 +31,17 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
         self.connectivityMonitor = connectivityMonitor
         self.empiricalConnectivity = empiricalConnectivity
         connectivityMonitor.connection.asObservable()
-            .combineLatest(empiricalConnectivity.onEmpiricalConnectionAvailable)
-            .map { monitoredConnection, empiricalConnectionAvailable in
+            .flatMapLatest { monitoredConnection in
                 switch monitoredConnection {
-                case .notConnected, .unknown:
-                    return empiricalConnectionAvailable
                 case .connected:
-                    return true
+                    .Just(true)
+                case .notConnected:
+                    empiricalConnectivity.onEmpiricalConnectionAvailable
+                        .takeWhile({ $0 }, inclusive: true)
+                case .unknown:
+                    empiricalConnectivity.onEmpiricalConnectionAvailable
                 }
-            }
-            .distinct()
+            }.distinct()
             .subscribe(_connectionAssumedAvailable)
             .addTo(automaticDisposer)
     }
@@ -51,6 +53,10 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
     /// Returns `true` if either monitored or empirical connectivity result available
     public var isConnectionAssumedAvailable: Bool {
         connectionAssumedAvailable.value
+    }
+
+    public var connection: ObservableState<NetworkConnection> {
+        connectivityMonitor.connection
     }
 
     /**

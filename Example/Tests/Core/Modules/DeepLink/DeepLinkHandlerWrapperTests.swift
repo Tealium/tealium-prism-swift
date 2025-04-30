@@ -25,7 +25,7 @@ final class DeepLinkHandlerWrapperTests: XCTestCase {
                        config: config,
                        coreSettings: coreSettings,
                        tracker: tracker,
-                       barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
+                       barrierRegistry: BarrierManager(sdkBarrierSettings: StateSubject([:]).toStatefulObservable()),
                        transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                                    transformations: StateSubject([]).toStatefulObservable(),
                                                                    moduleMappings: StateSubject([:]).toStatefulObservable(),
@@ -50,7 +50,6 @@ final class DeepLinkHandlerWrapperTests: XCTestCase {
         let moduleCalledWithParams = expectation(description: "Module's method called with correct params")
         let referrer: Referrer = .app("com.test.app")
         let link = try "https://tealium.com".asUrl()
-        wrapper.handle(link: link, referrer: referrer)
         manager.getModule(DeepLinkHandlerModule.self)?.dataStore.onDataUpdated.subscribe { data in
             guard data.get(key: TealiumDataKey.deepLinkURL) == "https://tealium.com",
                   data.get(key: TealiumDataKey.deepLinkReferrerApp) == "com.test.app" else {
@@ -59,13 +58,13 @@ final class DeepLinkHandlerWrapperTests: XCTestCase {
             }
             moduleCalledWithParams.fulfill()
         }.addTo(disposer)
+        wrapper.handle(link: link, referrer: referrer)
         waitOnQueue(queue: queue)
     }
 
     func test_handle_calls_module_method_without_referrer() throws {
         let moduleCalledWithParams = expectation(description: "Module's method called with correct params")
         let link = try "https://tealium.com".asUrl()
-        wrapper.handle(link: link)
         manager.getModule(DeepLinkHandlerModule.self)?.dataStore.onDataUpdated.subscribe { data in
             guard data.get(key: TealiumDataKey.deepLinkURL) == "https://tealium.com" else {
                 XCTFail("Invalid deep link URL")
@@ -73,6 +72,7 @@ final class DeepLinkHandlerWrapperTests: XCTestCase {
             }
             moduleCalledWithParams.fulfill()
         }.addTo(disposer)
+        wrapper.handle(link: link)
         waitOnQueue(queue: queue)
     }
 }

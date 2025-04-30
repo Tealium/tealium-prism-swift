@@ -23,7 +23,7 @@ class BaseDataLayerWrapperTests: XCTestCase {
                        config: config,
                        coreSettings: coreSettings,
                        tracker: MockTracker(),
-                       barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
+                       barrierRegistry: BarrierManager(sdkBarrierSettings: StateSubject([:]).toStatefulObservable()),
                        transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                                    transformations: StateSubject([]).toStatefulObservable(),
                                                                    moduleMappings: StateSubject([:]).toStatefulObservable(),

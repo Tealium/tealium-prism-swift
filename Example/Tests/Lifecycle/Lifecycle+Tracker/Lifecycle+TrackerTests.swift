@@ -10,8 +10,6 @@
 import XCTest
 
 final class LifecycleTrackerTests: XCTestCase {
-    @StateSubject([ScopedBarrier(barrierId: "barrier1", scopes: [.all])])
-    var scopedBarriers: ObservableState<[ScopedBarrier]>
 
     @StateSubject([TransformationSettings(id: "transformation1",
                                           transformerId: "transformer1",
@@ -45,8 +43,8 @@ final class LifecycleTrackerTests: XCTestCase {
                                                                                  expiration: TimeFrame(unit: .days, interval: 1)),
                                              coreSettings: coreSettings,
                                              logger: nil)
-    lazy var barrierCoordinator = BarrierCoordinator(registeredBarriers: [],
-                                                     onScopedBarriers: scopedBarriers)
+    let barrierManager = BarrierManager(sdkBarrierSettings: StateSubject([:]).toStatefulObservable())
+    lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: .Just([]))
     lazy var transformerCoordinator = TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                              transformations: transformations,
                                                              moduleMappings: StateSubject([:]).toStatefulObservable(),
@@ -59,7 +57,7 @@ final class LifecycleTrackerTests: XCTestCase {
                                       config: config,
                                       coreSettings: coreSettings,
                                       tracker: tracker,
-                                      barrierRegistry: barrierCoordinator,
+                                      barrierRegistry: barrierManager,
                                       transformerRegistry: transformerCoordinator,
                                       databaseProvider: databaseProvider,
                                       moduleStoreProvider: ModuleStoreProvider(databaseProvider: databaseProvider,

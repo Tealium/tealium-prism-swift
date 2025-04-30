@@ -45,7 +45,7 @@ public class HTTPClient: NetworkClient {
     /**
      * Creates and returns a new client.
      *
-     * - Parameter configuration: the `NetworkConfiguration` used to instanciate the client.
+     * - Parameter configuration: the `NetworkConfiguration` used to instantiate the client.
      */
     convenience public init(configuration: NetworkConfiguration = .default, logger: LoggerProtocol?) {
         let operationQueue = OperationQueue()

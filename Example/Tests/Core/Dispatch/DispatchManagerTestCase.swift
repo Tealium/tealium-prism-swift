@@ -17,9 +17,6 @@ class DispatchManagerTestCase: XCTestCase {
             .map { $0.id }
     }
 
-    @StateSubject([ScopedBarrier(barrierId: "barrier1", scopes: [.all])])
-    var scopedBarriers: ObservableState<[ScopedBarrier]>
-
     @StateSubject([TransformationSettings(id: "transformation1", transformerId: "transformer1", scopes: [.afterCollectors, .allDispatchers])])
     var transformations: ObservableState<[TransformationSettings]>
 
@@ -29,7 +26,8 @@ class DispatchManagerTestCase: XCTestCase {
         return dispatch
     }
     lazy var transformers = StateSubject<[Transformer]>([transformer])
-    let barrier = MockBarrier(id: "barrier1")
+    lazy var onBarriers = Observable<[ScopedBarrier]>.Just([(barrier, [BarrierScope.all])])
+    let barrier = MockBarrier()
     let config = TealiumConfig(account: "test",
                                profile: "test",
                                environment: "dev",
@@ -55,8 +53,8 @@ class DispatchManagerTestCase: XCTestCase {
                                                                                  expiration: TimeFrame(unit: .days, interval: 1)),
                                              coreSettings: coreSettings,
                                              logger: nil)
-    lazy var barrierCoordinator = BarrierCoordinator(registeredBarriers: [barrier],
-                                                     onScopedBarriers: scopedBarriers)
+    let barrierManager = BarrierManager(sdkBarrierSettings: StateSubject([:]).toStatefulObservable())
+    lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: onBarriers)
     lazy var transformerCoordinator = TransformerCoordinator(transformers: transformers.toStatefulObservable(),
                                                              transformations: transformations,
                                                              moduleMappings: StateSubject([:]).toStatefulObservable(),
@@ -65,7 +63,7 @@ class DispatchManagerTestCase: XCTestCase {
                                       config: config,
                                       coreSettings: coreSettings,
                                       tracker: MockTracker(),
-                                      barrierRegistry: barrierCoordinator,
+                                      barrierRegistry: barrierManager,
                                       transformerRegistry: transformerCoordinator,
                                       databaseProvider: databaseProvider,
                                       moduleStoreProvider: ModuleStoreProvider(databaseProvider: databaseProvider,

@@ -15,8 +15,6 @@ extension CoreSettings {
             }
             return CoreSettings(
                 minLogLevel: LogLevel.Minimum(from: coreDataObject.get(key: Keys.minLogLevel)),
-                scopedBarriers: coreDataObject.getDataArray(key: Keys.barriers)?
-                .compactMap { $0.getConvertible(converter: ScopedBarrier.converter) },
                 maxQueueSize: coreDataObject.get(key: Keys.maxQueueSize),
                 queueExpiration: coreDataObject.getConvertible(key: Keys.expirationSeconds,
                                                                converter: TimeFrame.converter),

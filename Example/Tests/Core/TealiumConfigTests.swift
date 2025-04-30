@@ -38,19 +38,11 @@ final class TealiumConfigTests: XCTestCase {
                                    settingsUrl: nil,
                                    forcingSettings: { builder in
             builder.setMaxQueueSize(17)
-                .setScopedBarriers([ScopedBarrier(barrierId: "someId",
-                                                  scopes: [.all, .dispatcher("custom")])])
         })
         let settings = config.getEnforcedSDKSettings()
         XCTAssertEqual(settings, [
             "core": [
                 "max_queue_size": DataItem(value: 17),
-                "barriers": try DataItem(serializing: [
-                    [
-                        "barrier_id": "someId",
-                        "scopes": ["all", "custom"]
-                    ]
-                ])
             ]
         ])
     }

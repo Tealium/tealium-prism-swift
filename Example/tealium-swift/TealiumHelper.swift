@@ -46,7 +46,6 @@ class TealiumHelper {
                                    forcingSettings: { builder in
             builder.setMinLogLevel(.trace)
                 .setVisitorIdentityKey("email")
-                .setScopedBarriers([ScopedBarrier(barrierId: "ConnectivityBarrier", scopes: [.dispatcher("Collect")])])
         })
         return Tealium.create(config: config) { _ in }
     }

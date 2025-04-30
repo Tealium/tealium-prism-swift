@@ -18,6 +18,14 @@ extension TealiumImpl {
         config.modules = modules
     }
 
+    static func addMandatoryAndRemoveDuplicateBarriers(from config: inout TealiumConfig) {
+        var barrierIdSet = Set<String>()
+        let barriers = (config.barriers + [
+            Barriers.connectivity()
+        ]).filter { barrierIdSet.insert($0.id).inserted }
+        config.barriers = barriers
+    }
+
     static func addQueueManager(_ queueManager: QueueManagerProtocol, toConsentInConfig config: inout TealiumConfig) {
         config.modules = config.modules.map { factory in
             guard let consentFactory = factory as? ConsentModule.Factory else {

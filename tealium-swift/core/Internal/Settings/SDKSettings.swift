@@ -15,11 +15,13 @@ struct SDKSettings {
         static let modules = "modules"
         static let loadRules = "load_rules"
         static let transformations = "transformations"
+        static let barriers = "barriers"
     }
     let core: CoreSettings
     let modules: [String: ModuleSettings]
     let loadRules: [String: LoadRule]
     let transformations: [String: TransformationSettings]
+    let barriers: [String: BarrierSettings]
 
     init(_ settings: DataObject) {
         self.init(core: settings.getConvertible(key: Keys.core,
@@ -33,7 +35,12 @@ struct SDKSettings {
                   transformations: settings.getDataDictionary(key: Keys.transformations)?
             .compactMapValues {
                 $0.getConvertible(converter: TransformationSettings.converter)
-            } ?? [:])
+            } ?? [:],
+                  barriers: settings.getDataDictionary(key: Keys.barriers)?
+            .compactMapValues {
+                $0.getConvertible(converter: BarrierSettings.converter)
+            } ?? [:]
+        )
     }
 
     init(modules: [String: DataObject] = [:]) {
@@ -43,10 +50,12 @@ struct SDKSettings {
     init(core: CoreSettings,
          modules: [String: ModuleSettings] = [:],
          loadRules: [String: LoadRule] = [:],
-         transformations: [String: TransformationSettings] = [:]) {
+         transformations: [String: TransformationSettings] = [:],
+         barriers: [String: BarrierSettings] = [:]) {
         self.core = core
         self.modules = modules
         self.loadRules = loadRules
         self.transformations = transformations
+        self.barriers = barriers
     }
 }

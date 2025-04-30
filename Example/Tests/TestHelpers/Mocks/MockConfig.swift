@@ -24,7 +24,7 @@ func createContext(config: TealiumConfig, modulesManager: ModulesManager) -> Tea
                    config: config,
                    coreSettings: StateSubject(CoreSettings()).toStatefulObservable(),
                    tracker: MockTracker(),
-                   barrierRegistry: BarrierCoordinator(registeredBarriers: [], onScopedBarriers: .Just([])),
+                   barrierRegistry: BarrierManager(sdkBarrierSettings: StateSubject([:]).toStatefulObservable()),
                    transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                                transformations: StateSubject([]).toStatefulObservable(),
                                                                moduleMappings: StateSubject([:]).toStatefulObservable(),

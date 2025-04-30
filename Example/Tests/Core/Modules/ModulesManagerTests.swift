@@ -21,8 +21,6 @@ final class ModulesManagerTests: XCTestCase {
     lazy var modulesManager = ModulesManager(queue: queue)
     @StateSubject(CoreSettings())
     var coreSettings
-    lazy var barrierCoordinator = BarrierCoordinator(registeredBarriers: [],
-                                                     onScopedBarriers: .Just([]))
     lazy var transformerCoordinator = TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                              transformations: StateSubject([]).toStatefulObservable(),
                                                              moduleMappings: StateSubject([:]).toStatefulObservable(),
@@ -33,7 +31,7 @@ final class ModulesManagerTests: XCTestCase {
                        config: config,
                        coreSettings: coreSettings,
                        tracker: MockTracker(),
-                       barrierRegistry: barrierCoordinator,
+                       barrierRegistry: BarrierManager(sdkBarrierSettings: StateSubject([:]).toStatefulObservable()),
                        transformerRegistry: transformerCoordinator,
                        databaseProvider: databaseProvider,
                        moduleStoreProvider: ModuleStoreProvider(databaseProvider: databaseProvider,

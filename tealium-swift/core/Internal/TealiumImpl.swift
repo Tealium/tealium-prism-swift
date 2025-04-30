@@ -23,6 +23,7 @@ class TealiumImpl {
     init(_ config: TealiumConfig) throws {
         var config = config
         Self.addMandatoryAndRemoveDuplicateModules(from: &config)
+        Self.addMandatoryAndRemoveDuplicateBarriers(from: &config)
         let storeProvider = try Self.initModuleStoreProvider(config: config)
         let onLogLevel = ReplaySubject<LogLevel.Minimum>()
         let logger = TealiumLogger(logHandler: config.loggerType.getHandler(),
@@ -53,12 +54,13 @@ class TealiumImpl {
                                         coreSettings: coreSettings,
                                         logger: logger)
         Self.addQueueManager(queueManager, toConsentInConfig: &config)
-        let barrierCoordinator = Self.barrierCoordinator(config: config, coreSettings: coreSettings)
         let transformers = modulesManager.modules
             .mapState { $0.compactMap { $0 as? Transformer } }
         let transformerCoordinator = Self.transformerCoordinator(transformers: transformers,
                                                                  sdkSettings: settingsManager.settings,
                                                                  queue: modulesManager.queue)
+        let barrierManager = BarrierManager(sdkBarrierSettings: settingsManager.settings.mapState { $0.barriers })
+        let barrierCoordinator = BarrierCoordinator(onScopedBarriers: barrierManager.onScopedBarriers)
         let dispatchManager = DispatchManager(loadRuleEngine: loadRuleEngine,
                                               modulesManager: modulesManager,
                                               queueManager: queueManager,
@@ -78,11 +80,12 @@ class TealiumImpl {
         VisitorSwitcher.handleIdentitySwitches(visitorIdProvider: visitorIdProvider,
                                                onCoreSettings: coreSettings,
                                                dataLayerStore: dataLayerStore).addTo(automaticDisposer)
+
         self.context = TealiumContext(modulesManager: modulesManager,
                                       config: config,
                                       coreSettings: coreSettings,
                                       tracker: tracker,
-                                      barrierRegistry: barrierCoordinator,
+                                      barrierRegistry: barrierManager,
                                       transformerRegistry: transformerCoordinator,
                                       databaseProvider: storeProvider.databaseProvider,
                                       moduleStoreProvider: storeProvider,
@@ -92,6 +95,7 @@ class TealiumImpl {
                                       queue: modulesManager.queue,
                                       visitorId: visitorIdProvider.visitorId)
         self.instanceName = "\(config.account)-\(config.profile)"
+        barrierManager.initializeBarriers(factories: config.barriers, context: context)
         logger.info(category: LogCategory.tealium, "Instance \(self.instanceName) initialized.")
         self.handleSettingsUpdates()
     }
@@ -113,11 +117,6 @@ class TealiumImpl {
             .signpostedWork {
                 modulesManager.updateSettings(context: context, settings: settings)
             }
-    }
-
-    private static func barrierCoordinator(config: TealiumConfig, coreSettings: ObservableState<CoreSettings>) -> BarrierCoordinator {
-        return BarrierCoordinator(registeredBarriers: config.barriers + [ConnectivityBarrier(onConnection: ConnectivityManager.shared.connectionAssumedAvailable)],
-                                  onScopedBarriers: coreSettings.asObservable().map { $0.scopedBarriers })
     }
 
     static func mappings(from sdkSettings: ObservableState<SDKSettings>) -> ObservableState<[String: TransformationSettings]> {

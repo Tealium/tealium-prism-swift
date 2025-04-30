@@ -61,9 +61,23 @@ final class ConnectivityManagerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_connectivity_returns_available_on_empirical_connection() {
+    func test_connectivity_does_not_return_available_on_empirical_connection_returning_available() {
         let connectionAssumedAvailableEvent = expectation(description: "Event is returned")
         connectivityMonitor.changeConnection(.notConnected)
+        empiricalConnectivity.changeConnectionAvailable(false)
+        XCTAssertFalse(manager.isConnectionAssumedAvailable)
+        empiricalConnectivity.changeConnectionAvailable(true)
+        XCTAssertFalse(manager.isConnectionAssumedAvailable)
+        manager.connectionAssumedAvailable.subscribeOnce { available in
+            XCTAssertFalse(available)
+            connectionAssumedAvailableEvent.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_connectivity_returns_available_on_empirical_connection_returning_available_when_connection_unknown() {
+        let connectionAssumedAvailableEvent = expectation(description: "Event is returned")
+        connectivityMonitor.changeConnection(.unknown)
         empiricalConnectivity.changeConnectionAvailable(false)
         XCTAssertFalse(manager.isConnectionAssumedAvailable)
         empiricalConnectivity.changeConnectionAvailable(true)

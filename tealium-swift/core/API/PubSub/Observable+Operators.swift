@@ -158,7 +158,7 @@ public extension Observable {
      * Returns a new observable that will emit events with a tuple containing the last event of the original and the provided observable.
      *
      * The first event will be fired when both observable have emitted at least one event.
-     * Then a new event with the tuple will be emitted everytime one of the two emits a new event.
+     * Then a new event with the tuple will be emitted every time one of the two emits a new event.
      */
     func combineLatest<Other>(_ otherObservable: Observable<Other>) -> Observable<(Element, Other)> {
         CustomObservable<(Element, Other)> { observer in

@@ -16,8 +16,8 @@ public struct TealiumConfig {
     public var key: String { "\(account)-\(profile)" }
     public internal(set) var settingsFile: String?
     public internal(set) var settingsUrl: String?
-    public var modules: [any TealiumModuleFactory]
-    public var barriers: [Barrier] = []
+    public internal(set) var modules: [any TealiumModuleFactory]
+    public internal(set) var barriers: [any BarrierFactory] = []
     public var loggerType: TealiumLoggerType = .os
     public var bundle: Bundle = .main
     public var existingVisitorId: String?
@@ -90,5 +90,15 @@ public struct TealiumConfig {
     mutating public func setTransformation(_ transformation: TransformationSettings) {
         transformations.set(converting: transformation,
                             key: "\(transformation.transformerId)-\(transformation.id)")
+    }
+
+    /**
+     * Adds a `BarrierFactory` that will create a `ConfigurableBarrier` to control the flow of dispatches to the `Dispatcher`s.
+     *
+     * - Parameters:
+     *      - barrier: The `BarrierFactory` that can create a specific `ConfigurableBarrier`.
+     */
+    mutating public func addBarrier(_ barrier: any BarrierFactory) {
+        barriers.append(barrier)
     }
 }

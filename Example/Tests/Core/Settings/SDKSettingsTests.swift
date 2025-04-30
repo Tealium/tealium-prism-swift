@@ -23,9 +23,6 @@ final class SDKSettingsTests: XCTestCase {
         let input: DataObject = [
             "core": try DataItem(serializing: [
                 "log_level": "trace",
-                "barriers": [
-                    ["barrier_id": "someId", "scopes": ["all"]]
-                ],
                 "max_queue_size": 37,
                 "refresh_interval": 45,
                 "expiration": 21,
@@ -34,7 +31,6 @@ final class SDKSettingsTests: XCTestCase {
         ]
         let result = SDKSettings(input)
         let expected = CoreSettings(minLogLevel: LogLevel.Minimum.trace,
-                                    scopedBarriers: [ScopedBarrier(barrierId: "someId", scopes: [.all])],
                                     maxQueueSize: 37,
                                     queueExpiration: TimeFrame(unit: .seconds, interval: 21),
                                     refreshInterval: TimeFrame(unit: .seconds, interval: 45),
@@ -118,5 +114,27 @@ final class SDKSettingsTests: XCTestCase {
         XCTAssertEqual(transformation.transformerId, "transformerId")
         XCTAssertEqual(transformation.scopes, [.afterCollectors])
         XCTAssertEqual(transformation.configuration, ["key": "value"])
+    }
+
+    func test_initialization_with_barriers_returns_barriers() throws {
+        let input: DataObject = [
+            "barriers": try DataItem(serializing: [
+                "barrierId": [
+                    "barrier_id": "barrierId",
+                    "scopes": ["all"],
+                    "configuration": [
+                        "key": "value"
+                    ]
+                ]
+            ])
+        ]
+        let result = SDKSettings(input)
+        guard let barrier = result.barriers["barrierId"] else {
+            XCTFail("Barrier not found")
+            return
+        }
+        XCTAssertEqual(barrier.barrierId, "barrierId")
+        XCTAssertEqual(barrier.scopes, [.all])
+        XCTAssertEqual(barrier.configuration, ["key": "value"])
     }
 }

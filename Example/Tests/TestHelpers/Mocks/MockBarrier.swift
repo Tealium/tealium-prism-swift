@@ -10,16 +10,55 @@ import Foundation
 import TealiumSwift
 
 class MockBarrier: Barrier {
-    let id: String
-
-    init(id: String = "mock") {
-        self.id = id
-    }
+    init() {}
 
     @ToAnyObservable(ReplaySubject<BarrierState>(initialValue: .open))
     var onState: Observable<BarrierState>
 
     func setState(_ newState: BarrierState) {
-        _onState.publisher.publishIfChanged(newState)
+        _onState.publisher.publish(newState)
+    }
+}
+
+class MockConfigurableBarrier: MockBarrier, ConfigurableBarrier {
+    class var id: String { "MockBarrier" }
+
+    var lastConfiguration: DataObject = [:]
+
+    required override init() {}
+
+    func shouldQueue(dispatch: TealiumDispatch) -> Bool {
+        return false
+    }
+
+    func updateConfiguration(_ configuration: DataObject) {
+        lastConfiguration = configuration
+    }
+}
+
+class MockBarrier1: MockConfigurableBarrier {
+    override class var id: String { "barrier1" }
+}
+
+class MockBarrier2: MockConfigurableBarrier {
+    override class var id: String { "barrier2" }
+}
+
+class MockBarrierFactory<SomeBarrier: MockConfigurableBarrier>: BarrierFactory {
+    typealias BarrierType = SomeBarrier
+    let _defaultScopes: [BarrierScope]
+
+    init(defaultScope: [BarrierScope]) {
+        _defaultScopes = defaultScope
+    }
+
+    func create(context: TealiumContext, configuration: DataObject) -> BarrierType {
+        let barrier = SomeBarrier()
+        barrier.updateConfiguration(configuration)
+        return barrier
+    }
+
+    func defaultScopes() -> [BarrierScope] {
+        _defaultScopes
     }
 }

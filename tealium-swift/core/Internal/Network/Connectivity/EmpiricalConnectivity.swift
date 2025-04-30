@@ -22,9 +22,9 @@ protocol EmpiricalConnectivityProtocol {
 class EmpiricalConnectivity: EmpiricalConnectivityProtocol {
     var numberOfFailedConsecutiveTimeouts = 0
     let debouncer: DebouncerProtocol
-    let backoffPolocy: BackoffPolicy
-    init(backoffPolocy: BackoffPolicy = ExponentialBackoff(), debouncer: DebouncerProtocol) {
-        self.backoffPolocy = backoffPolocy
+    let backoffPolicy: BackoffPolicy
+    init(backoffPolicy: BackoffPolicy = ExponentialBackoff(), debouncer: DebouncerProtocol) {
+        self.backoffPolicy = backoffPolicy
         self.debouncer = debouncer
     }
 
@@ -63,7 +63,7 @@ class EmpiricalConnectivity: EmpiricalConnectivityProtocol {
     }
 
     func timeoutInterval() -> Double {
-        backoffPolocy.backoff(forAttempt: numberOfFailedConsecutiveTimeouts + 1)
+        backoffPolicy.backoff(forAttempt: numberOfFailedConsecutiveTimeouts + 1)
     }
 
     private func notify(assumeAvailable: Bool) {

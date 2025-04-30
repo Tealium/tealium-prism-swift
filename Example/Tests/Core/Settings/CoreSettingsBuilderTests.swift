@@ -16,20 +16,10 @@ final class CoreSettingsBuilderTests: XCTestCase {
             .setQueueExpiration(TimeFrame(unit: .seconds, interval: 50))
             .setRefreshInterval(TimeFrame(unit: .seconds, interval: 100))
             .setMaxQueueSize(20)
-            .setScopedBarriers([ScopedBarrier(barrierId: "barrierId", scopes: [.all, .dispatcher("custom")])])
             .build()
             .asDictionary()
         XCTAssertEqual(settings, [
             "log_level": "trace",
-            "barriers": [
-                [
-                    "barrier_id": "barrierId",
-                    "scopes": [
-                        "all",
-                        "custom"
-                    ]
-                ]
-            ],
             "max_queue_size": 20,
             "expiration": 50.0,
             "refresh_interval": 100.0
@@ -41,19 +31,9 @@ final class CoreSettingsBuilderTests: XCTestCase {
             .setQueueExpiration(TimeFrame(unit: .seconds, interval: 50))
             .setRefreshInterval(TimeFrame(unit: .seconds, interval: 100))
             .setMaxQueueSize(20)
-            .setScopedBarriers([ScopedBarrier(barrierId: "barrierId", scopes: [.all, .dispatcher("custom")])])
             .build()
             .asDictionary()
         XCTAssertEqual(settings, [
-            "barriers": [
-                [
-                    "barrier_id": "barrierId",
-                    "scopes": [
-                        "all",
-                        "custom"
-                    ]
-                ]
-            ],
             "max_queue_size": 20,
             "expiration": 50.0,
             "refresh_interval": 100.0
