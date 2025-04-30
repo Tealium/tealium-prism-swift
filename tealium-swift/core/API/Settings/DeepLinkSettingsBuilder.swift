@@ -13,14 +13,6 @@ public class DeepLinkSettingsBuilder: CollectorSettingsBuilder {
     typealias Keys = DeepLinkHandlerConfiguration.Keys
     override init() { }
 
-    /// Enable or disable deep link tracking.
-    /// If set to `false`, there won't be any deep link related data added to events
-    /// as well as no deep link events will be emitted.
-    public func setDeepLinkTrackingEnabled(_ enabled: Bool) -> Self {
-        _configurationObject.set(enabled, key: Keys.deepLinkTrackingEnabled)
-        return self
-    }
-
     /// Enable or disable QR trace functionality.
     /// If set to `false`, trace actions (join, leave, kill visitor session) cannot be fired by `DeepLinkHandler`.
     public func setQrTraceEnabled(_ enabled: Bool) -> Self {

@@ -18,7 +18,6 @@ final class DeepLinkSettingsBuilderTests: XCTestCase {
     func test_build_returns_correct_module_settings() throws {
         let settings = DeepLinkSettingsBuilder()
             .setEnabled(true)
-            .setDeepLinkTrackingEnabled(false)
             .setQrTraceEnabled(false)
             .setSendDeepLinkEvent(true)
             .build()
@@ -27,7 +26,6 @@ final class DeepLinkSettingsBuilderTests: XCTestCase {
                         "enabled": true,
                         "configuration":
                             try DataItem(serializing: [
-                                "deep_link_tracking_enabled": false,
                                 "qr_trace_enabled": false,
                                 "send_deep_link_event": true
                             ])

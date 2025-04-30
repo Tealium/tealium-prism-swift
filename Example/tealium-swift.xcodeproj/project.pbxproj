@@ -644,6 +644,11 @@
 		ECBF304F2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF304E2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift */; };
 		ECBF30502DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF304E2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift */; };
 		ECBF30512DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF304E2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift */; };
+		ECBF30532DC244A4007A1A42 /* MockBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF30522DC244A4007A1A42 /* MockBundle.swift */; };
+		ECBF30542DC244A4007A1A42 /* MockBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF30522DC244A4007A1A42 /* MockBundle.swift */; };
+		ECBF30552DC244A4007A1A42 /* MockBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF30522DC244A4007A1A42 /* MockBundle.swift */; };
+		ECBF30562DC244A4007A1A42 /* MockBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF30522DC244A4007A1A42 /* MockBundle.swift */; };
+		ECBF30572DC246BA007A1A42 /* MockBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF30522DC244A4007A1A42 /* MockBundle.swift */; };
 		ECC2B4722CE3B61C0066B022 /* LaunchSleepWakeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2B4712CE3B61C0066B022 /* LaunchSleepWakeTests.swift */; };
 		F517AE7FD10708E09D817DEB /* Pods_CoreTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D80F5A9B7BE61AB743BD008 /* Pods_CoreTests_iOS.framework */; };
 /* End PBXBuildFile section */
@@ -914,6 +919,7 @@
 		ECAB835E2DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkSettingsBuilderTests.swift; sourceTree = "<group>"; };
 		ECBF304A2DC0EFA8007A1A42 /* TransformationSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransformationSettingsTests.swift; sourceTree = "<group>"; };
 		ECBF304E2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransformationSettings+ConverterTests.swift"; sourceTree = "<group>"; };
+		ECBF30522DC244A4007A1A42 /* MockBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBundle.swift; sourceTree = "<group>"; };
 		ECC2B4712CE3B61C0066B022 /* LaunchSleepWakeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSleepWakeTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -1061,6 +1067,7 @@
 				150F31EB2B221CED0067CC56 /* MockQueueManager.swift */,
 				150F31ED2B221D090067CC56 /* MockTracker.swift */,
 				D5EF2DFB2C1731BC00F7BC40 /* MockCMPIntegration.swift */,
+				ECBF30522DC244A4007A1A42 /* MockBundle.swift */,
 			);
 			path = Mocks;
 			sourceTree = "<group>";
@@ -2338,6 +2345,7 @@
 				875007BE2C5D225F00ED1AA4 /* XCTestCase+WaitForDefaultTimeout.swift in Sources */,
 				D54BBFB72C78C01A003687C7 /* ConnectivityBarrierTests.swift in Sources */,
 				87FC08792D9452FD00E1041D /* MockCollector.swift in Sources */,
+				ECBF30542DC244A4007A1A42 /* MockBundle.swift in Sources */,
 				87EE76D02D77443C00BB1D77 /* Condition+EqualsTests.swift in Sources */,
 				15ED5B012A602DA60027BB20 /* ReplaySubjectTests.swift in Sources */,
 				87C6C23B2D528056008B91D8 /* ModulesManagerTests.swift in Sources */,
@@ -2417,6 +2425,7 @@
 				877B50462DAE73D600AB8A43 /* UIApplication+ManualContinueActivity.m in Sources */,
 				877B50452DAE73C500AB8A43 /* SceneDelegateProxyTests.swift in Sources */,
 				87B3EECB2DAE74DF0030B922 /* XCTestCase+WaitForDefaultTimeout.swift in Sources */,
+				ECBF30572DC246BA007A1A42 /* MockBundle.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2581,6 +2590,7 @@
 				87BA6D8E2C6A470C00784784 /* StateSubjectTests.swift in Sources */,
 				87AF54712C7E389C00F1C114 /* TimeFrameTests.swift in Sources */,
 				87FC08672D92FB2C00E1041D /* LoadRuleEngineTests.swift in Sources */,
+				ECBF30552DC244A4007A1A42 /* MockBundle.swift in Sources */,
 				87BA6D8F2C6A470C00784784 /* MockNetworkClient.swift in Sources */,
 				87FC08572D91ADF300E1041D /* Rule+DataInputConvertibleTests.swift in Sources */,
 				87EE774F2D81B16A00BB1D77 /* Condition+ConverterTests.swift in Sources */,
@@ -2773,6 +2783,7 @@
 				D54BBFBE2C78C01A003687C7 /* EmpiricalConnectivityTests.swift in Sources */,
 				D54BBFCA2C78C01A003687C7 /* InterceptorManagerTests.swift in Sources */,
 				87FC08652D92FB2C00E1041D /* LoadRuleEngineTests.swift in Sources */,
+				ECBF30562DC244A4007A1A42 /* MockBundle.swift in Sources */,
 				87AF54872C8217EE00F1C114 /* XCTAssert+NSNull.swift in Sources */,
 				87EE76DD2D7867F500BB1D77 /* Condition+IsPopulatedTests.swift in Sources */,
 				D54BBFC72C78C01A003687C7 /* HTTPClientTests.swift in Sources */,
@@ -2827,6 +2838,7 @@
 				EC1AA4C82CCF9FEC00D1D9D1 /* MockDatabaseHelper.swift in Sources */,
 				87FC087E2D94532000E1041D /* MockDispatchManager.swift in Sources */,
 				EC1AA4DF2CCFA34200D1D9D1 /* FirstLaunchTests.swift in Sources */,
+				ECBF30532DC244A4007A1A42 /* MockBundle.swift in Sources */,
 				EC454C872CF60E21000CD849 /* LaunchSleepLaunchInAMonthTests.swift in Sources */,
 				EC1AA4C92CCF9FEC00D1D9D1 /* XCTAssert+BoolOptional.swift in Sources */,
 				EC1AA4CA2CCF9FEC00D1D9D1 /* MockTransformer.swift in Sources */,

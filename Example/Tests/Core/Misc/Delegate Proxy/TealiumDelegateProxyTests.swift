@@ -76,4 +76,10 @@ class TealiumDelegateProxyTests: BaseProxyTests {
             }.addTo(disposer)
         waitOnQueue(queue: queue)
     }
+
+    func test_onOpenUrl_is_nil_when_autotracking_disabled() {
+        let mockBundle = MockBundle(infoDictionary: ["TealiumAutotrackingDeepLinkEnabled": false])
+        TealiumDelegateProxy.configuration = .init(bundle: mockBundle)
+        XCTAssertNil(TealiumDelegateProxy.onOpenUrl)
+    }
 }

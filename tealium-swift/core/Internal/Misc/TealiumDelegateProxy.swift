@@ -13,6 +13,17 @@ import UIKit
 
 @objc
 public class TealiumDelegateProxy: NSProxy {
+    class Configuration {
+        private let bundle: Bundle
+
+        init(bundle: Bundle = .main) {
+            self.bundle = bundle
+        }
+
+        lazy var isAutotrackingDeepLinkEnabled: Bool =
+            bundle.infoDictionary?["TealiumAutotrackingDeepLinkEnabled"] as? Bool ?? true
+    }
+    static var configuration: Configuration = .init()
 
     private struct AssociatedObjectKeys {
         // https://forums.swift.org/t/handling-the-new-forming-unsaferawpointer-warning/65523/7
@@ -32,19 +43,19 @@ public class TealiumDelegateProxy: NSProxy {
      *
      * The subscribable always emits on the `TealiumQueue.worker`.
      */
-    public static let onOpenUrl: Observable<(URL, Referrer?)>? = {
-        guard isAutotrackingDeepLinkEnabled else {
+    public static var onOpenUrl: Observable<(URL, Referrer?)>? {
+        guard configuration.isAutotrackingDeepLinkEnabled else {
             return nil
         }
         return _onOpenUrl.asObservable()
-    }()
+    }
 
     static let logger: LoggerProtocol = TealiumLogger(logHandler: OSLogger(),
                                                       onLogLevel: .Just(.info),
                                                       forceLevel: .info)
     @objc
     public static func setup() {
-        guard isAutotrackingDeepLinkEnabled else {
+        guard configuration.isAutotrackingDeepLinkEnabled else {
             return
         }
         TealiumQueue.main.ensureOnQueue {
@@ -52,14 +63,10 @@ public class TealiumDelegateProxy: NSProxy {
         }
     }
 
-    private static let isAutotrackingDeepLinkEnabled: Bool = {
-        return Bundle.main.infoDictionary?["TealiumAutotrackingDeepLinkEnabled"] as? Bool ?? true
-    }()
-
     /// Using Swift's lazy evaluation of a static property we get the same
     /// thread-safety and called-once guarantees as dispatch_once provided.
     private static let runOnce: () = {
-        guard isAutotrackingDeepLinkEnabled else {
+        guard configuration.isAutotrackingDeepLinkEnabled else {
             return
         }
         if #available(iOS 13.0, *) {

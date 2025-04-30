@@ -9,23 +9,6 @@
 @testable import TealiumSwift
 import XCTest
 
-class MockBundle: Bundle, @unchecked Sendable {
-    private let mockInfoDictionary: [String: Any]
-
-    init(infoDictionary: [String: Any]) {
-        self.mockInfoDictionary = infoDictionary
-        super.init()
-    }
-
-    override var infoDictionary: [String: Any]? {
-        return mockInfoDictionary
-    }
-
-    override var bundleIdentifier: String? {
-        return mockInfoDictionary["CFBundleIdentifier"] as? String
-    }
-}
-
 final class AppDataCollectorTests: XCTestCase {
     var mockInfo = [
         "CFBundleName": "TestApp",

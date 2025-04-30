@@ -86,28 +86,26 @@ class DeepLinkHandlerModule: TealiumBasicModule, Collector {
                 try self.joinTrace(id: traceId)
             }
         }
-        if configuration.deepLinkTrackingEnabled {
-            // clear the prevously retained data (actual removal will happen on commit below)
-            let edits = dataStore.edit().clear()
-            switch referrer {
-            case .url(let url):
-                _ = edits.put(key: TealiumDataKey.deepLinkReferrerUrl, value: url.absoluteString, expiry: .session)
-            case .app(let identifier):
-                _ = edits.put(key: TealiumDataKey.deepLinkReferrerApp, value: identifier, expiry: .session)
-            default:
-                break
+        // clear the prevously retained data (actual removal will happen on commit below)
+        let edits = dataStore.edit().clear()
+        switch referrer {
+        case .url(let url):
+            _ = edits.put(key: TealiumDataKey.deepLinkReferrerUrl, value: url.absoluteString, expiry: .session)
+        case .app(let identifier):
+            _ = edits.put(key: TealiumDataKey.deepLinkReferrerApp, value: identifier, expiry: .session)
+        default:
+            break
+        }
+        queryItems?.forEach {
+            guard let value = $0.value else {
+                return
             }
-            queryItems?.forEach {
-                guard let value = $0.value else {
-                    return
-                }
-                _ = edits.put(key: "\(TealiumDataKey.deepLinkQueryPrefix)_\($0.name)", value: value, expiry: .session)
-            }
-            try edits.put(key: TealiumDataKey.deepLinkURL, value: link.absoluteString, expiry: .session)
-                .commit()
-            if configuration.sendDeepLinkEvent {
-                tracker.track(TealiumDispatch(name: TealiumKey.deepLink, data: dataStore.getAll()), source: .module(DeepLinkHandlerModule.self))
-            }
+            _ = edits.put(key: "\(TealiumDataKey.deepLinkQueryPrefix)_\($0.name)", value: value, expiry: .session)
+        }
+        try edits.put(key: TealiumDataKey.deepLinkURL, value: link.absoluteString, expiry: .session)
+            .commit()
+        if configuration.sendDeepLinkEvent {
+            tracker.track(TealiumDispatch(name: TealiumKey.deepLink, data: dataStore.getAll()), source: .module(DeepLinkHandlerModule.self))
         }
     }
 
