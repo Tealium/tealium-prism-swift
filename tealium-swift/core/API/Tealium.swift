@@ -8,8 +8,8 @@
 
 import Foundation
 
-/// Completion handler for tracking operations that provides the dispatch and result.
-public typealias TrackResultCompletion = (_ dispatch: TealiumDispatch, _ result: TrackResult) -> Void
+/// Completion handler for tracking operations that provides the result with either dropped or accepted dispatch.
+public typealias TrackResultCompletion = (_ result: TrackResult) -> Void
 
 /**
  * The main class for the Tealium SDK.
@@ -118,7 +118,7 @@ public class Tealium {
             case .success(let implementation):
                 implementation.track(dispatch, onTrackResult: onTrackResult)
             case .failure:
-                onTrackResult?(dispatch, TrackResult.dropped)
+                onTrackResult?(TrackResult.dropped(dispatch))
             }
         }
     }

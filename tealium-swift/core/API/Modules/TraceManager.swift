@@ -19,15 +19,25 @@ public protocol TraceManager {
      */
     @discardableResult
     func join(id: String) -> any Single<Result<Void, Error>>
+
     /**
      * Leaves the current trace if one has been joined.
      */
     @discardableResult
     func leave() -> any Single<Result<Void, Error>>
+
     /**
      * Attempts to kill the visitor session for the current trace.
-     * The Trace will remain active until `leave` is called.
+     *
+     * The trace will remain active until `leave` is called.
+     *
+     * The operation will fail in case a trace is not already joined.
+     *
+     * Internally this method will dispatch a track call that will be used to manually kill the session.
+     * When this method completes with success, the track can either be accepted or dropped, as all other track requests.
+     *
+     * The track request will leave the device after it's been accepted, following standard dequeueing flows.
      */
     @discardableResult
-    func killVisitorSession() -> any Single<Result<Void, Error>>
+    func killVisitorSession() -> any Single<Result<TrackResult, Error>>
 }

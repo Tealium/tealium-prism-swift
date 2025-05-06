@@ -7,6 +7,7 @@
 //
 
 import Foundation
+@testable import TealiumSwift
 import XCTest
 
 func XCTAssertResultIsSuccess<T, E>(
@@ -34,6 +35,34 @@ func XCTAssertResultIsFailure<T, E>(
         asserts(resultError)
     case .success(let value):
         XCTFail("Expected to be a failure but got a success with \(value)", file: file, line: line)
+    }
+}
+
+func XCTAssertTrackResultIsAccepted(
+    _ result: TrackResult,
+    withAsserts asserts: (TealiumDispatch) -> Void = { _ in },
+    file: StaticString = #filePath,
+    line: UInt = #line
+) {
+    switch result {
+    case .dropped:
+        XCTFail("Expected to be accepted but got dropped", file: file, line: line)
+    case .accepted(let dispatch):
+        asserts(dispatch)
+    }
+}
+
+func XCTAssertTrackResultIsDropped(
+    _ result: TrackResult,
+    withAsserts asserts: (TealiumDispatch) -> Void = { _ in },
+    file: StaticString = #filePath,
+    line: UInt = #line
+) {
+    switch result {
+    case .dropped(let dispatch):
+        asserts(dispatch)
+    case .accepted:
+        XCTFail("Expected to be dropped but got accepted", file: file, line: line)
     }
 }
 

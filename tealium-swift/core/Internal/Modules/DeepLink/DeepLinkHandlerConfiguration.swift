@@ -7,21 +7,21 @@
 //
 
 struct DeepLinkHandlerConfiguration {
-    let qrTraceEnabled: Bool
+    let deepLinkTraceEnabled: Bool
     let sendDeepLinkEvent: Bool
 
     enum Keys {
-        static let qrTraceEnabled = "qr_trace_enabled"
+        static let deepLinkTraceEnabled = "deep_link_trace_enabled"
         static let sendDeepLinkEvent = "send_deep_link_event"
     }
 
     enum Defaults {
-        static let qrTraceEnabled: Bool = true
+        static let deepLinkTraceEnabled: Bool = true
         static let sendDeepLinkEvent: Bool = false
     }
 
     init(configuration: DataObject) {
-        qrTraceEnabled = configuration.get(key: Keys.qrTraceEnabled) ?? Defaults.qrTraceEnabled
+        deepLinkTraceEnabled = configuration.get(key: Keys.deepLinkTraceEnabled) ?? Defaults.deepLinkTraceEnabled
         sendDeepLinkEvent = configuration.get(key: Keys.sendDeepLinkEvent) ?? Defaults.sendDeepLinkEvent
     }
 }

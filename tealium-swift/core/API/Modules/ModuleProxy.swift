@@ -22,7 +22,7 @@ public class ModuleProxy<Module: TealiumModule> {
     private let queue: TealiumQueue
 
     public typealias Task<T> = (_ module: Module) throws -> T
-    public typealias AsyncTask<T> = (_ module: Module, _ completion: @escaping (Result<T, Error>) -> Void) -> Void
+    public typealias AsyncTask<T> = (_ module: Module, _ completion: @escaping (Result<T, Error>) -> Void) throws -> Void
 
     /**
      * Initialize the `ModuleProxy` for a specific `TealiumModule`.
@@ -193,8 +193,12 @@ public class ModuleProxy<Module: TealiumModule> {
                     observer(.failure(TealiumError.moduleNotEnabled))
                     return
                 }
-                asyncTask(module) { result in
-                    observer(result)
+                do {
+                    try asyncTask(module) { result in
+                        observer(result)
+                    }
+                } catch {
+                    observer(.failure(error))
                 }
             }
         }),

@@ -13,10 +13,12 @@ public class DeepLinkSettingsBuilder: CollectorSettingsBuilder {
     typealias Keys = DeepLinkHandlerConfiguration.Keys
     override init() { }
 
-    /// Enable or disable QR trace functionality.
+    /// Enable or disable using trace from deep links.
+    ///
+    /// When this is enabled, using the camera to scan the QR code from the QR Trace tool will automatically join the trace.
     /// If set to `false`, trace actions (join, leave, kill visitor session) cannot be fired by `DeepLinkHandler`.
-    public func setQrTraceEnabled(_ enabled: Bool) -> Self {
-        _configurationObject.set(enabled, key: Keys.qrTraceEnabled)
+    public func setDeepLinkTraceEnabled(_ enabled: Bool) -> Self {
+        _configurationObject.set(enabled, key: Keys.deepLinkTraceEnabled)
         return self
     }
 

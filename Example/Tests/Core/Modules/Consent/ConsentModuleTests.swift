@@ -42,10 +42,14 @@ final class ConsentModuleTests: XCTestCase {
         let integration = MockCMPIntegration(consentDecision: ObservableState(variableSubject: StateSubject(ConsentDecision(decisionType: .explicit, purposes: []))))
         let consentManager: ConsentManager = buildConsentManager(cmpIntegration: integration)
         let completionCalled = expectation(description: completionCalledDescription)
-        consentManager.applyConsent(to: TealiumDispatch(name: "event1")) { dispatch, result in
+        consentManager.applyConsent(to: TealiumDispatch(name: "event1")) { result in
             completionCalled.fulfill()
-            XCTAssertEqual(result, .dropped)
-            XCTAssertEqual(dispatch.eventData.count, 3)
+            switch result {
+            case let .dropped(dispatch):
+                XCTAssertEqual(dispatch.eventData.count, 3)
+            case .accepted:
+                XCTFail("Expected to be dropped but got accepted")
+            }
         }
         waitForDefaultTimeout()
     }
@@ -54,10 +58,14 @@ final class ConsentModuleTests: XCTestCase {
         let integration = MockCMPIntegration(consentDecision: ObservableState(variableSubject: StateSubject(ConsentDecision(decisionType: .implicit, purposes: []))))
         let consentManager: ConsentManager = buildConsentManager(cmpIntegration: integration)
         let completionCalled = expectation(description: completionCalledDescription)
-        consentManager.applyConsent(to: TealiumDispatch(name: "event1")) { dispatch, result in
+        consentManager.applyConsent(to: TealiumDispatch(name: "event1")) { result in
             completionCalled.fulfill()
-            XCTAssertEqual(result, .accepted)
-            XCTAssertEqual(dispatch.eventData.count, 3)
+            switch result {
+            case .dropped:
+                XCTFail("Expected to be accepted but got dropped")
+            case let .accepted(dispatch):
+                XCTAssertEqual(dispatch.eventData.count, 3)
+            }
         }
         waitForDefaultTimeout()
     }
@@ -66,11 +74,15 @@ final class ConsentModuleTests: XCTestCase {
         let integration = MockCMPIntegration(consentDecision: ObservableState(variableSubject: StateSubject(ConsentDecision(decisionType: .explicit, purposes: ["tealium"]))))
         let consentManager: ConsentManager = buildConsentManager(cmpIntegration: integration)
         let completionCalled = expectation(description: completionCalledDescription)
-        consentManager.applyConsent(to: TealiumDispatch(name: "event1")) { dispatch, result in
+        consentManager.applyConsent(to: TealiumDispatch(name: "event1")) { result in
             completionCalled.fulfill()
-            XCTAssertEqual(result, .accepted)
-            XCTAssertNotEqual(dispatch.eventData.count, 3)
-            XCTAssertNotNil(dispatch.eventData.getDataItem(key: "consent_type"))
+            switch result {
+            case .dropped:
+                XCTFail("Expected to be accepted but got dropped")
+            case let .accepted(dispatch):
+                XCTAssertNotEqual(dispatch.eventData.count, 3)
+                XCTAssertNotNil(dispatch.eventData.getDataItem(key: "consent_type"))
+            }
         }
         waitForDefaultTimeout()
     }
@@ -81,10 +93,14 @@ final class ConsentModuleTests: XCTestCase {
         let completionCalled = expectation(description: completionCalledDescription)
         var dispatch = TealiumDispatch(name: "event1")
         dispatch.enrich(data: ["purposes_with_consent_all": ["tealium"]]) // this is gonna be the 3rd property of eventData...
-        consentManager.applyConsent(to: dispatch) { dispatch, result in
+        consentManager.applyConsent(to: dispatch) { result in
             completionCalled.fulfill()
-            XCTAssertEqual(result, .dropped)
-            XCTAssertEqual(dispatch.eventData.count, 4) // ...that's why 4 is here
+            switch result {
+            case let .dropped(dispatch):
+                XCTAssertEqual(dispatch.eventData.count, 4) // ...that's why 4 is here
+            case .accepted:
+                XCTFail("Expected to be dropped but got accepted")
+            }
         }
         waitForDefaultTimeout()
     }

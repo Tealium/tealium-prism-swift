@@ -71,14 +71,14 @@ class DispatchManager: DispatchManagerProtocol {
         guard !tealiumPurposeExplicitlyBlocked() else {
             logger?.debug(category: LogCategory.dispatchManager,
                           "Tealium consent purpose is explicitly blocked. Event \(dispatch.logDescription()) will be dropped.")
-            onTrackResult?(dispatch, .dropped)
+            onTrackResult?(.dropped(dispatch))
             return
         }
         transformerCoordinator.transform(dispatch: dispatch, for: .afterCollectors) { [weak self] transformed in
             guard let self, let transformed else {
                 self?.logger?.debug(category: LogCategory.dispatchManager,
                                     "Event \(dispatch.logDescription()) dropped due to transformer")
-                onTrackResult?(dispatch, .dropped)
+                onTrackResult?(.dropped(dispatch))
                 return
             }
             if let consentManager = self.consentManager {
@@ -89,7 +89,7 @@ class DispatchManager: DispatchManagerProtocol {
                 self.logger?.debug(category: LogCategory.dispatchManager,
                                    "Event \(transformed.logDescription()) accepted for processing")
                 self.queueManager.storeDispatches([transformed], enqueueingFor: dispatchers.map { $0.id })
-                onTrackResult?(transformed, .accepted)
+                onTrackResult?(.accepted(transformed))
             }
         }
     }

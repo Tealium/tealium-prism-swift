@@ -127,15 +127,15 @@ class ConsentModule: ConsentManager {
               tealiumConsented(forPurposes: decision.purposes) else {
             if cmpIntegration.consentDecision.value?.decisionType != .explicit {
                 queueManager.storeDispatches([dispatch], enqueueingFor: [Self.id])
-                onTrackResult?(dispatch, .accepted)
+                onTrackResult?(.accepted(dispatch))
             } else {
-                onTrackResult?(dispatch, .dropped)
+                onTrackResult?(.dropped(dispatch))
             }
             return
         }
         guard let consentedDispatch = applyDecision(decision, toDispatch: dispatch) else {
             // No dispatch due to no unprocessed purposes present, ignore dispatch
-            onTrackResult?(dispatch, .dropped)
+            onTrackResult?(.dropped(dispatch))
             return
         }
         var processors = dispatchers
@@ -143,7 +143,7 @@ class ConsentModule: ConsentManager {
             processors += [Self.id]
         }
         queueManager.storeDispatches([consentedDispatch], enqueueingFor: processors)
-        onTrackResult?(consentedDispatch, .accepted)
+        onTrackResult?(.accepted(consentedDispatch))
     }
 
     func applyDecision(_ decision: ConsentDecision, toDispatch dispatch: TealiumDispatch) -> TealiumDispatch? {

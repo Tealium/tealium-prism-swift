@@ -24,18 +24,8 @@ final class TraceManagerModuleTests: XCTestCase {
         XCTAssertNotNil(dataStoreProvider.modulesRepository.getModules()[TraceManagerModule.id])
     }
 
-    func test_killVisitorSession_completes_with_exception_when_not_in_trace() {
-        let completesWithException = expectation(description: "Exception expected")
-        traceManager.killVisitorSession { result in
-            XCTAssertResultIsFailure(result) { error in
-                guard case .genericError = error as? TealiumError else {
-                    XCTFail("Unexpected error: \(String(describing: error))")
-                    return
-                }
-                completesWithException.fulfill()
-            }
-        }
-        waitForDefaultTimeout()
+    func test_killVisitorSession_throws_an_error_when_not_in_trace() {
+        XCTAssertThrowsError(try traceManager.killVisitorSession())
     }
 
     func test_killVisitorSession_does_not_track_event_when_not_in_trace() {
@@ -56,32 +46,27 @@ final class TraceManagerModuleTests: XCTestCase {
             XCTAssertEqual(event.eventData.get(key: TealiumDataKey.killVisitorSessionEvent), TealiumKey.killVisitorSession)
             dispatchTracked.fulfill()
         }
-        traceManager.killVisitorSession()
+        try traceManager.killVisitorSession()
         waitForDefaultTimeout()
     }
 
     func test_killVisitorSession_completes_without_error_when_dispatch_accepted() throws {
-        let completedSuccesfully = expectation(description: "Should complete successfully")
+        let completedSuccessfully = expectation(description: "Should complete successfully")
         try traceManager.join(id: "12345")
-        traceManager.killVisitorSession { result in
-            XCTAssertResultIsSuccess(result)
-            completedSuccesfully.fulfill()
+        try traceManager.killVisitorSession { result in
+            XCTAssertTrackResultIsAccepted(result)
+            completedSuccessfully.fulfill()
         }
         waitForDefaultTimeout()
     }
 
-    func test_killVisitorSession_completes_with_exception_when_dispatch_dropped() throws {
-        let completesWithException = expectation(description: "Exception expected")
-        tracker.result = .dropped
+    func test_killVisitorSession_completes_with_dropped_when_dispatch_dropped() throws {
+        let completesWithDropped = expectation(description: "Exception expected")
+        tracker.acceptTrack = false
         try traceManager.join(id: "12345")
-        traceManager.killVisitorSession { result in
-            XCTAssertResultIsFailure(result) { error in
-                guard case .genericError = error as? TealiumError else {
-                    XCTFail("Unexpected error: \(String(describing: error))")
-                    return
-                }
-                completesWithException.fulfill()
-            }
+        try traceManager.killVisitorSession { result in
+            XCTAssertTrackResultIsDropped(result)
+            completesWithDropped.fulfill()
         }
         waitForDefaultTimeout()
     }

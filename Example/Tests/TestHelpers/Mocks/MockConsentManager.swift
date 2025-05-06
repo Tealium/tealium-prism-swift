@@ -13,14 +13,21 @@ class MockConsentManager: MockModule, ConsentManager {
     class override var id: String { ConsentModule.id }
     var currentDecision: ConsentDecision?
     var allPurposes: [String] = []
-    var trackResult: TrackResult = .accepted
+    var acceptTrack: Bool = true
+    func trackResultBuilder(dispatch: TealiumDispatch) -> TrackResult {
+        if self.acceptTrack {
+            .accepted(dispatch)
+        } else {
+            .dropped(dispatch)
+        }
+    }
 
     @ToAnyObservable(BasePublisher<TealiumDispatch>())
     var onApplyConsent: Observable<TealiumDispatch>
 
     func applyConsent(to dispatch: TealiumDispatch, completion onTrackResult: TrackResultCompletion?) {
         _onApplyConsent.publish(dispatch)
-        onTrackResult?(dispatch, trackResult)
+        onTrackResult?(trackResultBuilder(dispatch: dispatch))
     }
 
     func tealiumConsented(forPurposes purposes: [String]) -> Bool {

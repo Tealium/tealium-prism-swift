@@ -71,28 +71,41 @@ class DeepLinkHandlerModule: TealiumBasicModule, Collector {
     func handle(link: URL, referrer: Referrer? = nil) throws {
         let queryItems = URLComponents(string: link.absoluteString)?.queryItems
 
-        if let queryItems = queryItems,
-           let traceId = self.extractTraceId(from: queryItems),
-           configuration.qrTraceEnabled {
-            // Kill visitor session to trigger session end events
-            // Session can be killed without needing to leave the trace
-            if link.query?.contains(TealiumKey.killVisitorSession) == true {
-                try self.killTraceVisitorSession()
-            }
-            // Leave the trace if there is a leave param, if not - join with traceId
-            if link.query?.contains(TealiumKey.leaveTraceQueryParam) == true {
-                try self.leaveTrace()
-            } else {
-                try self.joinTrace(id: traceId)
+        if configuration.deepLinkTraceEnabled {
+            try handleTrace(queryItems: queryItems)
+        }
+        let dataToAdd = buildDeepLinkDataObject(link: link,
+                                                referrer: referrer,
+                                                queryItems: queryItems)
+        // clear the previously retained data (actual removal will happen on commit below)
+        try dataStore.edit()
+            .clear()
+            .putAll(dataObject: dataToAdd, expiry: .session)
+            .commit()
+        if configuration.sendDeepLinkEvent {
+            tracker.track(TealiumDispatch(name: TealiumKey.deepLink, data: dataStore.getAll()),
+                          source: .module(DeepLinkHandlerModule.self)) { [weak self] result in
+                switch result {
+                case .accepted:
+                    self?.logger?.trace(category: Self.id, "DeepLink event accepted for dispatch.")
+                case .dropped:
+                    self?.logger?.warn(category: Self.id, "Failed to send DeepLink event: dispatch was dropped.")
+                }
             }
         }
-        // clear the prevously retained data (actual removal will happen on commit below)
-        let edits = dataStore.edit().clear()
+    }
+
+    private func buildDeepLinkDataObject(link: URL, referrer: Referrer?, queryItems: [URLQueryItem]?) -> DataObject {
+        var dataObject: DataObject = [
+            TealiumDataKey.deepLinkURL: link.absoluteString
+        ]
         switch referrer {
         case .url(let url):
-            _ = edits.put(key: TealiumDataKey.deepLinkReferrerUrl, value: url.absoluteString, expiry: .session)
+            dataObject.set(url.absoluteString,
+                           key: TealiumDataKey.deepLinkReferrerUrl)
         case .app(let identifier):
-            _ = edits.put(key: TealiumDataKey.deepLinkReferrerApp, value: identifier, expiry: .session)
+            dataObject.set(identifier,
+                           key: TealiumDataKey.deepLinkReferrerApp)
         default:
             break
         }
@@ -100,35 +113,42 @@ class DeepLinkHandlerModule: TealiumBasicModule, Collector {
             guard let value = $0.value else {
                 return
             }
-            _ = edits.put(key: "\(TealiumDataKey.deepLinkQueryPrefix)_\($0.name)", value: value, expiry: .session)
+            dataObject.set(value,
+                           key: "\(TealiumDataKey.deepLinkQueryPrefix)_\($0.name)")
         }
-        try edits.put(key: TealiumDataKey.deepLinkURL, value: link.absoluteString, expiry: .session)
-            .commit()
-        if configuration.sendDeepLinkEvent {
-            tracker.track(TealiumDispatch(name: TealiumKey.deepLink, data: dataStore.getAll()), source: .module(DeepLinkHandlerModule.self))
+        return dataObject
+    }
+
+    private func handleTrace(queryItems: [URLQueryItem]?) throws {
+       guard let queryItems = queryItems,
+             let traceId = self.extractTraceId(from: queryItems) else {
+           return
+       }
+        let trace = try getTrace()
+        // Kill visitor session to trigger session end events
+        // Session can be killed without needing to leave the trace
+        if queryItems.contains(where: { $0.name == TealiumKey.killVisitorSession }) {
+            try trace.killVisitorSession { [weak self] result in
+                switch result {
+                case .accepted:
+                    self?.logger?.trace(category: Self.id, "Kill Visitor Session event accepted for dispatch.")
+                case .dropped:
+                    self?.logger?.warn(category: Self.id, "Failed to kill visitor session: dispatch was dropped.")
+                }
+            }
+        }
+        // Leave the trace if there is a leave param, if not - join with traceId
+        if queryItems.contains(where: { $0.name == TealiumKey.leaveTraceQueryParam }) {
+            try trace.leave()
+        } else {
+            try trace.join(id: traceId)
         }
     }
 
     fileprivate func extractTraceId(from queryItems: [URLQueryItem]) -> String? {
-        queryItems.first { $0.name == TealiumKey.traceIdQueryParam && $0.value != nil }?.value
-    }
-
-    /// Sends a request to modules to initiate a trace with a specific Trace ID￼.
-    ///
-    /// - Parameter id: String representing the Trace ID
-    func joinTrace(id: String) throws {
-        try getTrace().join(id: id)
-    }
-
-    /// Sends a request to modules to leave a trace, and end the trace session￼.
-    ///
-    func leaveTrace() throws {
-        try getTrace().leave()
-    }
-
-    /// Ends the current visitor session. Trace remains active, but visitor session is terminated.
-    func killTraceVisitorSession() throws {
-        try getTrace().killVisitorSession()
+        queryItems.first {
+            $0.name == TealiumKey.traceIdQueryParam && $0.value != nil
+        }?.value
     }
 
     // MARK: Collector

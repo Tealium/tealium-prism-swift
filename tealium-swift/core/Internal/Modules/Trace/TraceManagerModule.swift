@@ -24,23 +24,16 @@ class TraceManagerModule: Collector, TealiumBasicModule {
         self.tracker = tracker
     }
 
-    func killVisitorSession(completion: ((Result<Void, Error>) -> Void)? = nil) {
+    func killVisitorSession(onTrackResult: TrackResultCompletion? = nil) throws {
         guard let traceId = dataStore.get(key: TealiumDataKey.traceId, as: String.self) else {
-            completion?(.failure(TealiumError.genericError("Not in an active Trace")))
-            return
+            throw TealiumError.genericError("Not in an active Trace")
         }
         let dispatch = TealiumDispatch(name: TealiumKey.killVisitorSession,
                                        data: [
                                         TealiumDataKey.killVisitorSessionEvent: TealiumKey.killVisitorSession,
                                         TealiumDataKey.traceId: traceId
                                        ])
-        tracker.track(dispatch, source: .module(TraceManagerModule.self)) { _, result in
-            if result == .dropped {
-                completion?(.failure(TealiumError.genericError("Kill Visitor Session event was dropped.")))
-            } else {
-                completion?(.success(()))
-            }
-        }
+        tracker.track(dispatch, source: .module(TraceManagerModule.self), onTrackResult: onTrackResult)
     }
 
     func join(id: String) throws {

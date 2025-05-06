@@ -28,8 +28,8 @@ final class DeepLinkHandlerModuleTests: DeepLinkHandlerBaseTests {
         XCTAssertNil(try deepLink.getTrace().collect(dispatchContext).getDataItem(key: TealiumDataKey.traceId))
     }
 
-    func test_handle_does_not_join_trace_if_qr_trace_disabled() throws {
-        updateSettings(DeepLinkSettingsBuilder().setQrTraceEnabled(false))
+    func test_handle_does_not_join_trace_if_deepLink_trace_disabled() throws {
+        updateSettings(DeepLinkSettingsBuilder().setDeepLinkTraceEnabled(false))
         let link = try "https://tealium.com?tealium_trace_id=\(testTraceId)".asUrl()
         try deepLink.handle(link: link)
         XCTAssertNil(try deepLink.getTrace().collect(dispatchContext).getDataItem(key: TealiumDataKey.traceId))

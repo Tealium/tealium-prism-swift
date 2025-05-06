@@ -106,12 +106,14 @@ final class TraceManagerWrapperTests: XCTestCase {
         waitOnQueue(queue: queue)
     }
 
-    func test_killVisitorSession_completion_called_only_once_with_error_on_dropped_dispatch() {
+    func test_killVisitorSession_completion_called_only_once_with_success_on_dropped_dispatch() {
         let completionCalled = expectation(description: "Completion is called")
-        tracker.result = .dropped
+        tracker.acceptTrack = false
         wrapper.join(id: "12345")
         _ = wrapper.killVisitorSession().subscribe { result in
-            XCTAssertResultIsFailure(result)
+            XCTAssertResultIsSuccess(result) { trackResult in
+                XCTAssertTrackResultIsDropped(trackResult)
+            }
             completionCalled.fulfill()
         }
         waitOnQueue(queue: queue)

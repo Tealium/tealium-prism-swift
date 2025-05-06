@@ -13,6 +13,6 @@ class MockDispatchManager: DispatchManagerProtocol {
     var onDispatch: Observable<TealiumDispatch>
     func track(_ dispatch: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
         _onDispatch.publish(dispatch)
-        onTrackResult?(dispatch, .accepted)
+        onTrackResult?(.accepted(dispatch))
     }
 }

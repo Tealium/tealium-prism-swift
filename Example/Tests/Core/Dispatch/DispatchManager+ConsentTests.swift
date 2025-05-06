@@ -75,7 +75,7 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
             consentManager.onApplyConsent.subscribeOnce { _ in
                 consentIsApplied.fulfill()
             }
-            dispatchManager.track(TealiumDispatch(name: "someEvent")) { _, _ in
+            dispatchManager.track(TealiumDispatch(name: "someEvent")) { _ in
                 completionCalled.fulfill()
             }
             waitForDefaultTimeout()

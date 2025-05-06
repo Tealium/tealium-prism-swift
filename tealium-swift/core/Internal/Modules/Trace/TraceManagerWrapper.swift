@@ -27,9 +27,11 @@ class TraceManagerWrapper: TraceManager {
     }
 
     @discardableResult
-    public func killVisitorSession() -> any Single<Result<Void, Error>> {
+    public func killVisitorSession() -> any Single<Result<TrackResult, Error>> {
         moduleProxy.executeModuleAsyncTask { module, completion in
-            module.killVisitorSession(completion: completion)
+            try module.killVisitorSession { result in
+                completion(.success(result))
+            }
         }
     }
 }
