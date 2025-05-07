@@ -29,7 +29,7 @@ final class LifecycleTrackerTests: XCTestCase {
                                settingsFile: "",
                                settingsUrl: nil)
     let databaseProvider = MockDatabaseProvider()
-    let queue = TealiumQueue.worker
+    let queue = TealiumQueue.main
     lazy var modulesManager = ModulesManager(queue: queue)
     lazy var settings: [String: DataObject] = [ConsentModule.id: ["enabled": false]]
     private(set) lazy var sdkSettings = StateSubject(SDKSettings(modules: settings))
@@ -43,30 +43,22 @@ final class LifecycleTrackerTests: XCTestCase {
                                                                                  expiration: TimeFrame(unit: .days, interval: 1)),
                                              coreSettings: coreSettings,
                                              logger: nil)
-    let barrierManager = BarrierManager(sdkBarrierSettings: StateSubject([:]).toStatefulObservable())
     lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: .Just([]))
     lazy var transformerCoordinator = TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                              transformations: transformations,
                                                              moduleMappings: StateSubject([:]).toStatefulObservable(),
-                                                             queue: .main)
+                                                             queue: queue)
     lazy var tracker = TealiumTracker(modules: modulesManager.modules,
                                       loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings.toStatefulObservable()),
                                       dispatchManager: dispatchManager,
                                       logger: nil)
-    lazy var context = TealiumContext(modulesManager: modulesManager,
-                                      config: config,
-                                      coreSettings: coreSettings,
-                                      tracker: tracker,
-                                      barrierRegistry: barrierManager,
-                                      transformerRegistry: transformerCoordinator,
-                                      databaseProvider: databaseProvider,
-                                      moduleStoreProvider: ModuleStoreProvider(databaseProvider: databaseProvider,
-                                                                               modulesRepository: SQLModulesRepository(dbProvider: databaseProvider)),
-                                      logger: nil,
-                                      networkHelper: MockNetworkHelper(),
-                                      activityListener: ApplicationStatusListener.shared,
-                                      queue: queue,
-                                      visitorId: mockVisitorId)
+    lazy var context = MockContext(modulesManager: modulesManager,
+                                   config: config,
+                                   coreSettings: coreSettings,
+                                   tracker: tracker,
+                                   transformerRegistry: transformerCoordinator,
+                                   databaseProvider: databaseProvider,
+                                   queue: queue)
     var consentManager: MockConsentManager? {
         modulesManager.getModule()
     }

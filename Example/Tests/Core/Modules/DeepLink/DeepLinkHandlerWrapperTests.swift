@@ -12,32 +12,16 @@ import XCTest
 final class DeepLinkHandlerWrapperTests: XCTestCase {
     let dbProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
-    let tracker = MockTracker()
     lazy var manager = ModulesManager(queue: queue)
     lazy var onManager: ReplaySubject<ModulesManager?> = ReplaySubject(initialValue: manager)
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = DeepLinkHandlerWrapper(moduleProxy: ModuleProxy(onModulesManager: onManager.asObservable()))
-    @StateSubject(CoreSettings())
-    var coreSettings
 
     func context() -> TealiumContext {
-        TealiumContext(modulesManager: manager,
-                       config: config,
-                       coreSettings: coreSettings,
-                       tracker: tracker,
-                       barrierRegistry: BarrierManager(sdkBarrierSettings: StateSubject([:]).toStatefulObservable()),
-                       transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
-                                                                   transformations: StateSubject([]).toStatefulObservable(),
-                                                                   moduleMappings: StateSubject([:]).toStatefulObservable(),
-                                                                   queue: queue),
-                       databaseProvider: dbProvider,
-                       moduleStoreProvider: ModuleStoreProvider(databaseProvider: dbProvider,
-                                                                modulesRepository: SQLModulesRepository(dbProvider: dbProvider)),
-                       logger: nil,
-                       networkHelper: MockNetworkHelper(),
-                       activityListener: ApplicationStatusListener.shared,
-                       queue: queue,
-                       visitorId: mockVisitorId)
+        MockContext(modulesManager: manager,
+                    config: config,
+                    databaseProvider: dbProvider,
+                    queue: queue)
     }
     let disposer = AutomaticDisposer()
 

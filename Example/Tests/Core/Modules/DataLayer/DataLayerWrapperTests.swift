@@ -16,31 +16,16 @@ class BaseDataLayerWrapperTests: XCTestCase {
     lazy var onManager: ReplaySubject<ModulesManager?> = ReplaySubject(initialValue: manager)
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = DataLayerWrapper(moduleProxy: ModuleProxy(onModulesManager: onManager.asObservable()))
-    @StateSubject(CoreSettings())
-    var coreSettings
     func context() -> TealiumContext {
-        TealiumContext(modulesManager: manager,
-                       config: config,
-                       coreSettings: coreSettings,
-                       tracker: MockTracker(),
-                       barrierRegistry: BarrierManager(sdkBarrierSettings: StateSubject([:]).toStatefulObservable()),
-                       transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
-                                                                   transformations: StateSubject([]).toStatefulObservable(),
-                                                                   moduleMappings: StateSubject([:]).toStatefulObservable(),
-                                                                   queue: queue),
-                       databaseProvider: dbProvider,
-                       moduleStoreProvider: ModuleStoreProvider(databaseProvider: dbProvider,
-                                                                modulesRepository: SQLModulesRepository(dbProvider: dbProvider)),
-                       logger: nil,
-                       networkHelper: MockNetworkHelper(),
-                       activityListener: ApplicationStatusListener.shared,
-                       queue: queue,
-                       visitorId: mockVisitorId)
+        MockContext(modulesManager: manager,
+                    config: config,
+                    databaseProvider: dbProvider,
+                    queue: queue)
     }
 
     override func setUp() {
         config.modules = [TealiumModules.dataLayer()]
-        manager.updateSettings(context: context(), settings: SDKSettings(core: coreSettings.value))
+        manager.updateSettings(context: context(), settings: SDKSettings())
     }
 }
 

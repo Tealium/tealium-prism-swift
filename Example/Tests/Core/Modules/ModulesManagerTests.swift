@@ -19,28 +19,17 @@ final class ModulesManagerTests: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
     lazy var modulesManager = ModulesManager(queue: queue)
-    @StateSubject(CoreSettings())
-    var coreSettings
     lazy var transformerCoordinator = TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
                                                              transformations: StateSubject([]).toStatefulObservable(),
                                                              moduleMappings: StateSubject([:]).toStatefulObservable(),
                                                              queue: .main)
     lazy var context = createContext()
     func createContext() -> TealiumContext {
-        TealiumContext(modulesManager: modulesManager,
-                       config: config,
-                       coreSettings: coreSettings,
-                       tracker: MockTracker(),
-                       barrierRegistry: BarrierManager(sdkBarrierSettings: StateSubject([:]).toStatefulObservable()),
-                       transformerRegistry: transformerCoordinator,
-                       databaseProvider: databaseProvider,
-                       moduleStoreProvider: ModuleStoreProvider(databaseProvider: databaseProvider,
-                                                                modulesRepository: MockModulesRepository()),
-                       logger: nil,
-                       networkHelper: MockNetworkHelper(),
-                       activityListener: ApplicationStatusListener.shared,
-                       queue: queue,
-                       visitorId: mockVisitorId)
+        MockContext(modulesManager: modulesManager,
+                    config: config,
+                    transformerRegistry: transformerCoordinator,
+                    databaseProvider: databaseProvider,
+                    queue: queue)
     }
     var consentManager: MockConsentManager? {
         modulesManager.getModule()

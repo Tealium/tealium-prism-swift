@@ -79,8 +79,7 @@ public class Tealium {
      */
     private func onImplementationReady(_ completion: @escaping (ImplementationResult) -> Void) {
         onTealiumImplementation
-            .first()
-            .subscribeOn(queue)
+            .asSingle(queue: queue)
             .subscribe(completion)
             .addTo(asyncDisposer)
     }

@@ -15,26 +15,3 @@ let mockConfig = TealiumConfig(account: "mock_account",
                                modules: [],
                                settingsFile: nil,
                                settingsUrl: nil)
-private let mockDbProvider = MockDatabaseProvider()
-private let queue = TealiumQueue.worker
-let mockVisitorId = ObservableState(valueProvider: "visitorId", subscriptionHandler: { _ in Subscription(unsubscribe: {}) })
-let mockContext = createContext(config: mockConfig, modulesManager: ModulesManager(queue: queue))
-func createContext(config: TealiumConfig, modulesManager: ModulesManager) -> TealiumContext {
-    TealiumContext(modulesManager: modulesManager,
-                   config: config,
-                   coreSettings: StateSubject(CoreSettings()).toStatefulObservable(),
-                   tracker: MockTracker(),
-                   barrierRegistry: BarrierManager(sdkBarrierSettings: StateSubject([:]).toStatefulObservable()),
-                   transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
-                                                               transformations: StateSubject([]).toStatefulObservable(),
-                                                               moduleMappings: StateSubject([:]).toStatefulObservable(),
-                                                               queue: queue),
-                   databaseProvider: mockDbProvider,
-                   moduleStoreProvider: ModuleStoreProvider(databaseProvider: mockDbProvider,
-                                                            modulesRepository: MockModulesRepository()),
-                   logger: nil,
-                   networkHelper: MockNetworkHelper(),
-                   activityListener: ApplicationStatusListener.shared,
-                   queue: queue,
-                   visitorId: mockVisitorId)
-}

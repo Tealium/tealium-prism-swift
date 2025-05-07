@@ -20,26 +20,12 @@ final class ModuleProxyTests: XCTestCase {
     var onModulesManager: Observable<ModulesManager?>
     lazy var proxy = ModuleProxy<ModuleWithObservable>(onModulesManager: onModulesManager)
     lazy var config: TealiumConfig = mockConfig
-    @StateSubject(CoreSettings())
-    var coreSettings
+
     func context() -> TealiumContext {
-        TealiumContext(modulesManager: ModulesManager(queue: queue),
-                       config: config,
-                       coreSettings: coreSettings,
-                       tracker: MockTracker(),
-                       barrierRegistry: BarrierManager(sdkBarrierSettings: StateSubject([:]).toStatefulObservable()),
-                       transformerRegistry: TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
-                                                                   transformations: StateSubject([]).toStatefulObservable(),
-                                                                   moduleMappings: StateSubject([:]).toStatefulObservable(),
-                                                                   queue: queue),
-                       databaseProvider: mockDbProvider,
-                       moduleStoreProvider: ModuleStoreProvider(databaseProvider: mockDbProvider,
-                                                                modulesRepository: MockModulesRepository()),
-                       logger: nil,
-                       networkHelper: MockNetworkHelper(),
-                       activityListener: ApplicationStatusListener.shared,
-                       queue: queue,
-                       visitorId: mockVisitorId)
+        MockContext(modulesManager: ModulesManager(queue: queue),
+                    config: config,
+                    databaseProvider: mockDbProvider,
+                    queue: queue)
     }
 
     func test_getModule_waits_for_first_manager_to_be_published_to_report_the_completion() {

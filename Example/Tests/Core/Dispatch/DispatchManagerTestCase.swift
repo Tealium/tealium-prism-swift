@@ -59,20 +59,13 @@ class DispatchManagerTestCase: XCTestCase {
                                                              transformations: transformations,
                                                              moduleMappings: StateSubject([:]).toStatefulObservable(),
                                                              queue: .main)
-    lazy var context = TealiumContext(modulesManager: modulesManager,
-                                      config: config,
-                                      coreSettings: coreSettings,
-                                      tracker: MockTracker(),
-                                      barrierRegistry: barrierManager,
-                                      transformerRegistry: transformerCoordinator,
-                                      databaseProvider: databaseProvider,
-                                      moduleStoreProvider: ModuleStoreProvider(databaseProvider: databaseProvider,
-                                                                               modulesRepository: MockModulesRepository()),
-                                      logger: nil,
-                                      networkHelper: MockNetworkHelper(),
-                                      activityListener: ApplicationStatusListener.shared,
-                                      queue: queue,
-                                      visitorId: mockVisitorId)
+    lazy var context = MockContext(modulesManager: modulesManager,
+                                   config: config,
+                                   coreSettings: coreSettings,
+                                   barrierRegistry: barrierManager,
+                                   transformerRegistry: transformerCoordinator,
+                                   databaseProvider: databaseProvider,
+                                   queue: queue)
     var consentManager: MockConsentManager? {
         modulesManager.getModule()
     }

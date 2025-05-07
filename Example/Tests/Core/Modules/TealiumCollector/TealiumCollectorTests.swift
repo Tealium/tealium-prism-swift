@@ -12,7 +12,7 @@ import XCTest
 final class TealiumCollectorTests: XCTestCase {
     let modulesManager = ModulesManager(queue: TealiumQueue.main)
     let config = TealiumCollectorTests.getConfig(source: "mock_source")
-    lazy var context = createContext(config: config, modulesManager: modulesManager)
+    lazy var context = MockContext(modulesManager: modulesManager, config: config)
     lazy var collector = TealiumCollector(context: context, moduleConfiguration: [:])
     lazy var data = collector.collect(DispatchContext(source: .application, initialData: [:]))
     override func setUp() {
@@ -40,7 +40,7 @@ final class TealiumCollectorTests: XCTestCase {
 
     func test_collect_doesnt_contain_source_when_nil() {
         let config = Self.getConfig(source: nil)
-        context = createContext(config: config, modulesManager: modulesManager)
+        context = MockContext(modulesManager: modulesManager, config: config)
         XCTAssertFalse(data.keys.contains("tealium_datasource"),
                        "tealium_datasource should not be present in the collected data")
     }
