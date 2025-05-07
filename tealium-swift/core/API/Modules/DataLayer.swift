@@ -57,7 +57,7 @@ public protocol DataLayer {
      *   - getDataItem: A block to retrieve something synchronously from the `DataLayer`. Applied, but not committed, edits won't be reflected in the items returned by this block.
      *   - commit: A block used to commit the transaction. It will commit all the edits that were previously applied. Committing more than once does nothing.
      */
-    typealias TransactionBlock = (_ apply: Apply, _ getDataItem: Get, _ commit: Commit) -> Void
+    typealias TransactionBlock = (_ apply: Apply, _ getDataItem: Get, _ commit: Commit) throws -> Void
 
     // MARK: - Inserts
 
@@ -88,9 +88,11 @@ public protocol DataLayer {
      *       print(error)
      *   }
      * }
+     * - returns: A Single which can be used to subscribe a block of code to receive any errors that occur
      * ```
      */
-    func transactionally(execute block: @escaping TransactionBlock)
+    @discardableResult
+    func transactionally(execute block: @escaping TransactionBlock) -> any Single<Result<Void, Error>>
 
     /**
      * Adds all key-value pairs from the `DataObject` into the storage.

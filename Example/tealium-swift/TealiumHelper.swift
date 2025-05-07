@@ -64,6 +64,8 @@ class TealiumHelper {
             } catch {
                 print(error)
             }
+        }.onFailure { error in
+            print("Transaction update failed with \(error)")
         }
     }
 

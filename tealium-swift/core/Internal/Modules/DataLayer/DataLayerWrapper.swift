@@ -19,19 +19,15 @@ class DataLayerWrapper: DataLayer {
         onDataRemoved = moduleProxy.observeModule(\.dataStore.onDataRemoved)
     }
 
-    private func getModule(completion: @escaping (Module?) -> Void) {
-        moduleProxy.getModule(completion: completion)
-    }
-
-    func transactionally(execute block: @escaping TransactionBlock) {
-        getModule { dataLayer in
-            guard let dataLayer else { return }
-            let dataStore = dataLayer.dataStore
+    @discardableResult
+    func transactionally(execute block: @escaping TransactionBlock) -> any Single<Result<Void, Error>> {
+        moduleProxy.executeModuleTask { module in
+            let dataStore = module.dataStore
             let editor = dataStore.edit()
-            block({ edit in
+            try block({ edit in
                 _ = editor.apply(edit: edit)
             }, { key in
-                dataLayer.getDataItem(key: key)
+                module.getDataItem(key: key)
             }, { try editor.commit() })
         }
     }
