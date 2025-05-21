@@ -91,6 +91,45 @@ public extension Observable {
      * Transforms an event by providing a new observable that is flattened in the observable that is returned by this method.
      * Every new observable returned will cancel the old observable subscriptions, therefore only emitting events for the latest returned observable.
      *
+     * - Warning: If the observable returned from `selector`, on subscription, synchronously publishes a new element upstream,
+     * then the selector will be triggered again. This can cause a endless loop in which we endlessly resubscribe to the returned observable.
+     * If this is the case, make sure to have an exit condition, from which the subscription doesn't publish elements upstream anymore,
+     * to avoid blocking the thread in which this operator is being called.
+     *
+     * As a very simplified example, the following code causes an endless loop:
+     *
+     * ```swift
+     * let subject = BaseSubject<Int>()
+     * _ = subject.asObservable().flatMapLatest { value in
+     *     CustomObservable<Int> { observer in
+     *         // This is the block that is called on each `subscribe` call
+     *         subject.publish(value + 1)
+     *         observer(value)
+     *         return Subscription(unsubscribe: {})
+     *     }
+     * }.subscribe { _ in }
+     * subject.publish(0)
+     * ```
+     *
+     * The following, instead, has an exit condition, so it's safe to use:
+     *
+     * ```swift
+     * let subject = BaseSubject<Int>()
+     * _ = subject.asObservable().flatMapLatest { value in
+     *     CustomObservable<Int> { observer in
+     *         // This is the block that is called on each `subscribe` call
+     *         if value < 10 {
+     *             subject.publish(value + 1)
+     *         }
+     *         observer(value)
+     *         return Subscription(unsubscribe: {})
+     *     }
+     * }.subscribe { _ in }
+     * subject.publish(0)
+     * ```
+     *
+     * - Note: more complex examples can be created where the upstream publish is less clear, so use this with caution.
+     *
      * - Parameter selector: the function that will return a new observable when an event is published by the original observable.
      *
      * - Returns: an observable that flattens the observable returned by the selector and emits all of the events from the latest returned observable.
@@ -98,12 +137,27 @@ public extension Observable {
     func flatMapLatest<Result>(_ selector: @escaping (Element) -> Observable<Result>) -> Observable<Result> {
         CustomObservable<Result> { observer in
             let container = DisposeContainer()
+            var isSubscribing = false
+            var latestElement: Element?
             var subscription: Disposable?
             self.subscribe { element in
-                subscription?.dispose()
-                subscription = selector(element)
-                    .subscribe(observer)
+                latestElement = element
+                guard !isSubscribing else {
+                    return
+                }
+                isSubscribing = true
+                while let element = latestElement {
+                    latestElement = nil
+                    subscription?.dispose()
+                    subscription = selector(element)
+                        .subscribe(observer)
+                    // If the subscription here always causes a synchronous publishing
+                    // to this same observable `self`, there will always be a latestElement
+                    // and therefore we will never exit the loop.
+                    // Make sure you have an exit condition to avoid a deadlock.
+                }
                 subscription?.addTo(container)
+                isSubscribing = false
             }.addTo(container)
             return container
         }
@@ -238,10 +292,10 @@ public extension Observable {
                 if isIncluded(element) {
                     observer(element)
                 } else {
+                    container.dispose()
                     if inclusive {
                         observer(element)
                     }
-                    container.dispose()
                 }
             }.addTo(container)
             return container

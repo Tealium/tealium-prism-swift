@@ -67,4 +67,41 @@ final class OperatorsFlatMapTests: XCTestCase {
         helper = nil
         waitForDefaultTimeout()
     }
+
+    func test_flatMapLatest_disposes_previous_subscriptions_when_reentrant_emission_occurs() {
+        let observerCalled = expectation(description: "Observer called")
+        let subject = BaseSubject<Int>()
+        let innerSubject1 = BaseSubject<Int>()
+        let innerSubject2 = BaseSubject<Int>()
+        _ = subject.asObservable().flatMapLatest { value in
+            if value == 1 {
+                subject.publish(2)
+                subject.publish(3)
+                subject.publish(4)
+                return innerSubject1.asObservable()
+            } else {
+                return innerSubject2.asObservable()
+            }
+        }.subscribe { value in
+            XCTAssertEqual(value, 200)
+            observerCalled.fulfill()
+        }
+        subject.publish(1)
+        innerSubject1.publish(100)
+        innerSubject2.publish(200)
+        waitForDefaultTimeout()
+    }
+
+    func test_flatMapLatest_doesnt_drop_legitimate_nil_values() {
+        let observerCalled = expectation(description: "Observer called")
+        let subject = BaseSubject<Int?>()
+        _ = subject.asObservable().flatMapLatest { _ in
+                .Just(200)
+        }.subscribe { value in
+            XCTAssertEqual(value, 200)
+            observerCalled.fulfill()
+        }
+        subject.publish(nil)
+        waitForDefaultTimeout()
+    }
 }
