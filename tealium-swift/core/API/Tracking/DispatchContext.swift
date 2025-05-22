@@ -9,9 +9,9 @@
 /// Context with information around the track that generated the Dispatch request.
 public struct DispatchContext {
     public enum Source {
-        /// The `TealiumDispatch` was created by the application
+        /// The `Dispatch` was created by the application
         case application
-        /// The `TealiumDispatch` was created by a module
+        /// The `Dispatch` was created by a module
         case module(TealiumModule.Type)
 
         var moduleType: TealiumModule.Type? {
@@ -23,8 +23,8 @@ public struct DispatchContext {
             }
         }
     }
-    /// The source that generated the `TealiumDispatch`
+    /// The source that generated the `Dispatch`
     public let source: Source
-    /// The data that was created with the `TealiumDispatch`, before any collection and transformation.
+    /// The data that was created with the `Dispatch`, before any collection and transformation.
     public let initialData: DataObject
 }

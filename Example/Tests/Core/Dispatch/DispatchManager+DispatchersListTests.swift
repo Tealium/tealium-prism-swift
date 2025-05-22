@@ -24,7 +24,7 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
             XCTAssertEqual(dispatches.first?.name, "someEvent")
             eventIsDispatchedToModule2.fulfill()
         }
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         waitForDefaultTimeout()
     }
 
@@ -43,7 +43,7 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
             eventIsNotDispatchedToModule2.fulfill()
         }
         disableModule(module: module2)
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         waitForDefaultTimeout()
     }
 
@@ -56,7 +56,7 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
         module.delay = 0
         let eventsAreDispatched = expectation(description: "Events are dispatched")
         let eventsAreDequeued = expectation(description: "Events are dequeued")
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         queueManager.inflightEvents.subscribeOnce { _ in
             self.disableModule(module: module)
             eventsAreDequeued.fulfill()

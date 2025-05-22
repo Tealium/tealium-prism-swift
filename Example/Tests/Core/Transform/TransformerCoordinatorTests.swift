@@ -39,7 +39,7 @@ final class TransformerCoordinatorTests: XCTestCase {
                                                   transformations: transformations,
                                                   moduleMappings: mappings,
                                                   queue: TealiumQueue.worker)
-    let testEvent = TealiumDispatch(name: "test_event")
+    let testEvent = Dispatch(name: "test_event")
 
     func test_getTransformationsForScope_afterCollectors_returns_all_afterCollectors_transformations() {
         let transformations = coordinator.getTransformations(for: testEvent, .afterCollectors)
@@ -50,7 +50,7 @@ final class TransformerCoordinatorTests: XCTestCase {
         let transformations = coordinator.getTransformations(for: testEvent, .dispatcher("someDispatcher"))
         XCTAssertEqual(transformations.map { $0.id }, ["transformation2", "transformation3", "transformation4", "transformation7", "transformation8"])
 
-        let nonMatchingDispatch = TealiumDispatch(name: "other_event")
+        let nonMatchingDispatch = Dispatch(name: "other_event")
         let filteredTransformations = coordinator.getTransformations(for: nonMatchingDispatch, .dispatcher("someDispatcher"))
         XCTAssertEqual(filteredTransformations.map { $0.id }, ["transformation2", "transformation3", "transformation4", "transformation7"])
     }
@@ -58,15 +58,6 @@ final class TransformerCoordinatorTests: XCTestCase {
     func test_getTransformationsForScope_dispatcher_returns_allDispatchers_and_dispatcherSpecific_transformations() {
         let transformations = coordinator.getTransformations(for: testEvent, .dispatcher("someDispatcher"))
         XCTAssertEqual(transformations.map { $0.id }, ["transformation2", "transformation3", "transformation4", "transformation7", "transformation8"])
-    }
-
-    func test_getTransformationsForScope_dispatcher_returns_dispatcher_mappings() {
-        let transformation = TransformationSettings(id: "mapping",
-                                                    transformerId: "JsonTransformer",
-                                                    scopes: [.dispatcher("someDispatcher")])
-        _mappings.value = ["someDispatcher": transformation]
-        let transformations = coordinator.getTransformations(for: testEvent, .dispatcher("someDispatcher"))
-        XCTAssertEqual(transformations.last?.id, transformation.id)
     }
 
     func test_transformDispatches_forAfterCollectors_applies_all_related_transformations_in_transformation_order() {
@@ -90,7 +81,7 @@ final class TransformerCoordinatorTests: XCTestCase {
             return dispatch
         }
 
-        let dispatch = TealiumDispatch(name: "someEvent")
+        let dispatch = Dispatch(name: "someEvent")
         coordinator.transform(dispatches: [dispatch], for: dispatchScope) { result in
             XCTAssertEqual(result.count, 1)
             transformationsCompleted.fulfill()
@@ -121,7 +112,7 @@ final class TransformerCoordinatorTests: XCTestCase {
             return dispatch
         }
 
-        let dispatch = TealiumDispatch(name: "someEvent")
+        let dispatch = Dispatch(name: "someEvent")
         coordinator.transform(dispatches: [dispatch], for: dispatchScope) { result in
             XCTAssertEqual(result.count, 1)
             transformationsCompleted.fulfill()
@@ -152,7 +143,7 @@ final class TransformerCoordinatorTests: XCTestCase {
             return nil
         }
 
-        let dispatch = TealiumDispatch(name: "someEvent")
+        let dispatch = Dispatch(name: "someEvent")
         coordinator.transform(dispatches: [dispatch], for: dispatchScope) { result in
             XCTAssertEqual(result.count, 0)
             transformationsCompleted.fulfill()
@@ -167,11 +158,11 @@ final class TransformerCoordinatorTests: XCTestCase {
         let dispatchScope = DispatchScope.dispatcher("someThirdDispatcher")
         registeredTransformers[0].transformation = { _, dispatch, scope in
             XCTAssertEqual(scope, dispatchScope)
-            return TealiumDispatch(name: (dispatch.name ?? "") + "-New")
+            return Dispatch(name: (dispatch.name ?? "") + "-New")
         }
         coordinator.transform(dispatches: [
-            TealiumDispatch(name: "someEvent1"),
-            TealiumDispatch(name: "someEvent2")
+            Dispatch(name: "someEvent1"),
+            Dispatch(name: "someEvent2")
         ], for: dispatchScope) { result in
             XCTAssertEqual(result.count, 2)
             XCTAssertEqual(result[0].name, "someEvent1-New")
@@ -189,11 +180,11 @@ final class TransformerCoordinatorTests: XCTestCase {
             if dispatch.name == "someEvent1" {
                 return nil
             }
-            return TealiumDispatch(name: (dispatch.name ?? "") + "-New")
+            return Dispatch(name: (dispatch.name ?? "") + "-New")
         }
         coordinator.transform(dispatches: [
-            TealiumDispatch(name: "someEvent1"),
-            TealiumDispatch(name: "someEvent2")
+            Dispatch(name: "someEvent1"),
+            Dispatch(name: "someEvent2")
         ], for: dispatchScope) { result in
             XCTAssertEqual(result.count, 1)
             XCTAssertEqual(result[0].name, "someEvent2-New")

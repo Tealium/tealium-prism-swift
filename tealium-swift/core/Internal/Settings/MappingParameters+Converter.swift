@@ -10,12 +10,11 @@ extension MappingParameters {
     struct Converter: DataItemConverter {
         typealias Convertible = MappingParameters
         func convert(dataItem: DataItem) -> Convertible? {
-            guard let object = dataItem.getDataDictionary(),
-                  let key = object.getConvertible(key: Keys.key,
-                                                  converter: VariableAccessor.converter) else {
+            guard let object = dataItem.getDataDictionary() else {
                 return nil
             }
-            return MappingParameters(key: key,
+            return MappingParameters(key: object.getConvertible(key: Keys.key,
+                                                                converter: VariableAccessor.converter),
                                      filter: object.getConvertible(key: Keys.filter,
                                                                    converter: ValueContainer.converter),
                                      mapTo: object.getConvertible(key: Keys.mapTo,

@@ -50,7 +50,7 @@ final class DataLayerModuleTests: XCTestCase {
 
     func test_clear_removes_all_values() throws {
         try dataLayerModule.put(data: ["key1": "value1", "key2": "value2"])
-        let dispatchContext = DispatchContext(source: .module(DataLayerModule.self), initialData: TealiumDispatch(name: "datalayer").eventData)
+        let dispatchContext = DispatchContext(source: .module(DataLayerModule.self), initialData: Dispatch(name: "datalayer").payload)
         XCTAssertFalse(dataLayerModule.collect(dispatchContext).asDictionary().isEmpty, "DataLayer is not empty before remove all")
         try dataLayerModule.clear()
         XCTAssertTrue(dataLayerModule.collect(dispatchContext).asDictionary().isEmpty, "DataLayer should be empty")
@@ -59,7 +59,7 @@ final class DataLayerModuleTests: XCTestCase {
     func test_collect_returns_all_data() throws {
         try dataLayerModule.put(key: "key0", value: "value0")
         try dataLayerModule.put(data: ["key1": "value1", "key2": "value2"])
-        let dispatchContext = DispatchContext(source: .module(DataLayerModule.self), initialData: TealiumDispatch(name: "datalayer").eventData)
+        let dispatchContext = DispatchContext(source: .module(DataLayerModule.self), initialData: Dispatch(name: "datalayer").payload)
         XCTAssertEqual(dataLayerModule.collect(dispatchContext), ["key0": "value0", "key1": "value1", "key2": "value2"])
     }
 

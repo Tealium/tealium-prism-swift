@@ -17,15 +17,15 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
         _ = consentManager?.onApplyConsent.subscribe { _ in
             consentIsAppliedToDispatch.fulfill()
         }
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         waitForDefaultTimeout()
     }
 
     func test_dispatch_is_not_enqueued_by_the_dispatchManager_when_consentManager_is_enabled() {
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         XCTAssertEqual(queueManager.inflightEvents.value[MockDispatcher1.id]?.count, 1, "First event is enqueued because consentManager is disabled")
         enableModule(ConsentModule.id)
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         XCTAssertEqual(queueManager.inflightEvents.value[MockDispatcher1.id]?.count, 1, "Second event is not enqueued because consentManager is enabled")
     }
 
@@ -43,7 +43,7 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
             transformationNotCalled.fulfill()
             return nil
         }
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         waitForDefaultTimeout()
     }
 
@@ -60,7 +60,7 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
             transformationNotCalled.fulfill()
             return nil
         }
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         waitForDefaultTimeout()
     }
 
@@ -75,7 +75,7 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
             consentManager.onApplyConsent.subscribeOnce { _ in
                 consentIsApplied.fulfill()
             }
-            dispatchManager.track(TealiumDispatch(name: "someEvent")) { _ in
+            dispatchManager.track(Dispatch(name: "someEvent")) { _ in
                 completionCalled.fulfill()
             }
             waitForDefaultTimeout()

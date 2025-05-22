@@ -42,3 +42,11 @@ extension ValueContainer {
 
     static let converter: any DataItemConverter<Self> = Converter()
 }
+
+extension ValueContainer: ExpressibleByStringLiteral, ExpressibleByStringInterpolation {
+    /// Creates a `ValueContainer` from a string literal.
+    /// - Parameter value: The string literal to use as the variable name.
+    public init(stringLiteral value: StringLiteralType) {
+        self.init(value)
+    }
+}

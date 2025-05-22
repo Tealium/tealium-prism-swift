@@ -1,5 +1,5 @@
 //
-//  TealiumTrackerTests.swift
+//  TrackerImplTests.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 26/03/25.
@@ -9,7 +9,7 @@
 @testable import TealiumSwift
 import XCTest
 
-final class TealiumTrackerTests: XCTestCase {
+final class TrackerImplTests: XCTestCase {
     @StateSubject([
         MockCollector1(),
         MockCollector2()
@@ -19,10 +19,10 @@ final class TealiumTrackerTests: XCTestCase {
     var sdkSettings: ObservableState<SDKSettings>
     lazy var loadRuleEngine = LoadRuleEngine(sdkSettings: sdkSettings)
     let mockDispatchManager = MockDispatchManager()
-    lazy var tracker = TealiumTracker(modules: modules,
-                                      loadRuleEngine: loadRuleEngine,
-                                      dispatchManager: mockDispatchManager,
-                                      logger: nil)
+    lazy var tracker = TrackerImpl(modules: modules,
+                                   loadRuleEngine: loadRuleEngine,
+                                   dispatchManager: mockDispatchManager,
+                                   logger: nil)
 
     func test_track_collects_from_all_collectors() {
         let collected = expectation(description: "Collector called")
@@ -38,7 +38,7 @@ final class TealiumTrackerTests: XCTestCase {
         _ = collector2.onCollect.subscribe { _ in
             collected.fulfill()
         }
-        tracker.track(TealiumDispatch(name: "event"), source: .application)
+        tracker.track(Dispatch(name: "event"), source: .application)
         waitForDefaultTimeout()
     }
 
@@ -69,14 +69,14 @@ final class TealiumTrackerTests: XCTestCase {
         _ = collector2.onCollect.subscribe { _ in
             notCollected.fulfill()
         }
-        tracker.track(TealiumDispatch(name: "event_to_drop"), source: .application)
+        tracker.track(Dispatch(name: "event_to_drop"), source: .application)
         waitForDefaultTimeout()
     }
 
     func test_track_waits_until_modules_contains_at_least_one_module_before_collecting() {
         let collected = expectation(description: "Collector called")
         _modules.value = []
-        tracker.track(TealiumDispatch(name: "event"), source: .application)
+        tracker.track(Dispatch(name: "event"), source: .application)
         let collector = MockCollector1()
         _ = collector.onCollect.subscribe { _ in
             collected.fulfill()
@@ -88,11 +88,11 @@ final class TealiumTrackerTests: XCTestCase {
     func test_track_dispatches_enriched_dispatch() {
         let dispatched = expectation(description: "DispatchManager called")
         _ = mockDispatchManager.onDispatch.subscribeOnce { newDispatch in
-            XCTAssertNotNil(newDispatch.eventData.getDataItem(key: MockCollector1.id))
-            XCTAssertNotNil(newDispatch.eventData.getDataItem(key: MockCollector2.id))
+            XCTAssertNotNil(newDispatch.payload.getDataItem(key: MockCollector1.id))
+            XCTAssertNotNil(newDispatch.payload.getDataItem(key: MockCollector2.id))
             dispatched.fulfill()
         }
-        tracker.track(TealiumDispatch(name: "event"), source: .application)
+        tracker.track(Dispatch(name: "event"), source: .application)
         waitForDefaultTimeout()
     }
 }

@@ -15,7 +15,7 @@ struct ModuleSettings {
     }
     init(enabled: Bool? = nil,
          rules: Rule<String>? = nil,
-         mappings: [TransformationOperation<MappingParameters>]? = nil,
+         mappings: [MappingOperation]? = nil,
          configuration: DataObject? = nil) {
         self.enabled = enabled ?? true
         self.rules = rules
@@ -24,7 +24,7 @@ struct ModuleSettings {
     }
     let enabled: Bool
     let rules: Rule<String>?
-    let mappings: [TransformationOperation<MappingParameters>]?
+    let mappings: [MappingOperation]?
     let configuration: DataObject
 }
 
@@ -32,7 +32,7 @@ extension ModuleSettings {
     struct Converter: DataItemConverter {
         typealias Convertible = ModuleSettings
         let ruleConverter = Rule.converter(ruleItemConverter: String.converter)
-        let mappingsConverter = TransformationOperation<MappingParameters>
+        let mappingsConverter = MappingOperation
             .converter(parametersConverter: MappingParameters.converter)
         func convert(dataItem: DataItem) -> Convertible? {
             guard let dataObject = dataItem.getDataDictionary() else {

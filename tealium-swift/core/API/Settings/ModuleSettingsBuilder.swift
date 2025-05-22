@@ -74,22 +74,25 @@ open class DispatcherSettingsBuilder: ModuleSettingsBuilder {
      * ```swift
      * DispatcherSettingsBuilder().setMappings([
      *  .from("input1", to: "destination1"),
-     *  .from("input2", to: "destination2")
+     *  .constant("value", to: "destination2"),
+     *  .keep("input2)
      * ])
      * ```
      *
-     * For more complex use cases you can leverage the `MappingOperationBuilder` methods and the `VariableAccessor` constructor:
+     * For more complex use cases you can leverage the `Mappings` methods and the `VariableAccessor` constructor:
      * ```swift
      * DispatcherSettingsBuilder().setMappings([
-     *  .from(VariableAccessor(variable: "input1", path: ["container"]),
-     *        to: VariableAccessor(variable: "destination", path: ["otherContainer"]))
-     *      .ifInputEquals("value")
-     *      .mapTo("otherValue")
+     *  .from(VariableAccessor(path: ["container"], variable: "input1"),
+     *        to: VariableAccessor(path: ["resultContainer"], variable: "destination"))
+     *      .ifValueEquals("value"),
+     *  .constant("value": to: VariableAccessor(path: ["resultContainer"], variable: "destination"))
+     *      .ifValueIn(VariableAccessor(path: ["container"], variable: "input2"), equals: "targetValue"),
+     *  .keep(VariableAccessor(path: ["container"], variable: "inputToMapAsIs")
      * ])
      * ```
-     * - parameter mappings: A list of `Mapping`s to be applied to each `TealiumDispatch` before sending it to the `Dispatcher`.
+     * - parameter mappings: A list of `Mapping`s to be applied to each `Dispatch` before sending it to the `Dispatcher`.
      */
-    public func setMappings(_ mappings: [MappingOperationBuilder]) -> Self {
+    public func setMappings(_ mappings: [Mappings]) -> Self {
         _dataObject.set(converting: mappings.map { $0.build() }, key: Keys.mappings)
         return self
     }

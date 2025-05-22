@@ -40,7 +40,7 @@ func XCTAssertResultIsFailure<T, E>(
 
 func XCTAssertTrackResultIsAccepted(
     _ result: TrackResult,
-    withAsserts asserts: (TealiumDispatch) -> Void = { _ in },
+    withAsserts asserts: (Dispatch) -> Void = { _ in },
     file: StaticString = #filePath,
     line: UInt = #line
 ) {
@@ -54,7 +54,7 @@ func XCTAssertTrackResultIsAccepted(
 
 func XCTAssertTrackResultIsDropped(
     _ result: TrackResult,
-    withAsserts asserts: (TealiumDispatch) -> Void = { _ in },
+    withAsserts asserts: (Dispatch) -> Void = { _ in },
     file: StaticString = #filePath,
     line: UInt = #line
 ) {

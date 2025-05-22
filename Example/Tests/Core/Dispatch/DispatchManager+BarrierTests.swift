@@ -18,7 +18,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         module1?.onDispatch.subscribeOnce { _ in
             eventIsNotDispatched.fulfill()
         }
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         waitForDefaultTimeout()
     }
 
@@ -28,9 +28,9 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         _ = module1?.onDispatch.subscribe { _ in
             eventIsDispatchedOnlyOnce.fulfill()
         }
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         barrier.setState(.closed)
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         waitForDefaultTimeout()
     }
 
@@ -41,7 +41,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         let subscription = module1?.onDispatch.subscribeOnce { _ in
             eventIsNotDispatched.fulfill()
         }
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         waitForDefaultTimeout()
         subscription?.dispose()
         let eventIsDispatched = expectation(description: "Event is dispatched")
@@ -63,7 +63,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         module.delay = 0
         let eventsAreDispatched = expectation(description: "Events are dispatched")
         let eventsAreDequeued = expectation(description: "Events are dequeued")
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         queueManager.inflightEvents.subscribeOnce { _ in
             self.barrier.setState(.closed)
             eventsAreDequeued.fulfill()
@@ -84,7 +84,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         }
         _ = dispatchManager
         barrier.setState(.closed)
-        queueManager.storeDispatches([TealiumDispatch(name: "6")], enqueueingFor: allDispatchers)
+        queueManager.storeDispatches([Dispatch(name: "6")], enqueueingFor: allDispatchers)
         waitForDefaultTimeout()
     }
 }

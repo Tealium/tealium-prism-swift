@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// A repository class that holds `TealiumDispatch`es and queues them in separate processor's queues.
+/// A repository class that holds `Dispatch`es and queues them in separate processor's queues.
 protocol QueueRepository {
 
     /**
@@ -37,24 +37,24 @@ protocol QueueRepository {
      *    - dispatches: The `dispatch`es to persist in case we can't yet send them.
      *    - processors: The `processor`s that need to process these dispatches.
      */
-    func storeDispatches(_ dispatches: [TealiumDispatch], enqueueingFor processors: [String]) throws
+    func storeDispatches(_ dispatches: [Dispatch], enqueueingFor processors: [String]) throws
 
     /**
      * Returns the oldest `count` dispatches for the given `processor`.
      *
      * - Parameters:
      *    - processor: The `processor` for which to retrieve the dispatches.
-     *    - limit: The maximum number of queued `TealiumDispatch`es to return. If value is nil, then all entries will be returned.
-     *    - excluding: The list of `TealiumDispatch`es UUIDs to exclude.
+     *    - limit: The maximum number of queued `Dispatch`es to return. If value is nil, then all entries will be returned.
+     *    - excluding: The list of `Dispatch`es UUIDs to exclude.
      */
-    func getQueuedDispatches(for processor: String, limit: Int?, excluding: [String]) -> [TealiumDispatch]
+    func getQueuedDispatches(for processor: String, limit: Int?, excluding: [String]) -> [Dispatch]
 
     /**
-     * Removes the given `TealiumDispatch`es from the queue, only for the given `processor`.
+     * Removes the given `Dispatch`es from the queue, only for the given `processor`.
      *
      *
      * - Parameters:
-     *    - dispatchUUIds: The `TealiumDispatch` IDs to remove from the queue.
+     *    - dispatchUUIds: The `Dispatch` IDs to remove from the queue.
      *    - processor: The `processor` from which the dispatches needs to be removed form.
      */
     func deleteDispatches(_ dispatchUUIds: [String], for processor: String) throws

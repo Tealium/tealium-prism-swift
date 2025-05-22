@@ -11,7 +11,7 @@ import XCTest
 
 final class VariableAccessorTests: XCTestCase {
     let rootAccessor = VariableAccessor(variable: "key")
-    let nestedAccessor = VariableAccessor(variable: "key", path: ["somePath"])
+    let nestedAccessor = VariableAccessor(path: ["somePath"], variable: "key")
 
     func test_toDataObject_on_nestedAccessor_returns_complete_object() {
         XCTAssertEqual(nestedAccessor.toDataObject(), [

@@ -105,7 +105,7 @@ class LifecycleModule {
                 if let data {
                     state += data
                 }
-                let dispatch = TealiumDispatch(name: event.rawValue, data: state)
+                let dispatch = Dispatch(name: event.rawValue, data: state)
                 self.tracker.track(dispatch, source: .module(LifecycleModule.self))
             }
             if !hasLaunched {

@@ -111,7 +111,7 @@ public class Tealium {
      *   - onTrackResult: A closure that is called with the result of the tracking operation (optional).
      */
     public func track(_ name: String, type: DispatchType = .event, data: DataObject? = nil, onTrackResult: TrackResultCompletion? = nil) {
-        let dispatch = TealiumDispatch(name: name, type: type, data: data)
+        let dispatch = Dispatch(name: name, type: type, data: data)
         onImplementationReady { result in
             switch result {
             case .success(let implementation):

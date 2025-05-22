@@ -27,10 +27,10 @@ class DispatchSchema {
         })
     }
 
-    static func insert(dispatch: TealiumDispatch) throws -> Insert {
+    static func insert(dispatch: Dispatch) throws -> Insert {
         table.insert(or: .replace, [ Self.uuid <- dispatch.id,
                                     Self.timestamp <- dispatch.timestamp,
-                                     Self.dispatch <- try dispatch.eventData.serialize()])
+                                     Self.dispatch <- try dispatch.payload.serialize()])
     }
 
     static func deleteOldestDispatches(_ count: Int) throws -> Delete {

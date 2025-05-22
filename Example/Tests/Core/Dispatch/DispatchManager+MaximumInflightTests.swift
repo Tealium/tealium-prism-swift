@@ -21,7 +21,7 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
         module1?.onDispatch.subscribeOnce { _ in
             eventIsNotDispatched.fulfill()
         }
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         waitForDefaultTimeout()
     }
 
@@ -35,7 +35,7 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
         let subscription = module1?.onDispatch.subscribeOnce { _ in
             eventIsNotDispatched.fulfill()
         }
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         waitForDefaultTimeout()
         subscription?.dispose()
         let eventIsDispatched = expectation(description: "Event is dispatched")

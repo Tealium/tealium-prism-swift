@@ -72,11 +72,11 @@ public struct TransformationSettings {
         }
     }
 
-    func matchesDispatch(_ dispatch: TealiumDispatch) -> Bool {
+    func matchesDispatch(_ dispatch: Dispatch) -> Bool {
         guard let conditions else {
             return true
         }
-        return conditions.asMatchable().matches(payload: dispatch.eventData)
+        return conditions.asMatchable().matches(payload: dispatch.payload)
     }
 
     enum Keys {

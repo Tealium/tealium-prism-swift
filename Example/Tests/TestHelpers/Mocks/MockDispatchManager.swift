@@ -10,8 +10,8 @@
 
 class MockDispatchManager: DispatchManagerProtocol {
     @ToAnyObservable(BasePublisher())
-    var onDispatch: Observable<TealiumDispatch>
-    func track(_ dispatch: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
+    var onDispatch: Observable<Dispatch>
+    func track(_ dispatch: Dispatch, onTrackResult: TrackResultCompletion?) {
         _onDispatch.publish(dispatch)
         onTrackResult?(.accepted(dispatch))
     }

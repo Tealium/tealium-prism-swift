@@ -17,7 +17,7 @@ protocol DebouncerProtocol {
  * A class that delays the execution of a block of code until the time between debounce calls expires, resetting the timer on each subsequent debounce call.
  */
 class Debouncer: DebouncerProtocol {
-    private var timer: TealiumRepeatingTimer?
+    private var timer: RepeatingTimer?
     private let queue: TealiumQueue
     init(queue: TealiumQueue) {
         self.queue = queue
@@ -31,7 +31,7 @@ class Debouncer: DebouncerProtocol {
      *    - completion: the block that has to be executed once the time has passed
      */
     func debounce(time: TimeInterval, completion: @escaping () -> Void) {
-        timer = TealiumRepeatingTimer(timeInterval: time, repeating: .never, queue: queue) { [weak self] in
+        timer = RepeatingTimer(timeInterval: time, repeating: .never, queue: queue) { [weak self] in
             self?.timer = nil
             completion()
         }

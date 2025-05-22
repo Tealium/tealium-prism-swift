@@ -14,7 +14,7 @@ class MockConsentManager: MockModule, ConsentManager {
     var currentDecision: ConsentDecision?
     var allPurposes: [String] = []
     var acceptTrack: Bool = true
-    func trackResultBuilder(dispatch: TealiumDispatch) -> TrackResult {
+    func trackResultBuilder(dispatch: Dispatch) -> TrackResult {
         if self.acceptTrack {
             .accepted(dispatch)
         } else {
@@ -22,10 +22,10 @@ class MockConsentManager: MockModule, ConsentManager {
         }
     }
 
-    @ToAnyObservable(BasePublisher<TealiumDispatch>())
-    var onApplyConsent: Observable<TealiumDispatch>
+    @ToAnyObservable(BasePublisher<Dispatch>())
+    var onApplyConsent: Observable<Dispatch>
 
-    func applyConsent(to dispatch: TealiumDispatch, completion onTrackResult: TrackResultCompletion?) {
+    func applyConsent(to dispatch: Dispatch, completion onTrackResult: TrackResultCompletion?) {
         _onApplyConsent.publish(dispatch)
         onTrackResult?(trackResultBuilder(dispatch: dispatch))
     }

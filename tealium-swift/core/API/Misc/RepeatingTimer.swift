@@ -1,5 +1,5 @@
 //
-//  TealiumRepeatingTimer.swift
+//  RepeatingTimer.swift
 //  tealium-swift
 //
 //  Copyright © 2018 Tealium, Inc. All rights reserved.
@@ -16,7 +16,7 @@ public protocol Repeater {
 }
 
 /// Safe implementation of a repeating timer for scheduling connectivity checks
-public class TealiumRepeatingTimer: Repeater {
+public class RepeatingTimer: Repeater {
 
     let timeInterval: TimeInterval
     let repeating: DispatchTimeInterval

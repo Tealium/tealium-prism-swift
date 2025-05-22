@@ -10,7 +10,7 @@
 import XCTest
 
 final class TransformationSettingsTests: XCTestCase {
-    var testEvent = TealiumDispatch(name: "test_event")
+    var testEvent = Dispatch(name: "test_event")
     var scopes = [TransformationScope.allDispatchers]
     var conditions: Rule<Condition> = .just(Condition.equals(ignoreCase: false, variable: "tealium_event", target: "test_event"))
     lazy var transformation = TransformationSettings(id: "test", transformerId: "test", scopes: scopes, conditions: conditions)
@@ -24,7 +24,7 @@ final class TransformationSettingsTests: XCTestCase {
     }
 
     func test_transformation_does_not_match_non_matching_dispatch() {
-        let nonMatchingDispatch = TealiumDispatch(name: "other_event")
+        let nonMatchingDispatch = Dispatch(name: "other_event")
         XCTAssertFalse(transformation.matchesDispatch(nonMatchingDispatch))
     }
 

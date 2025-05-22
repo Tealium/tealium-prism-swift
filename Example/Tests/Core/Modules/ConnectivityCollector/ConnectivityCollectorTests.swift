@@ -12,7 +12,7 @@ import XCTest
 final class ConnectivityCollectorTests: XCTestCase {
     let monitor = MockConnectivityMonitor()
     lazy var connectivityCollector: ConnectivityCollector! = ConnectivityCollector(monitor: monitor)
-    let dispatchContext = DispatchContext(source: .application, initialData: TealiumDispatch(name: "connectivity").eventData)
+    let dispatchContext = DispatchContext(source: .application, initialData: Dispatch(name: "connectivity").payload)
 
     // MARK: - Initialization Tests
     func test_initialization_is_successful_when_connectivity_collector_is_created() {

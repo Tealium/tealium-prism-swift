@@ -10,17 +10,17 @@ import Foundation
 @testable import TealiumSwift
 
 class MockTracker: Tracker {
-    @ToAnyObservable<BasePublisher<TealiumDispatch>>(BasePublisher<TealiumDispatch>())
-    var onTrack: Observable<TealiumDispatch>
+    @ToAnyObservable<BasePublisher<Dispatch>>(BasePublisher<Dispatch>())
+    var onTrack: Observable<Dispatch>
     var acceptTrack: Bool = true
-    func trackResultBuilder(dispatch: TealiumDispatch) -> TrackResult {
+    func trackResultBuilder(dispatch: Dispatch) -> TrackResult {
         if self.acceptTrack {
             .accepted(dispatch)
         } else {
             .dropped(dispatch)
         }
     }
-    func track(_ trackable: TealiumDispatch, source: DispatchContext.Source, onTrackResult: TrackResultCompletion?) {
+    func track(_ trackable: Dispatch, source: DispatchContext.Source, onTrackResult: TrackResultCompletion?) {
         _onTrack.publish(trackable)
         onTrackResult?(trackResultBuilder(dispatch: trackable))
     }

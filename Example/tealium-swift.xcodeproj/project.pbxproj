@@ -100,6 +100,15 @@
 		87060A982CDD0DCF00F120BA /* TealiumInstanceManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87060A972CDD0DCF00F120BA /* TealiumInstanceManagerTests.swift */; };
 		87060A992CDD0DCF00F120BA /* TealiumInstanceManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87060A972CDD0DCF00F120BA /* TealiumInstanceManagerTests.swift */; };
 		87060A9A2CDD0DCF00F120BA /* TealiumInstanceManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87060A972CDD0DCF00F120BA /* TealiumInstanceManagerTests.swift */; };
+		871237DA2DD60D7B0007C2CD /* DataObject+VariableAccessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871237D92DD60D720007C2CD /* DataObject+VariableAccessorTests.swift */; };
+		871237DB2DD60D7B0007C2CD /* DataObject+VariableAccessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871237D92DD60D720007C2CD /* DataObject+VariableAccessorTests.swift */; };
+		871237DC2DD60D7B0007C2CD /* DataObject+VariableAccessorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871237D92DD60D720007C2CD /* DataObject+VariableAccessorTests.swift */; };
+		871237DE2DD621DF0007C2CD /* MappingsEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871237DD2DD621DF0007C2CD /* MappingsEngineTests.swift */; };
+		871237DF2DD621DF0007C2CD /* MappingsEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871237DD2DD621DF0007C2CD /* MappingsEngineTests.swift */; };
+		871237E02DD621DF0007C2CD /* MappingsEngineTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871237DD2DD621DF0007C2CD /* MappingsEngineTests.swift */; };
+		871237E22DD644160007C2CD /* DispatchManager+MappingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871237E12DD644160007C2CD /* DispatchManager+MappingsTests.swift */; };
+		871237E32DD644160007C2CD /* DispatchManager+MappingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871237E12DD644160007C2CD /* DispatchManager+MappingsTests.swift */; };
+		871237E42DD644160007C2CD /* DispatchManager+MappingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871237E12DD644160007C2CD /* DispatchManager+MappingsTests.swift */; };
 		873B78272DA7D8050026A356 /* ValueContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B78262DA7D8050026A356 /* ValueContainerTests.swift */; };
 		873B78282DA7D8050026A356 /* ValueContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B78262DA7D8050026A356 /* ValueContainerTests.swift */; };
 		873B78292DA7D8050026A356 /* ValueContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B78262DA7D8050026A356 /* ValueContainerTests.swift */; };
@@ -154,9 +163,9 @@
 		879CC0B42CB6835200A51BF2 /* VisitorStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879CC0B32CB6835200A51BF2 /* VisitorStorageTests.swift */; };
 		879CC0B52CB6835200A51BF2 /* VisitorStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879CC0B32CB6835200A51BF2 /* VisitorStorageTests.swift */; };
 		879CC0B62CB6835200A51BF2 /* VisitorStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879CC0B32CB6835200A51BF2 /* VisitorStorageTests.swift */; };
-		87A05CDE2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05CDD2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift */; };
-		87A05CDF2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05CDD2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift */; };
-		87A05CE02DB7F79F00D280F4 /* MappingOperationBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05CDD2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift */; };
+		87A05CDE2DB7F79F00D280F4 /* MappingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05CDD2DB7F79F00D280F4 /* MappingsTests.swift */; };
+		87A05CDF2DB7F79F00D280F4 /* MappingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05CDD2DB7F79F00D280F4 /* MappingsTests.swift */; };
+		87A05CE02DB7F79F00D280F4 /* MappingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05CDD2DB7F79F00D280F4 /* MappingsTests.swift */; };
 		87A05CFC2DBA2F6800D280F4 /* BarrierManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05CFA2DBA2F6800D280F4 /* BarrierManagerTests.swift */; };
 		87A05CFE2DBA2F6800D280F4 /* BarrierManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05CFA2DBA2F6800D280F4 /* BarrierManagerTests.swift */; };
 		87A05D002DBA2F6800D280F4 /* BarrierManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05CFA2DBA2F6800D280F4 /* BarrierManagerTests.swift */; };
@@ -173,9 +182,9 @@
 		87AA174F2CF08ED4003E99A8 /* LifecycleModuleManualTrackingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA174E2CF08ED4003E99A8 /* LifecycleModuleManualTrackingTests.swift */; };
 		87AA17522CF08FC0003E99A8 /* LifecycleModuleSubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA17512CF08FC0003E99A8 /* LifecycleModuleSubscriptionTests.swift */; };
 		87AA17542CF096B9003E99A8 /* LifecycleModuleBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA17532CF096B9003E99A8 /* LifecycleModuleBaseTests.swift */; };
-		87AF546C2C7E389C00F1C114 /* TealiumRepeatingTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54692C7E389C00F1C114 /* TealiumRepeatingTimerTests.swift */; };
-		87AF546D2C7E389C00F1C114 /* TealiumRepeatingTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54692C7E389C00F1C114 /* TealiumRepeatingTimerTests.swift */; };
-		87AF546E2C7E389C00F1C114 /* TealiumRepeatingTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54692C7E389C00F1C114 /* TealiumRepeatingTimerTests.swift */; };
+		87AF546C2C7E389C00F1C114 /* RepeatingTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54692C7E389C00F1C114 /* RepeatingTimerTests.swift */; };
+		87AF546D2C7E389C00F1C114 /* RepeatingTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54692C7E389C00F1C114 /* RepeatingTimerTests.swift */; };
+		87AF546E2C7E389C00F1C114 /* RepeatingTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54692C7E389C00F1C114 /* RepeatingTimerTests.swift */; };
 		87AF546F2C7E389C00F1C114 /* TimeFrameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF546A2C7E389C00F1C114 /* TimeFrameTests.swift */; };
 		87AF54702C7E389C00F1C114 /* TimeFrameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF546A2C7E389C00F1C114 /* TimeFrameTests.swift */; };
 		87AF54712C7E389C00F1C114 /* TimeFrameTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF546A2C7E389C00F1C114 /* TimeFrameTests.swift */; };
@@ -463,9 +472,9 @@
 		87FC08712D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08702D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift */; };
 		87FC08722D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08702D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift */; };
 		87FC08732D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08702D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift */; };
-		87FC08752D944BEA00E1041D /* TealiumTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08742D944BEA00E1041D /* TealiumTrackerTests.swift */; };
-		87FC08762D944BEA00E1041D /* TealiumTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08742D944BEA00E1041D /* TealiumTrackerTests.swift */; };
-		87FC08772D944BEA00E1041D /* TealiumTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08742D944BEA00E1041D /* TealiumTrackerTests.swift */; };
+		87FC08752D944BEA00E1041D /* TrackerImplTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08742D944BEA00E1041D /* TrackerImplTests.swift */; };
+		87FC08762D944BEA00E1041D /* TrackerImplTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08742D944BEA00E1041D /* TrackerImplTests.swift */; };
+		87FC08772D944BEA00E1041D /* TrackerImplTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08742D944BEA00E1041D /* TrackerImplTests.swift */; };
 		87FC08792D9452FD00E1041D /* MockCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08782D9452FD00E1041D /* MockCollector.swift */; };
 		87FC087A2D9452FD00E1041D /* MockCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08782D9452FD00E1041D /* MockCollector.swift */; };
 		87FC087B2D9452FD00E1041D /* MockCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08782D9452FD00E1041D /* MockCollector.swift */; };
@@ -758,6 +767,9 @@
 		870557322C47C9390010BA89 /* SettingsManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsManagerTests.swift; sourceTree = "<group>"; };
 		870557342C47C9A30010BA89 /* localSettings.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = localSettings.json; sourceTree = "<group>"; };
 		87060A972CDD0DCF00F120BA /* TealiumInstanceManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumInstanceManagerTests.swift; sourceTree = "<group>"; };
+		871237D92DD60D720007C2CD /* DataObject+VariableAccessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataObject+VariableAccessorTests.swift"; sourceTree = "<group>"; };
+		871237DD2DD621DF0007C2CD /* MappingsEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MappingsEngineTests.swift; sourceTree = "<group>"; };
+		871237E12DD644160007C2CD /* DispatchManager+MappingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchManager+MappingsTests.swift"; sourceTree = "<group>"; };
 		873B78262DA7D8050026A356 /* ValueContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueContainerTests.swift; sourceTree = "<group>"; };
 		873B782A2DA7D8F50026A356 /* VariableAccessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableAccessorTests.swift; sourceTree = "<group>"; };
 		873B782F2DA7DA890026A356 /* JsonTransformationConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonTransformationConfigurationTests.swift; sourceTree = "<group>"; };
@@ -785,7 +797,7 @@
 		87908E552DA94BF900193F08 /* SingleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SingleTests.swift; sourceTree = "<group>"; };
 		87908E592DA95DD800193F08 /* Operator+AsSingleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Operator+AsSingleTests.swift"; sourceTree = "<group>"; };
 		879CC0B32CB6835200A51BF2 /* VisitorStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitorStorageTests.swift; sourceTree = "<group>"; };
-		87A05CDD2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MappingOperationBuilderTests.swift; sourceTree = "<group>"; };
+		87A05CDD2DB7F79F00D280F4 /* MappingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MappingsTests.swift; sourceTree = "<group>"; };
 		87A05CFA2DBA2F6800D280F4 /* BarrierManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarrierManagerTests.swift; sourceTree = "<group>"; };
 		87A05D012DBA4CC600D280F4 /* BarrierCoordinatorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BarrierCoordinatorTests.swift; sourceTree = "<group>"; };
 		87A1631A2DCA079D00F6EA3F /* MockContext.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockContext.swift; sourceTree = "<group>"; };
@@ -793,7 +805,7 @@
 		87AA174E2CF08ED4003E99A8 /* LifecycleModuleManualTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleModuleManualTrackingTests.swift; sourceTree = "<group>"; };
 		87AA17512CF08FC0003E99A8 /* LifecycleModuleSubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleModuleSubscriptionTests.swift; sourceTree = "<group>"; };
 		87AA17532CF096B9003E99A8 /* LifecycleModuleBaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleModuleBaseTests.swift; sourceTree = "<group>"; };
-		87AF54692C7E389C00F1C114 /* TealiumRepeatingTimerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TealiumRepeatingTimerTests.swift; sourceTree = "<group>"; };
+		87AF54692C7E389C00F1C114 /* RepeatingTimerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = RepeatingTimerTests.swift; sourceTree = "<group>"; };
 		87AF546A2C7E389C00F1C114 /* TimeFrameTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeFrameTests.swift; sourceTree = "<group>"; };
 		87AF546B2C7E389C00F1C114 /* TealiumDispatchGroupTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TealiumDispatchGroupTests.swift; sourceTree = "<group>"; };
 		87AF54752C7F4CCA00F1C114 /* DataObjectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataObjectTests.swift; sourceTree = "<group>"; };
@@ -850,7 +862,7 @@
 		87FC08682D931B9500E1041D /* LoadRule+ConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "LoadRule+ConverterTests.swift"; sourceTree = "<group>"; };
 		87FC086C2D94133500E1041D /* SDKSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SDKSettingsTests.swift; sourceTree = "<group>"; };
 		87FC08702D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchManager+TransformAndDispatchTests.swift"; sourceTree = "<group>"; };
-		87FC08742D944BEA00E1041D /* TealiumTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumTrackerTests.swift; sourceTree = "<group>"; };
+		87FC08742D944BEA00E1041D /* TrackerImplTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TrackerImplTests.swift; sourceTree = "<group>"; };
 		87FC08782D9452FD00E1041D /* MockCollector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCollector.swift; sourceTree = "<group>"; };
 		87FC087D2D94532000E1041D /* MockDispatchManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockDispatchManager.swift; sourceTree = "<group>"; };
 		87FC089A2D95B04400E1041D /* SettingsManager+TransformationsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "SettingsManager+TransformationsTests.swift"; sourceTree = "<group>"; };
@@ -1114,7 +1126,7 @@
 				87FC086C2D94133500E1041D /* SDKSettingsTests.swift */,
 				873B78262DA7D8050026A356 /* ValueContainerTests.swift */,
 				873B782A2DA7D8F50026A356 /* VariableAccessorTests.swift */,
-				87A05CDD2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift */,
+				87A05CDD2DB7F79F00D280F4 /* MappingsTests.swift */,
 			);
 			path = Settings;
 			sourceTree = "<group>";
@@ -1125,7 +1137,7 @@
 				877B4F742DAE6FFD00AB8A43 /* Delegate Proxy */,
 				D58EE2DC2C74CDDE00FBDF94 /* ApplicationStatusListenerTests.swift */,
 				87AF546B2C7E389C00F1C114 /* TealiumDispatchGroupTests.swift */,
-				87AF54692C7E389C00F1C114 /* TealiumRepeatingTimerTests.swift */,
+				87AF54692C7E389C00F1C114 /* RepeatingTimerTests.swift */,
 				87AF546A2C7E389C00F1C114 /* TimeFrameTests.swift */,
 			);
 			path = Misc;
@@ -1446,13 +1458,15 @@
 				D54BBF932C78C018003687C7 /* DispatchManager+ConsentTests.swift */,
 				D54BBF942C78C018003687C7 /* DispatchManager+DeinitTests.swift */,
 				D54BBF952C78C018003687C7 /* DispatchManager+DispatchersListTests.swift */,
+				871237E12DD644160007C2CD /* DispatchManager+MappingsTests.swift */,
 				D54BBF962C78C018003687C7 /* DispatchManager+MaximumInflightTests.swift */,
 				D54BBF972C78C018003687C7 /* DispatchManager+QueueTests.swift */,
 				D54BBF982C78C018003687C7 /* DispatchManager+TrackTests.swift */,
 				87FC08702D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift */,
 				D54BBF992C78C018003687C7 /* DispatchManagerTestCase.swift */,
 				D54BBF9A2C78C018003687C7 /* QueueManagerTests.swift */,
-				87FC08742D944BEA00E1041D /* TealiumTrackerTests.swift */,
+				87FC08742D944BEA00E1041D /* TrackerImplTests.swift */,
+				871237DD2DD621DF0007C2CD /* MappingsEngineTests.swift */,
 			);
 			path = Dispatch;
 			sourceTree = "<group>";
@@ -1487,6 +1501,7 @@
 				87AF54812C8211B100F1C114 /* DataItem+SerializingTests.swift */,
 				87AF54752C7F4CCA00F1C114 /* DataObjectTests.swift */,
 				EC0E52D52D887F77002B0FD8 /* DataObject+DeepMergeTests.swift */,
+				871237D92DD60D720007C2CD /* DataObject+VariableAccessorTests.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -2268,7 +2283,7 @@
 				87A05D032DBA4CC600D280F4 /* BarrierCoordinatorTests.swift in Sources */,
 				486956A32A448E7C0014AC58 /* XCTAssert+BoolOptional.swift in Sources */,
 				87060A982CDD0DCF00F120BA /* TealiumInstanceManagerTests.swift in Sources */,
-				87FC08772D944BEA00E1041D /* TealiumTrackerTests.swift in Sources */,
+				87FC08772D944BEA00E1041D /* TrackerImplTests.swift in Sources */,
 				87ED26EA2CE504C80086FFA4 /* DataLayerWrapperTests.swift in Sources */,
 				877C5F6E2CBD6C99008D4B78 /* Sha256Tests.swift in Sources */,
 				D54BBFC32C78C01A003687C7 /* ErrorCooldownTests.swift in Sources */,
@@ -2292,6 +2307,7 @@
 				08A7773D2D2FF0A8005F7229 /* TimeCollectorTests.swift in Sources */,
 				87FC08712D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift in Sources */,
 				158A82372A39F5750028FD7C /* MockConnectivity.swift in Sources */,
+				871237DF2DD621DF0007C2CD /* MappingsEngineTests.swift in Sources */,
 				D54BBFDB2C78C01A003687C7 /* ResourceRefresherTests+RequestRefresh.swift in Sources */,
 				87EE775B2D81D9B800BB1D77 /* XCTestCase+JSONFromBundle.swift in Sources */,
 				1523CE802ABAFC400001D6D3 /* MockDatabaseProvider.swift in Sources */,
@@ -2305,6 +2321,7 @@
 				87C6C24C2D528189008B91D8 /* DisposableItemListTests.swift in Sources */,
 				87AF54762C7F4CCA00F1C114 /* DataObjectTests.swift in Sources */,
 				873B783A2DA7DDDD0026A356 /* TransformationOperationTests.swift in Sources */,
+				871237DB2DD60D7B0007C2CD /* DataObject+VariableAccessorTests.swift in Sources */,
 				87AF54862C8217EE00F1C114 /* XCTAssert+NSNull.swift in Sources */,
 				87EE77042D78799C00BB1D77 /* Condition+EndsWithTests.swift in Sources */,
 				876F79822C53A4AD008BC13B /* ModuleSettingsBuilderTests.swift in Sources */,
@@ -2364,7 +2381,7 @@
 				87ED26EF2CE509EE0086FFA4 /* DataLayerWrapper+TransactionallyTests.swift in Sources */,
 				D54BBFB42C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */,
 				153781292A617FC5007BCA70 /* DisposableTests.swift in Sources */,
-				87A05CDE2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift in Sources */,
+				87A05CDE2DB7F79F00D280F4 /* MappingsTests.swift in Sources */,
 				87FC08552D91ADF300E1041D /* Rule+DataInputConvertibleTests.swift in Sources */,
 				15AE2B842A127D280093D154 /* MockUrlSession.swift in Sources */,
 				15C0DCCA2B0CF6730007F6BE /* Operators+IgnoreTests.swift in Sources */,
@@ -2380,6 +2397,7 @@
 				155F91542A791E2F007A3548 /* XCTAssert+Errors.swift in Sources */,
 				158C1AFB2B04F80200FF02E6 /* MockNetworkHelper.swift in Sources */,
 				87FC08812D94532000E1041D /* MockDispatchManager.swift in Sources */,
+				871237E42DD644160007C2CD /* DispatchManager+MappingsTests.swift in Sources */,
 				150F31EC2B221CED0067CC56 /* MockQueueManager.swift in Sources */,
 				D54BBFEA2C78C01A003687C7 /* DispatchManager+BarrierTests.swift in Sources */,
 				87EE770C2D787A6900BB1D77 /* Condition+RegexTests.swift in Sources */,
@@ -2413,7 +2431,7 @@
 				87FC086D2D94133500E1041D /* SDKSettingsTests.swift in Sources */,
 				87FC08A52D95B16B00E1041D /* SettingsManagerTestCase.swift in Sources */,
 				155396E32B0B793000ED973A /* StateSubjectTests.swift in Sources */,
-				87AF546C2C7E389C00F1C114 /* TealiumRepeatingTimerTests.swift in Sources */,
+				87AF546C2C7E389C00F1C114 /* RepeatingTimerTests.swift in Sources */,
 				87EE76F42D78751E00BB1D77 /* Condition+ContainsTests.swift in Sources */,
 				87FC089B2D95B04400E1041D /* SettingsManager+TransformationsTests.swift in Sources */,
 				155D36342A66AE1300788363 /* MockNetworkClient.swift in Sources */,
@@ -2471,7 +2489,7 @@
 				87EE77102D78856100BB1D77 /* AndTests.swift in Sources */,
 				87C6C2442D528070008B91D8 /* ConsentModuleTests.swift in Sources */,
 				87EE771B2D789EE200BB1D77 /* OrTests.swift in Sources */,
-				87FC08752D944BEA00E1041D /* TealiumTrackerTests.swift in Sources */,
+				87FC08752D944BEA00E1041D /* TrackerImplTests.swift in Sources */,
 				87BA6D3D2C6A470C00784784 /* SQLModulesRepositoryTests.swift in Sources */,
 				87908E562DA94BF900193F08 /* SingleTests.swift in Sources */,
 				87FC08A42D95B16B00E1041D /* SettingsManagerTestCase.swift in Sources */,
@@ -2486,9 +2504,10 @@
 				87908E5A2DA95DD800193F08 /* Operator+AsSingleTests.swift in Sources */,
 				D54BC0012C78C01A003687C7 /* DispatchManagerTestCase.swift in Sources */,
 				87BA6D452C6A470C00784784 /* MockConnectivity.swift in Sources */,
-				87AF546E2C7E389C00F1C114 /* TealiumRepeatingTimerTests.swift in Sources */,
+				87AF546E2C7E389C00F1C114 /* RepeatingTimerTests.swift in Sources */,
 				87BA6D462C6A470C00784784 /* MockDatabaseProvider.swift in Sources */,
 				87BA6D472C6A470C00784784 /* MockDispatcher.swift in Sources */,
+				871237DC2DD60D7B0007C2CD /* DataObject+VariableAccessorTests.swift in Sources */,
 				87EE77162D7887CA00BB1D77 /* MockMatchable.swift in Sources */,
 				87EE76DE2D7867F500BB1D77 /* Condition+IsPopulatedTests.swift in Sources */,
 				87BA6D482C6A470C00784784 /* ModuleSettingsBuilderTests.swift in Sources */,
@@ -2543,7 +2562,7 @@
 				87BA6D6F2C6A470C00784784 /* XCTAssert+Result.swift in Sources */,
 				D54BBFF82C78C01A003687C7 /* DispatchManager+MaximumInflightTests.swift in Sources */,
 				87BA6D732C6A470C00784784 /* DisposableTests.swift in Sources */,
-				87A05CDF2DB7F79F00D280F4 /* MappingOperationBuilderTests.swift in Sources */,
+				87A05CDF2DB7F79F00D280F4 /* MappingsTests.swift in Sources */,
 				877C5F742CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift in Sources */,
 				87AF54782C7F4CCA00F1C114 /* DataObjectTests.swift in Sources */,
 				87EE76CF2D77443C00BB1D77 /* Condition+EqualsTests.swift in Sources */,
@@ -2602,6 +2621,7 @@
 				87BA6D8F2C6A470C00784784 /* MockNetworkClient.swift in Sources */,
 				87FC08572D91ADF300E1041D /* Rule+DataInputConvertibleTests.swift in Sources */,
 				87EE774F2D81B16A00BB1D77 /* Condition+ConverterTests.swift in Sources */,
+				871237E02DD621DF0007C2CD /* MappingsEngineTests.swift in Sources */,
 				87BA6D922C6A470C00784784 /* Operators+MergeTests.swift in Sources */,
 				D54BBFF52C78C01A003687C7 /* DispatchManager+DispatchersListTests.swift in Sources */,
 				D54BBFDA2C78C01A003687C7 /* ResourceRefresherTests.swift in Sources */,
@@ -2624,6 +2644,7 @@
 				08BD03302D356BBC00FA2E2E /* TealiumCollectFactoryTests.swift in Sources */,
 				EC9C455E2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift in Sources */,
 				08BD03312D356BBC00FA2E2E /* CollectSettingsBuilderTests.swift in Sources */,
+				871237E22DD644160007C2CD /* DispatchManager+MappingsTests.swift in Sources */,
 				87BA6D972C6A470C00784784 /* MockInterceptorManager.swift in Sources */,
 				D54BBFE32C78C01A003687C7 /* URLConvertibleTests.swift in Sources */,
 				87ED26EB2CE504C80086FFA4 /* DataLayerWrapperTests.swift in Sources */,
@@ -2665,7 +2686,7 @@
 				87EE76ED2D786FFD00BB1D77 /* Condition+LessThanOrEqualTests.swift in Sources */,
 				87EE77532D81CE6E00BB1D77 /* Rule+ConverterTests.swift in Sources */,
 				87EF5ACD2CE3A4BD00DB753C /* ModuleProxyTests.swift in Sources */,
-				87FC08762D944BEA00E1041D /* TealiumTrackerTests.swift in Sources */,
+				87FC08762D944BEA00E1041D /* TrackerImplTests.swift in Sources */,
 				87BA6DBB2C6A47AF00784784 /* SQLModulesRepositoryTests.swift in Sources */,
 				87908E572DA94BF900193F08 /* SingleTests.swift in Sources */,
 				87FC08A32D95B16B00E1041D /* SettingsManagerTestCase.swift in Sources */,
@@ -2678,11 +2699,12 @@
 				D54BC0002C78C01A003687C7 /* DispatchManagerTestCase.swift in Sources */,
 				87BA6DC32C6A47AF00784784 /* MockConnectivity.swift in Sources */,
 				87908E5B2DA95DD800193F08 /* Operator+AsSingleTests.swift in Sources */,
-				87AF546D2C7E389C00F1C114 /* TealiumRepeatingTimerTests.swift in Sources */,
+				87AF546D2C7E389C00F1C114 /* RepeatingTimerTests.swift in Sources */,
 				87BA6DC42C6A47AF00784784 /* MockDatabaseProvider.swift in Sources */,
 				87BA6DC52C6A47AF00784784 /* MockDispatcher.swift in Sources */,
 				87BA6DC62C6A47AF00784784 /* ModuleSettingsBuilderTests.swift in Sources */,
 				87EE76F52D78751E00BB1D77 /* Condition+ContainsTests.swift in Sources */,
+				871237DA2DD60D7B0007C2CD /* DataObject+VariableAccessorTests.swift in Sources */,
 				87BA6DC82C6A47AF00784784 /* TealiumConfigTests.swift in Sources */,
 				87BA6DCB2C6A47AF00784784 /* MockLogHandler.swift in Sources */,
 				D54BBFEB2C78C01A003687C7 /* DispatchManager+BarrierTests.swift in Sources */,
@@ -2737,7 +2759,7 @@
 				87BA6DE82C6A47AF00784784 /* XCTestCase+WaitForDefaultTimeout.swift in Sources */,
 				D54BBFF12C78C01A003687C7 /* DispatchManager+DeinitTests.swift in Sources */,
 				87BA6DEA2C6A47AF00784784 /* ReplaySubjectTests.swift in Sources */,
-				87A05CE02DB7F79F00D280F4 /* MappingOperationBuilderTests.swift in Sources */,
+				87A05CE02DB7F79F00D280F4 /* MappingsTests.swift in Sources */,
 				87FC085D2D92F79200E1041D /* DataObject+DeepMergeTests.swift in Sources */,
 				87BA6DEB2C6A47AF00784784 /* MockModulesRepository.swift in Sources */,
 				87AF54832C8211B100F1C114 /* DataItem+SerializingTests.swift in Sources */,
@@ -2796,6 +2818,7 @@
 				87AF54872C8217EE00F1C114 /* XCTAssert+NSNull.swift in Sources */,
 				87EE76DD2D7867F500BB1D77 /* Condition+IsPopulatedTests.swift in Sources */,
 				D54BBFC72C78C01A003687C7 /* HTTPClientTests.swift in Sources */,
+				871237DE2DD621DF0007C2CD /* MappingsEngineTests.swift in Sources */,
 				87BA6E0B2C6A47AF00784784 /* MockBackoff.swift in Sources */,
 				87BA6E0C2C6A47AF00784784 /* StateSubjectTests.swift in Sources */,
 				87EE76D92D78670400BB1D77 /* Condition+IsDefinedTests.swift in Sources */,
@@ -2818,6 +2841,7 @@
 				877C5F822CBFADC4008D4B78 /* VisitorSwitcherTests.swift in Sources */,
 				EC9C455F2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift in Sources */,
 				D54BC0032C78C01A003687C7 /* QueueManagerTests.swift in Sources */,
+				871237E32DD644160007C2CD /* DispatchManager+MappingsTests.swift in Sources */,
 				87BA6E152C6A47AF00784784 /* MockInterceptorManager.swift in Sources */,
 				D54BBFE22C78C01A003687C7 /* URLConvertibleTests.swift in Sources */,
 				87ED26EC2CE504C80086FFA4 /* DataLayerWrapperTests.swift in Sources */,

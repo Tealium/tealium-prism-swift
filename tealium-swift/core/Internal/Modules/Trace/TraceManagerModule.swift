@@ -28,11 +28,11 @@ class TraceManagerModule: Collector, TealiumBasicModule {
         guard let traceId = dataStore.get(key: TealiumDataKey.traceId, as: String.self) else {
             throw TealiumError.genericError("Not in an active Trace")
         }
-        let dispatch = TealiumDispatch(name: TealiumKey.killVisitorSession,
-                                       data: [
-                                        TealiumDataKey.killVisitorSessionEvent: TealiumKey.killVisitorSession,
-                                        TealiumDataKey.traceId: traceId
-                                       ])
+        let dispatch = Dispatch(name: TealiumKey.killVisitorSession,
+                                data: [
+                                    TealiumDataKey.killVisitorSessionEvent: TealiumKey.killVisitorSession,
+                                    TealiumDataKey.traceId: traceId
+                                ])
         tracker.track(dispatch, source: .module(TraceManagerModule.self), onTrackResult: onTrackResult)
     }
 

@@ -4,7 +4,7 @@ import XCTest
 final class TimeCollectorTests: XCTestCase {
 
     let timeCollector: TimeCollector! = TimeCollector(context: mockContext, moduleConfiguration: [:])
-    let dispatchContext = DispatchContext(source: .application, initialData: TealiumDispatch(name: "time").eventData)
+    let dispatchContext = DispatchContext(source: .application, initialData: Dispatch(name: "time").payload)
 
     // MARK: - Initialization Tests
     func test_initialization_is_successful_when_time_collector_is_created() {
@@ -74,8 +74,8 @@ final class TimeCollectorTests: XCTestCase {
     }
 
     func test_iso8601_string_is_valid_when_event_is_dispatched() {
-        let eventData = TealiumDispatch(name: "test_event", type: .event).eventData
-        let dispatchContext = DispatchContext(source: .application, initialData: eventData)
+        let payload = Dispatch(name: "test_event", type: .event).payload
+        let dispatchContext = DispatchContext(source: .application, initialData: payload)
         let data = timeCollector.collect(dispatchContext).asDictionary()
 
         XCTAssertNotNil(data["timestamp"], "Timestamp should not be nil.")

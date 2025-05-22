@@ -21,16 +21,16 @@ class LoadRuleEngine {
         }.addTo(disposer)
     }
 
-    func rulesAllow(dispatch: TealiumDispatch, forModule module: TealiumModule) -> Bool {
+    func rulesAllow(dispatch: Dispatch, forModule module: TealiumModule) -> Bool {
         !filterDispatches([dispatch], forModule: module).isEmpty
     }
 
-    func filterDispatches(_ dispatches: [TealiumDispatch], forModule module: TealiumModule) -> [TealiumDispatch] {
+    func filterDispatches(_ dispatches: [Dispatch], forModule module: TealiumModule) -> [Dispatch] {
         guard let dispatcherRule = ruleMap[module.id] else {
             return dispatches
         }
         return dispatches.filter { dispatch in
-            dispatcherRule.matches(payload: dispatch.eventData)
+            dispatcherRule.matches(payload: dispatch.payload)
         }
     }
 

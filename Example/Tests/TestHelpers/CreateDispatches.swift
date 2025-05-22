@@ -9,8 +9,8 @@
 import Foundation
 import TealiumSwift
 
-public func createDispatches(amount: Int) -> [TealiumDispatch] {
+public func createDispatches(amount: Int) -> [Dispatch] {
     (1...amount).map { count in
-        TealiumDispatch(name: "event\(count)")
+        Dispatch(name: "event\(count)")
     }
 }

@@ -42,8 +42,8 @@ final class TraceManagerModuleTests: XCTestCase {
         try traceManager.join(id: "12345")
         _ = tracker.onTrack.subscribeOnce { event in
             XCTAssertEqual(event.name, TealiumKey.killVisitorSession)
-            XCTAssertEqual(event.eventData.get(key: TealiumDataKey.traceId), "12345")
-            XCTAssertEqual(event.eventData.get(key: TealiumDataKey.killVisitorSessionEvent), TealiumKey.killVisitorSession)
+            XCTAssertEqual(event.payload.get(key: TealiumDataKey.traceId), "12345")
+            XCTAssertEqual(event.payload.get(key: TealiumDataKey.killVisitorSessionEvent), TealiumKey.killVisitorSession)
             dispatchTracked.fulfill()
         }
         try traceManager.killVisitorSession()

@@ -22,6 +22,6 @@ public extension DataInputConvertible where Self: DataObjectConvertible {
 
 extension [String: DataItem]: DataObjectConvertible {
     public func toDataObject() -> DataObject {
-        DataObject(compacting: self)
+        DataObject(dictionary: self)
     }
 }

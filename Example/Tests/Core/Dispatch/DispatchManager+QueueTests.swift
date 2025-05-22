@@ -13,7 +13,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
 
     func test_event_is_dispatched_when_already_present_in_the_queue() {
         let eventIsDispatched = expectation(description: "Event is dispatched")
-        queueManager.storeDispatches([TealiumDispatch(name: "someEvent")], enqueueingFor: allDispatchers)
+        queueManager.storeDispatches([Dispatch(name: "someEvent")], enqueueingFor: allDispatchers)
         module1?.onDispatch.subscribeOnce { dispatches in
             XCTAssertEqual(dispatches.count, 1)
             XCTAssertEqual(dispatches.first?.name, "someEvent")

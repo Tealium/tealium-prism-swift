@@ -13,7 +13,7 @@ class TealiumImpl {
     let automaticDisposer = AutomaticDisposer()
     let context: TealiumContext
     let modulesManager = ModulesManager(queue: .worker)
-    let tracker: TealiumTracker
+    let tracker: TrackerImpl
     let visitorIdProvider: VisitorIdProvider
     let instanceName: String
     let loadRuleEngine: LoadRuleEngine
@@ -61,16 +61,18 @@ class TealiumImpl {
                                                                  queue: modulesManager.queue)
         let barrierManager = BarrierManager(sdkBarrierSettings: settingsManager.settings.mapState { $0.barriers })
         let barrierCoordinator = BarrierCoordinator(onScopedBarriers: barrierManager.onScopedBarriers)
+        let mappingsEngine = MappingsEngine(mappings: settingsManager.settings.mapState { $0.modules.compactMapValues { $0.mappings } })
         let dispatchManager = DispatchManager(loadRuleEngine: loadRuleEngine,
                                               modulesManager: modulesManager,
                                               queueManager: queueManager,
                                               barrierCoordinator: barrierCoordinator,
                                               transformerCoordinator: transformerCoordinator,
+                                              mappingsEngine: mappingsEngine,
                                               logger: logger)
-        let tracker = TealiumTracker(modules: modulesManager.modules,
-                                     loadRuleEngine: loadRuleEngine,
-                                     dispatchManager: dispatchManager,
-                                     logger: logger)
+        let tracker = TrackerImpl(modules: modulesManager.modules,
+                                  loadRuleEngine: loadRuleEngine,
+                                  dispatchManager: dispatchManager,
+                                  logger: logger)
         self.tracker = tracker
 
         visitorIdProvider = VisitorIdProvider(config: config,
@@ -101,7 +103,7 @@ class TealiumImpl {
     }
     // swiftlint:enable function_body_length
 
-    func track(_ trackable: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
+    func track(_ trackable: Dispatch, onTrackResult: TrackResultCompletion?) {
         tracker.track(trackable, source: .application, onTrackResult: onTrackResult)
     }
 

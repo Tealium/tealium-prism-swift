@@ -26,9 +26,9 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         ]
         disableModule(module: module2)
         let dispatches = [
-            TealiumDispatch(name: "event_to_be_dropped"),
-            TealiumDispatch(name: "event_to_keep"),
-            TealiumDispatch(name: "event_to_keep")
+            Dispatch(name: "event_to_be_dropped"),
+            Dispatch(name: "event_to_keep"),
+            Dispatch(name: "event_to_keep")
         ]
         queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
         _ = queueManager.onDeleteRequest.subscribe { deletedUUIDs, _ in
@@ -51,9 +51,9 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
                                             "ruleId": LoadRule(id: "ruleId", conditions: .just(condition))
                                         ])
         let dispatches = [
-            TealiumDispatch(name: "event_to_be_dropped"),
-            TealiumDispatch(name: "event_to_keep"),
-            TealiumDispatch(name: "event_to_keep")
+            Dispatch(name: "event_to_be_dropped"),
+            Dispatch(name: "event_to_keep"),
+            Dispatch(name: "event_to_keep")
         ]
         queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
         _ = queueManager.onDeleteRequest.subscribe { deletedUUIDs, _ in
@@ -89,7 +89,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
                                             "ruleId": LoadRule(id: "ruleId", conditions: .just(condition))
                                         ])
         let dispatches = [
-            TealiumDispatch(name: "Event")
+            Dispatch(name: "Event")
         ]
         queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
         _ = dispatchManager

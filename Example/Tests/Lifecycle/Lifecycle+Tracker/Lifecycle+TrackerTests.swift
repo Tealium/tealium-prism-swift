@@ -48,10 +48,10 @@ final class LifecycleTrackerTests: XCTestCase {
                                                              transformations: transformations,
                                                              moduleMappings: StateSubject([:]).toStatefulObservable(),
                                                              queue: queue)
-    lazy var tracker = TealiumTracker(modules: modulesManager.modules,
-                                      loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings.toStatefulObservable()),
-                                      dispatchManager: dispatchManager,
-                                      logger: nil)
+    lazy var tracker = TrackerImpl(modules: modulesManager.modules,
+                                   loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings.toStatefulObservable()),
+                                   dispatchManager: dispatchManager,
+                                   logger: nil)
     lazy var context = MockContext(modulesManager: modulesManager,
                                    config: config,
                                    coreSettings: coreSettings,
@@ -69,6 +69,7 @@ final class LifecycleTrackerTests: XCTestCase {
                         queueManager: queueManager,
                         barrierCoordinator: barrierCoordinator,
                         transformerCoordinator: transformerCoordinator,
+                        mappingsEngine: MappingsEngine(mappings: StateSubject([:]).toStatefulObservable()),
                         logger: nil)
     }
 
@@ -88,7 +89,7 @@ final class LifecycleTrackerTests: XCTestCase {
             let dispatch = dispatches[0]
             XCTAssertEqual(dispatch.name, "launch")
             gotDispatched.fulfill()
-            XCTAssertNotNil(dispatch.eventData.getDataItem(key: TealiumDataKey.appVersion))
+            XCTAssertNotNil(dispatch.payload.getDataItem(key: TealiumDataKey.appVersion))
             eventContainsAppData.fulfill()
         }
         waitForLongTimeout()

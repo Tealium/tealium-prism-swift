@@ -41,12 +41,12 @@ class MockDispatcher: MockModule, Dispatcher {
     var delay: Int?
     var queue = DispatchQueue.main
 
-    @ToAnyObservable<BasePublisher<[TealiumDispatch]>>(BasePublisher())
-    var onDispatch: Observable<[TealiumDispatch]>
+    @ToAnyObservable<BasePublisher<[Dispatch]>>(BasePublisher())
+    var onDispatch: Observable<[Dispatch]>
 
-    func dispatch(_ data: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
+    func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> Disposable {
         let subscription = Subscription { }
-        let completion: ([TealiumDispatch]) -> Void = { data in
+        let completion: ([Dispatch]) -> Void = { data in
             guard !subscription.isDisposed else { return }
             self._onDispatch.publish(data)
             completion(data)

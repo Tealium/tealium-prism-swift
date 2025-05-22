@@ -106,6 +106,52 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
     func getConvertible<T>(converter: any DataItemConverter<T>) -> T? {
         toDataItem().getConvertible(converter: converter)
     }
+
+    /**
+     * Extracts a nested `DataItem` according to the given `accessor`.
+     *
+     * If the `VariableAccessor.variable` is not found at the `VariableAccessor.path`, or any path
+     * component is not also a `DataObject`, `nil` will be returned.
+     *
+     * - Parameters:
+     *      - accessor: The `VariableAccessor` describing how to access the variable.
+     * - Returns: The required `DataItem` if available; else `nil`.
+     */
+    public func extract(_ accessor: VariableAccessor) -> DataItem? {
+        var extractor: DataItemExtractor? = self
+        if let path = accessor.path {
+            for component in path where extractor != nil {
+                extractor = extractor?.getDataDictionary(key: component)
+            }
+        }
+        return extractor?.getDataItem(key: accessor.variable)
+    }
+
+    /**
+     * Sets the item in the `DataObject` by following the `VariableAccessor` key and path and recursively creating the required containers.
+     *
+     * In case the `DataObject` contains already the nested object as expressed in the `VariableAccessor.path`
+     * it will insert the new item in those object.
+     * The missing containers will, instead, be automatically be created by this method.
+     *
+     * - Parameters:
+     *      - accessor: The accessor that expresses the (eventually nested) location in which to put the item
+     *      - item: The item to insert at the provided location
+     */
+    mutating public func buildPathAndSet(accessor: VariableAccessor, item: DataItem) {
+        buildPathAndSet(key: accessor.variable, path: accessor.path, item: item)
+    }
+
+    private mutating func buildPathAndSet(key: String, path: [String]?, item: DataItem) {
+        guard var path, !path.isEmpty else {
+            self.set(converting: item, key: key)
+            return
+        }
+        let firstComponent = path.removeFirst()
+        var subObject = self.getDataDictionary(key: firstComponent)?.toDataObject() ?? DataObject()
+        subObject.buildPathAndSet(key: key, path: path, item: item)
+        self.set(converting: subObject, key: firstComponent)
+    }
 }
 
 /// Allows use of plus operator for DataObject.

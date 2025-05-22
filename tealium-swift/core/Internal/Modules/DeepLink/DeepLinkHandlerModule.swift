@@ -83,7 +83,7 @@ class DeepLinkHandlerModule: TealiumBasicModule, Collector {
             .putAll(dataObject: dataToAdd, expiry: .session)
             .commit()
         if configuration.sendDeepLinkEvent {
-            tracker.track(TealiumDispatch(name: TealiumKey.deepLink, data: dataStore.getAll()),
+            tracker.track(Dispatch(name: TealiumKey.deepLink, data: dataStore.getAll()),
                           source: .module(DeepLinkHandlerModule.self)) { [weak self] result in
                 switch result {
                 case .accepted:

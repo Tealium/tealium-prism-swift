@@ -14,7 +14,7 @@ public protocol CMPIntegration {
 }
 
 protocol ConsentManager: TealiumModule {
-    func applyConsent(to dispatch: TealiumDispatch, completion onTrackResult: TrackResultCompletion?)
+    func applyConsent(to dispatch: Dispatch, completion onTrackResult: TrackResultCompletion?)
     func tealiumConsented(forPurposes purposes: [String]) -> Bool
     func getConsentDecision() -> ConsentDecision?
 }
@@ -87,11 +87,11 @@ class ConsentModule: ConsentManager {
         return self
     }
 
-    func enqueueDispatches(_ dispatches: [TealiumDispatch]) {
+    func enqueueDispatches(_ dispatches: [Dispatch]) {
         let refireKey = "refire"
         let normalDispatchKey = "normal"
         let dispatchesGroups = Dictionary(grouping: dispatches) { dispatch in
-            if let processedPurposes = dispatch.eventData.getArray(key: processedPurposesKey, of: String.self)?.compactMap({ $0 }),
+            if let processedPurposes = dispatch.payload.getArray(key: processedPurposesKey, of: String.self)?.compactMap({ $0 }),
                !processedPurposes.isEmpty {
                 return refireKey
             } else {
@@ -99,9 +99,9 @@ class ConsentModule: ConsentManager {
             }
         }
         if !refireDispatchers.isEmpty,
-           let refireDispatches = dispatchesGroups[refireKey]?.map({ TealiumDispatch(eventData: $0.eventData,
-                                                                                     id: $0.id + "-refire",
-                                                                                     timestamp: Date().unixTimeMillisecondsInt) }),
+           let refireDispatches = dispatchesGroups[refireKey]?.map({ Dispatch(payload: $0.payload,
+                                                                              id: $0.id + "-refire",
+                                                                              timestamp: Date().unixTimeMillisecondsInt) }),
            !refireDispatches.isEmpty {
                 queueManager.storeDispatches(refireDispatches, enqueueingFor: refireDispatchers)
         }
@@ -122,7 +122,7 @@ class ConsentModule: ConsentManager {
         cmpIntegration.consentDecision.value
     }
 
-    func applyConsent(to dispatch: TealiumDispatch, completion onTrackResult: TrackResultCompletion?) {
+    func applyConsent(to dispatch: Dispatch, completion onTrackResult: TrackResultCompletion?) {
         guard let decision = cmpIntegration.consentDecision.value,
               tealiumConsented(forPurposes: decision.purposes) else {
             if cmpIntegration.consentDecision.value?.decisionType != .explicit {
@@ -146,8 +146,8 @@ class ConsentModule: ConsentManager {
         onTrackResult?(.accepted(consentedDispatch))
     }
 
-    func applyDecision(_ decision: ConsentDecision, toDispatch dispatch: TealiumDispatch) -> TealiumDispatch? {
-        let preProcessedPurposes = dispatch.eventData.getArray(key: allPurposesKey, of: String.self)?.compactMap { $0 } ?? []
+    func applyDecision(_ decision: ConsentDecision, toDispatch dispatch: Dispatch) -> Dispatch? {
+        let preProcessedPurposes = dispatch.payload.getArray(key: allPurposesKey, of: String.self)?.compactMap { $0 } ?? []
 
         var dispatch = dispatch
         let purposes = decision.purposes

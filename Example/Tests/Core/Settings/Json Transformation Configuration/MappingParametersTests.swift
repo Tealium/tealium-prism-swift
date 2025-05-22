@@ -14,7 +14,7 @@ final class MappingParametersTests: XCTestCase {
     let basicParameters = MappingParameters(key: "key",
                                             filter: nil,
                                             mapTo: nil)
-    let detailedParameters = MappingParameters(key: VariableAccessor(variable: "key", path: ["somePath"]),
+    let detailedParameters = MappingParameters(key: VariableAccessor(path: ["somePath"], variable: "key"),
                                                filter: ValueContainer("someFilter"),
                                                mapTo: ValueContainer("someMapValue"))
 
@@ -51,8 +51,8 @@ final class MappingParametersTests: XCTestCase {
                                     "filter": ["value": "someFilter"],
                                     "map_to": ["value": "someMapValue"]])
         let result = MappingParameters.converter.convert(dataItem: item)
-        XCTAssertEqual(result?.key.variable, "key")
-        XCTAssertEqual(result?.key.path, ["somePath"])
+        XCTAssertEqual(result?.key?.variable, "key")
+        XCTAssertEqual(result?.key?.path, ["somePath"])
         XCTAssertEqual(result?.filter?.value, "someFilter")
         XCTAssertEqual(result?.mapTo?.value, "someMapValue")
     }

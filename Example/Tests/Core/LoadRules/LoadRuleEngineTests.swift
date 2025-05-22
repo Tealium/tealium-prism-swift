@@ -43,43 +43,43 @@ final class LoadRuleEngineTests: XCTestCase {
     func test_rulesAllow_allows_to_dispatch_for_module_when_loadRule_is_found_and_applies() {
         _sdkSettings.value = Self.settingsForRule(.just("true"))
 
-        XCTAssertTrue(engine.rulesAllow(dispatch: TealiumDispatch(name: "event"),
+        XCTAssertTrue(engine.rulesAllow(dispatch: Dispatch(name: "event"),
                                         forModule: moduleWithRules))
     }
 
     func test_rulesAllow_doesnt_allow_to_dispatch_for_module_when_loadRule_is_found_but_doesnt_apply() {
         _sdkSettings.value = Self.settingsForRule(.just("false"))
 
-        XCTAssertFalse(engine.rulesAllow(dispatch: TealiumDispatch(name: "event"),
+        XCTAssertFalse(engine.rulesAllow(dispatch: Dispatch(name: "event"),
                                          forModule: moduleWithRules))
     }
 
     func test_rulesAllow_allows_to_dispatch_for_module_when_module_has_no_rules() {
         _sdkSettings.value = Self.settingsForRule(.just("false"))
 
-        XCTAssertTrue(engine.rulesAllow(dispatch: TealiumDispatch(name: "event"),
+        XCTAssertTrue(engine.rulesAllow(dispatch: Dispatch(name: "event"),
                                         forModule: moduleWithoutRules))
     }
 
     func test_rulesAllow_doesnt_allow_to_dispatch_for_module_when_loadRule_is_not_found() {
         _sdkSettings.value = Self.settingsForRule(.just("missing"))
 
-        XCTAssertFalse(engine.rulesAllow(dispatch: TealiumDispatch(name: "event"),
+        XCTAssertFalse(engine.rulesAllow(dispatch: Dispatch(name: "event"),
                                          forModule: moduleWithRules))
     }
 
     func test_rulesAllow_allows_to_dispatch_for_module_when_module_has_no_rules_and_loadRule_is_not_found() {
         _sdkSettings.value = Self.settingsForRule(.just("missing"))
 
-        XCTAssertTrue(engine.rulesAllow(dispatch: TealiumDispatch(name: "event"),
+        XCTAssertTrue(engine.rulesAllow(dispatch: Dispatch(name: "event"),
                                         forModule: moduleWithoutRules))
     }
 
     func test_filterDispatches_removes_not_allowed_dispatches_for_module() {
         _sdkSettings.value = Self.settingsForRule(.just("equals"))
         let dispatches = [
-            TealiumDispatch(name: "Allowed", data: ["variable": "value"]),
-            TealiumDispatch(name: "Not Allowed", data: ["variable": "notValue"])
+            Dispatch(name: "Allowed", data: ["variable": "value"]),
+            Dispatch(name: "Not Allowed", data: ["variable": "notValue"])
         ]
         let filtered = engine.filterDispatches(dispatches, forModule: moduleWithRules)
         XCTAssertTrue(filtered.contains(where: { $0.name == "Allowed" }))
@@ -89,8 +89,8 @@ final class LoadRuleEngineTests: XCTestCase {
     func test_filterDispatches_doesnt_remove_any_dispatch_for_module_without_rules() {
         _sdkSettings.value = Self.settingsForRule(.just("equals"))
         let dispatches = [
-            TealiumDispatch(name: "Allowed", data: ["variable": "value"]),
-            TealiumDispatch(name: "Not Allowed", data: ["variable": "notValue"])
+            Dispatch(name: "Allowed", data: ["variable": "value"]),
+            Dispatch(name: "Not Allowed", data: ["variable": "notValue"])
         ]
         let filtered = engine.filterDispatches(dispatches, forModule: moduleWithoutRules)
         XCTAssertTrue(filtered.contains(where: { $0.name == "Allowed" }))
@@ -100,8 +100,8 @@ final class LoadRuleEngineTests: XCTestCase {
     func test_filterDispatches_removes_all_dispatches_when_rule_is_not_found() {
         _sdkSettings.value = Self.settingsForRule(.just("missing"))
         let dispatches = [
-            TealiumDispatch(name: "Allowed", data: ["variable": "value"]),
-            TealiumDispatch(name: "Not Allowed", data: ["variable": "notValue"])
+            Dispatch(name: "Allowed", data: ["variable": "value"]),
+            Dispatch(name: "Not Allowed", data: ["variable": "notValue"])
         ]
         let filtered = engine.filterDispatches(dispatches, forModule: moduleWithRules)
         XCTAssertFalse(filtered.contains(where: { $0.name == "Allowed" }))

@@ -38,8 +38,8 @@ final class CollectBatcherTests: XCTestCase {
 
     func test_compressDispatches_puts_sharedKeys_in_shared_property() {
         let dispatches = [
-            TealiumDispatch(name: "event1", data: stubEvent),
-            TealiumDispatch(name: "event2", data: stubEvent)
+            Dispatch(name: "event1", data: stubEvent),
+            Dispatch(name: "event2", data: stubEvent)
         ]
         guard let result = batcher.compressDispatches(dispatches, profileOverride: nil) else {
             XCTFail("Compress dispatches should return a result")
@@ -58,8 +58,8 @@ final class CollectBatcherTests: XCTestCase {
 
     func test_compressDispatches_puts_events_array_in_events_property() {
         let dispatches = [
-            TealiumDispatch(name: "event1", data: stubEvent),
-            TealiumDispatch(name: "event2", data: stubEvent)
+            Dispatch(name: "event1", data: stubEvent),
+            Dispatch(name: "event2", data: stubEvent)
         ]
         guard let result = batcher.compressDispatches(dispatches, profileOverride: nil) else {
             XCTFail("Compress dispatches should return a result")
@@ -76,8 +76,8 @@ final class CollectBatcherTests: XCTestCase {
 
     func test_compressDispatches_returns_events_without_shared_keys() {
         let dispatches = [
-            TealiumDispatch(name: "event1", data: stubEvent),
-            TealiumDispatch(name: "event2", data: stubEvent)
+            Dispatch(name: "event1", data: stubEvent),
+            Dispatch(name: "event2", data: stubEvent)
         ]
         guard let result = batcher.compressDispatches(dispatches, profileOverride: nil) else {
             XCTFail("Compress dispatches should return a result")
@@ -96,8 +96,8 @@ final class CollectBatcherTests: XCTestCase {
 
     func test_compressDispatches_overrides_profile_when_provided() {
         let dispatches = [
-            TealiumDispatch(name: "event1", data: stubEvent),
-            TealiumDispatch(name: "event2", data: stubEvent)
+            Dispatch(name: "event1", data: stubEvent),
+            Dispatch(name: "event2", data: stubEvent)
         ]
         guard let result = batcher.compressDispatches(dispatches, profileOverride: "override") else {
             XCTFail("Compress dispatches should return a result")
@@ -117,8 +117,8 @@ final class CollectBatcherTests: XCTestCase {
             stubEvent + [TealiumDataKey.visitorId: "visitorId2"],
             [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"]
         ]
-        let result = batcher.splitDispatchesByVisitorId(events.map { TealiumDispatch(name: "some_event", data: $0) })
-        let dataItemsMatrix = result.map { $0.map { $0.eventData.getDataItem(key: TealiumDataKey.visitorId) } }
+        let result = batcher.splitDispatchesByVisitorId(events.map { Dispatch(name: "some_event", data: $0) })
+        let dataItemsMatrix = result.map { $0.map { $0.payload.getDataItem(key: TealiumDataKey.visitorId) } }
         for dataItems in dataItemsMatrix {
             let nonOptionalVisitorIdsArray = dataItems.map { $0?.get() ?? "" }
             XCTAssertEqual(Set(nonOptionalVisitorIdsArray).count, 1, "All visitorIds should be the same in each batch")
@@ -132,8 +132,8 @@ final class CollectBatcherTests: XCTestCase {
             stubEvent + [TealiumDataKey.visitorId: "visitorId2"],
             [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"]
         ]
-        let result = batcher.splitDispatchesByVisitorId(events.map { TealiumDispatch(name: "some_event", data: $0) })
-        let visitorIdMatrix = result.map { $0.map { $0.eventData.get(key: TealiumDataKey.visitorId, as: String.self) } }
+        let result = batcher.splitDispatchesByVisitorId(events.map { Dispatch(name: "some_event", data: $0) })
+        let visitorIdMatrix = result.map { $0.map { $0.payload.get(key: TealiumDataKey.visitorId, as: String.self) } }
         for event in events {
             let visitorId = event.get(key: TealiumDataKey.visitorId, as: String.self)
             XCTAssertTrue(visitorIdMatrix.contains(where: { $0.first == visitorId }), "All visitor IDs should've been split in different batches")
@@ -147,8 +147,8 @@ final class CollectBatcherTests: XCTestCase {
             stubEvent + [TealiumDataKey.visitorId: "visitorId2", "event": "3"],
             [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile", "event": "4"]
         ]
-        let result = batcher.splitDispatchesByVisitorId(events.map { TealiumDispatch(name: "some_event", data: $0) })
-        let eventsMatrix = result.map { $0.map { $0.eventData.get(key: "event", as: String.self) } }
+        let result = batcher.splitDispatchesByVisitorId(events.map { Dispatch(name: "some_event", data: $0) })
+        let eventsMatrix = result.map { $0.map { $0.payload.get(key: "event", as: String.self) } }
         for event in events {
             let eventId = event.get(key: "event", as: String.self)
             XCTAssertTrue(eventsMatrix.contains(where: { $0.contains(eventId) }), "All events should be contained in the batch")
@@ -162,8 +162,8 @@ final class CollectBatcherTests: XCTestCase {
             stubEvent + [TealiumDataKey.visitorId: "visitorId2", "event": "3"],
             [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile", "event": "4"]
         ]
-        let result = batcher.splitDispatchesByVisitorId(events.map { TealiumDispatch(name: "some_event", data: $0) })
-        let eventsMatrix = result.map { $0.map { $0.eventData.get(key: "event", as: String.self) } }
+        let result = batcher.splitDispatchesByVisitorId(events.map { Dispatch(name: "some_event", data: $0) })
+        let eventsMatrix = result.map { $0.map { $0.payload.get(key: "event", as: String.self) } }
         for event in events {
             let eventId = event.get(key: "event", as: String.self)
             var count = 0

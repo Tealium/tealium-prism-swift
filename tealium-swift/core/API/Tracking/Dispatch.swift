@@ -1,5 +1,5 @@
 //
-//  TealiumDispatch.swift
+//  Dispatch.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 24/07/23.
@@ -13,33 +13,33 @@ public enum DispatchType: String {
     case view
 }
 
-public struct TealiumDispatch {
-    var eventData: DataObject
+public struct Dispatch {
+    var payload: DataObject
     let id: String
     let timestamp: Int64
 
     public init(name: String, type: DispatchType = .event, data: DataObject? = nil) {
-        var eventData: DataObject = data ?? [:]
-        eventData.set(name, key: TealiumDataKey.event)
-        eventData.set(type.rawValue, key: TealiumDataKey.eventType)
-        self.init(eventData: eventData,
+        var payload: DataObject = data ?? [:]
+        payload.set(name, key: TealiumDataKey.event)
+        payload.set(type.rawValue, key: TealiumDataKey.eventType)
+        self.init(payload: payload,
                   id: UUID().uuidString,
                   timestamp: Date().unixTimeMillisecondsInt)
     }
 
-    init(eventData: DataObject, id: String, timestamp: Int64) {
-        self.eventData = eventData
+    init(payload: DataObject, id: String, timestamp: Int64) {
+        self.payload = payload
         self.id = id
         self.timestamp = timestamp
-        self.eventData.set(timestamp, key: TealiumDataKey.timestampUnixMilliseconds)
+        self.payload.set(timestamp, key: TealiumDataKey.timestampUnixMilliseconds)
     }
 
     public var name: String? {
-        eventData.get(key: TealiumDataKey.event)
+        payload.get(key: TealiumDataKey.event)
     }
 
     mutating func enrich(data: DataObject) {
-        eventData += data
+        payload += data
     }
 
     public func logDescription() -> String {

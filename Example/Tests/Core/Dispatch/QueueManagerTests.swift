@@ -25,7 +25,7 @@ final class QueueManagerTests: XCTestCase {
                                          logger: nil)
 
     func test_init_removes_dispatches_queued_to_old_processors_in_db() {
-        let dispatch = TealiumDispatch(name: "some_event")
+        let dispatch = Dispatch(name: "some_event")
         let modulesIds = modules.value.map { $0.id }
         XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch], enqueueingFor: modulesIds))
         XCTAssertEqual(queueRepository.getQueuedDispatches(for: modulesIds[0], limit: nil).count, 1)
@@ -36,7 +36,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_modules_changes_removes_dispatches_queued_to_old_processors_in_db() {
-        let dispatch = TealiumDispatch(name: "some_event")
+        let dispatch = Dispatch(name: "some_event")
         let modulesIds = modules.value.map { $0.id }
         XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch], enqueueingFor: modulesIds))
         XCTAssertEqual(queueManager.getQueuedDispatches(for: modulesIds[0], limit: nil).count, 1)
@@ -47,7 +47,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_storeDispatches_stores_a_dispatch_per_each_processor() {
-        let dispatch = TealiumDispatch(name: "event_name")
+        let dispatch = Dispatch(name: "event_name")
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches([dispatch], enqueueingFor: modulesNames)
         let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
@@ -59,7 +59,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_storeDispatches_stores_multiple_dispatches_per_each_processor() {
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
@@ -73,7 +73,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_storeDispatches_stores_multiple_dispatches_only_for_specified_processor() {
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: [modulesNames[0]])
         let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
@@ -89,14 +89,14 @@ final class QueueManagerTests: XCTestCase {
         queueManager.onEnqueuedDispatchesForProcessors.subscribeOnce { _ in
             enqueuedEvents.fulfill()
         }
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         waitForDefaultTimeout()
     }
 
     func test_storeDispatches_fails_with_duplicated_dispatch_only_inserts_one() {
-        let dispatch = TealiumDispatch(name: "event_name")
+        let dispatch = Dispatch(name: "event_name")
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches([dispatch, dispatch], enqueueingFor: modulesNames)
         let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
@@ -104,7 +104,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_getQueuedDispatches_returns_events_for_processor() {
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
@@ -114,7 +114,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_getQueuedDispatches_with_limit_returns_limited_number_of_events_for_processor() {
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2"), TealiumDispatch(name: "event_name3")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: 2)
@@ -124,7 +124,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_getQueuedDispatches_puts_events_in_the_inflight_for_that_processor() {
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
@@ -133,7 +133,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_getQueuedDispatches_adds_events_in_the_inflight_for_that_processor() {
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2"), TealiumDispatch(name: "event_name3")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: 2)
@@ -145,7 +145,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_deleteDispatches_deletes_listed_dispatches_for_processor_from_db() {
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2"), TealiumDispatch(name: "event_name3")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let toDelete = [dispatches[0], dispatches[1]].map { $0.id }
@@ -156,7 +156,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_deleteDispatches_leaves_all_dispatches_for_other_processor_in_db() {
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2"), TealiumDispatch(name: "event_name3")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let toDelete = [dispatches[0], dispatches[1]].map { $0.id }
@@ -166,7 +166,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_deleteDispatches_deletes_listed_dispatches_for_processor_from_inflights() {
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2"), TealiumDispatch(name: "event_name3")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let toDelete = [dispatches[0], dispatches[1]].map { $0.id }
@@ -179,7 +179,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_deleteDispatches_leaves_all_dispatches_for_other_processor_in_inflights() {
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2"), TealiumDispatch(name: "event_name3")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let toDelete = [dispatches[0], dispatches[1]].map { $0.id }
@@ -190,7 +190,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_deleteAllDispatches_deletes_all_dispatches_for_processor_from_db() {
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2"), TealiumDispatch(name: "event_name3")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         queueManager.deleteAllDispatches(for: modulesNames[0])
@@ -199,7 +199,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_deleteAllDispatches_leaves_all_dispatches_for_other_processor_in_db() {
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2"), TealiumDispatch(name: "event_name3")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         queueManager.deleteAllDispatches(for: modulesNames[0])
@@ -208,7 +208,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_deleteAllDispatches_deletes_all_dispatches_for_processor_from_inflights() {
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2"), TealiumDispatch(name: "event_name3")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
@@ -219,7 +219,7 @@ final class QueueManagerTests: XCTestCase {
     }
 
     func test_deleteAllDispatches_leaves_all_dispatches_for_other_processor_in_inflights() {
-        let dispatches = [TealiumDispatch(name: "event_name1"), TealiumDispatch(name: "event_name2"), TealiumDispatch(name: "event_name3")]
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[1], limit: nil)

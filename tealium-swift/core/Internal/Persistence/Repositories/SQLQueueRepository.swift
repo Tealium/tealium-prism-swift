@@ -28,7 +28,7 @@ class SQLQueueRepository: QueueRepository {
         }
     }
 
-    func storeDispatches(_ dispatches: [TealiumDispatch], enqueueingFor processors: [String]) throws {
+    func storeDispatches(_ dispatches: [Dispatch], enqueueingFor processors: [String]) throws {
         guard !dispatches.isEmpty && !processors.isEmpty else { // Enqueuing no dispatches or for no processors is not allowed
             return
         }
@@ -37,7 +37,7 @@ class SQLQueueRepository: QueueRepository {
         }
     }
 
-    private func storeDispatches(_ dispatches: [TealiumDispatch], enueueingFor processors: [String]) throws {
+    private func storeDispatches(_ dispatches: [Dispatch], enueueingFor processors: [String]) throws {
         try createSpaceIfNecessary(for: dispatches.count)
         try dispatches
             .suffix(maxQueueSize)
@@ -56,7 +56,7 @@ class SQLQueueRepository: QueueRepository {
         }
     }
 
-    func getQueuedDispatches(for processor: String, limit: Int?, excluding: [String] = []) -> [TealiumDispatch] {
+    func getQueuedDispatches(for processor: String, limit: Int?, excluding: [String] = []) -> [Dispatch] {
         let filterExpiredExpression: Expression<Bool> = DispatchSchema.timestamp > getExpiryTimestamp(expiration: expiration)
         let dispatchTable: QueryType = DispatchSchema.table
         let query = dispatchTable.where(!excluding.contains(DispatchSchema.uuid))
@@ -69,17 +69,17 @@ class SQLQueueRepository: QueueRepository {
         return getDispatches(query: query)
     }
 
-    private func getDispatches(query: QueryType) -> [TealiumDispatch] {
+    private func getDispatches(query: QueryType) -> [Dispatch] {
         guard let rows = try? database.prepare(query) else {
             return []
         }
-        return rows.compactMap { row -> TealiumDispatch? in
-            guard let eventData: DataObject = try? row[DispatchSchema.dispatch].deserializeCodable() else {
+        return rows.compactMap { row -> Dispatch? in
+            guard let payload: DataObject = try? row[DispatchSchema.dispatch].deserializeCodable() else {
                 return nil
             }
-            return TealiumDispatch(eventData: eventData,
-                                   id: row[DispatchSchema.tableUUID],
-                                   timestamp: row[DispatchSchema.timestamp])
+            return Dispatch(payload: payload,
+                            id: row[DispatchSchema.tableUUID],
+                            timestamp: row[DispatchSchema.timestamp])
         }
     }
 

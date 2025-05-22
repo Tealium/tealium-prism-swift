@@ -20,7 +20,7 @@ final class DispatchManagerDeinitTests: DispatchManagerTestCase {
         module.delay = 500
         let eventsAreNotDispatched = expectation(description: "Events are not dispatched")
         eventsAreNotDispatched.isInverted = true
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         _ = module.onDispatch.subscribe { _ in
             eventsAreNotDispatched.fulfill()
         }
@@ -31,7 +31,7 @@ final class DispatchManagerDeinitTests: DispatchManagerTestCase {
     func test_dispatchManager_can_be_deinitialized() {
         barrier.setState(.closed)
         let helper = RetainCycleHelper(variable: dispatchManager)
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         dispatchManager = getDispatchManager()
         helper.forceAndAssertObjectDeinit()
     }

@@ -46,7 +46,7 @@ final class LifecycleWrapperTests: XCTestCase {
         let launchTracked = expectation(description: "Launch has been tracked with correct data")
         tracker.onTrack.subscribeOnce({ dispatch in
             XCTAssertEqual(dispatch.name, "launch")
-            XCTAssertEqual(dispatch.eventData.get(key: "customAttr"), 42)
+            XCTAssertEqual(dispatch.payload.get(key: "customAttr"), 42)
             launchTracked.fulfill()
         })
         wrapper.launch(["customAttr": 42])
@@ -69,7 +69,7 @@ final class LifecycleWrapperTests: XCTestCase {
         let sleepTracked = expectation(description: "Sleep has been tracked with correct data")
         tracker.onTrack.subscribe({ dispatch in
             if dispatch.name == "sleep" {
-                XCTAssertEqual(dispatch.eventData.get(key: "customAttr"), 42)
+                XCTAssertEqual(dispatch.payload.get(key: "customAttr"), 42)
                 sleepTracked.fulfill()
             }
         }).addTo(autoDisposer)
@@ -95,7 +95,7 @@ final class LifecycleWrapperTests: XCTestCase {
         let wakeTracked = expectation(description: "Wake has been tracked with correct data")
         tracker.onTrack.subscribe({ dispatch in
             if dispatch.name == "wake" {
-                XCTAssertEqual(dispatch.eventData.get(key: "customAttr"), 42)
+                XCTAssertEqual(dispatch.payload.get(key: "customAttr"), 42)
                 wakeTracked.fulfill()
             }
         }).addTo(autoDisposer)

@@ -20,8 +20,8 @@ public struct VariableAccessor {
      * The path components, in case the variable is not in the root, with the keys for the object leading up to the variable.
      *
      * For example a `VariableAccessor` with:
-     * - variable: `someVariable`
      * - path: `[container1, container2]`
+     * - variable: `someVariable`
      * Will look for an object in the data layer in the following location:
      *
      * ```json
@@ -35,9 +35,9 @@ public struct VariableAccessor {
      */
     let path: [String]?
 
-    public init(variable: String, path: [String]? = nil) {
-        self.variable = variable
+    public init(path: [String]? = nil, variable: String) {
         self.path = path
+        self.variable = variable
     }
 }
 
@@ -58,15 +58,15 @@ extension VariableAccessor {
                   let variable = object.get(key: Keys.variable, as: String.self) else {
                 return nil
             }
-            return VariableAccessor(variable: variable,
-                                    path: object.getArray(key: Keys.path)?.compactMap { $0 })
+            return VariableAccessor(path: object.getArray(key: Keys.path)?.compactMap { $0 },
+                                    variable: variable)
         }
     }
 
     static let converter: any DataItemConverter<Self> = Converter()
 }
 
-extension VariableAccessor: ExpressibleByStringLiteral {
+extension VariableAccessor: ExpressibleByStringLiteral, ExpressibleByStringInterpolation {
     /// Creates a `VariableAccessor` from a string literal.
     /// The string literal will be used as the variable name with no path.
     /// - Parameter value: The string literal to use as the variable name.

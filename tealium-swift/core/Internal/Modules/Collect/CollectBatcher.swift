@@ -22,8 +22,8 @@ class CollectBatcher {
     ]
 
     /// Splits the array of dispatches in batches grouped by `visitorId`.
-    func splitDispatchesByVisitorId(_ dispatches: [TealiumDispatch]) -> [[TealiumDispatch]] {
-        Array([String: [TealiumDispatch]](grouping: dispatches, by: { $0.eventData.get(key: TealiumDataKey.visitorId) ?? "" }).values)
+    func splitDispatchesByVisitorId(_ dispatches: [Dispatch]) -> [[Dispatch]] {
+        Array([String: [Dispatch]](grouping: dispatches, by: { $0.payload.get(key: TealiumDataKey.visitorId) ?? "" }).values)
     }
 
     /**
@@ -35,17 +35,17 @@ class CollectBatcher {
      *
      * - Returns: `DataObject?` containing the batched payload with shared keys extracted into the `shared` key and the events array under the `events` key.
      */
-    func compressDispatches(_ dispatches: [TealiumDispatch], profileOverride: String?) -> DataObject? {
+    func compressDispatches(_ dispatches: [Dispatch], profileOverride: String?) -> DataObject? {
         guard let firstDispatch = dispatches.first else {
             return nil
         }
-        let shared = extractSharedKeys(from: firstDispatch.eventData, profileOverride: profileOverride)
+        let shared = extractSharedKeys(from: firstDispatch.payload, profileOverride: profileOverride)
         let events = dispatches.map { dispatch in
-            var eventData = dispatch.eventData
+            var payload = dispatch.payload
             for key in sharedKeys {
-                eventData.removeValue(forKey: key)
+                payload.removeValue(forKey: key)
             }
-            return eventData
+            return payload
         }
         return ["events": events,
                 "shared": shared]

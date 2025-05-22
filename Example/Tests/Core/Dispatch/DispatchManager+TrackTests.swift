@@ -19,7 +19,7 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
             XCTAssertEqual(dispatches.first?.name, "someEvent")
             eventIsDispatched.fulfill()
         }
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         waitForDefaultTimeout()
     }
 
@@ -32,19 +32,19 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
                 eventAreDispatched.fulfill()
             }
         }
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
-        dispatchManager.track(TealiumDispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
+        dispatchManager.track(Dispatch(name: "someEvent"))
         waitForDefaultTimeout()
     }
 
     func test_track_completion_block_is_run_with_accepted_result_and_transformed_dispatch_when_consent_not_enabled() {
         let completionCalled = expectation(description: completionCalledDescription)
-        dispatchManager.track(TealiumDispatch(name: "someEvent")) { result in
+        dispatchManager.track(Dispatch(name: "someEvent")) { result in
             completionCalled.fulfill()
             switch result {
             case let .accepted(dispatch):
-                XCTAssertNotEqual(dispatch.eventData.count, 2)
-                XCTAssertNotNil(dispatch.eventData.getDataItem(key: "transformation-afterCollectors"))
+                XCTAssertNotEqual(dispatch.payload.count, 2)
+                XCTAssertNotNil(dispatch.payload.getDataItem(key: "transformation-afterCollectors"))
             case .dropped:
                 XCTFail("Track unexpectedly dropped.")
             }
@@ -61,13 +61,13 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
         consentManager.currentDecision = ConsentDecision(decisionType: .explicit, purposes: [])
         XCTAssertFalse(consentManager.tealiumConsented(forPurposes: consentManager.allPurposes))
         let completionCalled = expectation(description: completionCalledDescription)
-        dispatchManager.track(TealiumDispatch(name: "someEvent")) { result in
+        dispatchManager.track(Dispatch(name: "someEvent")) { result in
             completionCalled.fulfill()
             switch result {
             case .accepted:
                 XCTFail("Track unexpectedly accepted.")
             case let .dropped(dispatch):
-                XCTAssertEqual(dispatch.eventData.count, 3)
+                XCTAssertEqual(dispatch.payload.count, 3)
             }
         }
         waitForDefaultTimeout()
@@ -78,13 +78,13 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
             return nil
         }
         let completionCalled = expectation(description: completionCalledDescription)
-        dispatchManager.track(TealiumDispatch(name: "someEvent")) { result in
+        dispatchManager.track(Dispatch(name: "someEvent")) { result in
             completionCalled.fulfill()
             switch result {
             case .accepted:
                 XCTFail("Track unexpectedly accepted.")
             case let .dropped(dispatch):
-                XCTAssertEqual(dispatch.eventData.count, 3)
+                XCTAssertEqual(dispatch.payload.count, 3)
             }
         }
         waitForDefaultTimeout()

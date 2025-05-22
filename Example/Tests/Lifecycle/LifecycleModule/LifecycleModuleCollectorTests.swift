@@ -21,7 +21,7 @@ final class LifecycleModuleCollectorTests: LifecycleModuleBaseTests {
 
     func test_collect_returns_current_state_if_dataTarget_is_allEvents_and_dispatchContext_has_source_application() {
         updateSettings(LifecycleSettingsBuilder().setDataTarget(.allEvents))
-        let applicationDispatchContext = DispatchContext(source: .application, initialData: TealiumDispatch(name: "lifecycle").eventData)
+        let applicationDispatchContext = DispatchContext(source: .application, initialData: Dispatch(name: "lifecycle").payload)
         XCTAssertNotEqual(module.collect(applicationDispatchContext).count, 0)
     }
 

@@ -54,7 +54,7 @@ class TealiumCollect: TealiumBasicModule, Dispatcher {
      * In case of multiple events with different `visitorId`s this method will automatically group them by `visitorId` and send them separately.
      * The completion block can, therefore, be called more than once with the list of dispatches that are actually completed every time.
      */
-    func dispatch(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
+    func dispatch(_ events: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> Disposable {
         if events.count == 1 {
             return sendSingleDispatch(events[0], completion: completion)
         } else {
@@ -81,8 +81,8 @@ class TealiumCollect: TealiumBasicModule, Dispatcher {
      * This method will create the JSON, eventually apply the `overrideProfile`,
      * and then send the gzipped payload with a POST request to the batch endpoint.
      */
-    func sendSingleDispatch(_ event: TealiumDispatch, completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
-        var data = event.eventData
+    func sendSingleDispatch(_ event: Dispatch, completion: @escaping ([Dispatch]) -> Void) -> Disposable {
+        var data = event.payload
         batcher.applyProfileOverride(configuration.overrideProfile, to: &data)
         return networkHelper.post(url: configuration.url, body: data) { result in
             if case .failure(.cancelled) = result {
@@ -101,7 +101,7 @@ class TealiumCollect: TealiumBasicModule, Dispatcher {
      * This method will create the JSON by compressing those batches, eventually apply the `overrideProfile`,
      * and then send the payload with a gzipped POST requst to the batch endpoint.
      */
-    func sendBatchDispatches(_ events: [TealiumDispatch], completion: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
+    func sendBatchDispatches(_ events: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> Disposable {
         guard let batchData = batcher.compressDispatches(events, profileOverride: configuration.overrideProfile) else {
             return Subscription { }
         }

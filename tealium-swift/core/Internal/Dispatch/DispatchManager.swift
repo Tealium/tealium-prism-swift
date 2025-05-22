@@ -9,17 +9,17 @@
 import Foundation
 
 protocol DispatchManagerProtocol {
-    func track(_ dispatch: TealiumDispatch, onTrackResult: TrackResultCompletion?)
+    func track(_ dispatch: Dispatch, onTrackResult: TrackResultCompletion?)
 }
 
 extension DispatchManagerProtocol {
-    func track(_ dispatch: TealiumDispatch) {
+    func track(_ dispatch: Dispatch) {
         track(dispatch, onTrackResult: nil)
     }
 }
 
 /**
- * The class containing the core logic of the library, taking `TealiumDispatch`es from the queue, transforming and dispatching them to each individual `Dispatcher` when they are ready.
+ * The class containing the core logic of the library, taking `Dispatch`es from the queue, transforming and dispatching them to each individual `Dispatcher` when they are ready.
  */
 class DispatchManager: DispatchManagerProtocol {
     static let MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER = 50
@@ -41,17 +41,20 @@ class DispatchManager: DispatchManagerProtocol {
     @ToAnyObservable<BasePublisher<Void>>(BasePublisher<Void>())
     private var onQueuedEvents: Observable<Void>
     private let loadRuleEngine: LoadRuleEngine
+    private let mappingsEngine: MappingsEngine
     init(loadRuleEngine: LoadRuleEngine,
          modulesManager: ModulesManager,
          queueManager: QueueManagerProtocol,
          barrierCoordinator: BarrierCoordinator,
          transformerCoordinator: TransformerCoordinator,
+         mappingsEngine: MappingsEngine,
          logger: LoggerProtocol?) {
         self.loadRuleEngine = loadRuleEngine
         self.modulesManager = modulesManager
         self.queueManager = queueManager
         self.barrierCoordinator = barrierCoordinator
         self.transformerCoordinator = transformerCoordinator
+        self.mappingsEngine = mappingsEngine
         self.logger = logger
         startDispatchLoop()
     }
@@ -67,7 +70,7 @@ class DispatchManager: DispatchManagerProtocol {
         return !consentManager.tealiumConsented(forPurposes: decision.purposes)
     }
 
-    func track(_ dispatch: TealiumDispatch, onTrackResult: TrackResultCompletion?) {
+    func track(_ dispatch: Dispatch, onTrackResult: TrackResultCompletion?) {
         guard !tealiumPurposeExplicitlyBlocked() else {
             logger?.debug(category: LogCategory.dispatchManager,
                           "Tealium consent purpose is explicitly blocked. Event \(dispatch.logDescription()) will be dropped.")
@@ -134,7 +137,7 @@ class DispatchManager: DispatchManagerProtocol {
         }.addTo(self.managerContainer)
     }
 
-    private func startDequeueLoop(for dispatcher: Dispatcher) -> Observable<[TealiumDispatch]> {
+    private func startDequeueLoop(for dispatcher: Dispatcher) -> Observable<[Dispatch]> {
         let onInflightLower = queueManager.onInflightDispatchesCount(for: dispatcher.id)
             .map { $0 < Self.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER }
             .distinct()
@@ -153,7 +156,7 @@ class DispatchManager: DispatchManagerProtocol {
             }
     }
 
-    private func transformAndDispatch(dispatches: [TealiumDispatch], for dispatcher: Dispatcher, onProcessedDispatches: @escaping ([TealiumDispatch]) -> Void) -> Disposable {
+    private func transformAndDispatch(dispatches: [Dispatch], for dispatcher: Dispatcher, onProcessedDispatches: @escaping ([Dispatch]) -> Void) -> Disposable {
         let container = DisposeContainer()
         self.transformerCoordinator.transform(dispatches: dispatches,
                                               for: .dispatcher(dispatcher.id)) { [weak self] transformedDispatches in
@@ -166,7 +169,8 @@ class DispatchManager: DispatchManagerProtocol {
                                    "Dispatching disallowed for Dispatcher \(dispatcher.id) and Dispatches \(removedDispatches.shortDescription())")
                 onProcessedDispatches(removedDispatches)
             }
-            dispatcher.dispatch(filteredDispatches) { processedDispatches in
+            let mapped = filteredDispatches.map { self.mappingsEngine.map(dispatcherId: dispatcher.id, dispatch: $0) }
+            dispatcher.dispatch(mapped) { processedDispatches in
                 guard !container.isDisposed else { return }
                 onProcessedDispatches(processedDispatches)
             }.addTo(container)
@@ -175,7 +179,7 @@ class DispatchManager: DispatchManagerProtocol {
     }
 }
 
-private extension Array where Element == TealiumDispatch {
+private extension Array where Element == Dispatch {
     func shortDescription() -> String {
         "\(map { $0.logDescription() })"
     }

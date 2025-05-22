@@ -69,7 +69,7 @@ class QueueManager: QueueManagerProtocol {
         }.distinct()
     }
 
-    func getQueuedDispatches(for processor: String, limit: Int?) -> [TealiumDispatch] {
+    func getQueuedDispatches(for processor: String, limit: Int?) -> [Dispatch] {
         let dispatches = queueRepository.getQueuedDispatches(for: processor,
                                                              limit: limit,
                                                              excluding: inflightEvents.value[processor] ?? [])
@@ -86,7 +86,7 @@ class QueueManager: QueueManagerProtocol {
         return dispatches
     }
 
-    func storeDispatches(_ dispatches: [TealiumDispatch], enqueueingFor processors: [String]) {
+    func storeDispatches(_ dispatches: [Dispatch], enqueueingFor processors: [String]) {
         guard !dispatches.isEmpty && !processors.isEmpty else {
             return
         }

@@ -31,7 +31,7 @@ public class ApplicationStatusListener: NSObject {
     var wakeNotificationObserver: NSObjectProtocol?
     var sleepNotificationObserver: NSObjectProtocol?
 
-    var initGraceTimer: TealiumRepeatingTimer?
+    var initGraceTimer: RepeatingTimer?
     let queue: TealiumQueue
     let notificationCenter: NotificationCenter
     init(graceTimeInterval: Double = 10.0, queue: TealiumQueue = .worker, notificationCenter: NotificationCenter = NotificationCenter.default) {
@@ -39,7 +39,7 @@ public class ApplicationStatusListener: NSObject {
         self.notificationCenter = notificationCenter
         super.init()
         addListeners()
-        initGraceTimer = TealiumRepeatingTimer(timeInterval: graceTimeInterval, repeating: .never, queue: queue, eventHandler: { [weak self] in
+        initGraceTimer = RepeatingTimer(timeInterval: graceTimeInterval, repeating: .never, queue: queue, eventHandler: { [weak self] in
             self?._onApplicationStatus.publisher.resize(1)
             self?.initGraceTimer = nil
         })

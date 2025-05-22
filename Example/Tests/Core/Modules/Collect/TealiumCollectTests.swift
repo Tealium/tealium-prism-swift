@@ -17,8 +17,8 @@ final class TealiumCollectTests: XCTestCase {
                                       logger: nil)
 
     let stubDispatches = [
-        TealiumDispatch(name: "event1", data: [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"]),
-        TealiumDispatch(name: "event2", data: [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"])
+        Dispatch(name: "event1", data: [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"]),
+        Dispatch(name: "event2", data: [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"])
     ]
 
     func test_send_single_dispatch() {
@@ -26,7 +26,7 @@ final class TealiumCollectTests: XCTestCase {
         networkHelper.requests.subscribeOnce { request in
             if case let .post(url, body) = request {
                 XCTAssertEqual(try? url.asUrl(), self.collect?.configuration.url)
-                XCTAssertEqual(body, self.stubDispatches[0].eventData)
+                XCTAssertEqual(body, self.stubDispatches[0].payload)
                 postRequestSent.fulfill()
             }
         }
@@ -106,8 +106,8 @@ final class TealiumCollectTests: XCTestCase {
             }
         }
         _ = collect?.dispatch([
-            TealiumDispatch(name: "event1", data: [TealiumDataKey.visitorId: "visitor1"]),
-            TealiumDispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor2"])
+            Dispatch(name: "event1", data: [TealiumDataKey.visitorId: "visitor1"]),
+            Dispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor2"])
         ], completion: { _ in })
         waitForDefaultTimeout()
         subscription.dispose()
@@ -128,10 +128,10 @@ final class TealiumCollectTests: XCTestCase {
             }
         }
         _ = collect?.dispatch([
-            TealiumDispatch(name: "event1", data: [TealiumDataKey.visitorId: "visitor1"]),
-            TealiumDispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor1"]),
-            TealiumDispatch(name: "event3", data: [TealiumDataKey.visitorId: "visitor2"]),
-            TealiumDispatch(name: "event4", data: [TealiumDataKey.visitorId: "visitor2"])
+            Dispatch(name: "event1", data: [TealiumDataKey.visitorId: "visitor1"]),
+            Dispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor1"]),
+            Dispatch(name: "event3", data: [TealiumDataKey.visitorId: "visitor2"]),
+            Dispatch(name: "event4", data: [TealiumDataKey.visitorId: "visitor2"])
         ], completion: { _ in })
         waitForDefaultTimeout()
         subscription.dispose()
@@ -141,11 +141,11 @@ final class TealiumCollectTests: XCTestCase {
         let firstVisitorSent = expectation(description: "The POST request for the first visitor is sent")
         let secondVisitorSent = expectation(description: "The POST request for the second visitor is sent")
         _ = collect?.dispatch([
-            TealiumDispatch(name: "event1", data: [TealiumDataKey.visitorId: "visitor1"]),
-            TealiumDispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor1"]),
-            TealiumDispatch(name: "event3", data: [TealiumDataKey.visitorId: "visitor2"])
+            Dispatch(name: "event1", data: [TealiumDataKey.visitorId: "visitor1"]),
+            Dispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor1"]),
+            Dispatch(name: "event3", data: [TealiumDataKey.visitorId: "visitor2"])
         ], completion: { events in
-            let visitorIdsArray = events.map { $0.eventData.get(key: TealiumDataKey.visitorId) ?? "" }
+            let visitorIdsArray = events.map { $0.payload.get(key: TealiumDataKey.visitorId) ?? "" }
             XCTAssertEqual(Set(visitorIdsArray).count, 1, "All visitorIds should be the same in this batch")
             if visitorIdsArray[0] == "visitor1" {
                 firstVisitorSent.fulfill()

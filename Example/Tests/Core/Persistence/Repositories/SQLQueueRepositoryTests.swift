@@ -17,7 +17,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
                                                   expiration: TimeFrame(unit: .days, interval: 1))
 
     func test_deleteQueues_removes_dispatches_of_missing_processors() {
-        XCTAssertNoThrow(try queueRepository.storeDispatches([TealiumDispatch(name: "test_event")], enqueueingFor: allProcessors))
+        XCTAssertNoThrow(try queueRepository.storeDispatches([Dispatch(name: "test_event")], enqueueingFor: allProcessors))
         let dispatches = queueRepository.getQueuedDispatches(for: "processor1", limit: 1)
         XCTAssertEqual(dispatches.count, 1)
         XCTAssertEqual(dispatches.first?.name, "test_event")
@@ -27,7 +27,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
     }
 
     func test_storeDispatches_adds_dispatches_on_db_for_provided_processor() {
-        XCTAssertNoThrow(try queueRepository.storeDispatches([TealiumDispatch(name: "test_event")], enqueueingFor: ["processor1"]))
+        XCTAssertNoThrow(try queueRepository.storeDispatches([Dispatch(name: "test_event")], enqueueingFor: ["processor1"]))
         let dispatches = queueRepository.getQueuedDispatches(for: "processor1", limit: 1)
         XCTAssertEqual(dispatches.count, 1)
         XCTAssertEqual(dispatches.first?.name, "test_event")
@@ -36,13 +36,13 @@ final class SQLQueueRepositoryTests: XCTestCase {
     }
 
     func test_storeDispatches_with_same_disaptchUUID_replaces_the_old_dispatch() {
-        let dispatch = TealiumDispatch(name: "test_event")
+        let dispatch = Dispatch(name: "test_event")
         XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch], enqueueingFor: ["processor1"]))
         XCTAssertEqual(queueRepository.getQueuedDispatches(for: "processor1", limit: 1).count, 1)
         let future = Date().unixTimeMillisecondsInt + 1000
-        XCTAssertNoThrow(try queueRepository.storeDispatches([TealiumDispatch(eventData: dispatch.eventData,
-                                                                              id: dispatch.id,
-                                                                              timestamp: future)],
+        XCTAssertNoThrow(try queueRepository.storeDispatches([Dispatch(payload: dispatch.payload,
+                                                                       id: dispatch.id,
+                                                                       timestamp: future)],
                                                              enqueueingFor: ["processor2"]))
         let dispatches = queueRepository.getQueuedDispatches(for: "processor2", limit: nil)
         XCTAssertEqual(dispatches.count, 1)
@@ -53,20 +53,20 @@ final class SQLQueueRepositoryTests: XCTestCase {
     }
 
     func test_storeDispatches_with_same_disaptchUUID_deletes_queued_dispatches_for_old_processors() {
-        let dispatch = TealiumDispatch(name: "test_event")
+        let dispatch = Dispatch(name: "test_event")
         XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch], enqueueingFor: ["processor1"]))
         XCTAssertEqual(queueRepository.getQueuedDispatches(for: "processor1", limit: 1).count, 1)
         let future = Date().unixTimeMillisecondsInt + 1000
-        XCTAssertNoThrow(try queueRepository.storeDispatches([TealiumDispatch(eventData: dispatch.eventData,
-                                                                              id: dispatch.id,
-                                                                              timestamp: future)],
+        XCTAssertNoThrow(try queueRepository.storeDispatches([Dispatch(payload: dispatch.payload,
+                                                                       id: dispatch.id,
+                                                                       timestamp: future)],
                                                              enqueueingFor: ["processor2"]))
         let dispatches = queueRepository.getQueuedDispatches(for: "processor1", limit: nil)
         XCTAssertEqual(dispatches.count, 0)
     }
 
     func test_deleteDispatches_deletes_dispatches_for_specific_processor() {
-        XCTAssertNoThrow(try queueRepository.storeDispatches([TealiumDispatch(name: "test_event")], enqueueingFor: allProcessors))
+        XCTAssertNoThrow(try queueRepository.storeDispatches([Dispatch(name: "test_event")], enqueueingFor: allProcessors))
         let dispatches = queueRepository.getQueuedDispatches(for: "processor1", limit: 1)
         XCTAssertEqual(dispatches.count, 1)
         XCTAssertNoThrow(try queueRepository.deleteDispatches(dispatches.map { $0.id }, for: "processor1"))
@@ -75,7 +75,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
     }
 
     func test_deleteDispatches_deletes_queue_rows() {
-        let dispatch = TealiumDispatch(name: "test_event")
+        let dispatch = Dispatch(name: "test_event")
         XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch], enqueueingFor: allProcessors))
         guard let queueRows = XCTAssertNoThrowReturn(Array(try mockDatabaseProvider.database.prepare(QueueSchema.table))) else {
             XCTFail("Failed to return Dispatch table")
@@ -94,16 +94,16 @@ final class SQLQueueRepositoryTests: XCTestCase {
     }
 
     func test_size_returns_number_of_dispatches_stored() {
-        XCTAssertNoThrow(try queueRepository.storeDispatches([TealiumDispatch(name: "test_event")], enqueueingFor: allProcessors))
+        XCTAssertNoThrow(try queueRepository.storeDispatches([Dispatch(name: "test_event")], enqueueingFor: allProcessors))
         XCTAssertEqual(queueRepository.size, 1)
     }
 
     func test_oldest_dispatch_is_deleted_when_an_event_is_enqueued_when_queue_is_full() {
         XCTAssertNoThrow(try queueRepository.resize(newSize: 2))
-        let dispatches = [TealiumDispatch(name: "test_event1"), TealiumDispatch(name: "test_event2")]
+        let dispatches = [Dispatch(name: "test_event1"), Dispatch(name: "test_event2")]
         XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches, enqueueingFor: allProcessors))
         XCTAssertEqual(queueRepository.size, 2)
-        XCTAssertNoThrow(try queueRepository.storeDispatches([TealiumDispatch(name: "test_event3")], enqueueingFor: allProcessors))
+        XCTAssertNoThrow(try queueRepository.storeDispatches([Dispatch(name: "test_event3")], enqueueingFor: allProcessors))
         XCTAssertEqual(queueRepository.size, 2)
         let retrievedDispatches = queueRepository.getQueuedDispatches(for: "processor1", limit: 2)
         XCTAssertFalse(retrievedDispatches.contains(where: { $0.name == "test_event1" }))
@@ -115,14 +115,14 @@ final class SQLQueueRepositoryTests: XCTestCase {
         XCTAssertNoThrow(try queueRepository.resize(newSize: 2))
         let now = Date().unixTimeMillisecondsInt
         let dispatches = [
-            TealiumDispatch(eventData: [TealiumDataKey.event: "event1"], id: "UUID1", timestamp: now + 30),
-            TealiumDispatch(eventData: [TealiumDataKey.event: "event2"], id: "UUID2", timestamp: now + 20)
+            Dispatch(payload: [TealiumDataKey.event: "event1"], id: "UUID1", timestamp: now + 30),
+            Dispatch(payload: [TealiumDataKey.event: "event2"], id: "UUID2", timestamp: now + 20)
         ]
         XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches, enqueueingFor: allProcessors))
         XCTAssertEqual(queueRepository.size, 2)
-        XCTAssertNoThrow(try queueRepository.storeDispatches([TealiumDispatch(eventData: [TealiumDataKey.event: "event3"],
-                                                                              id: "UUID3",
-                                                                              timestamp: now + 40)],
+        XCTAssertNoThrow(try queueRepository.storeDispatches([Dispatch(payload: [TealiumDataKey.event: "event3"],
+                                                                       id: "UUID3",
+                                                                       timestamp: now + 40)],
                                                      enqueueingFor: allProcessors))
         XCTAssertEqual(queueRepository.size, 2)
         let retrievedDispatches = queueRepository.getQueuedDispatches(for: "processor1", limit: 2)
@@ -133,13 +133,13 @@ final class SQLQueueRepositoryTests: XCTestCase {
 
     func test_oldest_dispatches_are_deleted_when_dispatches_are_enqueued_with_not_enough_space() {
         XCTAssertNoThrow(try queueRepository.resize(newSize: 5))
-        let dispatches = [TealiumDispatch(name: "test_event1"), TealiumDispatch(name: "test_event2"), TealiumDispatch(name: "test_event3")]
+        let dispatches = [Dispatch(name: "test_event1"), Dispatch(name: "test_event2"), Dispatch(name: "test_event3")]
         XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches, enqueueingFor: allProcessors))
         XCTAssertEqual(queueRepository.size, 3)
-        let newDispatches = [TealiumDispatch(name: "test_event4"),
-                             TealiumDispatch(name: "test_event5"),
-                             TealiumDispatch(name: "test_event6"),
-                             TealiumDispatch(name: "test_event7")]
+        let newDispatches = [Dispatch(name: "test_event4"),
+                             Dispatch(name: "test_event5"),
+                             Dispatch(name: "test_event6"),
+                             Dispatch(name: "test_event7")]
         XCTAssertNoThrow(try queueRepository.storeDispatches(newDispatches, enqueueingFor: allProcessors))
         XCTAssertEqual(queueRepository.size, 5)
         let retrievedDispatches = queueRepository.getQueuedDispatches(for: "processor1", limit: 5)
@@ -154,7 +154,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
 
     func test_storeDispatches_more_dispatches_than_queue_size_only_enqueues_the_latest_dispatches() {
         XCTAssertNoThrow(try queueRepository.resize(newSize: 2))
-        let dispatches = [TealiumDispatch(name: "test_event1"), TealiumDispatch(name: "test_event2"), TealiumDispatch(name: "test_event3")]
+        let dispatches = [Dispatch(name: "test_event1"), Dispatch(name: "test_event2"), Dispatch(name: "test_event3")]
         XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches, enqueueingFor: allProcessors))
         XCTAssertEqual(queueRepository.size, 2)
         let retrievedDispatches = queueRepository.getQueuedDispatches(for: "processor1", limit: 2)
@@ -166,9 +166,9 @@ final class SQLQueueRepositoryTests: XCTestCase {
     func test_getQueuedDispatches_returns_dispatches_by_timestamp() {
         let now = Date().unixTimeMillisecondsInt
         let dispatches = [
-            TealiumDispatch(eventData: [TealiumDataKey.event: "event1"], id: "UUID1", timestamp: now),
-            TealiumDispatch(eventData: [TealiumDataKey.event: "event2"], id: "UUID2", timestamp: now + 20),
-            TealiumDispatch(eventData: [TealiumDataKey.event: "event3"], id: "UUID3", timestamp: now + 10)
+            Dispatch(payload: [TealiumDataKey.event: "event1"], id: "UUID1", timestamp: now),
+            Dispatch(payload: [TealiumDataKey.event: "event2"], id: "UUID2", timestamp: now + 20),
+            Dispatch(payload: [TealiumDataKey.event: "event3"], id: "UUID3", timestamp: now + 10)
         ]
         XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches, enqueueingFor: ["processor1"]))
         let resultDispatches = queueRepository.getQueuedDispatches(for: "processor1", limit: 3)
@@ -184,8 +184,8 @@ final class SQLQueueRepositoryTests: XCTestCase {
         }
         let now = Date().unixTimeMillisecondsInt
         let dispatches = [
-            TealiumDispatch(eventData: [TealiumDataKey.event: "event1"], id: "UUID1", timestamp: now),
-            TealiumDispatch(eventData: [TealiumDataKey.event: "event2"], id: "UUID2", timestamp: twoDaysAgo)
+            Dispatch(payload: [TealiumDataKey.event: "event1"], id: "UUID1", timestamp: now),
+            Dispatch(payload: [TealiumDataKey.event: "event2"], id: "UUID2", timestamp: twoDaysAgo)
         ]
         XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches, enqueueingFor: ["processor1"]))
         let resultDispatches = queueRepository.getQueuedDispatches(for: "processor1", limit: 2)
@@ -208,8 +208,8 @@ final class SQLQueueRepositoryTests: XCTestCase {
             return
         }
         let dispatches = [
-            TealiumDispatch(eventData: [TealiumDataKey.event: "event1"], id: "UUID", timestamp: twoHoursAgo),
-            TealiumDispatch(name: "event2")
+            Dispatch(payload: [TealiumDataKey.event: "event1"], id: "UUID", timestamp: twoHoursAgo),
+            Dispatch(name: "event2")
         ]
         XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches, enqueueingFor: ["processor1"]))
         let resultDispatches = queueRepository.getQueuedDispatches(for: "processor1", limit: nil)
@@ -227,8 +227,8 @@ final class SQLQueueRepositoryTests: XCTestCase {
             return
         }
         let dispatches = [
-            TealiumDispatch(eventData: [TealiumDataKey.event: "event1"], id: "UUID", timestamp: twoDaysAgo),
-            TealiumDispatch(name: "event2")
+            Dispatch(payload: [TealiumDataKey.event: "event1"], id: "UUID", timestamp: twoDaysAgo),
+            Dispatch(name: "event2")
         ]
         XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches, enqueueingFor: ["processor1"]))
         guard let dispatchRows = XCTAssertNoThrowReturn(Array(try mockDatabaseProvider.database.prepare(DispatchSchema.table))) else {

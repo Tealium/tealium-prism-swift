@@ -27,7 +27,7 @@ class MockConfigurableBarrier: MockBarrier, ConfigurableBarrier {
 
     required override init() {}
 
-    func shouldQueue(dispatch: TealiumDispatch) -> Bool {
+    func shouldQueue(dispatch: Dispatch) -> Bool {
         return false
     }
 

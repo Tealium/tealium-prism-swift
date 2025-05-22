@@ -71,12 +71,16 @@ class DispatchManagerTestCase: XCTestCase {
     }
     lazy var dispatchManager = getDispatchManager()
     lazy var loadRuleEngine = LoadRuleEngine(sdkSettings: sdkSettings.toStatefulObservable())
+    lazy var mappingsEngine = MappingsEngine(mappings: sdkSettings.toStatefulObservable()
+        .mapState { $0.modules.compactMapValues { $0.mappings } })
+
     func getDispatchManager() -> DispatchManager {
         DispatchManager(loadRuleEngine: loadRuleEngine,
                         modulesManager: modulesManager,
                         queueManager: queueManager,
                         barrierCoordinator: barrierCoordinator,
                         transformerCoordinator: transformerCoordinator,
+                        mappingsEngine: mappingsEngine,
                         logger: nil)
     }
 
