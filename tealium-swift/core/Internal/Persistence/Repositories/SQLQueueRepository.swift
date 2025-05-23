@@ -33,21 +33,17 @@ class SQLQueueRepository: QueueRepository {
             return
         }
         try database.transaction {
-            try storeDispatches(dispatches, enueueingFor: processors)
+            try createSpaceIfNecessary(for: dispatches.count)
+            try dispatches
+                .suffix(maxQueueSize)
+                .forEach { dispatch in
+                    try database.run(DispatchSchema.insert(dispatch: dispatch))
+                    /* Enqueue needs to be run immediately after each dispatch insert or,
+                     in case of replace, the trigger is invoked and all previously inserted dispatches
+                     get deleted due to no processors being in the queue for that event */
+                    try enqueueDispatch(dispatch.id, for: processors)
+                }
         }
-    }
-
-    private func storeDispatches(_ dispatches: [Dispatch], enueueingFor processors: [String]) throws {
-        try createSpaceIfNecessary(for: dispatches.count)
-        try dispatches
-            .suffix(maxQueueSize)
-            .forEach { dispatch in
-                try database.run(DispatchSchema.insert(dispatch: dispatch))
-                /* Enqueue needs to be run immediately after each dispatch insert or,
-                 in case of replace, the trigger is invoked and all previously inserted dispatches
-                 get deleted due to no processors being in the queue for that event */
-                try enqueueDispatch(dispatch.id, for: processors)
-            }
     }
 
     private func enqueueDispatch(_ dispatchUUID: String, for processors: [String]) throws {
