@@ -32,7 +32,7 @@ public class ResourceRefresher<Resource: Codable> {
     private(set) var lastEtag: String?
     private let errorCooldown: ErrorCooldown?
     private let networkHelper: NetworkHelperProtocol
-    private let logger: LoggerProtocol
+    private let logger: LoggerProtocol?
 
     @ToAnyObservable<BasePublisher<Resource>>(BasePublisher())
     var onResourceLoaded: Observable<Resource>
@@ -58,7 +58,7 @@ public class ResourceRefresher<Resource: Codable> {
                 resourceCacher: ResourceCacher<Resource>,
                 parameters: RefreshParameters,
                 errorCooldown: ErrorCooldown? = nil,
-                logger: LoggerProtocol) {
+                logger: LoggerProtocol?) {
         self.networkHelper = networkHelper
         self.resourceCacher = resourceCacher
         self.parameters = parameters
@@ -109,23 +109,23 @@ public class ResourceRefresher<Resource: Codable> {
             switch result {
             case .success(let response):
                 if validatingResource(response.object) {
-                    self.logger.debug(category: LogCategory.resourceRefresher,
-                                      "Refreshed resource \(id)")
+                    self.logger?.debug(category: LogCategory.resourceRefresher,
+                                       "Refreshed resource \(id)")
                     self.saveResource(response.object, etag: response.urlResponse.etag)
                     self._onResourceLoaded.publish(response.object)
                 } else {
-                    self.logger.debug(category: LogCategory.resourceRefresher,
-                                      "Downloaded resource \(id) but discarded as not valid")
+                    self.logger?.debug(category: LogCategory.resourceRefresher,
+                                       "Downloaded resource \(id) but discarded as not valid")
                 }
                 self.errorCooldown?.newCooldownEvent(error: nil)
             case .failure(let error):
                 if case let .non200Status(code) = error, code == 304 {
-                    self.logger.trace(category: LogCategory.resourceRefresher,
-                                      "Resource \(id) is not modified")
+                    self.logger?.trace(category: LogCategory.resourceRefresher,
+                                       "Resource \(id) is not modified")
                     self.errorCooldown?.newCooldownEvent(error: nil)
                 } else {
-                    self.logger.error(category: LogCategory.resourceRefresher,
-                                      "Failed to refresh resource \(id).\nError: \(error)")
+                    self.logger?.error(category: LogCategory.resourceRefresher,
+                                       "Failed to refresh resource \(id).\nError: \(error)")
                     self._onRefreshError.publish(error)
                     self.errorCooldown?.newCooldownEvent(error: error)
                 }
@@ -151,11 +151,11 @@ public class ResourceRefresher<Resource: Codable> {
             try resourceCacher.saveResource(resource, etag: etag)
             lastEtag = etag
             isFileCached = true
-            logger.trace(category: LogCategory.resourceRefresher,
-                         "Resource \(id) saved in the cache:\n\(resource)")
+            logger?.trace(category: LogCategory.resourceRefresher,
+                          "Resource \(id) saved in the cache:\n\(resource)")
         } catch {
-            logger.error(category: LogCategory.resourceRefresher,
-                         "Failed to save downloaded resource \(id).\nError: \(error)")
+            logger?.error(category: LogCategory.resourceRefresher,
+                          "Failed to save downloaded resource \(id).\nError: \(error)")
             _onRefreshError.publish(error)
         }
     }

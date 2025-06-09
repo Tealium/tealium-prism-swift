@@ -33,6 +33,9 @@ class TealiumHelper {
                                                            forcingSettings: { enforcedSettings in
                                         enforcedSettings.setEnabled(false)
                                     }),
+                                    TealiumModules.deviceData(forcingSettings: { enforcedSettings in
+                                        enforcedSettings.setMemoryReportingEnabled(true)
+                                    }),
                                     TealiumModules.lifecycle(forcingSettings: { enforcedSettings in
                                         enforcedSettings.setEnabled(true)
                                     }),

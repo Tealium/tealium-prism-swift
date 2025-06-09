@@ -41,7 +41,6 @@ public extension TealiumDataKey {
     static let profile = "tealium_profile"
     static let environment = "tealium_environment"
     static let visitorId = "tealium_visitor_id"
-    static let origin = "origin"
     static let event = "tealium_event"
     static let screenTitle = "screen_title"
     static let eventType = "tealium_event_type"
@@ -55,17 +54,6 @@ public extension TealiumDataKey {
     static let random = "tealium_random"
     static let uuid = "app_uuid"
     static let requestUUID = "request_uuid"
-    static let simpleModel = "model_name" // e.g. iPhone 5s // OLD: device
-    static let device = "device" // == model_name
-    static let deviceType = "device_type"
-    static let fullModel = "model_variant" // e.g. CDMA, GSM
-    static let architecture = "device_architecture"
-    static let cpuType = "device_cputype"
-    static let language = "device_language"
-    static let osName = "os_name"
-    static let platform = "platform"
-    static let resolution = "device_resolution"
-    static let logicalResolution = "device_logical_resolution"
     static let enabledModules = "enabled_modules"
     static let enabledModulesVersions = "enabled_modules_versions"
     static let deepLinkURL = "deep_link_url"

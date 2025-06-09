@@ -278,4 +278,8 @@ extension [String: DataInput] {
         }
         return result
     }
+
+    public func asDataObject() -> DataObject {
+        return DataObject(dictionaryInput: self)
+    }
 }

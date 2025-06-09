@@ -610,6 +610,21 @@
 		EC1AA4DC2CCF9FEC00D1D9D1 /* MockLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C358CE2AEAB008009E1CDB /* MockLogHandler.swift */; };
 		EC1AA4DD2CCF9FEC00D1D9D1 /* XCTAssert+EqualDictionaries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FEF0A32C2C43DB00340E18 /* XCTAssert+EqualDictionaries.swift */; };
 		EC1AA4DF2CCFA34200D1D9D1 /* FirstLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1AA4DE2CCFA34200D1D9D1 /* FirstLaunchTests.swift */; };
+		EC2AF5D42DE749E5004AE72F /* DeviceDataProviderIOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5D22DE749E5004AE72F /* DeviceDataProviderIOSTests.swift */; };
+		EC2AF5D72DE762AB004AE72F /* DeviceDataSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5D62DE762AB004AE72F /* DeviceDataSettingsBuilderTests.swift */; };
+		EC2AF5D82DE762AB004AE72F /* DeviceDataSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5D62DE762AB004AE72F /* DeviceDataSettingsBuilderTests.swift */; };
+		EC2AF5D92DE762AB004AE72F /* DeviceDataSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5D62DE762AB004AE72F /* DeviceDataSettingsBuilderTests.swift */; };
+		EC2AF5DC2DE778BE004AE72F /* DeviceDataProviderTvOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5DA2DE778BE004AE72F /* DeviceDataProviderTvOSTests.swift */; };
+		EC2AF5E02DE779AA004AE72F /* DeviceDataProviderMacOSTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5DE2DE779AA004AE72F /* DeviceDataProviderMacOSTests.swift */; };
+		EC2AF5E72DE9EAEC004AE72F /* DeviceDataConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5E62DE9EAEC004AE72F /* DeviceDataConfigurationTests.swift */; };
+		EC2AF5E82DE9EAEC004AE72F /* DeviceDataConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5E62DE9EAEC004AE72F /* DeviceDataConfigurationTests.swift */; };
+		EC2AF5E92DE9EAEC004AE72F /* DeviceDataConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5E62DE9EAEC004AE72F /* DeviceDataConfigurationTests.swift */; };
+		EC2AF5EC2DE9EF97004AE72F /* DeviceDataCollectorBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5EA2DE9EF97004AE72F /* DeviceDataCollectorBaseTests.swift */; };
+		EC2AF5ED2DE9EF97004AE72F /* DeviceDataCollectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5EB2DE9EF97004AE72F /* DeviceDataCollectorTests.swift */; };
+		EC2AF5EE2DE9EF97004AE72F /* DeviceDataCollectorBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5EA2DE9EF97004AE72F /* DeviceDataCollectorBaseTests.swift */; };
+		EC2AF5EF2DE9EF97004AE72F /* DeviceDataCollectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5EB2DE9EF97004AE72F /* DeviceDataCollectorTests.swift */; };
+		EC2AF5F02DE9EF97004AE72F /* DeviceDataCollectorBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5EA2DE9EF97004AE72F /* DeviceDataCollectorBaseTests.swift */; };
+		EC2AF5F12DE9EF97004AE72F /* DeviceDataCollectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2AF5EB2DE9EF97004AE72F /* DeviceDataCollectorTests.swift */; };
 		EC2EA5F52DB140B300CCB144 /* DeepLinkHandlerSubscriptionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2EA5F42DB140B300CCB144 /* DeepLinkHandlerSubscriptionTests.swift */; };
 		EC2EA5F72DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2EA5F62DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift */; };
 		EC2EA5F82DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC2EA5F62DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift */; };
@@ -629,6 +644,9 @@
 		EC454C872CF60E21000CD849 /* LaunchSleepLaunchInAMonthTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC454C862CF60E21000CD849 /* LaunchSleepLaunchInAMonthTests.swift */; };
 		EC7191872CFF209E00CDDC13 /* TwoLaunchSleepWakeSleepWithUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7191862CFF209E00CDDC13 /* TwoLaunchSleepWakeSleepWithUpdateTests.swift */; };
 		EC71918C2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC71918B2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift */; };
+		EC8BD8A52DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BD8A42DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift */; };
+		EC8BD8A62DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BD8A42DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift */; };
+		EC8BD8A72DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BD8A42DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift */; };
 		EC97BDD92CFDC41800D07B45 /* LifecycleServiceBaseTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC97BDD82CFDC41800D07B45 /* LifecycleServiceBaseTests.swift */; };
 		EC9C453D2DA015940046AB3A /* TraceManagerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C453C2DA015940046AB3A /* TraceManagerWrapperTests.swift */; };
 		EC9C453E2DA015940046AB3A /* TraceManagerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C453C2DA015940046AB3A /* TraceManagerWrapperTests.swift */; };
@@ -911,6 +929,13 @@
 		EC1AA4B82CCF9CA400D1D9D1 /* LifecycleTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = LifecycleTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		EC1AA4BA2CCF9CA400D1D9D1 /* LaunchSleepTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSleepTests.swift; sourceTree = "<group>"; };
 		EC1AA4DE2CCFA34200D1D9D1 /* FirstLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FirstLaunchTests.swift; sourceTree = "<group>"; };
+		EC2AF5D22DE749E5004AE72F /* DeviceDataProviderIOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDataProviderIOSTests.swift; sourceTree = "<group>"; };
+		EC2AF5D62DE762AB004AE72F /* DeviceDataSettingsBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDataSettingsBuilderTests.swift; sourceTree = "<group>"; };
+		EC2AF5DA2DE778BE004AE72F /* DeviceDataProviderTvOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDataProviderTvOSTests.swift; sourceTree = "<group>"; };
+		EC2AF5DE2DE779AA004AE72F /* DeviceDataProviderMacOSTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDataProviderMacOSTests.swift; sourceTree = "<group>"; };
+		EC2AF5E62DE9EAEC004AE72F /* DeviceDataConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDataConfigurationTests.swift; sourceTree = "<group>"; };
+		EC2AF5EA2DE9EF97004AE72F /* DeviceDataCollectorBaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDataCollectorBaseTests.swift; sourceTree = "<group>"; };
+		EC2AF5EB2DE9EF97004AE72F /* DeviceDataCollectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDataCollectorTests.swift; sourceTree = "<group>"; };
 		EC2EA5F42DB140B300CCB144 /* DeepLinkHandlerSubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandlerSubscriptionTests.swift; sourceTree = "<group>"; };
 		EC2EA5F62DB1474E00CCB144 /* DeepLinkHandlerBaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandlerBaseTests.swift; sourceTree = "<group>"; };
 		EC2EA5FE2DB2B9E500CCB144 /* AppDataCollectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDataCollectorTests.swift; sourceTree = "<group>"; };
@@ -926,6 +951,7 @@
 		EC454C862CF60E21000CD849 /* LaunchSleepLaunchInAMonthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSleepLaunchInAMonthTests.swift; sourceTree = "<group>"; };
 		EC7191862CFF209E00CDDC13 /* TwoLaunchSleepWakeSleepWithUpdateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoLaunchSleepWakeSleepWithUpdateTests.swift; sourceTree = "<group>"; };
 		EC71918B2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Lifecycle+TrackerTests.swift"; sourceTree = "<group>"; };
+		EC8BD8A42DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDataProviderCommonTests.swift; sourceTree = "<group>"; };
 		EC97BDD82CFDC41800D07B45 /* LifecycleServiceBaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleServiceBaseTests.swift; sourceTree = "<group>"; };
 		EC9C453C2DA015940046AB3A /* TraceManagerWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceManagerWrapperTests.swift; sourceTree = "<group>"; };
 		EC9C45402DA015B30046AB3A /* TraceManagerModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceManagerModuleTests.swift; sourceTree = "<group>"; };
@@ -1390,6 +1416,7 @@
 		D54BBF7C2C78C015003687C7 /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				EC2AF5D12DE74557004AE72F /* DeviceData */,
 				ECAB83552DAFDD2600B2CF64 /* DeepLink */,
 				EC2EA5FE2DB2B9E500CCB144 /* AppDataCollectorTests.swift */,
 				EC9C453B2DA0155E0046AB3A /* Trace */,
@@ -1555,6 +1582,21 @@
 				EC454C742CEF5C74000CD849 /* LifecycleService */,
 			);
 			path = Lifecycle;
+			sourceTree = "<group>";
+		};
+		EC2AF5D12DE74557004AE72F /* DeviceData */ = {
+			isa = PBXGroup;
+			children = (
+				EC2AF5EA2DE9EF97004AE72F /* DeviceDataCollectorBaseTests.swift */,
+				EC2AF5EB2DE9EF97004AE72F /* DeviceDataCollectorTests.swift */,
+				EC2AF5D22DE749E5004AE72F /* DeviceDataProviderIOSTests.swift */,
+				EC2AF5D62DE762AB004AE72F /* DeviceDataSettingsBuilderTests.swift */,
+				EC2AF5DA2DE778BE004AE72F /* DeviceDataProviderTvOSTests.swift */,
+				EC2AF5DE2DE779AA004AE72F /* DeviceDataProviderMacOSTests.swift */,
+				EC2AF5E62DE9EAEC004AE72F /* DeviceDataConfigurationTests.swift */,
+				EC8BD8A42DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift */,
+			);
+			path = DeviceData;
 			sourceTree = "<group>";
 		};
 		EC454C742CEF5C74000CD849 /* LifecycleService */ = {
@@ -2352,6 +2394,7 @@
 				15ED5B052A60463E0027BB20 /* CustomObservableTests.swift in Sources */,
 				87ED26E82CE4E47D0086FFA4 /* DataLayerModuleTests.swift in Sources */,
 				87EE76D42D7865D300BB1D77 /* Condition+NotEqualsTests.swift in Sources */,
+				EC8BD8A72DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift in Sources */,
 				EC9C45432DA015B30046AB3A /* TraceManagerModuleTests.swift in Sources */,
 				D58EE2DD2C74CDDE00FBDF94 /* ApplicationStatusListenerTests.swift in Sources */,
 				87C6C2432D528070008B91D8 /* ConsentModuleTests.swift in Sources */,
@@ -2361,6 +2404,7 @@
 				87908E582DA94BF900193F08 /* SingleTests.swift in Sources */,
 				87908E5C2DA95DD800193F08 /* Operator+AsSingleTests.swift in Sources */,
 				876F793B2C50F637008BC13B /* CoreSettingsBuilderTests.swift in Sources */,
+				EC2AF5D92DE762AB004AE72F /* DeviceDataSettingsBuilderTests.swift in Sources */,
 				1537812B2A6181BE007BCA70 /* SubscriptionRetainCycleHelper.swift in Sources */,
 				151527E32AB1C4A1003D3932 /* ModuleStoreTests.swift in Sources */,
 				87EE76FC2D78785900BB1D77 /* Condition+StartsWithTests.swift in Sources */,
@@ -2389,6 +2433,7 @@
 				1597DC7B2A446ADA00C394D3 /* MockInterceptor.swift in Sources */,
 				D54BBFC02C78C01A003687C7 /* ReachabilityConnectivityMonitorTests.swift in Sources */,
 				D54BBFDE2C78C01A003687C7 /* RetryPolicyTests.swift in Sources */,
+				EC2AF5E92DE9EAEC004AE72F /* DeviceDataConfigurationTests.swift in Sources */,
 				87AF54822C8211B100F1C114 /* DataItem+SerializingTests.swift in Sources */,
 				87EE76E02D786B6400BB1D77 /* Condition+IsBadgeAssignedTests.swift in Sources */,
 				87FC086A2D931B9500E1041D /* LoadRule+ConverterTests.swift in Sources */,
@@ -2412,6 +2457,7 @@
 				15C0DCBF2B0CF5430007F6BE /* Operators+QueuesTests.swift in Sources */,
 				EC2EA5F52DB140B300CCB144 /* DeepLinkHandlerSubscriptionTests.swift in Sources */,
 				48F9CE082A5F2BBE00A7376F /* SQLiteOpenHelperTests.swift in Sources */,
+				EC2AF5D42DE749E5004AE72F /* DeviceDataProviderIOSTests.swift in Sources */,
 				87FEF0A42C2C43DB00340E18 /* XCTAssert+EqualDictionaries.swift in Sources */,
 				15AB12982BD7B5C300AF1A08 /* SQLQueueRepositoryTests.swift in Sources */,
 				ECBF304F2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift in Sources */,
@@ -2433,6 +2479,8 @@
 				155396E32B0B793000ED973A /* StateSubjectTests.swift in Sources */,
 				87AF546C2C7E389C00F1C114 /* RepeatingTimerTests.swift in Sources */,
 				87EE76F42D78751E00BB1D77 /* Condition+ContainsTests.swift in Sources */,
+				EC2AF5EC2DE9EF97004AE72F /* DeviceDataCollectorBaseTests.swift in Sources */,
+				EC2AF5ED2DE9EF97004AE72F /* DeviceDataCollectorTests.swift in Sources */,
 				87FC089B2D95B04400E1041D /* SettingsManager+TransformationsTests.swift in Sources */,
 				155D36342A66AE1300788363 /* MockNetworkClient.swift in Sources */,
 				87EE77122D78856100BB1D77 /* AndTests.swift in Sources */,
@@ -2510,6 +2558,7 @@
 				871237DC2DD60D7B0007C2CD /* DataObject+VariableAccessorTests.swift in Sources */,
 				87EE77162D7887CA00BB1D77 /* MockMatchable.swift in Sources */,
 				87EE76DE2D7867F500BB1D77 /* Condition+IsPopulatedTests.swift in Sources */,
+				EC2AF5D82DE762AB004AE72F /* DeviceDataSettingsBuilderTests.swift in Sources */,
 				87BA6D482C6A470C00784784 /* ModuleSettingsBuilderTests.swift in Sources */,
 				87BA6D4A2C6A470C00784784 /* TealiumConfigTests.swift in Sources */,
 				87BA6D4D2C6A470C00784784 /* MockLogHandler.swift in Sources */,
@@ -2528,6 +2577,7 @@
 				87FC087F2D94532000E1041D /* MockDispatchManager.swift in Sources */,
 				D54BBFB92C78C01A003687C7 /* ConnectivityBarrierTests.swift in Sources */,
 				87BA6D542C6A470C00784784 /* Operators+FilterTests.swift in Sources */,
+				EC8BD8A62DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift in Sources */,
 				87FC087B2D9452FD00E1041D /* MockCollector.swift in Sources */,
 				877C5F702CBD6C99008D4B78 /* Sha256Tests.swift in Sources */,
 				87BA6D562C6A470C00784784 /* ObservableTests.swift in Sources */,
@@ -2568,6 +2618,8 @@
 				87EE76CF2D77443C00BB1D77 /* Condition+EqualsTests.swift in Sources */,
 				87BA6D742C6A470C00784784 /* MockUrlSession.swift in Sources */,
 				D54BBFE02C78C01A003687C7 /* RetryPolicyTests.swift in Sources */,
+				EC2AF5F02DE9EF97004AE72F /* DeviceDataCollectorBaseTests.swift in Sources */,
+				EC2AF5F12DE9EF97004AE72F /* DeviceDataCollectorTests.swift in Sources */,
 				87F8E6C42CAAD00E00F65EA1 /* XCTAssert+NaN.swift in Sources */,
 				87BA6D752C6A470C00784784 /* Operators+IgnoreTests.swift in Sources */,
 				87BA6D762C6A470C00784784 /* MockInterceptor.swift in Sources */,
@@ -2577,6 +2629,7 @@
 				87BA6D7A2C6A470C00784784 /* MockNetworkHelper.swift in Sources */,
 				87EE77552D81CE6E00BB1D77 /* Rule+ConverterTests.swift in Sources */,
 				87BA6D7B2C6A470C00784784 /* MockQueueManager.swift in Sources */,
+				EC2AF5E02DE779AA004AE72F /* DeviceDataProviderMacOSTests.swift in Sources */,
 				87BA6D7C2C6A470C00784784 /* Operators+ResubscribingWhileTests.swift in Sources */,
 				87BA6D7D2C6A470C00784784 /* RetainCycleHelper.swift in Sources */,
 				87BA6D7E2C6A470C00784784 /* ModuleStoreProviderTests.swift in Sources */,
@@ -2587,6 +2640,7 @@
 				87C6C2532D528189008B91D8 /* TealiumQueueTests.swift in Sources */,
 				87C6C2542D528189008B91D8 /* DisposableItemListTests.swift in Sources */,
 				87BA6D802C6A470C00784784 /* Operators+QueuesTests.swift in Sources */,
+				EC2AF5E72DE9EAEC004AE72F /* DeviceDataConfigurationTests.swift in Sources */,
 				D54BBFCE2C78C01A003687C7 /* NetworkConfigurationTests.swift in Sources */,
 				87EE76F22D78720000BB1D77 /* Condition+LessThanTests.swift in Sources */,
 				87BA6D822C6A470C00784784 /* SQLiteOpenHelperTests.swift in Sources */,
@@ -2707,6 +2761,7 @@
 				871237DA2DD60D7B0007C2CD /* DataObject+VariableAccessorTests.swift in Sources */,
 				87BA6DC82C6A47AF00784784 /* TealiumConfigTests.swift in Sources */,
 				87BA6DCB2C6A47AF00784784 /* MockLogHandler.swift in Sources */,
+				EC2AF5D72DE762AB004AE72F /* DeviceDataSettingsBuilderTests.swift in Sources */,
 				D54BBFEB2C78C01A003687C7 /* DispatchManager+BarrierTests.swift in Sources */,
 				08BD03282D356BBB00FA2E2E /* CollectConfigurationTests.swift in Sources */,
 				87C6C2382D528056008B91D8 /* ModulesManagerTests.swift in Sources */,
@@ -2725,6 +2780,7 @@
 				87FC08802D94532000E1041D /* MockDispatchManager.swift in Sources */,
 				08BD032C2D356BBB00FA2E2E /* CollectSettingsBuilderTests.swift in Sources */,
 				87EE76FD2D78785900BB1D77 /* Condition+StartsWithTests.swift in Sources */,
+				EC8BD8A52DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift in Sources */,
 				87FC087A2D9452FD00E1041D /* MockCollector.swift in Sources */,
 				87BA6DCC2C6A47AF00784784 /* MockConsentManager.swift in Sources */,
 				87BA6DCD2C6A47AF00784784 /* CoreSettingsConverterTests.swift in Sources */,
@@ -2765,6 +2821,8 @@
 				87AF54832C8211B100F1C114 /* DataItem+SerializingTests.swift in Sources */,
 				87BA6DEC2C6A47AF00784784 /* ToAnyObservableTests.swift in Sources */,
 				87BA6DED2C6A47AF00784784 /* XCTAssert+Result.swift in Sources */,
+				EC2AF5EE2DE9EF97004AE72F /* DeviceDataCollectorBaseTests.swift in Sources */,
+				EC2AF5EF2DE9EF97004AE72F /* DeviceDataCollectorTests.swift in Sources */,
 				D54BBFF72C78C01A003687C7 /* DispatchManager+MaximumInflightTests.swift in Sources */,
 				87BA6DF12C6A47AF00784784 /* DisposableTests.swift in Sources */,
 				EC0D84F12D6F6D7A00436087 /* NetworkConnectionTests.swift in Sources */,
@@ -2785,6 +2843,7 @@
 				87EE76F12D78720000BB1D77 /* Condition+LessThanTests.swift in Sources */,
 				87EE76D52D7865D300BB1D77 /* Condition+NotEqualsTests.swift in Sources */,
 				87BA6DF92C6A47AF00784784 /* MockQueueManager.swift in Sources */,
+				EC2AF5E82DE9EAEC004AE72F /* DeviceDataConfigurationTests.swift in Sources */,
 				87BA6DFA2C6A47AF00784784 /* Operators+ResubscribingWhileTests.swift in Sources */,
 				87EE76E52D786C4500BB1D77 /* Condition+GreaterThanTests.swift in Sources */,
 				87BA6DFB2C6A47AF00784784 /* RetainCycleHelper.swift in Sources */,
@@ -2830,6 +2889,7 @@
 				87A05CFC2DBA2F6800D280F4 /* BarrierManagerTests.swift in Sources */,
 				87EE76F92D78773000BB1D77 /* Condition+NotContainsTests.swift in Sources */,
 				87FC08732D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift in Sources */,
+				EC2AF5DC2DE778BE004AE72F /* DeviceDataProviderTvOSTests.swift in Sources */,
 				87FC08562D91ADF300E1041D /* Rule+DataInputConvertibleTests.swift in Sources */,
 				87BA6E102C6A47AF00784784 /* Operators+MergeTests.swift in Sources */,
 				EC0D84EB2D6F671D00436087 /* ConnectivityCollectorTests.swift in Sources */,

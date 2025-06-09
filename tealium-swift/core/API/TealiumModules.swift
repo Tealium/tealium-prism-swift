@@ -45,6 +45,10 @@ public enum TealiumModules {
         DefaultModuleFactory<DataLayerModule>()
     }
 
+    static public func deviceData(forcingSettings block: ((_ enforcedSettings: DeviceDataSettingsBuilder) -> DeviceDataSettingsBuilder)? = nil) -> any TealiumModuleFactory {
+        DeviceDataCollector.Factory(forcingSettings: block)
+    }
+
     /// Returns a factory for creating the `DeepLinkModule`.
     static public func deepLink(forcingSettings block: ((_ enforcedSettings: DeepLinkSettingsBuilder) -> DeepLinkSettingsBuilder)? = nil) -> any TealiumModuleFactory {
         DeepLinkHandlerModule.Factory(forcingSettings: block)

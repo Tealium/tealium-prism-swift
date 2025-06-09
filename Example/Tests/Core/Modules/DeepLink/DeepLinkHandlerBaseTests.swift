@@ -29,7 +29,7 @@ class DeepLinkHandlerBaseTests: XCTestCase {
     let dispatchContext = DispatchContext(source: .application, initialData: [:])
     let testTraceId = "testTraceId"
 
-    override func setUpWithError() throws {
+    override func setUp() {
         config.modules = [TealiumModules.trace()]
         let context = context()
         manager.updateSettings(context: context, settings: SDKSettings([:]))
