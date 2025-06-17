@@ -24,12 +24,15 @@ class CustomDispatcher: Dispatcher {
     }
 }
 
-class CustomCMP: CMPIntegration {
+class CustomCMP: CMPAdapter {
+    let id = "custom"
     @StateSubject(ConsentDecision(decisionType: .implicit, purposes: []))
     var consentDecision: ObservableState<ConsentDecision?>
 
-    func allPurposes() -> [String] {
-        []
+    let allPurposes = ["tealium", "all"]
+
+    func applyConsent(_ consentDecision: ConsentDecision) {
+        _consentDecision.publish(consentDecision)
     }
 }
 

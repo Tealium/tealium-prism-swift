@@ -58,7 +58,10 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
     }
 
     func test_executeModuleTask_completes_with_moduleNotEnabled_error_when_module_disabled() {
-        manager.updateSettings(context: context(), settings: SDKSettings(modules: [MockModule.id: ModuleSettingsBuilder().setEnabled(false).build()]))
+        manager.updateSettings(context: context(),
+                               settings: SDKSettings(modules: [
+                                MockModule.id: ModuleSettings(enabled: false)
+                               ]))
         let errorCaught = expectation(description: "Error caught")
         let single = moduleProxy.executeModuleTask { _ in
         }
@@ -100,7 +103,9 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
     }
 
     func test_executeModuleAsyncTask_completes_with_moduleNotEnabled_error_when_module_disabled() {
-        manager.updateSettings(context: context(), settings: SDKSettings(modules: [MockModule.id: ModuleSettingsBuilder().setEnabled(false).build()]))
+        manager.updateSettings(context: context(), settings: SDKSettings(modules: [
+            MockModule.id: ModuleSettings(enabled: false)
+        ]))
         let errorCaught = expectation(description: "Error caught")
         let single: any Single<Result<Void, Error>> = moduleProxy.executeModuleAsyncTask { _, completion in
             completion(.success(()))

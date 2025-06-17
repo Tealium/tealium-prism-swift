@@ -12,9 +12,15 @@ import XCTest
 final class DispatchManagerMappingsTests: DispatchManagerTestCase {
 
     func addMappings(moduleId: String, mappings: [MappingOperation]) {
-        var module = settings[moduleId] ?? [:]
-        module.set(converting: DataItem(value: mappings.map { $0.toDataInput() }), key: "mappings")
-        settings[moduleId] = module
+        let module = if let moduleSettings = sdkSettings.value.modules[moduleId] {
+            ModuleSettings(enabled: moduleSettings.enabled,
+                           rules: moduleSettings.rules,
+                           mappings: mappings,
+                           configuration: moduleSettings.configuration)
+        } else {
+            ModuleSettings(mappings: mappings)
+        }
+        _sdkSettings.add(modules: [moduleId: module])
         modulesManager.updateSettings(context: context, settings: sdkSettings.value)
     }
 

@@ -31,33 +31,30 @@ class DispatchManagerTestCase: XCTestCase {
     let config = TealiumConfig(account: "test",
                                profile: "test",
                                environment: "dev",
-                               modules: [MockDispatcher1.factory, MockDispatcher2.factory, MockConsentManager.factory],
+                               modules: [MockDispatcher1.factory, MockDispatcher2.factory],
                                settingsFile: "",
                                settingsUrl: nil)
     let databaseProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
     lazy var modulesManager = ModulesManager(queue: queue)
-    lazy var settings: [String: DataObject] = [ConsentModule.id: ["enabled": false]] {
-        didSet {
-            sdkSettings.publish(SDKSettings(modules: settings))
-        }
+    var _sdkSettings = StateSubject(SDKSettings())
+    var sdkSettings: ObservableState<SDKSettings> {
+        _sdkSettings.toStatefulObservable()
     }
-    private(set) lazy var sdkSettings = StateSubject(SDKSettings(modules: settings))
     var coreSettings: ObservableState<CoreSettings> {
-        sdkSettings.toStatefulObservable()
-            .mapState(transform: { $0.core })
+        sdkSettings.mapState(transform: { $0.core })
     }
-    lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: modulesManager.modules),
+    lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: modulesManager.modules, addingConsent: true),
                                              queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
                                                                                  maxQueueSize: 10,
                                                                                  expiration: TimeFrame(unit: .days, interval: 1)),
                                              coreSettings: coreSettings,
                                              logger: nil)
-    let barrierManager = BarrierManager(sdkBarrierSettings: StateSubject([:]).toStatefulObservable())
+    let barrierManager = BarrierManager(sdkBarrierSettings: .constant([:]))
     lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: onBarriers)
     lazy var transformerCoordinator = TransformerCoordinator(transformers: transformers.toStatefulObservable(),
                                                              transformations: transformations,
-                                                             moduleMappings: StateSubject([:]).toStatefulObservable(),
+                                                             moduleMappings: .constant([:]),
                                                              queue: .main)
     lazy var context = MockContext(modulesManager: modulesManager,
                                    config: config,
@@ -66,17 +63,16 @@ class DispatchManagerTestCase: XCTestCase {
                                    transformerRegistry: transformerCoordinator,
                                    databaseProvider: databaseProvider,
                                    queue: queue)
-    var consentManager: MockConsentManager? {
-        modulesManager.getModule()
-    }
+    var consentManager: MockConsentManager?
     lazy var dispatchManager = getDispatchManager()
-    lazy var loadRuleEngine = LoadRuleEngine(sdkSettings: sdkSettings.toStatefulObservable())
-    lazy var mappingsEngine = MappingsEngine(mappings: sdkSettings.toStatefulObservable()
+    lazy var loadRuleEngine = LoadRuleEngine(sdkSettings: sdkSettings)
+    lazy var mappingsEngine = MappingsEngine(mappings: sdkSettings
         .mapState { $0.modules.compactMapValues { $0.mappings } })
 
     func getDispatchManager() -> DispatchManager {
         DispatchManager(loadRuleEngine: loadRuleEngine,
                         modulesManager: modulesManager,
+                        consentManager: consentManager,
                         queueManager: queueManager,
                         barrierCoordinator: barrierCoordinator,
                         transformerCoordinator: transformerCoordinator,
@@ -104,12 +100,12 @@ class DispatchManagerTestCase: XCTestCase {
 
     func disableModule<T: TealiumModule>(module: T?) {
         guard let module = module else { return }
-        settings += [module.id: ["enabled": false]]
+        _sdkSettings.add(modules: [module.id: ModuleSettings(enabled: false)])
         modulesManager.updateSettings(context: context, settings: sdkSettings.value)
     }
 
     func enableModule(_ moduleId: String) {
-        settings += [moduleId: ["enabled": true]]
+        _sdkSettings.add(modules: [moduleId: ModuleSettings(enabled: true)])
         modulesManager.updateSettings(context: context, settings: sdkSettings.value)
     }
 }

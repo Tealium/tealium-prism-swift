@@ -19,9 +19,9 @@ final class ModulesManagerTests: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
     lazy var modulesManager = ModulesManager(queue: queue)
-    lazy var transformerCoordinator = TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
-                                                             transformations: StateSubject([]).toStatefulObservable(),
-                                                             moduleMappings: StateSubject([:]).toStatefulObservable(),
+    lazy var transformerCoordinator = TransformerCoordinator(transformers: .constant([]),
+                                                             transformations: .constant([]),
+                                                             moduleMappings: .constant([:]),
                                                              queue: .main)
     lazy var context = createContext()
     func createContext() -> TealiumContext {
@@ -30,9 +30,6 @@ final class ModulesManagerTests: XCTestCase {
                     transformerRegistry: transformerCoordinator,
                     databaseProvider: databaseProvider,
                     queue: queue)
-    }
-    var consentManager: MockConsentManager? {
-        modulesManager.getModule()
     }
 
     var module1: MockDispatcher1? {
@@ -44,30 +41,32 @@ final class ModulesManagerTests: XCTestCase {
     }
 
     func test_updateSettings_initializes_all_modules() {
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [:]))
+        modulesManager.updateSettings(context: context, settings: SDKSettings())
         let modules = modulesManager.modules.value
         XCTAssertEqual(modules.count, context.config.modules.count)
     }
 
     func test_updateSettings_doesnt_initialize_disabled_modules() {
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [MockDispatcher1.id: ["enabled": false]]))
+        modulesManager.updateSettings(context: context,
+                                      settings: SDKSettings(modules: [MockDispatcher1.id: ModuleSettings(enabled: false)]))
         let modules = modulesManager.modules.value
         XCTAssertEqual(modules.count, context.config.modules.count - 1)
         XCTAssertFalse(modules.contains(where: { $0.id == MockDispatcher1.id }))
     }
 
     func test_updateSettings_changes_list_of_initialized_modules() {
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [:]))
+        modulesManager.updateSettings(context: context, settings: SDKSettings())
         let modules = modulesManager.modules.value
         XCTAssertEqual(modules.count, context.config.modules.count)
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [MockDispatcher1.id: ["enabled": false]]))
+        modulesManager.updateSettings(context: context,
+                                      settings: SDKSettings(modules: [MockDispatcher1.id: ModuleSettings(enabled: false)]))
         let modulesAfterUpdate = modulesManager.modules.value
         XCTAssertEqual(modulesAfterUpdate.count, context.config.modules.count - 1)
         XCTAssertFalse(modulesAfterUpdate.contains(where: { $0.id == MockDispatcher1.id }))
     }
 
     func test_updateSettings_sends_new_settings_to_all_modules() {
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [:]))
+        modulesManager.updateSettings(context: context, settings: SDKSettings())
         let modules = modulesManager.modules.value
         XCTAssertEqual(modules.count, context.config.modules.count)
         let updatedSettings = expectation(description: "Every module got settings updated")
@@ -80,12 +79,12 @@ final class ModulesManagerTests: XCTestCase {
                         updatedSettings.fulfill()
                     }
             }
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [:]))
+        modulesManager.updateSettings(context: context, settings: SDKSettings())
         waitForDefaultTimeout()
     }
 
     func test_updateSettings_doesnt_send_new_settings_to_modules_being_disabled() {
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [:]))
+        modulesManager.updateSettings(context: context, settings: SDKSettings())
         let modules = modulesManager.modules.value
         XCTAssertEqual(modules.count, context.config.modules.count)
         let updatedSettings = expectation(description: "\(MockDispatcher1.id) must not get settings updated even while being disabled")
@@ -93,57 +92,59 @@ final class ModulesManagerTests: XCTestCase {
         module1?.moduleConfiguration.updates().subscribeOnce { _ in
             updatedSettings.fulfill()
         }
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [MockDispatcher1.id: ["enabled": false]]))
+        modulesManager.updateSettings(context: context,
+                                      settings: SDKSettings(modules: [MockDispatcher1.id: ModuleSettings(enabled: false)]))
         waitForDefaultTimeout()
     }
 
     func test_shutdown_called_to_modules_being_disabled() {
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [:]))
+        modulesManager.updateSettings(context: context, settings: SDKSettings())
         let modules = modulesManager.modules.value
         XCTAssertEqual(modules.count, context.config.modules.count)
         let shutdown = expectation(description: "\(MockDispatcher1.id) got shutdown")
         module1?.onShutdown.subscribeOnce {
             shutdown.fulfill()
         }
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [MockDispatcher1.id: ["enabled": false]]))
+        modulesManager.updateSettings(context: context,
+                                      settings: SDKSettings(modules: [MockDispatcher1.id: ModuleSettings(enabled: false)]))
         waitForDefaultTimeout()
     }
 
     func test_updateSettings_initializes_modules_with_their_own_configuration() {
-        let module1Settings: DataObject = ["configuration": ["key1": "value1"]]
-        let module2Settings: DataObject = ["configuration": ["key2": "value2"]]
+        let module1SettingsConfiguration: DataObject = ["key1": "value1"]
+        let module2SettingsConfiguration: DataObject = ["key2": "value2"]
         modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [
-            MockDispatcher1.id: module1Settings,
-            MockDispatcher2.id: module2Settings
+            MockDispatcher1.id: ModuleSettings(configuration: module1SettingsConfiguration),
+            MockDispatcher2.id: ModuleSettings(configuration: module2SettingsConfiguration)
         ]))
         let modules = modulesManager.modules.value
         XCTAssertEqual(modules.count, context.config.modules.count)
-        XCTAssertEqual(module1?.moduleConfiguration.value, ModuleSettings.converter.convert(dataItem: module1Settings.toDataItem())?.configuration)
-        XCTAssertEqual(module2?.moduleConfiguration.value, ModuleSettings.converter.convert(dataItem: module2Settings.toDataItem())?.configuration)
+        XCTAssertEqual(module1?.moduleConfiguration.value, module1SettingsConfiguration)
+        XCTAssertEqual(module2?.moduleConfiguration.value, module2SettingsConfiguration)
     }
 
     func test_updateSettings_updates_modules_with_their_own_configuration() {
-        let module1Settings: DataObject = ["configuration": ["key1": "value1"]]
-        let module2Settings: DataObject = ["configuration": ["key2": "value2"]]
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [:]))
+        let module1SettingsConfiguration: DataObject = ["key1": "value1"]
+        let module2SettingsConfiguration: DataObject = ["key2": "value2"]
+        modulesManager.updateSettings(context: context, settings: SDKSettings())
         let modules = modulesManager.modules.value
         XCTAssertEqual(modules.count, context.config.modules.count)
         modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [
-            MockDispatcher1.id: module1Settings,
-            MockDispatcher2.id: module2Settings
+            MockDispatcher1.id: ModuleSettings(configuration: module1SettingsConfiguration),
+            MockDispatcher2.id: ModuleSettings(configuration: module2SettingsConfiguration)
         ]))
-        XCTAssertEqual(module1?.moduleConfiguration.value, ModuleSettings.converter.convert(dataItem: module1Settings.toDataItem())?.configuration)
-        XCTAssertEqual(module2?.moduleConfiguration.value, ModuleSettings.converter.convert(dataItem: module2Settings.toDataItem())?.configuration)
+        XCTAssertEqual(module1?.moduleConfiguration.value, module1SettingsConfiguration)
+        XCTAssertEqual(module2?.moduleConfiguration.value, module2SettingsConfiguration)
     }
 
     func test_getModule_returns_module_if_initialized() {
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [:]))
+        modulesManager.updateSettings(context: context, settings: SDKSettings())
         XCTAssertNil(modulesManager.getModule(TealiumCollect.self))
         XCTAssertNotNil(modulesManager.getModule(MockDispatcher1.self))
     }
 
     func test_getModule_completes_on_tealiumQueue_with_initialized_module() {
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [:]))
+        modulesManager.updateSettings(context: context, settings: SDKSettings())
         let getModuleCompleted = expectation(description: "GetModule completes")
         modulesManager.getModule { (module: MockDispatcher1?) in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -154,7 +155,7 @@ final class ModulesManagerTests: XCTestCase {
     }
 
     func test_getModule_completes_on_tealiumQueue_with_missing_module() {
-        modulesManager.updateSettings(context: context, settings: SDKSettings(modules: [:]))
+        modulesManager.updateSettings(context: context, settings: SDKSettings())
         let getModuleCompleted = expectation(description: "GetModule completes")
         modulesManager.getModule { (module: TealiumCollect?) in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))

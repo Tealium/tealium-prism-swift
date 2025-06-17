@@ -16,46 +16,50 @@ struct SDKSettings {
         static let loadRules = "load_rules"
         static let transformations = "transformations"
         static let barriers = "barriers"
+        static let consent = "consent"
     }
     let core: CoreSettings
     let modules: [String: ModuleSettings]
     let loadRules: [String: LoadRule]
     let transformations: [String: TransformationSettings]
     let barriers: [String: BarrierSettings]
+    let consent: ConsentSettings?
 
     init(_ settings: DataObject) {
-        self.init(core: settings.getConvertible(key: Keys.core,
-                                                converter: CoreSettings.converter) ?? CoreSettings(),
-                  modules: settings.getDataDictionary(key: Keys.modules)?
-            .compactMapValues { $0.getConvertible(converter: ModuleSettings.converter) } ?? [:],
-                  loadRules: settings.getDataDictionary(key: Keys.loadRules)?
-            .compactMapValues {
-                $0.getConvertible(converter: LoadRule.converter)
-            } ?? [:],
-                  transformations: settings.getDataDictionary(key: Keys.transformations)?
-            .compactMapValues {
-                $0.getConvertible(converter: TransformationSettings.converter)
-            } ?? [:],
-                  barriers: settings.getDataDictionary(key: Keys.barriers)?
-            .compactMapValues {
-                $0.getConvertible(converter: BarrierSettings.converter)
-            } ?? [:]
+        self.init(
+            core: settings.getConvertible(key: Keys.core,
+                                          converter: CoreSettings.converter) ?? CoreSettings(),
+            modules: settings.getDataDictionary(key: Keys.modules)?
+                .compactMapValues { $0.getConvertible(converter: ModuleSettings.converter) } ?? [:],
+            loadRules: settings.getDataDictionary(key: Keys.loadRules)?
+                .compactMapValues {
+                    $0.getConvertible(converter: LoadRule.converter)
+                } ?? [:],
+            transformations: settings.getDataDictionary(key: Keys.transformations)?
+                .compactMapValues {
+                    $0.getConvertible(converter: TransformationSettings.converter)
+                } ?? [:],
+            barriers: settings.getDataDictionary(key: Keys.barriers)?
+                .compactMapValues {
+                    $0.getConvertible(converter: BarrierSettings.converter)
+                } ?? [:],
+            consent: settings.getConvertible(key: Keys.consent,
+                                             converter: ConsentSettings.converter)
         )
     }
 
-    init(modules: [String: DataObject] = [:]) {
-        self.init([Keys.modules: modules])
-    }
-
-    init(core: CoreSettings,
+    init(core: CoreSettings = CoreSettings(),
          modules: [String: ModuleSettings] = [:],
          loadRules: [String: LoadRule] = [:],
          transformations: [String: TransformationSettings] = [:],
-         barriers: [String: BarrierSettings] = [:]) {
+         barriers: [String: BarrierSettings] = [:],
+         consent: ConsentSettings? = nil
+    ) {
         self.core = core
         self.modules = modules
         self.loadRules = loadRules
         self.transformations = transformations
         self.barriers = barriers
+        self.consent = consent
     }
 }

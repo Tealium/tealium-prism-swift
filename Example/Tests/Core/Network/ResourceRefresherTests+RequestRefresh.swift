@@ -120,4 +120,51 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
         waitForDefaultTimeout()
     }
 
+    func test_requestRefresh_causes_onLoadCompleted_after_onLatestResources_when_success() throws {
+        let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
+        networkHelper.codableResult = .success(.successful(object: inputResource))
+        let resourceLoaded = expectation(description: "Resource should be loaded")
+        let loadCompleted = expectation(description: "Load Completed")
+        let refresher = try createResourceRefresher()
+        refresher.onLatestResource.subscribeOnce { _ in
+            resourceLoaded.fulfill()
+        }
+        refresher.onLoadCompleted.subscribeOnce {
+            loadCompleted.fulfill()
+        }
+        refresher.requestRefresh()
+        wait(for: [resourceLoaded, loadCompleted], timeout: Self.defaultTimeout, enforceOrder: true)
+    }
+
+    func test_requestRefresh_causes_onLoadCompleted_after_onError_when_failure() throws {
+        networkHelper.codableResult = .failure(.non200Status(404))
+        let errorEmitted = expectation(description: "Error should be emitted")
+        let loadCompleted = expectation(description: "Load Completed")
+        let refresher = try createResourceRefresher()
+        refresher.onRefreshError.subscribeOnce { _ in
+            errorEmitted.fulfill()
+        }
+        refresher.onLoadCompleted.subscribeOnce {
+            loadCompleted.fulfill()
+        }
+        refresher.requestRefresh()
+        wait(for: [errorEmitted, loadCompleted], timeout: Self.defaultTimeout, enforceOrder: true)
+    }
+
+    func test_requestRefresh_causes_onLoadCompleted_when_notModified() throws {
+        networkHelper.codableResult = .failure(.non200Status(304))
+        let errorNotEmitted = expectation(description: "Error should not be emitted")
+        errorNotEmitted.isInverted = true
+        let loadCompleted = expectation(description: "Load Completed")
+        let refresher = try createResourceRefresher()
+        refresher.onRefreshError.subscribeOnce { _ in
+            errorNotEmitted.fulfill()
+        }
+        refresher.onLoadCompleted.subscribeOnce {
+            loadCompleted.fulfill()
+        }
+        refresher.requestRefresh()
+        waitForDefaultTimeout()
+    }
+
 }

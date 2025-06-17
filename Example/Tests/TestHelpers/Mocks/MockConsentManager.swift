@@ -9,9 +9,19 @@
 import Foundation
 @testable import TealiumSwift
 
-class MockConsentManager: MockModule, ConsentManager {
-    class override var id: String { ConsentModule.id }
-    var currentDecision: ConsentDecision?
+class MockConsentManager: ConsentManager {
+
+    let _onConfigurationSelected = ReplaySubject<ConsentConfiguration?>()
+    var onConfigurationSelected: Observable<ConsentConfiguration?> {
+        _onConfigurationSelected.asObservable()
+    }
+
+    var unrecoverableConsentError: Error?
+
+    var tealiumPurposeExplicitlyBlocked: Bool {
+        currentDecision?.isMatchingAllPurposes(in: ["tealium"]) != true
+    }
+    var currentDecision: ConsentDecision? = ConsentDecision(decisionType: .implicit, purposes: ["tealium"])
     var allPurposes: [String] = []
     var acceptTrack: Bool = true
     func trackResultBuilder(dispatch: Dispatch) -> TrackResult {
@@ -25,17 +35,13 @@ class MockConsentManager: MockModule, ConsentManager {
     @ToAnyObservable(BasePublisher<Dispatch>())
     var onApplyConsent: Observable<Dispatch>
 
-    func applyConsent(to dispatch: Dispatch, completion onTrackResult: TrackResultCompletion?) {
+    func applyConsent(to dispatch: Dispatch) -> TrackResult {
         _onApplyConsent.publish(dispatch)
-        onTrackResult?(trackResultBuilder(dispatch: dispatch))
+        return trackResultBuilder(dispatch: dispatch)
     }
 
-    func tealiumConsented(forPurposes purposes: [String]) -> Bool {
-        purposes.contains("tealium")
-    }
-
-    func allPurposesMatch(consentDecision: ConsentDecision) -> Bool {
-        consentDecision.matchAll(allPurposes)
+    func filterDispatches(_ dispatches: [Dispatch], matchingPurposesForDispatcher dispatcher: Dispatcher) -> Observable<[Dispatch]> {
+        .Just(dispatches)
     }
 
     func getConsentDecision() -> ConsentDecision? {

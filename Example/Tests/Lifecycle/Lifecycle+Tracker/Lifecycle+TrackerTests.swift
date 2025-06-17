@@ -20,7 +20,6 @@ final class LifecycleTrackerTests: XCTestCase {
                                environment: "dev",
                                modules: [
                                 MockDispatcher.factory,
-                                MockConsentManager.factory,
                                 TealiumModules.lifecycle(forcingSettings: { enforcedSettings in
                                     enforcedSettings.setEnabled(true)
                                 }),
@@ -31,25 +30,24 @@ final class LifecycleTrackerTests: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
     let queue = TealiumQueue.main
     lazy var modulesManager = ModulesManager(queue: queue)
-    lazy var settings: [String: DataObject] = [ConsentModule.id: ["enabled": false]]
-    private(set) lazy var sdkSettings = StateSubject(SDKSettings(modules: settings))
+    @StateSubject(SDKSettings())
+    var sdkSettings: ObservableState<SDKSettings>
     var coreSettings: ObservableState<CoreSettings> {
-        sdkSettings.toStatefulObservable()
-            .mapState(transform: { $0.core })
+        sdkSettings.mapState(transform: { $0.core })
     }
-    lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: modulesManager.modules),
+    lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: modulesManager.modules, addingConsent: true),
                                              queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
                                                                                  maxQueueSize: 10,
                                                                                  expiration: TimeFrame(unit: .days, interval: 1)),
                                              coreSettings: coreSettings,
                                              logger: nil)
     lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: .Just([]))
-    lazy var transformerCoordinator = TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
+    lazy var transformerCoordinator = TransformerCoordinator(transformers: .constant([]),
                                                              transformations: transformations,
-                                                             moduleMappings: StateSubject([:]).toStatefulObservable(),
+                                                             moduleMappings: .constant([:]),
                                                              queue: queue)
     lazy var tracker = TrackerImpl(modules: modulesManager.modules,
-                                   loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings.toStatefulObservable()),
+                                   loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings),
                                    dispatchManager: dispatchManager,
                                    logger: nil)
     lazy var context = MockContext(modulesManager: modulesManager,
@@ -59,17 +57,15 @@ final class LifecycleTrackerTests: XCTestCase {
                                    transformerRegistry: transformerCoordinator,
                                    databaseProvider: databaseProvider,
                                    queue: queue)
-    var consentManager: MockConsentManager? {
-        modulesManager.getModule()
-    }
     lazy var dispatchManager = getDispatchManager()
     func getDispatchManager() -> DispatchManager {
-        DispatchManager(loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings.toStatefulObservable()),
+        DispatchManager(loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings),
                         modulesManager: modulesManager,
+                        consentManager: nil,
                         queueManager: queueManager,
                         barrierCoordinator: barrierCoordinator,
                         transformerCoordinator: transformerCoordinator,
-                        mappingsEngine: MappingsEngine(mappings: StateSubject([:]).toStatefulObservable()),
+                        mappingsEngine: MappingsEngine(mappings: .constant([:])),
                         logger: nil)
     }
 

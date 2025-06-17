@@ -59,6 +59,7 @@ final class TealiumInstanceManagerTests: XCTestCase {
         let onImplementation1 = manager.createImplementation(config: config())
         let onImplemnetation2 = manager.createImplementation(config: config())
         _ = onImplementation1.combineLatest(onImplemnetation2)
+            .subscribeOn(manager.queue)
             .subscribe { result1, result2 in
                 XCTAssertResultIsSuccess(result1) { implementation1 in
                     XCTAssertResultIsSuccess(result2) { implementation2 in

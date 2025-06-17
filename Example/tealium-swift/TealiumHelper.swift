@@ -14,42 +14,50 @@ class TealiumHelper {
     var automaticDisposer = AutomaticDisposer()
     static let shared = TealiumHelper()
 
+    func createModuleFactories() -> [any TealiumModuleFactory] {
+        [
+         TealiumModules.appData(),
+         TealiumModules.deepLink(forcingSettings: { enforcedSettings in
+             enforcedSettings.setSendDeepLinkEvent(true)
+         }),
+         TealiumModules.trace(forcingSettings: { enforcedSettings in
+             enforcedSettings.setEnabled(true)
+         }),
+         TealiumModules.collect(forcingSettings: { enforcedSettings in
+             enforcedSettings.setEnabled(true)
+         }),
+         TealiumModules.deviceData(forcingSettings: { enforcedSettings in
+             enforcedSettings.setMemoryReportingEnabled(true)
+         }),
+         TealiumModules.lifecycle(forcingSettings: { enforcedSettings in
+             enforcedSettings.setEnabled(true)
+         }),
+         TealiumModules.customCollector(SomeModule.self),
+         TealiumModules.timeCollector(),
+         TealiumModules.connectivityCollector(),
+         ModuleWithExternalDependencies.Factory(otherDependencies: NSObject())
+        ]
+    }
+
     func createTeal() -> Tealium {
         let config = TealiumConfig(account: "tealiummobile",
                                    profile: "enrico-test",
                                    environment: "dev",
-                                   modules: [
-                                    TealiumModules.appData(),
-                                    TealiumModules.deepLink(forcingSettings: { enforcedSettings in
-                                        enforcedSettings.setSendDeepLinkEvent(true)
-                                    }),
-                                    TealiumModules.trace(forcingSettings: { enforcedSettings in
-                                        enforcedSettings.setEnabled(true)
-                                    }),
-                                    TealiumModules.collect(forcingSettings: { enforcedSettings in
-                                        enforcedSettings.setEnabled(true)
-                                    }),
-                                    TealiumModules.consent(cmpIntegration: CustomCMP(),
-                                                           forcingSettings: { enforcedSettings in
-                                        enforcedSettings.setEnabled(false)
-                                    }),
-                                    TealiumModules.deviceData(forcingSettings: { enforcedSettings in
-                                        enforcedSettings.setMemoryReportingEnabled(true)
-                                    }),
-                                    TealiumModules.lifecycle(forcingSettings: { enforcedSettings in
-                                        enforcedSettings.setEnabled(true)
-                                    }),
-                                    TealiumModules.customCollector(SomeModule.self),
-                                    TealiumModules.timeCollector(),
-                                    TealiumModules.connectivityCollector(),
-                                    ModuleWithExternalDependencies.Factory(otherDependencies: NSObject())
-                                   ],
+                                   modules: createModuleFactories(),
                                    settingsFile: "TealiumConfig",
                                    settingsUrl: "https://api.npoint.io/e6449d2df760465f7d7f",
                                    forcingSettings: { builder in
             builder.setMinLogLevel(.trace)
                 .setVisitorIdentityKey("email")
         })
+// Uncomment to enable consent. At the moment this will block everything due to no functioning consent adapter and no configuration setup for the dispatchers' purposes.
+//        config.enableConsentIntegration(with: CustomCMP()) { enforcedConfiguration in
+//            enforcedConfiguration.setTealiumPurposeId("tealium")
+//                .setRefireDispatchersIds(["collect"])
+//                .setPurposes([
+//                    ConsentPurpose(purposeId: "purpose1", dispatcherIds: ["dispatcher_id_1"])
+//                ])
+//        }
         return Tealium.create(config: config) { _ in }
     }
     func startTealium() {

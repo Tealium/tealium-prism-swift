@@ -13,7 +13,7 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
 
     func test_consent_is_applied_when_consentManager_is_enabled() {
         let consentIsAppliedToDispatch = expectation(description: "Consent is applied to dispatch")
-        enableModule(ConsentModule.id)
+        consentManager = MockConsentManager()
         _ = consentManager?.onApplyConsent.subscribe { _ in
             consentIsAppliedToDispatch.fulfill()
         }
@@ -21,24 +21,23 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_dispatch_is_not_enqueued_by_the_dispatchManager_when_consentManager_is_enabled() {
+    func test_dispatch_is_not_enqueued_by_the_dispatchManager_when_consentManager_is_enabled_and_doesnt_have_decision() {
+        consentManager = MockConsentManager()
+        consentManager?.currentDecision = nil
         dispatchManager.track(Dispatch(name: "someEvent"))
-        XCTAssertEqual(queueManager.inflightEvents.value[MockDispatcher1.id]?.count, 1, "First event is enqueued because consentManager is disabled")
-        enableModule(ConsentModule.id)
-        dispatchManager.track(Dispatch(name: "someEvent"))
-        XCTAssertEqual(queueManager.inflightEvents.value[MockDispatcher1.id]?.count, 1, "Second event is not enqueued because consentManager is enabled")
+        XCTAssertNil(queueManager.inflightEvents.value[MockDispatcher1.id], "Event is not enqueued because consentManager is enabled without consent decision")
     }
 
     func test_dispatch_process_is_stopped_before_transformations_for_tealium_purpose_disabled_explicitly() {
-        enableModule(ConsentModule.id)
+        consentManager = MockConsentManager()
         guard let consentManager = consentManager else {
-            XCTFail("ConsentManager not added to the modules list")
+            XCTFail("ConsentManager not initialized")
             return
         }
         let transformationNotCalled = expectation(description: "The transformation is not called")
         transformationNotCalled.isInverted = true
         consentManager.currentDecision = ConsentDecision(decisionType: .explicit, purposes: [])
-        XCTAssertFalse(consentManager.tealiumConsented(forPurposes: consentManager.allPurposes))
+        XCTAssertTrue(consentManager.tealiumPurposeExplicitlyBlocked)
         transformer.transformation = { _, _, _ in
             transformationNotCalled.fulfill()
             return nil
@@ -48,14 +47,15 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
     }
 
     func test_dispatch_process_is_NOT_stopped_before_transformations_for_tealium_purpose_disabled_implicitly() {
-        enableModule(ConsentModule.id)
+        consentManager = MockConsentManager()
         guard let consentManager = consentManager else {
-            XCTFail("ConsentManager not added to the modules list")
+            XCTFail("ConsentManager not initialized")
             return
         }
-        let transformationNotCalled = expectation(description: "The transformation is called")
+        let transformationNotCalled = expectation(description: "The transformation is not called")
+        transformationNotCalled.isInverted = true
         consentManager.currentDecision = ConsentDecision(decisionType: .implicit, purposes: [])
-        XCTAssertFalse(consentManager.tealiumConsented(forPurposes: consentManager.allPurposes))
+        XCTAssertTrue(consentManager.tealiumPurposeExplicitlyBlocked)
         transformer.transformation = { _, _, _ in
             transformationNotCalled.fulfill()
             return nil
@@ -65,19 +65,19 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
     }
 
     func test_track_completion_is_called_when_consent_is_applied() {
-            enableModule(ConsentModule.id)
-            guard let consentManager else {
-                XCTFail("ConsentManager not added to the modules list")
-                return
-            }
-            let completionCalled = expectation(description: "Completion was called")
-            let consentIsApplied = expectation(description: "Consent is applied")
-            consentManager.onApplyConsent.subscribeOnce { _ in
-                consentIsApplied.fulfill()
-            }
-            dispatchManager.track(Dispatch(name: "someEvent")) { _ in
-                completionCalled.fulfill()
-            }
-            waitForDefaultTimeout()
+        consentManager = MockConsentManager()
+        guard let consentManager else {
+            XCTFail("ConsentManager not initialized")
+            return
         }
+        let completionCalled = expectation(description: "Completion was called")
+        let consentIsApplied = expectation(description: "Consent is applied")
+        consentManager.onApplyConsent.subscribeOnce { _ in
+            consentIsApplied.fulfill()
+        }
+        dispatchManager.track(Dispatch(name: "someEvent")) { _ in
+            completionCalled.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
 }

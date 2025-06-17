@@ -1,5 +1,5 @@
 //
-//  MockCMPIntegration.swift
+//  MockCMPAdapter.swift
 //  tealium-swift_Tests
 //
 //  Created by Denis Guzov on 10/06/2024.
@@ -9,14 +9,21 @@
 import Foundation
 import TealiumSwift
 
-class MockCMPIntegration: CMPIntegration {
-    let consentDecision: TealiumSwift.ObservableState<TealiumSwift.ConsentDecision?>
+class MockCMPAdapter: CMPAdapter {
+    let id: String
+    @StateSubject(nil)
+    var consentDecision: ObservableState<ConsentDecision?>
 
-    func allPurposes() -> [String] {
+    var allPurposes: [String] {
         return consentDecision.value?.purposes ?? []
     }
 
-    init(consentDecision: TealiumSwift.ObservableState<TealiumSwift.ConsentDecision?>) {
-        self.consentDecision = consentDecision
+    init(id: String = "MockCMP", consentDecision: ConsentDecision?) {
+        self.id = id
+        applyDecision(consentDecision)
+    }
+
+    func applyDecision(_ consentDecision: ConsentDecision?) {
+        self._consentDecision.value = consentDecision
     }
 }

@@ -13,7 +13,7 @@ class SettingsManagerTestCase: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
     let networkHelper = MockNetworkHelper()
     let onActivity = ReplaySubject<ApplicationStatus>()
-    lazy var config = createConfig(url: "someUrl")
+    lazy var config = createConfig(url: nil)
     func createConfig(url: String?) -> TealiumConfig {
         TealiumConfig(account: "test",
                       profile: "test",
@@ -29,10 +29,8 @@ class SettingsManagerTestCase: XCTestCase {
         return ResourceCacher<DataObject>(dataStore: dataStore,
                                           fileName: "settings")
     }
-    func getManager(url: String? = nil) throws -> SettingsManager {
-        if let url {
-            config.settingsUrl = url
-        }
+    func getManager(url: String? = "someUrl") throws -> SettingsManager {
+        config.settingsUrl = url
         let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
                                                 modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
         let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
@@ -72,5 +70,25 @@ class SettingsManagerTestCase: XCTestCase {
                 "filter": "Home"
             ]
         ])
+    }
+
+    func setupForLocal(url: String? = nil) throws -> SettingsManager {
+        config.bundle = Bundle(for: type(of: self))
+        return try getManager(url: url)
+    }
+
+    func setupForRemote(codableResult: ObjectResult<Any>) throws -> SettingsManager {
+        networkHelper.codableResult = codableResult
+        let manager = try getManager()
+        manager.startRefreshing(onActivity: onActivity.asObservable())
+        return manager
+    }
+
+    func setupForLocalAndRemote(codableResult: ObjectResult<Any>) throws -> SettingsManager {
+        config.bundle = Bundle(for: type(of: self))
+        networkHelper.codableResult = codableResult
+        let manager = try getManager()
+        manager.startRefreshing(onActivity: onActivity.asObservable())
+        return manager
     }
 }

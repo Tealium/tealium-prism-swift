@@ -62,6 +62,17 @@ class SettingsManager {
         }
     }
 
+    /// Settings that emit only after we tried to refresh them at launch.
+    private(set) lazy var onFreshSettings: Observable<SDKSettings> = {
+        let settings = self.settings.asObservable()
+        guard let resourceRefresher else {
+            return settings
+        }
+        return resourceRefresher.onLoadCompleted
+            .first()
+            .flatMap { settings }
+    }()
+
     func startRefreshing(onActivity: Observable<ApplicationStatus>) {
         guard let resourceRefresher, !refreshing else {
             return

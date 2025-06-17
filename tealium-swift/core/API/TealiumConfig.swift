@@ -21,7 +21,9 @@ public struct TealiumConfig {
     public var loggerType: TealiumLoggerType = .os
     public var bundle: Bundle = .main
     public var existingVisitorId: String?
+    public var cmpAdapter: CMPAdapter?
     let coreSettings: DataObject?
+    var consentSettings: DataObject?
     var loadRules = DataObject()
     var transformations = DataObject()
 
@@ -57,6 +59,10 @@ public struct TealiumConfig {
         }
         if !transformations.keys.isEmpty {
             accumulator.set(converting: transformations, key: SDKSettings.Keys.transformations)
+        }
+
+        if let consent = consentSettings, !consent.keys.isEmpty {
+            accumulator.set(converting: consent, key: SDKSettings.Keys.consent)
         }
         return accumulator
     }
@@ -100,5 +106,28 @@ public struct TealiumConfig {
      */
     mutating public func addBarrier(_ barrier: any BarrierFactory) {
         barriers.append(barrier)
+    }
+
+    /**
+     * Enable consent integration with a `CMPAdapter`.
+     *
+     * If you enable consent integration events will only be tracked after the `CMPAdapter` returns a `ConsentDecision`,
+     * And only after a `ConsentConfiguration` is found for that adapter.
+     *
+     * Make sure to properly configure consent either locally, remotely or programmatically
+     * for the provided `CMPAdapter` to ensure proper tracking.
+     *
+     * - Parameters:
+     *      - cmpAdapter: The adapter that will report the `ConsentDecision` to the SDK
+     *      - block: An optional block called with a configuration builder, used to force some of the `ConsentConfiguration` properties. Properties set with this block will have precedence to local and remote settings.
+     */
+    mutating public func enableConsentIntegration(with cmpAdapter: CMPAdapter,
+                                                  forcingConfiguration block: ((_ enforcedConfiguration: ConsentConfigurationBuilder) -> ConsentConfigurationBuilder)? = nil) {
+        self.cmpAdapter = cmpAdapter
+        if let configuration = block?(ConsentConfigurationBuilder()) {
+            consentSettings = ConsentSettingsBuilder(vendorId: cmpAdapter.id)
+                .setConfiguration(configuration)
+                .build()
+        }
     }
 }

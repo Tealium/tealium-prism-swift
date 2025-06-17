@@ -29,7 +29,9 @@ final class LifecycleWrapperTests: XCTestCase {
 
     override func setUp() {
         config.modules = [TealiumModules.lifecycle()]
-        manager.updateSettings(context: context(), settings: SDKSettings(modules: [LifecycleModule.id: LifecycleSettingsBuilder().setAutoTrackingEnabled(false).build()]))
+        manager.updateSettings(context: context(), settings: SDKSettings(modules: [
+            LifecycleModule.id: ModuleSettings(configuration: [LifecycleConfiguration.Keys.autoTrackingEnabled: false])
+        ]))
     }
 
     func test_launch_gets_tracked_on_calling_launch() {

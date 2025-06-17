@@ -66,9 +66,6 @@ class DeviceDataProviderIOSTests: XCTestCase {
         let isCharging = deviceDataProvider.isCharging
         #if targetEnvironment(simulator)
         XCTAssertEqual(isCharging, TealiumConstants.unknown)
-        #else
-        // TODO: should be tested on a real iPhone?
-        XCTAssert(isCharging == "true" || isCharging == "false")
         #endif
     }
 

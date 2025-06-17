@@ -26,17 +26,6 @@ extension TealiumImpl {
         config.barriers = barriers
     }
 
-    static func addQueueManager(_ queueManager: QueueManagerProtocol, toConsentInConfig config: inout TealiumConfig) {
-        config.modules = config.modules.map { factory in
-            guard let consentFactory = factory as? ConsentModule.Factory else {
-                 return factory
-            }
-            // Consent is a special case that should be added externally, but needs internal
-            // components that should not be exposed anywhere else.
-            return consentFactory.copy(queueManager: queueManager)
-        }
-    }
-
     static func initModuleStoreProvider(config: TealiumConfig) throws -> ModuleStoreProvider {
         let databaseProvider = try DatabaseProvider(config: config)
         return ModuleStoreProvider(databaseProvider: databaseProvider,

@@ -44,6 +44,10 @@ public class ResourceRefresher<Resource: Codable> {
             .merge(_onResourceLoaded.asObservable())
     }
 
+    /// An observable that emits whenever a load completes either successfully or not.
+    @ToAnyObservable<ReplaySubject<Void>>(ReplaySubject())
+    public var onLoadCompleted: Observable<Void>
+
     /**
      * An observable sequence of errors that might come from network or from failing to write the cached resource on disk.
      *
@@ -106,6 +110,7 @@ public class ResourceRefresher<Resource: Codable> {
         var isCompletionRun = false
         disposableRequest = networkHelper.getJsonAsObject(url: parameters.url, etag: lastEtag) { [weak self] (result: ObjectResult<Resource>) in
             guard let self = self else { return }
+            defer { self._onLoadCompleted.publish() }
             switch result {
             case .success(let response):
                 if validatingResource(response.object) {

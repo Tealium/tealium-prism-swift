@@ -8,15 +8,18 @@
 
 class LoadRuleEngine {
     /// ModuleId : Expanded-LoadRules
-    private(set) var ruleMap: [String: Rule<Matchable>] = [:]
+    private(set) var moduleIdToRuleMap: [String: Rule<Matchable>] = [:]
     private let disposer = AutomaticDisposer()
+    /// RuleID : LoadRule.Condition
+    let ruleIdToRuleMap: ObservableState<[String: Rule<Matchable>]>
 
     init(sdkSettings: ObservableState<SDKSettings>) {
+        ruleIdToRuleMap = sdkSettings.mapState { $0.loadRules.mapValues { $0.conditions } }
         sdkSettings.subscribe { [weak self] settings in
             guard let self else { return }
-            self.ruleMap = settings.modules.compactMapValues { module in
+            self.moduleIdToRuleMap = settings.modules.compactMapValues { module in
                 guard let rule = module.rules else { return nil }
-                return Self.expand(rule: rule, with: settings.loadRules.mapValues { $0.conditions })
+                return Self.expand(rule: rule, with: self.ruleIdToRuleMap.value)
             }
         }.addTo(disposer)
     }
@@ -26,7 +29,7 @@ class LoadRuleEngine {
     }
 
     func filterDispatches(_ dispatches: [Dispatch], forModule module: TealiumModule) -> [Dispatch] {
-        guard let dispatcherRule = ruleMap[module.id] else {
+        guard let dispatcherRule = moduleIdToRuleMap[module.id] else {
             return dispatches
         }
         return dispatches.filter { dispatch in
@@ -34,9 +37,16 @@ class LoadRuleEngine {
         }
     }
 
+    func rule(_ ruleId: String, allows payload: DataObject) -> Bool {
+        Self.expand(rule: .just(ruleId), with: self.ruleIdToRuleMap.value)
+            .matches(payload: payload)
+    }
+
     static func expand(rule: Rule<String>, with loadRules: [String: Rule<Matchable>]) -> Rule<Matchable> {
         rule.asMatchable { id in
-            if let rule = loadRules[id] {
+            if id.lowercased() == "all" {
+                return .just(AlwaysTrue())
+            } else if let rule = loadRules[id] {
                 return rule
             } else {
                 // In case of no load rule found we default to the rule not matching any payload

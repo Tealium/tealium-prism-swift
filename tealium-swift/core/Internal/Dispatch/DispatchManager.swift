@@ -18,6 +18,12 @@ extension DispatchManagerProtocol {
     }
 }
 
+/// A split from an array of `Dispatch`es between accepted and discarded ones.
+struct DispatchSplit {
+    let accepted: [Dispatch]
+    let discarded: [Dispatch]
+}
+
 /**
  * The class containing the core logic of the library, taking `Dispatch`es from the queue, transforming and dispatching them to each individual `Dispatcher` when they are ready.
  */
@@ -34,9 +40,7 @@ class DispatchManager: DispatchManagerProtocol {
     }
     private weak var modulesManager: ModulesManager?
     private let queueManager: QueueManagerProtocol
-    private var consentManager: ConsentManager? {
-        modulesManager?.modules.value.compactMap { $0 as? ConsentManager }.first
-    }
+    private let consentManager: ConsentManager?
     private let logger: LoggerProtocol?
     @ToAnyObservable<BasePublisher<Void>>(BasePublisher<Void>())
     private var onQueuedEvents: Observable<Void>
@@ -44,6 +48,7 @@ class DispatchManager: DispatchManagerProtocol {
     private let mappingsEngine: MappingsEngine
     init(loadRuleEngine: LoadRuleEngine,
          modulesManager: ModulesManager,
+         consentManager: ConsentManager?,
          queueManager: QueueManagerProtocol,
          barrierCoordinator: BarrierCoordinator,
          transformerCoordinator: TransformerCoordinator,
@@ -51,6 +56,7 @@ class DispatchManager: DispatchManagerProtocol {
          logger: LoggerProtocol?) {
         self.loadRuleEngine = loadRuleEngine
         self.modulesManager = modulesManager
+        self.consentManager = consentManager
         self.queueManager = queueManager
         self.barrierCoordinator = barrierCoordinator
         self.transformerCoordinator = transformerCoordinator
@@ -63,11 +69,7 @@ class DispatchManager: DispatchManagerProtocol {
         guard let consentManager = consentManager else {
             return false
         }
-        guard let decision = consentManager.getConsentDecision(),
-              decision.decisionType == .explicit else {
-            return false
-        }
-        return !consentManager.tealiumConsented(forPurposes: decision.purposes)
+        return consentManager.tealiumPurposeExplicitlyBlocked
     }
 
     func track(_ dispatch: Dispatch, onTrackResult: TrackResultCompletion?) {
@@ -87,7 +89,8 @@ class DispatchManager: DispatchManagerProtocol {
             if let consentManager = self.consentManager {
                 self.logger?.debug(category: LogCategory.dispatchManager,
                                    "Event \(transformed.logDescription()) consent applied")
-                consentManager.applyConsent(to: transformed, completion: onTrackResult)
+                let result = consentManager.applyConsent(to: transformed)
+                onTrackResult?(result)
             } else {
                 self.logger?.debug(category: LogCategory.dispatchManager,
                                    "Event \(transformed.logDescription()) accepted for processing")
@@ -108,23 +111,25 @@ class DispatchManager: DispatchManagerProtocol {
             Observable.From(dispatchers)
         }.flatMap { [weak self, coordinator = barrierCoordinator] dispatcher in
             coordinator.onBarrierState(for: dispatcher.id)
-                .flatMapLatest { [weak self] barriersState in
-                    self?.logger?.debug(category: LogCategory.dispatchManager,
-                                        "BarrierState changed for \(dispatcher.id): \(barriersState)")
-                    if barriersState == .open,
-                       let newLoop = self?.startDequeueLoop(for: dispatcher) {
-                        return newLoop
+                .flatMapLatest { [weak self] barriersState -> Observable<DispatchSplit> in
+                    guard let self else { return .Empty() }
+                    self.logger?.debug(category: LogCategory.dispatchManager,
+                                       "BarrierState changed for \(dispatcher.id): \(barriersState)")
+                    if barriersState == .open {
+                        return self.startConsentedDequeueLoop(for: dispatcher)
                     } else {
                         return .Empty()
                     }
-                }.flatMap { [weak self] dispatches in
+                }.flatMap { [weak self] dispatchSplit -> Observable<(Dispatcher, [Dispatch])> in
                     Observable.Callback { [weak self] observer in
+                        let subscription = Subscription { }
                         guard let self = self else {
-                            return Subscription { }
+                            return subscription
                         }
                         self.logger?.debug(category: LogCategory.dispatchManager,
-                                           "Sending events to dispatcher \(dispatcher.id): \(dispatches.shortDescription())")
-                        return self.transformAndDispatch(dispatches: dispatches, for: dispatcher) { processedDispatches in
+                                           "Sending events to dispatcher \(dispatcher.id): \(dispatchSplit.accepted.shortDescription())")
+                        return self.transformAndDispatch(dispatchSplit: dispatchSplit, for: dispatcher) { processedDispatches in
+                            guard !subscription.isDisposed else { return }
                             observer((dispatcher, processedDispatches))
                         }
                     }
@@ -135,6 +140,25 @@ class DispatchManager: DispatchManagerProtocol {
             self?.logger?.debug(category: LogCategory.dispatchManager,
                                 "Dispatcher: \(dispatcher.id) processed events: \(processedDispatches.shortDescription())")
         }.addTo(self.managerContainer)
+    }
+
+    private func startConsentedDequeueLoop(for dispatcher: Dispatcher) -> Observable<DispatchSplit> {
+        if let consentManager {
+            consentManager.onConfigurationSelected
+                .flatMapLatest { [weak self] configuration in
+                    guard let self, let configuration else { return .Empty() }
+                    // Only dequeue events after we have a valid configuration from `ConsentManager`
+                    return self.startDequeueLoop(for: dispatcher)
+                        .map { dispatches in
+                            let consented = dispatches.filter { $0.matchesConfiguration(configuration, forDispatcher: dispatcher.id) }
+                            let discarded = dispatches.diff(consented, by: \.id)
+                            return DispatchSplit(accepted: consented, discarded: discarded)
+                        }
+                }
+        } else {
+            startDequeueLoop(for: dispatcher)
+                .map { DispatchSplit(accepted: $0, discarded: []) }
+        }
     }
 
     private func startDequeueLoop(for dispatcher: Dispatcher) -> Observable<[Dispatch]> {
@@ -156,7 +180,12 @@ class DispatchManager: DispatchManagerProtocol {
             }
     }
 
-    private func transformAndDispatch(dispatches: [Dispatch], for dispatcher: Dispatcher, onProcessedDispatches: @escaping ([Dispatch]) -> Void) -> Disposable {
+    private func transformAndDispatch(dispatchSplit: DispatchSplit, for dispatcher: Dispatcher, onProcessedDispatches: @escaping ([Dispatch]) -> Void) -> Disposable {
+        if !dispatchSplit.discarded.isEmpty {
+            // Discarded dispatches don't need to be transformed and can be deleted immediately.
+            onProcessedDispatches(dispatchSplit.discarded)
+        }
+        let dispatches = dispatchSplit.accepted
         let container = DisposeContainer()
         self.transformerCoordinator.transform(dispatches: dispatches,
                                               for: .dispatcher(dispatcher.id)) { [weak self] transformedDispatches in
@@ -169,7 +198,9 @@ class DispatchManager: DispatchManagerProtocol {
                                    "Dispatching disallowed for Dispatcher \(dispatcher.id) and Dispatches \(removedDispatches.shortDescription())")
                 onProcessedDispatches(removedDispatches)
             }
+
             let mapped = filteredDispatches.map { self.mappingsEngine.map(dispatcherId: dispatcher.id, dispatch: $0) }
+
             dispatcher.dispatch(mapped) { processedDispatches in
                 guard !container.isDisposed else { return }
                 onProcessedDispatches(processedDispatches)

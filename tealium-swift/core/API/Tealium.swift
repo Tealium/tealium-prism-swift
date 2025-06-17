@@ -68,7 +68,6 @@ public class Tealium {
                 return nil
             }
         }
-        timedEvents = TealiumTimedEvents()
         self.onTealiumImplementation = onTealiumImplementation
     }
 
@@ -180,9 +179,6 @@ public class Tealium {
 
     /// Interface for accessing and manipulating the data layer.
     public private(set) lazy var dataLayer: DataLayer = DataLayerWrapper(moduleProxy: createModuleProxy())
-
-    /// Manager for timed events.
-    public let timedEvents: TealiumTimedEvents
 
     /**
      * Creates a `ModuleProxy` for the given module to allow for an easy creation of Module Wrappers.

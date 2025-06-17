@@ -91,7 +91,7 @@ extension TimeFrame {
             return TimeFrame(unit: .seconds, interval: seconds)
         }
     }
-    public static let converter: any DataItemConverter<Self> = Converter()
+    static let converter: any DataItemConverter<Self> = Converter()
 }
 
 extension TimeFrame: Comparable, Equatable {

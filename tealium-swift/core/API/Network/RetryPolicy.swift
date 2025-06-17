@@ -37,9 +37,8 @@ public enum RetryPolicy {
             }
         case .afterEvent(let tealiumObservable):
             _ = tealiumObservable
-                .first()
                 .observeOn(queue)
-                .subscribeOn(queue)
+                .asSingle(queue: queue)
                 .subscribe(completion)
         }
         return true

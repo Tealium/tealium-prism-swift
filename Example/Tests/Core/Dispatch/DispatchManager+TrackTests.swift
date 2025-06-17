@@ -53,13 +53,13 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
     }
 
     func test_track_completion_block_is_run_with_dropped_result_and_original_dispatch_when_tealium_purpose_explicitly_blocked() {
-        enableModule(ConsentModule.id)
+        consentManager = MockConsentManager()
         guard let consentManager else {
             XCTFail("ConsentManager not added to the modules list")
             return
         }
         consentManager.currentDecision = ConsentDecision(decisionType: .explicit, purposes: [])
-        XCTAssertFalse(consentManager.tealiumConsented(forPurposes: consentManager.allPurposes))
+        XCTAssertTrue(consentManager.tealiumPurposeExplicitlyBlocked)
         let completionCalled = expectation(description: completionCalledDescription)
         dispatchManager.track(Dispatch(name: "someEvent")) { result in
             completionCalled.fulfill()

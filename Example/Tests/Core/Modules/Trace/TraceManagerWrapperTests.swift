@@ -70,7 +70,9 @@ final class TraceManagerWrapperTests: XCTestCase {
     // currently, this is the only case when completion called outside track (since track doesn't throw)
     func test_killVisitorSession_completes_with_moduleNotEnabled_error_when_module_disabled() {
         let errorCaught = expectation(description: "Error caught")
-        manager.updateSettings(context: context(), settings: SDKSettings(modules: [TraceManagerModule.id: ModuleSettingsBuilder().setEnabled(false).build()]))
+        manager.updateSettings(context: context(), settings: SDKSettings(modules: [
+            TraceManagerModule.id: ModuleSettings(enabled: false)
+        ]))
         _ = wrapper.killVisitorSession().subscribe { result in
             XCTAssertResultIsFailure(result) { error in
                 guard case .moduleNotEnabled = error as? TealiumError else {

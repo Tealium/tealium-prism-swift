@@ -20,7 +20,7 @@ public struct ConsentDecision {
         self.purposes = purposes
     }
 
-    func matchAll(_ requiredPurposes: [String]) -> Bool {
-        requiredPurposes.allSatisfy(purposes.contains)
+    func isMatchingAllPurposes(in sequence: [String]) -> Bool {
+        sequence.allSatisfy(purposes.contains)
     }
 }

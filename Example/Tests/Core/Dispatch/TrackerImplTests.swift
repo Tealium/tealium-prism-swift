@@ -49,15 +49,12 @@ final class TrackerImplTests: XCTestCase {
         let condition = Condition.endsWith(ignoreCase: false,
                                            variable: "tealium_event",
                                            suffix: "to_drop")
-        _sdkSettings.value = SDKSettings(core: CoreSettings(),
-                                         modules: [
-                                            MockCollector1.id: ModuleSettings(rules: .just("ruleId")),
-                                            MockCollector2.id: ModuleSettings(rules: .not(.just("ruleId")))
-                                         ],
-                                         loadRules: [
-                                            "ruleId": LoadRule(id: "ruleId",
-                                                               conditions: .just(condition))
-                                         ])
+        _sdkSettings.add(modules: [
+            MockCollector1.id: ModuleSettings(rules: .just("ruleId")),
+            MockCollector2.id: ModuleSettings(rules: .not(.just("ruleId")))
+        ], loadRules: [
+            "ruleId": LoadRule(id: "ruleId", conditions: .just(condition))
+        ])
         guard let collector1 = modules.value.compactMap({ $0 as? MockCollector1 }).first,
                   let collector2 = modules.value.compactMap({ $0 as? MockCollector2 }).first else {
             XCTFail("Collector not found")

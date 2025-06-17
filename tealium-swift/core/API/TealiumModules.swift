@@ -28,18 +28,6 @@ public enum TealiumModules {
         TealiumCollect.Factory(forcingSettings: block)
     }
 
-    /**
-     * Returns a factory for creating the `ConsentModule`.
-     *
-     * - Parameters:
-     *    - cmpIntegration: The integration that provides the module with the CMP data to guide the consent management decisions.
-     *    - block: A block with a utility builder that can be used to enforce some of the `ConsentSettings` instead of relying on Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `ConsentModule`, other settings will still be affected by Local and Remote settings and updates.
-     */
-    static public func consent(cmpIntegration: CMPIntegration,
-                               forcingSettings block: ((_ enforcedSettings: ConsentSettingsBuilder) -> ConsentSettingsBuilder)? = nil) -> any TealiumModuleFactory {
-        ConsentModule.Factory(cmpIntegration: cmpIntegration, forcingSettings: block)
-    }
-
     /// Returns a factory for creating the `DataLayerModule`.
     static func dataLayer() -> any TealiumModuleFactory {
         DefaultModuleFactory<DataLayerModule>()

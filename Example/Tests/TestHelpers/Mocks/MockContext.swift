@@ -16,9 +16,9 @@ let mockContext = MockContext(modulesManager: ModulesManager(queue: queue), conf
 class MockContext: TealiumContext {
     init(modulesManager: ModulesManager,
          config: TealiumConfig = mockConfig,
-         coreSettings: ObservableState<CoreSettings> = StateSubject(CoreSettings()).toStatefulObservable(),
+         coreSettings: ObservableState<CoreSettings> = .constant(CoreSettings()),
          tracker: Tracker = MockTracker(),
-         barrierRegistry: BarrierRegistry = BarrierManager(sdkBarrierSettings: StateSubject([:]).toStatefulObservable()),
+         barrierRegistry: BarrierRegistry = BarrierManager(sdkBarrierSettings: .constant([:])),
          transformerRegistry: TransformerRegistry? = nil,
          databaseProvider: DatabaseProviderProtocol = mockDbProvider,
          logger: LoggerProtocol? = nil,
@@ -26,9 +26,9 @@ class MockContext: TealiumContext {
          activityListener: ApplicationStatusListener = ApplicationStatusListener.shared,
          queue: TealiumQueue = TealiumQueue.worker,
          visitorId: ObservableState<String> = mockVisitorId) {
-        let transformerRegistry = transformerRegistry ?? TransformerCoordinator(transformers: StateSubject([]).toStatefulObservable(),
-                                                                                transformations: StateSubject([]).toStatefulObservable(),
-                                                                                moduleMappings: StateSubject([:]).toStatefulObservable(),
+        let transformerRegistry = transformerRegistry ?? TransformerCoordinator(transformers: .constant([]),
+                                                                                transformations: .constant([]),
+                                                                                moduleMappings: .constant([:]),
                                                                                 queue: queue)
         super.init(modulesManager: modulesManager,
                    config: config,

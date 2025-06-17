@@ -47,13 +47,12 @@ class TealiumImpl {
             .subscribe(onLogLevel).addTo(automaticDisposer)
         logger.debug(category: LogCategory.tealium, "Purging expired data from the database")
         storeProvider.modulesRepository.deleteExpired(expiry: .restart)
-        let queueManager = QueueManager(processors: Self.queueProcessors(from: modulesManager.modules),
+        let queueManager = QueueManager(processors: Self.queueProcessors(from: modulesManager.modules, addingConsent: config.cmpAdapter != nil),
                                         queueRepository: SQLQueueRepository(dbProvider: storeProvider.databaseProvider,
                                                                             maxQueueSize: coreSettings.value.maxQueueSize,
                                                                             expiration: coreSettings.value.queueExpiration),
                                         coreSettings: coreSettings,
                                         logger: logger)
-        Self.addQueueManager(queueManager, toConsentInConfig: &config)
         let transformers = modulesManager.modules
             .mapState { $0.compactMap { $0 as? Transformer } }
         let transformerCoordinator = Self.transformerCoordinator(transformers: transformers,
@@ -61,9 +60,17 @@ class TealiumImpl {
                                                                  queue: modulesManager.queue)
         let barrierManager = BarrierManager(sdkBarrierSettings: settingsManager.settings.mapState { $0.barriers })
         let barrierCoordinator = BarrierCoordinator(onScopedBarriers: barrierManager.onScopedBarriers)
-        let mappingsEngine = MappingsEngine(mappings: settingsManager.settings.mapState { $0.modules.compactMapValues { $0.mappings } })
+        let mappings = settingsManager.settings.mapState { $0.modules.compactMapValues { $0.mappings } }
+        let mappingsEngine = MappingsEngine(mappings: mappings)
+
+        let consentManager = ConsentIntegrationManager(queueManager: queueManager,
+                                                       modules: modulesManager.modules,
+                                                       consentSettings: settingsManager.settings.mapState { $0.consent },
+                                                       cmpAdapter: config.cmpAdapter)
+
         let dispatchManager = DispatchManager(loadRuleEngine: loadRuleEngine,
                                               modulesManager: modulesManager,
+                                              consentManager: consentManager,
                                               queueManager: queueManager,
                                               barrierCoordinator: barrierCoordinator,
                                               transformerCoordinator: transformerCoordinator,
@@ -145,11 +152,11 @@ class TealiumImpl {
                                       queue: queue)
     }
 
-    static func queueProcessors(from modules: ObservableState<[TealiumModule]>) -> Observable<[String]> {
+    static func queueProcessors(from modules: ObservableState<[TealiumModule]>, addingConsent: Bool) -> Observable<[String]> {
         modules.filter { !$0.isEmpty }
             .map { modules in modules
-                    .filter { $0 is Dispatcher || $0 is ConsentManager }
-                    .map { $0.id }
+                    .filter { $0 is Dispatcher }
+                    .map { $0.id } + (addingConsent ? [ConsentIntegrationManager.id] : [])
             }.distinct()
     }
 

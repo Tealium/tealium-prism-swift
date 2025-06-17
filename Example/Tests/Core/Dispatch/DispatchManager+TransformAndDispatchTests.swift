@@ -44,12 +44,8 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         let eventsAreDeleted = expectation(description: "Events are deleted")
         disableModule(module: module1)
         let condition = Condition.endsWith(ignoreCase: false, variable: "tealium_event", suffix: "to_keep")
-        sdkSettings.value = SDKSettings(core: CoreSettings(),
-                                        modules: [
-                                            MockDispatcher2.id: ModuleSettings(rules: .just("ruleId"))],
-                                        loadRules: [
-                                            "ruleId": LoadRule(id: "ruleId", conditions: .just(condition))
-                                        ])
+        _sdkSettings.add(modules: [MockDispatcher2.id: ModuleSettings(rules: .just("ruleId"))],
+                         loadRules: ["ruleId": LoadRule(id: "ruleId", conditions: .just(condition))])
         let dispatches = [
             Dispatch(name: "event_to_be_dropped"),
             Dispatch(name: "event_to_keep"),
@@ -82,12 +78,8 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
             })
         ]
         disableModule(module: module2)
-        sdkSettings.value = SDKSettings(core: CoreSettings(),
-                                        modules: [
-                                            MockDispatcher1.id: ModuleSettings(rules: .just("ruleId"))],
-                                        loadRules: [
-                                            "ruleId": LoadRule(id: "ruleId", conditions: .just(condition))
-                                        ])
+        _sdkSettings.add(modules: [MockDispatcher1.id: ModuleSettings(rules: .just("ruleId"))],
+                         loadRules: ["ruleId": LoadRule(id: "ruleId", conditions: .just(condition))])
         let dispatches = [
             Dispatch(name: "Event")
         ]
@@ -96,5 +88,84 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         wait(for: [transformationIsPerformed, conditionIsChecked],
              timeout: Self.defaultTimeout,
              enforceOrder: true)
+    }
+
+    func test_events_dropped_by_consent_are_removed_from_the_queue() {
+        let eventsAreDeleted = expectation(description: "Events are deleted")
+        let eventDispatched = expectation(description: "Events should not be dispatched")
+        eventDispatched.isInverted = true
+        consentManager = MockConsentManager()
+        consentManager?._onConfigurationSelected.publish(ConsentConfiguration(tealiumPurposeId: "",
+                                                                              refireDispatchersIds: [],
+                                                                              purposes: []))
+        disableModule(module: module1)
+        let dispatches = [
+            Dispatch(name: "event_to_be_dropped"),
+            Dispatch(name: "event_to_be_dropped"),
+            Dispatch(name: "event_to_be_dropped")
+        ]
+        module2?.onDispatch.subscribeOnce { _ in
+            eventDispatched.fulfill()
+        }
+        queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
+        _ = queueManager.onDeleteRequest.subscribe { deletedUUIDs, _ in
+            XCTAssertEqual(dispatches.map { $0.id }, deletedUUIDs)
+            eventsAreDeleted.fulfill()
+        }
+        _ = dispatchManager
+        waitForDefaultTimeout()
+    }
+
+    func test_events_accepted_by_consent_are_dispatched_removed_from_the_queue() {
+        let eventsAreDeleted = expectation(description: "Events are deleted")
+        let eventDispatched = expectation(description: "Events should be dispatched")
+        consentManager = MockConsentManager()
+        consentManager?._onConfigurationSelected.publish(ConsentConfiguration(tealiumPurposeId: "",
+                                                                              refireDispatchersIds: [],
+                                                                              purposes: [ConsentPurpose(purposeId: "purpose1", dispatcherIds: [MockDispatcher1.id])]))
+        disableModule(module: module1)
+        let dispatches = [
+            Dispatch(name: "event_to_be_sent", data: [ConsentConstants.allPurposesKey: ["purpose1"]]),
+            Dispatch(name: "event_to_be_sent", data: [ConsentConstants.allPurposesKey: ["purpose1"]]),
+            Dispatch(name: "event_to_be_sent", data: [ConsentConstants.allPurposesKey: ["purpose1"]])
+        ]
+        module2?.onDispatch.subscribeOnce { _ in
+            eventDispatched.fulfill()
+        }
+        queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
+        _ = queueManager.onDeleteRequest.subscribe { deletedUUIDs, _ in
+            XCTAssertEqual(dispatches.map { $0.id }, deletedUUIDs)
+            eventsAreDeleted.fulfill()
+        }
+        _ = dispatchManager
+        wait(for: [eventDispatched, eventsAreDeleted], timeout: Self.defaultTimeout, enforceOrder: true)
+    }
+
+    func test_events_are_not_dequeued_if_consent_enabled_but_configuration_not_present() {
+        let eventsAreDeleted = expectation(description: "Events should not be deleted")
+        eventsAreDeleted.isInverted = true
+        let eventDispatched = expectation(description: "Events should not be dispatched")
+        eventDispatched.isInverted = true
+        let eventsNotDequeued = expectation(description: "Events are not dequeued")
+        consentManager = MockConsentManager()
+        disableModule(module: module1)
+        let dispatches = [
+            Dispatch(name: "event_not_dequeued"),
+            Dispatch(name: "event_not_dequeued"),
+            Dispatch(name: "event_not_dequeued")
+        ]
+        module2?.onDispatch.subscribeOnce { _ in
+            eventDispatched.fulfill()
+        }
+        queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
+        _ = queueManager.onInflightDispatchesCount(for: MockDispatcher2.id).subscribe { count in
+            XCTAssertEqual(count, 0)
+            eventsNotDequeued.fulfill()
+        }
+        _ = queueManager.onDeleteRequest.subscribe { _, _ in
+            eventsAreDeleted.fulfill()
+        }
+        _ = dispatchManager
+        waitForDefaultTimeout()
     }
 }

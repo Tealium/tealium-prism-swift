@@ -47,7 +47,7 @@ class MockDispatcher: MockModule, Dispatcher {
     func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> Disposable {
         let subscription = Subscription { }
         let completion: ([Dispatch]) -> Void = { data in
-            guard !subscription.isDisposed else { return }
+            guard !subscription.isDisposed, !data.isEmpty else { return }
             self._onDispatch.publish(data)
             completion(data)
         }
