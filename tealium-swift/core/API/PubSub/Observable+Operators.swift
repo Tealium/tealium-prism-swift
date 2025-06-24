@@ -26,7 +26,7 @@ public extension Observable {
     /// Ensures that Observers to the returned observable are always called on the provided queue.
     func observeOn(_ queue: TealiumQueue) -> Observable<Element> {
         CustomObservable<Element> { observer in
-            let container = DisposeContainer()
+            let container = AsyncDisposer(disposeOn: queue)
             self.subscribe { element in
                 queue.ensureOnQueue {
                     guard !container.isDisposed else { return }

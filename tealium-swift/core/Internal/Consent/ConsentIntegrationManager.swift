@@ -26,7 +26,7 @@ class ConsentIntegrationManager: ConsentManager {
     let version: String = TealiumConstants.libraryVersion
     static let id: String = "consent"
     private let queueManager: QueueManagerProtocol
-    let cmpSelector: CMPConfigurationSelector
+    let cmpSelector: CmpConfigurationSelector
     private weak var modules: ObservableState<[TealiumModule]>?
     private var dispatchers: [String] {
         modules?.value
@@ -46,22 +46,23 @@ class ConsentIntegrationManager: ConsentManager {
     convenience init?(queueManager: QueueManagerProtocol,
                       modules: ObservableState<[TealiumModule]>,
                       consentSettings: ObservableState<ConsentSettings?>,
-                      cmpAdapter: CMPAdapter?) {
+                      cmpAdapter: CmpAdapter?) {
         guard let cmpAdapter else { return nil }
+        let cmpSelector = CmpConfigurationSelector(consentSettings: consentSettings,
+                                                   cmpAdapter: cmpAdapter)
         self.init(queueManager: queueManager,
                   modules: modules,
                   consentSettings: consentSettings,
-                  cmpAdapter: cmpAdapter)
+                  cmpSelector: cmpSelector)
     }
 
     init(queueManager: QueueManagerProtocol,
          modules: ObservableState<[TealiumModule]>,
          consentSettings: ObservableState<ConsentSettings?>,
-         cmpAdapter: CMPAdapter) {
+         cmpSelector: CmpConfigurationSelector) {
         self.queueManager = queueManager
         self.modules = modules
-        self.cmpSelector = CMPConfigurationSelector(consentSettings: consentSettings,
-                                                    cmpAdapter: cmpAdapter)
+        self.cmpSelector = cmpSelector
         onConfigurationSelected = cmpSelector.configuration.asObservable()
         handleConsentChanges()
     }

@@ -30,6 +30,7 @@ extension Dispatch {
             return false
         }
         let requiredPurposes = configuration.purposes
+            .values
             .filter { $0.dispatcherIds.contains(dispatcherId) }
             .map { $0.purposeId }
         return requiredPurposes.allSatisfy(consentedPurposes.contains(_:))

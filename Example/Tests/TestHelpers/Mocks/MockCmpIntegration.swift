@@ -1,0 +1,29 @@
+//
+//  MockCmpAdapter.swift
+//  tealium-swift_Tests
+//
+//  Created by Denis Guzov on 10/06/2024.
+//  Copyright © 2024 Tealium, Inc. All rights reserved.
+//
+
+import Foundation
+import TealiumSwift
+
+class MockCmpAdapter: CmpAdapter {
+    let id: String
+    @ToAnyObservable<ReplaySubject<ConsentDecision?>>(ReplaySubject<ConsentDecision?>(initialValue: nil))
+    var consentDecision: Observable<ConsentDecision?>
+
+    var allPurposes: [String] {
+        return _consentDecision.publisher.last()??.purposes ?? []
+    }
+
+    init(id: String = "MockCmp", consentDecision: ConsentDecision?) {
+        self.id = id
+        applyDecision(consentDecision)
+    }
+
+    func applyDecision(_ consentDecision: ConsentDecision?) {
+        self._consentDecision.publish(consentDecision)
+    }
+}

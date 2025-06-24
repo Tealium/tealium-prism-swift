@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-/// A builder to create a `ConsentConfiguration` to be used with a specific `CMPAdapter`
+/// A builder to create a `ConsentConfiguration` to be used with a specific `CmpAdapter`
 public class ConsentConfigurationBuilder {
     typealias Keys = ConsentConfiguration.Keys
     private var _dataObject: DataObject = [:]
@@ -23,9 +23,15 @@ public class ConsentConfigurationBuilder {
         return self
     }
 
-    /// Sets the list of purposes and the dispatchers that require them to be consented in order to track events.
-    public func setPurposes(_ purposes: [ConsentPurpose]) -> Self {
-        _dataObject.set(converting: purposes, key: Keys.purposes)
+    /**
+     * Adds a `purposeId` that is required to be accepted in order for each of the given `dispatcherIds`
+     * to process a `Dispatch`.
+     */
+    public func addPurpose(_ purposeId: String, dispatcherIds: [String]) -> Self {
+        let purpose = ConsentPurpose(purposeId: purposeId, dispatcherIds: dispatcherIds)
+        let accessor = VariableAccessor(path: [Keys.purposes], variable: purposeId)
+        _dataObject.buildPathAndSet(accessor: accessor,
+                                    item: DataItem(value: purpose.toDataInput()))
         return self
     }
 

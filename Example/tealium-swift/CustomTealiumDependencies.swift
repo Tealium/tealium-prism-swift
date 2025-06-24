@@ -24,10 +24,11 @@ class CustomDispatcher: Dispatcher {
     }
 }
 
-class CustomCMP: CMPAdapter {
+class CustomCmp: CmpAdapter {
     let id = "custom"
-    @StateSubject(ConsentDecision(decisionType: .implicit, purposes: []))
-    var consentDecision: ObservableState<ConsentDecision?>
+
+    @ToAnyObservable<ReplaySubject<ConsentDecision?>>(ReplaySubject<ConsentDecision?>(initialValue: ConsentDecision(decisionType: .implicit, purposes: [])))
+    var consentDecision: Observable<ConsentDecision?>
 
     let allPurposes = ["tealium", "all"]
 

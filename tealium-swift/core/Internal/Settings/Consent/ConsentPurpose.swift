@@ -6,17 +6,14 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-/// An object containing the mapping between a `purposeId` (as provided by the `CMPAdapter`)
+/// An object containing the mapping between a `purposeId` (as provided by the `CmpAdapter`)
 /// and the `dispatcherIds` for the `Dispatcher`s that need that purpose to be accepted in order to fire.
-public struct ConsentPurpose {
-    /// The purpose as provided by the `CMPAdapter`.
+struct ConsentPurpose {
+    /// The purpose as provided by the `CmpAdapter`.
     let purposeId: String
     /// The IDs of the dispatchers that need the `purposeId` to be accepted in order to fire.
     let dispatcherIds: [String]
-    public init(purposeId: String, dispatcherIds: [String]) {
-        self.purposeId = purposeId
-        self.dispatcherIds = dispatcherIds
-    }
+
     enum Keys {
         static let purposeId = "purpose_id"
         static let dispatcherIds = "dispatcher_ids"
@@ -24,7 +21,7 @@ public struct ConsentPurpose {
 }
 
 extension ConsentPurpose: DataObjectConvertible {
-    public func toDataObject() -> DataObject {
+    func toDataObject() -> DataObject {
         [
             Keys.purposeId: purposeId,
             Keys.dispatcherIds: dispatcherIds

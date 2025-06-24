@@ -27,20 +27,23 @@ final class ConsentIntegrationManagerTests: XCTestCase {
                                                              transformations: transformations,
                                                              moduleMappings: .constant([:]),
                                                              queue: .main)
-    @StateSubject(ConsentSettings(configurations: ["MockCMP": ConsentConfiguration(tealiumPurposeId: "tealium",
+    @StateSubject(ConsentSettings(configurations: ["MockCmp": ConsentConfiguration(tealiumPurposeId: "tealium",
                                                                                    refireDispatchersIds: [],
-                                                                                   purposes: [])]))
-    var consentConfiguration: ObservableState<ConsentSettings?>
+                                                                                   purposes: [:])]))
+    var consentSettings: ObservableState<ConsentSettings?>
 
-    let adapter = MockCMPAdapter(consentDecision: nil)
+    let adapter = MockCmpAdapter(consentDecision: nil)
 
     lazy var consentManager = buildConsentManager(cmpAdapter: adapter)
 
-    func buildConsentManager(cmpAdapter: CMPAdapter) -> ConsentManager {
-        ConsentIntegrationManager(queueManager: queueManager,
-                                  modules: modulesManager.modules,
-                                  consentSettings: consentConfiguration,
-                                  cmpAdapter: cmpAdapter)
+    func buildConsentManager(cmpAdapter: CmpAdapter) -> ConsentManager {
+        let cmpSelector = CmpConfigurationSelector(consentSettings: consentSettings,
+                                                   cmpAdapter: cmpAdapter,
+                                                   queue: .main)
+        return ConsentIntegrationManager(queueManager: queueManager,
+                                         modules: modulesManager.modules,
+                                         consentSettings: consentSettings,
+                                         cmpSelector: cmpSelector)
     }
     let completionCalledDescription = "Completion was called"
 

@@ -83,7 +83,6 @@ class AsyncDisposer: DisposeContainer {
     }
     override func dispose() {
         queue.ensureOnQueue {
-            self.isDisposed = true
             super.dispose()
         }
     }

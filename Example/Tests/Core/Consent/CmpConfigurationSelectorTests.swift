@@ -1,5 +1,5 @@
 //
-//  CMPConfigurationSelectorTests.swift
+//  CmpConfigurationSelectorTests.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 22/05/25.
@@ -9,17 +9,18 @@
 @testable import TealiumSwift
 import XCTest
 
-final class CMPConfigurationSelectorTests: XCTestCase {
+final class CmpConfigurationSelectorTests: XCTestCase {
     @StateSubject(nil)
     var consentSettings: ObservableState<ConsentSettings?>
-    let adapter = MockCMPAdapter(id: "vendor1", consentDecision: nil)
-    lazy var selector = CMPConfigurationSelector(consentSettings: consentSettings,
-                                                 cmpAdapter: adapter)
+    let adapter = MockCmpAdapter(id: "vendor1", consentDecision: nil)
+    lazy var selector = CmpConfigurationSelector(consentSettings: consentSettings,
+                                                 cmpAdapter: adapter,
+                                                 queue: .main)
 
     func test_configuration_is_selected_when_vendorId_is_same_as_adapter_id() {
         let config = ConsentConfiguration(tealiumPurposeId: "tealium",
                                           refireDispatchersIds: [],
-                                          purposes: [])
+                                          purposes: [:])
         _consentSettings.value = ConsentSettings(configurations: ["vendor1": config])
 
         let result = selector.configuration.value
@@ -31,7 +32,7 @@ final class CMPConfigurationSelectorTests: XCTestCase {
     func test_configuration_is_not_selected_when_vendorId_is_not_same_as_adapter_id() {
         let config = ConsentConfiguration(tealiumPurposeId: "tealium",
                                           refireDispatchersIds: [],
-                                          purposes: [])
+                                          purposes: [:])
         _consentSettings.value = ConsentSettings(configurations: ["vendor2": config])
 
         let result = selector.configuration.value
@@ -43,7 +44,7 @@ final class CMPConfigurationSelectorTests: XCTestCase {
         adapter.applyDecision(ConsentDecision(decisionType: .implicit, purposes: []))
         let config = ConsentConfiguration(tealiumPurposeId: "tealium",
                                           refireDispatchersIds: [],
-                                          purposes: [])
+                                          purposes: [:])
         XCTAssertNil(selector.consentInspector.value)
         _consentSettings.value = ConsentSettings(configurations: ["vendor1": config])
         XCTAssertNotNil(selector.consentInspector.value)

@@ -95,9 +95,10 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         let eventDispatched = expectation(description: "Events should not be dispatched")
         eventDispatched.isInverted = true
         consentManager = MockConsentManager()
-        consentManager?._onConfigurationSelected.publish(ConsentConfiguration(tealiumPurposeId: "",
-                                                                              refireDispatchersIds: [],
-                                                                              purposes: []))
+        let consentConfiguration = ConsentConfiguration(tealiumPurposeId: "",
+                                                        refireDispatchersIds: [],
+                                                        purposes: [:])
+        consentManager?._onConfigurationSelected.publish(consentConfiguration)
         disableModule(module: module1)
         let dispatches = [
             Dispatch(name: "event_to_be_dropped"),
@@ -122,7 +123,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         consentManager = MockConsentManager()
         consentManager?._onConfigurationSelected.publish(ConsentConfiguration(tealiumPurposeId: "",
                                                                               refireDispatchersIds: [],
-                                                                              purposes: [ConsentPurpose(purposeId: "purpose1", dispatcherIds: [MockDispatcher1.id])]))
+                                                                              purposes: ["purpose1": ConsentPurpose(purposeId: "purpose1", dispatcherIds: [MockDispatcher1.id])]))
         disableModule(module: module1)
         let dispatches = [
             Dispatch(name: "event_to_be_sent", data: [ConsentConstants.allPurposesKey: ["purpose1"]]),

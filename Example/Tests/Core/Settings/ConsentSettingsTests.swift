@@ -23,7 +23,7 @@ final class ConsentSettingsTests: XCTestCase {
             Keys.configurations: [
                 "vendorId": [
                     "tealium_purpose_id": "tealium",
-                    "purposes": []
+                    "purposes": [:]
                 ]
             ]
         ]))
@@ -33,14 +33,14 @@ final class ConsentSettingsTests: XCTestCase {
         }
         XCTAssertEqual(configuration.tealiumPurposeId, "tealium")
         XCTAssertEqual(configuration.refireDispatchersIds, [])
-        XCTAssertEqual(configuration.purposes, [])
+        XCTAssertEqual(configuration.purposes, [:])
     }
 
     func test_create_configuration_from_builder_sets_configurations() {
         let builder = ConsentSettingsBuilder(vendorId: "vendorId")
             .setConfiguration(ConsentConfigurationBuilder()
                 .setTealiumPurposeId("tealium")
-                .setPurposes([])
+                .addPurpose("purpose", dispatcherIds: ["dispatcherIds"])
                 .setRefireDispatchersIds(["id"])
             )
         let consentSettings = builder.build()

@@ -12,7 +12,9 @@ import XCTest
 private let tealiumPurpose = "tealium_purpose_id"
 final class ConsentInspectorTests: XCTestCase {
 
-    var configuration = ConsentConfiguration(tealiumPurposeId: tealiumPurpose, refireDispatchersIds: [], purposes: [])
+    var configuration = ConsentConfiguration(tealiumPurposeId: tealiumPurpose,
+                                             refireDispatchersIds: [],
+                                             purposes: [:])
     var decision = ConsentDecision(decisionType: .implicit, purposes: [])
     var allPurposes: [String] = []
     lazy var consentInspector: ConsentInspector = ConsentInspector(configuration: configuration,
@@ -47,28 +49,36 @@ final class ConsentInspectorTests: XCTestCase {
     func test_allows_refire_when_decision_implicit_purposes_not_full_and_refireDispatchers_not_empty() {
         decision = ConsentDecision(decisionType: .implicit, purposes: ["1", "2", "3"])
         allPurposes = ["1", "2", "3", "4"]
-        configuration = ConsentConfiguration(tealiumPurposeId: tealiumPurpose, refireDispatchersIds: ["dispatcher1"], purposes: [])
+        configuration = ConsentConfiguration(tealiumPurposeId: tealiumPurpose,
+                                             refireDispatchersIds: ["dispatcher1"],
+                                             purposes: [:])
         XCTAssertTrue(consentInspector.allowsRefire())
     }
 
     func test_doesnt_allow_refire_when_decision_explicit() {
         decision = ConsentDecision(decisionType: .explicit, purposes: ["1", "2", "3"])
         allPurposes = ["1", "2", "3", "4"]
-        configuration = ConsentConfiguration(tealiumPurposeId: tealiumPurpose, refireDispatchersIds: ["dispatcher1"], purposes: [])
+        configuration = ConsentConfiguration(tealiumPurposeId: tealiumPurpose,
+                                             refireDispatchersIds: ["dispatcher1"],
+                                             purposes: [:])
         XCTAssertFalse(consentInspector.allowsRefire())
     }
 
     func test_doesnt_allow_refire_when_purposes_full() {
         decision = ConsentDecision(decisionType: .implicit, purposes: ["1", "2", "3"])
         allPurposes = ["1", "2", "3"]
-        configuration = ConsentConfiguration(tealiumPurposeId: tealiumPurpose, refireDispatchersIds: ["dispatcher1"], purposes: [])
+        configuration = ConsentConfiguration(tealiumPurposeId: tealiumPurpose,
+                                             refireDispatchersIds: ["dispatcher1"],
+                                             purposes: [:])
         XCTAssertFalse(consentInspector.allowsRefire())
     }
 
     func test_doesnt_allow_refire_when_refireDispatchers_empty() {
         decision = ConsentDecision(decisionType: .explicit, purposes: ["1", "2", "3"])
         allPurposes = ["1", "2", "3", "4"]
-        configuration = ConsentConfiguration(tealiumPurposeId: tealiumPurpose, refireDispatchersIds: [], purposes: [])
+        configuration = ConsentConfiguration(tealiumPurposeId: tealiumPurpose,
+                                             refireDispatchersIds: [],
+                                             purposes: [:])
         XCTAssertFalse(consentInspector.allowsRefire())
     }
 }

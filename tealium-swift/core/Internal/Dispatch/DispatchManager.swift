@@ -187,6 +187,9 @@ class DispatchManager: DispatchManagerProtocol {
         }
         let dispatches = dispatchSplit.accepted
         let container = DisposeContainer()
+        guard !dispatches.isEmpty else {
+            return container
+        }
         self.transformerCoordinator.transform(dispatches: dispatches,
                                               for: .dispatcher(dispatcher.id)) { [weak self] transformedDispatches in
             guard !container.isDisposed, let self else { return }
