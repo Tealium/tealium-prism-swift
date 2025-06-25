@@ -83,9 +83,11 @@ final class LoadRuleEngineTests: XCTestCase {
             Dispatch(name: "Allowed", data: ["variable": "value"]),
             Dispatch(name: "Not Allowed", data: ["variable": "notValue"])
         ]
-        let filtered = engine.filterDispatches(dispatches, forModule: moduleWithRules)
-        XCTAssertTrue(filtered.contains(where: { $0.name == "Allowed" }))
-        XCTAssertFalse(filtered.contains(where: { $0.name == "Not Allowed" }))
+        let (passed, failed) = engine.evaluateLoadRules(on: dispatches, forModule: moduleWithRules)
+        XCTAssertTrue(passed.contains(where: { $0.name == "Allowed" }))
+        XCTAssertFalse(passed.contains(where: { $0.name == "Not Allowed" }))
+        XCTAssertTrue(failed.contains(where: { $0.name == "Not Allowed" }))
+        XCTAssertFalse(failed.contains(where: { $0.name == "Allowed" }))
     }
 
     func test_filterDispatches_doesnt_remove_any_dispatch_for_module_without_rules() {
@@ -94,9 +96,10 @@ final class LoadRuleEngineTests: XCTestCase {
             Dispatch(name: "Allowed", data: ["variable": "value"]),
             Dispatch(name: "Not Allowed", data: ["variable": "notValue"])
         ]
-        let filtered = engine.filterDispatches(dispatches, forModule: moduleWithoutRules)
-        XCTAssertTrue(filtered.contains(where: { $0.name == "Allowed" }))
-        XCTAssertTrue(filtered.contains(where: { $0.name == "Not Allowed" }))
+        let (passed, failed) = engine.evaluateLoadRules(on: dispatches, forModule: moduleWithoutRules)
+        XCTAssertTrue(passed.contains(where: { $0.name == "Allowed" }))
+        XCTAssertTrue(passed.contains(where: { $0.name == "Not Allowed" }))
+        XCTAssertTrue(failed.isEmpty)
     }
 
     func test_filterDispatches_removes_all_dispatches_when_rule_is_not_found() {
@@ -105,9 +108,10 @@ final class LoadRuleEngineTests: XCTestCase {
             Dispatch(name: "Allowed", data: ["variable": "value"]),
             Dispatch(name: "Not Allowed", data: ["variable": "notValue"])
         ]
-        let filtered = engine.filterDispatches(dispatches, forModule: moduleWithRules)
-        XCTAssertFalse(filtered.contains(where: { $0.name == "Allowed" }))
-        XCTAssertFalse(filtered.contains(where: { $0.name == "Not Allowed" }))
+        let (passed, failed) = engine.evaluateLoadRules(on: dispatches, forModule: moduleWithRules)
+        XCTAssertTrue(passed.isEmpty)
+        XCTAssertTrue(failed.contains(where: { $0.name == "Allowed" }))
+        XCTAssertTrue(failed.contains(where: { $0.name == "Not Allowed" }))
     }
 
     func test_ruleMap_is_updated_on_settings_update() {

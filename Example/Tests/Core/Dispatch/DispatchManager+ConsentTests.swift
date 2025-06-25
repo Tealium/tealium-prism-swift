@@ -21,11 +21,11 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_dispatch_is_not_enqueued_by_the_dispatchManager_when_consentManager_is_enabled_and_doesnt_have_decision() {
+    func test_dispatch_is_not_dequeued_by_the_dispatchManager_when_consentManager_is_enabled_and_doesnt_have_decision() {
         consentManager = MockConsentManager()
         consentManager?.currentDecision = nil
         dispatchManager.track(Dispatch(name: "someEvent"))
-        XCTAssertNil(queueManager.inflightEvents.value[MockDispatcher1.id], "Event is not enqueued because consentManager is enabled without consent decision")
+        XCTAssertNil(queueManager.inflightEvents.value[MockDispatcher1.id], "Event is not dequeued because consentManager is enabled without consent decision")
     }
 
     func test_dispatch_process_is_stopped_before_transformations_for_tealium_purpose_disabled_explicitly() {

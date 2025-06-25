@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-/// Utility to provide information based upon the data provided by the `CmpAdapter` (decision and allPurposes) and the `ConsentConfiguration`.
+/// Utility to provide information based upon the data provided by the `CMPAdapter` (decision and allPurposes) and the `ConsentConfiguration`.
 struct ConsentInspector {
     let configuration: ConsentConfiguration
     let decision: ConsentDecision

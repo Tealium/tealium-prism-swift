@@ -6,13 +6,13 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-/// An object containing the data used to understand and utilize consent purposes received by the `CmpAdapter`.
+/// An object containing the data used to understand and utilize consent purposes received by the `CMPAdapter`.
 struct ConsentConfiguration {
     /// The purpose that needs to be accepted to allow `Tealium` to perform any action.
     let tealiumPurposeId: String
     /// The IDs of the Dispatchers that are allowed to refire `Dispatch`es, previously sent with implicit consent, after a user explicitly gives consent.
     let refireDispatchersIds: [String]
-    /// A map of purpose ID, as provided by the `CmpAdapter`, to purposes which contain the list of `Dispatcher`s that need that purpose to be accepted to fire.
+    /// A map of purpose ID, as provided by the `CMPAdapter`, to purposes which contain the list of `Dispatcher`s that need that purpose to be accepted to fire.
     let purposes: [String: ConsentPurpose]
 
     init(tealiumPurposeId: String, refireDispatchersIds: [String]?, purposes: [String: ConsentPurpose]) {

@@ -1,5 +1,5 @@
 //
-//  MockCmpAdapter.swift
+//  MockCMPAdapter.swift
 //  tealium-swift_Tests
 //
 //  Created by Denis Guzov on 10/06/2024.
@@ -9,7 +9,7 @@
 import Foundation
 import TealiumSwift
 
-class MockCmpAdapter: CmpAdapter {
+class MockCMPAdapter: CMPAdapter {
     let id: String
     @ToAnyObservable<ReplaySubject<ConsentDecision?>>(ReplaySubject<ConsentDecision?>(initialValue: nil))
     var consentDecision: Observable<ConsentDecision?>
@@ -18,7 +18,7 @@ class MockCmpAdapter: CmpAdapter {
         return _consentDecision.publisher.last()??.purposes ?? []
     }
 
-    init(id: String = "MockCmp", consentDecision: ConsentDecision?) {
+    init(id: String = "MockCMP", consentDecision: ConsentDecision?) {
         self.id = id
         applyDecision(consentDecision)
     }

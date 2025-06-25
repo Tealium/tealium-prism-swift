@@ -6,10 +6,10 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-/// An object containing the mapping between a `purposeId` (as provided by the `CmpAdapter`)
+/// An object containing the mapping between a `purposeId` (as provided by the `CMPAdapter`)
 /// and the `dispatcherIds` for the `Dispatcher`s that need that purpose to be accepted in order to fire.
 struct ConsentPurpose {
-    /// The purpose as provided by the `CmpAdapter`.
+    /// The purpose as provided by the `CMPAdapter`.
     let purposeId: String
     /// The IDs of the dispatchers that need the `purposeId` to be accepted in order to fire.
     let dispatcherIds: [String]

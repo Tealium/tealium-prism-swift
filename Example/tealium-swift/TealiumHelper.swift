@@ -51,7 +51,7 @@ class TealiumHelper {
                 .setVisitorIdentityKey("email")
         })
 // Uncomment to enable consent. At the moment this will block everything due to no functioning consent adapter and no configuration setup for the dispatchers' purposes.
-//        config.enableConsentIntegration(with: CustomCmp()) { enforcedConfiguration in
+//        config.enableConsentIntegration(with: CustomCMP()) { enforcedConfiguration in
 //            enforcedConfiguration.setTealiumPurposeId("tealium")
 //                .setRefireDispatchersIds(["collect"])
 //                .addPurpose("purpose1", dispatcherIds: ["dispatcher_id_1"])

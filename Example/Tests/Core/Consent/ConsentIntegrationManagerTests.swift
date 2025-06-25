@@ -27,17 +27,17 @@ final class ConsentIntegrationManagerTests: XCTestCase {
                                                              transformations: transformations,
                                                              moduleMappings: .constant([:]),
                                                              queue: .main)
-    @StateSubject(ConsentSettings(configurations: ["MockCmp": ConsentConfiguration(tealiumPurposeId: "tealium",
+    @StateSubject(ConsentSettings(configurations: ["MockCMP": ConsentConfiguration(tealiumPurposeId: "tealium",
                                                                                    refireDispatchersIds: [],
                                                                                    purposes: [:])]))
     var consentSettings: ObservableState<ConsentSettings?>
 
-    let adapter = MockCmpAdapter(consentDecision: nil)
+    let adapter = MockCMPAdapter(consentDecision: nil)
 
     lazy var consentManager = buildConsentManager(cmpAdapter: adapter)
 
-    func buildConsentManager(cmpAdapter: CmpAdapter) -> ConsentManager {
-        let cmpSelector = CmpConfigurationSelector(consentSettings: consentSettings,
+    func buildConsentManager(cmpAdapter: CMPAdapter) -> ConsentManager {
+        let cmpSelector = CMPConfigurationSelector(consentSettings: consentSettings,
                                                    cmpAdapter: cmpAdapter,
                                                    queue: .main)
         return ConsentIntegrationManager(queueManager: queueManager,
@@ -47,12 +47,12 @@ final class ConsentIntegrationManagerTests: XCTestCase {
     }
     let completionCalledDescription = "Completion was called"
 
-    func applyDecision(_ consentDecision: ConsentDecision?) {
-        adapter.applyDecision(consentDecision)
+    func applyDecision(decisionType: ConsentDecision.DecisionType, purposes: [String]) {
+        adapter.applyDecision(ConsentDecision(decisionType: decisionType, purposes: purposes))
     }
 
-    func test_applyConsent_runs_completion_with_dropped_result_and_original_dispatch_when_explicitly_not_tealium_consented() {
-        applyDecision(ConsentDecision(decisionType: .explicit, purposes: []))
+    func test_applyConsent_returns_dropped_result_and_original_dispatch_when_explicitly_not_tealium_consented() {
+        applyDecision(decisionType: .explicit, purposes: [])
         let result = consentManager.applyConsent(to: Dispatch(name: "event1"))
         switch result {
         case let .dropped(dispatch):
@@ -62,8 +62,8 @@ final class ConsentIntegrationManagerTests: XCTestCase {
         }
     }
 
-    func test_applyConsent_runs_completion_with_accepted_result_and_original_dispatch_when_implicitly_not_tealium_consented() {
-        applyDecision(ConsentDecision(decisionType: .implicit, purposes: []))
+    func test_applyConsent_returns_accepted_result_and_original_dispatch_when_implicitly_not_tealium_consented() {
+        applyDecision(decisionType: .implicit, purposes: [])
         let result = consentManager.applyConsent(to: Dispatch(name: "event1"))
         switch result {
         case .dropped:
@@ -73,8 +73,8 @@ final class ConsentIntegrationManagerTests: XCTestCase {
         }
     }
 
-    func test_applyConsent_runs_completion_with_accepted_result_and_consented_dispatch_when_tealium_consented() {
-        applyDecision(ConsentDecision(decisionType: .explicit, purposes: ["tealium"]))
+    func test_applyConsent_returns_accepted_result_and_consented_dispatch_when_tealium_consented() {
+        applyDecision(decisionType: .explicit, purposes: ["tealium"])
         let result = consentManager.applyConsent(to: Dispatch(name: "event1"))
         switch result {
         case .dropped:
@@ -85,8 +85,8 @@ final class ConsentIntegrationManagerTests: XCTestCase {
         }
     }
 
-    func test_apply_consent_runs_completion_with_dropped_result_and_original_dispatch_when_unprocessed_purposes_empty() {
-        applyDecision(ConsentDecision(decisionType: .explicit, purposes: ["tealium"]))
+    func test_applyConsent_returns_dropped_result_and_original_dispatch_when_unprocessed_purposes_empty() {
+        applyDecision(decisionType: .explicit, purposes: ["tealium"])
         var dispatch = Dispatch(name: "event1")
         dispatch.enrich(data: ["purposes_with_consent_all": ["tealium"]]) // this is gonna be the 3rd property of payload...
         let result = consentManager.applyConsent(to: dispatch)

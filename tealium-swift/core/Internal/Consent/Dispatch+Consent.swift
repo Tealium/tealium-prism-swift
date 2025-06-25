@@ -35,4 +35,12 @@ extension Dispatch {
             .map { $0.purposeId }
         return requiredPurposes.allSatisfy(consentedPurposes.contains(_:))
     }
+
+    func hasAlreadyProcessedPurposes() -> Bool {
+        guard let processedPurposes = payload.getArray(key: ConsentConstants.processedPurposesKey,
+                                                       of: String.self) else {
+            return false
+        }
+        return !processedPurposes.compactMap { $0 }.isEmpty
+    }
 }

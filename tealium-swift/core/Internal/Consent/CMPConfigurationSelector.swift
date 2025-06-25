@@ -1,5 +1,5 @@
 //
-//  CmpConfigurationSelector.swift
+//  CMPConfigurationSelector.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 21/05/25.
@@ -9,14 +9,14 @@
 import Foundation
 
 /**
- * A utility class that can select the right `ConsentConfiguration` based on the `ConsentSettings` and `CmpAdapter`.
+ * A utility class that can select the right `ConsentConfiguration` based on the `ConsentSettings` and `CMPAdapter`.
  */
-class CmpConfigurationSelector {
-    let cmpAdapter: CmpAdapter
+class CMPConfigurationSelector {
+    let cmpAdapter: CMPAdapter
     let configuration: ObservableState<ConsentConfiguration?>
     let consentInspector: ObservableState<ConsentInspector?>
     let disposer = AutomaticDisposer()
-    init(consentSettings: ObservableState<ConsentSettings?>, cmpAdapter: CmpAdapter, queue: TealiumQueue = .worker) {
+    init(consentSettings: ObservableState<ConsentSettings?>, cmpAdapter: CMPAdapter, queue: TealiumQueue = .worker) {
         self.cmpAdapter = cmpAdapter
         let configuration = consentSettings.mapState { $0?.configurations[cmpAdapter.id] }
         self.configuration = configuration

@@ -1,5 +1,5 @@
 //
-//  CmpAdapter.swift
+//  CMPAdapter.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 10/06/25.
@@ -7,12 +7,12 @@
 //
 
 /**
- * The `CmpAdapter` provides a consistent interface with external Consent Management
- * Providers (Cmp).
+ * The `CMPAdapter` provides a consistent interface with external Consent Management
+ * Providers (CMP).
  */
-public protocol CmpAdapter {
+public protocol CMPAdapter {
     /**
-     * The unique identifier for this `CmpAdapter`.
+     * The unique identifier for this `CMPAdapter`.
      */
     var id: String { get }
 
@@ -24,7 +24,7 @@ public protocol CmpAdapter {
     var consentDecision: Observable<ConsentDecision?> { get }
 
     /**
-     * Returns all possible purposes from the Cmp.
+     * Returns all possible purposes from the CMP.
      */
     var allPurposes: [String] { get }
 }

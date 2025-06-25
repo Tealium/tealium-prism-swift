@@ -14,12 +14,23 @@ extension Array {
             self.remove(at: index)
         }
     }
-}
 
-extension Array {
     func diff<T: Equatable>(_ other: Self, by key: KeyPath<Element, T>) -> Self {
         self.filter { element in
             !other.contains(where: { $0[keyPath: key] == element[keyPath: key] })
         }
+    }
+
+    func partitioned(by belongsInFirstPartition: (Element) throws -> Bool) rethrows -> (Self, Self) {
+        var first = [Element]()
+        var second = [Element]()
+        for element in self {
+            if try belongsInFirstPartition(element) {
+                first.append(element)
+            } else {
+                second.append(element)
+            }
+        }
+        return (first, second)
     }
 }

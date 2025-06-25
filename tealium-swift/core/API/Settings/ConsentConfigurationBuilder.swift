@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-/// A builder to create a `ConsentConfiguration` to be used with a specific `CmpAdapter`
+/// A builder to create a `ConsentConfiguration` to be used with a specific `CMPAdapter`
 public class ConsentConfigurationBuilder {
     typealias Keys = ConsentConfiguration.Keys
     private var _dataObject: DataObject = [:]

@@ -17,7 +17,7 @@ class ConsentSettingsBuilder {
     /**
      * Create a ConsentSettingsBuilder with a fixed `vendorId`.
      *
-     * Only one `CmpAdapter` is supported at the time of this writing, so there's no reason to provide multiple vendor IDs.
+     * Only one `CMPAdapter` is supported at the time of this writing, so there's no reason to provide multiple vendor IDs.
      */
     init(vendorId: String) {
         self.vendorId = vendorId

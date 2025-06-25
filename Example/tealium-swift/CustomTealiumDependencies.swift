@@ -24,7 +24,7 @@ class CustomDispatcher: Dispatcher {
     }
 }
 
-class CustomCmp: CmpAdapter {
+class CustomCMP: CMPAdapter {
     let id = "custom"
 
     @ToAnyObservable<ReplaySubject<ConsentDecision?>>(ReplaySubject<ConsentDecision?>(initialValue: ConsentDecision(decisionType: .implicit, purposes: [])))

@@ -18,11 +18,11 @@ extension DispatchManagerProtocol {
     }
 }
 
-/// A split from an array of `Dispatch`es between accepted and discarded ones.
-struct DispatchSplit {
-    let accepted: [Dispatch]
-    let discarded: [Dispatch]
-}
+/**
+ * A split from an array of `Dispatch`es between `successful` and `unsuccessful` ones after evaluating
+ * a condition on them or trying to apply some operation.
+ */
+typealias DispatchSplit = (successful: [Dispatch], unsuccessful: [Dispatch])
 
 /**
  * The class containing the core logic of the library, taking `Dispatch`es from the queue, transforming and dispatching them to each individual `Dispatcher` when they are ready.
@@ -127,7 +127,7 @@ class DispatchManager: DispatchManagerProtocol {
                             return subscription
                         }
                         self.logger?.debug(category: LogCategory.dispatchManager,
-                                           "Sending events to dispatcher \(dispatcher.id): \(dispatchSplit.accepted.shortDescription())")
+                                           "Sending events to dispatcher \(dispatcher.id): \(dispatchSplit.successful.shortDescription())")
                         return self.transformAndDispatch(dispatchSplit: dispatchSplit, for: dispatcher) { processedDispatches in
                             guard !subscription.isDisposed else { return }
                             observer((dispatcher, processedDispatches))
@@ -150,14 +150,14 @@ class DispatchManager: DispatchManagerProtocol {
                     // Only dequeue events after we have a valid configuration from `ConsentManager`
                     return self.startDequeueLoop(for: dispatcher)
                         .map { dispatches in
-                            let consented = dispatches.filter { $0.matchesConfiguration(configuration, forDispatcher: dispatcher.id) }
-                            let discarded = dispatches.diff(consented, by: \.id)
-                            return DispatchSplit(accepted: consented, discarded: discarded)
+                            dispatches.partitioned {
+                                $0.matchesConfiguration(configuration, forDispatcher: dispatcher.id)
+                            }
                         }
                 }
         } else {
             startDequeueLoop(for: dispatcher)
-                .map { DispatchSplit(accepted: $0, discarded: []) }
+                .map { DispatchSplit(successful: $0, unsuccessful: []) }
         }
     }
 
@@ -181,11 +181,11 @@ class DispatchManager: DispatchManagerProtocol {
     }
 
     private func transformAndDispatch(dispatchSplit: DispatchSplit, for dispatcher: Dispatcher, onProcessedDispatches: @escaping ([Dispatch]) -> Void) -> Disposable {
-        if !dispatchSplit.discarded.isEmpty {
+        if !dispatchSplit.unsuccessful.isEmpty {
             // Discarded dispatches don't need to be transformed and can be deleted immediately.
-            onProcessedDispatches(dispatchSplit.discarded)
+            onProcessedDispatches(dispatchSplit.unsuccessful)
         }
-        let dispatches = dispatchSplit.accepted
+        let dispatches = dispatchSplit.successful
         let container = DisposeContainer()
         guard !dispatches.isEmpty else {
             return container
@@ -193,17 +193,18 @@ class DispatchManager: DispatchManagerProtocol {
         self.transformerCoordinator.transform(dispatches: dispatches,
                                               for: .dispatcher(dispatcher.id)) { [weak self] transformedDispatches in
             guard !container.isDisposed, let self else { return }
-            let filteredDispatches = self.loadRuleEngine.filterDispatches(transformedDispatches,
-                                                                          forModule: dispatcher)
-            let removedDispatches = dispatches.diff(filteredDispatches, by: \.id)
+            let (passed, _) = self.loadRuleEngine.evaluateLoadRules(on: transformedDispatches,
+                                                                    forModule: dispatcher)
+            let removedDispatches = dispatches.diff(passed, by: \.id)
             if !removedDispatches.isEmpty {
                 self.logger?.debug(category: LogCategory.dispatchManager,
                                    "Dispatching disallowed for Dispatcher \(dispatcher.id) and Dispatches \(removedDispatches.shortDescription())")
                 onProcessedDispatches(removedDispatches)
             }
 
-            let mapped = filteredDispatches.map { self.mappingsEngine.map(dispatcherId: dispatcher.id, dispatch: $0) }
-
+            let mapped = passed.map {
+                self.mappingsEngine.map(dispatcherId: dispatcher.id, dispatch: $0)
+            }
             dispatcher.dispatch(mapped) { processedDispatches in
                 guard !container.isDisposed else { return }
                 onProcessedDispatches(processedDispatches)

@@ -1,5 +1,5 @@
 //
-//  CmpConfigurationSelectorTests.swift
+//  CMPConfigurationSelectorTests.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 22/05/25.
@@ -9,11 +9,11 @@
 @testable import TealiumSwift
 import XCTest
 
-final class CmpConfigurationSelectorTests: XCTestCase {
+final class CMPConfigurationSelectorTests: XCTestCase {
     @StateSubject(nil)
     var consentSettings: ObservableState<ConsentSettings?>
-    let adapter = MockCmpAdapter(id: "vendor1", consentDecision: nil)
-    lazy var selector = CmpConfigurationSelector(consentSettings: consentSettings,
+    let adapter = MockCMPAdapter(id: "vendor1", consentDecision: nil)
+    lazy var selector = CMPConfigurationSelector(consentSettings: consentSettings,
                                                  cmpAdapter: adapter,
                                                  queue: .main)
 

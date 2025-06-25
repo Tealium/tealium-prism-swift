@@ -26,7 +26,7 @@ class ConsentIntegrationManager: ConsentManager {
     let version: String = TealiumConstants.libraryVersion
     static let id: String = "consent"
     private let queueManager: QueueManagerProtocol
-    let cmpSelector: CmpConfigurationSelector
+    let cmpSelector: CMPConfigurationSelector
     private weak var modules: ObservableState<[TealiumModule]>?
     private var dispatchers: [String] {
         modules?.value
@@ -35,10 +35,7 @@ class ConsentIntegrationManager: ConsentManager {
     }
     private let automaticDisposer = AutomaticDisposer()
     var tealiumPurposeExplicitlyBlocked: Bool {
-        if let applier = cmpSelector.consentInspector.value {
-            return applier.tealiumExplicitlyBlocked()
-        }
-        return false
+        cmpSelector.consentInspector.value?.tealiumExplicitlyBlocked() ?? false
     }
 
     let onConfigurationSelected: Observable<ConsentConfiguration?>
@@ -46,9 +43,9 @@ class ConsentIntegrationManager: ConsentManager {
     convenience init?(queueManager: QueueManagerProtocol,
                       modules: ObservableState<[TealiumModule]>,
                       consentSettings: ObservableState<ConsentSettings?>,
-                      cmpAdapter: CmpAdapter?) {
+                      cmpAdapter: CMPAdapter?) {
         guard let cmpAdapter else { return nil }
-        let cmpSelector = CmpConfigurationSelector(consentSettings: consentSettings,
+        let cmpSelector = CMPConfigurationSelector(consentSettings: consentSettings,
                                                    cmpAdapter: cmpAdapter)
         self.init(queueManager: queueManager,
                   modules: modules,
@@ -59,7 +56,7 @@ class ConsentIntegrationManager: ConsentManager {
     init(queueManager: QueueManagerProtocol,
          modules: ObservableState<[TealiumModule]>,
          consentSettings: ObservableState<ConsentSettings?>,
-         cmpSelector: CmpConfigurationSelector) {
+         cmpSelector: CMPConfigurationSelector) {
         self.queueManager = queueManager
         self.modules = modules
         self.cmpSelector = cmpSelector
@@ -70,55 +67,50 @@ class ConsentIntegrationManager: ConsentManager {
     func handleConsentChanges() {
         cmpSelector.consentInspector
             .compactMap { $0 }
-            .subscribe { [weak self] (consentApplier: ConsentInspector) in
+            .subscribe { [weak self] (consentInspector: ConsentInspector) in
                 guard let self else { return }
 
                 defer { queueManager.deleteAllDispatches(for: Self.id) }
-                guard !consentApplier.tealiumExplicitlyBlocked() else {
+                guard !consentInspector.tealiumExplicitlyBlocked() else {
                     return
                 }
                 let events = queueManager.getQueuedDispatches(for: Self.id, limit: nil)
-                    .compactMap { $0.applyConsentDecision(consentApplier.decision) }
+                    .compactMap { $0.applyConsentDecision(consentInspector.decision) }
 
                 guard !events.isEmpty else { return }
 
-                self.enqueueDispatches(events, refireDispatchers: consentApplier.configuration.refireDispatchersIds)
+                self.enqueueDispatches(events, refireDispatchers: consentInspector.configuration.refireDispatchersIds)
             }.addTo(automaticDisposer)
     }
 
     func enqueueDispatches(_ dispatches: [Dispatch], refireDispatchers: [String]) {
-        let refireKey = "refire"
-        let normalDispatchKey = "normal"
-        let dispatchesGroups = Dictionary(grouping: dispatches) { dispatch in
-            if let processedPurposes = dispatch.payload.getArray(key: ConsentConstants.processedPurposesKey, of: String.self)?.compactMap({ $0 }),
-               !processedPurposes.isEmpty {
-                return refireKey
-            } else {
-                return normalDispatchKey
-            }
+        let (refireDispatches, normalDispatches) = dispatches.partitioned {
+            $0.hasAlreadyProcessedPurposes()
         }
         if !refireDispatchers.isEmpty,
-           let refireDispatches = dispatchesGroups[refireKey]?.map({ Dispatch(payload: $0.payload,
-                                                                              id: $0.id + ConsentConstants.refireIdPostfix,
-                                                                              timestamp: Date().unixTimeMilliseconds) }),
            !refireDispatches.isEmpty {
-                queueManager.storeDispatches(refireDispatches, enqueueingFor: refireDispatchers)
+            let updatedDispatches = refireDispatches.map {
+                Dispatch(payload: $0.payload,
+                         id: $0.id + ConsentConstants.refireIdPostfix,
+                         timestamp: Date().unixTimeMillisecondsInt)
+            }
+            queueManager.storeDispatches(updatedDispatches, enqueueingFor: refireDispatchers)
         }
-        if let normalDispatches = dispatchesGroups[normalDispatchKey], !normalDispatches.isEmpty {
+        if !normalDispatches.isEmpty {
             self.queueManager.storeDispatches(normalDispatches, enqueueingFor: dispatchers)
         }
     }
 
     func applyConsent(to dispatch: Dispatch) -> TrackResult {
-        guard let consentApplier = cmpSelector.consentInspector.value else {
+        guard let consentInspector = cmpSelector.consentInspector.value else {
             queueManager.storeDispatches([dispatch], enqueueingFor: [Self.id])
             return .accepted(dispatch)
         }
-        guard !consentApplier.tealiumExplicitlyBlocked() else {
+        guard !consentInspector.tealiumExplicitlyBlocked() else {
             return .dropped(dispatch)
         }
-        let decision = consentApplier.decision
-        guard consentApplier.tealiumConsented() else {
+        let decision = consentInspector.decision
+        guard consentInspector.tealiumConsented() else {
             queueManager.storeDispatches([dispatch], enqueueingFor: [Self.id])
             return .accepted(dispatch)
         }
@@ -127,7 +119,7 @@ class ConsentIntegrationManager: ConsentManager {
             return .dropped(dispatch)
         }
         var processors = dispatchers
-        if consentApplier.allowsRefire() {
+        if consentInspector.allowsRefire() {
             processors += [Self.id]
         }
         queueManager.storeDispatches([consentedDispatch], enqueueingFor: processors)
