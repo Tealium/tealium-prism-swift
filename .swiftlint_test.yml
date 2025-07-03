@@ -31,6 +31,8 @@ opt_in_rules:
   - number_separator
 
 file_length:
+  warning: 700
+type_body_length:
   warning: 500
 identifier_name:
   allowed_symbols: "_"

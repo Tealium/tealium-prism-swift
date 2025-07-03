@@ -83,4 +83,17 @@ protocol QueueRepository {
      *   - expiration: The `TimeFrame` used to validate if the currently enqueued items are expired or not.
      */
     func setExpiration(_ expiration: TimeFrame) throws
+
+    /**
+     * Returns a dictionary of all queue sizes where the key is the processor ID and the value is the
+     * queue size.
+     */
+    func queueSizeByProcessor() -> [String: Int]
+
+    /**
+     * Returns the queue size for the given processor.
+     *
+     * - parameter processor: The ID of the processor to query queue size for.
+     */
+    func queueSize(for processor: String) -> Int
 }

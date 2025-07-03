@@ -10,10 +10,12 @@ import Foundation
 
 class QueueManager: QueueManagerProtocol {
     /// [DispatcherId: [DispatchId]]
-    @StateSubject([String: [String]]())
-    var inflightEvents: ObservableState<[String: [String]]>
-    @ToAnyObservable<BasePublisher<[String]>>(BasePublisher<[String]>())
-    var onEnqueuedDispatchesForProcessors: Observable<[String]>
+    @StateSubject([String: Set<String>]())
+    var inflightEvents: ObservableState<[String: Set<String>]>
+    @ToAnyObservable<BasePublisher<Set<String>>>(BasePublisher<Set<String>>())
+    var onEnqueuedDispatchesForProcessors: Observable<Set<String>>
+    @ToAnyObservable<BasePublisher<Set<String>>>(BasePublisher<Set<String>>())
+    var deletedDispatchesForProcessors: Observable<Set<String>>
     private let queueRepository: QueueRepository
     private let disposer = AutomaticDisposer()
     private let logger: LoggerProtocol?
@@ -23,7 +25,13 @@ class QueueManager: QueueManagerProtocol {
         processors.subscribe { [weak self] processors in
             self?.deleteQueues(forProcessorsNotIn: processors)
         }.addTo(disposer)
-        coreSettings.subscribe { settings in
+        coreSettings.subscribe { [weak self] settings in
+            self?.handleSettingsUpdate(settings)
+        }.addTo(disposer)
+    }
+
+    private func handleSettingsUpdate(_ settings: CoreSettings) {
+        let affectedProcessors = calculateProcessorDeletions {
             do {
                 try queueRepository.resize(newSize: settings.maxQueueSize)
                 logger?.debug(category: LogCategory.queueManager,
@@ -40,27 +48,53 @@ class QueueManager: QueueManagerProtocol {
                 logger?.error(category: LogCategory.queueManager,
                               "Failed to delete expired dispatches for expiration \(settings.queueExpiration)\nError: \(error)")
             }
-        }.addTo(disposer)
+        }
+        onProcessorsDeleted(processors: Set(affectedProcessors))
+    }
+
+    private func calculateProcessorDeletions(_ task: () throws -> Void) rethrows -> [String] {
+        let initialQueueSizes = queueRepository.queueSizeByProcessor()
+        try task()
+        let afterQueueSizes = queueRepository.queueSizeByProcessor()
+        let affectedProcessors = initialQueueSizes.compactMap { processor, size in
+            if let newSize = afterQueueSizes[processor] {
+                // return processor if its queue size was reduced
+                return newSize < size ? processor : nil
+            } else {
+                // or if processor queue was removed
+                return processor
+            }
+        }
+        return affectedProcessors
     }
 
     private func deleteQueues(forProcessorsNotIn processors: [String]) {
         do {
-            try self.queueRepository.deleteQueues(forProcessorsNotIn: processors)
-            logger?.debug(category: LogCategory.queueManager,
-                          "Deleted queued events for disabled processors. Currently enabled processors are: \(processors)")
-            let removedProcessors = self.inflightEvents.value.keys.filter { processors.contains($0) }
-            guard !removedProcessors.isEmpty else {
-                return
+            let affectedProcessors = try calculateProcessorDeletions {
+                try self.queueRepository.deleteQueues(forProcessorsNotIn: processors)
+                logger?.debug(category: LogCategory.queueManager,
+                              "Deleted queued events for disabled processors. Currently enabled processors are: \(processors)")
             }
-            var newInflightEvents = self.inflightEvents.value
-            for removedProcessor in removedProcessors {
-                newInflightEvents.removeValue(forKey: removedProcessor)
-            }
-            _inflightEvents.value = newInflightEvents
+            onProcessorsDeleted(processors: Set(affectedProcessors))
         } catch {
             logger?.error(category: LogCategory.queueManager,
                           "Failed to delete queued events for disabled processors. Currently enabled processors are: \(processors)\nError: \(error)")
         }
+    }
+
+    func queueSizePendingDispatch(for processorId: String) -> Observable<Int> {
+        let queueSizeChanges = onEnqueuedDispatchesForProcessors
+            .merge(deletedDispatchesForProcessors)
+            .filter { $0.contains(processorId) }
+            .map { _ in () }
+        return queueSizeChanges
+            .startWith(())
+            .map { [queueRepository] _ in queueRepository.queueSize(for: processorId) }
+            .combineLatest(onInflightDispatchesCount(for: processorId))
+            .map { queueSize, inflight in
+                max(queueSize - inflight, 0)
+            }
+            .distinct()
     }
 
     func onInflightDispatchesCount(for processor: String) -> Observable<Int> {
@@ -70,20 +104,26 @@ class QueueManager: QueueManagerProtocol {
     }
 
     func getQueuedDispatches(for processor: String, limit: Int?) -> [Dispatch] {
+        let inflightSet = inflightEvents.value[processor] ?? Set<String>()
         let dispatches = queueRepository.getQueuedDispatches(for: processor,
                                                              limit: limit,
-                                                             excluding: inflightEvents.value[processor] ?? [])
+                                                             excluding: Array(inflightSet))
         guard !dispatches.isEmpty else {
             return []
         }
         logger?.debug(category: LogCategory.queueManager,
                       "Dequeued dispatches for processor \(processor): \(dispatches.map { $0.logDescription() })")
-        var inflight = inflightEvents.value
-        for event in dispatches {
-            inflight[processor] = (inflight[processor] ?? []) + [event.id]
-        }
-        _inflightEvents.value = inflight
+        addToInflightDispatches(processor: processor, dispatches: dispatches)
         return dispatches
+    }
+
+    private func addToInflightDispatches(processor: String, dispatches: [Dispatch]) {
+        var eventsInflight = inflightEvents.value
+        let dispatchIds = dispatches.map { $0.id }
+        var inflightDispatchesSet = eventsInflight[processor] ?? Set<String>()
+        inflightDispatchesSet.formUnion(dispatchIds)
+        eventsInflight[processor] = inflightDispatchesSet
+        _inflightEvents.value = eventsInflight
     }
 
     func storeDispatches(_ dispatches: [Dispatch], enqueueingFor processors: [String]) {
@@ -94,7 +134,7 @@ class QueueManager: QueueManagerProtocol {
             try queueRepository.storeDispatches(dispatches, enqueueingFor: processors)
             logger?.debug(category: LogCategory.queueManager,
                           "Enqueued dispatches for processors \(processors): \(dispatches.map { $0.logDescription() })")
-            _onEnqueuedDispatchesForProcessors.publish(processors)
+            _onEnqueuedDispatchesForProcessors.publish(Set(processors))
         } catch {
             logger?.error(category: LogCategory.queueManager,
                           "Failed to enqueue dispatches for processors \(processors): \(dispatches.map { $0.logDescription() })\nError: \(error)")
@@ -106,15 +146,20 @@ class QueueManager: QueueManagerProtocol {
             try queueRepository.deleteDispatches(dispatchUUIDs, for: processor)
             logger?.debug(category: LogCategory.queueManager,
                           "Removed processed dispatches for processor \(processor): \(dispatchUUIDs)")
-            let currentlyInflightsForProcessor: [String] = inflightEvents.value[processor] ?? []
-            let remainingInflightsForProcessor: [String] = currentlyInflightsForProcessor.filter { inFlightDispatch in
-                !dispatchUUIDs.contains { $0 == inFlightDispatch }
-            }
-            _inflightEvents.value[processor] = remainingInflightsForProcessor
+            onDispatchesDeleted(processor: processor, dispatchUUIDs: dispatchUUIDs)
         } catch {
             logger?.error(category: LogCategory.queueManager,
                           "Failed to remove processed dispatches for processor \(processor): \(dispatchUUIDs)\nError: \(error)")
         }
+    }
+
+    private func onDispatchesDeleted(processor: String, dispatchUUIDs: [String]) {
+        guard !dispatchUUIDs.isEmpty else { return }
+        _deletedDispatchesForProcessors.publish([processor])
+        var eventsInflight = inflightEvents.value
+        let remaining = (eventsInflight[processor] ?? Set<String>()).subtracting(dispatchUUIDs)
+        eventsInflight[processor] = remaining
+        _inflightEvents.value = eventsInflight
     }
 
     func deleteAllDispatches(for processor: String) {
@@ -122,10 +167,19 @@ class QueueManager: QueueManagerProtocol {
             try queueRepository.deleteAllDispatches(for: processor)
             logger?.debug(category: LogCategory.queueManager,
                           "Removed all processed dispatches for processor \(processor)")
-            _inflightEvents.value[processor] = []
+            onProcessorsDeleted(processors: Set([processor]))
         } catch {
             logger?.error(category: LogCategory.queueManager,
                           "Failed to remove all processed dispatches for processor \(processor)\nError: \(error)")
         }
+    }
+
+    private func onProcessorsDeleted(processors: Set<String>) {
+        guard !processors.isEmpty else {
+            return
+        }
+        _deletedDispatchesForProcessors.publish(processors)
+        let eventsInflight = inflightEvents.value.filter { !processors.contains($0.key) }
+        _inflightEvents.value = eventsInflight
     }
 }

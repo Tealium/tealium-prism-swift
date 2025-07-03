@@ -35,15 +35,20 @@ final class QueueManagerTests: XCTestCase {
         XCTAssertEqual(queueManager.getQueuedDispatches(for: modulesIds[1], limit: nil).count, 1)
     }
 
-    func test_modules_changes_removes_dispatches_queued_to_old_processors_in_db() {
+    func test_modules_changes_removes_dispatches_queued_to_old_processors() {
         let dispatch = Dispatch(name: "some_event")
         let modulesIds = modules.value.map { $0.id }
+        let deletedExpectation = expectation(description: "Deleted dispatches for processors emitted")
         XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch], enqueueingFor: modulesIds))
-        XCTAssertEqual(queueManager.getQueuedDispatches(for: modulesIds[0], limit: nil).count, 1)
-        XCTAssertEqual(queueManager.getQueuedDispatches(for: modulesIds[1], limit: nil).count, 1)
+        queueManager.deletedDispatchesForProcessors.subscribeOnce { deletedSet in
+            guard deletedSet == Set(["MockDispatcher1"]) else {
+                XCTFail("Unexpected deleted dispatches: \(deletedSet)")
+                return
+            }
+            deletedExpectation.fulfill()
+        }
         _modules.value.removeFirst()
-        XCTAssertEqual(queueManager.getQueuedDispatches(for: modulesIds[0], limit: nil).count, 0)
-        XCTAssertEqual(queueManager.getQueuedDispatches(for: modulesIds[1], limit: nil).count, 1)
+        waitForDefaultTimeout()
     }
 
     func test_storeDispatches_stores_a_dispatch_per_each_processor() {
@@ -129,7 +134,7 @@ final class QueueManagerTests: XCTestCase {
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 2)
-        XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[0]], dispatches1.map { $0.id })
+        XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[0]], Set(dispatches1.map { $0.id }))
     }
 
     func test_getQueuedDispatches_adds_events_in_the_inflight_for_that_processor() {
@@ -142,90 +147,6 @@ final class QueueManagerTests: XCTestCase {
         let dispatches2 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: 2)
         XCTAssertEqual(dispatches2.count, 1)
         XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[0]]?.count, 3)
-    }
-
-    func test_deleteDispatches_deletes_listed_dispatches_for_processor_from_db() {
-        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
-        let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        let toDelete = [dispatches[0], dispatches[1]].map { $0.id }
-        queueManager.deleteDispatches(toDelete, for: modulesNames[0])
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
-        XCTAssertEqual(dispatches1.count, 1)
-        XCTAssertEqual(dispatches1[0].name, "event_name3")
-    }
-
-    func test_deleteDispatches_leaves_all_dispatches_for_other_processor_in_db() {
-        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
-        let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        let toDelete = [dispatches[0], dispatches[1]].map { $0.id }
-        queueManager.deleteDispatches(toDelete, for: modulesNames[0])
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[1], limit: nil)
-        XCTAssertEqual(dispatches1.count, 3)
-    }
-
-    func test_deleteDispatches_deletes_listed_dispatches_for_processor_from_inflights() {
-        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
-        let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        let toDelete = [dispatches[0], dispatches[1]].map { $0.id }
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
-        XCTAssertEqual(dispatches1.count, 3)
-        XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[0]]?.count, 3)
-        queueManager.deleteDispatches(toDelete, for: modulesNames[0])
-        XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[0]]?.count, 1)
-        XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[0]]?[0], dispatches[2].id)
-    }
-
-    func test_deleteDispatches_leaves_all_dispatches_for_other_processor_in_inflights() {
-        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
-        let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        let toDelete = [dispatches[0], dispatches[1]].map { $0.id }
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[1], limit: nil)
-        XCTAssertEqual(dispatches1.count, 3)
-        queueManager.deleteDispatches(toDelete, for: modulesNames[0])
-        XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[1]]?.count, 3)
-    }
-
-    func test_deleteAllDispatches_deletes_all_dispatches_for_processor_from_db() {
-        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
-        let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        queueManager.deleteAllDispatches(for: modulesNames[0])
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
-        XCTAssertEqual(dispatches1.count, 0)
-    }
-
-    func test_deleteAllDispatches_leaves_all_dispatches_for_other_processor_in_db() {
-        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
-        let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        queueManager.deleteAllDispatches(for: modulesNames[0])
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[1], limit: nil)
-        XCTAssertEqual(dispatches1.count, 3)
-    }
-
-    func test_deleteAllDispatches_deletes_all_dispatches_for_processor_from_inflights() {
-        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
-        let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
-        XCTAssertEqual(dispatches1.count, 3)
-        XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[0]]?.count, 3)
-        queueManager.deleteAllDispatches(for: modulesNames[0])
-        XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[0]]?.count, 0)
-    }
-
-    func test_deleteAllDispatches_leaves_all_dispatches_for_other_processor_in_inflights() {
-        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
-        let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[1], limit: nil)
-        XCTAssertEqual(dispatches1.count, 3)
-        queueManager.deleteAllDispatches(for: modulesNames[0])
-        XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[1]]?.count, 3)
     }
 
     func test_coreSettings_change_causes_expiration_change() {
@@ -242,5 +163,38 @@ final class QueueManagerTests: XCTestCase {
         let queueSize = 20
         _coreSettings.publish(CoreSettings(maxQueueSize: queueSize))
         XCTAssertEqual(queueRepository.maxQueueSize, queueSize)
+    }
+
+    func test_coreSettings_change_causes_deletedDispatchesForProcessors_emission() {
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
+        let modulesNames = modules.value.map { $0.id }
+        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        let deletedExpectation = expectation(description: "Deleted dispatches emitted")
+        queueManager.deletedDispatchesForProcessors.subscribeOnce { _ in
+            deletedExpectation.fulfill()
+        }
+        _coreSettings.publish(CoreSettings(maxQueueSize: 2))
+        waitForDefaultTimeout()
+    }
+
+    func test_queueSizePendingDispatch_returns_correct_count() {
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
+        let modulesNames = modules.value.map { $0.id }
+        let pendingCountExpectation = expectation(description: "pendingCount is 3")
+        let pendingCountAfterDeleteExpectation = expectation(description: "pendingCountAfterDelete is 2")
+        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        queueManager.queueSizePendingDispatch(for: modulesNames[0]).subscribeOnce { value in
+            if value == 3 {
+                pendingCountExpectation.fulfill()
+            }
+        }
+        let toDelete = [dispatches[0].id]
+        queueManager.deleteDispatches(toDelete, for: modulesNames[0])
+        queueManager.queueSizePendingDispatch(for: modulesNames[0]).subscribeOnce { value in
+            if value == 2 {
+                pendingCountAfterDeleteExpectation.fulfill()
+            }
+        }
+        waitForDefaultTimeout()
     }
 }

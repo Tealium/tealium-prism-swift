@@ -22,6 +22,33 @@ class SQLQueueRepository: QueueRepository {
         self.expiration = expiration
     }
 
+    func queueSizeByProcessor() -> [String: Int] {
+        let query = QueueSchema.table
+            .join(.inner,
+                  DispatchSchema.table,
+                  on: DispatchSchema.tableUUID == QueueSchema.tableDispatchId)
+            .where(getFilterExpiredExpression())
+            .select(QueueSchema.tableProcessor, count(*))
+            .group(QueueSchema.tableProcessor)
+        guard let rows = try? database.prepare(query) else {
+            return [:]
+        }
+        return rows.reduce(into: [String: Int]()) { partialResult, row in
+            let processor: String = row[QueueSchema.tableProcessor]
+            let count: Int = row[count(*)]
+            partialResult[processor] = count
+        }
+    }
+
+    func queueSize(for processor: String) -> Int {
+        let query = QueueSchema.table
+            .join(.inner,
+                  DispatchSchema.table,
+                  on: DispatchSchema.tableUUID == QueueSchema.tableDispatchId)
+            .where(QueueSchema.tableProcessor == processor && getFilterExpiredExpression())
+        return (try? database.scalar(query.count)) ?? 0
+    }
+
     func deleteQueues(forProcessorsNotIn processors: [String]) throws {
         try database.transaction {
             try database.run(QueueSchema.deleteDispatches(forProcessorsNotContainedIn: processors))
@@ -53,16 +80,18 @@ class SQLQueueRepository: QueueRepository {
     }
 
     func getQueuedDispatches(for processor: String, limit: Int?, excluding: [String] = []) -> [Dispatch] {
-        let filterExpiredExpression: Expression<Bool> = DispatchSchema.timestamp > getExpiryTimestamp(expiration: expiration)
-        let dispatchTable: QueryType = DispatchSchema.table
-        let query = dispatchTable.where(!excluding.contains(DispatchSchema.uuid))
+        let query = DispatchSchema.table
             .join(.inner,
                   QueueSchema.table,
                   on: DispatchSchema.tableUUID == QueueSchema.tableDispatchId && QueueSchema.tableProcessor == processor)
-            .filter(filterExpiredExpression)
+            .where(!excluding.contains(DispatchSchema.uuid) && getFilterExpiredExpression())
             .order(DispatchSchema.timestamp)
             .limit(limit)
         return getDispatches(query: query)
+    }
+
+    private func getFilterExpiredExpression() -> Expression<Bool> {
+        DispatchSchema.timestamp >= getExpiryTimestamp(expiration: expiration)
     }
 
     private func getDispatches(query: QueryType) -> [Dispatch] {

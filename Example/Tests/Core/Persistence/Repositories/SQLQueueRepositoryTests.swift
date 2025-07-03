@@ -179,13 +179,10 @@ final class SQLQueueRepositoryTests: XCTestCase {
     }
 
     func test_getQueuedDispatches_excludes_expired_dispatches() {
-        guard let twoDaysAgo = Date().addMinutes(-2880)?.unixTimeMillisecondsInt else {
-            return
-        }
         let now = Date().unixTimeMillisecondsInt
         let dispatches = [
             Dispatch(payload: [TealiumDataKey.event: "event1"], id: "UUID1", timestamp: now),
-            Dispatch(payload: [TealiumDataKey.event: "event2"], id: "UUID2", timestamp: twoDaysAgo)
+            createOldDispatch("event2", minutesAgo: 2880)
         ]
         XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches, enqueueingFor: ["processor1"]))
         let resultDispatches = queueRepository.getQueuedDispatches(for: "processor1", limit: 2)
@@ -204,11 +201,8 @@ final class SQLQueueRepositoryTests: XCTestCase {
     }
 
     func test_setExpiration_deletes_newly_expired_dispatches() {
-        guard let twoHoursAgo = Date().addMinutes(-120)?.unixTimeMillisecondsInt else {
-            return
-        }
         let dispatches = [
-            Dispatch(payload: [TealiumDataKey.event: "event1"], id: "UUID", timestamp: twoHoursAgo),
+            createOldDispatch("event1", minutesAgo: 120),
             Dispatch(name: "event2")
         ]
         XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches, enqueueingFor: ["processor1"]))
@@ -223,11 +217,8 @@ final class SQLQueueRepositoryTests: XCTestCase {
     }
 
     func test_setExpiration_deletes_expired_dispatches_for_old_expiration() {
-        guard let twoDaysAgo = Date().addMinutes(-2880)?.unixTimeMillisecondsInt else {
-            return
-        }
         let dispatches = [
-            Dispatch(payload: [TealiumDataKey.event: "event1"], id: "UUID", timestamp: twoDaysAgo),
+            createOldDispatch("event1", minutesAgo: 2880),
             Dispatch(name: "event2")
         ]
         XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches, enqueueingFor: ["processor1"]))
@@ -257,5 +248,66 @@ final class SQLQueueRepositoryTests: XCTestCase {
             return
         }
         XCTAssertEqual(dispatchRows.count, 5)
+    }
+
+    func test_queueSize_returns_zero_when_queue_is_empty() {
+        XCTAssertEqual(queueRepository.queueSize(for: "processor1"), 0)
+    }
+
+    func test_queueSize_returns_queue_size_for_existing_and_zero_for_missing_processor() {
+        let dispatch1 = Dispatch(name: "event1")
+        let dispatch2 = Dispatch(name: "event2")
+        let dispatch3 = Dispatch(name: "event3")
+        XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch1, dispatch3], enqueueingFor: ["processor1"]))
+        XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch2], enqueueingFor: ["processor2"]))
+        XCTAssertEqual(queueRepository.queueSize(for: "processor1"), 2)
+        XCTAssertEqual(queueRepository.queueSize(for: "processor2"), 1)
+        XCTAssertEqual(queueRepository.queueSize(for: "processor3"), 0)
+    }
+
+    func test_queueSize_ignores_expired_dispatches() {
+        let dispatch = Dispatch(name: "event1")
+        let expiredDispatch = createOldDispatch("event3", minutesAgo: 2880)
+        XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch, expiredDispatch], enqueueingFor: ["processor1"]))
+        XCTAssertEqual(queueRepository.queueSize(for: "processor1"), 1)
+    }
+
+    func test_queueSizeByProcessor_returns_empty_dictionary_when_queue_is_empty() {
+        let result = queueRepository.queueSizeByProcessor()
+        XCTAssertEqual(result, [:])
+    }
+
+    func test_queueSizeByProcessor_returns_dictionary_with_queue_sizes_for_existing_processors() {
+        let dispatch1 = Dispatch(name: "eventA")
+        let dispatch2 = Dispatch(name: "eventB")
+        let dispatch3 = Dispatch(name: "eventC")
+        XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch1, dispatch3], enqueueingFor: ["processor1"]))
+        XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch2], enqueueingFor: ["processor2"]))
+        let expected = [
+            "processor1": 2,
+            "processor2": 1
+        ]
+        XCTAssertEqual(queueRepository.queueSizeByProcessor(), expected)
+    }
+
+    func test_queueSizeByProcessor_ignores_expired_dispatches() {
+        let dispatch1 = Dispatch(name: "eventA")
+        let dispatch2 = Dispatch(name: "eventB")
+        let expiredDispatch = createOldDispatch("eventC", minutesAgo: 2880)
+        XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch1, expiredDispatch], enqueueingFor: ["processor1"]))
+        XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch2], enqueueingFor: ["processor2"]))
+        let expected = [
+            "processor1": 1,
+            "processor2": 1
+        ]
+        XCTAssertEqual(queueRepository.queueSizeByProcessor(), expected)
+    }
+
+    private func createOldDispatch(_ name: String, minutesAgo: Double) -> Dispatch {
+        guard let twoDaysAgo = Date().addMinutes(-minutesAgo)?.unixTimeMillisecondsInt else {
+            XCTFail("Cannot create expired date for a dispatch")
+            return Dispatch(name: "wrong dispatch")
+        }
+        return Dispatch(payload: [TealiumDataKey.event: name], id: UUID().uuidString, timestamp: twoDaysAgo)
     }
 }
