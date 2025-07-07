@@ -25,8 +25,11 @@ extension Dispatch {
     }
 
     func matchesConfiguration(_ configuration: ConsentConfiguration, forDispatcher dispatcherId: String) -> Bool {
+        let dispatcherHasAtLeastOneRequiredPurpose = configuration.hasAtLeastOneRequiredPurposeForDispatcher(dispatcherId)
         guard let consentedPurposes = self.payload
-            .getArray(key: ConsentConstants.allPurposesKey, of: String.self) else {
+            .getArray(key: ConsentConstants.allPurposesKey, of: String.self),
+              !consentedPurposes.isEmpty,
+              dispatcherHasAtLeastOneRequiredPurpose else {
             return false
         }
         let requiredPurposes = configuration.purposes

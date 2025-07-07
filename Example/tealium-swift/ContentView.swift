@@ -7,6 +7,7 @@
 //
 
 import SwiftUI
+import TealiumSwift
 
 class ContentViewModel: ObservableObject {
     @Published var email: String = ""
@@ -56,6 +57,10 @@ struct ContentView: View {
                         }
                     }
                     Group {
+                        NavigationLink("Consent") {
+                            ConsentView()
+                                .navigationTitle("Consent")
+                        }.tealiumButtonUI()
                         NavigationLink("Login (VisitorId)") {
                             ScrollView {
                                 VStack(spacing: 16) {
@@ -69,7 +74,7 @@ struct ContentView: View {
                                         TealiumHelper.shared.teal?.resetVisitorId()
                                     }
                                 }
-                            }
+                            }.navigationTitle("Login")
                         }.tealiumButtonUI()
                         NavigationLink("DataLayer") {
                             ScrollView {
@@ -78,7 +83,6 @@ struct ContentView: View {
                                         AddToDataLayerView()
                                             .navigationTitle("Add to DataLayer")
                                     }.tealiumButtonUI()
-                                        
                                     NavigationLink("Remove from DataLayer") {
                                         RemoveFromDataLayerView()
                                             .navigationTitle("Remove from DataLayer")

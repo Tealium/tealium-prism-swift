@@ -17,14 +17,14 @@ public protocol CMPAdapter {
     var id: String { get }
 
     /**
-     * An observable flow of the `ConsentDecision`s from the visitor.
+     * An observable of the `ConsentDecision`s from the visitor.
      *
      * Subscriptions to this observable will always come from the `TealiumQueue.worker`.
      */
     var consentDecision: Observable<ConsentDecision?> { get }
 
     /**
-     * Returns all possible purposes from the CMP.
+     * Returns all possible purposes from the CMP, if available.
      */
-    var allPurposes: [String] { get }
+    var allPurposes: [String]? { get }
 }

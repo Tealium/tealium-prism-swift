@@ -10,7 +10,7 @@
 struct ConsentInspector {
     let configuration: ConsentConfiguration
     let decision: ConsentDecision
-    let allPurposes: [String]
+    let allPurposes: [String]?
 
     func tealiumConsented() -> Bool {
         decision.purposes.contains(configuration.tealiumPurposeId)
@@ -22,7 +22,17 @@ struct ConsentInspector {
 
     func allowsRefire() -> Bool {
         decision.decisionType == .implicit &&
-        !decision.isMatchingAllPurposes(in: allPurposes) &&
+        !allPurposesAreMatched() &&
         !configuration.refireDispatchersIds.isEmpty
+    }
+
+    func allPurposesAreMatched() -> Bool {
+        guard let allPurposes else {
+            // We don't know what all the purposes are
+            // So we can't know if they are all matched
+            // Therefore we need to assume they are not matched.
+            return false
+        }
+        return decision.isMatchingAllPurposes(in: allPurposes)
     }
 }

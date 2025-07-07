@@ -25,6 +25,12 @@ struct ConsentConfiguration {
         static let refireDispatchersIds = "refire_dispatcher_ids"
         static let purposes = "purposes"
     }
+
+    func hasAtLeastOneRequiredPurposeForDispatcher(_ dispatcherId: String) -> Bool {
+        purposes.values.contains {
+            $0.dispatcherIds.contains(dispatcherId)
+        }
+    }
 }
 
 extension ConsentConfiguration {

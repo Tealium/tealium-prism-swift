@@ -44,7 +44,7 @@ class TealiumLogger: LoggerProtocol {
     }
 
     private func enqueueLog(level: LogLevel, category: String, _ messageProvider: @escaping () -> String) {
-        onLogLevel.subscribe { [weak self] _ in
+        onLogLevel.subscribeOnce { [weak self] _ in
             self?.writeLog(level: level, category: category, messageProvider())
         }.addTo(automaticDisposer)
     }

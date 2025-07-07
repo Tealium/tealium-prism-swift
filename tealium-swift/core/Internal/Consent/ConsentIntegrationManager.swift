@@ -8,9 +8,43 @@
 
 import Foundation
 
+/**
+ * This is the internal `ConsentManager` used by various internal components to determine the current
+ * consent status of the current visitor.
+ */
 protocol ConsentManager {
+    /**
+     * The Tealium SDK can be explicitly consented to, or not.
+     *
+     * This method will return whether or not the Tealium purpose has been explicitly denied.
+     */
     var tealiumPurposeExplicitlyBlocked: Bool { get }
+
+    /**
+     * An `Observable` of the selected `ConsentConfiguration`.
+     */
     var onConfigurationSelected: Observable<ConsentConfiguration?> { get }
+
+    /**
+     * Adds consent context information to the given `Dispatch` and enqueues it.
+     *
+     * If the consent decision explicitly denies the tealium purpose or if no purpose is provided,
+     * then the dispatch is dropped instead.
+     *
+     * If consent is not ready at this time, then the `Dispatch` will be queued in a consent specific queue.
+     * It will later be dequeued, once consent has a `ConsentDecision` and a `ConsentConfiguration`,
+     * and enqueued again for the `Dispatchers` with the additional consent context information.
+     *
+     * Additionally, the `Dispatch` can also be queued in the consent specific queue to be later re-fired.
+     * Re-fired events are events that have previously been sent with some implicit purposes, but later,
+     * when the user gives an explicit consent, can be sent again with the additional consented purposes.
+     *
+     * To enable re-firing, provide a non-empty list of `refireDispatchers` in the `ConsentConfiguration`.
+     *
+     * - parameter dispatch: The `Dispatch` to add consent data to.
+     * - returns: A `TrackResult` that can be `accepted`, if the dispatch is enqueued in the consent
+     * or dispatchers queue, or `dropped` if the dispatch is dropped.
+     */
     func applyConsent(to dispatch: Dispatch) -> TrackResult
 }
 
@@ -27,12 +61,8 @@ class ConsentIntegrationManager: ConsentManager {
     static let id: String = "consent"
     private let queueManager: QueueManagerProtocol
     let cmpSelector: CMPConfigurationSelector
-    private weak var modules: ObservableState<[TealiumModule]>?
-    private var dispatchers: [String] {
-        modules?.value
-            .filter { $0 is Dispatcher }
-            .map { $0.id } ?? []
-    }
+    let logger: TealiumLogger?
+    private let dispatchers: ObservableState<[String]>
     private let automaticDisposer = AutomaticDisposer()
     var tealiumPurposeExplicitlyBlocked: Bool {
         cmpSelector.consentInspector.value?.tealiumExplicitlyBlocked() ?? false
@@ -43,44 +73,75 @@ class ConsentIntegrationManager: ConsentManager {
     convenience init?(queueManager: QueueManagerProtocol,
                       modules: ObservableState<[TealiumModule]>,
                       consentSettings: ObservableState<ConsentSettings?>,
-                      cmpAdapter: CMPAdapter?) {
+                      cmpAdapter: CMPAdapter?,
+                      logger: TealiumLogger?) {
         guard let cmpAdapter else { return nil }
         let cmpSelector = CMPConfigurationSelector(consentSettings: consentSettings,
                                                    cmpAdapter: cmpAdapter)
         self.init(queueManager: queueManager,
                   modules: modules,
                   consentSettings: consentSettings,
-                  cmpSelector: cmpSelector)
+                  cmpSelector: cmpSelector,
+                  logger: logger)
     }
 
     init(queueManager: QueueManagerProtocol,
          modules: ObservableState<[TealiumModule]>,
          consentSettings: ObservableState<ConsentSettings?>,
-         cmpSelector: CMPConfigurationSelector) {
+         cmpSelector: CMPConfigurationSelector,
+         logger: TealiumLogger?) {
         self.queueManager = queueManager
-        self.modules = modules
         self.cmpSelector = cmpSelector
+        self.logger = logger
+        self.dispatchers = modules.mapState(transform: { modules in
+            modules.filter { $0 is Dispatcher }
+                .map { $0.id }
+        })
         onConfigurationSelected = cmpSelector.configuration.asObservable()
-        handleConsentChanges()
-    }
-
-    func handleConsentChanges() {
+        logConfigurationErrors()
         cmpSelector.consentInspector
             .compactMap { $0 }
-            .subscribe { [weak self] (consentInspector: ConsentInspector) in
-                guard let self else { return }
-
-                defer { queueManager.deleteAllDispatches(for: Self.id) }
-                guard !consentInspector.tealiumExplicitlyBlocked() else {
-                    return
-                }
-                let events = queueManager.getQueuedDispatches(for: Self.id, limit: nil)
-                    .compactMap { $0.applyConsentDecision(consentInspector.decision) }
-
-                guard !events.isEmpty else { return }
-
-                self.enqueueDispatches(events, refireDispatchers: consentInspector.configuration.refireDispatchersIds)
+            .subscribe { [weak self] consentInspector in
+                self?.handleConsentInspectorChange(consentInspector)
             }.addTo(automaticDisposer)
+    }
+
+    private func logConfigurationErrors() {
+        if let logger {
+            onConfigurationSelected
+                .compactMap { [cmpSelector] configuration in
+                    if configuration == nil {
+                        logger.warn(category: LogCategory.consent, "No ConsentConfiguration selected for CMP: \(cmpSelector.cmpAdapter.id). Make sure you provide a configuration for this specific CMP in the ConsentSettings.")
+                    }
+                    return configuration
+                }
+                .combineLatest(dispatchers.asObservable())
+                .map { configuration, dispatcherIds in
+                    dispatcherIds.filter { dispatcherId in
+                        !configuration.hasAtLeastOneRequiredPurposeForDispatcher(dispatcherId)
+                    }
+                }
+                .filter { !$0.isEmpty }
+                .distinct()
+                .subscribe { misconfiguredDispatchers in
+                    logger.error(category: LogCategory.consent,
+                                 "No purpose defined in ConsentConfiguration for dispatchers: \(misconfiguredDispatchers).\nThese dispatchers will not fire!")
+                }.addTo(automaticDisposer)
+        }
+    }
+
+    func handleConsentInspectorChange(_ consentInspector: ConsentInspector) {
+        defer { queueManager.deleteAllDispatches(for: Self.id) }
+        guard !consentInspector.tealiumExplicitlyBlocked() else {
+            return
+        }
+        let events = queueManager.getQueuedDispatches(for: Self.id, limit: nil)
+            .compactMap { $0.applyConsentDecision(consentInspector.decision) }
+
+        guard !events.isEmpty else { return }
+        logger?.debug(category: LogCategory.consent, "Dispatches enqueued for \(consentInspector.decision.decisionType) decision: \(events.shortDescription())")
+        let refireDispatchers = consentInspector.configuration.refireDispatchersIds
+        enqueueDispatches(events, refireDispatchers: refireDispatchers)
     }
 
     func enqueueDispatches(_ dispatches: [Dispatch], refireDispatchers: [String]) {
@@ -92,36 +153,48 @@ class ConsentIntegrationManager: ConsentManager {
             let updatedDispatches = refireDispatches.map {
                 Dispatch(payload: $0.payload,
                          id: $0.id + ConsentConstants.refireIdPostfix,
-                         timestamp: Date().unixTimeMillisecondsInt)
+                         timestamp: Date().unixTimeMilliseconds)
             }
+            self.logger?.trace(category: LogCategory.consent,
+                               "Dispatches enqueued for refire dispatchers \(updatedDispatches.shortDescription())")
             queueManager.storeDispatches(updatedDispatches, enqueueingFor: refireDispatchers)
         }
         if !normalDispatches.isEmpty {
-            self.queueManager.storeDispatches(normalDispatches, enqueueingFor: dispatchers)
+            self.logger?.trace(category: LogCategory.consent,
+                               "Dispatches enqueued for all dispatchers \(normalDispatches.shortDescription())")
+            self.queueManager.storeDispatches(normalDispatches, enqueueingFor: dispatchers.value)
         }
     }
 
     func applyConsent(to dispatch: Dispatch) -> TrackResult {
         guard let consentInspector = cmpSelector.consentInspector.value else {
+            self.logger?.debug(category: LogCategory.consent,
+                               "Dispatch \(dispatch.logDescription()) enqueued for consent due to missing consent inspector")
             queueManager.storeDispatches([dispatch], enqueueingFor: [Self.id])
             return .accepted(dispatch)
         }
         guard !consentInspector.tealiumExplicitlyBlocked() else {
+            self.logger?.debug(category: LogCategory.consent,
+                               "Dispatch \(dispatch.logDescription()) dropped due to tealium explicitly blocked.")
             return .dropped(dispatch)
         }
         let decision = consentInspector.decision
         guard consentInspector.tealiumConsented() else {
+            self.logger?.debug(category: LogCategory.consent,
+                               "Dispatch \(dispatch.logDescription()) enqueued for consent due to tealium implicitly not consented.")
             queueManager.storeDispatches([dispatch], enqueueingFor: [Self.id])
             return .accepted(dispatch)
         }
         guard let consentedDispatch = dispatch.applyConsentDecision(decision) else {
-            // No dispatch due to no unprocessed purposes present, ignore dispatch
+            self.logger?.debug(category: LogCategory.consent,
+                               "Dispatch \(dispatch.logDescription()) dropped as no unprocessed purpose present.")
             return .dropped(dispatch)
         }
-        var processors = dispatchers
+        var processors = dispatchers.value
         if consentInspector.allowsRefire() {
             processors += [Self.id]
         }
+        self.logger?.debug(category: LogCategory.consent, "Dispatch \(consentedDispatch.logDescription()) enqueued for processors: \(processors)")
         queueManager.storeDispatches([consentedDispatch], enqueueingFor: processors)
         return .accepted(consentedDispatch)
     }

@@ -80,4 +80,20 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
         }
         waitForDefaultTimeout()
     }
+
+    func test_tealiumConsentExplicitlyBlocked_returns_false_when_consentManager_nil() {
+        XCTAssertFalse(dispatchManager.tealiumPurposeExplicitlyBlocked)
+    }
+
+    func test_tealiumConsentExplicitlyBlocked_returns_false_when_tealium_consented() {
+        consentManager = MockConsentManager()
+        consentManager?.currentDecision = ConsentDecision(decisionType: .explicit, purposes: ["tealium"])
+        XCTAssertFalse(dispatchManager.tealiumPurposeExplicitlyBlocked)
+    }
+
+    func test_tealiumConsentExplicitlyBlocked_returns_true_when_tealium_explicitly_not_consented() {
+        consentManager = MockConsentManager()
+        consentManager?.currentDecision = ConsentDecision(decisionType: .explicit, purposes: [])
+        XCTAssertTrue(dispatchManager.tealiumPurposeExplicitlyBlocked)
+    }
 }

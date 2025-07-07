@@ -9,6 +9,7 @@
 import Foundation
 
 protocol DispatchManagerProtocol {
+    var tealiumPurposeExplicitlyBlocked: Bool { get }
     func track(_ dispatch: Dispatch, onTrackResult: TrackResultCompletion?)
 }
 
@@ -17,12 +18,6 @@ extension DispatchManagerProtocol {
         track(dispatch, onTrackResult: nil)
     }
 }
-
-/**
- * A split from an array of `Dispatch`es between `successful` and `unsuccessful` ones after evaluating
- * a condition on them or trying to apply some operation.
- */
-typealias DispatchSplit = (successful: [Dispatch], unsuccessful: [Dispatch])
 
 /**
  * The class containing the core logic of the library, taking `Dispatch`es from the queue, transforming and dispatching them to each individual `Dispatcher` when they are ready.
@@ -65,7 +60,7 @@ class DispatchManager: DispatchManagerProtocol {
         startDispatchLoop()
     }
 
-    func tealiumPurposeExplicitlyBlocked() -> Bool {
+    var tealiumPurposeExplicitlyBlocked: Bool {
         guard let consentManager = consentManager else {
             return false
         }
@@ -73,7 +68,7 @@ class DispatchManager: DispatchManagerProtocol {
     }
 
     func track(_ dispatch: Dispatch, onTrackResult: TrackResultCompletion?) {
-        guard !tealiumPurposeExplicitlyBlocked() else {
+        guard !tealiumPurposeExplicitlyBlocked else {
             logger?.debug(category: LogCategory.dispatchManager,
                           "Tealium consent purpose is explicitly blocked. Event \(dispatch.logDescription()) will be dropped.")
             onTrackResult?(.dropped(dispatch))
@@ -182,7 +177,8 @@ class DispatchManager: DispatchManagerProtocol {
 
     private func transformAndDispatch(dispatchSplit: DispatchSplit, for dispatcher: Dispatcher, onProcessedDispatches: @escaping ([Dispatch]) -> Void) -> Disposable {
         if !dispatchSplit.unsuccessful.isEmpty {
-            // Discarded dispatches don't need to be transformed and can be deleted immediately.
+            logger?.debug(category: LogCategory.dispatchManager,
+                          "Dispatches discarded due to consent \(dispatchSplit.unsuccessful.shortDescription())")
             onProcessedDispatches(dispatchSplit.unsuccessful)
         }
         let dispatches = dispatchSplit.successful
@@ -214,7 +210,7 @@ class DispatchManager: DispatchManagerProtocol {
     }
 }
 
-private extension Array where Element == Dispatch {
+extension Array where Element == Dispatch {
     func shortDescription() -> String {
         "\(map { $0.logDescription() })"
     }

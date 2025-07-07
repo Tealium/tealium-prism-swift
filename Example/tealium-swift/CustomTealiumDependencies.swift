@@ -24,19 +24,6 @@ class CustomDispatcher: Dispatcher {
     }
 }
 
-class CustomCMP: CMPAdapter {
-    let id = "custom"
-
-    @ToAnyObservable<ReplaySubject<ConsentDecision?>>(ReplaySubject<ConsentDecision?>(initialValue: ConsentDecision(decisionType: .implicit, purposes: [])))
-    var consentDecision: Observable<ConsentDecision?>
-
-    let allPurposes = ["tealium", "all"]
-
-    func applyConsent(_ consentDecision: ConsentDecision) {
-        _consentDecision.publish(consentDecision)
-    }
-}
-
 class SomeModule: TealiumBasicModule, Collector {
     let version: String = "1.0.0"
     func collect(_ dispatchContext: DispatchContext) -> DataObject {

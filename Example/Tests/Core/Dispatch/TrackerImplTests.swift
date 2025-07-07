@@ -92,4 +92,14 @@ final class TrackerImplTests: XCTestCase {
         tracker.track(Dispatch(name: "event"), source: .application)
         waitForDefaultTimeout()
     }
+
+    func test_track_drops_events_when_tealiumConsentExplicitlyBlocked() {
+        let resultCalled = expectation(description: "Result is called")
+        self.mockDispatchManager.tealiumPurposeExplicitlyBlocked = true
+        tracker.track(Dispatch(name: "event"), source: .application) { result in
+            XCTAssertTrackResultIsDropped(result)
+            resultCalled.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
 }

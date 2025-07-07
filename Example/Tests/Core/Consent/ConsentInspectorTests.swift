@@ -16,7 +16,7 @@ final class ConsentInspectorTests: XCTestCase {
                                              refireDispatchersIds: [],
                                              purposes: [:])
     var decision = ConsentDecision(decisionType: .implicit, purposes: [])
-    var allPurposes: [String] = []
+    var allPurposes: [String]? = []
     lazy var consentInspector: ConsentInspector = ConsentInspector(configuration: configuration,
                                                                    decision: decision,
                                                                    allPurposes: allPurposes)
@@ -80,5 +80,22 @@ final class ConsentInspectorTests: XCTestCase {
                                              refireDispatchersIds: [],
                                              purposes: [:])
         XCTAssertFalse(consentInspector.allowsRefire())
+    }
+
+    func test_allPurposesAreMatched_is_false_when_allPurposes_is_nil() {
+        allPurposes = nil
+        XCTAssertFalse(consentInspector.allPurposesAreMatched())
+    }
+
+    func test_allPurposesAreMatched_is_true_when_allPurposes_are_contained_in_decision() {
+        decision = ConsentDecision(decisionType: .explicit, purposes: ["1", "2", "3"])
+        allPurposes = ["1", "2", "3"]
+        XCTAssertTrue(consentInspector.allPurposesAreMatched())
+    }
+
+    func test_allPurposesAreMatched_is_false_when_allPurposes_are_not_contained_in_decision() {
+        decision = ConsentDecision(decisionType: .explicit, purposes: ["1", "2", "3"])
+        allPurposes = ["1", "2", "3", "4"]
+        XCTAssertFalse(consentInspector.allPurposesAreMatched())
     }
 }

@@ -10,7 +10,7 @@ import Foundation
 // some TealiumModuleFactory is possible as return types for all of these methods
 // but won't compile for iOS < 13 on Intel machines so any is used instead
 
-/// The list of modules factories that can be used to instanciate and pass modules to the `TealiumConfig`.
+/// The list of modules factories that can be used to instantiate and pass modules to the `TealiumConfig`.
 public enum TealiumModules {
 
     /// Returns a factory for creating the `AppDataCollector`

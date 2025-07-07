@@ -14,9 +14,7 @@ class MockCMPAdapter: CMPAdapter {
     @ToAnyObservable<ReplaySubject<ConsentDecision?>>(ReplaySubject<ConsentDecision?>(initialValue: nil))
     var consentDecision: Observable<ConsentDecision?>
 
-    var allPurposes: [String] {
-        return _consentDecision.publisher.last()??.purposes ?? []
-    }
+    var allPurposes: [String]?
 
     init(id: String = "MockCMP", consentDecision: ConsentDecision?) {
         self.id = id

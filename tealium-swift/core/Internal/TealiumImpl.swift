@@ -66,7 +66,8 @@ class TealiumImpl {
         let consentManager = ConsentIntegrationManager(queueManager: queueManager,
                                                        modules: modulesManager.modules,
                                                        consentSettings: settingsManager.settings.mapState { $0.consent },
-                                                       cmpAdapter: config.cmpAdapter)
+                                                       cmpAdapter: config.cmpAdapter,
+                                                       logger: logger)
 
         let dispatchManager = DispatchManager(loadRuleEngine: loadRuleEngine,
                                               modulesManager: modulesManager,

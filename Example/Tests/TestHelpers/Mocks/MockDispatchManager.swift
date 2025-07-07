@@ -11,6 +11,7 @@
 class MockDispatchManager: DispatchManagerProtocol {
     @ToAnyObservable(BasePublisher())
     var onDispatch: Observable<Dispatch>
+    var tealiumPurposeExplicitlyBlocked: Bool = false
     func track(_ dispatch: Dispatch, onTrackResult: TrackResultCompletion?) {
         _onDispatch.publish(dispatch)
         onTrackResult?(.accepted(dispatch))

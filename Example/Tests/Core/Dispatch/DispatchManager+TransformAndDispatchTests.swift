@@ -123,7 +123,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         consentManager = MockConsentManager()
         consentManager?._onConfigurationSelected.publish(ConsentConfiguration(tealiumPurposeId: "",
                                                                               refireDispatchersIds: [],
-                                                                              purposes: ["purpose1": ConsentPurpose(purposeId: "purpose1", dispatcherIds: [MockDispatcher1.id])]))
+                                                                              purposes: ["purpose1": ConsentPurpose(purposeId: "purpose1", dispatcherIds: [MockDispatcher2.id])]))
         disableModule(module: module1)
         let dispatches = [
             Dispatch(name: "event_to_be_sent", data: [ConsentConstants.allPurposesKey: ["purpose1"]]),

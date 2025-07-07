@@ -131,4 +131,5 @@ enum LogCategory {
     static let tealium = "Tealium"
     static let tracking = "Tracking"
     static let visitorIdProvider = "VisitorIdProvider"
+    static let consent = "Consent"
 }

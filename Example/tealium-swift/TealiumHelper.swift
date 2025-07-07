@@ -13,7 +13,7 @@ class TealiumHelper {
     private(set) var teal: Tealium?
     var automaticDisposer = AutomaticDisposer()
     static let shared = TealiumHelper()
-
+    let cmp = CustomCMP()
     func createModuleFactories() -> [any TealiumModuleFactory] {
         [
          TealiumModules.appData(),
@@ -40,7 +40,7 @@ class TealiumHelper {
     }
 
     func createTeal() -> Tealium {
-        let config = TealiumConfig(account: "tealiummobile",
+        var config = TealiumConfig(account: "tealiummobile",
                                    profile: "enrico-test",
                                    environment: "dev",
                                    modules: createModuleFactories(),
@@ -51,11 +51,11 @@ class TealiumHelper {
                 .setVisitorIdentityKey("email")
         })
 // Uncomment to enable consent. At the moment this will block everything due to no functioning consent adapter and no configuration setup for the dispatchers' purposes.
-//        config.enableConsentIntegration(with: CustomCMP()) { enforcedConfiguration in
-//            enforcedConfiguration.setTealiumPurposeId("tealium")
-//                .setRefireDispatchersIds(["collect"])
-//                .addPurpose("purpose1", dispatcherIds: ["dispatcher_id_1"])
-//        }
+        config.enableConsentIntegration(with: cmp) { enforcedConfiguration in
+            enforcedConfiguration.setTealiumPurposeId("tealium")
+                .setRefireDispatchersIds(["Collect"])
+                .addPurpose("tracking", dispatcherIds: ["Collect"])
+        }
         return Tealium.create(config: config) { _ in }
     }
     func startTealium() {
