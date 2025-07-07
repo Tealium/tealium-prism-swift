@@ -247,12 +247,12 @@ class LifecycleService {
         return state
     }
 
-    func setFormattedFirstLaunch(fallbackTimestamp: Int64 = Date().unixTimeMillisecondsInt) -> String? {
+    func setFormattedFirstLaunch(fallbackTimestamp: Int64 = Date().unixTimeMilliseconds) -> String? {
         firstLaunchString = Date(unixMilliseconds: lifecycleStorage.timestampFirstLaunch ?? fallbackTimestamp).iso8601String
         return firstLaunchString
     }
 
-    func setFirstLaunchMmDdYyyy(fallbackTimestamp: Int64 = Date().unixTimeMillisecondsInt) -> String? {
+    func setFirstLaunchMmDdYyyy(fallbackTimestamp: Int64 = Date().unixTimeMilliseconds) -> String? {
         firstLaunchMmDdYyyy = Date(unixMilliseconds: lifecycleStorage.timestampFirstLaunch ?? fallbackTimestamp).mmDDYYYYString
         return firstLaunchMmDdYyyy
     }

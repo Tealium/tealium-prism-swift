@@ -45,7 +45,7 @@ public enum Expiry: Equatable {
         case .forever:
             return -1
         case .after(let date):
-            return date.unixTimeMillisecondsInt
+            return date.unixTimeMilliseconds
         }
     }
 }

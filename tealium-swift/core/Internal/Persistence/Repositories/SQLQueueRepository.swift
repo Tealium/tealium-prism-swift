@@ -158,6 +158,6 @@ class SQLQueueRepository: QueueRepository {
         guard let expiryDate = expiration.dateBefore() else {
             return .max
         }
-        return expiryDate.unixTimeMillisecondsInt
+        return expiryDate.unixTimeMilliseconds
     }
 }

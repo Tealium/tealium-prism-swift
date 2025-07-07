@@ -12,7 +12,7 @@ public struct ApplicationStatus {
     public let type: StatusType
     public let timestamp: Int64
 
-    public init(type: StatusType, timestamp: Int64 = Date().unixTimeMillisecondsInt) {
+    public init(type: StatusType, timestamp: Int64 = Date().unixTimeMilliseconds) {
         self.type = type
         self.timestamp = timestamp
     }

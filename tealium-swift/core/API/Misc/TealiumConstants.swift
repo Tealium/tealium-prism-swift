@@ -66,8 +66,6 @@ public extension TealiumDataKey {
     static let eventStart = "timed_event_start"
     static let eventStop = "timed_event_end"
     static let eventDuration = "timed_event_duration"
-    static let timestampUnix = "timestamp_unix"
-    static let timestampUnixMilliseconds = "timestamp_unix_milliseconds"
     static let tagmanagementNotification = "com.tealium.tagmanagement.urlrequest"
 }
 

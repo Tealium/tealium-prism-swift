@@ -24,7 +24,7 @@ public struct Dispatch {
         payload.set(type.rawValue, key: TealiumDataKey.eventType)
         self.init(payload: payload,
                   id: UUID().uuidString,
-                  timestamp: Date().unixTimeMillisecondsInt)
+                  timestamp: Date().unixTimeMilliseconds)
     }
 
     init(payload: DataObject, id: String, timestamp: Int64) {

@@ -45,7 +45,7 @@ class LifecycleModule {
             throw LifecycleError.manualTrackNotAllowed
         }
 
-        try registerLifecycleEvent(event: LifecycleEvent.launch, timestamp: Date().unixTimeMillisecondsInt, data: data)
+        try registerLifecycleEvent(event: LifecycleEvent.launch, timestamp: Date().unixTimeMilliseconds, data: data)
     }
 
     func wake(data: DataObject? = nil) throws {
@@ -53,7 +53,7 @@ class LifecycleModule {
             throw LifecycleError.manualTrackNotAllowed
         }
 
-        try registerLifecycleEvent(event: LifecycleEvent.wake, timestamp: Date().unixTimeMillisecondsInt, data: data)
+        try registerLifecycleEvent(event: LifecycleEvent.wake, timestamp: Date().unixTimeMilliseconds, data: data)
     }
 
     func sleep(data: DataObject? = nil) throws {
@@ -61,7 +61,7 @@ class LifecycleModule {
             throw LifecycleError.manualTrackNotAllowed
         }
 
-        try registerLifecycleEvent(event: LifecycleEvent.sleep, timestamp: Date().unixTimeMillisecondsInt, data: data)
+        try registerLifecycleEvent(event: LifecycleEvent.sleep, timestamp: Date().unixTimeMilliseconds, data: data)
     }
 
     private func isAcceptable(_ event: LifecycleEvent) -> Bool {
@@ -138,7 +138,7 @@ class LifecycleModule {
     }
 
     func handleFirstLaunch(status: ApplicationStatus) {
-        let timestamp = Date().unixTimeMillisecondsInt
+        let timestamp = Date().unixTimeMilliseconds
         switch status.type {
         case .initialized:
             self.handleApplicationStatus(status: status)
@@ -224,6 +224,6 @@ extension LifecycleModule: Collector {
         else {
             return DataObject()
         }
-        return lifecycleService.getCurrentState(timestamp: Date().unixTimeMillisecondsInt)
+        return lifecycleService.getCurrentState(timestamp: Date().unixTimeMilliseconds)
     }
 }

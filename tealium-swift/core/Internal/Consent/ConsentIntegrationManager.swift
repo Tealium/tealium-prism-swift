@@ -100,7 +100,7 @@ class ConsentIntegrationManager: ConsentManager {
         if !refireDispatchers.isEmpty,
            let refireDispatches = dispatchesGroups[refireKey]?.map({ Dispatch(payload: $0.payload,
                                                                               id: $0.id + ConsentConstants.refireIdPostfix,
-                                                                              timestamp: Date().unixTimeMillisecondsInt) }),
+                                                                              timestamp: Date().unixTimeMilliseconds) }),
            !refireDispatches.isEmpty {
                 queueManager.storeDispatches(refireDispatches, enqueueingFor: refireDispatchers)
         }

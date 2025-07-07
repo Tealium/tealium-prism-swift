@@ -39,7 +39,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
         let dispatch = Dispatch(name: "test_event")
         XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch], enqueueingFor: ["processor1"]))
         XCTAssertEqual(queueRepository.getQueuedDispatches(for: "processor1", limit: 1).count, 1)
-        let future = Date().unixTimeMillisecondsInt + 1000
+        let future = Date().unixTimeMilliseconds + 1000
         XCTAssertNoThrow(try queueRepository.storeDispatches([Dispatch(payload: dispatch.payload,
                                                                        id: dispatch.id,
                                                                        timestamp: future)],
@@ -56,7 +56,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
         let dispatch = Dispatch(name: "test_event")
         XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch], enqueueingFor: ["processor1"]))
         XCTAssertEqual(queueRepository.getQueuedDispatches(for: "processor1", limit: 1).count, 1)
-        let future = Date().unixTimeMillisecondsInt + 1000
+        let future = Date().unixTimeMilliseconds + 1000
         XCTAssertNoThrow(try queueRepository.storeDispatches([Dispatch(payload: dispatch.payload,
                                                                        id: dispatch.id,
                                                                        timestamp: future)],
@@ -113,7 +113,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
 
     func test_oldest_dispatch_by_timestamp_is_deleted_when_an_event_is_enqueued_when_queue_is_full() {
         XCTAssertNoThrow(try queueRepository.resize(newSize: 2))
-        let now = Date().unixTimeMillisecondsInt
+        let now = Date().unixTimeMilliseconds
         let dispatches = [
             Dispatch(payload: [TealiumDataKey.event: "event1"], id: "UUID1", timestamp: now + 30),
             Dispatch(payload: [TealiumDataKey.event: "event2"], id: "UUID2", timestamp: now + 20)
@@ -164,7 +164,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
     }
 
     func test_getQueuedDispatches_returns_dispatches_by_timestamp() {
-        let now = Date().unixTimeMillisecondsInt
+        let now = Date().unixTimeMilliseconds
         let dispatches = [
             Dispatch(payload: [TealiumDataKey.event: "event1"], id: "UUID1", timestamp: now),
             Dispatch(payload: [TealiumDataKey.event: "event2"], id: "UUID2", timestamp: now + 20),
@@ -179,7 +179,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
     }
 
     func test_getQueuedDispatches_excludes_expired_dispatches() {
-        let now = Date().unixTimeMillisecondsInt
+        let now = Date().unixTimeMilliseconds
         let dispatches = [
             Dispatch(payload: [TealiumDataKey.event: "event1"], id: "UUID1", timestamp: now),
             createOldDispatch("event2", minutesAgo: 2880)
@@ -304,10 +304,12 @@ final class SQLQueueRepositoryTests: XCTestCase {
     }
 
     private func createOldDispatch(_ name: String, minutesAgo: Double) -> Dispatch {
-        guard let twoDaysAgo = Date().addMinutes(-minutesAgo)?.unixTimeMillisecondsInt else {
+        guard let twoDaysAgo = Date().addMinutes(-minutesAgo)?.unixTimeMilliseconds else {
             XCTFail("Cannot create expired date for a dispatch")
             return Dispatch(name: "wrong dispatch")
         }
-        return Dispatch(payload: [TealiumDataKey.event: name], id: UUID().uuidString, timestamp: twoDaysAgo)
+        return Dispatch(payload: [TealiumDataKey.event: name],
+                        id: UUID().uuidString,
+                        timestamp: twoDaysAgo)
     }
 }

@@ -49,6 +49,4 @@ final class QueueMetricsTests: XCTestCase {
         queueManager.deleteDispatches(["missing_dispatch"], for: "MockDispatcher1")
         waitForDefaultTimeout()
     }
-
-    
 }
