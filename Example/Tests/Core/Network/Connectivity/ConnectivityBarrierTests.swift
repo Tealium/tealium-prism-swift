@@ -16,7 +16,7 @@ final class ConnectivityBarrierTests: XCTestCase {
 
     func test_connectivity_barrier_is_open_when_connection_is_available() {
         let isInOpenState = expectation(description: "Barrier is in open state")
-        barrier.onState.subscribeOnce { state in
+        barrier.onState(for: "").subscribeOnce { state in
             XCTAssertEqual(state, .open)
             isInOpenState.fulfill()
         }
@@ -27,7 +27,7 @@ final class ConnectivityBarrierTests: XCTestCase {
         let isInClosedState = expectation(description: "Barrier is in closed state")
         let empiricalConnectivity = manager.mockEmpiricalConnectivity
         empiricalConnectivity.changeConnectionAvailable(false)
-        barrier.onState.subscribeOnce { state in
+        barrier.onState(for: "").subscribeOnce { state in
             XCTAssertEqual(state, .closed)
             isInClosedState.fulfill()
         }
@@ -38,11 +38,11 @@ final class ConnectivityBarrierTests: XCTestCase {
         let isInClosedState = expectation(description: "Barrier updated to .closed")
         let isInOpenState = expectation(description: "Barrier updated to .open")
         // check that initial value is as expected
-        barrier.onState.subscribeOnce { state in
+        barrier.onState(for: "").subscribeOnce { state in
             XCTAssertEqual(state, .open)
         }
         let empiricalConnectivity = manager.mockEmpiricalConnectivity
-        let disposable = barrier.onState.ignoreFirst().subscribe { state in
+        let disposable = barrier.onState(for: "").ignoreFirst().subscribe { state in
             switch state {
             case .closed:
                 isInClosedState.fulfill()
@@ -60,7 +60,7 @@ final class ConnectivityBarrierTests: XCTestCase {
         let isInClosedState = expectation(description: "Barrier is in closed state")
         configuration.set(true, key: ConnectivitySettings.Keys.wifiOnly)
         manager.mockConnectivityMonitor.changeConnection(.connected(.cellular))
-        barrier.onState.subscribeOnce { state in
+        barrier.onState(for: "").subscribeOnce { state in
             XCTAssertEqual(state, .closed)
             isInClosedState.fulfill()
         }
@@ -71,12 +71,12 @@ final class ConnectivityBarrierTests: XCTestCase {
         let onStateChanged = expectation(description: "On State changed")
         onStateChanged.expectedFulfillmentCount = 2
         configuration.set(true, key: ConnectivitySettings.Keys.wifiOnly)
-        barrier.onState.subscribeOnce { state in
+        barrier.onState(for: "").subscribeOnce { state in
             XCTAssertEqual(state, .open)
             onStateChanged.fulfill()
         }
         manager.mockConnectivityMonitor.changeConnection(.connected(.cellular))
-        barrier.onState.subscribeOnce { state in
+        barrier.onState(for: "").subscribeOnce { state in
             XCTAssertEqual(state, .closed)
             onStateChanged.fulfill()
         }
@@ -87,13 +87,13 @@ final class ConnectivityBarrierTests: XCTestCase {
         let onStateChanged = expectation(description: "On State changed")
         onStateChanged.expectedFulfillmentCount = 2
         manager.mockConnectivityMonitor.changeConnection(.connected(.cellular))
-        barrier.onState.subscribeOnce { state in
+        barrier.onState(for: "").subscribeOnce { state in
             XCTAssertEqual(state, .open)
             onStateChanged.fulfill()
         }
         configuration.set(true, key: ConnectivitySettings.Keys.wifiOnly)
         barrier.updateConfiguration(configuration)
-        barrier.onState.subscribeOnce { state in
+        barrier.onState(for: "").subscribeOnce { state in
             XCTAssertEqual(state, .closed)
             onStateChanged.fulfill()
         }

@@ -26,12 +26,9 @@ class BarrierCoordinator {
      * When the barrier settings or their scope changes the barriers get evaluated again and emit a new value.
      * A new value is emitted only if it's different from the last one.
      */
-    func onBarrierState(for dispatcherId: String) -> Observable<BarrierState> {
+    func onBarriersState(for dispatcherId: String) -> Observable<BarrierState> {
         onBarriers(for: dispatcherId).flatMapLatest { barriers in
-            Observable.CombineLatest(barriers.map { $0.onState })
-                .map { barrierStates in
-                    barrierStates.first { $0 == BarrierState.closed } ?? BarrierState.open
-                }
+            self.areBarriersOpen(barriers, dispatcherId: dispatcherId)
         }.distinct()
     }
 
@@ -40,5 +37,12 @@ class BarrierCoordinator {
             barrierList.filter { $0.scopes.contains(.dispatcher(dispatcherId)) || $0.scopes.contains(.all) }
                 .map { $0.barrier }
         }
+    }
+
+    private func areBarriersOpen(_ barriers: [any Barrier], dispatcherId: String) -> Observable<BarrierState> {
+        Observable.CombineLatest(barriers.map { $0.onState(for: dispatcherId) })
+            .map { barrierStates in
+                barrierStates.first { $0 == BarrierState.closed } ?? BarrierState.open
+            }
     }
 }

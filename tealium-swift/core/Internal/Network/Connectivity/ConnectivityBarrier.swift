@@ -10,7 +10,7 @@ import Foundation
 
 struct ConnectivitySettings {
     enum Keys {
-        static let wifiOnly = "wifiOnly"
+        static let wifiOnly = "wifi_only"
     }
     enum Defaults {
         static let wifiOnly: Bool = false
@@ -24,14 +24,16 @@ struct ConnectivitySettings {
 
 class ConnectivityBarrier: ConfigurableBarrier {
     static var id: String = "ConnectivityBarrier"
-    @ToAnyObservable<ReplaySubject<BarrierState>>(ReplaySubject())
-    var onState: Observable<BarrierState>
-    let settings: StateSubject<ConnectivitySettings>
-    let disposer = AutomaticDisposer()
+    private let settings: StateSubject<ConnectivitySettings>
+    private let connectionManager: ConnectivityManagerProtocol
 
     init(connectionManager: ConnectivityManagerProtocol, configuration: DataObject) {
         settings = StateSubject(ConnectivitySettings(dataObject: configuration))
+        self.connectionManager = connectionManager
+    }
 
+    /** `dispatcherId` is ignored for ConnectivityBarrier */
+    func onState(for dispatcherId: String) -> Observable<BarrierState> {
         let onConnectionAllowed = connectionManager.connection
             .combineLatest(settings.asObservable())
             .map { connection, settings in
@@ -42,15 +44,14 @@ class ConnectivityBarrier: ConfigurableBarrier {
                 return connectionType != .cellular // Allow both wifi and ethernet
             }
 
-        connectionManager.connectionAssumedAvailable
+        return connectionManager.connectionAssumedAvailable
             .combineLatest(onConnectionAllowed)
             .map { isConnected, connectionIsAllowed in
                 guard isConnected && connectionIsAllowed else {
                     return BarrierState.closed
                 }
                 return BarrierState.open
-            }.subscribe(_onState.publisher)
-            .addTo(disposer)
+            }
     }
 
     func updateConfiguration(_ configuration: DataObject) {

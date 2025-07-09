@@ -11,12 +11,15 @@ import TealiumSwift
 
 class MockBarrier: Barrier {
     init() {}
-
     @ToAnyObservable(ReplaySubject<BarrierState>(initialValue: .open))
-    var onState: Observable<BarrierState>
+    var state: Observable<BarrierState>
+
+    func onState(for dispatcherId: String) -> Observable<BarrierState> {
+        return state
+    }
 
     func setState(_ newState: BarrierState) {
-        _onState.publisher.publish(newState)
+        _state.publisher.publish(newState)
     }
 }
 

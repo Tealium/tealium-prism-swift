@@ -68,7 +68,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_onBarrierState_emits_open_when_all_barriers_are_open() {
+    func test_onBarriersState_emits_open_when_all_barriers_are_open() {
         let openBarrier1 = MockBarrier()
         let openBarrier2 = MockBarrier()
 
@@ -78,7 +78,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         ]
 
         let stateEmitted = expectation(description: "State emitted")
-        coordinator.onBarrierState(for: "test").subscribeOnce { state in
+        coordinator.onBarriersState(for: "test").subscribeOnce { state in
             XCTAssertEqual(state, .open)
             stateEmitted.fulfill()
         }
@@ -86,7 +86,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_onBarrierState_emits_closed_when_any_barrier_is_closed() {
+    func test_onBarriersState_emits_closed_when_any_barrier_is_closed() {
         let openBarrier = MockBarrier()
         let closedBarrier = MockBarrier()
         closedBarrier.setState(.closed)
@@ -97,7 +97,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         ]
 
         let stateEmitted = expectation(description: "State emitted")
-        coordinator.onBarrierState(for: "test").subscribeOnce { state in
+        coordinator.onBarriersState(for: "test").subscribeOnce { state in
             XCTAssertEqual(state, .closed)
             stateEmitted.fulfill()
         }
@@ -105,7 +105,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_onBarrierState_emits_new_state_when_barrier_state_changes() {
+    func test_onBarriersState_emits_new_state_when_barrier_state_changes() {
         let stateChangingBarrier = MockBarrier()
 
         _barriers.value = [
@@ -115,7 +115,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         stateEmitted.expectedFulfillmentCount = 2
 
         var stateChanges = 0
-        let disposable = coordinator.onBarrierState(for: "test").subscribe { state in
+        let disposable = coordinator.onBarriersState(for: "test").subscribe { state in
             if stateChanges % 2 == 0 {
                 XCTAssertEqual(state, .open)
             } else {
@@ -129,7 +129,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         disposable.dispose()
     }
 
-    func test_onBarrierState_does_not_emit_duplicate_states() {
+    func test_onBarriersState_does_not_emit_duplicate_states() {
         let stateChangingBarrier = MockBarrier()
         let alwaysOpenBarrier = MockBarrier()
 
@@ -138,7 +138,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         ]
         let stateEmitted = expectation(description: "State emitted")
 
-        let disposable = coordinator.onBarrierState(for: "test").subscribe { state in
+        let disposable = coordinator.onBarriersState(for: "test").subscribe { state in
             XCTAssertEqual(state, .open)
             stateEmitted.fulfill()
         }
@@ -150,7 +150,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         disposable.dispose()
     }
 
-    func test_onBarrierState_updates_when_barrier_with_different_state_is_added() {
+    func test_onBarriersState_updates_when_barrier_with_different_state_is_added() {
         let openBarrier = MockBarrier()
         let closedBarrier = MockBarrier()
         closedBarrier.setState(.closed)
@@ -163,7 +163,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         stateEmitted.expectedFulfillmentCount = 2
 
         var stateChanges = 0
-        let disposable = coordinator.onBarrierState(for: "test").subscribe { state in
+        let disposable = coordinator.onBarriersState(for: "test").subscribe { state in
             if stateChanges % 2 == 0 {
                 XCTAssertEqual(state, .open)
             } else {

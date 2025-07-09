@@ -44,4 +44,14 @@ final class DisposableItemListTests: XCTestCase {
         XCTAssertTrue(observerList.ordered().contains(1), "List does not contain the item 1")
         XCTAssertTrue(observerList.ordered().contains(3), "List does not contain the item 3")
     }
+
+    func test_dispose_doesnt_cause_reentrancy_crash() {
+        let observerList = DisposableItemList<Any>()
+        let first = observerList.insert(1)
+        let second = observerList.insert(DeinitTester {
+            // This crashes if deinit causes a reentrancy avoided by fixing removeFirst
+            first.dispose()
+        })
+        second.dispose()
+    }
 }

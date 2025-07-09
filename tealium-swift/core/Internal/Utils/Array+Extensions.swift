@@ -9,10 +9,20 @@
 import Foundation
 
 extension Array {
-    mutating func removeFirst(where shouldBeRemoved: (Element) throws -> Bool) rethrows {
+    /**
+     * Return the `Element` to avoid deinit of that element, which might have side effects and could
+     * potentially cause synchronous reentrancy and therefore cause a crash on `remove(at:)`.
+     *
+     * This was happening on `DisposableItemList.removeFirst` which was causing a deinit of the
+     * element, which would cause an `AutomaticDisposer.deinit`, which would cause that same list to remove
+     * one of its elements, causing the reentrance and the simultaneous accesses crash.
+     */
+    @discardableResult
+    mutating func removeFirst(where shouldBeRemoved: (Element) throws -> Bool) rethrows -> Element? {
         if let index = try self.firstIndex(where: shouldBeRemoved) {
-            self.remove(at: index)
+            return self.remove(at: index)
         }
+        return nil
     }
 
     func diff<T: Equatable>(_ other: Self, by key: KeyPath<Element, T>) -> Self {

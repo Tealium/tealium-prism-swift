@@ -105,7 +105,7 @@ class DispatchManager: DispatchManagerProtocol {
         onDispatchers.flatMapLatest { dispatchers in
             Observable.From(dispatchers)
         }.flatMap { [weak self, coordinator = barrierCoordinator] dispatcher in
-            coordinator.onBarrierState(for: dispatcher.id)
+            coordinator.onBarriersState(for: dispatcher.id)
                 .flatMapLatest { [weak self] barriersState -> Observable<DispatchSplit> in
                     guard let self else { return .Empty() }
                     self.logger?.debug(category: LogCategory.dispatchManager,

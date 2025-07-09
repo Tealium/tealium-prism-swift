@@ -9,7 +9,7 @@
 import Foundation
 
 /// A manager that stores `Dispatch`es in separate queues per each `processor` and keeps track of the one that are currently inflight.
-public protocol QueueManagerProtocol {
+public protocol QueueManagerProtocol: QueueMetrics {
     /// Observable that emits an event with the `processor`s for which a `Dispatch` is enqueued.
     var onEnqueuedDispatchesForProcessors: Observable<Set<String>> { get }
 
@@ -17,16 +17,7 @@ public protocol QueueManagerProtocol {
      * An observable stream to notify that there have been `Dispatch`es deleted from the queue. The
      * emitted value is the set of processor names that have had events deleted.
      */
-    var deletedDispatchesForProcessors: Observable<Set<String>> { get }
-
-    /**
-     * An observable stream to notify changes in the number of `Dispatch`es that are yet to be sent.
-     * The value is the number of `Dispatch`es that are currently queued, minus the number that are
-     * currently in-flight.
-     *
-     * - parameter processorId: The id of the processor whose queue size is required.
-     */
-    func queueSizePendingDispatch(for processorId: String) -> Observable<Int>
+    var onDeletedDispatchesForProcessors: Observable<Set<String>> { get }
 
     /**
      * Returns an observable that emits an event every time the amount of inflight `Dispatch`es for a specific processor changes.

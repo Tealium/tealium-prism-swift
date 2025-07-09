@@ -50,6 +50,7 @@ class TealiumHelper {
             builder.setMinLogLevel(.trace)
                 .setVisitorIdentityKey("email")
         })
+        config.addBarrier(Barriers.batching())
 // Uncomment to enable consent. At the moment this will block everything due to no functioning consent adapter and no configuration setup for the dispatchers' purposes.
         config.enableConsentIntegration(with: cmp) { enforcedConfiguration in
             enforcedConfiguration.setTealiumPurposeId("tealium")

@@ -87,4 +87,8 @@ class MockDispatcher2: MockDispatcher {
         super.init(context: context, moduleConfiguration: moduleConfiguration)
         dispatchLimit = 3
     }
+    init(dispatchLimit: Int) {
+        super.init()
+        self.dispatchLimit = dispatchLimit
+    }
 }

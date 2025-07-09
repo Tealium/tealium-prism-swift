@@ -16,10 +16,12 @@ public enum BarrierState {
 /// An object that will change its state to stop or allow dispatching of events to some dispatchers.
 public protocol Barrier: AnyObject {
     /**
-     * The observable of this barrier's current state.
+     * The observable of this barrier's current state for specific dispatcher.
      *
      * `BarrierState.closed` should be emitted to disallow further processing, and `BarrierState.open`
      * to allow processing again.
+     *
+     * - parameter dispatcherId: id of the `Dispatcher` whose barrier state is observed
      */
-    var onState: Observable<BarrierState> { get }
+    func onState(for dispatcherId: String) -> Observable<BarrierState>
 }

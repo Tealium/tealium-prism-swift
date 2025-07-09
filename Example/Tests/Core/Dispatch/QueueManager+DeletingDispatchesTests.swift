@@ -1,5 +1,5 @@
 //
-//  QueueManagerTests+DeletingDispatches.swift
+//  QueueManager+DeletingDispatchesTests.swift
 //  tealium-swift_Tests
 //
 //  Created by Enrico Zannini on 08/05/24.
@@ -9,7 +9,7 @@
 @testable import TealiumSwift
 import XCTest
 
-final class QueueManagerTestsDeletingDispatches: XCTestCase {
+final class QueueManagerDeletingDispatchesTests: XCTestCase {
 
     @StateSubject([MockDispatcher1(), MockDispatcher2()])
     var modules: ObservableState<[TealiumModule]>
@@ -108,12 +108,12 @@ final class QueueManagerTestsDeletingDispatches: XCTestCase {
         XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[1]]?.count, 3)
     }
 
-    func test_deleteAllDispatches_causes_deletedDispatchesForProcessors_to_emit_processor_ids() {
+    func test_deleteAllDispatches_causes_onDeletedDispatchesForProcessors_to_emit_processor_ids() {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let deletedExpectation = expectation(description: "Deleted dispatches for processors emitted")
-        queueManager.deletedDispatchesForProcessors.subscribeOnce { deletedSet in
+        queueManager.onDeletedDispatchesForProcessors.subscribeOnce { deletedSet in
             guard deletedSet == Set([modulesNames[0]]) else {
                 XCTFail("Unexpected deleted dispatches: \(deletedSet)")
                 return
@@ -124,13 +124,13 @@ final class QueueManagerTestsDeletingDispatches: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_deleteDispatches_causes_deletedDispatchesForProcessors_to_emit_processor_ids() {
+    func test_deleteDispatches_causes_onDeletedDispatchesForProcessors_to_emit_processor_ids() {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let toDelete = [dispatches[0], dispatches[1]].map { $0.id }
         let deletedExpectation = expectation(description: "Deleted dispatches for processors emitted")
-        queueManager.deletedDispatchesForProcessors.subscribeOnce { deletedSet in
+        queueManager.onDeletedDispatchesForProcessors.subscribeOnce { deletedSet in
             guard deletedSet == Set([modulesNames[0]]) else {
                 XCTFail("Unexpected deleted dispatches: \(deletedSet)")
                 return

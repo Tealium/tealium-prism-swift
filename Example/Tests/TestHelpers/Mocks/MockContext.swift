@@ -30,6 +30,12 @@ class MockContext: TealiumContext {
                                                                                 transformations: .constant([]),
                                                                                 moduleMappings: .constant([:]),
                                                                                 queue: queue)
+        let queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: modulesManager.modules, addingConsent: true),
+                                            queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
+                                                                                maxQueueSize: 10,
+                                                                                expiration: TimeFrame(unit: .days, interval: 1)),
+                                            coreSettings: coreSettings,
+                                            logger: nil)
         super.init(modulesManager: modulesManager,
                    config: config,
                    coreSettings: coreSettings,
@@ -43,6 +49,7 @@ class MockContext: TealiumContext {
                    networkHelper: networkHelper,
                    activityListener: activityListener,
                    queue: queue,
-                   visitorId: visitorId)
+                   visitorId: visitorId,
+                   queueMetrics: queueManager)
     }
 }

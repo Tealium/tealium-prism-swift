@@ -1,5 +1,5 @@
 //
-//  QueueMetricsTests.swift
+//  QueueManager+QueueMetricsTests.swift
 //  tealium-swift_Tests
 //
 //  Created by Enrico Zannini on 08/05/24.
@@ -9,8 +9,7 @@
 @testable import TealiumSwift
 import XCTest
 
-final class QueueMetricsTests: XCTestCase {
-
+final class QueueManagerQueueMetricsTests: XCTestCase {
     let disposer = AutomaticDisposer()
     @StateSubject([MockDispatcher1(), MockDispatcher2()])
     var modules: ObservableState<[TealiumModule]>
@@ -24,26 +23,25 @@ final class QueueMetricsTests: XCTestCase {
                                          queueRepository: queueRepository,
                                          coreSettings: coreSettings,
                                          logger: nil)
-    lazy var queueMetrics = QueueMetrics(queueManager: queueManager)
 
     override func setUp() {
         // store one dispatch for MockDispatcher1 by default
         queueManager.storeDispatches([Dispatch(name: "event_name1")], enqueueingFor: ["MockDispatcher1"])
     }
 
-    func test_queueSizePendingDispatch_emits_initial_value_for_given_processor() {
-        XCTAssertObservedValueEqual(queueMetrics.queueSizePendingDispatch(processorId: "MockDispatcher1"), 1)
+    func test_onQueueSizePendingDispatch_emits_initial_value_for_given_processor() {
+        XCTAssertObservedValueEqual(queueManager.onQueueSizePendingDispatch(for: "MockDispatcher1"), 1)
     }
 
-    func test_queueSizePendingDispatch_emits_correct_values_for_different_processors() {
+    func test_onQueueSizePendingDispatch_emits_correct_values_for_different_processors() {
         queueManager.storeDispatches([Dispatch(name: "event_name1"), Dispatch(name: "event_name2")], enqueueingFor: ["MockDispatcher2"])
-        XCTAssertObservedValueEqual(queueMetrics.queueSizePendingDispatch(processorId: "MockDispatcher1"), 1)
-        XCTAssertObservedValueEqual(queueMetrics.queueSizePendingDispatch(processorId: "MockDispatcher2"), 2)
+        XCTAssertObservedValueEqual(queueManager.onQueueSizePendingDispatch(for: "MockDispatcher1"), 1)
+        XCTAssertObservedValueEqual(queueManager.onQueueSizePendingDispatch(for: "MockDispatcher2"), 2)
     }
 
-    func test_queueSizePendingDispatch_does_not_emit_if_queue_size_unchanged() {
+    func test_onQueueSizePendingDispatch_does_not_emit_if_queue_size_unchanged() {
         let emitted = expectation(description: "Should not emit more than once")
-        queueMetrics.queueSizePendingDispatch(processorId: "MockDispatcher1").subscribe { _ in
+        queueManager.onQueueSizePendingDispatch(for: "MockDispatcher1").subscribe { _ in
             emitted.fulfill()
         }.addTo(disposer)
         queueManager.deleteDispatches(["missing_dispatch"], for: "MockDispatcher1")

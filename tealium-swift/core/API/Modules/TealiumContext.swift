@@ -22,6 +22,7 @@ public class TealiumContext {
     public let activityListener: ApplicationStatusListener
     public let queue: TealiumQueue
     public let visitorId: ObservableState<String>
+    public let queueMetrics: QueueMetrics
 
     init(modulesManager: ModulesManager,
          config: TealiumConfig,
@@ -35,7 +36,8 @@ public class TealiumContext {
          networkHelper: NetworkHelperProtocol,
          activityListener: ApplicationStatusListener,
          queue: TealiumQueue,
-         visitorId: ObservableState<String>) {
+         visitorId: ObservableState<String>,
+         queueMetrics: QueueMetrics) {
         self.modulesManager = modulesManager
         self.config = config
         self.barrierRegistry = barrierRegistry
@@ -49,5 +51,6 @@ public class TealiumContext {
         self.activityListener = activityListener
         self.queue = queue
         self.visitorId = visitorId
+        self.queueMetrics = queueMetrics
     }
 }

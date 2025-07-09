@@ -40,7 +40,7 @@ final class QueueManagerTests: XCTestCase {
         let modulesIds = modules.value.map { $0.id }
         let deletedExpectation = expectation(description: "Deleted dispatches for processors emitted")
         XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch], enqueueingFor: modulesIds))
-        queueManager.deletedDispatchesForProcessors.subscribeOnce { deletedSet in
+        queueManager.onDeletedDispatchesForProcessors.subscribeOnce { deletedSet in
             guard deletedSet == Set(["MockDispatcher1"]) else {
                 XCTFail("Unexpected deleted dispatches: \(deletedSet)")
                 return
@@ -165,32 +165,32 @@ final class QueueManagerTests: XCTestCase {
         XCTAssertEqual(queueRepository.maxQueueSize, queueSize)
     }
 
-    func test_coreSettings_change_causes_deletedDispatchesForProcessors_emission() {
+    func test_coreSettings_change_causes_onDeletedDispatchesForProcessors_emission() {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let deletedExpectation = expectation(description: "Deleted dispatches emitted")
-        queueManager.deletedDispatchesForProcessors.subscribeOnce { _ in
+        queueManager.onDeletedDispatchesForProcessors.subscribeOnce { _ in
             deletedExpectation.fulfill()
         }
         _coreSettings.publish(CoreSettings(maxQueueSize: 2))
         waitForDefaultTimeout()
     }
 
-    func test_queueSizePendingDispatch_returns_correct_count() {
+    func test_onQueueSizePendingDispatch_returns_correct_count() {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         let pendingCountExpectation = expectation(description: "pendingCount is 3")
         let pendingCountAfterDeleteExpectation = expectation(description: "pendingCountAfterDelete is 2")
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        queueManager.queueSizePendingDispatch(for: modulesNames[0]).subscribeOnce { value in
+        queueManager.onQueueSizePendingDispatch(for: modulesNames[0]).subscribeOnce { value in
             if value == 3 {
                 pendingCountExpectation.fulfill()
             }
         }
         let toDelete = [dispatches[0].id]
         queueManager.deleteDispatches(toDelete, for: modulesNames[0])
-        queueManager.queueSizePendingDispatch(for: modulesNames[0]).subscribeOnce { value in
+        queueManager.onQueueSizePendingDispatch(for: modulesNames[0]).subscribeOnce { value in
             if value == 2 {
                 pendingCountAfterDeleteExpectation.fulfill()
             }

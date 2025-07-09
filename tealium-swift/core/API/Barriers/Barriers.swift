@@ -26,4 +26,16 @@ public enum Barriers {
     static func connectivity(defaultScopes: [BarrierScope] = [.dispatcher(TealiumCollect.id)]) -> any BarrierFactory {
         ConnectivityBarrier.Factory(defaultScopes: defaultScopes)
     }
+
+    /**
+     * Returns the `BarrierFactory` for creating the "BatchingBarrier". Use this barrier to only
+     * dispatch events when a certain number of queued events has been reached for any of the
+     * `Dispatcher` in scope.
+     *
+     * - parameter defaultScopes: Set of `BarrierScope`s to use by default in case no other scope was
+     * configured in the settings.
+     */
+    public static func batching(defaultScopes: [BarrierScope] = [.all]) -> any BarrierFactory {
+        BatchingBarrier.Factory(defaultScopes: defaultScopes)
+    }
 }

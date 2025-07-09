@@ -15,7 +15,7 @@ class QueueManager: QueueManagerProtocol {
     @ToAnyObservable<BasePublisher<Set<String>>>(BasePublisher<Set<String>>())
     var onEnqueuedDispatchesForProcessors: Observable<Set<String>>
     @ToAnyObservable<BasePublisher<Set<String>>>(BasePublisher<Set<String>>())
-    var deletedDispatchesForProcessors: Observable<Set<String>>
+    var onDeletedDispatchesForProcessors: Observable<Set<String>>
     private let queueRepository: QueueRepository
     private let disposer = AutomaticDisposer()
     private let logger: LoggerProtocol?
@@ -82,9 +82,9 @@ class QueueManager: QueueManagerProtocol {
         }
     }
 
-    func queueSizePendingDispatch(for processorId: String) -> Observable<Int> {
+    func onQueueSizePendingDispatch(for processorId: String) -> Observable<Int> {
         let queueSizeChanges = onEnqueuedDispatchesForProcessors
-            .merge(deletedDispatchesForProcessors)
+            .merge(onDeletedDispatchesForProcessors)
             .filter { $0.contains(processorId) }
             .map { _ in () }
         return queueSizeChanges
@@ -155,7 +155,7 @@ class QueueManager: QueueManagerProtocol {
 
     private func onDispatchesDeleted(processor: String, dispatchUUIDs: [String]) {
         guard !dispatchUUIDs.isEmpty else { return }
-        _deletedDispatchesForProcessors.publish([processor])
+        _onDeletedDispatchesForProcessors.publish([processor])
         var eventsInflight = inflightEvents.value
         let remaining = (eventsInflight[processor] ?? Set<String>()).subtracting(dispatchUUIDs)
         eventsInflight[processor] = remaining
@@ -178,7 +178,7 @@ class QueueManager: QueueManagerProtocol {
         guard !processors.isEmpty else {
             return
         }
-        _deletedDispatchesForProcessors.publish(processors)
+        _onDeletedDispatchesForProcessors.publish(processors)
         let eventsInflight = inflightEvents.value.filter { !processors.contains($0.key) }
         _inflightEvents.value = eventsInflight
     }
