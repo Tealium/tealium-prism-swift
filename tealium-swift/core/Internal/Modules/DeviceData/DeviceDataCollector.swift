@@ -18,6 +18,7 @@ class DeviceDataCollector: Collector, Transformer, TealiumBasicModule {
     private var transformerRegistry: TransformerRegistry
     private let onModelInfo = ReplaySubject<DataObject?>()
     private let constantData: [String: DataInput]
+    private let queue: TealiumQueue
 
     private(set) var configuration: DeviceDataConfiguration {
         didSet {
@@ -32,6 +33,7 @@ class DeviceDataCollector: Collector, Transformer, TealiumBasicModule {
                   networkHelper: context.networkHelper,
                   storeProvider: context.moduleStoreProvider,
                   transformerRegistry: context.transformerRegistry,
+                  queue: .worker,
                   logger: context.logger)
     }
 
@@ -40,6 +42,7 @@ class DeviceDataCollector: Collector, Transformer, TealiumBasicModule {
          networkHelper: NetworkHelperProtocol,
          storeProvider: ModuleStoreProvider,
          transformerRegistry: TransformerRegistry,
+         queue: TealiumQueue,
          logger: LoggerProtocol?) {
         self.deviceDataProvider = deviceDataProvider
         self.configuration = configuration
@@ -47,6 +50,7 @@ class DeviceDataCollector: Collector, Transformer, TealiumBasicModule {
         self.storeProvider = storeProvider
         self.transformerRegistry = transformerRegistry
         self.transformerRegistry.registerTransformation(TransformationSettings(id: "model-info-and-orientation", transformerId: Self.id, scopes: [.afterCollectors]))
+        self.queue = queue
         self.logger = logger
         self.constantData = deviceDataProvider.constantData()
         self.resourceRefresher = updateResourceRefresher()
@@ -125,12 +129,16 @@ class DeviceDataCollector: Collector, Transformer, TealiumBasicModule {
         return result.asDataObject()
     }
 
+    private func onScreenOrientation() -> Observable<DataObject> {
+        Observable.Callback(from: { [deviceDataProvider] observer in
+            deviceDataProvider.getScreenOrientation(completion: observer)
+        }).observeOn(queue)
+    }
+
     func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) {
         let model = DeviceDataProvider.basicModel
         onModelInfo.asObservable()
-            .combineLatest(Observable.Callback(from: { [deviceDataProvider] observer in
-                deviceDataProvider.getScreenOrientation(completion: observer)
-            }))
+            .combineLatest(onScreenOrientation())
             .subscribeOnce { deviceModelData, orientationData in
                 let modelData = deviceModelData ?? [
                     DeviceDataKey.deviceType: model,

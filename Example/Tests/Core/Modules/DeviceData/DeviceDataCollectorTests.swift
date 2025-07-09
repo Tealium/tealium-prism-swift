@@ -17,6 +17,7 @@ final class DeviceDataCollectorTests: DeviceDataCollectorBaseTests {
                                                        networkHelper: networkHelper,
                                                        storeProvider: context.moduleStoreProvider,
                                                        transformerRegistry: transformerRegistry,
+                                                       queue: .main,
                                                        logger: context.logger)
     let modelsDataObject: DataObject = [
         "x86_64": [
@@ -178,6 +179,7 @@ final class DeviceDataCollectorTests: DeviceDataCollectorBaseTests {
                                 networkHelper: networkHelper,
                                 storeProvider: context.moduleStoreProvider,
                                 transformerRegistry: transformerRegistry,
+                                queue: .main,
                                 logger: context.logger)
         waitForLongTimeout()
     }
