@@ -85,7 +85,7 @@ class DeepLinkHandlerModule: TealiumBasicModule, Collector {
         if configuration.sendDeepLinkEvent {
             tracker.track(Dispatch(name: TealiumKey.deepLink, data: dataStore.getAll()),
                           source: .module(DeepLinkHandlerModule.self)) { [weak self] result in
-                switch result {
+                switch result.status {
                 case .accepted:
                     self?.logger?.trace(category: Self.id, "DeepLink event accepted for dispatch.")
                 case .dropped:
@@ -129,7 +129,7 @@ class DeepLinkHandlerModule: TealiumBasicModule, Collector {
         // Session can be killed without needing to leave the trace
         if queryItems.contains(where: { $0.name == TealiumKey.killVisitorSession }) {
             try trace.killVisitorSession { [weak self] result in
-                switch result {
+                switch result.status {
                 case .accepted:
                     self?.logger?.trace(category: Self.id, "Kill Visitor Session event accepted for dispatch.")
                 case .dropped:

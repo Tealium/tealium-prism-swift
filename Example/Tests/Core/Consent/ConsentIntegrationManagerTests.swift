@@ -70,21 +70,15 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
     func test_applyConsent_returns_dropped_result_and_original_dispatch_when_explicitly_not_tealium_consented() {
         applyDecision(decisionType: .explicit, purposes: [])
         let result = consentManager.applyConsent(to: Dispatch(name: "event1"))
-        switch result {
-        case let .dropped(dispatch):
+        XCTAssertTrackResultIsDropped(result) { dispatch in
             XCTAssertEqual(dispatch.payload.count, 3)
-        case .accepted:
-            XCTFail("Expected to be dropped but got accepted")
         }
     }
 
     func test_applyConsent_returns_accepted_result_and_original_dispatch_when_implicitly_not_tealium_consented() {
         applyDecision(decisionType: .implicit, purposes: [])
         let result = consentManager.applyConsent(to: Dispatch(name: "event1"))
-        switch result {
-        case .dropped:
-            XCTFail("Expected to be accepted but got dropped")
-        case let .accepted(dispatch):
+        XCTAssertTrackResultIsAccepted(result) { dispatch in
             XCTAssertEqual(dispatch.payload.count, 3)
         }
     }
@@ -92,10 +86,7 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
     func test_applyConsent_returns_accepted_result_and_consented_dispatch_when_tealium_consented() {
         applyDecision(decisionType: .explicit, purposes: ["tealium"])
         let result = consentManager.applyConsent(to: Dispatch(name: "event1"))
-        switch result {
-        case .dropped:
-            XCTFail("Expected to be accepted but got dropped")
-        case let .accepted(dispatch):
+        XCTAssertTrackResultIsAccepted(result) { dispatch in
             XCTAssertNotEqual(dispatch.payload.count, 3)
             XCTAssertNotNil(dispatch.payload.getDataItem(key: "consent_type"))
         }
@@ -106,11 +97,8 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
         var dispatch = Dispatch(name: "event1")
         dispatch.enrich(data: ["purposes_with_consent_all": ["tealium"]]) // this is gonna be the 3rd property of payload...
         let result = consentManager.applyConsent(to: dispatch)
-        switch result {
-        case let .dropped(dispatch):
+        XCTAssertTrackResultIsDropped(result) { dispatch in
             XCTAssertEqual(dispatch.payload.count, 4) // ...that's why 4 is here
-        case .accepted:
-            XCTFail("Expected to be dropped but got accepted")
         }
     }
 

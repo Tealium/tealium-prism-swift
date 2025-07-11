@@ -115,8 +115,8 @@ public class Tealium {
             switch result {
             case .success(let implementation):
                 implementation.track(dispatch, onTrackResult: onTrackResult)
-            case .failure:
-                onTrackResult?(TrackResult.dropped(dispatch))
+            case .failure(let error):
+                onTrackResult?(TrackResult.dropped(dispatch, reason: "Tealium failed to initialize due to: \(error)"))
             }
         }
     }

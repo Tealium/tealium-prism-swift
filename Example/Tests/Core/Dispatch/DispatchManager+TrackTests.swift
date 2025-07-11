@@ -41,12 +41,9 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
         let completionCalled = expectation(description: completionCalledDescription)
         dispatchManager.track(Dispatch(name: "someEvent")) { result in
             completionCalled.fulfill()
-            switch result {
-            case let .accepted(dispatch):
+            XCTAssertTrackResultIsAccepted(result) { dispatch in
                 XCTAssertNotEqual(dispatch.payload.count, 2)
                 XCTAssertNotNil(dispatch.payload.getDataItem(key: "transformation-afterCollectors"))
-            case .dropped:
-                XCTFail("Track unexpectedly dropped.")
             }
         }
         waitForDefaultTimeout()
@@ -62,13 +59,10 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
         XCTAssertTrue(consentManager.tealiumPurposeExplicitlyBlocked)
         let completionCalled = expectation(description: completionCalledDescription)
         dispatchManager.track(Dispatch(name: "someEvent")) { result in
-            completionCalled.fulfill()
-            switch result {
-            case .accepted:
-                XCTFail("Track unexpectedly accepted.")
-            case let .dropped(dispatch):
+            XCTAssertTrackResultIsDropped(result) { dispatch in
                 XCTAssertEqual(dispatch.payload.count, 3)
             }
+            completionCalled.fulfill()
         }
         waitForDefaultTimeout()
     }
@@ -80,10 +74,7 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
         let completionCalled = expectation(description: completionCalledDescription)
         dispatchManager.track(Dispatch(name: "someEvent")) { result in
             completionCalled.fulfill()
-            switch result {
-            case .accepted:
-                XCTFail("Track unexpectedly accepted.")
-            case let .dropped(dispatch):
+            XCTAssertTrackResultIsDropped(result) { dispatch in
                 XCTAssertEqual(dispatch.payload.count, 3)
             }
         }

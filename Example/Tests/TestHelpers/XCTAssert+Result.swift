@@ -44,11 +44,11 @@ func XCTAssertTrackResultIsAccepted(
     file: StaticString = #filePath,
     line: UInt = #line
 ) {
-    switch result {
+    switch result.status {
     case .dropped:
         XCTFail("Expected to be accepted but got dropped", file: file, line: line)
-    case .accepted(let dispatch):
-        asserts(dispatch)
+    case .accepted:
+        asserts(result.dispatch)
     }
 }
 
@@ -58,9 +58,9 @@ func XCTAssertTrackResultIsDropped(
     file: StaticString = #filePath,
     line: UInt = #line
 ) {
-    switch result {
-    case .dropped(let dispatch):
-        asserts(dispatch)
+    switch result.status {
+    case .dropped:
+        asserts(result.dispatch)
     case .accepted:
         XCTFail("Expected to be dropped but got accepted", file: file, line: line)
     }

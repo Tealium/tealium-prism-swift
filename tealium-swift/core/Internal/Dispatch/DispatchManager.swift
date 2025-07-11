@@ -68,29 +68,26 @@ class DispatchManager: DispatchManagerProtocol {
     }
 
     func track(_ dispatch: Dispatch, onTrackResult: TrackResultCompletion?) {
+        let onTrackResult: TrackResultCompletion = { [logger] result in
+            logger?.debug(category: LogCategory.dispatchManager, result.description)
+            onTrackResult?(result)
+        }
         guard !tealiumPurposeExplicitlyBlocked else {
-            logger?.debug(category: LogCategory.dispatchManager,
-                          "Tealium consent purpose is explicitly blocked. Event \(dispatch.logDescription()) will be dropped.")
-            onTrackResult?(.dropped(dispatch))
+            onTrackResult(.dropped(dispatch, reason: "Tealium consent purpose is explicitly blocked."))
             return
         }
         transformerCoordinator.transform(dispatch: dispatch, for: .afterCollectors) { [weak self] transformed in
             guard let self, let transformed else {
-                self?.logger?.debug(category: LogCategory.dispatchManager,
-                                    "Event \(dispatch.logDescription()) dropped due to transformer")
-                onTrackResult?(.dropped(dispatch))
+                onTrackResult(.dropped(dispatch, reason: "Transformers decision."))
                 return
             }
             if let consentManager = self.consentManager {
-                self.logger?.debug(category: LogCategory.dispatchManager,
-                                   "Event \(transformed.logDescription()) consent applied")
                 let result = consentManager.applyConsent(to: transformed)
-                onTrackResult?(result)
+                onTrackResult(result)
             } else {
-                self.logger?.debug(category: LogCategory.dispatchManager,
-                                   "Event \(transformed.logDescription()) accepted for processing")
-                self.queueManager.storeDispatches([transformed], enqueueingFor: dispatchers.map { $0.id })
-                onTrackResult?(.accepted(transformed))
+                let dispatchersIds = dispatchers.map { $0.id }
+                self.queueManager.storeDispatches([transformed], enqueueingFor: dispatchersIds)
+                onTrackResult(.accepted(transformed, info: "Enqueued for processors: \(dispatchersIds)"))
             }
         }
     }

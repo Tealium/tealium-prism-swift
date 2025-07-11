@@ -20,9 +20,9 @@ class TrackerImpl: Tracker {
 
     func track(_ trackable: Dispatch, source: DispatchContext.Source, onTrackResult: TrackResultCompletion?) {
         guard !dispatchManager.tealiumPurposeExplicitlyBlocked else {
-            logger?.debug(category: LogCategory.tealium,
-                          "Tealium consent purpose is explicitly blocked. Event \(trackable.logDescription()) will be dropped.")
-            onTrackResult?(.dropped(trackable))
+            let trackResult = TrackResult.dropped(trackable, reason: "Tealium consent purpose is explicitly blocked.")
+            logger?.debug(category: LogCategory.tealium, trackResult.description)
+            onTrackResult?(trackResult)
             return
         }
         let trackingInterval = TealiumSignpostInterval(signposter: .tracking, name: "TrackingCall")

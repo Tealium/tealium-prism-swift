@@ -8,17 +8,6 @@
 
 import Foundation
 
-/**
- * Track result shows whether the dispatch being tracked has been enqueued for further processing or not.
- *
- * The `Dispatch` passed in the enum is the version of the TealiumDispatch that is actually accepted,
- * after collection, transformation and consent.
- */
-public enum TrackResult {
-    case accepted(_ dispatch: Dispatch)
-    case dropped(_ dispatch: Dispatch)
-}
-
 /// An object that receives a `Dispatch`, enriches it and sends it to be dispatched.
 public protocol Tracker: AnyObject {
     /**

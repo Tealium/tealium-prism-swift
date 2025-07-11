@@ -168,34 +168,27 @@ class ConsentIntegrationManager: ConsentManager {
 
     func applyConsent(to dispatch: Dispatch) -> TrackResult {
         guard let consentInspector = cmpSelector.consentInspector.value else {
-            self.logger?.debug(category: LogCategory.consent,
-                               "Dispatch \(dispatch.logDescription()) enqueued for consent due to missing consent inspector")
             queueManager.storeDispatches([dispatch], enqueueingFor: [Self.id])
-            return .accepted(dispatch)
+            let info = "Missing ConsentConfiguration or ConsentDecision, enqueued for Consent."
+            return .accepted(dispatch, info: info)
         }
         guard !consentInspector.tealiumExplicitlyBlocked() else {
-            self.logger?.debug(category: LogCategory.consent,
-                               "Dispatch \(dispatch.logDescription()) dropped due to tealium explicitly blocked.")
-            return .dropped(dispatch)
+            return .dropped(dispatch, reason: "Tealium explicitly blocked.")
         }
         let decision = consentInspector.decision
         guard consentInspector.tealiumConsented() else {
-            self.logger?.debug(category: LogCategory.consent,
-                               "Dispatch \(dispatch.logDescription()) enqueued for consent due to tealium implicitly not consented.")
             queueManager.storeDispatches([dispatch], enqueueingFor: [Self.id])
-            return .accepted(dispatch)
+            let info = "Tealium implicitly not consented, enqueued for Consent."
+            return .accepted(dispatch, info: info)
         }
         guard let consentedDispatch = dispatch.applyConsentDecision(decision) else {
-            self.logger?.debug(category: LogCategory.consent,
-                               "Dispatch \(dispatch.logDescription()) dropped as no unprocessed purpose present.")
-            return .dropped(dispatch)
+            return .dropped(dispatch, reason: "No unprocessed purposes present.")
         }
         var processors = dispatchers.value
         if consentInspector.allowsRefire() {
             processors += [Self.id]
         }
-        self.logger?.debug(category: LogCategory.consent, "Dispatch \(consentedDispatch.logDescription()) enqueued for processors: \(processors)")
         queueManager.storeDispatches([consentedDispatch], enqueueingFor: processors)
-        return .accepted(consentedDispatch)
+        return .accepted(consentedDispatch, info: "Enqueued for processors: \(processors)")
     }
 }

@@ -26,9 +26,9 @@ class MockConsentManager: ConsentManager {
     var acceptTrack: Bool = true
     func trackResultBuilder(dispatch: Dispatch) -> TrackResult {
         if self.acceptTrack {
-            .accepted(dispatch)
+            .accepted(dispatch, info: "Mock Accepted")
         } else {
-            .dropped(dispatch)
+            .dropped(dispatch, reason: "Mock Dropped")
         }
     }
 
