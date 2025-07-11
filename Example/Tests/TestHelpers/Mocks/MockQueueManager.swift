@@ -18,9 +18,9 @@ class MockQueueManager: QueueManager {
     var onDeleteAllRequest: Observable<String>
     @ToAnyObservable(BasePublisher())
     var onStoreRequest: Observable<([Dispatch], [String])>
-    override func getQueuedDispatches(for processor: String, limit: Int?) -> [Dispatch] {
+    override func dequeueDispatches(for processor: String, limit: Int?) -> [Dispatch] {
         _onDequeueRequest.publish()
-        return super.getQueuedDispatches(for: processor, limit: limit)
+        return super.dequeueDispatches(for: processor, limit: limit)
     }
 
     override func deleteDispatches(_ dispatchUUIDs: [String], for processor: String) {

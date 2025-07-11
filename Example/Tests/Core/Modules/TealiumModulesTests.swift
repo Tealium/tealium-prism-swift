@@ -1,5 +1,5 @@
 //
-//  TealiumModulesTests.swift
+//  ModulesTests.swift
 //  tealium-swift_Tests
 //
 //  Created by Enrico Zannini on 26/07/24.
@@ -14,7 +14,7 @@ class NonDisableableModule: TealiumBasicModule {
     static var id: String = "non-disableable"
     static let canBeDisabled: Bool = false
 }
-final class TealiumModulesTests: XCTestCase {
+final class ModulesTests: XCTestCase {
     let nonDisableableFactory = DefaultModuleFactory<NonDisableableModule>()
     let disableableFactory = DefaultModuleFactory<MockDispatcher1>()
     func test_shouldBeEnabled_on_NonDisableableModule_returns_true_for_settings_enabled() {

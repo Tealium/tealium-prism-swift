@@ -103,11 +103,8 @@ class QueueManager: QueueManagerProtocol {
         }.distinct()
     }
 
-    func getQueuedDispatches(for processor: String, limit: Int?) -> [Dispatch] {
-        let inflightSet = inflightEvents.value[processor] ?? Set<String>()
-        let dispatches = queueRepository.getQueuedDispatches(for: processor,
-                                                             limit: limit,
-                                                             excluding: Array(inflightSet))
+    func dequeueDispatches(for processor: String, limit: Int?) -> [Dispatch] {
+        let dispatches = peekDispatches(for: processor, limit: limit)
         guard !dispatches.isEmpty else {
             return []
         }
@@ -115,6 +112,23 @@ class QueueManager: QueueManagerProtocol {
                       "Dequeued dispatches for processor \(processor): \(dispatches.map { $0.logDescription() })")
         addToInflightDispatches(processor: processor, dispatches: dispatches)
         return dispatches
+    }
+
+    /**
+     * Returns the `Dispatch`es in the queue, up to an optional limit,  excluding the current inflight events
+     * but without saving them as inflight.
+     *
+     * - Parameters:
+     *   - processor: The `processor` from which `Dispatch`es need to be dequeued from.
+     *   - limit: The optional maximum amount of dispatches to dequeue.
+     *
+     * - Returns: A list of `Dispatch`es, ordered by timestamp, starting from the latest inflight dispatch.
+     */
+    func peekDispatches(for processor: String, limit: Int?) -> [Dispatch] {
+        let inflightSet = inflightEvents.value[processor] ?? Set<String>()
+        return queueRepository.getQueuedDispatches(for: processor,
+                                                   limit: limit,
+                                                   excluding: Array(inflightSet))
     }
 
     private func addToInflightDispatches(processor: String, dispatches: [Dispatch]) {

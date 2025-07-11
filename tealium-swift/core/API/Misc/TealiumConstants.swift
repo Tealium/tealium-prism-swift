@@ -93,7 +93,6 @@ public enum TealiumConfigKey {
     public static let batchExpirationDaysKey = "batch_expiration_days"
     public static let wifiOnlyKey = "wifi_only_sending"
     public static let minutesBetweenRefresh = "minutes_between_refresh"
-    public static let collectModuleName = "collect"
     public static let tagManagementModuleName = "tagmanagement"
     public static let loggerType = "logger_type"
     public static let logLevel = "log_level"

@@ -16,25 +16,25 @@ class TealiumHelper {
     let cmp = CustomCMP()
     func createModuleFactories() -> [any TealiumModuleFactory] {
         [
-         TealiumModules.appData(),
-         TealiumModules.deepLink(forcingSettings: { enforcedSettings in
+         Modules.appData(),
+         Modules.deepLink(forcingSettings: { enforcedSettings in
              enforcedSettings.setSendDeepLinkEvent(true)
          }),
-         TealiumModules.trace(forcingSettings: { enforcedSettings in
+         Modules.trace(forcingSettings: { enforcedSettings in
              enforcedSettings.setEnabled(true)
          }),
-         TealiumModules.collect(forcingSettings: { enforcedSettings in
+         Modules.collect(forcingSettings: { enforcedSettings in
              enforcedSettings.setEnabled(true)
          }),
-         TealiumModules.deviceData(forcingSettings: { enforcedSettings in
+         Modules.deviceData(forcingSettings: { enforcedSettings in
              enforcedSettings.setMemoryReportingEnabled(true)
          }),
-         TealiumModules.lifecycle(forcingSettings: { enforcedSettings in
+         Modules.lifecycle(forcingSettings: { enforcedSettings in
              enforcedSettings.setEnabled(true)
          }),
-         TealiumModules.customCollector(SomeModule.self),
-         TealiumModules.timeCollector(),
-         TealiumModules.connectivityCollector(),
+         Modules.customCollector(SomeModule.self),
+         Modules.timeCollector(),
+         Modules.connectivityCollector(),
          ModuleWithExternalDependencies.Factory(otherDependencies: NSObject())
         ]
     }
@@ -51,11 +51,10 @@ class TealiumHelper {
                 .setVisitorIdentityKey("email")
         })
         config.addBarrier(Barriers.batching())
-// Uncomment to enable consent. At the moment this will block everything due to no functioning consent adapter and no configuration setup for the dispatchers' purposes.
         config.enableConsentIntegration(with: cmp) { enforcedConfiguration in
             enforcedConfiguration.setTealiumPurposeId("tealium")
-                .setRefireDispatchersIds(["Collect"])
-                .addPurpose("tracking", dispatcherIds: ["Collect"])
+                .setRefireDispatchersIds([Modules.IDs.collect])
+                .addPurpose("tracking", dispatcherIds: [Modules.IDs.collect])
         }
         return Tealium.create(config: config) { _ in }
     }

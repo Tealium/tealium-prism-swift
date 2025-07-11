@@ -9,17 +9,17 @@
 extension Dispatch {
     func applyConsentDecision(_ decision: ConsentDecision) -> Dispatch? {
         let preProcessedPurposes = self.payload
-            .getArray(key: ConsentConstants.allPurposesKey, of: String.self)?.compactMap { $0 } ?? []
+            .getArray(key: TealiumDataKey.allConsentedPurposes, of: String.self)?.compactMap { $0 } ?? []
 
         var dispatch = self
         let purposes = decision.purposes
         let unprocessedPurposes = purposes.filter { !preProcessedPurposes.contains($0) }
         guard !unprocessedPurposes.isEmpty else { return nil }
         dispatch.enrich(data: [
-            ConsentConstants.unprocessedPurposesKey: unprocessedPurposes,
-            ConsentConstants.processedPurposesKey: preProcessedPurposes,
-            ConsentConstants.allPurposesKey: purposes,
-            ConsentConstants.consentTypeKey: decision.decisionType.rawValue,
+            TealiumDataKey.unprocessedPurposes: unprocessedPurposes,
+            TealiumDataKey.processedPurposes: preProcessedPurposes,
+            TealiumDataKey.allConsentedPurposes: purposes,
+            TealiumDataKey.consentType: decision.decisionType.rawValue,
         ])
         return dispatch
     }
@@ -27,7 +27,7 @@ extension Dispatch {
     func matchesConfiguration(_ configuration: ConsentConfiguration, forDispatcher dispatcherId: String) -> Bool {
         let dispatcherHasAtLeastOneRequiredPurpose = configuration.hasAtLeastOneRequiredPurposeForDispatcher(dispatcherId)
         guard let consentedPurposes = self.payload
-            .getArray(key: ConsentConstants.allPurposesKey, of: String.self),
+            .getArray(key: TealiumDataKey.allConsentedPurposes, of: String.self),
               !consentedPurposes.isEmpty,
               dispatcherHasAtLeastOneRequiredPurpose else {
             return false
@@ -40,7 +40,7 @@ extension Dispatch {
     }
 
     func hasAlreadyProcessedPurposes() -> Bool {
-        guard let processedPurposes = payload.getArray(key: ConsentConstants.processedPurposesKey,
+        guard let processedPurposes = payload.getArray(key: TealiumDataKey.processedPurposes,
                                                        of: String.self) else {
             return false
         }

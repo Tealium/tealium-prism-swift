@@ -11,8 +11,11 @@ import TealiumSwift
 class CustomCMP: CMPAdapter, ObservableObject {
     let id = "custom"
     static let defaults = UserDefaults.standard
-    var currentDecision: ConsentDecision? {
-        _consentDecision.publisher.last() ?? nil
+    var currentDecision: ConsentDecision {
+        guard let lastDecision = _consentDecision.publisher.last() as? ConsentDecision else {
+            return Self.readDecision()
+        }
+        return lastDecision
     }
     @ToAnyObservable<ReplaySubject<ConsentDecision?>>(ReplaySubject<ConsentDecision?>(initialValue: CustomCMP.readDecision()))
     var consentDecision: Observable<ConsentDecision?>
@@ -20,8 +23,8 @@ class CustomCMP: CMPAdapter, ObservableObject {
     let allPurposes: [String]? = ["tealium", "tracking", "functional"]
 
     func applyConsent(_ consentDecision: ConsentDecision) {
-        _consentDecision.publish(consentDecision)
         Self.saveDecision(consentDecision)
+        _consentDecision.publish(consentDecision)
         self.objectWillChange.send()
     }
 

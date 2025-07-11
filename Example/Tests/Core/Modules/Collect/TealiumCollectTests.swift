@@ -1,5 +1,5 @@
 //
-//  TealiumCollectTests.swift
+//  CollectDispatcherTests.swift
 //  tealium-swift_Tests
 //
 //  Created by Enrico Zannini on 15/11/23.
@@ -9,12 +9,12 @@
 @testable import TealiumSwift
 import XCTest
 
-final class TealiumCollectTests: XCTestCase {
+final class CollectDispatcherTests: XCTestCase {
     let networkHelper = MockNetworkHelper()
     var configuration = CollectConfiguration(configuration: [:])
-    lazy var collect = TealiumCollect(networkHelper: networkHelper,
-                                      configuration: configuration,
-                                      logger: nil)
+    lazy var collect = CollectDispatcher(networkHelper: networkHelper,
+                                         configuration: configuration,
+                                         logger: nil)
 
     let stubDispatches = [
         Dispatch(name: "event1", data: [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"]),

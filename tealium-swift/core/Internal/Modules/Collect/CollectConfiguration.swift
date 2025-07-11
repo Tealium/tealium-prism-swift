@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// The settings used by the `TealiumCollect` module.
+/// The settings used by the `CollectDispatcher` module.
 struct CollectConfiguration {
     enum Keys {
         /// The URL used to send single events

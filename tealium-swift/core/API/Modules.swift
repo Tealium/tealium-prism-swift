@@ -1,5 +1,5 @@
 //
-//  TealiumModules.swift
+//  Modules.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 08/07/24.
@@ -10,8 +10,23 @@ import Foundation
 // some TealiumModuleFactory is possible as return types for all of these methods
 // but won't compile for iOS < 13 on Intel machines so any is used instead
 
+public extension Modules {
+    /// The IDs for the modules
+     enum IDs {
+        static public let appData = AppDataCollector.id
+        static public let collect = CollectDispatcher.id
+        static public let dataLayer = DataLayerModule.id
+        static public let deviceData = DeviceDataCollector.id
+        static public let trace = TraceManagerModule.id
+        static public let deepLink = DeepLinkHandlerModule.id
+        static public let tealiumCollector = TealiumCollector.id
+        static public let connectivityCollector = ConnectivityCollector.id
+        static public let timeCollector = TimeCollector.id
+    }
+}
+
 /// The list of modules factories that can be used to instantiate and pass modules to the `TealiumConfig`.
-public enum TealiumModules {
+public enum Modules {
 
     /// Returns a factory for creating the `AppDataCollector`
     static public func appData() -> any TealiumModuleFactory {
@@ -19,13 +34,13 @@ public enum TealiumModules {
     }
 
     /**
-     * Returns a factory for creating the `TealiumCollect` dispatcher.
+     * Returns a factory for creating the `CollectDispatcher`.
      *
      * - Parameters:
-     *   -  block: A block with a utility builder that can be used to enforce some of the `CollectSettings` instead of relying on Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `TealiumCollect` module, other settings will still be affected by Local and Remote settings and updates.
+     *   -  block: A block with a utility builder that can be used to enforce some of the `CollectSettings` instead of relying on Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `CollectDispatcher` module, other settings will still be affected by Local and Remote settings and updates.
      */
     static public func collect(forcingSettings block: ((_ enforcedSettings: CollectSettingsBuilder) -> CollectSettingsBuilder)? = nil) -> any TealiumModuleFactory {
-        TealiumCollect.Factory(forcingSettings: block)
+        CollectDispatcher.Factory(forcingSettings: block)
     }
 
     /// Returns a factory for creating the `DataLayerModule`.
@@ -33,6 +48,7 @@ public enum TealiumModules {
         DefaultModuleFactory<DataLayerModule>()
     }
 
+    /// Returns a factory for creating the `DeviceDataCollector`.
     static public func deviceData(forcingSettings block: ((_ enforcedSettings: DeviceDataSettingsBuilder) -> DeviceDataSettingsBuilder)? = nil) -> any TealiumModuleFactory {
         DeviceDataCollector.Factory(forcingSettings: block)
     }

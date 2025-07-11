@@ -20,10 +20,10 @@ final class LifecycleTrackerTests: XCTestCase {
                                environment: "dev",
                                modules: [
                                 MockDispatcher.factory,
-                                TealiumModules.lifecycle(forcingSettings: { enforcedSettings in
+                                Modules.lifecycle(forcingSettings: { enforcedSettings in
                                     enforcedSettings.setEnabled(true)
                                 }),
-                                TealiumModules.appData()
+                                Modules.appData()
                                ],
                                settingsFile: "",
                                settingsUrl: nil)

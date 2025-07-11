@@ -21,13 +21,15 @@ class CMPConfigurationSelector {
         let configuration = consentSettings.mapState { $0?.configurations[cmpAdapter.id] }
         self.configuration = configuration
         let inspectorState = StateSubject<ConsentInspector?>(nil)
-        configuration.combineLatest(cmpAdapter.consentDecision.observeOn(queue))
-            .compactMap { configuration, decision in
-                guard let configuration, let decision else { return nil }
-                return ConsentInspector(configuration: configuration,
-                                        decision: decision,
-                                        allPurposes: cmpAdapter.allPurposes)
-            }.subscribe(inspectorState)
+        configuration.combineLatest(cmpAdapter.consentDecision
+            .distinct()
+            .observeOn(queue))
+        .compactMap { configuration, decision in
+            guard let configuration, let decision else { return nil }
+            return ConsentInspector(configuration: configuration,
+                                    decision: decision,
+                                    allPurposes: cmpAdapter.allPurposes)
+        }.subscribe(inspectorState)
             .addTo(disposer)
         self.consentInspector = inspectorState.toStatefulObservable()
     }

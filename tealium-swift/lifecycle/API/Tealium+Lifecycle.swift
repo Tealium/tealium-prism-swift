@@ -6,7 +6,7 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-public extension TealiumModules {
+public extension Modules {
     /**
      * Returns a factory for creating the `LifecycleModule`.
      *

@@ -11,42 +11,94 @@ import SwiftUI
 
 struct ConsentView: View {
     let purposes = TealiumHelper.shared.cmp.allPurposes ?? [String]()
-    @ObservedObject var cmp = TealiumHelper.shared.cmp
+    @State var decision: ConsentDecision = TealiumHelper.shared.cmp.currentDecision
+    @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
+    @State private var showAlert: Bool = false
+
     var body: some View {
         ScrollView {
-            VStack(spacing: 16) {
-                Section {
-                    Toggle("\(cmp.currentDecision?.decisionType ?? .explicit)".capitalized, isOn: bindingForDecisionType())
-                    .tealiumButtonUI()
-                } header: {
-                    Text("Decision Type").font(.title)
+            content
+                .onAppear {
+                    decision = TealiumHelper.shared.cmp.currentDecision
                 }
-                Section {
-                    ForEach(purposes, id: \.self) { purpose in
-                        Toggle(purpose, isOn: bindingForPurpose(purpose))
-                                .tealiumButtonUI()
-                    }
-                } header: {
-                    Text("Purposes").font(.title)
-                }
-            }.frame(maxWidth: .infinity)
         }
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: .topBarLeading) {
+                Button(action: {
+                    if decision != TealiumHelper.shared.cmp.currentDecision {
+                        showAlert = true
+                    } else {
+                        self.presentationMode.wrappedValue.dismiss()
+                    }
+                }){
+                    Image(systemName: "chevron.left")
+                    Text("Back")
+                }
+            }
+            ToolbarItem(placement: .topBarTrailing) {
+                Button {
+                    save()
+                } label: {
+                    Text("Save").bold()
+                }
+            }
+            
+        }
+    }
+
+    var content: some View {
+        VStack(spacing: 16) {
+            Section {
+                Toggle("\(decision.decisionType)".capitalized, isOn: bindingForDecisionType())
+                    .tealiumButtonUI()
+            } header: {
+                Text("Decision Type").font(.title)
+            }
+            Section {
+                ForEach(purposes, id: \.self) { purpose in
+                    Toggle(purpose, isOn: bindingForPurpose(purpose))
+                        .tealiumButtonUI()
+                }
+            } header: {
+                Text("Purposes").font(.title)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .alert(isPresented: $showAlert) {
+            Alert(
+                title: Text("Unsaved consent changes"),
+                message: Text("Do you want to save?"),
+                primaryButton: .destructive(Text("Discard"), action: {
+                    self.presentationMode.wrappedValue.dismiss()
+                    decision = TealiumHelper.shared.cmp.currentDecision
+                }),
+                secondaryButton: .default(Text("Save"), action: {
+                    save()
+                })
+            )
+        }
+    }
+
+    func save() {
+        TealiumHelper.shared.cmp.applyConsent(decision)
+        presentationMode.wrappedValue.dismiss()
     }
 
     func bindingForDecisionType() -> Binding<Bool> {
         Binding<Bool> {
-            cmp.currentDecision?.decisionType == .explicit
+            decision.decisionType == .explicit
         } set: { value in
-            let decision = ConsentDecision(decisionType: value ? .explicit : .implicit, purposes: cmp.currentDecision?.purposes ?? [])
-            cmp.applyConsent(decision)
+            decision = ConsentDecision(decisionType: value ? .explicit : .implicit,
+                                           purposes: decision.purposes)
         }
     }
 
     func bindingForPurpose(_ purpose: String) -> Binding<Bool> {
         Binding<Bool> {
-            cmp.currentDecision?.purposes.contains(purpose) ?? false
+            decision.purposes.contains(purpose) == true
         } set: { value in
-            var purposes = cmp.currentDecision?.purposes ?? []
+            var purposes = decision.purposes
             if purposes.contains(purpose) {
                 if !value {
                     purposes.removeAll { $0 == purpose }
@@ -56,8 +108,8 @@ struct ConsentView: View {
                     purposes.append(purpose)
                 }
             }
-            let decision = ConsentDecision(decisionType: cmp.currentDecision?.decisionType ?? .explicit, purposes: purposes)
-            cmp.applyConsent(decision)
+            decision = ConsentDecision(decisionType: decision.decisionType,
+                                       purposes: purposes)
         }
     }
 }

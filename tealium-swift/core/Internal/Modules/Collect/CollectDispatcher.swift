@@ -1,5 +1,5 @@
 //
-//  TealiumCollect.swift
+//  CollectDispatcher.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 06/12/22.
@@ -11,7 +11,7 @@ import Foundation
 /**
  * A `Dispatcher` that sends events to our Tealium Collect service.
  */
-class TealiumCollect: TealiumBasicModule, Dispatcher {
+class CollectDispatcher: TealiumBasicModule, Dispatcher {
     let version: String = TealiumConstants.libraryVersion
     static let id: String = "Collect"
     let dispatchLimit = 10
@@ -40,10 +40,11 @@ class TealiumCollect: TealiumBasicModule, Dispatcher {
 
     /// Method that will be called automatically when new configuration is provided.
     func updateConfiguration(_ configuration: DataObject) -> Self? {
-        guard let tealiumCollectConfiguration = CollectConfiguration(configuration: configuration, logger: self.logger) else {
+        guard let collectConfiguration = CollectConfiguration(configuration: configuration,
+                                                              logger: self.logger) else {
             return nil
         }
-        self.configuration = tealiumCollectConfiguration
+        self.configuration = collectConfiguration
         return self
     }
 

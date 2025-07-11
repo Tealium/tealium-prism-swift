@@ -28,7 +28,7 @@ final class LifecycleWrapperTests: XCTestCase {
     }
 
     override func setUp() {
-        config.modules = [TealiumModules.lifecycle()]
+        config.modules = [Modules.lifecycle()]
         manager.updateSettings(context: context(), settings: SDKSettings(modules: [
             LifecycleModule.id: ModuleSettings(configuration: [LifecycleConfiguration.Keys.autoTrackingEnabled: false])
         ]))

@@ -26,7 +26,7 @@ final class DeepLinkHandlerWrapperTests: XCTestCase {
     let disposer = AutomaticDisposer()
 
     override func setUp() {
-        config.modules = [TealiumModules.deepLink()]
+        config.modules = [Modules.deepLink()]
         manager.updateSettings(context: context(), settings: SDKSettings([:]))
     }
 

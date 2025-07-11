@@ -1,5 +1,5 @@
 //
-//  TealiumCollect+Factory.swift
+//  CollectDispatcher+Factory.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 08/07/24.
@@ -8,8 +8,8 @@
 
 import Foundation
 
-extension TealiumCollect {
-    class Factory: DefaultModuleFactory<TealiumCollect> {
+extension CollectDispatcher {
+    class Factory: DefaultModuleFactory<CollectDispatcher> {
         init(forcingSettings block: ((_ enforcedSettings: CollectSettingsBuilder) -> CollectSettingsBuilder)? = nil) {
             super.init(enforcedSettings: block?(CollectSettingsBuilder()).build())
         }

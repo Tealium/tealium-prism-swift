@@ -27,7 +27,7 @@ final class TraceManagerWrapperTests: XCTestCase {
     }
 
     override func setUp() {
-        config.modules = [TealiumModules.trace()]
+        config.modules = [Modules.trace()]
         manager.updateSettings(context: context(), settings: SDKSettings([:]))
     }
 

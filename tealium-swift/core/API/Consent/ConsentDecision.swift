@@ -9,7 +9,7 @@
 import Foundation
 
 /// A representation of a user's consent decision.
-public struct ConsentDecision {
+public struct ConsentDecision: Equatable {
     public enum DecisionType: String {
         /// A decision that was derived implicitly by the user action (e.g. by opening the application).
         case implicit

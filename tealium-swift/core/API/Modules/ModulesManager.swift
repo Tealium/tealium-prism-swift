@@ -9,11 +9,11 @@
 import Foundation
 
 public class ModulesManager {
-    @StateSubject([])
-    var modules: ObservableState<[TealiumModule]>
+    @StateSubject var modules: ObservableState<[TealiumModule]>
     let queue: TealiumQueue
-    init(queue: TealiumQueue) {
+    init(queue: TealiumQueue, initialModules: [TealiumModule] = []) {
         self.queue = queue
+        _modules = StateSubject(initialModules)
     }
 
     func updateSettings(context: TealiumContext, settings: SDKSettings) {

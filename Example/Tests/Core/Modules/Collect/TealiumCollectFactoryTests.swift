@@ -1,5 +1,5 @@
 //
-//  TealiumCollectFactoryTests.swift
+//  CollectDispatcherFactoryTests.swift
 //  tealium-swift_Tests
 //
 //  Created by Enrico Zannini on 17/07/24.
@@ -9,10 +9,10 @@
 @testable import TealiumSwift
 import XCTest
 
-final class TealiumCollectFactoryTests: XCTestCase {
+final class CollectDispatcherFactoryTests: XCTestCase {
 
     func test_enforcedSettings_return_the_settings_built_in_the_init() {
-        let factory = TealiumCollect.Factory { enforcedSettings in
+        let factory = CollectDispatcher.Factory { enforcedSettings in
             enforcedSettings
                 .setUrl("url")
                 .setBatchUrl("batchUrl")
@@ -22,7 +22,7 @@ final class TealiumCollectFactoryTests: XCTestCase {
 
     func test_changing_builder_after_init_doesnt_change_the_enforcedSettings() {
         var settingsBuilder: CollectSettingsBuilder?
-        let factory = TealiumCollect.Factory { enforcedSettings in
+        let factory = CollectDispatcher.Factory { enforcedSettings in
             let builder = enforcedSettings
                 .setUrl("url")
                 .setBatchUrl("batchUrl")

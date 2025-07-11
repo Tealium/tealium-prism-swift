@@ -48,14 +48,6 @@ protocol ConsentManager {
     func applyConsent(to dispatch: Dispatch) -> TrackResult
 }
 
-enum ConsentConstants {
-    static let processedPurposesKey = "purposes_with_consent_processed"
-    static let unprocessedPurposesKey = "purposes_with_consent_unprocessed"
-    static let allPurposesKey = "purposes_with_consent_all"
-    static let consentTypeKey = "consent_type"
-    static let refireIdPostfix = "-refire"
-}
-
 class ConsentIntegrationManager: ConsentManager {
     let version: String = TealiumConstants.libraryVersion
     static let id: String = "consent"
@@ -111,7 +103,11 @@ class ConsentIntegrationManager: ConsentManager {
             onConfigurationSelected
                 .compactMap { [cmpSelector] configuration in
                     if configuration == nil {
-                        logger.warn(category: LogCategory.consent, "No ConsentConfiguration selected for CMP: \(cmpSelector.cmpAdapter.id). Make sure you provide a configuration for this specific CMP in the ConsentSettings.")
+                        logger.warn(category: LogCategory.consent,
+                                    """
+                                    No ConsentConfiguration selected for CMP: \(cmpSelector.cmpAdapter.id).
+                                    Make sure you provide a configuration for this specific CMP in the ConsentSettings.
+                                    """)
                     }
                     return configuration
                 }
@@ -135,7 +131,7 @@ class ConsentIntegrationManager: ConsentManager {
         guard !consentInspector.tealiumExplicitlyBlocked() else {
             return
         }
-        let events = queueManager.getQueuedDispatches(for: Self.id, limit: nil)
+        let events = queueManager.dequeueDispatches(for: Self.id, limit: nil)
             .compactMap { $0.applyConsentDecision(consentInspector.decision) }
 
         guard !events.isEmpty else { return }

@@ -29,7 +29,8 @@ public protocol QueueManagerProtocol: QueueMetrics {
     func onInflightDispatchesCount(for processor: String) -> Observable<Int>
 
     /**
-     * Returns the `Dispatch`es in the queue, up to an optional limit, excluding the current inflight events.
+     * Returns the `Dispatch`es in the queue, up to an optional limit, excluding the current inflight events
+     * and saves them as inflight.
      *
      * - Parameters:
      *   - processor: The `processor` from which `Dispatch`es need to be dequeued from.
@@ -37,7 +38,7 @@ public protocol QueueManagerProtocol: QueueMetrics {
      *
      * - Returns: A list of `Dispatch`es, ordered by timestamp, starting from the latest inflight dispatch.
      */
-    func getQueuedDispatches(for processor: String, limit: Int?) -> [Dispatch]
+    func dequeueDispatches(for processor: String, limit: Int?) -> [Dispatch]
 
     /**
      * Stores the `Dispatch`es for all the `processor`s' queues.

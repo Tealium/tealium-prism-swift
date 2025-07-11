@@ -43,4 +43,11 @@ extension Array {
         }
         return (first, second)
     }
+
+    func removingDuplicates<Value: Hashable>(by keyPath: KeyPath<Element, Value>) -> Self {
+        var valueSet = Set<Value>()
+        return filter {
+            valueSet.insert( $0[keyPath: keyPath]).inserted
+        }
+    }
 }

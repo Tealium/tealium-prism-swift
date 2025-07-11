@@ -23,7 +23,7 @@ public enum Barriers {
      * - parameter defaultScopes: Set of `BarrierScope`s to use by default in case no other scope was
      * configured in the settings.
      */
-    static func connectivity(defaultScopes: [BarrierScope] = [.dispatcher(TealiumCollect.id)]) -> any BarrierFactory {
+    public static func connectivity(defaultScopes: [BarrierScope] = [.dispatcher(Modules.IDs.collect)]) -> any BarrierFactory {
         ConnectivityBarrier.Factory(defaultScopes: defaultScopes)
     }
 

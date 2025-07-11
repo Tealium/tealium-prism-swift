@@ -24,7 +24,7 @@ class BaseDataLayerWrapperTests: XCTestCase {
     }
 
     override func setUp() {
-        config.modules = [TealiumModules.dataLayer()]
+        config.modules = [Modules.dataLayer()]
         manager.updateSettings(context: context(), settings: SDKSettings())
     }
 }

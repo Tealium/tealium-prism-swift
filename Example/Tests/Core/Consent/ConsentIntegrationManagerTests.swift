@@ -11,7 +11,12 @@ import XCTest
 
 class ConsentIntegrationManagerBaseTests: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
-    let modulesManager = ModulesManager(queue: TealiumQueue.worker)
+    let allDispatchers = [MockDispatcher1(), MockDispatcher2()]
+    var allDispatchersIds: [String] {
+        allDispatchers.map { $0.id }
+    }
+    lazy var modulesManager = ModulesManager(queue: TealiumQueue.worker,
+                                             initialModules: allDispatchers)
 
     @StateSubject(CoreSettings())
     var coreSettings
@@ -114,7 +119,7 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
             .subscribe { storedDispatches, storingDispatchers in
                 XCTAssertEqual(storedDispatches.map { $0.id },
                                dispatches.map { $0.id })
-                XCTAssertEqual(storingDispatchers, [])
+                XCTAssertEqual(storingDispatchers, self.allDispatchersIds)
                 dispatchesStored.fulfill()
             }
         consentManager.enqueueDispatches(dispatches,
@@ -126,11 +131,11 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
         let dispatchesStored = expectation(description: "Dispatches are stored")
         let dispatches = [
             Dispatch(name: "event1",
-                     data: [ConsentConstants.processedPurposesKey: ["purpose"]]),
+                     data: [TealiumDataKey.processedPurposes: ["purpose"]]),
             Dispatch(name: "event2",
-                     data: [ConsentConstants.processedPurposesKey: ["purpose"]]),
+                     data: [TealiumDataKey.processedPurposes: ["purpose"]]),
             Dispatch(name: "event3",
-                     data: [ConsentConstants.processedPurposesKey: ["purpose"]])
+                     data: [TealiumDataKey.processedPurposes: ["purpose"]])
         ]
         let refireDispatchers = ["dispatcher1", "dispatcher2"]
         _ = queueManager.onStoreRequest
@@ -150,10 +155,10 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
         dispatchesStored.expectedFulfillmentCount = 2
         let dispatches = [
             Dispatch(name: "event1",
-                     data: [ConsentConstants.processedPurposesKey: ["purpose"]]),
+                     data: [TealiumDataKey.processedPurposes: ["purpose"]]),
             Dispatch(name: "event2"),
             Dispatch(name: "event3",
-                     data: [ConsentConstants.processedPurposesKey: ["purpose"]]),
+                     data: [TealiumDataKey.processedPurposes: ["purpose"]]),
             Dispatch(name: "event4"),
         ]
         let refireDispatchers = ["dispatcher1", "dispatcher2"]
@@ -168,7 +173,7 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
                 } else {
                     XCTAssertEqual(storedDispatches.map { $0.id },
                                    [dispatches[1], dispatches[3]].map { $0.id })
-                    XCTAssertEqual(storingDispatchers, [])
+                    XCTAssertEqual(storingDispatchers, self.allDispatchersIds)
                 }
                 dispatchesStored.fulfill()
             }
@@ -213,7 +218,7 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
                                      enqueueingFor: [ConsentIntegrationManager.id])
         queueManager.onStoreRequest.subscribeOnce { storedDispatches, allDispatchers in
             XCTAssertEqual(storedDispatches.map { $0.id }, dispatches.map { $0.id })
-            XCTAssertEqual(allDispatchers, [],
+            XCTAssertEqual(allDispatchers, self.allDispatchersIds,
                            "Store needs to happen for all queueManager's dispatchers for non refire dispatches.")
             storeRequest.fulfill()
         }
@@ -235,7 +240,7 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
                                          decision: decision,
                                          allPurposes: nil)
         let dispatches = [Dispatch(name: "event", data: [
-            ConsentConstants.allPurposesKey: ["some_purpose"]
+            TealiumDataKey.allConsentedPurposes: ["some_purpose"]
         ])]
         queueManager.storeDispatches(dispatches,
                                      enqueueingFor: [ConsentIntegrationManager.id])

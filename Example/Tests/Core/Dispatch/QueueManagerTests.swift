@@ -31,8 +31,8 @@ final class QueueManagerTests: XCTestCase {
         XCTAssertEqual(queueRepository.getQueuedDispatches(for: modulesIds[0], limit: nil).count, 1)
         XCTAssertEqual(queueRepository.getQueuedDispatches(for: modulesIds[1], limit: nil).count, 1)
         _modules.value.removeFirst()
-        XCTAssertEqual(queueManager.getQueuedDispatches(for: modulesIds[0], limit: nil).count, 0)
-        XCTAssertEqual(queueManager.getQueuedDispatches(for: modulesIds[1], limit: nil).count, 1)
+        XCTAssertEqual(queueManager.dequeueDispatches(for: modulesIds[0], limit: nil).count, 0)
+        XCTAssertEqual(queueManager.dequeueDispatches(for: modulesIds[1], limit: nil).count, 1)
     }
 
     func test_modules_changes_removes_dispatches_queued_to_old_processors() {
@@ -55,10 +55,10 @@ final class QueueManagerTests: XCTestCase {
         let dispatch = Dispatch(name: "event_name")
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches([dispatch], enqueueingFor: modulesNames)
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
+        let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 1)
         XCTAssertEqual(dispatches1[0].id, dispatch.id)
-        let dispatches2 = queueManager.getQueuedDispatches(for: modulesNames[1], limit: nil)
+        let dispatches2 = queueManager.dequeueDispatches(for: modulesNames[1], limit: nil)
         XCTAssertEqual(dispatches2.count, 1)
         XCTAssertEqual(dispatches2[0].id, dispatch.id)
     }
@@ -67,11 +67,11 @@ final class QueueManagerTests: XCTestCase {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
+        let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertEqual(dispatches1[0].id, dispatches[0].id)
         XCTAssertEqual(dispatches1[1].id, dispatches[1].id)
-        let dispatches2 = queueManager.getQueuedDispatches(for: modulesNames[1], limit: nil)
+        let dispatches2 = queueManager.dequeueDispatches(for: modulesNames[1], limit: nil)
         XCTAssertEqual(dispatches2.count, 2)
         XCTAssertEqual(dispatches2[0].id, dispatches[0].id)
         XCTAssertEqual(dispatches2[1].id, dispatches[1].id)
@@ -81,11 +81,11 @@ final class QueueManagerTests: XCTestCase {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: [modulesNames[0]])
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
+        let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertEqual(dispatches1[0].id, dispatches[0].id)
         XCTAssertEqual(dispatches1[1].id, dispatches[1].id)
-        let dispatches2 = queueManager.getQueuedDispatches(for: modulesNames[1], limit: nil)
+        let dispatches2 = queueManager.dequeueDispatches(for: modulesNames[1], limit: nil)
         XCTAssertEqual(dispatches2.count, 0)
     }
 
@@ -104,49 +104,78 @@ final class QueueManagerTests: XCTestCase {
         let dispatch = Dispatch(name: "event_name")
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches([dispatch, dispatch], enqueueingFor: modulesNames)
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
+        let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 1)
     }
 
-    func test_getQueuedDispatches_returns_events_for_processor() {
+    func test_dequeueDispatches_returns_events_for_processor() {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
+        let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertEqual(dispatches1[0].id, dispatches[0].id)
         XCTAssertEqual(dispatches1[1].id, dispatches[1].id)
     }
 
-    func test_getQueuedDispatches_with_limit_returns_limited_number_of_events_for_processor() {
+    func test_dequeueDispatches_with_limit_returns_limited_number_of_events_for_processor() {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: 2)
+        let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: 2)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertEqual(dispatches1[0].id, dispatches[0].id)
         XCTAssertEqual(dispatches1[1].id, dispatches[1].id)
     }
 
-    func test_getQueuedDispatches_puts_events_in_the_inflight_for_that_processor() {
+    func test_dequeueDispatches_puts_events_in_the_inflight_for_that_processor() {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: nil)
+        let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[0]], Set(dispatches1.map { $0.id }))
     }
 
-    func test_getQueuedDispatches_adds_events_in_the_inflight_for_that_processor() {
+    func test_dequeueDispatches_adds_events_in_the_inflight_for_that_processor() {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
-        let dispatches1 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: 2)
+        let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: 2)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[0]]?.count, 2)
-        let dispatches2 = queueManager.getQueuedDispatches(for: modulesNames[0], limit: 2)
+        let dispatches2 = queueManager.dequeueDispatches(for: modulesNames[0], limit: 2)
         XCTAssertEqual(dispatches2.count, 1)
         XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[0]]?.count, 3)
+    }
+
+    func test_peekDispatches_returns_events_for_processor() {
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
+        let modulesNames = modules.value.map { $0.id }
+        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        let dispatches1 = queueManager.peekDispatches(for: modulesNames[0], limit: nil)
+        XCTAssertEqual(dispatches1.count, 2)
+        XCTAssertEqual(dispatches1[0].id, dispatches[0].id)
+        XCTAssertEqual(dispatches1[1].id, dispatches[1].id)
+    }
+
+    func test_peekDispatches_with_limit_returns_limited_number_of_events_for_processor() {
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
+        let modulesNames = modules.value.map { $0.id }
+        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        let dispatches1 = queueManager.peekDispatches(for: modulesNames[0], limit: 2)
+        XCTAssertEqual(dispatches1.count, 2)
+        XCTAssertEqual(dispatches1[0].id, dispatches[0].id)
+        XCTAssertEqual(dispatches1[1].id, dispatches[1].id)
+    }
+
+    func test_peekDispatches_doesnt_put_events_in_the_inflight_for_that_processor() {
+        let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
+        let modulesNames = modules.value.map { $0.id }
+        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        let dispatches1 = queueManager.peekDispatches(for: modulesNames[0], limit: nil)
+        XCTAssertEqual(dispatches1.count, 2)
+        XCTAssertNil(queueManager.inflightEvents.value[modulesNames[0]])
     }
 
     func test_coreSettings_change_causes_expiration_change() {

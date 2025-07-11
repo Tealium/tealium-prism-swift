@@ -126,9 +126,9 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
                                                                               purposes: ["purpose1": ConsentPurpose(purposeId: "purpose1", dispatcherIds: [MockDispatcher2.id])]))
         disableModule(module: module1)
         let dispatches = [
-            Dispatch(name: "event_to_be_sent", data: [ConsentConstants.allPurposesKey: ["purpose1"]]),
-            Dispatch(name: "event_to_be_sent", data: [ConsentConstants.allPurposesKey: ["purpose1"]]),
-            Dispatch(name: "event_to_be_sent", data: [ConsentConstants.allPurposesKey: ["purpose1"]])
+            Dispatch(name: "event_to_be_sent", data: [TealiumDataKey.allConsentedPurposes: ["purpose1"]]),
+            Dispatch(name: "event_to_be_sent", data: [TealiumDataKey.allConsentedPurposes: ["purpose1"]]),
+            Dispatch(name: "event_to_be_sent", data: [TealiumDataKey.allConsentedPurposes: ["purpose1"]])
         ]
         module2?.onDispatch.subscribeOnce { _ in
             eventDispatched.fulfill()
