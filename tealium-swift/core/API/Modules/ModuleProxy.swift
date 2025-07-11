@@ -18,8 +18,8 @@ import Foundation
 public class ModuleProxy<SpecificModule: Module> {
     private let onModulesManager: Observable<ModulesManager?>
 
-    public typealias Task<T> = (_ module: SpecificModule) throws -> T
-    public typealias AsyncTask<T> = (
+    public typealias ModuleTask<T> = (_ module: SpecificModule) throws -> T
+    public typealias AsyncModuleTask<T> = (
         _ module: SpecificModule,
         _ completion: @escaping (Result<T, Error>) -> Void
     ) throws -> Void
@@ -45,8 +45,17 @@ public class ModuleProxy<SpecificModule: Module> {
      */
     init(queue: TealiumQueue, onModulesManager: Observable<ModulesManager?>) {
         self.onModulesManager = onModulesManager
+        let onModule: Observable<Result<SpecificModule, Error>> = onModulesManager.map { manager in
+            guard let manager else {
+                return .failure(TealiumError.objectNotFound(ModulesManager.self))
+            }
+            guard let module = manager.getModule(SpecificModule.self) else {
+                return .failure(TealiumError.moduleNotEnabled(SpecificModule.self))
+            }
+            return .success(module)
+        }
         self.asyncProxy = AsyncProxy(queue: queue,
-                                     onObject: onModulesManager.map { $0?.getModule() })
+                                     onObject: onModule)
     }
 
     /**
@@ -117,7 +126,7 @@ public class ModuleProxy<SpecificModule: Module> {
      *   - task: the task to be executed if module is enabled
      * - Returns: the `Single` with the `Result`
      */
-    public func executeModuleTask<T>(_ task: @escaping Task<T>) -> SingleResult<T> {
+    public func executeModuleTask<T>(_ task: @escaping ModuleTask<T>) -> SingleResult<T> {
         asyncProxy.executeTask(task)
     }
 
@@ -133,7 +142,7 @@ public class ModuleProxy<SpecificModule: Module> {
      *         self.moduleProxy = moduleProxy
      *     }
      *     func doStuff() -> SingleResult<SomeValue> {
-     *         moduleProxy.executeModuleTask { module, completion in
+     *         moduleProxy.executeAsyncModuleTask { module, completion in
      *             module.doStuff(completion: completion) // Completes with a `Result<SomeValue, Error>`
      *         }
      *     }
@@ -150,7 +159,7 @@ public class ModuleProxy<SpecificModule: Module> {
      *         self.moduleProxy = moduleProxy
      *     }
      *     func doStuff() -> SingleResult<Void> {
-     *         moduleProxy.executeModuleTask { module, completion in
+     *         moduleProxy.executeAsyncModuleTask { module, completion in
      *             module.doStuff { optionalData, optionalError in
      *                  if let data = optionalData {
      *                      completion(.success(data))
@@ -168,7 +177,7 @@ public class ModuleProxy<SpecificModule: Module> {
      *   - task: the task to be executed if module is enabled
      * - Returns: the `Single` with the `Result`.
      */
-    public func executeModuleAsyncTask<T>(_ asyncTask: @escaping AsyncTask<T>) -> SingleResult<T> {
+    public func executeAsyncModuleTask<T>(_ asyncTask: @escaping AsyncModuleTask<T>) -> SingleResult<T> {
         asyncProxy.executeAsyncTask(asyncTask)
     }
 }

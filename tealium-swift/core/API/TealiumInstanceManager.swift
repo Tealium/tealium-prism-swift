@@ -64,7 +64,7 @@ public class TealiumInstanceManager {
      *
      * - Returns: The `Tealium` instance ready to accept input, although if the initialization fails, any method calls made to this object will also fail.
      */
-    public func create(config: TealiumConfig, completion: @escaping (Tealium.InitializationResult) -> Void) -> Tealium {
+    public func create(config: TealiumConfig, completion: ((Tealium.InitializationResult) -> Void)? = nil) -> Tealium {
         let onImplementationReady = createImplementation(config: config)
         let teal = Tealium(queue: queue, onTealiumImplementation: onImplementationReady)
         _ = onImplementationReady
@@ -74,7 +74,7 @@ public class TealiumInstanceManager {
                 if case .success = result {
                     self?.proxies[config.key] = Weak(value: teal)
                 }
-                completion(result.map { _ in teal })
+                completion?(result.map { _ in teal })
             }
         return teal
     }

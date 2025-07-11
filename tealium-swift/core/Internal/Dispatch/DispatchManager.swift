@@ -112,20 +112,18 @@ class DispatchManager: DispatchManagerProtocol {
                     } else {
                         return .Empty()
                     }
-                }.flatMap { [weak self] dispatchSplit -> Observable<(Dispatcher, [Dispatch])> in
-                    Observable.Callback { [weak self] observer in
-                        let subscription = Subscription { }
-                        guard let self = self else {
-                            return subscription
-                        }
-                        self.logger?.debug(category: LogCategory.dispatchManager,
-                                           "Sending events to dispatcher \(dispatcher.id): \(dispatchSplit.successful.shortDescription())")
-                        return self.transformAndDispatch(dispatchSplit: dispatchSplit, for: dispatcher) { processedDispatches in
-                            guard !subscription.isDisposed else { return }
-                            observer((dispatcher, processedDispatches))
-                        }
+                }.callback(fromDisposable: { [weak self] dispatchSplit, observer in
+                    let subscription = Subscription { }
+                    guard let self = self else {
+                        return subscription
                     }
-                }
+                    self.logger?.debug(category: LogCategory.dispatchManager,
+                                       "Sending events to dispatcher \(dispatcher.id): \(dispatchSplit.successful.shortDescription())")
+                    return self.transformAndDispatch(dispatchSplit: dispatchSplit, for: dispatcher) { processedDispatches in
+                        guard !subscription.isDisposed else { return }
+                        observer((dispatcher, processedDispatches))
+                    }
+                })
         }
         .subscribe { [weak self] dispatcher, processedDispatches in
             self?.queueManager.deleteDispatches(processedDispatches.map { $0.id }, for: dispatcher.id)

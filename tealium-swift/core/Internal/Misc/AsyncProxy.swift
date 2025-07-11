@@ -15,6 +15,7 @@
  * if available, from the provided `queue`, or `nil` if it's not available.
  */
 class AsyncProxy<Object: AnyObject> {
+    typealias ObjectResult = Result<Object, any Error>
     typealias Task<T> = (_ object: Object) throws -> T
     typealias AsyncTask<T> = (
         _ object: Object,
@@ -22,17 +23,17 @@ class AsyncProxy<Object: AnyObject> {
     ) throws -> Void
 
     let queue: TealiumQueue
-    private let onObject: Observable<Object?>
+    private let onObject: Observable<ObjectResult>
 
-    init(queue: TealiumQueue, onObject: Observable<Object?>) {
+    init(queue: TealiumQueue, onObject: Observable<ObjectResult>) {
         self.queue = queue
         self.onObject = onObject
     }
 
     func getProxiedObject(completion: @escaping (Object?) -> Void) {
-        _ = onObject
+        let single = onObject.map { try? $0.get() }
             .asSingle(queue: queue)
-            .subscribe(completion)
+        single.subscribe(completion) // Split to reduce compilation complexity
     }
 
     func executeTask<Output>(_ task: @escaping Task<Output>) -> SingleResult<Output> {
@@ -50,26 +51,17 @@ class AsyncProxy<Object: AnyObject> {
         // Use the replay subject to make the returned Single a HOT observable.
         // A HOT observable doesn't require a subscription to start emitting events.
         let replay = ReplaySubject<Result<Output, Error>>()
-        _ = SingleImpl(observable: .Callback(from: { [weak self] observer in
-            guard let self else {
-                observer(.failure(TealiumError.objectNotFound(AsyncProxy.self)))
-                return
-            }
-            self.getProxiedObject { object in
-                guard let object else {
-                    observer(.failure(TealiumError.objectNotFound(Object.self)))
-                    return
+        let observable = onObject.callback(from: { result, observer in
+            do {
+                let object = try result.get()
+                try asyncTask(object) { result in
+                    observer(result)
                 }
-                do {
-                    try asyncTask(object) { result in
-                        observer(result)
-                    }
-                } catch {
-                    observer(.failure(error))
-                }
+            } catch {
+                observer(.failure(error))
             }
-        }),
-                   queue: queue)
+        })
+        _ = SingleImpl(observable: observable, queue: queue)
             .subscribe(replay)
         return replay.asObservable().asSingle(queue: queue)
     }

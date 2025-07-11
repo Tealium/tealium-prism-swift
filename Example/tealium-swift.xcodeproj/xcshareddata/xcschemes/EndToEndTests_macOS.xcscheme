@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1610"
+   LastUpgradeVersion = "1620"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -18,20 +18,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "877B4F862DAE739600AB8A43"
-               BuildableName = "DelegateProxyTests_iOS.xctest"
-               BlueprintName = "DelegateProxyTests_iOS"
-               ReferencedContainer = "container:tealium-swift.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "8702A2752E266E64001C9743"
-               BuildableName = "EndToEndTests_iOS.xctest"
-               BlueprintName = "EndToEndTests_iOS"
+               BlueprintIdentifier = "878C49AE2E26919A00DA3155"
+               BuildableName = "EndToEndTests_macOS.xctest"
+               BlueprintName = "EndToEndTests_macOS"
                ReferencedContainer = "container:tealium-swift.xcodeproj">
             </BuildableReference>
          </TestableReference>

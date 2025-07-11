@@ -9,5 +9,5 @@
 import Foundation
 
 enum DatabaseErrors: Error {
-    case unsupportedDowgrade
+    case unsupportedDowngrade
 }

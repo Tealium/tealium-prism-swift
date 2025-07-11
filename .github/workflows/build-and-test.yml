@@ -52,6 +52,7 @@ jobs:
             - CoreTests_iOS
             - DelegateProxyTests_iOS
             - LifecycleTests_iOS
+            - EndToEndTests_iOS
         destination: ["platform=iOS Simulator,OS=17.5,name=iPhone 15 Pro"]
     steps:
       - uses: actions/checkout@v4
@@ -74,6 +75,7 @@ jobs:
       matrix:
         scheme:
             - CoreTests_tvOS
+            - EndToEndTests_tvOS
         destination: ["platform=tvOS Simulator,name=Apple TV"]
     steps:
       - uses: actions/checkout@v4
@@ -96,6 +98,7 @@ jobs:
       matrix:
         scheme:
             - CoreTests_macOS
+            - EndToEndTests_macOS
         destination: ["platform=macOS"]
     steps:
       - uses: actions/checkout@v4

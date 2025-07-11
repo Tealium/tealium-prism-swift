@@ -68,14 +68,14 @@ final class TraceManagerWrapperTests: XCTestCase {
 
     // MARK: the following 3 tests are needed due to custom completion logic of this method inside wrapper
     // currently, this is the only case when completion called outside track (since track doesn't throw)
-    func test_killVisitorSession_completes_with_objectNotFound_error_when_module_disabled() {
+    func test_killVisitorSession_completes_with_moduleNotEnabled_error_when_module_disabled() {
         let errorCaught = expectation(description: "Error caught")
         manager.updateSettings(context: context(), settings: SDKSettings(modules: [
             TraceManagerModule.id: ModuleSettings(enabled: false)
         ]))
         _ = wrapper.killVisitorSession().subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                guard case .objectNotFound(let trace) = error as? TealiumError else {
+                guard case .moduleNotEnabled(let trace) = error as? TealiumError else {
                     XCTFail("Unexpected error: \(String(describing: error))")
                     return
                 }

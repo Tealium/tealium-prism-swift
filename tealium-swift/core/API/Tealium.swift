@@ -48,7 +48,7 @@ public class Tealium {
      *   - completion: A closure that is called when initialization completes, providing either the Tealium instance or an error.
      * - Returns: A new Tealium instance.
      */
-    public static func create(config: TealiumConfig, completion: @escaping (InitializationResult) -> Void) -> Tealium {
+    public static func create(config: TealiumConfig, completion: ((InitializationResult) -> Void)? = nil) -> Tealium {
         TealiumInstanceManager.shared.create(config: config, completion: completion)
     }
 
@@ -66,7 +66,8 @@ public class Tealium {
                 return nil
             }
         }
-        proxy = AsyncProxy(queue: queue, onObject: onTealiumImplementation.map { try? $0.get() })
+        proxy = AsyncProxy(queue: queue,
+                           onObject: onTealiumImplementation.map { $0.mapError { $0 as Error } })
     }
 
     /**
@@ -119,6 +120,7 @@ public class Tealium {
      * - returns: A `Single` onto which you can subscribe to receive the completion with the eventual error.
      * The returned `Single`, in case of success, completes when the flush request is accepted, not when all the events have been flushed.
      */
+    @discardableResult
     public func flushEventQueue() -> SingleResult<Void> {
         proxy.executeTask { tealium in
             tealium.barrierCoordinator.flush()

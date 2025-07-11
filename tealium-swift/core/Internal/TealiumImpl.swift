@@ -48,7 +48,8 @@ class TealiumImpl {
             .subscribe(onLogLevel).addTo(automaticDisposer)
         logger.debug(category: LogCategory.tealium, "Purging expired data from the database")
         storeProvider.modulesRepository.deleteExpired(expiry: .restart)
-        let queueManager = QueueManager(processors: Self.queueProcessors(from: modulesManager.modules, addingConsent: config.cmpAdapter != nil),
+        let queueManager = QueueManager(processors: Self.queueProcessors(from: modulesManager.modules,
+                                                                         addingConsent: config.cmpAdapter != nil),
                                         queueRepository: SQLQueueRepository(dbProvider: storeProvider.databaseProvider,
                                                                             maxQueueSize: coreSettings.value.maxQueueSize,
                                                                             expiration: coreSettings.value.queueExpiration),

@@ -29,6 +29,13 @@
     {
       "target" : {
         "containerPath" : "container:tealium-swift.xcodeproj",
+        "identifier" : "8702A2752E266E64001C9743",
+        "name" : "EndToEndTests_iOS"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:tealium-swift.xcodeproj",
         "identifier" : "EC1AA4B72CCF9CA400D1D9D1",
         "name" : "LifecycleTests_iOS"
       }

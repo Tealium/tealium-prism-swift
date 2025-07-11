@@ -15,11 +15,6 @@ target 'CoreTests_iOS' do
   tealium_libs
 end
 
-target 'DelegateProxyTests_iOS' do
-  platform :ios, '14.1'
-  tealium_libs
-end
-
 target 'CoreTests_macOS' do
   platform :osx, '10.14'
   pod 'tealium-swift/Core', :path => '../'
@@ -28,6 +23,26 @@ end
 target 'CoreTests_tvOS' do
   platform :tvos, '14.1'
   pod 'tealium-swift/Core', :path => '../'
+end
+
+target 'EndToEndTests_iOS' do
+  platform :ios, '14.1'
+  tealium_libs
+end
+
+target 'EndToEndTests_macOS' do
+  platform :osx, '14.1'
+  pod 'tealium-swift/Core', :path => '../'
+end
+
+target 'EndToEndTests_tvOS' do
+  platform :tvos, '14.1'
+  pod 'tealium-swift/Core', :path => '../'
+end
+
+target 'DelegateProxyTests_iOS' do
+  platform :ios, '14.1'
+  tealium_libs
 end
 
 target 'LifecycleTests_iOS' do

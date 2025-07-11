@@ -324,6 +324,36 @@ public extension Observable {
     func asSingle(queue: TealiumQueue) -> any Single<Element> {
         SingleImpl(observable: self, queue: queue)
     }
+
+    /**
+     * Returns an observable that will emit values in a possibly asynchronous manner determined by
+     * the given `block`.
+     *
+     * - parameter block: a block of code, to be executed with the next value from the source, along with
+     * the observer with which to emit downstream.
+     */
+    func callback<Result>(from block: @escaping (Element, @escaping Observable<Result>.Observer) -> Void) -> Observable<Result> {
+        return flatMap { value in
+            Observable<Result>.Callback { observer in
+                block(value, observer)
+            }
+        }
+    }
+
+    /**
+     * Returns an observable that will emit values in a possibly asynchronous manner determined by
+     * the given `block`.
+     *
+     * - parameter block: a block of code, to be executed with the next value from the source, along with
+     * the observer with which to emit downstream, disposable by the returned `Disposable` object.
+     */
+    func callback<Result>(fromDisposable block: @escaping (Element, @escaping Observable<Result>.Observer) -> Disposable) -> Observable<Result> {
+        return flatMap { value in
+            Observable<Result>.Callback { observer in
+                block(value, observer)
+            }
+        }
+    }
 }
 
 public extension Observable where Element: Equatable {

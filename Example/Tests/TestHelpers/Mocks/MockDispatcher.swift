@@ -18,11 +18,18 @@ class MockModule: BasicModule {
     var moduleConfiguration: ObservableState<DataObject>
 
     @ToAnyObservable<BasePublisher<Void>>(BasePublisher<Void>())
+    static var onShutdown: Observable<Void>
+    @ToAnyObservable<BasePublisher<Void>>(BasePublisher<Void>())
     var onShutdown: Observable<Void>
-
-    init() { }
+    let disposer = AutomaticDisposer()
+    init() {
+        onShutdown.subscribe { Self._onShutdown.publish() }
+            .addTo(disposer)
+    }
     required init?(context: TealiumContext, moduleConfiguration: DataObject) {
         _moduleConfiguration.value = moduleConfiguration
+        onShutdown.subscribe { Self._onShutdown.publish() }
+            .addTo(disposer)
     }
 
     func updateConfiguration(_ configuration: DataObject) -> Self? {
@@ -40,6 +47,22 @@ class MockDispatcher: MockModule, Dispatcher {
     class override var id: String { "MockDispatcher" }
     var delay: Int?
     var queue = DispatchQueue.main
+
+    override init() {
+        super.init()
+        self.onDispatch.subscribe { dispatches in
+            Self._onDispatch.publish(dispatches)
+        }.addTo(disposer)
+    }
+
+    required init?(context: TealiumContext, moduleConfiguration: DataObject) {
+        super.init(context: context, moduleConfiguration: moduleConfiguration)
+        self.onDispatch.subscribe { dispatches in
+            Self._onDispatch.publish(dispatches)
+        }.addTo(disposer)
+    }
+    @ToAnyObservable<BasePublisher<[Dispatch]>>(BasePublisher())
+    static var onDispatch: Observable<[Dispatch]>
 
     @ToAnyObservable<BasePublisher<[Dispatch]>>(BasePublisher())
     var onDispatch: Observable<[Dispatch]>

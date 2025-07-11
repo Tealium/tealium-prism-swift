@@ -24,7 +24,7 @@ public class DatabaseProvider: DatabaseProviderProtocol {
         let helper = DatabaseHelper(databaseName: "tealium", config: config)
         do {
             return try helper.getDatabase()
-        } catch DatabaseErrors.unsupportedDowgrade {
+        } catch DatabaseErrors.unsupportedDowngrade {
             helper.deleteDatabase()
             return try? helper.getDatabase()
         } catch {

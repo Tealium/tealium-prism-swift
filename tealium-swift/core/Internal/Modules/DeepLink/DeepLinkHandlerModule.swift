@@ -51,7 +51,7 @@ class DeepLinkHandlerModule: BasicModule, Collector {
 
     func getTrace() throws -> TraceManagerModule {
         guard let trace: TraceManagerModule = modulesManager.getModule() else {
-            throw TealiumError.objectNotFound(TraceManagerModule.self)
+            throw TealiumError.moduleNotEnabled(TraceManagerModule.self)
         }
         return trace
     }
