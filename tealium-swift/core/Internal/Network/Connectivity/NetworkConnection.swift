@@ -43,4 +43,8 @@ public enum NetworkConnection: Equatable {
             return "unknown"
         }
     }
+
+    var isConnected: Bool {
+        self.type != nil
+    }
 }

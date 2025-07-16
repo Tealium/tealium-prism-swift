@@ -15,9 +15,27 @@ import Foundation
  */
 class BarrierCoordinator {
     private let onScopedBarriers: Observable<[ScopedBarrier]>
+    private let onApplicationStatus: Observable<ApplicationStatus>
+    private let queueMetrics: QueueMetrics
 
-    init(onScopedBarriers: Observable<[ScopedBarrier]>) {
+    init(onScopedBarriers: Observable<[ScopedBarrier]>, onApplicationStatus: Observable<ApplicationStatus>, queueMetrics: QueueMetrics) {
         self.onScopedBarriers = onScopedBarriers
+        self.onApplicationStatus = onApplicationStatus
+        self.queueMetrics = queueMetrics
+    }
+
+    @ToAnyObservable<BasePublisher<Void>>(BasePublisher())
+    var flushTrigger
+
+    /**
+     * Places the `BarrierCoordinator` into a "flushing" state for each dispatcher until any queued
+     * `Dispatch`es have been processed and the queue size is reduced to zero.
+     *
+     * The status of any barrier whose `Barrier.isFlushable` property returns `true` will be ignored
+     * until the flush is completed.
+     */
+    func flush() {
+        _flushTrigger.publish(())
     }
 
     /**
@@ -27,9 +45,13 @@ class BarrierCoordinator {
      * A new value is emitted only if it's different from the last one.
      */
     func onBarriersState(for dispatcherId: String) -> Observable<BarrierState> {
-        onBarriers(for: dispatcherId).flatMapLatest { barriers in
-            self.areBarriersOpen(barriers, dispatcherId: dispatcherId)
-        }.distinct()
+        onBarriers(for: dispatcherId)
+            .flatMapLatest({ barriers in
+                self.filterFlushableBarriers(barriers, for: dispatcherId)
+            })
+            .flatMapLatest { barriers in
+                self.areBarriersOpen(barriers, dispatcherId: dispatcherId)
+            }.distinct()
     }
 
     func onBarriers(for dispatcherId: String) -> Observable<[Barrier]> {
@@ -37,6 +59,31 @@ class BarrierCoordinator {
             barrierList.filter { $0.scopes.contains(.dispatcher(dispatcherId)) || $0.scopes.contains(.all) }
                 .map { $0.barrier }
         }
+    }
+
+    func filterFlushableBarriers(_ barriers: [Barrier], for dispatcherId: String) -> Observable<[Barrier]> {
+        onQueueIsBeingFlushed(for: dispatcherId).flatMapLatest { isFlushing in
+            guard isFlushing else {
+                return Observable.Just(barriers)
+            }
+            let nonFlushableBarriers = barriers.map { barrier in
+                barrier.isFlushable.distinct().map { $0 ? nil : barrier }
+            }
+            return Observable.CombineLatest(nonFlushableBarriers).map {
+                $0.compactMap { $0 }
+            }
+        }
+    }
+
+    func onQueueIsBeingFlushed(for dispatcherId: String) -> Observable<Bool> {
+        onApplicationStatus.map { _ in () }
+            .merge(flushTrigger)
+            .flatMapLatest {_ in
+                self.queueMetrics.onQueueSizePendingDispatch(for: dispatcherId)
+                    .map { $0 > 0 }
+                    .takeWhile({ $0 }, inclusive: true)
+            }.startWith(false)
+            .distinct()
     }
 
     private func areBarriersOpen(_ barriers: [any Barrier], dispatcherId: String) -> Observable<BarrierState> {

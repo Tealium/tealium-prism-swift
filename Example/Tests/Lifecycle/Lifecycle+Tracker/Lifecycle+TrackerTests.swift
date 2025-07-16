@@ -41,7 +41,9 @@ final class LifecycleTrackerTests: XCTestCase {
                                                                                  expiration: TimeFrame(unit: .days, interval: 1)),
                                              coreSettings: coreSettings,
                                              logger: nil)
-    lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: .Just([]))
+    lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: .Just([]),
+                                                     onApplicationStatus: ApplicationStatusListener.shared.onApplicationStatus,
+                                                     queueMetrics: queueManager)
     lazy var transformerCoordinator = TransformerCoordinator(transformers: .constant([]),
                                                              transformations: transformations,
                                                              moduleMappings: .constant([:]),

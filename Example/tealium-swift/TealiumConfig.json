@@ -7,5 +7,16 @@
         "Collect": {
             "enabled": false
         }
+    },
+    "barriers": {
+        "BatchingBarrier": {
+            "scopes": [
+                "all"
+            ],
+            "barrier_id": "BatchingBarrier",
+            "configuration" : {
+                "batch_size": 5
+            }
+        }
     }
 }

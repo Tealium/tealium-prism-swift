@@ -12,7 +12,9 @@ import XCTest
 final class BarrierCoordinatorTests: XCTestCase {
     @StateSubject([])
     var barriers: ObservableState<[ScopedBarrier]>
-    lazy var coordinator = BarrierCoordinator(onScopedBarriers: barriers)
+    lazy var coordinator = BarrierCoordinator(onScopedBarriers: barriers,
+                                              onApplicationStatus: ApplicationStatusListener.shared.onApplicationStatus,
+                                              queueMetrics: MockQueueMetrics(queueSize: 0))
 
     func test_onBarriers_for_dispatcher_filters_barriers_by_scope() {
         let allBarrier = MockBarrier()

@@ -24,4 +24,17 @@ public protocol Barrier: AnyObject {
      * - parameter dispatcherId: id of the `Dispatcher` whose barrier state is observed
      */
     func onState(for dispatcherId: String) -> Observable<BarrierState>
+
+    /**
+     * States whether or not this `Barrier` can be bypassed for "flush" events.
+     *
+     * - Returns: An `Observable` that emits `true` if this `Barrier` can be bypassed; else `false`.
+     */
+    var isFlushable: Observable<Bool> { get }
+}
+
+extension Barrier {
+    var isFlushable: Observable<Bool> {
+        return .Just(true)
+    }
 }

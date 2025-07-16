@@ -99,4 +99,53 @@ final class ConnectivityBarrierTests: XCTestCase {
         }
         waitForDefaultTimeout()
     }
+
+    func test_isFlushable_emits_false_when_connection_unknown() {
+        let notFlushable = expectation(description: "isFlushable should emit false")
+        barrier.isFlushable.subscribeOnce { isFlushable in
+            XCTAssertFalse(isFlushable)
+            notFlushable.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_isFlushable_emits_false_when_not_connected() {
+        let notFlushable = expectation(description: "isFlushable should emit false")
+        manager.mockConnectivityMonitor.changeConnection(.notConnected)
+        barrier.isFlushable.subscribeOnce { isFlushable in
+            XCTAssertFalse(isFlushable)
+            notFlushable.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_isFlushable_emits_true_when_connected_to_wifi_network() {
+        let flushable = expectation(description: "isFlushable should emit true")
+        manager.mockConnectivityMonitor.changeConnection(.connected(.wifi))
+        barrier.isFlushable.subscribeOnce { isFlushable in
+            XCTAssertTrue(isFlushable)
+            flushable.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_isFlushable_emits_true_when_connected_to_cellular_network() {
+        let flushable = expectation(description: "isFlushable should emit true")
+        manager.mockConnectivityMonitor.changeConnection(.connected(.cellular))
+        barrier.isFlushable.subscribeOnce { isFlushable in
+            XCTAssertTrue(isFlushable)
+            flushable.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_isFlushable_emits_true_when_connected_through_ethernet() {
+        let flushable = expectation(description: "isFlushable should emit true")
+        manager.mockConnectivityMonitor.changeConnection(.connected(.ethernet))
+        barrier.isFlushable.subscribeOnce { isFlushable in
+            XCTAssertTrue(isFlushable)
+            flushable.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
 }

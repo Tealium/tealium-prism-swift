@@ -122,6 +122,19 @@ public class Tealium {
     }
 
     /**
+     * Flushes any queued events from the system when it is considered safe to do so by any `Barrier`s
+     * that may be blocking, i.e. when their `isFlushable` returns `true`.
+     *
+     * - Attention: This method will not override those `Barrier` implementations whose `isFlushable`
+     * returns `false`. But when non-flushable barriers open, a flush will still occur.
+     */
+    public func flushEventQueue() {
+        onTealiumSuccess { implementation in
+            implementation.barrierCoordinator.flush()
+        }
+    }
+
+    /**
      * Resets the current visitor id to a new anonymous one.
      *
      * Note. the new anonymous id will be associated to any identity currently set.
@@ -155,7 +168,7 @@ public class Tealium {
      *   - completion: A closure that is called with the result of the operation.
      *   - execute: A closure that performs an operation on the Tealium implementation.
      */
-    private func onTealiumSuccess<T>(completion: ((Result<T, Error>) -> Void)?, execute: @escaping (TealiumImpl) throws -> T) {
+    private func onTealiumSuccess<T>(completion: ((Result<T, Error>) -> Void)? = nil, execute: @escaping (TealiumImpl) throws -> T) {
         onImplementationReady { result in
             do {
                 switch result {

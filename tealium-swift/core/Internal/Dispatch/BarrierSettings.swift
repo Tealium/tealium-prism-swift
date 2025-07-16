@@ -47,6 +47,7 @@ extension BarrierSettings {
     struct Converter: DataItemConverter {
         typealias Convertible = BarrierSettings
         func convert(dataItem: DataItem) -> Convertible? {
+            // TODO: make scopes optional? (ask James about their impl.)
             guard let dictionary = dataItem.getDataDictionary(),
                   let barrierId = dictionary.get(key: Keys.barrierId, as: String.self),
                   let scopes = dictionary.getArray(key: Keys.scopes, of: String.self)?

@@ -10,6 +10,9 @@ import Foundation
 import TealiumSwift
 
 class MockBarrier: Barrier {
+    @ToAnyObservable(ReplaySubject<Bool>(initialValue: true))
+    var isFlushable: Observable<Bool>
+
     init() {}
     @ToAnyObservable(ReplaySubject<BarrierState>(initialValue: .open))
     var state: Observable<BarrierState>
@@ -20,6 +23,10 @@ class MockBarrier: Barrier {
 
     func setState(_ newState: BarrierState) {
         _state.publisher.publish(newState)
+    }
+
+    func setFlushable(_ flushable: Bool) {
+        _isFlushable.publisher.publish(flushable)
     }
 }
 

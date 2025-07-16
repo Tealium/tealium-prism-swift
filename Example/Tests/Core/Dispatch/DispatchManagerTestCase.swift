@@ -51,7 +51,9 @@ class DispatchManagerTestCase: XCTestCase {
                                              coreSettings: coreSettings,
                                              logger: nil)
     let barrierManager = BarrierManager(sdkBarrierSettings: .constant([:]))
-    lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: onBarriers)
+    lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: onBarriers,
+                                                     onApplicationStatus: ApplicationStatusListener.shared.onApplicationStatus,
+                                                     queueMetrics: queueManager)
     lazy var transformerCoordinator = TransformerCoordinator(transformers: transformers.toStatefulObservable(),
                                                              transformations: transformations,
                                                              moduleMappings: .constant([:]),

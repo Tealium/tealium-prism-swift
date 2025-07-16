@@ -12,7 +12,7 @@ import XCTest
 class LifecycleModuleBaseTests: XCTestCase {
     let dbProvider = MockDatabaseProvider()
     lazy var dataStoreProvider = ModuleStoreProvider(databaseProvider: dbProvider, modulesRepository: SQLModulesRepository(dbProvider: dbProvider))
-    @ToAnyObservable<ReplaySubject<ApplicationStatus>>(ReplaySubject<ApplicationStatus>())
+    @ToAnyObservable<ReplaySubject<ApplicationStatus>>(ReplaySubject())
     var applicationStatus: Observable<ApplicationStatus>
     let tracker = MockTracker()
     lazy var configuration = LifecycleConfiguration(configuration: [:])

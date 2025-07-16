@@ -32,6 +32,10 @@ class ConnectivityBarrier: ConfigurableBarrier {
         self.connectionManager = connectionManager
     }
 
+    var isFlushable: Observable<Bool> {
+        connectionManager.connection.mapState { $0.isConnected }
+    }
+
     /** `dispatcherId` is ignored for ConnectivityBarrier */
     func onState(for dispatcherId: String) -> Observable<BarrierState> {
         let onConnectionAllowed = connectionManager.connection

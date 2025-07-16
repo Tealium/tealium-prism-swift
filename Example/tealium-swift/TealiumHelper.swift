@@ -81,5 +81,8 @@ class TealiumHelper {
     func stopTealium() {
         self.teal = nil
     }
-    
+
+    func flush() {
+        teal?.flushEventQueue()
+    }
 }

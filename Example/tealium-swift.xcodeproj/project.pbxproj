@@ -735,6 +735,9 @@
 		ECDE37EA2E0EF9C5008F89E1 /* XCTAssert+ObservedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDE37E82E0EF9C5008F89E1 /* XCTAssert+ObservedValue.swift */; };
 		ECDE37EB2E0EF9C5008F89E1 /* XCTAssert+ObservedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDE37E82E0EF9C5008F89E1 /* XCTAssert+ObservedValue.swift */; };
 		ECDE37EC2E0EF9C5008F89E1 /* XCTAssert+ObservedValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDE37E82E0EF9C5008F89E1 /* XCTAssert+ObservedValue.swift */; };
+		ECF1ACAC2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF1ACAB2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift */; };
+		ECF1ACAD2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF1ACAB2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift */; };
+		ECF1ACAE2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF1ACAB2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift */; };
 		F517AE7FD10708E09D817DEB /* Pods_CoreTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D80F5A9B7BE61AB743BD008 /* Pods_CoreTests_iOS.framework */; };
 /* End PBXBuildFile section */
 
@@ -1036,6 +1039,7 @@
 		ECC2B4712CE3B61C0066B022 /* LaunchSleepWakeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSleepWakeTests.swift; sourceTree = "<group>"; };
 		ECDE37E42E0EEB73008F89E1 /* QueueManager+QueueMetricsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QueueManager+QueueMetricsTests.swift"; sourceTree = "<group>"; };
 		ECDE37E82E0EF9C5008F89E1 /* XCTAssert+ObservedValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTAssert+ObservedValue.swift"; sourceTree = "<group>"; };
+		ECF1ACAB2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "BarrierCoordinator+FlushTests.swift"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1575,6 +1579,7 @@
 			children = (
 				EC5325882E0ED7D60046FE05 /* QueueManager+DeletingDispatchesTests.swift */,
 				87A05D012DBA4CC600D280F4 /* BarrierCoordinatorTests.swift */,
+				ECF1ACAB2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift */,
 				87A05CFA2DBA2F6800D280F4 /* BarrierManagerTests.swift */,
 				D54BBF922C78C018003687C7 /* DispatchManager+BarrierTests.swift */,
 				D54BBF932C78C018003687C7 /* DispatchManager+ConsentTests.swift */,
@@ -2489,6 +2494,7 @@
 				87EE76F82D78773000BB1D77 /* Condition+NotContainsTests.swift in Sources */,
 				876F793F2C5270A1008BC13B /* TealiumConfigTests.swift in Sources */,
 				15C358CF2AEAB008009E1CDB /* MockLogHandler.swift in Sources */,
+				ECF1ACAC2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift in Sources */,
 				D54BBFF92C78C01A003687C7 /* DispatchManager+QueueTests.swift in Sources */,
 				876F25002DDF2AD400C55FFE /* CMPConfigurationSelectorTests.swift in Sources */,
 				15A223892B19F00600191132 /* MockConsentManager.swift in Sources */,
@@ -2647,6 +2653,7 @@
 				D54BBFD12C78C01A003687C7 /* NetworkHelperTests.swift in Sources */,
 				87BA6D322C6A470C00784784 /* MockDatabaseHelper.swift in Sources */,
 				D54BBFDD2C78C01A003687C7 /* ResourceRefresherTests+RequestRefresh.swift in Sources */,
+				ECF1ACAE2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift in Sources */,
 				87BA6D332C6A470C00784784 /* DataInputTests.swift in Sources */,
 				EC0D84EC2D6F671D00436087 /* ConnectivityCollectorTests.swift in Sources */,
 				87BA6D342C6A470C00784784 /* Operators+FirstTests.swift in Sources */,
@@ -2865,6 +2872,7 @@
 				87BA6DAE2C6A47AF00784784 /* DatabaseHelperTests.swift in Sources */,
 				877C5F652CBD4F40008D4B78 /* TealiumLoggerTests.swift in Sources */,
 				D54BBFD02C78C01A003687C7 /* NetworkHelperTests.swift in Sources */,
+				ECF1ACAD2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift in Sources */,
 				87BA6DB02C6A47AF00784784 /* MockDatabaseHelper.swift in Sources */,
 				87EE77502D81B16A00BB1D77 /* Condition+ConverterTests.swift in Sources */,
 				D54BBFDC2C78C01A003687C7 /* ResourceRefresherTests+RequestRefresh.swift in Sources */,

@@ -47,6 +47,9 @@ struct ContentView: View {
                                                                     "event_action": "tap",
                                                                     "event_label": "Track Event"])
                         }
+                        TealiumTextButton(title: "Flush Event Queue") {
+                            TealiumHelper.shared.teal?.flushEventQueue()
+                        }
                         TealiumTextButton(title: tealiumStarted ? "Stop Tealium" : "Start Tealium") {
                             if tealiumStarted {
                                 TealiumHelper.shared.stopTealium()

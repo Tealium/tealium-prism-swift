@@ -17,6 +17,7 @@ class TealiumImpl {
     let visitorIdProvider: VisitorIdProvider
     let instanceName: String
     let loadRuleEngine: LoadRuleEngine
+    let barrierCoordinator: BarrierCoordinator
     private let appStatusListener = ApplicationStatusListener.shared
 
     // swiftlint:disable function_body_length
@@ -59,7 +60,9 @@ class TealiumImpl {
                                                                  sdkSettings: settingsManager.settings,
                                                                  queue: modulesManager.queue)
         let barrierManager = BarrierManager(sdkBarrierSettings: settingsManager.settings.mapState { $0.barriers })
-        let barrierCoordinator = BarrierCoordinator(onScopedBarriers: barrierManager.onScopedBarriers)
+        barrierCoordinator = BarrierCoordinator(onScopedBarriers: barrierManager.onScopedBarriers,
+                                                onApplicationStatus: appStatusListener.onApplicationStatus,
+                                                queueMetrics: queueManager)
         let mappings = settingsManager.settings.mapState { $0.modules.compactMapValues { $0.mappings } }
         let mappingsEngine = MappingsEngine(mappings: mappings)
 
