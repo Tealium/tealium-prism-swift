@@ -35,7 +35,7 @@ extension TealiumDataKey {
     static let timestampTimezone = "tealium_timestamp_timezone"
 }
 
-class TimeCollector: Collector, TealiumBasicModule {
+class TimeCollector: Collector, BasicModule {
     let version: String = TealiumConstants.libraryVersion
     static var id = "Time"
     static var canBeDisabled: Bool { true }

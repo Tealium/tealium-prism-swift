@@ -7,11 +7,11 @@
 //
 
 class TrackerImpl: Tracker {
-    let modules: ObservableState<[TealiumModule]>
+    let modules: ObservableState<[Module]>
     let dispatchManager: DispatchManagerProtocol
     let logger: LoggerProtocol?
     let loadRuleEngine: LoadRuleEngine
-    init(modules: ObservableState<[TealiumModule]>, loadRuleEngine: LoadRuleEngine, dispatchManager: DispatchManagerProtocol, logger: LoggerProtocol?) {
+    init(modules: ObservableState<[Module]>, loadRuleEngine: LoadRuleEngine, dispatchManager: DispatchManagerProtocol, logger: LoggerProtocol?) {
         self.modules = modules
         self.loadRuleEngine = loadRuleEngine
         self.dispatchManager = dispatchManager

@@ -181,9 +181,8 @@ final class DataItemStringValueTests: XCTestCase {
 
     func test_iso_date_strings_remain_strings() throws {
         let encodedDate = try Tealium.jsonEncoder.encode(Date())
-        // swiftlint:disable optional_data_string_conversion
+        // swiftlint:disable:next optional_data_string_conversion
         let stringDate = String(decoding: encodedDate, as: UTF8.self)
-        // swiftlint:enable optional_data_string_conversion
         let value = DataItem(stringValue: stringDate)
         let result = value.get(as: String.self)
         XCTAssertNotNil(result)

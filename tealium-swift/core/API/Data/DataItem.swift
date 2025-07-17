@@ -74,9 +74,8 @@ final public class DataItem {
      * - throws: An `EncodingError` if any other type of values are passed in the parameter or in eventual nested values.
      */
     public convenience init(serializing value: Any) throws {
-        // swiftlint:disable optional_data_string_conversion
+        // swiftlint:disable:next optional_data_string_conversion
         self.init(stringValue: String(decoding: try Tealium.jsonEncoder.encode(AnyCodable(value)), as: UTF8.self)) // Safe as we just used encode that returns UTF8 formatted data
-        // swiftlint:enable optional_data_string_conversion
     }
 
     let stringValue: String?

@@ -1,5 +1,5 @@
 //
-//  TealiumModuleFactory.swift
+//  ModuleFactory.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 26/07/24.
@@ -9,12 +9,12 @@
 import Foundation
 
 /**
- * A factory that is used to create a specific `TealiumModule` with some standard parameters.
+ * A factory that is used to create a specific `Module` with some standard parameters.
  */
-public protocol TealiumModuleFactory {
+public protocol ModuleFactory {
 
-    /// The specific `TealiumModule` that this factory can create.
-    associatedtype Module: TealiumModule
+    /// The specific `Module` that this factory can create.
+    associatedtype SpecificModule: Module
 
     /**
      * Creates a new `Module` if the received module configuration is correct for it's initialization.
@@ -26,7 +26,7 @@ public protocol TealiumModuleFactory {
      *
      * - Returns: the newly created `Module`, if the initialization succeeded, or nil.
      */
-    func create(context: TealiumContext, moduleConfiguration: DataObject) -> Module?
+    func create(context: TealiumContext, moduleConfiguration: DataObject) -> SpecificModule?
 
     /**
      * Returns some optional settings for this module that override any other Local or Remote settings fields.
@@ -40,15 +40,15 @@ public protocol TealiumModuleFactory {
     func getEnforcedSettings() -> DataObject?
 }
 
-extension TealiumModuleFactory {
+extension ModuleFactory {
     /// The unique id for the `Module` that this factory creates
-    public var id: String { Module.id }
+    public var id: String { SpecificModule.id }
     public func getEnforcedSettings() -> DataObject? {
         nil
     }
 
     /// Returns true if the provided settings allow for the factory's `Module` to be enabled.
     func shouldBeEnabled(by settings: ModuleSettings) -> Bool {
-        !Module.canBeDisabled || settings.enabled != false
+        !SpecificModule.canBeDisabled || settings.enabled != false
     }
 }

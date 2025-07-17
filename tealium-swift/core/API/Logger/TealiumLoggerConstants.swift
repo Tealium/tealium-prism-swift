@@ -103,9 +103,8 @@ extension LogLevel.Minimum: DataInputConvertible {
     }
 }
 
-// swiftlint:disable identifier_name
 public enum TealiumLoggerType {
-    case os
+    case os // swiftlint:disable:this identifier_name
     case custom(LogHandler)
 
     func getHandler() -> LogHandler {
@@ -117,7 +116,6 @@ public enum TealiumLoggerType {
         }
     }
 }
-// swiftlint:enable identifier_name
 
 enum LogCategory {
     static let collect = "Collect"

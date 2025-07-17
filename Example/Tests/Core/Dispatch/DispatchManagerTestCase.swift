@@ -100,7 +100,7 @@ class DispatchManagerTestCase: XCTestCase {
         dispatchManager.stopDispatchLoop()
     }
 
-    func disableModule<T: TealiumModule>(module: T?) {
+    func disableModule<T: Module>(module: T?) {
         guard let module = module else { return }
         _sdkSettings.add(modules: [module.id: ModuleSettings(enabled: false)])
         modulesManager.updateSettings(context: context, settings: sdkSettings.value)

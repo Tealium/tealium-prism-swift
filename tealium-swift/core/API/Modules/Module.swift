@@ -1,5 +1,5 @@
 //
-//  TealiumModule.swift
+//  Module.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 24/07/23.
@@ -9,7 +9,7 @@
 import Foundation
 
 /// A module used by the Tealium SDK to provide some plugin functionality.
-public protocol TealiumModule: AnyObject {
+public protocol Module: AnyObject {
     /// The version of this module
     var version: String { get }
     /// The unique id for this module, used to uniquely identify each module.
@@ -22,8 +22,8 @@ public protocol TealiumModule: AnyObject {
     func shutdown()
 }
 
-/// A restricted `TealiumModule` that can be created with some default parameters.
-public protocol TealiumBasicModule: TealiumModule {
+/// A restricted `Module` that can be created with some default parameters.
+public protocol BasicModule: Module {
     /**
      *  Initializes the module with a `TealiumContext` and this module's specific configuration.
      *
@@ -34,7 +34,7 @@ public protocol TealiumBasicModule: TealiumModule {
     init?(context: TealiumContext, moduleConfiguration: DataObject)
 }
 
-public extension TealiumModule {
+public extension Module {
     var id: String {
         type(of: self).id
     }
@@ -45,14 +45,14 @@ public extension TealiumModule {
     func shutdown() { }
 }
 
-/// A `TealiumModule` that implements the functionality of collecting data to enrich the data layer of each track request.
-public protocol Collector: TealiumModule {
+/// A `Module` that implements the functionality of collecting data to enrich the data layer of each track request.
+public protocol Collector: Module {
     /// Returns data used to enrich the data layer of a track request.
     func collect(_ dispatchContext: DispatchContext) -> DataObject
 }
 
-/// A `TealiumModule` that implements the functionality of dispatching some track requests towards some entity that can handle the events.
-public protocol Dispatcher: TealiumModule {
+/// A `Module` that implements the functionality of dispatching some track requests towards some entity that can handle the events.
+public protocol Dispatcher: Module {
     /// The maximum amount of `Dispatch`es that are accepted in a single dispatch call. Default is 1.
     var dispatchLimit: Int { get }
     /**

@@ -197,7 +197,7 @@ class LifecycleModule {
         }
     }
 
-    // MARK: TealiumModule
+    // MARK: Module
     func updateConfiguration(_ configuration: DataObject) -> Self? {
         self.configuration = LifecycleConfiguration(configuration: configuration)
         return self

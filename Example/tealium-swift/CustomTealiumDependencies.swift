@@ -24,7 +24,7 @@ class CustomDispatcher: Dispatcher {
     }
 }
 
-class SomeModule: TealiumBasicModule, Collector {
+class CustomCollector: BasicModule, Collector {
     let version: String = "1.0.0"
     func collect(_ dispatchContext: DispatchContext) -> DataObject {
         ["someKey": "someValue"]
@@ -42,7 +42,7 @@ class SomeModule: TealiumBasicModule, Collector {
     }
 }
 
-class ModuleWithExternalDependencies: TealiumModule {
+class ModuleWithExternalDependencies: Module {
     let version: String = "1.0.0"
     static var id: String = "complexModule"
     init(otherDependencies: Any) {
@@ -52,8 +52,7 @@ class ModuleWithExternalDependencies: TealiumModule {
         return self
     }
     
-    struct Factory: TealiumModuleFactory {
-        typealias Module = ModuleWithExternalDependencies
+    struct Factory: ModuleFactory {
         let object: Any
         init(otherDependencies: Any) {
             self.object = otherDependencies

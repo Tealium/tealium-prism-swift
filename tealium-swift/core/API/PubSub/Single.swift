@@ -9,7 +9,10 @@
 import Foundation
 
 /// A `Subscribable` implementation whereby only a single result is expected to be emitted to the subscriber.
-public protocol Single<Element>: Subscribable { }
+public protocol Single<Element>: Subscribable {
+    @discardableResult
+    func subscribe(_ observer: @escaping Observer) -> any Disposable
+}
 
 class SingleImpl<Element>: Single {
     private let subscribable: any Subscribable<Element>
@@ -19,6 +22,7 @@ class SingleImpl<Element>: Single {
             .subscribeOn(queue)
     }
 
+    @discardableResult
     func subscribe(_ observer: @escaping Observer) -> any Disposable {
         subscribable.subscribe(observer)
     }
@@ -53,6 +57,41 @@ public protocol ValueExtractor<ValueType> {
     func getValue() -> ValueType?
 }
 
+/**
+ *  A `Single` that completes with a `Result<T, Error>`.
+ *
+ * With a `SingleResult` you can `subscribe` as any other type of `Single`,
+ * but you can also subscribe only for `onSuccess` or `onFailure` to receive the event
+ * only in case the event is respectively either a success or a failure.
+ *
+ * So in case you want to handle both success and failure:
+ * ```swift
+ * single.subscribe { result in
+ *      switch result {
+ *       case let .success(output):
+ *          // Handle success
+ *          break
+ *       case let .failure(error):
+ *          // Handle failure
+ *          break
+ * }
+ * ```
+ *
+ * In case you want to handle only successes:
+ * ```swift
+ * single.onSuccess { output in
+ *   // Handle success
+ * }
+ * ```
+ *
+ * In case you want to handle only failures:
+ * ```swift
+ * single.onFailure { error in
+ *   // Handle failure
+ * }
+ */
+public typealias SingleResult<T> = any Single<Result<T, Error>>
+
 public extension Single {
     /**
      * Subscribe an handler to this `Single` which will be called at most once if the `Single` is successful.
@@ -63,7 +102,7 @@ public extension Single {
      * - Returns: A `Disposable` that can be disposed if the handler is no longer necessary.
      */
     @discardableResult
-    func onSuccess<Value>(handler: @escaping (Value) -> Void) -> Disposable where Element: ValueExtractor<Value> {
+    func onSuccess<Value>(handler: @escaping (_ output: Value) -> Void) -> Disposable where Element: ValueExtractor<Value> {
         subscribe { result in
             if let value = result.getValue() {
                 handler(value)
@@ -80,7 +119,7 @@ public extension Single {
      * - Returns: A `Disposable` that can be disposed if the handler is no longer necessary.
      */
     @discardableResult
-    func onFailure<ErrorType>(handler: @escaping (ErrorType) -> Void) -> Disposable where Element: ErrorExtractor<ErrorType> {
+    func onFailure<ErrorType>(handler: @escaping (_ error: ErrorType) -> Void) -> Disposable where Element: ErrorExtractor<ErrorType> {
         subscribe { result in
             if let error = result.getError() {
                 handler(error)

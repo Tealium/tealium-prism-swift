@@ -6,7 +6,7 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-class DataLayerModule: TealiumBasicModule {
+class DataLayerModule: BasicModule {
     let version: String = TealiumConstants.libraryVersion
     static var canBeDisabled: Bool { false }
     static let id: String = "DataLayer"

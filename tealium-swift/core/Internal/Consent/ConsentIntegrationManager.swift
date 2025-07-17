@@ -63,7 +63,7 @@ class ConsentIntegrationManager: ConsentManager {
     let onConfigurationSelected: Observable<ConsentConfiguration?>
 
     convenience init?(queueManager: QueueManagerProtocol,
-                      modules: ObservableState<[TealiumModule]>,
+                      modules: ObservableState<[Module]>,
                       consentSettings: ObservableState<ConsentSettings?>,
                       cmpAdapter: CMPAdapter?,
                       logger: TealiumLogger?) {
@@ -78,7 +78,7 @@ class ConsentIntegrationManager: ConsentManager {
     }
 
     init(queueManager: QueueManagerProtocol,
-         modules: ObservableState<[TealiumModule]>,
+         modules: ObservableState<[Module]>,
          consentSettings: ObservableState<ConsentSettings?>,
          cmpSelector: CMPConfigurationSelector,
          logger: TealiumLogger?) {

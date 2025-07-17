@@ -184,12 +184,10 @@ final class DataObjectTests: XCTestCase {
     }
 
     func test_init_with_duplicate_keys_doesnt_crash_and_uses_second_value() {
-        // swiftlint:disable duplicated_key_in_dictionary_literal
         let dataObject: DataObject = [
             "key": "value",
-            "key": "otherValue"
+            "key": "otherValue" // swiftlint:disable:this duplicated_key_in_dictionary_literal
         ]
-        // swiftlint:enable duplicated_key_in_dictionary_literal
         XCTAssertEqual(dataObject.asDictionary(), ["key": "otherValue"])
     }
 }

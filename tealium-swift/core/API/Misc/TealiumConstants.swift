@@ -122,9 +122,7 @@ public enum TealiumKey {
     public static let logLevelConfig = "com.tealium.logger.loglevel"
     public static let prod = "prod"
     public static let dev = "dev"
-    // swiftlint:disable identifier_name
-    public static let qa = "qa"
-    // swiftlint:enable identifier_name
+    public static let qa = "qa" // swiftlint:disable:this identifier_name
     public static let errorHeaderKey = "X-Error"
     public static let remoteAPIEventType = "remote_api"
     public static let tealiumURLScheme = "tealium"
@@ -146,15 +144,12 @@ public enum TealiumTrackType: String {
             return "event"
         }
     }
-
 }
 
-// swiftlint:disable identifier_name
 public enum HttpStatusCodes: Int {
     case notModified = 304
-    case ok = 200
+    case ok = 200 // swiftlint:disable:this identifier_name
 }
-// swiftlint:enable identifier_name
 
 public protocol TealiumErrorEnum: Error {}
 

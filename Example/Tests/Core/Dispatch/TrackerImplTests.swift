@@ -14,7 +14,7 @@ final class TrackerImplTests: XCTestCase {
         MockCollector1(),
         MockCollector2()
     ])
-    var modules: ObservableState<[TealiumModule]>
+    var modules: ObservableState<[Module]>
     @StateSubject(SDKSettings())
     var sdkSettings: ObservableState<SDKSettings>
     lazy var loadRuleEngine = LoadRuleEngine(sdkSettings: sdkSettings)

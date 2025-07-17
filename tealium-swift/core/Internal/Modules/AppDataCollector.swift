@@ -51,7 +51,7 @@ public extension AppDataCollection {
 /// - App name: Typically a string like "MyApp", retrieved from the `CFBundleName` key in the app's Info.plist.
 /// - App rDNS: Typically a string like "com.example.myapp", retrieved from the `CFBundleIdentifier` key in the app's Info.plist.
 /// - App version: Typically a string like "1.0.0", retrieved from the `CFBundleShortVersionString` key in the app's Info.plist.
-class AppDataCollector: AppDataCollection, TealiumBasicModule, Collector {
+class AppDataCollector: AppDataCollection, BasicModule, Collector {
     let version: String = TealiumConstants.libraryVersion
     static let id: String = "AppData"
 

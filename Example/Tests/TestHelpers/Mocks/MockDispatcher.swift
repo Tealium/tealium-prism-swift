@@ -9,10 +9,10 @@
 import Foundation
 import TealiumSwift
 
-class MockModule: TealiumBasicModule {
+class MockModule: BasicModule {
     var version = "1.0.0"
     class var id: String { "MockModule" }
-    class var factory: any TealiumModuleFactory { DefaultModuleFactory<Self>() }
+    class var factory: any ModuleFactory { DefaultModuleFactory<Self>() }
 
     @StateSubject<DataObject>([:])
     var moduleConfiguration: ObservableState<DataObject>

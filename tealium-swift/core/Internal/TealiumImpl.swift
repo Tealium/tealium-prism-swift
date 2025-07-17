@@ -133,38 +133,6 @@ class TealiumImpl {
             }
     }
 
-    static func mappings(from sdkSettings: ObservableState<SDKSettings>) -> ObservableState<[String: TransformationSettings]> {
-        sdkSettings.mapState { settings in
-            Dictionary(uniqueKeysWithValues: settings.modules.compactMap { dispatcherId, moduleSettings in
-                guard let mappings = moduleSettings.mappings else { return nil }
-                let configuration = JsonTransformationConfiguration(operationsType: .map,
-                                                                    operations: mappings)
-                return (dispatcherId, TransformationSettings(id: "\(dispatcherId)-mapping",
-                                                             transformerId: Transformers.jsonTransformer,
-                                                             scopes: [.dispatcher(dispatcherId)],
-                                                             configuration: configuration.toDataObject()))
-            })
-        }
-    }
-
-    private static func transformerCoordinator(transformers: ObservableState<[Transformer]>,
-                                               sdkSettings: ObservableState<SDKSettings>,
-                                               queue: TealiumQueue) -> TransformerCoordinator {
-        let transformations = sdkSettings.mapState { $0.transformations.map { $0.value } }
-        return TransformerCoordinator(transformers: transformers,
-                                      transformations: transformations,
-                                      moduleMappings: mappings(from: sdkSettings),
-                                      queue: queue)
-    }
-
-    static func queueProcessors(from modules: ObservableState<[TealiumModule]>, addingConsent: Bool) -> Observable<[String]> {
-        modules.filter { !$0.isEmpty }
-            .map { modules in modules
-                    .filter { $0 is Dispatcher }
-                    .map { $0.id } + (addingConsent ? [ConsentIntegrationManager.id] : [])
-            }.distinct()
-    }
-
     deinit {
         self.modulesManager.shutdown()
         let instanceName = self.instanceName

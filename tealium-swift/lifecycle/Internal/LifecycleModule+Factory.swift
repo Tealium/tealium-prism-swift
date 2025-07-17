@@ -7,8 +7,7 @@
 //
 
 extension LifecycleModule {
-    class Factory: TealiumModuleFactory {
-        typealias Module = LifecycleModule
+    class Factory: ModuleFactory {
 
         private var settings: DataObject?
 
@@ -20,7 +19,7 @@ extension LifecycleModule {
             return settings
         }
 
-        func create(context: TealiumContext, moduleConfiguration: DataObject) -> Module? {
+        func create(context: TealiumContext, moduleConfiguration: DataObject) -> LifecycleModule? {
             guard let dataStore = try? context.moduleStoreProvider.getModuleStore(name: LifecycleModule.id) else {
                 return nil
             }

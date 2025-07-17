@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-class DeepLinkHandlerModule: TealiumBasicModule, Collector {
+class DeepLinkHandlerModule: BasicModule, Collector {
     let version: String = TealiumConstants.libraryVersion
     static let id: String = "DeepLink"
 
@@ -51,7 +51,7 @@ class DeepLinkHandlerModule: TealiumBasicModule, Collector {
 
     func getTrace() throws -> TraceManagerModule {
         guard let trace: TraceManagerModule = modulesManager.getModule() else {
-            throw TealiumError.moduleNotEnabled
+            throw TealiumError.objectNotFound(TraceManagerModule.self)
         }
         return trace
     }
@@ -159,7 +159,7 @@ class DeepLinkHandlerModule: TealiumBasicModule, Collector {
         return dataStore.getAll()
     }
 
-    // MARK: TealiumModule
+    // MARK: Module
     func updateConfiguration(_ configuration: DataObject) -> Self? {
         self.configuration = DeepLinkHandlerConfiguration(configuration: configuration)
         return self

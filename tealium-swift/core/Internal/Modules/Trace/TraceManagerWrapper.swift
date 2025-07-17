@@ -13,21 +13,21 @@ class TraceManagerWrapper: TraceManager {
     }
 
     @discardableResult
-    public func join(id: String) -> any Single<Result<Void, Error>> {
+    public func join(id: String) -> SingleResult<Void> {
         moduleProxy.executeModuleTask { module in
             try module.join(id: id)
         }
     }
 
     @discardableResult
-    public func leave() -> any Single<Result<Void, Error>> {
+    public func leave() -> SingleResult<Void> {
         moduleProxy.executeModuleTask { module in
             try module.leave()
         }
     }
 
     @discardableResult
-    public func killVisitorSession() -> any Single<Result<TrackResult, Error>> {
+    public func killVisitorSession() -> SingleResult<TrackResult> {
         moduleProxy.executeModuleAsyncTask { module, completion in
             try module.killVisitorSession { result in
                 completion(.success(result))

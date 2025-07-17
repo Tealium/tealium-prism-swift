@@ -10,7 +10,7 @@
 import XCTest
 
 final class TealiumInstanceManagerTests: XCTestCase {
-    let manager = TealiumInstanceManager.shared
+    let manager = TealiumInstanceManager(queue: .main)
 
     func config(account: String = "account", profile: String = "profile") -> TealiumConfig {
         TealiumConfig(account: account,
@@ -27,7 +27,7 @@ final class TealiumInstanceManagerTests: XCTestCase {
             XCTAssertResultIsSuccess(result)
             creationCompleted.fulfill()
         }
-        waitOnQueue(queue: manager.queue)
+        waitForDefaultTimeout()
     }
 
     func test_create_with_same_config_completes_with_success() {
@@ -41,7 +41,7 @@ final class TealiumInstanceManagerTests: XCTestCase {
             XCTAssertResultIsSuccess(result)
             creationCompleted.fulfill()
         }
-        waitOnQueue(queue: manager.queue)
+        waitForDefaultTimeout()
     }
 
     func test_create_with_same_config_returns_different_tealium_instances() {
@@ -57,8 +57,8 @@ final class TealiumInstanceManagerTests: XCTestCase {
     func test_createImplementation_with_same_config_returns_same_implementation() {
         let creationCompleted = expectation(description: "Instances were created")
         let onImplementation1 = manager.createImplementation(config: config())
-        let onImplemnetation2 = manager.createImplementation(config: config())
-        _ = onImplementation1.combineLatest(onImplemnetation2)
+        let onImplementation2 = manager.createImplementation(config: config())
+        _ = onImplementation1.combineLatest(onImplementation2)
             .subscribeOn(manager.queue)
             .subscribe { result1, result2 in
                 XCTAssertResultIsSuccess(result1) { implementation1 in
@@ -68,7 +68,39 @@ final class TealiumInstanceManagerTests: XCTestCase {
                 }
                 creationCompleted.fulfill()
             }
-        waitOnQueue(queue: manager.queue)
+        waitForDefaultTimeout()
+    }
+
+    func test_createImplementation_with_different_config_account_returns_different_implementation() {
+        let creationCompleted = expectation(description: "Instances were created")
+        let onImplementation1 = manager.createImplementation(config: config(account: "account"))
+        let onImplementation2 = manager.createImplementation(config: config(account: "other"))
+        _ = onImplementation1.combineLatest(onImplementation2)
+            .subscribe { result1, result2 in
+                XCTAssertResultIsSuccess(result1) { implementation1 in
+                    XCTAssertResultIsSuccess(result2) { implementation2 in
+                        XCTAssertNotIdentical(implementation1, implementation2)
+                    }
+                }
+                creationCompleted.fulfill()
+            }
+        waitForDefaultTimeout()
+    }
+
+    func test_createImplementation_with_different_config_profile_returns_different_implementation() {
+        let creationCompleted = expectation(description: "Instances were created")
+        let onImplementation1 = manager.createImplementation(config: config(profile: "profile"))
+        let onImplementation2 = manager.createImplementation(config: config(profile: "other"))
+        _ = onImplementation1.combineLatest(onImplementation2)
+            .subscribe { result1, result2 in
+                XCTAssertResultIsSuccess(result1) { implementation1 in
+                    XCTAssertResultIsSuccess(result2) { implementation2 in
+                        XCTAssertNotIdentical(implementation1, implementation2)
+                    }
+                }
+                creationCompleted.fulfill()
+            }
+        waitForDefaultTimeout()
     }
 
     func test_get_completes_with_nil_if_instance_is_not_previously_created() {
@@ -77,7 +109,7 @@ final class TealiumInstanceManagerTests: XCTestCase {
             XCTAssertNil(teal)
             getCompleted.fulfill()
         }
-        waitOnQueue(queue: manager.queue)
+        waitForDefaultTimeout()
     }
 
     func test_get_completes_with_previous_tealium_instance_if_created_for_that_config() {
@@ -88,7 +120,7 @@ final class TealiumInstanceManagerTests: XCTestCase {
             XCTAssertIdentical(teal1, teal2)
             getCompleted.fulfill()
         }
-        waitOnQueue(queue: manager.queue)
+        waitForDefaultTimeout()
     }
 
     func test_tealium_proxies_denitialize_when_no_external_reference_are_kept_alive() {
@@ -98,13 +130,11 @@ final class TealiumInstanceManagerTests: XCTestCase {
             creationCompleted.fulfill()
         })
         weak var weakTeal = teal
-        manager.queue.dispatchQueue.sync {
-            waitForDefaultTimeout()
-            XCTAssertNotNil(manager.proxies[config.key]?.value)
-            XCTAssertNotNil(weakTeal)
-            teal = nil
-            XCTAssertNil(manager.proxies[config.key]?.value)
-            XCTAssertNil(weakTeal)
-        }
+        waitForDefaultTimeout()
+        XCTAssertNotNil(manager.proxies[config.key]?.value)
+        XCTAssertNotNil(weakTeal)
+        teal = nil
+        XCTAssertNil(manager.proxies[config.key]?.value)
+        XCTAssertNil(weakTeal)
     }
 }

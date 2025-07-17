@@ -8,13 +8,13 @@
 
 /**
  * The `LoadRuleEngine` is responsible for receiving the `SDKSettings` object, and transforming the
- * set of common `LoadRules` into composite `LoadRules` for specific `TealiumModule` implementations.
+ * set of common `LoadRules` into composite `LoadRules` for specific `Module` implementations.
  *
- * That is, the `SDKSettings` has common, re-usable `LoadRule`s at `SDKSettings.loadRules`, and `TealiumModule`s
+ * That is, the `SDKSettings` has common, re-usable `LoadRule`s at `SDKSettings.loadRules`, and `Module`s
  * are able to reference them in their own `ModuleSettings.rules` property, as a `Rule<String>`.
  *
  * The `LoadRuleEngine` therefore builds `Matchable` implementations upon each update to the `SDKSettings`
- * the can be used to decide whether or not a particular `TealiumModule` can execute their task.
+ * the can be used to decide whether or not a particular `Module` can execute their task.
  */
 class LoadRuleEngine {
     /// ModuleId : Expanded-LoadRules
@@ -38,7 +38,7 @@ class LoadRuleEngine {
      * Evaluates the load rules for the given `module` against the provided `dispatch` and returns `true` if the
      * load rules allow the `dispatch` for the `module`. Otherwise it will return `false`.
      */
-    func rulesAllow(dispatch: Dispatch, forModule module: TealiumModule) -> Bool {
+    func rulesAllow(dispatch: Dispatch, forModule module: Module) -> Bool {
         guard let rule = moduleIdToRuleMap[module.id] else {
             return true // no rule set, safe to execute
         }
@@ -49,7 +49,7 @@ class LoadRuleEngine {
      * Evaluates the load rules for the given `module` and `dispatches`. The result is a `DispatchSplit`
      * which is a partition of the `dispatches` into two lists of either "passed" (`successful`) or "failed" (`unsuccessful`).
      */
-    func evaluateLoadRules(on dispatches: [Dispatch], forModule module: TealiumModule) -> DispatchSplit {
+    func evaluateLoadRules(on dispatches: [Dispatch], forModule module: Module) -> DispatchSplit {
         guard let rule = moduleIdToRuleMap[module.id] else {
             return (dispatches, [])
         }

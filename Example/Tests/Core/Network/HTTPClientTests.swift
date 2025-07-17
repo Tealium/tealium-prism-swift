@@ -16,9 +16,8 @@ final class HTTPClientTests: XCTestCase {
                                                                  interceptorManagerFactory: MockInterceptorManager.self,
                                                                  queue: queue)
     var interceptorManager: MockInterceptorManager {
-        // swiftlint:disable force_cast
+        // swiftlint:disable:next force_cast
         client.interceptorManager as! MockInterceptorManager
-        // swiftlint:enable force_cast
     }
     lazy var client: HTTPClient = {
         config.sessionConfiguration.protocolClasses = [URLProtocolMock.self]

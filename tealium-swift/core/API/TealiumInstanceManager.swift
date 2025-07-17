@@ -14,10 +14,12 @@
  * to a `Tealium` instance will automatically deallocate that instance.
  */
 public class TealiumInstanceManager {
-    let queue = TealiumQueue.worker
+    let queue: TealiumQueue
     var proxies = [String: Weak<Tealium>]()
     var instances = [String: Weak<TealiumImpl>]()
-    private init() { }
+    init(queue: TealiumQueue = .worker) {
+        self.queue = queue
+    }
 
     /// The shared `TealiumInstanceManager` object.
     public static let shared = TealiumInstanceManager()
@@ -64,7 +66,7 @@ public class TealiumInstanceManager {
      */
     public func create(config: TealiumConfig, completion: @escaping (Tealium.InitializationResult) -> Void) -> Tealium {
         let onImplementationReady = createImplementation(config: config)
-        let teal = Tealium(onTealiumImplementation: onImplementationReady)
+        let teal = Tealium(queue: queue, onTealiumImplementation: onImplementationReady)
         _ = onImplementationReady
             .first()
             .subscribeOn(queue)

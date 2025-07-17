@@ -8,7 +8,7 @@
 
 import Foundation
 
-class TealiumCollector: TealiumBasicModule, Collector {
+class TealiumCollector: BasicModule, Collector {
     let version: String = TealiumConstants.libraryVersion
     static var canBeDisabled: Bool { false }
     static let id: String = "TealiumCollector"

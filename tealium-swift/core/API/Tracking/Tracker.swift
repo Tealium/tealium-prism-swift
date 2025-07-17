@@ -17,7 +17,7 @@ public protocol Tracker: AnyObject {
      *
      * - Parameters:
      *      - trackable: The `Dispatch` that needs to be tracked.
-     *      - source: The `TealiumModule` that generated this track or the application
+     *      - source: The `Module` that generated this track or the application
      *      - onTrackResult: A callback called when the track is either accepted or dropped.
      */
     func track(_ trackable: Dispatch, source: DispatchContext.Source, onTrackResult: TrackResultCompletion?)

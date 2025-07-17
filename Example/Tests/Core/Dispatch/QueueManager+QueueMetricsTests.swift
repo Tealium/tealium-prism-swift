@@ -12,7 +12,7 @@ import XCTest
 final class QueueManagerQueueMetricsTests: XCTestCase {
     let disposer = AutomaticDisposer()
     @StateSubject([MockDispatcher1(), MockDispatcher2()])
-    var modules: ObservableState<[TealiumModule]>
+    var modules: ObservableState<[Module]>
     let dbProvider = MockDatabaseProvider()
     @StateSubject(CoreSettings())
     var coreSettings

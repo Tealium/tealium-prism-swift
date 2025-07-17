@@ -13,13 +13,19 @@ public extension Modules {
      * - Parameters:
      *   - block: A block with a utility builder that can be used to enforce some of the `LifecycleSettings` instead of relying on Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `LifecycleModule`, other settings will still be affected by Local and Remote settings and updates.
      */
-    static func lifecycle(forcingSettings block: ((_ enforcedSettings: LifecycleSettingsBuilder) -> LifecycleSettingsBuilder)? = nil) -> any TealiumModuleFactory {
+    static func lifecycle(forcingSettings block: ((_ enforcedSettings: LifecycleSettingsBuilder) -> LifecycleSettingsBuilder)? = nil) -> any ModuleFactory {
         LifecycleModule.Factory(forcingSettings: block)
     }
 }
 
 public extension Tealium {
-    var lifecycle: Lifecycle {
+    /**
+     * Creates and returns a `Lifecycle` object, that can be used to send custom lifecycle events.
+     *
+     * If you intend to use this multiple time, keep a reference to the returned object
+     * to avoid creating a new one every time you call `tealium.lifecycle`.
+     */
+    func lifecycle() -> Lifecycle {
         LifecycleWrapper(moduleProxy: createModuleProxy())
     }
 }

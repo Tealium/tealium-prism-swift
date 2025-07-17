@@ -40,9 +40,8 @@ public class ResourceCacher<Resource: Codable> {
     private func serialize(resource: Resource) throws -> String {
         let jsonEncoder = Tealium.jsonEncoder
         let jsonData = try jsonEncoder.encode(resource)
-        // swiftlint:disable optional_data_string_conversion
+        // swiftlint:disable:next optional_data_string_conversion
         return String(decoding: jsonData, as: UTF8.self) // Safe as we just used encode that returns UTF8 formatted data
-        // swiftlint:enable optional_data_string_conversion
     }
 
     /**

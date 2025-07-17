@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-class DeviceDataCollector: Collector, Transformer, TealiumBasicModule {
+class DeviceDataCollector: Collector, Transformer, BasicModule {
     let version: String = TealiumConstants.libraryVersion
     static let id: String = "DeviceData"
 

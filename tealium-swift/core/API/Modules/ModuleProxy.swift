@@ -8,8 +8,6 @@
 
 import Foundation
 
-public typealias ErrorHandlingCompletion = (Error?) -> Void
-
 /**
  * A `ModuleProxy` is to be used for proxying access to modules that are or were available
  * to access from the main `Tealium` implementation.
@@ -17,15 +15,17 @@ public typealias ErrorHandlingCompletion = (Error?) -> Void
  * Any external `Module` implementation that provides functionality expected to be used by a
  * developer should wrap their access to `Tealium` through a `ModuleProxy`.
  */
-public class ModuleProxy<Module: TealiumModule> {
+public class ModuleProxy<SpecificModule: Module> {
     private let onModulesManager: Observable<ModulesManager?>
-    private let queue: TealiumQueue
 
-    public typealias Task<T> = (_ module: Module) throws -> T
-    public typealias AsyncTask<T> = (_ module: Module, _ completion: @escaping (Result<T, Error>) -> Void) throws -> Void
-
+    public typealias Task<T> = (_ module: SpecificModule) throws -> T
+    public typealias AsyncTask<T> = (
+        _ module: SpecificModule,
+        _ completion: @escaping (Result<T, Error>) -> Void
+    ) throws -> Void
+    let asyncProxy: AsyncProxy<SpecificModule>
     /**
-     * Initialize the `ModuleProxy` for a specific `TealiumModule`.
+     * Initialize the `ModuleProxy` for a specific `Module`.
      *
      * - Parameters:
      *      - onModulesManager: An `Observable` that will only emit 1 `ModulesManager` when it will be created.
@@ -36,7 +36,7 @@ public class ModuleProxy<Module: TealiumModule> {
     }
 
     /**
-     * Initialize the `ModuleProxy` for a specific `TealiumModule`.
+     * Initialize the `ModuleProxy` for a specific `Module`.
      *
      * - Parameters:
      *      - queue: The `TealiumQueue` onto which events need to be subscribed upon
@@ -44,8 +44,9 @@ public class ModuleProxy<Module: TealiumModule> {
      *      The event must be emitted on the same queue as the other parameter.
      */
     init(queue: TealiumQueue, onModulesManager: Observable<ModulesManager?>) {
-        self.queue = queue
         self.onModulesManager = onModulesManager
+        self.asyncProxy = AsyncProxy(queue: queue,
+                                     onObject: onModulesManager.map { $0?.getModule() })
     }
 
     /**
@@ -54,9 +55,9 @@ public class ModuleProxy<Module: TealiumModule> {
      * - parameter transform: The transformation that maps the `Module` to one of it's `Observable`s.
      * - returns: A `Subscribable` for the inner `Observable`.
      */
-    public func observeModule<Other>(transform: @escaping (Module) -> Observable<Other>) -> any Subscribable<Other> {
+    public func observeModule<Other>(transform: @escaping (SpecificModule) -> Observable<Other>) -> any Subscribable<Other> {
         onModulesManager.flatMapLatest { $0?.modules.asObservable() ?? .Empty() }
-            .map { $0.compactMap { $0 as? Module }.first }
+            .map { $0.compactMap { $0 as? SpecificModule }.first }
             .distinct { $0 === $1 }
             .flatMapLatest { module in
                 guard let module else {
@@ -64,7 +65,7 @@ public class ModuleProxy<Module: TealiumModule> {
                 }
                 return transform(module)
             }
-            .subscribeOn(queue)
+            .subscribeOn(asyncProxy.queue)
     }
 
     /**
@@ -73,7 +74,7 @@ public class ModuleProxy<Module: TealiumModule> {
      * - parameter keyPath: The `KeyPath` to the `Observable` inside of the `Module`.
      * - returns: A `Subscribable` for the inner `Observable`.
      */
-    public func observeModule<Other>(_ keyPath: KeyPath<Module, Observable<Other>>) -> any Subscribable<Other> {
+    public func observeModule<Other>(_ keyPath: KeyPath<SpecificModule, Observable<Other>>) -> any Subscribable<Other> {
         observeModule { module in
             module[keyPath: keyPath]
         }
@@ -84,13 +85,8 @@ public class ModuleProxy<Module: TealiumModule> {
      *
      * - parameter completion: The block of code to receive the `Module` in, if present, or nil.
      */
-    public func getModule(completion: @escaping (Module?) -> Void) {
-        _ = onModulesManager
-            .first()
-            .subscribeOn(queue)
-            .subscribe { manager in
-                completion(manager?.getModule())
-            }
+    public func getModule(completion: @escaping (SpecificModule?) -> Void) {
+        asyncProxy.getProxiedObject(completion: completion)
     }
 
     /**
@@ -104,12 +100,12 @@ public class ModuleProxy<Module: TealiumModule> {
      *     init(moduleProxy: ModuleProxy<MyModule>) {
      *         self.moduleProxy = moduleProxy
      *     }
-     *     func doStuff() -> any Single<Result<SomeValue, Error>> {
+     *     func doStuff() -> SingleResult<SomeValue> {
      *         moduleProxy.executeModuleTask { module in
      *             module.doStuff() // returns `SomeValue`
      *         }
      *     }
-     *     func throwStuff() -> any Single<Result<SomeValue, Error>> {
+     *     func throwStuff() -> SingleResult<SomeValue> {
      *         moduleProxy.executeModuleTask { module in
      *             try module.throwStuff() // throws an `Error`
      *         }
@@ -121,15 +117,8 @@ public class ModuleProxy<Module: TealiumModule> {
      *   - task: the task to be executed if module is enabled
      * - Returns: the `Single` with the `Result`
      */
-    public func executeModuleTask<T>(_ task: @escaping Task<T>) -> any Single<Result<T, Error>> {
-        executeModuleAsyncTask { module, completion in
-            do {
-                let result = try task(module)
-                completion(.success(result))
-            } catch {
-                completion(.failure(error))
-            }
-        }
+    public func executeModuleTask<T>(_ task: @escaping Task<T>) -> SingleResult<T> {
+        asyncProxy.executeTask(task)
     }
 
     /**
@@ -143,7 +132,7 @@ public class ModuleProxy<Module: TealiumModule> {
      *     init(moduleProxy: ModuleProxy<MyModule>) {
      *         self.moduleProxy = moduleProxy
      *     }
-     *     func doStuff() -> any Single<Result<SomeValue, Error>> {
+     *     func doStuff() -> SingleResult<SomeValue> {
      *         moduleProxy.executeModuleTask { module, completion in
      *             module.doStuff(completion: completion) // Completes with a `Result<SomeValue, Error>`
      *         }
@@ -160,7 +149,7 @@ public class ModuleProxy<Module: TealiumModule> {
      *     init(moduleProxy: ModuleProxy<MyModule>) {
      *         self.moduleProxy = moduleProxy
      *     }
-     *     func doStuff() -> any Single<Result<Void, Error>> {
+     *     func doStuff() -> SingleResult<Void> {
      *         moduleProxy.executeModuleTask { module, completion in
      *             module.doStuff { optionalData, optionalError in
      *                  if let data = optionalData {
@@ -179,31 +168,7 @@ public class ModuleProxy<Module: TealiumModule> {
      *   - task: the task to be executed if module is enabled
      * - Returns: the `Single` with the `Result`.
      */
-    public func executeModuleAsyncTask<T>(_ asyncTask: @escaping AsyncTask<T>) -> any Single<Result<T, Error>> {
-        // Use the replay subject to make the returned Single a HOT observable.
-        // A HOT observable doesn't require a subscription to start emitting events.
-        let replay = ReplaySubject<Result<T, Error>>()
-        _ = SingleImpl(observable: .Callback(from: { [weak self] observer in
-            guard let self else {
-                observer(.failure(TealiumError.moduleNotEnabled))
-                return
-            }
-            self.getModule { module in
-                guard let module else {
-                    observer(.failure(TealiumError.moduleNotEnabled))
-                    return
-                }
-                do {
-                    try asyncTask(module) { result in
-                        observer(result)
-                    }
-                } catch {
-                    observer(.failure(error))
-                }
-            }
-        }),
-                   queue: queue)
-            .subscribe(replay)
-        return replay.asObservable().asSingle(queue: queue)
+    public func executeModuleAsyncTask<T>(_ asyncTask: @escaping AsyncTask<T>) -> SingleResult<T> {
+        asyncProxy.executeAsyncTask(asyncTask)
     }
 }

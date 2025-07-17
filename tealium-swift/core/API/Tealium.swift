@@ -25,23 +25,20 @@ public class Tealium {
     /// Result type for internal implementation operations.
     typealias ImplementationResult = Result<TealiumImpl, TealiumError>
 
-    /// Observable type for implementation results.
+    /// Observable type for `ImplementationResult`.
     typealias ImplementationObservable = Observable<ImplementationResult>
 
     /// Observable for the modules manager.
     private let onModulesManager: Observable<ModulesManager?>
 
-    /// Observable for the Tealium implementation.
-    private let onTealiumImplementation: ImplementationObservable
-
     /// Disposer for async operations.
-    let asyncDisposer = AsyncDisposer(disposeOn: .worker)
+    private lazy var asyncDisposer = AsyncDisposer(disposeOn: queue)
 
     /// Queue for Tealium operations.
-    let queue = TealiumQueue.worker
+    let queue: TealiumQueue
 
-    /// Error that occurred during initialization, if any.
-    var initializationError: TealiumError?
+    /// The proxy used to access `TealiumImpl` from the right thread.
+    let proxy: AsyncProxy<TealiumImpl>
 
     /**
      * Creates a new Tealium instance with the provided configuration.
@@ -58,9 +55,10 @@ public class Tealium {
     /**
      * Initializes a new Tealium instance with the provided implementation observable.
      *
-     * - Parameter onTealiumImplementation: An observable that emits the Tealium implementation result.
+     * - Parameter onTealiumImplementation: An observable that emits the Tealium `ImplementationResult`.
      */
-    init(onTealiumImplementation: ImplementationObservable) {
+    init(queue: TealiumQueue, onTealiumImplementation: ImplementationObservable) {
+        self.queue = queue
         onModulesManager = onTealiumImplementation.map { result in
             if case .success(let implementation) = result {
                 return implementation.modulesManager
@@ -68,35 +66,25 @@ public class Tealium {
                 return nil
             }
         }
-        self.onTealiumImplementation = onTealiumImplementation
+        proxy = AsyncProxy(queue: queue, onObject: onTealiumImplementation.map { try? $0.get() })
     }
 
     /**
-     * Executes the provided completion handler when the implementation is ready.
+     * Executes the provided completion handler when `Tealium` is ready for use, from the `Tealium` internal thread.
      *
-     * - Parameter completion: A closure that is called with the implementation result.
-     */
-    private func onImplementationReady(_ completion: @escaping (ImplementationResult) -> Void) {
-        onTealiumImplementation
-            .asSingle(queue: queue)
-            .subscribe(completion)
-            .addTo(asyncDisposer)
-    }
-
-    /**
-     * Executes the provided completion handler when Tealium is ready for use.
+     * Usage of this method is incentivised in case you want to call multiple `Tealium` methods in a row.
+     * Every one of those methods, if called from a different thread, will cause the execution to move into our
+     * own internal queue, causing overhead.
+     * Calling those methods from the completion of this method, instead, will skip all of those context switches
+     * and perform the operations synchronously onto our thread.
      *
-     * - Parameter completion: A closure that is called with the Tealium instance when it's ready.
+     * - Parameter completion: A closure that is called with the `Tealium` instance when it's ready.
+     * In case of an initialization error the completion won't be called at all.
      */
     public func onReady(_ completion: @escaping (Tealium) -> Void) {
-        onImplementationReady { [weak self] result in
+        proxy.getProxiedObject { [weak self] _ in
             guard let self else { return }
-            switch result {
-            case .success:
-                completion(self)
-            case .failure:
-                break
-            }
+            completion(self)
         }
     }
 
@@ -107,16 +95,16 @@ public class Tealium {
      *   - name: The name of the event to track.
      *   - type: The type of dispatch to use (default is .event).
      *   - data: Additional data to include with the event (optional).
-     *   - onTrackResult: A closure that is called with the result of the tracking operation (optional).
+     *
+     * - returns: A `Single` onto which you can subscribe to receive the completion with the eventual error
+     * or the `TrackResult` for this track request.
      */
-    public func track(_ name: String, type: DispatchType = .event, data: DataObject? = nil, onTrackResult: TrackResultCompletion? = nil) {
+    @discardableResult
+    public func track(_ name: String, type: DispatchType = .event, data: DataObject? = nil) -> SingleResult<TrackResult> {
         let dispatch = Dispatch(name: name, type: type, data: data)
-        onImplementationReady { result in
-            switch result {
-            case .success(let implementation):
-                implementation.track(dispatch, onTrackResult: onTrackResult)
-            case .failure(let error):
-                onTrackResult?(TrackResult.dropped(dispatch, reason: "Tealium failed to initialize due to: \(error)"))
+        return proxy.executeAsyncTask { tealium, completion in
+            tealium.track(dispatch) { result in
+                completion(.success(result))
             }
         }
     }
@@ -127,60 +115,42 @@ public class Tealium {
      *
      * - Attention: This method will not override those `Barrier` implementations whose `isFlushable`
      * returns `false`. But when non-flushable barriers open, a flush will still occur.
+     *
+     * - returns: A `Single` onto which you can subscribe to receive the completion with the eventual error.
+     * The returned `Single`, in case of success, completes when the flush request is accepted, not when all the events have been flushed.
      */
-    public func flushEventQueue() {
-        onTealiumSuccess { implementation in
-            implementation.barrierCoordinator.flush()
+    public func flushEventQueue() -> SingleResult<Void> {
+        proxy.executeTask { tealium in
+            tealium.barrierCoordinator.flush()
         }
     }
 
     /**
-     * Resets the current visitor id to a new anonymous one.
+     * Resets the current visitor ID to a new anonymous one.
      *
-     * Note. the new anonymous id will be associated to any identity currently set.
+     * Note. the new anonymous ID will be associated to any identity currently set.
      *
-     * - Parameters:
-     *   - completion: The block called with the new `visitorId`, if successful, or an error.
+     * - returns: A `Single` onto which you can subscribe to receive the completion with the eventual error
+     * or the new visitor ID.
      */
-    public func resetVisitorId(completion: ((Result<String, Error>) -> Void)? = nil) {
-        onTealiumSuccess(completion: completion) { implementation in
-            try implementation.visitorIdProvider.resetVisitorId()
+    @discardableResult
+    public func resetVisitorId() -> SingleResult<String> {
+        proxy.executeTask { tealium in
+            try tealium.visitorIdProvider.resetVisitorId()
         }
     }
 
     /**
      * Removes all stored visitor identifiers as hashed identities, and generates a new
-     * anonymous visitor id.
+     * anonymous visitor ID.
      *
-     * - Parameters:
-     *   - completion: The block called with the new `visitorId`, if successful, or an error.
+     * - returns: A `Single` onto which you can subscribe to receive the completion with the eventual error
+     * or the new visitor ID.
      */
-    public func clearStoredVisitorIds(completion: ((Result<String, Error>) -> Void)? = nil) {
-        onTealiumSuccess(completion: completion) { implementation in
-            try implementation.visitorIdProvider.clearStoredVisitorIds()
-        }
-    }
-
-    /**
-     * Executes a function on the Tealium implementation and handles the result.
-     *
-     * - Parameters:
-     *   - completion: A closure that is called with the result of the operation.
-     *   - execute: A closure that performs an operation on the Tealium implementation.
-     */
-    private func onTealiumSuccess<T>(completion: ((Result<T, Error>) -> Void)? = nil, execute: @escaping (TealiumImpl) throws -> T) {
-        onImplementationReady { result in
-            do {
-                switch result {
-                case .success(let implementation):
-                    let newObject = try execute(implementation)
-                    completion?(.success(newObject))
-                case .failure(let error):
-                    completion?(.failure(error))
-                }
-            } catch {
-                completion?(.failure(error))
-            }
+    @discardableResult
+    public func clearStoredVisitorIds() -> SingleResult<String> {
+        proxy.executeTask { tealium in
+            try tealium.visitorIdProvider.clearStoredVisitorIds()
         }
     }
 
@@ -202,16 +172,16 @@ public class Tealium {
      *   - module: The `Module` type that the Proxy needs to wrap.
      * - Returns: The `ModuleProxy` for the given module.
      */
-    public func createModuleProxy<T: TealiumModule>(for module: T.Type = T.self) -> ModuleProxy<T> {
+    public func createModuleProxy<T: Module>(for module: T.Type = T.self) -> ModuleProxy<T> {
         ModuleProxy(onModulesManager: onModulesManager)
     }
 
     deinit {
         asyncDisposer.dispose()
-        queue.ensureOnQueue { [onTealiumImplementation = self.onTealiumImplementation] in // Avoid capturing self in deinit
+        queue.ensureOnQueue { [proxy = self.proxy] in // Avoid capturing self in deinit
             // Hold an extra reference to `TealiumImpl` to make sure that it,
             // and all its dependencies, are only deallocated from the right thread.
-            _ = onTealiumImplementation
+            _ = proxy
         }
     }
 }

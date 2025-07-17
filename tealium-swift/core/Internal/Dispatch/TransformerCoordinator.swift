@@ -9,7 +9,7 @@
 import Foundation
 
 /// An object that will apply different transformations, selected by `transformationId`, to a dispatch.
-public protocol Transformer: TealiumModule {
+public protocol Transformer: Module {
     /// Applies a transformation, identified by a `transformationId`, to a `Dispatch` for the `DispatchScope` in which this transformation is called.
     func applyTransformation(_ transformation: TransformationSettings,
                              to dispatch: Dispatch,

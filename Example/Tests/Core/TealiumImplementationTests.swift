@@ -12,7 +12,7 @@ import XCTest
 final class TealiumImplementationTests: XCTestCase {
 
     @StateSubject([])
-    var modules: ObservableState<[TealiumModule]>
+    var modules: ObservableState<[Module]>
 
     func test_queueProcessors_doesnt_emit_when_modules_empty() {
         let queueProcessorsDoesntEmit = expectation(description: "QueueProcessors doesn't emit for empty modules")

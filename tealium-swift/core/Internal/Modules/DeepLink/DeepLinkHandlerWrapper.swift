@@ -7,15 +7,14 @@
 //
 
 public class DeepLinkHandlerWrapper: DeepLinkHandler {
-    typealias Module = DeepLinkHandlerModule
-    private let moduleProxy: ModuleProxy<Module>
+    private let moduleProxy: ModuleProxy<DeepLinkHandlerModule>
 
-    init(moduleProxy: ModuleProxy<Module>) {
+    init(moduleProxy: ModuleProxy<DeepLinkHandlerModule>) {
         self.moduleProxy = moduleProxy
     }
 
     @discardableResult
-    public func handle(link: URL, referrer: Referrer? = nil) -> any Single<Result<Void, Error>> {
+    public func handle(link: URL, referrer: Referrer? = nil) -> SingleResult<Void> {
         moduleProxy.executeModuleTask { module in
             try module.handle(link: link, referrer: referrer)
         }

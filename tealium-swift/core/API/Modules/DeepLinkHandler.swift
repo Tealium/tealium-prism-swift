@@ -39,5 +39,5 @@ public protocol DeepLinkHandler {
      - Returns: A `Single` containing a `Result` that indicates success (`Void`) or failure (`Error`).
      */
     @discardableResult
-    func handle(link: URL, referrer: Referrer?) -> any Single<Result<Void, Error>>
+    func handle(link: URL, referrer: Referrer?) -> SingleResult<Void>
 }

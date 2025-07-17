@@ -13,9 +13,7 @@ public class StateSubject<Element>: ReplaySubject<Element> {
 
     public var value: Element {
         get {
-            // swiftlint:disable force_unwrapping
-            last()!
-            // swiftlint:enable force_unwrapping
+            last()! // swiftlint:disable:this force_unwrapping
         }
         set {
             self.publish(newValue)

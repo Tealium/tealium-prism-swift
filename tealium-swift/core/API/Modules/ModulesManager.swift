@@ -9,16 +9,16 @@
 import Foundation
 
 public class ModulesManager {
-    @StateSubject var modules: ObservableState<[TealiumModule]>
+    @StateSubject var modules: ObservableState<[Module]>
     let queue: TealiumQueue
-    init(queue: TealiumQueue, initialModules: [TealiumModule] = []) {
+    init(queue: TealiumQueue, initialModules: [Module] = []) {
         self.queue = queue
         _modules = StateSubject(initialModules)
     }
 
     func updateSettings(context: TealiumContext, settings: SDKSettings) {
         let oldModules = self.modules.value
-        _modules.value = context.config.modules.compactMap({ moduleFactory -> TealiumModule? in
+        _modules.value = context.config.modules.compactMap({ moduleFactory -> Module? in
             let updateInterval = TealiumSignpostInterval(signposter: .settings, name: "Module Update")
                 .begin(moduleFactory.id)
             defer { updateInterval.end() }
@@ -45,11 +45,11 @@ public class ModulesManager {
         })
     }
 
-    public func getModule<T: TealiumModule>(_ module: T.Type = T.self) -> T? {
+    public func getModule<T: Module>(_ module: T.Type = T.self) -> T? {
         modules.value.compactMap { $0 as? T }.first
     }
 
-    public func getModule<T: TealiumModule>(completion: @escaping (T?) -> Void) {
+    public func getModule<T: Module>(completion: @escaping (T?) -> Void) {
         queue.ensureOnQueue { [weak self] in
             completion(self?.getModule())
         }

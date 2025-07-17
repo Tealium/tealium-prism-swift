@@ -14,7 +14,7 @@ class TealiumHelper {
     var automaticDisposer = AutomaticDisposer()
     static let shared = TealiumHelper()
     let cmp = CustomCMP()
-    func createModuleFactories() -> [any TealiumModuleFactory] {
+    func createModuleFactories() -> [any ModuleFactory] {
         [
          Modules.appData(),
          Modules.deepLink(forcingSettings: { enforcedSettings in
@@ -32,7 +32,7 @@ class TealiumHelper {
          Modules.lifecycle(forcingSettings: { enforcedSettings in
              enforcedSettings.setEnabled(true)
          }),
-         Modules.customCollector(SomeModule.self),
+         Modules.customCollector(CustomCollector.self),
          Modules.timeCollector(),
          Modules.connectivityCollector(),
          ModuleWithExternalDependencies.Factory(otherDependencies: NSObject())

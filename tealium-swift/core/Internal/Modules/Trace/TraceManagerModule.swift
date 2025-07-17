@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-class TraceManagerModule: Collector, TealiumBasicModule {
+class TraceManagerModule: Collector, BasicModule {
     let version: String = TealiumConstants.libraryVersion
     static let id: String = "Trace"
     let dataStore: DataStore

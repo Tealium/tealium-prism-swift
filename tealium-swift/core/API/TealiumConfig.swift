@@ -16,7 +16,7 @@ public struct TealiumConfig {
     public var key: String { "\(account)-\(profile)" }
     public internal(set) var settingsFile: String?
     public internal(set) var settingsUrl: String?
-    public internal(set) var modules: [any TealiumModuleFactory]
+    public internal(set) var modules: [any ModuleFactory]
     public internal(set) var barriers: [any BarrierFactory] = []
     public var loggerType: TealiumLoggerType = .os
     public var bundle: Bundle = .main
@@ -27,7 +27,7 @@ public struct TealiumConfig {
     var loadRules = DataObject()
     var transformations = DataObject()
 
-    public init(account: String, profile: String, environment: String, dataSource: String? = nil, modules: [any TealiumModuleFactory],
+    public init(account: String, profile: String, environment: String, dataSource: String? = nil, modules: [any ModuleFactory],
                 settingsFile: String?, settingsUrl: String?, forcingSettings block: ((_ builder: CoreSettingsBuilder) -> CoreSettingsBuilder)? = nil) {
         self.account = account
         self.profile = profile
@@ -67,7 +67,7 @@ public struct TealiumConfig {
         return accumulator
     }
 
-    mutating public func addModule<ModuleFactory: TealiumModuleFactory>(_ module: ModuleFactory) {
+    mutating public func addModule<SpecificFactory: ModuleFactory>(_ module: SpecificFactory) {
         modules.append(module)
     }
 

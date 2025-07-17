@@ -13,21 +13,21 @@ class LifecycleWrapper: Lifecycle {
     }
 
     @discardableResult
-    func launch(_ event: DataObject?) -> any Single<Result<Void, Error>> {
+    func launch(_ event: DataObject?) -> SingleResult<Void> {
         moduleProxy.executeModuleTask { module in
             try module.launch(data: event)
         }
     }
 
     @discardableResult
-    func wake(_ event: DataObject?) -> any Single<Result<Void, Error>> {
+    func wake(_ event: DataObject?) -> SingleResult<Void> {
         moduleProxy.executeModuleTask { module in
             try module.wake(data: event)
         }
     }
 
     @discardableResult
-    func sleep(_ event: DataObject?) -> any Single<Result<Void, Error>> {
+    func sleep(_ event: DataObject?) -> SingleResult<Void> {
         moduleProxy.executeModuleTask { module in
             try module.sleep(data: event)
         }

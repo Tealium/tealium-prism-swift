@@ -57,7 +57,7 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
         waitOnQueue(queue: queue)
     }
 
-    func test_executeModuleTask_completes_with_moduleNotEnabled_error_when_module_disabled() {
+    func test_executeModuleTask_completes_with_objectNotFound_error_when_module_disabled() {
         manager.updateSettings(context: context(),
                                settings: SDKSettings(modules: [
                                 MockModule.id: ModuleSettings(enabled: false)
@@ -66,10 +66,11 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
         let single = moduleProxy.executeModuleTask { _ in
         }
         _ = single.subscribe { result in
-            guard case .moduleNotEnabled = result.getError() as? TealiumError else {
+            guard case .objectNotFound(let mockModule) = result.getError() as? TealiumError else {
                 XCTFail("Unexpected result: \(result)")
                 return
             }
+            XCTAssertTrue(mockModule == MockModule.self)
             errorCaught.fulfill()
         }
         waitOnQueue(queue: queue)
@@ -77,7 +78,7 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
 
     func test_executeModuleAsyncTask_completes_with_error_which_task_has_thrown() {
         let errorCaught = expectation(description: "Error caught")
-        let single: any Single<Result<Void, Error>> = moduleProxy.executeModuleAsyncTask { _, completion in
+        let single: SingleResult<Void> = moduleProxy.executeModuleAsyncTask { _, completion in
             completion(.failure(TealiumError.genericError("test error")))
         }
         _ = single.subscribe { result in
@@ -92,7 +93,7 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
 
     func test_executeModuleAsyncTask_completes_without_error_when_task_completes_successfully() {
         let errorNotCaught = expectation(description: "Error not caught")
-        let single: any Single<Result<Void, Error>> = moduleProxy.executeModuleAsyncTask { _, completion in
+        let single: SingleResult<Void> = moduleProxy.executeModuleAsyncTask { _, completion in
             completion(.success(()))
         }
         _ = single.subscribe { result in
@@ -102,19 +103,20 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
         waitOnQueue(queue: queue)
     }
 
-    func test_executeModuleAsyncTask_completes_with_moduleNotEnabled_error_when_module_disabled() {
+    func test_executeModuleAsyncTask_completes_with_objectNotFound_error_when_module_disabled() {
         manager.updateSettings(context: context(), settings: SDKSettings(modules: [
             MockModule.id: ModuleSettings(enabled: false)
         ]))
         let errorCaught = expectation(description: "Error caught")
-        let single: any Single<Result<Void, Error>> = moduleProxy.executeModuleAsyncTask { _, completion in
+        let single: SingleResult<Void> = moduleProxy.executeModuleAsyncTask { _, completion in
             completion(.success(()))
         }
         _ = single.subscribe { result in
-            guard case .moduleNotEnabled = result.getError() as? TealiumError else {
+            guard case .objectNotFound(let mockModule) = result.getError() as? TealiumError else {
                 XCTFail("Unexpected result: \(result)")
                 return
             }
+            XCTAssertTrue(mockModule == MockModule.self)
             errorCaught.fulfill()
         }
         waitOnQueue(queue: queue)

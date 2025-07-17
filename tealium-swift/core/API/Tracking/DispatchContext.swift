@@ -12,9 +12,9 @@ public struct DispatchContext {
         /// The `Dispatch` was created by the application
         case application
         /// The `Dispatch` was created by a module
-        case module(TealiumModule.Type)
+        case module(Module.Type)
 
-        var moduleType: TealiumModule.Type? {
+        var moduleType: Module.Type? {
             switch self {
             case .application:
                 nil
