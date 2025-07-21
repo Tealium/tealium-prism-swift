@@ -20,8 +20,8 @@ public struct CoreSettings: Equatable {
     enum Defaults {
         static let minLogLevel = LogLevel.Minimum.error
         static let maxQueueSize = 100
-        static let queueExpiration = TimeFrame(unit: .days, interval: 1)
-        static let refreshInterval = TimeFrame(unit: .minutes, interval: 15)
+        static let queueExpiration = 1.days
+        static let refreshInterval = 15.minutes
     }
     init(minLogLevel: LogLevel.Minimum? = nil,
          maxQueueSize: Int? = nil,

@@ -108,7 +108,7 @@ class DeviceDataCollector: Collector, Transformer, BasicModule {
                                                                                      fileName: "device-models"),
                                                       parameters: RefreshParameters(id: "device-models",
                                                                                     url: url,
-                                                                                    refreshInterval: TimeFrame(unit: .days, interval: 1.0).seconds()),
+                                                                                    refreshInterval: 1.days.seconds()),
                                                       logger: logger)
         refresher.onLatestResource.subscribeOnce { [weak self] resource in
             let modelData = self?.deviceDataProvider.getModelInfo(from: resource)

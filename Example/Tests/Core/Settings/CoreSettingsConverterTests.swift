@@ -24,8 +24,8 @@ final class CoreSettingsConverterTests: XCTestCase {
         }
         XCTAssertEqual(settings.minLogLevel, .trace)
         XCTAssertEqual(settings.maxQueueSize, 20)
-        XCTAssertEqual(settings.queueExpiration, TimeFrame(unit: .seconds, interval: 50.0))
-        XCTAssertEqual(settings.refreshInterval, TimeFrame(unit: .seconds, interval: 100.0))
+        XCTAssertEqual(settings.queueExpiration, 50.seconds)
+        XCTAssertEqual(settings.refreshInterval, 100.seconds)
     }
 
     func test_init_from_empty_dictionary_fills_defaults() throws {

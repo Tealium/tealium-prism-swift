@@ -13,8 +13,8 @@ final class CoreSettingsBuilderTests: XCTestCase {
     func test_build_returns_core_settings() {
         let settings = CoreSettingsBuilder()
             .setMinLogLevel(.trace)
-            .setQueueExpiration(TimeFrame(unit: .seconds, interval: 50))
-            .setRefreshInterval(TimeFrame(unit: .seconds, interval: 100))
+            .setQueueExpiration(50.seconds)
+            .setRefreshInterval(100.seconds)
             .setMaxQueueSize(20)
             .build()
             .asDictionary()
@@ -28,8 +28,8 @@ final class CoreSettingsBuilderTests: XCTestCase {
 
     func test_build_with_nil_values_returns_core_settings_without_nils() {
         let settings = CoreSettingsBuilder()
-            .setQueueExpiration(TimeFrame(unit: .seconds, interval: 50))
-            .setRefreshInterval(TimeFrame(unit: .seconds, interval: 100))
+            .setQueueExpiration(50.seconds)
+            .setRefreshInterval(100.seconds)
             .setMaxQueueSize(20)
             .build()
             .asDictionary()

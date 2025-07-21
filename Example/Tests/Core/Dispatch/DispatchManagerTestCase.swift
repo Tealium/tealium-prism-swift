@@ -47,7 +47,7 @@ class DispatchManagerTestCase: XCTestCase {
     lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: modulesManager.modules, addingConsent: true),
                                              queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
                                                                                  maxQueueSize: 10,
-                                                                                 expiration: TimeFrame(unit: .days, interval: 1)),
+                                                                                 expiration: 1.days),
                                              coreSettings: coreSettings,
                                              logger: nil)
     let barrierManager = BarrierManager(sdkBarrierSettings: .constant([:]))

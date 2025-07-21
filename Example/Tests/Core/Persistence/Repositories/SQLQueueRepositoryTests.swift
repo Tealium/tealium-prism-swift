@@ -14,7 +14,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
     let mockDatabaseProvider = MockDatabaseProvider()
     lazy var queueRepository = SQLQueueRepository(dbProvider: mockDatabaseProvider,
                                                   maxQueueSize: 100,
-                                                  expiration: TimeFrame(unit: .days, interval: 1))
+                                                  expiration: 1.days)
 
     func test_deleteQueues_removes_dispatches_of_missing_processors() {
         XCTAssertNoThrow(try queueRepository.storeDispatches([Dispatch(name: "test_event")], enqueueingFor: allProcessors))
@@ -208,7 +208,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
         XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches, enqueueingFor: ["processor1"]))
         let resultDispatches = queueRepository.getQueuedDispatches(for: "processor1", limit: nil)
         XCTAssertEqual(resultDispatches.count, 2)
-        XCTAssertNoThrow(try queueRepository.setExpiration(TimeFrame(unit: .minutes, interval: 60)))
+        XCTAssertNoThrow(try queueRepository.setExpiration(60.minutes))
         guard let dispatchRows = XCTAssertNoThrowReturn(Array(try mockDatabaseProvider.database.prepare(DispatchSchema.table))) else {
             XCTFail("Failed to return Dispatch table")
             return
@@ -227,7 +227,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
             return
         }
         XCTAssertEqual(dispatchRows.count, 2)
-        XCTAssertNoThrow(try queueRepository.setExpiration(TimeFrame(unit: .days, interval: 5)))
+        XCTAssertNoThrow(try queueRepository.setExpiration(5.days))
         guard let dispatchRowsAfterSetExpiration = XCTAssertNoThrowReturn(Array(try mockDatabaseProvider.database.prepare(DispatchSchema.table))) else {
             XCTFail("Failed to return Dispatch table")
             return

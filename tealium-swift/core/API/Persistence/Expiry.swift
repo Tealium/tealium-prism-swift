@@ -16,8 +16,8 @@ public enum Expiry: Equatable {
     case after(Date)
 
     /// Creates an `.after(Date)` expiry with a date that is value unit of time ahead of now.
-    static func afterCustom(unit: TimeUnit, value: Double) -> Expiry {
-        guard let date = TimeFrame(unit: unit, interval: value).dateAfter() else {
+    static func afterCustom(timeFrame: TimeFrame) -> Expiry {
+        guard let date = timeFrame.dateAfter() else {
             return .forever
         }
         return .after(date)

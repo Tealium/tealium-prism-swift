@@ -55,12 +55,12 @@ final class SQLModulesRepositoryTests: XCTestCase {
         try keyValueRepository1.upsert(key: "expired", value: "value", expiry: .after(expiredDate))
         try keyValueRepository1.upsert(key: "restart", value: "value", expiry: .untilRestart)
         try keyValueRepository1.upsert(key: "session", value: "value", expiry: .session)
-        try keyValueRepository1.upsert(key: "non-expired", value: "value", expiry: .afterCustom(unit: .days, value: 1))
+        try keyValueRepository1.upsert(key: "non-expired", value: "value", expiry: .afterCustom(timeFrame: 1.days))
         try keyValueRepository1.upsert(key: "forever", value: "value", expiry: .forever)
         try keyValueRepository2.upsert(key: "expired", value: "value", expiry: .after(expiredDate))
         try keyValueRepository2.upsert(key: "restart", value: "value", expiry: .untilRestart)
         try keyValueRepository2.upsert(key: "session", value: "value", expiry: .session)
-        try keyValueRepository2.upsert(key: "non-expired", value: "value", expiry: .afterCustom(unit: .days, value: 1))
+        try keyValueRepository2.upsert(key: "non-expired", value: "value", expiry: .afterCustom(timeFrame: 1.days))
         try keyValueRepository2.upsert(key: "forever", value: "value", expiry: .forever)
         return (keyValueRepository1, keyValueRepository2)
     }
@@ -133,7 +133,7 @@ final class SQLModulesRepositoryTests: XCTestCase {
     func test_deleteExpired_doesnt_notify_onExpiredData_event_if_nothing_expired() throws {
         let moduleId = try modulesRepository.registerModule(name: "test")
         let keyValueRepository = SQLKeyValueRepository(dbProvider: dbProvider, moduleId: moduleId)
-        try keyValueRepository.upsert(key: "non-expired", value: "value", expiry: .afterCustom(unit: .days, value: 1))
+        try keyValueRepository.upsert(key: "non-expired", value: "value", expiry: .afterCustom(timeFrame: 1.days))
         let eventNotified = expectation(description: "onDataExpired event is NOT notified")
         eventNotified.isInverted = true
         let subscription = modulesRepository.onDataExpired.subscribe { _ in

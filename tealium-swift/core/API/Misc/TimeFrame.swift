@@ -9,6 +9,7 @@
 import Foundation
 
 public enum TimeUnit {
+    case milliseconds
     case seconds
     case minutes
     case hours
@@ -16,26 +17,11 @@ public enum TimeUnit {
     case months
     case years
 
-    public var component: Calendar.Component {
-        switch self {
-        case .seconds:
-            return .second
-        case .minutes:
-            return .minute
-        case .hours:
-            return .hour
-        case .days:
-            return .day
-        case .months:
-            return .month
-        case .years:
-            return .year
-        }
-    }
-
     /// The amount you need to multiply the current unit to approximately transform it to seconds.
     func toSecondsMultiplier() -> Double {
         switch self {
+        case .milliseconds:
+            1 / 1000
         case .seconds:
             1
         case .minutes:
@@ -57,11 +43,11 @@ public struct TimeFrame {
     let interval: Double
 
     func dateAfter(date: Date = Date()) -> Date? {
-        Self.dateDifference(date: date, interval: interval, for: unit.component)
+        Self.dateDifference(date: date, interval: seconds(), for: .second)
     }
 
     func dateBefore(date: Date = Date()) -> Date? {
-        Self.dateDifference(date: date, interval: -interval, for: unit.component)
+        Self.dateDifference(date: date, interval: -seconds(), for: .second)
     }
 
     private static func dateDifference(date: Date, interval: Double, for component: Calendar.Component) -> Date? {
@@ -71,9 +57,27 @@ public struct TimeFrame {
         return Calendar(identifier: .gregorian).date(byAdding: components, to: date)
     }
 
-    /// Gets the ammount of seconds approximately equivalent to this TimeFrame.
+    /// Gets the amount of seconds approximately equivalent to this TimeFrame.
     func seconds() -> Double {
         unit.toSecondsMultiplier() * interval
+    }
+}
+
+public extension Int {
+    var milliseconds: TimeFrame {
+        TimeFrame(unit: .milliseconds, interval: Double(self))
+    }
+    var seconds: TimeFrame {
+        TimeFrame(unit: .seconds, interval: Double(self))
+    }
+    var minutes: TimeFrame {
+        TimeFrame(unit: .minutes, interval: Double(self))
+    }
+    var hours: TimeFrame {
+        TimeFrame(unit: .hours, interval: Double(self))
+    }
+    var days: TimeFrame {
+        TimeFrame(unit: .days, interval: Double(self))
     }
 }
 

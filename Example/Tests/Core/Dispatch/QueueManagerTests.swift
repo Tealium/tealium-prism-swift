@@ -180,8 +180,8 @@ final class QueueManagerTests: XCTestCase {
 
     func test_coreSettings_change_causes_expiration_change() {
         _ = queueManager
-        XCTAssertEqual(queueRepository.expiration, TimeFrame(unit: .days, interval: 1))
-        let expiration = TimeFrame(unit: .seconds, interval: 500)
+        XCTAssertEqual(queueRepository.expiration, 1.days)
+        let expiration = 500.seconds
         _coreSettings.publish(CoreSettings(queueExpiration: expiration))
         XCTAssertEqual(queueRepository.expiration, expiration)
     }

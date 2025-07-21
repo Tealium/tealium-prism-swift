@@ -26,8 +26,7 @@ class ConsentIntegrationManagerBaseTests: XCTestCase {
                                                      addingConsent: true)
         let repository = SQLQueueRepository(dbProvider: databaseProvider,
                                             maxQueueSize: 10,
-                                            expiration: TimeFrame(unit: .days,
-                                                                  interval: 1))
+                                            expiration: 1.days)
         return MockQueueManager(processors: processors,
                                 queueRepository: repository,
                                 coreSettings: coreSettings,
