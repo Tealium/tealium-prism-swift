@@ -42,7 +42,7 @@ public extension RequestInterceptor {
     func shouldRetry(_ request: URLRequest, retryCount: Int, with response: NetworkResult) -> RetryPolicy { .doNotRetry }
 }
 
-/// An interceptor that logs completed requests and retries all retriable errors
+/// An interceptor that retries all retriable errors
 public class DefaultInterceptor: RequestInterceptor {
     let backoffPolicy: BackoffPolicy
     init(backoffPolicy: BackoffPolicy = ExponentialBackoff()) {

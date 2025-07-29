@@ -78,4 +78,18 @@ public struct Condition: Codable, Equatable {
      * isDefined, isNotDefined, isPopulated, isNotPopulated, isBadgeAssigned, isBadgeNotAssigned.
      */
     let filter: String?
+
+    init(variable: VariableAccessor, operator: Operator, filter: String?) {
+        self.init(path: variable.path,
+                  variable: variable.variable,
+                  operator: `operator`,
+                  filter: filter)
+    }
+
+    init(path: [String]?, variable: String, operator: Operator, filter: String?) {
+        self.path = path
+        self.variable = variable
+        self.operator = `operator`
+        self.filter = filter
+    }
 }

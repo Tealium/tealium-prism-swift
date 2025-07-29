@@ -109,7 +109,7 @@ public class ResourceRefresher<Resource: Codable> {
     private func refresh(validatingResource: @escaping (Resource) -> Bool) {
         var isCompletionRun = false
         disposableRequest = networkHelper.getJsonAsObject(url: parameters.url, etag: lastEtag) { [weak self] (result: ObjectResult<Resource>) in
-            guard let self = self else { return }
+            guard let self else { return }
             defer { self._onLoadCompleted.publish() }
             switch result {
             case .success(let response):

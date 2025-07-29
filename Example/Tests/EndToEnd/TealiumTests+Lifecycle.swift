@@ -18,10 +18,10 @@ final class TealiumTestsLifecycle: TealiumBaseTests {
         let teal = createTealium()
         teal.lifecycle().launch().subscribe { result in
             XCTAssertResultIsSuccess(result)
-            dispatchPrecondition(condition: .onQueue(TealiumQueue.worker.dispatchQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             lifecycleEventCompleted.fulfill()
         }
-        waitOnQueue(queue: .worker, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
     }
 
     func test_lifecycle_wrapper_throws_errors_if_not_enabled() throws {
@@ -32,16 +32,16 @@ final class TealiumTestsLifecycle: TealiumBaseTests {
         let teal = createTealium()
         teal.lifecycle().launch().subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                guard case .objectNotFound(let object) = error as? TealiumError else {
+                guard case .moduleNotEnabled(let module) = error as? TealiumError else {
                     XCTFail("Error should be objectNotFound, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(object == LifecycleModule.self)
+                XCTAssertTrue(module == LifecycleModule.self)
             }
-            dispatchPrecondition(condition: .onQueue(TealiumQueue.worker.dispatchQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             lifecycleEventCompleted.fulfill()
         }
-        waitOnQueue(queue: .worker, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
     }
 
     func test_lifecycle_wrapper_throws_errors_if_not_added() throws {
@@ -49,15 +49,15 @@ final class TealiumTestsLifecycle: TealiumBaseTests {
         let teal = createTealium()
         teal.lifecycle().launch().subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                guard case .objectNotFound(let object) = error as? TealiumError else {
+                guard case .moduleNotEnabled(let module) = error as? TealiumError else {
                     XCTFail("Error should be objectNotFound, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(object == LifecycleModule.self)
+                XCTAssertTrue(module == LifecycleModule.self)
             }
-            dispatchPrecondition(condition: .onQueue(TealiumQueue.worker.dispatchQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             lifecycleEventCompleted.fulfill()
         }
-        waitOnQueue(queue: .worker, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
     }
 }

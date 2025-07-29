@@ -12,7 +12,7 @@ extension TealiumImpl {
     static func addMandatoryAndRemoveDuplicateModules(from config: inout TealiumConfig) {
         config.modules = (config.modules + [
             Modules.dataLayer(),
-            Modules.tealiumCollector()
+            Modules.tealiumData()
         ]).removingDuplicates(by: \.id)
     }
 

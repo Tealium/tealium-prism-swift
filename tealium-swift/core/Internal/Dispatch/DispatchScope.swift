@@ -17,16 +17,16 @@ public enum DispatchScope: RawRepresentable, Codable, Equatable {
     public var rawValue: String {
         switch self {
         case .afterCollectors:
-            return "aftercollectors"
+            "aftercollectors"
         case .dispatcher(let dispatcher):
-            return dispatcher
+            dispatcher
         }
     }
 
     public init?(rawValue: String) {
         let lowercasedScope = rawValue.lowercased()
         switch lowercasedScope {
-        case "aftercollectors":
+        case DispatchScope.afterCollectors.rawValue:
             self = .afterCollectors
         default:
             self = .dispatcher(lowercasedScope)

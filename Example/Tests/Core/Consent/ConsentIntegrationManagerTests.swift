@@ -39,9 +39,9 @@ class ConsentIntegrationManagerBaseTests: XCTestCase {
                                                              moduleMappings: .constant([:]),
                                                              queue: .main)
 
-    static func buildConsentSettings() -> ConsentSettings {
+    static func buildConsentSettings(refireDispatchers: [String] = []) -> ConsentSettings {
         let configuration = ConsentConfiguration(tealiumPurposeId: "tealium",
-                                                 refireDispatchersIds: [],
+                                                 refireDispatchersIds: refireDispatchers,
                                                  purposes: [:])
         return ConsentSettings(configurations: ["MockCMP": configuration])
     }
@@ -62,12 +62,16 @@ class ConsentIntegrationManagerBaseTests: XCTestCase {
                                          cmpSelector: cmpSelector,
                                          logger: nil)
     }
+
+    func updateConsentSettings(consentSettings: ConsentSettings) {
+        _consentSettings.value = consentSettings
+    }
 }
 
 final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
     let completionCalledDescription = "Completion was called"
 
-    func applyDecision(decisionType: ConsentDecision.DecisionType, purposes: [String]) {
+    func applyDecision(decisionType: ConsentDecision.DecisionType, purposes: Set<String>) {
         adapter.applyDecision(ConsentDecision(decisionType: decisionType, purposes: purposes))
     }
 
@@ -104,6 +108,26 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
         XCTAssertTrackResultIsDropped(result) { dispatch in
             XCTAssertEqual(dispatch.payload.count, 4) // ...that's why 4 is here
         }
+    }
+
+    func test_applyConsent_returns_accepted_before_consentDecision_is_given() {
+        let result = consentManager.applyConsent(to: Dispatch(name: "event"))
+        XCTAssertTrackResultIsAccepted(result)
+    }
+
+    func test_applyConsent_enqueues_for_consent_if_decision_allows_refire() {
+        let dispatchQueued = expectation(description: "Dispatch queued")
+        updateConsentSettings(consentSettings: Self.buildConsentSettings(refireDispatchers: ["dispatcher"]))
+        applyDecision(decisionType: .implicit, purposes: ["tealium"])
+
+        _ = queueManager.onStoreRequest.subscribe { _, processors in
+            XCTAssertTrue(processors.contains(ConsentIntegrationManager.id))
+            dispatchQueued.fulfill()
+        }
+
+        let result = consentManager.applyConsent(to: Dispatch(name: "event"))
+        XCTAssertTrackResultIsAccepted(result)
+        waitForDefaultTimeout()
     }
 
     func test_enqueueDispatches_are_normally_stored_for_all_dispatchers() {

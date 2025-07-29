@@ -67,6 +67,8 @@ import Foundation
  *
  * The `constant` method returns a `ConstantOptions` that allows for setting optional properties relevant to a mapping
  * like a `ifValueIn(:equals:)`, to only perform the mapping if a value at the given `key` is equal to the given `target`.
+ *
+ * Refer to the `VariableAccessor` documentation for suggested ways to store constant accessors that you can reuse in your code.
  */
 public class Mappings {
     fileprivate(set) var key: VariableAccessor?

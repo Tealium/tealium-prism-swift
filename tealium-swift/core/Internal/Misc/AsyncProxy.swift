@@ -54,9 +54,7 @@ class AsyncProxy<Object: AnyObject> {
         let observable = onObject.callback(from: { result, observer in
             do {
                 let object = try result.get()
-                try asyncTask(object) { result in
-                    observer(result)
-                }
+                try asyncTask(object, observer)
             } catch {
                 observer(.failure(error))
             }

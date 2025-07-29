@@ -15,7 +15,8 @@ class BaseDataLayerWrapperTests: XCTestCase {
     lazy var manager = ModulesManager(queue: queue)
     lazy var onManager: ReplaySubject<ModulesManager?> = ReplaySubject(initialValue: manager)
     lazy var config: TealiumConfig = mockConfig
-    lazy var wrapper = DataLayerWrapper(moduleProxy: ModuleProxy(onModulesManager: onManager.asObservable()))
+    lazy var wrapper = DataLayerWrapper(moduleProxy: ModuleProxy(queue: queue,
+                                                                 onModulesManager: onManager.asObservable()))
     func context() -> TealiumContext {
         MockContext(modulesManager: manager,
                     config: config,

@@ -139,7 +139,7 @@ final class ModulesManagerTests: XCTestCase {
 
     func test_getModule_returns_module_if_initialized() {
         modulesManager.updateSettings(context: context, settings: SDKSettings())
-        XCTAssertNil(modulesManager.getModule(CollectDispatcher.self))
+        XCTAssertNil(modulesManager.getModule(CollectModule.self))
         XCTAssertNotNil(modulesManager.getModule(MockDispatcher1.self))
     }
 
@@ -157,7 +157,7 @@ final class ModulesManagerTests: XCTestCase {
     func test_getModule_completes_on_tealiumQueue_with_missing_module() {
         modulesManager.updateSettings(context: context, settings: SDKSettings())
         let getModuleCompleted = expectation(description: "GetModule completes")
-        modulesManager.getModule { (module: CollectDispatcher?) in
+        modulesManager.getModule { (module: CollectModule?) in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             getModuleCompleted.fulfill()
             XCTAssertNil(module)

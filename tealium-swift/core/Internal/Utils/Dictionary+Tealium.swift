@@ -21,28 +21,6 @@ public func += <K, V>(left: inout [K: V], right: [K: V]) {
     }
 }
 
-public extension Dictionary where Key == String, Value == Any {
-
-    var codable: AnyCodable {
-        AnyCodable(self)
-    }
-
-    var encodable: AnyEncodable {
-        AnyEncodable(self)
-    }
-
-    var flattened: [String: Any] {
-        self.reduce(into: [String: Any](), { result, item in
-            guard let dictionary = item.value as? [String: Any] else {
-                result[item.key] = item.value
-                return
-            }
-            result.merge(dictionary) { _, new  in new }
-        })
-    }
-
-}
-
 public extension Tealium {
     static let jsonEncoder: JSONEncoder = {
         let encoder = JSONEncoder()

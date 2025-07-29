@@ -26,5 +26,5 @@ public protocol CMPAdapter {
     /**
      * Returns all possible purposes from the CMP, if available.
      */
-    var allPurposes: [String]? { get }
+    var allPurposes: Set<String>? { get }
 }

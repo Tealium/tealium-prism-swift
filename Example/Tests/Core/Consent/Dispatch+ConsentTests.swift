@@ -37,8 +37,8 @@ final class DispatchConsentTests: XCTestCase {
             XCTFail("Dispatch unexpectedly returned nil")
             return
         }
-        let allPurposes = consentedDispatch.payload.getArray(key: TealiumDataKey.allConsentedPurposes, of: String.self)
-        XCTAssertEqual(allPurposes, ["1", "3"])
+        let allPurposes = consentedDispatch.payload.getArray(key: TealiumDataKey.allConsentedPurposes, of: String.self) ?? []
+        XCTAssertEqual(Set(allPurposes), ["1", "3"])
     }
 
     func test_applyConsentDecision_returns_dispatch_with_processedPurposes_being_the_old_consented_list_of_allPurposes() {
@@ -49,8 +49,8 @@ final class DispatchConsentTests: XCTestCase {
             XCTFail("Dispatch unexpectedly returned nil")
             return
         }
-        let processedPurposes = consentedDispatch.payload.getArray(key: TealiumDataKey.processedPurposes, of: String.self)
-        XCTAssertEqual(processedPurposes, ["1", "2"])
+        let processedPurposes = consentedDispatch.payload.getArray(key: TealiumDataKey.processedPurposes, of: String.self) ?? []
+        XCTAssertEqual(Set(processedPurposes), ["1", "2"])
     }
 
     func test_applyConsentDecision_returns_dispatch_with_unprocessedPurposes_being_the_newly_consented_list_of_purposes_minus_the_old_consented_purposes() {
@@ -61,8 +61,8 @@ final class DispatchConsentTests: XCTestCase {
             XCTFail("Dispatch unexpectedly returned nil")
             return
         }
-        let unprocessedPurposes = consentedDispatch.payload.getArray(key: TealiumDataKey.unprocessedPurposes, of: String.self)
-        XCTAssertEqual(unprocessedPurposes, ["3"])
+        let unprocessedPurposes = consentedDispatch.payload.getArray(key: TealiumDataKey.unprocessedPurposes, of: String.self) ?? []
+        XCTAssertEqual(Set(unprocessedPurposes), ["3"])
     }
 
     func test_applyConsentDecision_returns_dispatch_with_decisionType_explicit() {

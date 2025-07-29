@@ -57,8 +57,8 @@ final class ConditionContainsTests: XCTestCase {
 
     func test_contains_matches_nested_value() {
         let condition = Condition.contains(ignoreCase: false,
-                                           path: ["dictionary"],
-                                           variable: "key",
+                                           variable: VariableAccessor(path: ["dictionary"],
+                                                                      variable: "key"),
                                            string: "al")
         XCTAssertTrue(condition.matches(payload: payload))
     }
@@ -70,8 +70,8 @@ final class ConditionContainsTests: XCTestCase {
 
     func test_contains_matches_nested_value_ignoring_case() {
         let condition = Condition.contains(ignoreCase: true,
-                                           path: ["dictionary"],
-                                           variable: "key",
+                                           variable: VariableAccessor(path: ["dictionary"],
+                                                                      variable: "key"),
                                            string: "AL")
         XCTAssertTrue(condition.matches(payload: payload))
     }
@@ -83,6 +83,21 @@ final class ConditionContainsTests: XCTestCase {
 
     func test_contains_doesnt_match_keys_missing_from_the_payload() {
         let condition = Condition.contains(ignoreCase: false, variable: "missing", string: "something")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_contains_doesnt_match_keys_with_wrong_path_from_the_payload() {
+        let condition = Condition.contains(ignoreCase: false,
+                                           variable: VariableAccessor(path: ["dictionary", "missing"],
+                                                                      variable: "key"),
+                                           string: "")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_contains_doesnt_match_when_filter_is_nil() {
+        let condition = Condition(variable: "string",
+                                  operator: .contains(true),
+                                  filter: nil)
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

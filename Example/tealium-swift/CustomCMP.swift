@@ -9,6 +9,11 @@
 import TealiumSwift
 
 class CustomCMP: CMPAdapter, ObservableObject {
+    enum Purposes: String, CaseIterable {
+        case tealium
+        case tracking
+        case functional
+    }
     let id = "custom"
     static let defaults = UserDefaults.standard
     var currentDecision: ConsentDecision {
@@ -20,7 +25,7 @@ class CustomCMP: CMPAdapter, ObservableObject {
     @ToAnyObservable<ReplaySubject<ConsentDecision?>>(ReplaySubject<ConsentDecision?>(initialValue: CustomCMP.readDecision()))
     var consentDecision: Observable<ConsentDecision?>
 
-    let allPurposes: [String]? = ["tealium", "tracking", "functional"]
+    let allPurposes: Set<String>? = Set(Purposes.allCases.map { $0.rawValue })
 
     func applyConsent(_ consentDecision: ConsentDecision) {
         Self.saveDecision(consentDecision)
@@ -31,12 +36,12 @@ class CustomCMP: CMPAdapter, ObservableObject {
     static func readDecision() -> ConsentDecision {
         let decisionType = defaults.decisionType ?? .implicit
         let purposes = defaults.purposes ?? []
-        return ConsentDecision(decisionType: decisionType, purposes: purposes)
+        return ConsentDecision(decisionType: decisionType, purposes: Set(purposes))
     }
 
     static func saveDecision(_ decision: ConsentDecision) {
         defaults.decisionType = decision.decisionType
-        defaults.purposes = decision.purposes
+        defaults.purposes = Array(decision.purposes)
     }
 }
 

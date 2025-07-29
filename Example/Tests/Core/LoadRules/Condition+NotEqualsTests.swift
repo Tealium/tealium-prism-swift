@@ -67,8 +67,8 @@ final class ConditionNotEqualsTests: XCTestCase {
 
     func test_notEquals_doesnt_match_nested_value() {
         let condition = Condition.doesNotEqual(ignoreCase: false,
-                                               path: ["dictionary"],
-                                               variable: "key",
+                                               variable: VariableAccessor(path: ["dictionary"],
+                                                                          variable: "key"),
                                                target: "Value")
         XCTAssertFalse(condition.matches(payload: payload))
     }
@@ -82,8 +82,8 @@ final class ConditionNotEqualsTests: XCTestCase {
 
     func test_notEquals_doesnt_match_nested_value_ignoring_case() {
         let condition = Condition.doesNotEqual(ignoreCase: true,
-                                               path: ["dictionary"],
-                                               variable: "key",
+                                               variable: VariableAccessor(path: ["dictionary"],
+                                                                          variable: "key"),
                                                target: "VALUE")
         XCTAssertFalse(condition.matches(payload: payload))
     }
@@ -95,6 +95,22 @@ final class ConditionNotEqualsTests: XCTestCase {
 
     func test_notEquals_doesnt_match_keys_missing_from_the_payload() {
         let condition = Condition.doesNotEqual(ignoreCase: false, variable: "missing", target: "something")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notEquals_doesnt_match_keys_with_wrong_path_from_the_payload() {
+        let condition = Condition.doesNotEqual(ignoreCase: true,
+                                               variable: VariableAccessor(path: ["dictionary", "missing"],
+                                                                          variable: "key"),
+                                               target: "something")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notEquals_doesnt_match_when_filter_is_nil() {
+        let condition = Condition(path: nil,
+                                  variable: "int",
+                                  operator: .notEquals(true),
+                                  filter: nil)
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

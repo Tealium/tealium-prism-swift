@@ -8,6 +8,22 @@
 
 /**
  * An object that univocally defines the way to access a variable in the data layer.
+ *
+ * The suggested way to save some constant accessors and reuse them in different part of your application
+ * is to define them like so:
+ * ```swift
+ * extension VariableAccessor {
+ *     static let firstLevelKey: VariableAccessor = "some_key"
+ *     static let deepKey = VariableAccessor(path: ["container1", "container2"],
+ *                                           variable: "some_key")
+ * }
+ * ```
+ *
+ * In this way you can create something like a `Condition` or a `Mappings` very easily:
+ * ```swift
+ * let condition = Condition.isDefined(variable: .deepKey)
+ * let mapping = Mappings(key: .firstLevelKey, destination: .deepKey)
+ * ```
  */
 public struct VariableAccessor {
     enum Keys {

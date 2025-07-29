@@ -13,34 +13,34 @@ import Foundation
 public extension Modules {
     /// The IDs for the modules
      enum IDs {
-        static public let appData = AppDataCollector.id
-        static public let collect = CollectDispatcher.id
+        static public let appData = AppDataModule.id
+        static public let collect = CollectModule.id
         static public let dataLayer = DataLayerModule.id
-        static public let deviceData = DeviceDataCollector.id
-        static public let trace = TraceManagerModule.id
-        static public let deepLink = DeepLinkHandlerModule.id
-        static public let tealiumCollector = TealiumCollector.id
-        static public let connectivityCollector = ConnectivityCollector.id
-        static public let timeCollector = TimeCollector.id
+        static public let deviceData = DeviceDataModule.id
+        static public let trace = TraceModule.id
+        static public let deepLink = DeepLinkModule.id
+        static public let tealiumData = TealiumDataModule.id
+        static public let connectivityData = ConnectivityDataModule.id
+        static public let timeData = TimeDataModule.id
     }
 }
 
 /// The list of modules factories that can be used to instantiate and pass modules to the `TealiumConfig`.
 public enum Modules {
 
-    /// Returns a factory for creating the `AppDataCollector`
+    /// Returns a factory for creating the `AppDataModule`
     static public func appData() -> any ModuleFactory {
-        DefaultModuleFactory<AppDataCollector>()
+        DefaultModuleFactory<AppDataModule>()
     }
 
     /**
-     * Returns a factory for creating the `CollectDispatcher`.
+     * Returns a factory for creating the `CollectModule`.
      *
      * - Parameters:
-     *   -  block: A block with a utility builder that can be used to enforce some of the `CollectSettings` instead of relying on Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `CollectDispatcher` module, other settings will still be affected by Local and Remote settings and updates.
+     *   -  block: A block with a utility builder that can be used to enforce some of the `CollectSettings` instead of relying on Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `CollectModule` module, other settings will still be affected by Local and Remote settings and updates.
      */
     static public func collect(forcingSettings block: ((_ enforcedSettings: CollectSettingsBuilder) -> CollectSettingsBuilder)? = nil) -> any ModuleFactory {
-        CollectDispatcher.Factory(forcingSettings: block)
+        CollectModule.Factory(forcingSettings: block)
     }
 
     /// Returns a factory for creating the `DataLayerModule`.
@@ -48,34 +48,34 @@ public enum Modules {
         DefaultModuleFactory<DataLayerModule>()
     }
 
-    /// Returns a factory for creating the `DeviceDataCollector`.
+    /// Returns a factory for creating the `DeviceDataModule`.
     static public func deviceData(forcingSettings block: ((_ enforcedSettings: DeviceDataSettingsBuilder) -> DeviceDataSettingsBuilder)? = nil) -> any ModuleFactory {
-        DeviceDataCollector.Factory(forcingSettings: block)
+        DeviceDataModule.Factory(forcingSettings: block)
     }
 
     /// Returns a factory for creating the `DeepLinkModule`.
     static public func deepLink(forcingSettings block: ((_ enforcedSettings: DeepLinkSettingsBuilder) -> DeepLinkSettingsBuilder)? = nil) -> any ModuleFactory {
-        DeepLinkHandlerModule.Factory(forcingSettings: block)
+        DeepLinkModule.Factory(forcingSettings: block)
     }
 
-    /// Returns a factory for creating the `TealiumCollector`.
-    static public func tealiumCollector() -> any ModuleFactory {
-        DefaultModuleFactory<TealiumCollector>()
+    /// Returns a factory for creating the `TealiumDataModule`.
+    static public func tealiumData() -> any ModuleFactory {
+        DefaultModuleFactory<TealiumDataModule>()
     }
 
-    /// Returns a factory for creating the `TimeCollector`.
-    static public func timeCollector() -> any ModuleFactory {
-        DefaultModuleFactory<TimeCollector>()
+    /// Returns a factory for creating the `TimeDataModule`.
+    static public func timeData() -> any ModuleFactory {
+        DefaultModuleFactory<TimeDataModule>()
     }
 
-    /// Returns a factory for creating the `ConnectivityCollector`.
-    static public func connectivityCollector() -> any ModuleFactory {
-        DefaultModuleFactory<ConnectivityCollector>()
+    /// Returns a factory for creating the `ConnectivityDataModule`.
+    static public func connectivityData() -> any ModuleFactory {
+        DefaultModuleFactory<ConnectivityDataModule>()
     }
 
     /// Returns a factory for creating the `TraceModule`.
     static public func trace(forcingSettings block: ((_ enforcedSettings: CollectorSettingsBuilder) -> CollectorSettingsBuilder)? = nil) -> any ModuleFactory {
-        TraceManagerModule.Factory(forcingSettings: block)
+        TraceModule.Factory(forcingSettings: block)
     }
 
     /**

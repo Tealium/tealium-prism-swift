@@ -16,7 +16,7 @@ final class ConsentInspectorTests: XCTestCase {
                                              refireDispatchersIds: [],
                                              purposes: [:])
     var decision = ConsentDecision(decisionType: .implicit, purposes: [])
-    var allPurposes: [String]? = []
+    var allPurposes: Set<String>? = Set()
     lazy var consentInspector: ConsentInspector = ConsentInspector(configuration: configuration,
                                                                    decision: decision,
                                                                    allPurposes: allPurposes)

@@ -11,7 +11,7 @@ declare -a SCHEMES=(
     "DelegateProxyTests_iOS"
     "LifecycleTests_iOS" 
 )
-IOS_DESTINATION='platform=iOS Simulator,OS=17.5,name=iPhone 15 Pro'
+IOS_DESTINATION='platform=iOS Simulator,OS=18.3.1,name=iPhone 16 Pro'
 TVOS_DESTINATION='platform=tvOS Simulator,name=Apple TV'
 MACOS_DESTINATION='platform=macOS'
 

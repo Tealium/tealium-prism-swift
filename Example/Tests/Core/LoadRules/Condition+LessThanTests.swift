@@ -72,8 +72,8 @@ final class ConditionLessThanTests: XCTestCase {
 
     func test_lessThan_matches_if_int_less_than_filter_in_nested_object() {
         let condition = Condition.isLessThan(orEqual: false,
-                                             path: ["dictionary"],
-                                             variable: "key",
+                                             variable: VariableAccessor(path: ["dictionary"],
+                                                                        variable: "key"),
                                              number: "46")
         XCTAssertTrue(condition.matches(payload: payload))
     }
@@ -85,6 +85,14 @@ final class ConditionLessThanTests: XCTestCase {
 
     func test_lessThan_doesnt_match_keys_missing_from_the_payload() {
         let condition = Condition.isLessThan(orEqual: false, variable: "missing", number: "1")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_lessThan_doesnt_match_keys_with_wrong_path_from_the_payload() {
+        let condition = Condition.isLessThan(orEqual: false,
+                                             variable: VariableAccessor(path: ["dictionary", "missing"],
+                                                                        variable: "key"),
+                                             number: "1")
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

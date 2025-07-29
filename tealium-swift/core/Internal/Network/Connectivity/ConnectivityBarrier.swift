@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct ConnectivitySettings {
+struct ConnectivityBarrierSettings {
     enum Keys {
         static let wifiOnly = "wifi_only"
     }
@@ -24,11 +24,11 @@ struct ConnectivitySettings {
 
 class ConnectivityBarrier: ConfigurableBarrier {
     static var id: String = "ConnectivityBarrier"
-    private let settings: StateSubject<ConnectivitySettings>
+    private let settings: StateSubject<ConnectivityBarrierSettings>
     private let connectionManager: ConnectivityManagerProtocol
 
     init(connectionManager: ConnectivityManagerProtocol, configuration: DataObject) {
-        settings = StateSubject(ConnectivitySettings(dataObject: configuration))
+        settings = StateSubject(ConnectivityBarrierSettings(dataObject: configuration))
         self.connectionManager = connectionManager
     }
 
@@ -59,7 +59,7 @@ class ConnectivityBarrier: ConfigurableBarrier {
     }
 
     func updateConfiguration(_ configuration: DataObject) {
-        settings.value = ConnectivitySettings(dataObject: configuration)
+        settings.value = ConnectivityBarrierSettings(dataObject: configuration)
     }
 
 }

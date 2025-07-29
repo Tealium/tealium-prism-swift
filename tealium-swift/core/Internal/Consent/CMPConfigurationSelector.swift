@@ -16,7 +16,7 @@ class CMPConfigurationSelector {
     let configuration: ObservableState<ConsentConfiguration?>
     let consentInspector: ObservableState<ConsentInspector?>
     let disposer = AutomaticDisposer()
-    init(consentSettings: ObservableState<ConsentSettings?>, cmpAdapter: CMPAdapter, queue: TealiumQueue = .worker) {
+    init(consentSettings: ObservableState<ConsentSettings?>, cmpAdapter: CMPAdapter, queue: TealiumQueue) {
         self.cmpAdapter = cmpAdapter
         let configuration = consentSettings.mapState { $0?.configurations[cmpAdapter.id] }
         self.configuration = configuration

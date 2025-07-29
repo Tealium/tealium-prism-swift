@@ -19,13 +19,13 @@ public struct ConsentDecision: Equatable {
     /// The type of decision.
     public let decisionType: DecisionType
     /// The purposes that were accepted by the user, either explicitly or implicitly.
-    public let purposes: [String]
-    public init(decisionType: DecisionType, purposes: [String]) {
+    public let purposes: Set<String>
+    public init(decisionType: DecisionType, purposes: Set<String>) {
         self.decisionType = decisionType
         self.purposes = purposes
     }
 
-    func isMatchingAllPurposes(in sequence: [String]) -> Bool {
+    func isMatchingAllPurposes(in sequence: Set<String>) -> Bool {
         return sequence.allSatisfy(purposes.contains)
     }
 }

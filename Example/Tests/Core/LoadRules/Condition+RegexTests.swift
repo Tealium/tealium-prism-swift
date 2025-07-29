@@ -56,8 +56,8 @@ final class ConditionRegexTests: XCTestCase {
     }
 
     func test_regex_matches_nested_value() {
-        let condition = Condition.regularExpression(path: ["dictionary"],
-                                                    variable: "key",
+        let condition = Condition.regularExpression(variable: VariableAccessor(path: ["dictionary"],
+                                                                               variable: "key"),
                                                     regex: "al")
         XCTAssertTrue(condition.matches(payload: payload))
     }
@@ -68,8 +68,8 @@ final class ConditionRegexTests: XCTestCase {
     }
 
     func test_regex_matches_nested_value_ignoring_case() {
-        let condition = Condition.regularExpression(path: ["dictionary"],
-                                                    variable: "key",
+        let condition = Condition.regularExpression(variable: VariableAccessor(path: ["dictionary"],
+                                                                               variable: "key"),
                                                     regex: "(?i)AL")
         XCTAssertTrue(condition.matches(payload: payload))
     }
@@ -81,6 +81,21 @@ final class ConditionRegexTests: XCTestCase {
 
     func test_regex_doesnt_match_keys_missing_from_the_payload() {
         let condition = Condition.regularExpression(variable: "missing", regex: "")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_regex_doesnt_match_keys_with_wrong_path_from_the_payload() {
+        let condition = Condition.regularExpression(variable: VariableAccessor(path: ["dictionary", "missing"],
+                                                                               variable: "key"),
+                                                    regex: "")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_regex_doesnt_match_when_filter_is_nil() {
+        let condition = Condition(path: nil,
+                                  variable: "string",
+                                  operator: .regex,
+                                  filter: nil)
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

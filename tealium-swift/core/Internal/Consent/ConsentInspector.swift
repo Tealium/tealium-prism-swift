@@ -10,7 +10,7 @@
 struct ConsentInspector {
     let configuration: ConsentConfiguration
     let decision: ConsentDecision
-    let allPurposes: [String]?
+    let allPurposes: Set<String>?
 
     func tealiumConsented() -> Bool {
         decision.purposes.contains(configuration.tealiumPurposeId)

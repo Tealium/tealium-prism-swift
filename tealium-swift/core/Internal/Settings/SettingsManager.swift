@@ -73,7 +73,7 @@ class SettingsManager {
             .flatMap { settings }
     }()
 
-    func startRefreshing(onActivity: Observable<ApplicationStatus>) {
+    func startRefreshing(onActivity: any Subscribable<ApplicationStatus>) {
         guard let resourceRefresher, !refreshing else {
             return
         }
@@ -121,8 +121,9 @@ class SettingsManager {
             }
     }
 
-    static func onShouldRequestRefresh(_ onActivity: Observable<ApplicationStatus>) -> Observable<Void> {
+    static func onShouldRequestRefresh(_ onActivity: any Subscribable<ApplicationStatus>) -> Observable<Void> {
         onActivity
+            .asObservable()
             .filter { $0.type == .foregrounded }
             .map { _ in () }
             .startWith(())

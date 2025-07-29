@@ -51,8 +51,8 @@ final class SettingsManagerTransformationsTests: SettingsManagerTestCase {
             return
         }
         XCTAssertEqual(localCondition, Condition.equals(ignoreCase: false,
-                                                        path: ["container"],
-                                                        variable: "pageName",
+                                                        variable: VariableAccessor(path: ["container"],
+                                                                                   variable: "pageName"),
                                                         target: "Home"))
     }
 

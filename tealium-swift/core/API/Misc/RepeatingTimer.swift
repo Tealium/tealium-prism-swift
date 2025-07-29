@@ -67,7 +67,7 @@ public class RepeatingTimer: Repeater {
     /// Resumes this timer instance if suspended
     public func resume() {
         queue.ensureOnQueue { [weak self] in
-            guard let self = self else {
+            guard let self else {
                 return
             }
             if self.state == .resumed {
@@ -81,7 +81,7 @@ public class RepeatingTimer: Repeater {
     /// Suspends this timer instance if running
     public func suspend() {
         queue.ensureOnQueue { [weak self] in
-            guard let self = self else {
+            guard let self else {
                 return
             }
             if self.state == .suspended {

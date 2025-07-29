@@ -12,7 +12,7 @@ class TealiumImpl {
     let settingsManager: SettingsManager
     let automaticDisposer = AutomaticDisposer()
     let context: TealiumContext
-    let modulesManager = ModulesManager(queue: .worker)
+    let modulesManager: ModulesManager
     let tracker: TrackerImpl
     let visitorIdProvider: VisitorIdProvider
     let instanceName: String
@@ -21,7 +21,8 @@ class TealiumImpl {
     private let appStatusListener = ApplicationStatusListener.shared
 
     // swiftlint:disable function_body_length
-    init(_ config: TealiumConfig) throws {
+    init(_ config: TealiumConfig, queue: TealiumQueue) throws {
+        self.modulesManager = ModulesManager(queue: queue)
         var config = config
         Self.addMandatoryAndRemoveDuplicateModules(from: &config)
         Self.addMandatoryAndRemoveDuplicateBarriers(from: &config)
@@ -32,13 +33,17 @@ class TealiumImpl {
                                    forceLevel: config.coreSettings?
             .get(key: CoreSettings.Keys.minLogLevel, as: String.self)
             .flatMap { LogLevel.Minimum(from: $0) })
-        let networkHelper = NetworkHelper(networkClient: HTTPClient.shared.newClient(withLogger: logger), logger: logger)
+        let client = config.networkClient.newClient(withLogger: logger)
+        let networkHelper = NetworkHelper(networkClient: client, logger: logger)
         let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
         let settingsManager = try SettingsManager(config: config,
                                                   dataStore: dataStore,
                                                   networkHelper: networkHelper,
                                                   logger: logger)
-        settingsManager.startRefreshing(onActivity: appStatusListener.onApplicationStatus)
+        settingsManager.startRefreshing(onActivity: appStatusListener
+            .onApplicationStatus
+            .observeOn(queue)
+            .subscribeOn(queue))
         self.settingsManager = settingsManager
         self.loadRuleEngine = LoadRuleEngine(sdkSettings: settingsManager.settings)
         let coreSettings = settingsManager.settings.mapState { $0.core }
@@ -70,6 +75,7 @@ class TealiumImpl {
         let consentManager = ConsentIntegrationManager(queueManager: queueManager,
                                                        modules: modulesManager.modules,
                                                        consentSettings: settingsManager.settings.mapState { $0.consent },
+                                                       queue: queue,
                                                        cmpAdapter: config.cmpAdapter,
                                                        logger: logger)
 

@@ -30,4 +30,8 @@ class MockNetworkClient: NetworkClient {
     func removeInterceptor(_ interceptor: RequestInterceptor) {
         interceptors.removeAll(where: { $0 === interceptor })
     }
+
+    func newClient(withLogger logger: any LoggerProtocol) -> Self {
+        self
+    }
 }

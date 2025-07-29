@@ -57,8 +57,8 @@ final class ConditionNotEndsWithTests: XCTestCase {
 
     func test_notEndsWith_doesnt_match_ending_nested_value() {
         let condition = Condition.doesNotEndWith(ignoreCase: false,
-                                                 path: ["dictionary"],
-                                                 variable: "key",
+                                                 variable: VariableAccessor(path: ["dictionary"],
+                                                                            variable: "key"),
                                                  suffix: "alue")
         XCTAssertFalse(condition.matches(payload: payload))
     }
@@ -70,8 +70,8 @@ final class ConditionNotEndsWithTests: XCTestCase {
 
     func test_notEndsWith_doesnt_match_nested_value_ignoring_case() {
         let condition = Condition.doesNotEndWith(ignoreCase: true,
-                                                 path: ["dictionary"],
-                                                 variable: "key",
+                                                 variable: VariableAccessor(path: ["dictionary"],
+                                                                            variable: "key"),
                                                  suffix: "ALUE")
         XCTAssertFalse(condition.matches(payload: payload))
     }
@@ -83,6 +83,22 @@ final class ConditionNotEndsWithTests: XCTestCase {
 
     func test_notEndsWith_doesnt_match_keys_missing_from_the_payload() {
         let condition = Condition.doesNotEndWith(ignoreCase: false, variable: "missing", suffix: "something")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notEndsWith_doesnt_match_keys_with_wrong_path_from_the_payload() {
+        let condition = Condition.doesNotEndWith(ignoreCase: false,
+                                                 variable: VariableAccessor(path: ["dictionary", "missing"],
+                                                                            variable: "key"),
+                                                 suffix: "")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notEndsWith_doesnt_match_when_filter_is_nil() {
+        let condition = Condition(path: nil,
+                                  variable: "string",
+                                  operator: .notEndsWith(true),
+                                  filter: nil)
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

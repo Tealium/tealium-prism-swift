@@ -18,7 +18,8 @@ final class ModuleProxyTests: XCTestCase {
     lazy var manager = ModulesManager(queue: queue)
     @ToAnyObservable<ReplaySubject<ModulesManager?>>(ReplaySubject<ModulesManager?>())
     var onModulesManager: Observable<ModulesManager?>
-    lazy var proxy = ModuleProxy<ModuleWithObservable>(onModulesManager: onModulesManager)
+    lazy var proxy = ModuleProxy<ModuleWithObservable>(queue: queue,
+                                                       onModulesManager: onModulesManager)
     lazy var config: TealiumConfig = mockConfig
 
     func context() -> TealiumContext {

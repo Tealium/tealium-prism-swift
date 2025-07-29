@@ -7,7 +7,7 @@
 //
 
 public class DeviceDataSettingsBuilder: CollectSettingsBuilder {
-    typealias Keys = DeviceDataConfiguration.Keys
+    typealias Keys = DeviceDataModuleConfiguration.Keys
     override init() {}
 
     /// Set the custom URL from where the devices list with user friendly names (basically, retail ones) is loaded.

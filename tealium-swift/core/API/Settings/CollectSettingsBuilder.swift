@@ -10,7 +10,7 @@ import Foundation
 
 /// A builder used to enforce some of the `CollectSettings`.
 public class CollectSettingsBuilder: DispatcherSettingsBuilder {
-    typealias Keys = CollectConfiguration.Keys
+    typealias Keys = CollectModuleConfiguration.Keys
     override init() { }
     /// Set the URL used to send single events
     public func setUrl(_ url: String) -> Self {

@@ -12,7 +12,7 @@ public enum TealiumError: Error, TealiumErrorEnum {
     /**
      * An object of a specific class could not be found.
      *
-     * This could happen when that was deallocated before it could be used.
+     * This could happen when that object was deallocated before it could be used.
      */
     case objectNotFound(AnyClass)
 

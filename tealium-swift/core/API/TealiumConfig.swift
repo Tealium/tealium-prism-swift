@@ -26,6 +26,8 @@ public struct TealiumConfig {
     var consentSettings: DataObject?
     var loadRules = DataObject()
     var transformations = DataObject()
+    // this is lazy to allow creation of ConnectionManager from the right thread
+    lazy var networkClient: NetworkClient = HTTPClient.shared
 
     public init(account: String, profile: String, environment: String, dataSource: String? = nil, modules: [any ModuleFactory],
                 settingsFile: String?, settingsUrl: String?, forcingSettings block: ((_ builder: CoreSettingsBuilder) -> CoreSettingsBuilder)? = nil) {

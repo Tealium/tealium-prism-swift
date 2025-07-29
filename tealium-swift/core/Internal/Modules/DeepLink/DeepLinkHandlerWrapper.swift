@@ -7,9 +7,9 @@
 //
 
 public class DeepLinkHandlerWrapper: DeepLinkHandler {
-    private let moduleProxy: ModuleProxy<DeepLinkHandlerModule>
+    private let moduleProxy: ModuleProxy<DeepLinkModule>
 
-    init(moduleProxy: ModuleProxy<DeepLinkHandlerModule>) {
+    init(moduleProxy: ModuleProxy<DeepLinkModule>) {
         self.moduleProxy = moduleProxy
     }
 

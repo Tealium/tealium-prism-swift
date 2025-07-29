@@ -8,9 +8,9 @@
 
 import Foundation
 
-/// A builder used to enforce some of the `DeepLinkHandlerConfiguration` settings.
+/// A builder used to enforce some of the `DeepLinkModuleConfiguration` settings.
 public class DeepLinkSettingsBuilder: CollectorSettingsBuilder {
-    typealias Keys = DeepLinkHandlerConfiguration.Keys
+    typealias Keys = DeepLinkModuleConfiguration.Keys
     override init() { }
 
     /// Enable or disable using trace from deep links.

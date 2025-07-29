@@ -72,8 +72,8 @@ final class ConditionEqualsTests: XCTestCase {
 
     func test_equals_matches_nested_value() {
         let condition = Condition.equals(ignoreCase: false,
-                                         path: ["dictionary"],
-                                         variable: "key",
+                                         variable: VariableAccessor(path: ["dictionary"],
+                                                                    variable: "key"),
                                          target: "Value")
         XCTAssertTrue(condition.matches(payload: payload))
     }
@@ -85,8 +85,8 @@ final class ConditionEqualsTests: XCTestCase {
 
     func test_equals_matches_nested_value_ignoring_case() {
         let condition = Condition.equals(ignoreCase: true,
-                                         path: ["dictionary"],
-                                         variable: "key",
+                                         variable: VariableAccessor(path: ["dictionary"],
+                                                                    variable: "key"),
                                          target: "VALUE")
         XCTAssertTrue(condition.matches(payload: payload))
     }
@@ -100,6 +100,22 @@ final class ConditionEqualsTests: XCTestCase {
 
     func test_equals_doesnt_match_keys_missing_from_the_payload() {
         let condition = Condition.equals(ignoreCase: true, variable: "missing", target: "something")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_equals_doesnt_match_keys_with_wrong_path_from_the_payload() {
+        let condition = Condition.equals(ignoreCase: true,
+                                         variable: VariableAccessor(path: ["dictionary", "missing"],
+                                                                    variable: "key"),
+                                         target: "something")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_equals_doesnt_match_when_filter_is_nil() {
+        let condition = Condition(path: nil,
+                                  variable: "int",
+                                  operator: .equals(true),
+                                  filter: nil)
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

@@ -157,7 +157,7 @@ public class Tealium {
     }
 
     /// Manager for trace-related functionality.
-    public private(set) lazy var trace: TraceManager = TraceManagerWrapper(moduleProxy: createModuleProxy())
+    public private(set) lazy var trace: Trace = TraceWrapper(moduleProxy: createModuleProxy())
 
     /// Manager for deep link functionality.
     public private(set) lazy var deepLink: DeepLinkHandler = DeepLinkHandlerWrapper(moduleProxy: createModuleProxy())
@@ -175,7 +175,7 @@ public class Tealium {
      * - Returns: The `ModuleProxy` for the given module.
      */
     public func createModuleProxy<T: Module>(for module: T.Type = T.self) -> ModuleProxy<T> {
-        ModuleProxy(onModulesManager: onModulesManager)
+        ModuleProxy(queue: queue, onModulesManager: onModulesManager)
     }
 
     deinit {

@@ -10,7 +10,7 @@ import TealiumSwift
 import SwiftUI
 
 struct ConsentView: View {
-    let purposes = TealiumHelper.shared.cmp.allPurposes ?? [String]()
+    let purposes = CustomCMP.Purposes.allCases.map { $0.rawValue }
     @State var decision: ConsentDecision = TealiumHelper.shared.cmp.currentDecision
     @Environment(\.presentationMode) var presentationMode: Binding<PresentationMode>
     @State private var showAlert: Bool = false
@@ -68,13 +68,11 @@ struct ConsentView: View {
         .alert(isPresented: $showAlert) {
             Alert(
                 title: Text("Unsaved consent changes"),
-                message: Text("Do you want to save?"),
-                primaryButton: .destructive(Text("Discard"), action: {
+                message: Text("Do you want to discard them?"),
+                primaryButton:  .default(Text("Continue Editing"), action: { }),
+                secondaryButton: .destructive(Text("Discard"), action: {
                     self.presentationMode.wrappedValue.dismiss()
                     decision = TealiumHelper.shared.cmp.currentDecision
-                }),
-                secondaryButton: .default(Text("Save"), action: {
-                    save()
                 })
             )
         }
@@ -101,11 +99,11 @@ struct ConsentView: View {
             var purposes = decision.purposes
             if purposes.contains(purpose) {
                 if !value {
-                    purposes.removeAll { $0 == purpose }
+                    purposes.remove(purpose)
                 }
             } else {
                 if value {
-                    purposes.append(purpose)
+                    purposes.insert(purpose)
                 }
             }
             decision = ConsentDecision(decisionType: decision.decisionType,

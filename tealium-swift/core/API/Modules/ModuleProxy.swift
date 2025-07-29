@@ -24,16 +24,6 @@ public class ModuleProxy<SpecificModule: Module> {
         _ completion: @escaping (Result<T, Error>) -> Void
     ) throws -> Void
     let asyncProxy: AsyncProxy<SpecificModule>
-    /**
-     * Initialize the `ModuleProxy` for a specific `Module`.
-     *
-     * - Parameters:
-     *      - onModulesManager: An `Observable` that will only emit 1 `ModulesManager` when it will be created.
-     *      The event must be emitted on the `TealiumQueue.worker` queue.
-     */
-    convenience public init(onModulesManager: Observable<ModulesManager?>) {
-        self.init(queue: .worker, onModulesManager: onModulesManager)
-    }
 
     /**
      * Initialize the `ModuleProxy` for a specific `Module`.

@@ -35,7 +35,7 @@ public class TealiumInstanceManager {
                 subject.publish(.success(instance))
             } else {
                 do {
-                    let instance = try TealiumImpl(config)
+                    let instance = try TealiumImpl(config, queue: queue)
                     instances[config.key] = Weak(value: instance)
                     subject.publish(.success(instance))
                 } catch {

@@ -30,11 +30,11 @@ final class NetworkHelperTests: XCTestCase {
     }
 
     func test_get_with_etag_adds_if_none_match_header() {
-        let requestSended = expectation(description: "URLRequest was sent")
+        let requestSent = expectation(description: "URLRequest was sent")
         mockClient.requestDidSend = { request in
             XCTAssertEqual(request.url?.absoluteString, self.url)
             XCTAssertEqual(request.value(forHTTPHeaderField: "If-None-Match"), "some etag")
-            requestSended.fulfill()
+            requestSent.fulfill()
         }
         _ = networkHelper.get(url: url, etag: "some etag") { _ in }
         waitForDefaultTimeout()
@@ -58,11 +58,11 @@ final class NetworkHelperTests: XCTestCase {
     }
 
     func test_getJsonAsObject_with_etag_adds_if_none_match_header() {
-        let requestSended = expectation(description: "URLRequest was sent")
+        let requestSent = expectation(description: "URLRequest was sent")
         mockClient.requestDidSend = { request in
             XCTAssertEqual(request.url?.absoluteString, self.url)
             XCTAssertEqual(request.value(forHTTPHeaderField: "If-None-Match"), "some etag")
-            requestSended.fulfill()
+            requestSent.fulfill()
         }
         _ = networkHelper.getJsonAsObject(url: url, etag: "some etag") { (_: ObjectResult<MockResultObject>) in }
         waitForDefaultTimeout()
@@ -132,13 +132,13 @@ final class NetworkHelperTests: XCTestCase {
     }
 
     func test_post_sends_correct_urlRequest() {
-        let requestSended = expectation(description: "URLRequest was sent")
+        let requestSent = expectation(description: "URLRequest was sent")
         let dataObject: DataObject = ["key": "value"]
         mockClient.requestDidSend = { request in
             XCTAssertEqual(request.url?.absoluteString, self.url)
             XCTAssertEqual(request.httpBody?.isGzipped, true, "Data is not gzipped")
             XCTAssertEqual(request.httpBody, try? Tealium.jsonEncoder.encode(AnyCodable(dataObject.asDictionary())).gzipped(level: .bestCompression))
-            requestSended.fulfill()
+            requestSent.fulfill()
         }
         _ = networkHelper.post(url: url, body: dataObject) { _ in }
         waitForDefaultTimeout()

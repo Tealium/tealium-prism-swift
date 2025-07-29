@@ -37,10 +37,6 @@ class MockConfigurableBarrier: MockBarrier, ConfigurableBarrier {
 
     required override init() {}
 
-    func shouldQueue(dispatch: Dispatch) -> Bool {
-        return false
-    }
-
     func updateConfiguration(_ configuration: DataObject) {
         lastConfiguration = configuration
     }
@@ -57,13 +53,12 @@ class MockBarrier2: MockConfigurableBarrier {
 class MockBarrierFactory<SomeBarrier: MockConfigurableBarrier>: BarrierFactory {
     typealias BarrierType = SomeBarrier
     let _defaultScopes: [BarrierScope]
-
+    let barrier = SomeBarrier()
     init(defaultScope: [BarrierScope]) {
         _defaultScopes = defaultScope
     }
 
     func create(context: TealiumContext, configuration: DataObject) -> BarrierType {
-        let barrier = SomeBarrier()
         barrier.updateConfiguration(configuration)
         return barrier
     }

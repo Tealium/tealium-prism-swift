@@ -57,8 +57,8 @@ final class ConditionNotContainsTests: XCTestCase {
 
     func test_notContains_doesnt_match_contained_nested_value() {
         let condition = Condition.doesNotContain(ignoreCase: false,
-                                                 path: ["dictionary"],
-                                                 variable: "key",
+                                                 variable: VariableAccessor(path: ["dictionary"],
+                                                                            variable: "key"),
                                                  string: "al")
         XCTAssertFalse(condition.matches(payload: payload))
     }
@@ -70,8 +70,8 @@ final class ConditionNotContainsTests: XCTestCase {
 
     func test_notContains_doesnt_match_nested_value_ignoring_case() {
         let condition = Condition.doesNotContain(ignoreCase: true,
-                                                 path: ["dictionary"],
-                                                 variable: "string",
+                                                 variable: VariableAccessor(path: ["dictionary"],
+                                                                            variable: "key"),
                                                  string: "AL")
         XCTAssertFalse(condition.matches(payload: payload))
     }
@@ -83,6 +83,21 @@ final class ConditionNotContainsTests: XCTestCase {
 
     func test_notContains_doesnt_match_keys_missing_from_the_payload() {
         let condition = Condition.doesNotContain(ignoreCase: false, variable: "missing", string: "something")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notContains_doesnt_match_keys_with_wrong_path_from_the_payload() {
+        let condition = Condition.doesNotContain(ignoreCase: false,
+                                                 variable: VariableAccessor(path: ["dictionary", "missing"],
+                                                                            variable: "key"),
+                                                 string: "")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notContains_doesnt_match_when_filter_is_nil() {
+        let condition = Condition(variable: "string",
+                                  operator: .notContains(true),
+                                  filter: nil)
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

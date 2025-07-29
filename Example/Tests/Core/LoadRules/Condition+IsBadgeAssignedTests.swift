@@ -23,7 +23,7 @@ final class ConditionIsBadgeAssignedTests: XCTestCase {
 
     func test_isBadgeAssigned_matches_every_key_present_in_the_payload() {
         for key in payload.keys {
-            let condition = Condition.isBadgeAssigned(variable: key)
+            let condition = Condition.isBadgeAssigned(variable: VariableAccessor(variable: key))
             XCTAssertTrue(condition.matches(payload: payload))
         }
     }
@@ -38,9 +38,15 @@ final class ConditionIsBadgeAssignedTests: XCTestCase {
         XCTAssertFalse(condition.matches(payload: payload))
     }
 
+    func test_isBadgeAssigned_doesnt_match_keys_with_wrong_path_from_the_payload() {
+        let condition = Condition.isBadgeAssigned(variable: VariableAccessor(path: ["dictionary", "missing"],
+                                                                             variable: "key"))
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
     func test_isBadgeNotAssigned_doesnt_match_any_key_present_in_the_payload() {
         for key in payload.keys {
-            let condition = Condition.isBadgeNotAssigned(variable: key)
+            let condition = Condition.isBadgeNotAssigned(variable: VariableAccessor(variable: key))
             XCTAssertFalse(condition.matches(payload: payload))
         }
     }
@@ -52,6 +58,12 @@ final class ConditionIsBadgeAssignedTests: XCTestCase {
 
     func test_isBadgeNotAssigned_matches_every_keys_missing_from_the_payload() {
         let condition = Condition.isBadgeNotAssigned(variable: "missing")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_isBadgeNotAssigned_matches_keys_with_wrong_path_from_the_payload() {
+        let condition = Condition.isBadgeNotAssigned(variable: VariableAccessor(path: ["dictionary", "missing"],
+                                                                                variable: "key"))
         XCTAssertTrue(condition.matches(payload: payload))
     }
 }

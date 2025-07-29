@@ -155,11 +155,6 @@ extension _AnyEncodable {
     }
 }
 
-extension AnyEncodable: Equatable, EqualValues {
-    public static func == (lhs: AnyEncodable, rhs: AnyEncodable) -> Bool {
-        return areEquals(lhs: lhs.value, rhs: rhs.value)
-    }
-}
 // swiftlint:enable cyclomatic_complexity
 extension AnyEncodable: CustomStringConvertible {
     public var description: String {

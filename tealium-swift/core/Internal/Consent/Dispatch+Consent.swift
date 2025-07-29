@@ -12,7 +12,7 @@ extension Dispatch {
             .getArray(key: TealiumDataKey.allConsentedPurposes, of: String.self)?.compactMap { $0 } ?? []
 
         var dispatch = self
-        let purposes = decision.purposes
+        let purposes = Array(decision.purposes)
         let unprocessedPurposes = purposes.filter { !preProcessedPurposes.contains($0) }
         guard !unprocessedPurposes.isEmpty else { return nil }
         dispatch.enrich(data: [

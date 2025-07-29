@@ -3,7 +3,7 @@
 cd "$(dirname "$0")" || { echo "cd failure"; exit 1; }
 
 SCHEME='Example_iOS'
-DESTINATION='platform=iOS Simulator,OS=17.5,name=iPhone 15 Pro'
+DESTINATION='platform=iOS Simulator,OS=18.3.1,name=iPhone 16 Pro'
 
 errors=()
 

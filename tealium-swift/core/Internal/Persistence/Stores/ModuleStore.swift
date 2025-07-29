@@ -26,7 +26,7 @@ public class ModuleStore: DataStore {
 
     public func edit() -> DataStoreEditor {
         return Editor(repository: repository) { [weak self] edits in
-            guard let self = self else { return }
+            guard let self else { return }
             var removedKeys = [String]()
             var updatedData = DataObject()
             for edit in edits {

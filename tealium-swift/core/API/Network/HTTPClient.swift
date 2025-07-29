@@ -21,6 +21,14 @@ public protocol NetworkClient {
      * - Returns: the `Disposable` that can be used to dispose the request and cancel the dataTask and future retries.
      */
     func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> Disposable
+
+    /**
+     * Creates a new `NetworkClient` from this instance which will use a specific logger.
+     *
+     * - parameter logger: The logger that will be used for this instance
+     * - returns: A new `NetworkClient` instance.
+     */
+    func newClient(withLogger logger: LoggerProtocol) -> Self
 }
 
 /**
@@ -59,7 +67,7 @@ public class HTTPClient: NetworkClient {
                   logger: logger)
     }
 
-    init(session: URLSession, queue: TealiumQueue, interceptorManager: InterceptorManagerProtocol, logger: LoggerProtocol?) {
+    required init(session: URLSession, queue: TealiumQueue, interceptorManager: InterceptorManagerProtocol, logger: LoggerProtocol?) {
         self.session = session
         self.queue = queue
         self.interceptorManager = interceptorManager
@@ -80,7 +88,7 @@ public class HTTPClient: NetworkClient {
         let disposeContainer = DisposeContainer()
         self.sendBasicRequest(request) { result in
             self.interceptorManager.interceptResult(request: request, retryCount: retryCount, result: result) { [weak self] shouldRetry in
-                guard let self = self, !disposeContainer.isDisposed else {
+                guard let self, !disposeContainer.isDisposed else {
                     completion.fail(error: .cancelled)
                     return
                 }
@@ -120,10 +128,11 @@ public class HTTPClient: NetworkClient {
         }
     }
 
-    func newClient(withLogger logger: LoggerProtocol) -> HTTPClient {
-        HTTPClient(session: session,
-                   queue: queue,
-                   interceptorManager: interceptorManager,
-                   logger: logger)
+    public func newClient(withLogger logger: LoggerProtocol) -> Self {
+        // swiftlint:disable:next explicit_init
+        Self.init(session: session,
+                  queue: queue,
+                  interceptorManager: interceptorManager,
+                  logger: logger)
     }
 }

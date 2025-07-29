@@ -90,12 +90,6 @@ extension _AnyDecodable {
     }
 }
 
-extension AnyDecodable: Equatable, EqualValues {
-    public static func == (lhs: AnyDecodable, rhs: AnyDecodable) -> Bool {
-        return areEquals(lhs: lhs.value, rhs: rhs.value)
-    }
-}
-
 extension AnyDecodable: CustomStringConvertible {
     public var description: String {
         switch value {

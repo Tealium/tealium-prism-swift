@@ -114,7 +114,7 @@ class DispatchManager: DispatchManagerProtocol {
                     }
                 }.callback(fromDisposable: { [weak self] dispatchSplit, observer in
                     let subscription = Subscription { }
-                    guard let self = self else {
+                    guard let self else {
                         return subscription
                     }
                     self.logger?.debug(category: LogCategory.dispatchManager,
