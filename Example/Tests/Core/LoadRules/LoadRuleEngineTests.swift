@@ -43,42 +43,42 @@ final class LoadRuleEngineTests: XCTestCase {
     }
 
     func test_rulesAllow_allows_to_dispatch_for_module_when_loadRule_is_found_and_applies() {
-        addRule(.just("true"))
+        addRule("true")
 
         XCTAssertTrue(engine.rulesAllow(dispatch: Dispatch(name: "event"),
                                         forModule: moduleWithRules))
     }
 
     func test_rulesAllow_doesnt_allow_to_dispatch_for_module_when_loadRule_is_found_but_doesnt_apply() {
-        addRule(.just("false"))
+        addRule("false")
 
         XCTAssertFalse(engine.rulesAllow(dispatch: Dispatch(name: "event"),
                                          forModule: moduleWithRules))
     }
 
     func test_rulesAllow_allows_to_dispatch_for_module_when_module_has_no_rules() {
-        addRule(.just("false"))
+        addRule("false")
 
         XCTAssertTrue(engine.rulesAllow(dispatch: Dispatch(name: "event"),
                                         forModule: moduleWithoutRules))
     }
 
     func test_rulesAllow_doesnt_allow_to_dispatch_for_module_when_loadRule_is_not_found() {
-        addRule(.just("missing"))
+        addRule("missing")
 
         XCTAssertFalse(engine.rulesAllow(dispatch: Dispatch(name: "event"),
                                          forModule: moduleWithRules))
     }
 
     func test_rulesAllow_allows_to_dispatch_for_module_when_module_has_no_rules_and_loadRule_is_not_found() {
-        addRule(.just("missing"))
+        addRule("missing")
 
         XCTAssertTrue(engine.rulesAllow(dispatch: Dispatch(name: "event"),
                                         forModule: moduleWithoutRules))
     }
 
     func test_filterDispatches_removes_not_allowed_dispatches_for_module() {
-        addRule(.just("equals"))
+        addRule("equals")
         let dispatches = [
             Dispatch(name: "Allowed", data: ["variable": "value"]),
             Dispatch(name: "Not Allowed", data: ["variable": "notValue"])
@@ -91,7 +91,7 @@ final class LoadRuleEngineTests: XCTestCase {
     }
 
     func test_filterDispatches_doesnt_remove_any_dispatch_for_module_without_rules() {
-        addRule(.just("equals"))
+        addRule("equals")
         let dispatches = [
             Dispatch(name: "Allowed", data: ["variable": "value"]),
             Dispatch(name: "Not Allowed", data: ["variable": "notValue"])
@@ -103,7 +103,7 @@ final class LoadRuleEngineTests: XCTestCase {
     }
 
     func test_filterDispatches_removes_all_dispatches_when_rule_is_not_found() {
-        addRule(.just("missing"))
+        addRule("missing")
         let dispatches = [
             Dispatch(name: "Allowed", data: ["variable": "value"]),
             Dispatch(name: "Not Allowed", data: ["variable": "notValue"])
@@ -116,13 +116,13 @@ final class LoadRuleEngineTests: XCTestCase {
 
     func test_ruleMap_is_updated_on_settings_update() {
         let condition = Condition.equals(ignoreCase: false, variable: "variable", target: "value")
-        addRule(.just("equals"))
+        addRule("equals")
         guard let rule = engine.moduleIdToRuleMap[MockModule.id] else {
             XCTFail("Rule not found for \(MockModule.id) in ruleMap \(engine.moduleIdToRuleMap)")
             return
         }
         XCTAssertTrue(Rule<Condition>.just(condition).equals(rule))
-        addRule(.just("equals"), moduleId: "NewModuleId")
+        addRule("equals", moduleId: "NewModuleId")
         guard let newRule = engine.moduleIdToRuleMap["NewModuleId"] else {
             XCTFail("Rule not found for NewModuleId in ruleMap \(engine.moduleIdToRuleMap)")
             return

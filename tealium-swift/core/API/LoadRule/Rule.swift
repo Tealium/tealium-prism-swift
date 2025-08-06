@@ -21,3 +21,13 @@ public indirect enum Rule<Item> {
     /// It's just a wrapper for the item itself.
     case just(Item)
 }
+
+extension Rule: ExpressibleByStringLiteral,
+                ExpressibleByStringInterpolation,
+                ExpressibleByExtendedGraphemeClusterLiteral,
+                ExpressibleByUnicodeScalarLiteral where Item == String {
+
+    public init(stringLiteral value: StringLiteralType) {
+        self = .just(value)
+    }
+}

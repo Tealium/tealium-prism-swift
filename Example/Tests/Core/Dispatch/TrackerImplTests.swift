@@ -50,8 +50,8 @@ final class TrackerImplTests: XCTestCase {
                                            variable: "tealium_event",
                                            suffix: "to_drop")
         _sdkSettings.add(modules: [
-            MockCollector1.id: ModuleSettings(rules: .just("ruleId")),
-            MockCollector2.id: ModuleSettings(rules: .not(.just("ruleId")))
+            MockCollector1.id: ModuleSettings(rules: "ruleId"),
+            MockCollector2.id: ModuleSettings(rules: .not("ruleId"))
         ], loadRules: [
             "ruleId": LoadRule(id: "ruleId", conditions: .just(condition))
         ])

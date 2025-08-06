@@ -19,7 +19,7 @@ final class RuleDataInputConvertibleTests: XCTestCase {
     }
 
     func test_convert_and_returns_object_with_operator_and_children() {
-        let rule = Rule<String>.and([.just("string")])
+        let rule = Rule<String>.and(["string"])
         let dataInput = rule.toDataInput()
         XCTAssertEqual(dataInput as? [String: Any], [
             "operator": "and",
@@ -30,7 +30,7 @@ final class RuleDataInputConvertibleTests: XCTestCase {
     }
 
     func test_convert_or_returns_object_with_operator_and_children() {
-        let rule = Rule<String>.or([.just("string")])
+        let rule = Rule<String>.or(["string"])
         let dataInput = rule.toDataInput()
         XCTAssertEqual(dataInput as? [String: Any], [
             "operator": "or",
@@ -41,7 +41,7 @@ final class RuleDataInputConvertibleTests: XCTestCase {
     }
 
     func test_convert_not_returns_object_with_operator_and_children() {
-        let rule = Rule<String>.not(.just("string"))
+        let rule = Rule<String>.not("string")
         let dataInput = rule.toDataInput()
         XCTAssertEqual(dataInput as? [String: Any], [
             "operator": "not",
@@ -53,10 +53,10 @@ final class RuleDataInputConvertibleTests: XCTestCase {
 
     func test_convert_nested_rules_returns_nested_objects() {
         let rule = Rule<String>.or([
-            .just("string"),
+            "string",
             .and([
-                .just("string"),
-                .not(.just("string"))
+                "string",
+                .not("string")
             ])
         ])
         let dataInput = rule.toDataInput()

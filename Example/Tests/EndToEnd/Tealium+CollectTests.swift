@@ -1,5 +1,5 @@
 //
-//  TealiumTests+Collect.swift
+//  Tealium+CollectTests.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 15/07/25.
@@ -9,7 +9,7 @@
 @testable import TealiumSwift
 import XCTest
 
-final class TealiumTestsCollect: TealiumBaseTests {
+final class TealiumCollectTests: TealiumBaseTests {
 
     static func decodeBody(_ body: Data?, asserting: ([String: Any]) -> Void = { _ in }) {
         XCTAssertTrueOptional(body?.isGzipped, "Body should be gzipped")

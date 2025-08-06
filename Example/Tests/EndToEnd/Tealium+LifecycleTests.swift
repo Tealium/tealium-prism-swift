@@ -1,5 +1,5 @@
 //
-//  TealiumTests+Lifecycle.swift
+//  Tealium+LifecycleTests.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 15/07/25.
@@ -9,7 +9,7 @@
 @testable import TealiumSwift
 import XCTest
 
-final class TealiumTestsLifecycle: TealiumBaseTests {
+final class TealiumLifecycleTests: TealiumBaseTests {
     func test_lifecycle_wrapper_works_on_our_queue() throws {
         let lifecycleEventCompleted = expectation(description: "Lifecycle event completed")
         config.addModule(Modules.lifecycle(forcingSettings: { enforcedSettings in

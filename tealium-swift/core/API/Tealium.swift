@@ -181,9 +181,8 @@ public class Tealium {
     deinit {
         asyncDisposer.dispose()
         queue.ensureOnQueue { [proxy = self.proxy] in // Avoid capturing self in deinit
-            // Hold an extra reference to `TealiumImpl` to make sure that it,
-            // and all its dependencies, are only deallocated from the right thread.
-            _ = proxy
+            // Make sure `TealiumImpl` is only deallocated from the right queue
+            proxy.shutDown()
         }
     }
 }

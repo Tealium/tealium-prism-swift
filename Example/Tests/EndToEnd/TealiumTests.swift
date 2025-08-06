@@ -25,6 +25,8 @@ class TealiumBaseTests: XCTestCase {
         builder.setMinLogLevel(.trace)
     })
 
+    let disposer = DisposeContainer()
+
     func createTealium(completion: ((Tealium.InitializationResult) -> Void)? = nil) -> Tealium {
         instanceManager.create(config: config, completion: completion)
     }
@@ -42,6 +44,7 @@ class TealiumBaseTests: XCTestCase {
             instanceManager.proxies.removeAll()
             instanceManager.instances.removeAll()
             try? TealiumFileManager.deleteAtPath(path: TealiumFileManager.getTealiumApplicationFolder().path)
+            disposer.dispose()
         }
     }
 }
@@ -292,6 +295,20 @@ final class TealiumTests: TealiumBaseTests {
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             joinTraceCompleted.fulfill()
+        }
+        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+    }
+
+    func test_multiple_instances_share_same_implementation() {
+        let tealiumImplementationsCreated = expectation(description: "Both tealium implementations are created")
+        let teal1 = createTealium()
+        let teal2 = createTealium()
+        XCTAssertNotIdentical(teal1, teal2)
+        teal1.proxy.getProxiedObject { impl1 in
+            teal2.proxy.getProxiedObject { impl2 in
+                tealiumImplementationsCreated.fulfill()
+                XCTAssertIdentical(impl1, impl2)
+            }
         }
         waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
     }

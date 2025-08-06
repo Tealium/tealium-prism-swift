@@ -23,9 +23,9 @@ final class ModuleSettingsBuilderTests: XCTestCase {
     }
 
     func test_build_returns_rules_when_passed() {
-        XCTAssertEqual(builder.setRules(.just("ruleId")).build(),
+        XCTAssertEqual(builder.setRules("ruleId").build(),
                        ["rules": "ruleId", "configuration": DataObject()])
-        XCTAssertEqual(builder.setRules(.and([.just("ruleId")])).build(),
+        XCTAssertEqual(builder.setRules(.and(["ruleId"])).build(),
                        [
                         "configuration": DataObject(),
                         "rules": try DataItem(serializing: [

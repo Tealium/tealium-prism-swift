@@ -12,15 +12,22 @@ import Foundation
 class MockNetworkClient: NetworkClient {
     var interceptors = [RequestInterceptor]()
     var result: NetworkResult
+    var resultMap: [String: NetworkResult] = [:]
     var requestDidSend: ((URLRequest) -> Void)?
+    var delayBlock: (@escaping () -> Void) -> Void = { block in block() }
     init(result: NetworkResult) {
         self.result = result
     }
 
     func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> Disposable {
         requestDidSend?(request)
-        completion(result)
-        return Subscription { }
+        let subscription = Subscription { }
+        delayBlock {
+            guard !subscription.isDisposed else { return }
+            let result = self.resultMap[request.url?.absoluteString ?? ""] ?? self.result
+            completion(result)
+        }
+        return subscription
     }
 
     func addInterceptor(_ interceptor: RequestInterceptor) {

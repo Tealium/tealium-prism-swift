@@ -23,8 +23,8 @@ class AsyncProxy<Object: AnyObject> {
     ) throws -> Void
 
     let queue: TealiumQueue
-    private let onObject: Observable<ObjectResult>
-
+    private(set) var onObject: Observable<ObjectResult>
+    let disposer = DisposeContainer()
     init(queue: TealiumQueue, onObject: Observable<ObjectResult>) {
         self.queue = queue
         self.onObject = onObject
@@ -59,8 +59,14 @@ class AsyncProxy<Object: AnyObject> {
                 observer(.failure(error))
             }
         })
-        _ = SingleImpl(observable: observable, queue: queue)
+        SingleImpl(observable: observable, queue: queue)
             .subscribe(replay)
+            .addTo(disposer)
         return replay.asObservable().asSingle(queue: queue)
+    }
+
+    func shutDown() {
+        disposer.dispose()
+        onObject = .Empty()
     }
 }

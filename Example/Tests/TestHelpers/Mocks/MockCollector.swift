@@ -8,7 +8,7 @@
 
 import TealiumSwift
 
-class MockCollector: MockDispatcher, Collector {
+class MockCollector: MockModule, Collector {
     @ToAnyObservable(BasePublisher())
     var onCollect: Observable<DataObject>
 

@@ -44,7 +44,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         let eventsAreDeleted = expectation(description: "Events are deleted")
         disableModule(module: module1)
         let condition = Condition.endsWith(ignoreCase: false, variable: "tealium_event", suffix: "to_keep")
-        _sdkSettings.add(modules: [MockDispatcher2.id: ModuleSettings(rules: .just("ruleId"))],
+        _sdkSettings.add(modules: [MockDispatcher2.id: ModuleSettings(rules: "ruleId")],
                          loadRules: ["ruleId": LoadRule(id: "ruleId", conditions: .just(condition))])
         let dispatches = [
             Dispatch(name: "event_to_be_dropped"),
@@ -78,7 +78,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
             })
         ]
         disableModule(module: module2)
-        _sdkSettings.add(modules: [MockDispatcher1.id: ModuleSettings(rules: .just("ruleId"))],
+        _sdkSettings.add(modules: [MockDispatcher1.id: ModuleSettings(rules: "ruleId")],
                          loadRules: ["ruleId": LoadRule(id: "ruleId", conditions: .just(condition))])
         let dispatches = [
             Dispatch(name: "Event")
