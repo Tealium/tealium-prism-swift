@@ -27,13 +27,13 @@ public class CoreSettingsBuilder {
 
     /// Set the expiration for `Dispatch`es in the queue. If a `Dispatch` is not dequeued in the specified amount of time it will be deleted from the queue anyway.
     public func setQueueExpiration(_ queueExpiration: TimeFrame) -> Self {
-        dataObject.set(converting: queueExpiration, key: Keys.expirationSeconds)
+        dataObject.set(queueExpiration.inSeconds(), key: Keys.expirationSeconds)
         return self
     }
 
     /// The minimum amount of time between remote settings refreshes. Refresh will happen anyway at every app startup, if a remote `settingsUrl` is provided in the `TealiumConfig`.
     public func setRefreshInterval(_ refreshInterval: TimeFrame) -> Self {
-        dataObject.set(converting: refreshInterval, key: Keys.refreshIntervalSeconds)
+        dataObject.set(refreshInterval.inSeconds(), key: Keys.refreshIntervalSeconds)
         return self
     }
 

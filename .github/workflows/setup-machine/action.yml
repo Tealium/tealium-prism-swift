@@ -1,0 +1,23 @@
+name: Setup the machine
+description: Reusable workflow to setup the machine and XCode
+
+runs:
+  using: "composite"
+  steps:
+    - uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.0'
+    - name: Setup Xcode version
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '16.4'
+    - name: Log Selected XCode version
+      run:  xcode-select -p && xcodebuild -version
+      shell: bash
+    - name: Bundle Install
+      run: bundle install
+      shell: bash
+    - name: Pod Install
+      run: bundle exec pod install
+      working-directory: Example
+      shell: bash

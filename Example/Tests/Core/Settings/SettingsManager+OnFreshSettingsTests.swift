@@ -70,7 +70,7 @@ final class SettingsManagerOnFreshSettingsTests: SettingsManagerTestCase {
         let manager = try setupForLocalAndRemote(codableResult: .success(.successful(object: DataObject(dictionary: [CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: Double(0)]]))))
         manager.onFreshSettings.subscribeOnce { settings in
             XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
-            XCTAssertEqual(settings.core.refreshInterval.seconds(), 0)
+            XCTAssertEqual(settings.core.refreshInterval.inSeconds(), 0)
             settingsEmitted.fulfill()
         }
         networkHelper.codableResult = .success(.successful(object: DataObject(dictionary: [CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: Double(10)]])))
@@ -78,7 +78,7 @@ final class SettingsManagerOnFreshSettingsTests: SettingsManagerTestCase {
         onActivity.publish(ApplicationStatus(type: .foregrounded))
         manager.onFreshSettings.subscribeOnce { settings in
             XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
-            XCTAssertEqual(settings.core.refreshInterval.seconds(), 10)
+            XCTAssertEqual(settings.core.refreshInterval.inSeconds(), 10)
             settingsEmitted.fulfill()
         }
         waitForDefaultTimeout()
@@ -92,9 +92,9 @@ final class SettingsManagerOnFreshSettingsTests: SettingsManagerTestCase {
         _ = manager.onFreshSettings.subscribe { settings in
             if firstEmit {
                 firstEmit = false
-                XCTAssertEqual(settings.core.refreshInterval.seconds(), 0)
+                XCTAssertEqual(settings.core.refreshInterval.inSeconds(), 0)
             } else {
-                XCTAssertEqual(settings.core.refreshInterval.seconds(), 10)
+                XCTAssertEqual(settings.core.refreshInterval.inSeconds(), 10)
             }
             XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
 

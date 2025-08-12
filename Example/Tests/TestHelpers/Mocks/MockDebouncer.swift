@@ -1,5 +1,5 @@
 //
-//  MockInstantDebouncer.swift
+//  MockDebouncer.swift
 //  tealium-swift_Tests
 //
 //  Created by Enrico Zannini on 13/06/23.
@@ -9,7 +9,7 @@
 import Foundation
 @testable import TealiumSwift
 
-class MockInstantDebouncer: DebouncerProtocol {
+class MockDebouncer: DebouncerProtocol {
     let queue: DispatchQueue
     init(queue: DispatchQueue) {
         self.queue = queue

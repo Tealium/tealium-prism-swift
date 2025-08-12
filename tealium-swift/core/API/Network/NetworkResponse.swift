@@ -24,7 +24,7 @@ extension NetworkResult {
             if case let .non200Status(status) = error, status == 304 {
                 return "resource not modified"
             } else {
-                return "failed with \(error.localizedDescription)"
+                return "failed with \(error)"
             }
         case .success(let response):
             return "succeeded with \(response.urlResponse.statusCode) status code"

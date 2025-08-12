@@ -10,7 +10,7 @@
 import XCTest
 
 class ResourceRefresherBaseTests: ResourceCacherBaseTests {
-    func createResourceRefresher(urlString: String = "someUrl", refreshInterval: Double = 1.0, errorCooldown: ErrorCooldown? = nil) throws -> ResourceRefresher<TestResourceObject> {
+    func createResourceRefresher(urlString: String = "someUrl", refreshInterval: TimeFrame = 1.seconds, errorCooldown: ErrorCooldown? = nil) throws -> ResourceRefresher<TestResourceObject> {
         let url = try urlString.asUrl()
         let cacher = try createResourceCacher()
         let parameters = RefreshParameters(id: "refresher_id",
@@ -60,7 +60,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
         networkHelper.codableResult = .success(.successful(object: inputResource))
         let resourceLoaded = expectation(description: "Resource is loaded")
-        let refresher = try createResourceRefresher(refreshInterval: 0.0)
+        let refresher = try createResourceRefresher(refreshInterval: 0.seconds)
         refresher.onLatestResource.subscribeOnce { loadedObj in
             resourceLoaded.fulfill()
             XCTAssertEqual(loadedObj, inputResource)
@@ -74,7 +74,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
     func test_shouldRefresh_is_false_during_errorCooldown() throws {
         networkHelper.codableResult = .failure(.non200Status(400))
         let refreshError = expectation(description: "Refresh error happened")
-        let refresher = try createResourceRefresher(refreshInterval: 0.0, errorCooldown: ErrorCooldown(baseInterval: 5, maxInterval: 10))
+        let refresher = try createResourceRefresher(refreshInterval: 0.seconds, errorCooldown: ErrorCooldown(baseInterval: 5, maxInterval: 10))
         refresher.onRefreshError.subscribeOnce { _ in
             refreshError.fulfill()
         }
@@ -87,7 +87,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
     func test_shouldRefresh_is_true_after_error_if_errorCooldown_is_nil() throws {
         networkHelper.codableResult = .failure(.non200Status(400))
         let refreshError = expectation(description: "Refresh error happened")
-        let refresher = try createResourceRefresher(refreshInterval: 0.0)
+        let refresher = try createResourceRefresher(refreshInterval: 0.seconds)
         refresher.onRefreshError.subscribeOnce { _ in
             refreshError.fulfill()
         }
@@ -102,7 +102,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         networkHelper.codableResult = .success(.successful(object: inputResource))
         networkHelper.delay = 0
         let resourceLoaded = expectation(description: "Resource is loaded")
-        let refresher = try createResourceRefresher(refreshInterval: 0.0)
+        let refresher = try createResourceRefresher(refreshInterval: 0.seconds)
         refresher.onLatestResource.subscribeOnce { loadedObj in
             resourceLoaded.fulfill()
             XCTAssertEqual(loadedObj, inputResource)
@@ -157,7 +157,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
 
     func test_shouldRefresh_is_false_after_refresh_completes_synchronously_with_0_refreshInterval() throws {
         networkHelper.delay = nil
-        let refresher = try createResourceRefresher(refreshInterval: 0)
+        let refresher = try createResourceRefresher(refreshInterval: 0.seconds)
         XCTAssertTrue(refresher.shouldRefresh)
         refresher.requestRefresh()
         XCTAssertTrue(refresher.shouldRefresh)

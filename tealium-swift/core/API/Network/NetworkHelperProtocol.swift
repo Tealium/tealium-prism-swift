@@ -75,7 +75,7 @@ public extension NetworkHelperProtocol {
      * - Returns: the `Disposable` to cancel the in flight operation.
      */
     func getJsonAsDataObject(url: URLConvertible, etag: String? = nil, completion: @escaping (ObjectResult<DataObject>) -> Void) -> Disposable {
-        getJsonAsObject<DataObject>(url: url, etag: etag, completion: completion)
+        getJsonAsObject(url: url, etag: etag, completion: completion)
     }
     /**
      * Sends a GET request to the `NetworkClient` and tries to convert the result into a Codable model. Same as using the `get` method with nil as the `etag` parameter.

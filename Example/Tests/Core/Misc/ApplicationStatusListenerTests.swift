@@ -15,6 +15,7 @@ final class ApplicationStatusListenerTests: XCTestCase {
     let notificationCenter = NotificationCenter()
     var graceTimeInterval: TimeInterval = 1.0
     lazy var listener = ApplicationStatusListener(graceTimeInterval: graceTimeInterval,
+                                                  leeway: .nanoseconds(0),
                                                   notificationCenter: notificationCenter)
 
     func test_initialized_status_is_published_on_launch() {

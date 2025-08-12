@@ -16,10 +16,8 @@ extension CoreSettings {
             return CoreSettings(
                 minLogLevel: LogLevel.Minimum(from: coreDataObject.get(key: Keys.minLogLevel)),
                 maxQueueSize: coreDataObject.get(key: Keys.maxQueueSize),
-                queueExpiration: coreDataObject.getConvertible(key: Keys.expirationSeconds,
-                                                               converter: TimeFrame.converter),
-                refreshInterval: coreDataObject.getConvertible(key: Keys.refreshIntervalSeconds,
-                                                               converter: TimeFrame.converter),
+                queueExpiration: coreDataObject.get(key: Keys.expirationSeconds, as: Int.self)?.seconds,
+                refreshInterval: coreDataObject.get(key: Keys.refreshIntervalSeconds, as: Int.self)?.seconds,
                 visitorIdentityKey: coreDataObject.get(key: Keys.visitorIdentityKey)
             )
         }

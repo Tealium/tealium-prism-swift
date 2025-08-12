@@ -28,18 +28,22 @@ public class ApplicationStatusListener: NSObject {
     @ToAnyObservable<ReplaySubject>(ReplaySubject<ApplicationStatus>(initialValue: ApplicationStatus(type: .initialized), cacheSize: Int.max))
     public var onApplicationStatus: Observable<ApplicationStatus>
 
-    var wakeNotificationObserver: NSObjectProtocol?
-    var sleepNotificationObserver: NSObjectProtocol?
+    private var wakeNotificationObserver: NSObjectProtocol?
+    private var sleepNotificationObserver: NSObjectProtocol?
 
-    var initGraceTimer: RepeatingTimer?
+    private(set) var initGraceTimer: RepeatingTimer?
     let queue: TealiumQueue
     let notificationCenter: NotificationCenter
-    init(graceTimeInterval: Double = 10.0, queue: TealiumQueue = .worker, notificationCenter: NotificationCenter = NotificationCenter.default) {
+    init(graceTimeInterval: Double = 10.0, leeway: DispatchTimeInterval = .milliseconds(10), queue: TealiumQueue = .worker, notificationCenter: NotificationCenter = NotificationCenter.default) {
         self.queue = queue
         self.notificationCenter = notificationCenter
         super.init()
         addListeners()
-        initGraceTimer = RepeatingTimer(timeInterval: graceTimeInterval, repeating: .never, queue: queue, eventHandler: { [weak self] in
+        initGraceTimer = RepeatingTimer(timeInterval: graceTimeInterval,
+                                        repeating: .never,
+                                        leeway: leeway,
+                                        queue: queue,
+                                        eventHandler: { [weak self] in
             self?._onApplicationStatus.publisher.resize(1)
             self?.initGraceTimer = nil
         })

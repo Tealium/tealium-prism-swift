@@ -20,13 +20,13 @@ public struct RefreshParameters {
      * - Parameters:
      *   - id: A unique String, used to identify the specific Refresher and the specific Resource it's refreshing.
      *   - url: The URL used to send the GET requests
-     *   - refreshInterval: the interval in seconds used to refresh the resource after the initial refresh
+     *   - refreshInterval: the interval used to refresh the resource after the initial refresh
      *   - errorCooldownBaseInterval: if present, it's the interval that is used, instead of the `refreshInterval`, in case of no resource found in the cache. It must be lower then `refreshInterval` if provided.
      */
-    public init(id: String, url: URL, refreshInterval: Double, errorCooldownBaseInterval: Double? = nil) {
+    public init(id: String, url: URL, refreshInterval: TimeFrame, errorCooldownBaseInterval: TimeFrame? = nil) {
         self.id = id
         self.url = url
-        self.refreshInterval = refreshInterval
-        self.errorCooldownBaseInterval = errorCooldownBaseInterval
+        self.refreshInterval = refreshInterval.inSeconds()
+        self.errorCooldownBaseInterval = errorCooldownBaseInterval?.inSeconds()
     }
 }

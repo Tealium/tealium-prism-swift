@@ -63,7 +63,7 @@ class DeepLinkModule: BasicModule, Collector {
                 try self.handle(link: url, referrer: referrer)
             } catch {
                 // Log the error
-                self.logger?.error(category: Self.id, "Failed to handle deep link \(url.absoluteString)\nError: \(error.localizedDescription)")
+                self.logger?.error(category: Self.id, "Failed to handle deep link \(url.absoluteString)\nError: \(error)")
             }
         }.addTo(disposer)
     }

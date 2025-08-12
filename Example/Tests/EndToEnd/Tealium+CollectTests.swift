@@ -26,11 +26,16 @@ final class TealiumCollectTests: TealiumBaseTests {
         config.networkClient = client
     }
 
+    /// Waits for the blocks currently dispatched to the queue to be completed synchronously.
+    func waitForDispatchQueueToBeEmpty() {
+        self.queue.dispatchQueue.sync { }
+    }
+
     func test_collect_sends_basic_event() {
         config.addModule(Modules.collect())
         let httpRequestSent = expectation(description: "Http Request is sent")
         client.requestDidSend = { request in
-            dispatchPrecondition(condition: .onQueue(TealiumQueue.worker.dispatchQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertEqual(request.url?.absoluteString, "https://collect.tealiumiq.com/event")
             httpRequestSent.fulfill()
             Self.decodeBody(request.httpBody) { body in
@@ -60,14 +65,15 @@ final class TealiumCollectTests: TealiumBaseTests {
         }
         let teal = createTealium()
         teal.track("Event")
-        waitForLongTimeout()
+        waitForDispatchQueueToBeEmpty()
+        waitOnQueue(queue: queue, timeout: Self.longTimeout)
     }
 
     func test_collect_sends_event_with_collected_data() {
         config.addModule(Modules.collect())
         let httpRequestSent = expectation(description: "Http Request is sent")
         client.requestDidSend = { request in
-            dispatchPrecondition(condition: .onQueue(TealiumQueue.worker.dispatchQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             httpRequestSent.fulfill()
             Self.decodeBody(request.httpBody) { body in
                 XCTAssertEqual(body["data_layer_key"] as? String, "data_layer_value")
@@ -76,7 +82,8 @@ final class TealiumCollectTests: TealiumBaseTests {
         let teal = createTealium()
         teal.dataLayer.put(key: "data_layer_key", value: "data_layer_value")
         teal.track("Event")
-        waitForLongTimeout()
+        waitForDispatchQueueToBeEmpty()
+        waitOnQueue(queue: queue, timeout: Self.longTimeout)
     }
 
     func test_collect_sends_event_to_custom_endpoint() {
@@ -86,14 +93,15 @@ final class TealiumCollectTests: TealiumBaseTests {
         }))
         let httpRequestSent = expectation(description: "Http Request is sent")
         client.requestDidSend = { request in
-            dispatchPrecondition(condition: .onQueue(TealiumQueue.worker.dispatchQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             httpRequestSent.fulfill()
             XCTAssertEqual(request.url?.absoluteString, customUrl)
             Self.decodeBody(request.httpBody)
         }
         let teal = createTealium()
         teal.track("Event")
-        waitForLongTimeout()
+        waitForDispatchQueueToBeEmpty()
+        waitOnQueue(queue: queue, timeout: Self.longTimeout)
     }
 
     func test_collect_sends_multiple_events_in_a_batch() {
@@ -102,7 +110,7 @@ final class TealiumCollectTests: TealiumBaseTests {
         config.addBarrier(barrierFactory)
         let httpRequestSent = expectation(description: "Http Request is sent")
         client.requestDidSend = { request in
-            dispatchPrecondition(condition: .onQueue(TealiumQueue.worker.dispatchQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertEqual(request.url?.absoluteString, "https://collect.tealiumiq.com/bulk-event")
             httpRequestSent.fulfill()
             Self.decodeBody(request.httpBody) { body in
@@ -122,7 +130,8 @@ final class TealiumCollectTests: TealiumBaseTests {
         teal.track("Event2").subscribe { _ in
             barrierFactory.barrier.setState(.open)
         }
-        waitForLongTimeout()
+        waitForDispatchQueueToBeEmpty()
+        waitOnQueue(queue: queue, timeout: Self.longTimeout)
     }
 
     func test_collect_sends_mapped_event() {
@@ -136,7 +145,7 @@ final class TealiumCollectTests: TealiumBaseTests {
         }))
         let httpRequestSent = expectation(description: "Http Request is sent")
         client.requestDidSend = { request in
-            dispatchPrecondition(condition: .onQueue(TealiumQueue.worker.dispatchQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             httpRequestSent.fulfill()
             Self.decodeBody(request.httpBody) { body in
                 XCTAssertEqual(body, [
@@ -150,7 +159,8 @@ final class TealiumCollectTests: TealiumBaseTests {
 
         let teal = createTealium()
         teal.track("Event")
-        waitForLongTimeout()
+        waitForDispatchQueueToBeEmpty()
+        waitOnQueue(queue: queue, timeout: Self.longTimeout)
     }
 
     func test_collect_sends_transformed_event() {
@@ -169,7 +179,7 @@ final class TealiumCollectTests: TealiumBaseTests {
                                                         scopes: [.allDispatchers]))
         let httpRequestSent = expectation(description: "Http Request is sent")
         client.requestDidSend = { request in
-            dispatchPrecondition(condition: .onQueue(TealiumQueue.worker.dispatchQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             httpRequestSent.fulfill()
             Self.decodeBody(request.httpBody) { body in
                 XCTAssertEqual(body, [
@@ -184,6 +194,7 @@ final class TealiumCollectTests: TealiumBaseTests {
         }
         let teal = createTealium()
         teal.track("Event")
-        waitForLongTimeout()
+        waitForDispatchQueueToBeEmpty()
+        waitOnQueue(queue: queue, timeout: Self.longTimeout)
     }
 }

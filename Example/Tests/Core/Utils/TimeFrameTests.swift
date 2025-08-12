@@ -57,20 +57,49 @@ final class TimeFrameTests: XCTestCase {
         XCTAssertTrue(time1 == time2)
     }
 
-    func test_seconds_conversion() {
+    func test_inSeconds_conversion() {
         let millisecondsFrame = 10.milliseconds
-        XCTAssertEqual(millisecondsFrame.seconds(), 0.01)
+        XCTAssertEqual(millisecondsFrame.inSeconds(), 0.01)
         let secondsFrame = 10.seconds
-        XCTAssertEqual(secondsFrame.seconds(), 10.0)
+        XCTAssertEqual(secondsFrame.inSeconds(), 10.0)
         let minutesFrame = 10.minutes
-        XCTAssertEqual(minutesFrame.seconds(), 600.0)
+        XCTAssertEqual(minutesFrame.inSeconds(), 600.0)
         let hoursFrame = 10.hours
-        XCTAssertEqual(hoursFrame.seconds(), 36_000.0)
+        XCTAssertEqual(hoursFrame.inSeconds(), 36_000.0)
         let daysFrame = 10.days
-        XCTAssertEqual(daysFrame.seconds(), 864_000.0)
-        let monthsFrame = TimeFrame(unit: .months, interval: 10)
-        XCTAssertEqual(monthsFrame.seconds(), 26_280_000.0)
-        let yearsFrame = TimeFrame(unit: .years, interval: 10)
-        XCTAssertEqual(yearsFrame.seconds(), 315_360_000.0)
+        XCTAssertEqual(daysFrame.inSeconds(), 864_000.0)
+    }
+
+    func test_inMilliseconds_conversion() {
+        let millisecondsFrame = 10.milliseconds
+        XCTAssertEqual(millisecondsFrame.inMilliseconds(), 10)
+        let secondsFrame = 10.seconds
+        XCTAssertEqual(secondsFrame.inMilliseconds(), 10_000)
+        let minutesFrame = 10.minutes
+        XCTAssertEqual(minutesFrame.inMilliseconds(), 600_000)
+        let hoursFrame = 10.hours
+        XCTAssertEqual(hoursFrame.inMilliseconds(), 36_000_000)
+        let daysFrame = 10.days
+        XCTAssertEqual(daysFrame.inMilliseconds(), 864_000_000)
+    }
+
+    func test_big_timeFrames_conversions() {
+        let bigTimeFrame = Int.max.days
+        XCTAssertEqual(bigTimeFrame.inMilliseconds(), Int64.max)
+        XCTAssertLessThan(bigTimeFrame.inSeconds(), Double.greatestFiniteMagnitude)
+    }
+
+    func test_after_adds_the_timeFrame_to_a_date() {
+        let firstOfJanuary2000: Int64 = 946_684_800_000
+        let date = Date(unixMilliseconds: firstOfJanuary2000)
+        let newDate = 5.days.after(date: date)
+        XCTAssertEqual(newDate?.unixTimeMilliseconds, firstOfJanuary2000 + 5.days.inMilliseconds())
+    }
+
+    func test_before_subtracts_the_timeFrame_to_a_date() {
+        let firstOfJanuary2000: Int64 = 946_684_800_000
+        let date = Date(unixMilliseconds: firstOfJanuary2000)
+        let newDate = 5.days.before(date: date)
+        XCTAssertEqual(newDate?.unixTimeMilliseconds, firstOfJanuary2000 - 5.days.inMilliseconds())
     }
 }

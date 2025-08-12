@@ -53,4 +53,13 @@ final class DebouncerTests: XCTestCase {
         }
         waitForDefaultTimeout()
     }
+
+    func test_approximateLeeway_is_10_percent_between_1_and_100_milliseconds() {
+        XCTAssertEqual(debouncer.approximateLeeway(seconds: 10), .milliseconds(100))
+        XCTAssertEqual(debouncer.approximateLeeway(seconds: 1), .milliseconds(100))
+        XCTAssertEqual(debouncer.approximateLeeway(seconds: 0.5), .milliseconds(50))
+        XCTAssertEqual(debouncer.approximateLeeway(seconds: 0.1), .milliseconds(10))
+        XCTAssertEqual(debouncer.approximateLeeway(seconds: 0.01), .milliseconds(1))
+        XCTAssertEqual(debouncer.approximateLeeway(seconds: 0.001), .milliseconds(1))
+    }
 }

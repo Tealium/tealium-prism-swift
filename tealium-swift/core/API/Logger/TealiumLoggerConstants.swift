@@ -125,6 +125,7 @@ enum LogCategory {
     static let queueManager = "QueueManager"
     static let resourceRefresher = "ResourceRefresher"
     static let settingsManager = "SettingsManager"
+    static let sessionManager = "SessionManager"
     static let startup = "Startup"
     static let tealium = "Tealium"
     static let tracking = "Tracking"

@@ -155,7 +155,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         config.addModule(Modules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
         let manager = try setupForLocal(url: "someUrl")
         let sdkSettings: DataObject = ["modules": [
-            CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: CoreSettings.Defaults.refreshInterval]
+            CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: CoreSettings.Defaults.refreshInterval.inSeconds()]
         ]]
         networkHelper.codableResult = .success(.successful(object: sdkSettings))
         _ = manager.onNewRefreshInterval().subscribe { newInterval in

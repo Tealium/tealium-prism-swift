@@ -50,8 +50,8 @@ class SettingsManager {
         if let urlString = config.settingsUrl {
             let refreshParameters = RefreshParameters(id: "settings",
                                                       url: try urlString.asUrl(),
-                                                      refreshInterval: _settings.value.core.refreshInterval.seconds(),
-                                                      errorCooldownBaseInterval: 20)
+                                                      refreshInterval: _settings.value.core.refreshInterval,
+                                                      errorCooldownBaseInterval: 20.seconds)
             let settingsRefresher = ResourceRefresher<DataObject>(networkHelper: networkHelper,
                                                                   resourceCacher: settingsCacher,
                                                                   parameters: refreshParameters,
@@ -101,7 +101,7 @@ class SettingsManager {
 
     func onNewRefreshInterval() -> Observable<Double> {
         settings.asObservable()
-            .map { $0.core.refreshInterval.seconds() }
+            .map { $0.core.refreshInterval.inSeconds() }
             .distinct()
     }
 

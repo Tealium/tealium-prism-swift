@@ -56,8 +56,6 @@ final class InterceptorManagerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    @available(tvOS, deprecated: 13.0, message: "URLSessionTask init not supported")
-    @available(macOS, deprecated: 10.15, message: "URLSessionTask init not supported")
     func test_waitingForConnectivity_interceptors_are_called_in_order() {
         let expectFirstCompletion = expectation(description: "First waitingForConnectivity interceptor should be called first")
         let expectSecondCompletion = expectation(description: "Second waitingForConnectivity interceptor should be called second")
@@ -68,7 +66,8 @@ final class InterceptorManagerTests: XCTestCase {
             firstInterceptor,
             secondInterceptor
         ]
-        manager.urlSession(URLSession.shared, taskIsWaitingForConnectivity: URLSessionTask())
+        let task = URLSession.shared.dataTask(with: URLRequest())
+        manager.urlSession(URLSession.shared, taskIsWaitingForConnectivity: task)
         wait(for: [expectFirstCompletion, expectSecondCompletion], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 

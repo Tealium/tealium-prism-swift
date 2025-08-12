@@ -49,7 +49,7 @@ final class EmpiricalConnectivityTests: XCTestCase {
     func test_connectivity_returns_available_on_timeout() {
         let connectionAvailableChange = expectation(description: "Connection is changed")
         connectionAvailableChange.expectedFulfillmentCount = 2
-        let empiricalConnectivity = EmpiricalConnectivity(debouncer: MockInstantDebouncer(queue: .main))
+        let empiricalConnectivity = EmpiricalConnectivity(debouncer: MockDebouncer(queue: .main))
         empiricalConnectivity.connectionFail()
 
         var firstEventReturned = false
@@ -70,7 +70,7 @@ final class EmpiricalConnectivityTests: XCTestCase {
         let connectionAvailable = expectation(description: "Connection returns Available")
         connectionAvailable.assertForOverFulfill = false
         connectionAvailable.expectedFulfillmentCount = 5
-        let empiricalConnectivity = EmpiricalConnectivity(debouncer: MockInstantDebouncer(queue: .main))
+        let empiricalConnectivity = EmpiricalConnectivity(debouncer: MockDebouncer(queue: .main))
         var numberOfFailures = 0
         func fail() {
             empiricalConnectivity.connectionFail()
@@ -90,7 +90,7 @@ final class EmpiricalConnectivityTests: XCTestCase {
 
     func test_connection_success_resets_number_of_failures() {
         let connectionAvailable = expectation(description: "Connection returns Available")
-        let empiricalConnectivity = EmpiricalConnectivity(debouncer: MockInstantDebouncer(queue: .main))
+        let empiricalConnectivity = EmpiricalConnectivity(debouncer: MockDebouncer(queue: .main))
         var numberOfFailures = 0
         func fail() {
             empiricalConnectivity.connectionFail()

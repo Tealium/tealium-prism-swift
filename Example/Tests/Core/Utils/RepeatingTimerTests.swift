@@ -64,9 +64,11 @@ final class RepeatingTimerTests: XCTestCase {
     func test_timer_can_be_deinitialized() {
         let neverTriggerTheHandler = expectation(description: "The handler should never be triggered")
         neverTriggerTheHandler.isInverted = true
-        let helper = RetainCycleHelper(variable: RepeatingTimer(timeInterval: 0.1, repeating: .milliseconds(1), queue: .main, eventHandler: {
+        let helper = RetainCycleHelper(variable: RepeatingTimer(timeInterval: 0.1,
+                                                                repeating: .milliseconds(1),
+                                                                queue: .main) {
             neverTriggerTheHandler.fulfill()
-        }))
+        })
         helper.forceAndAssertObjectDeinit()
         waitForDefaultTimeout()
     }

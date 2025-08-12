@@ -20,7 +20,7 @@ final class TealiumSettingsTests: TealiumBaseTests {
                                settingsFile: "local",
                                settingsUrl: settingsUrl,
                                forcingSettings: { builder in
-            builder.setMinLogLevel(.trace)
+            builder.setMinLogLevel(.silent)
         })
         config.bundle = Bundle(for: self.classForCoder)
         config.networkClient = client

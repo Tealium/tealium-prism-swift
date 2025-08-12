@@ -21,22 +21,28 @@ public class RepeatingTimer: Repeater {
     let timeInterval: TimeInterval
     let repeating: DispatchTimeInterval
     let queue: TealiumQueue
+    let leeway: DispatchTimeInterval
 
     /// - Parameters:
     ///     - timeInterval: TimeInterval in seconds until the timed event happens, and repeating interval by default (if 'repeating' is not specified)
     ///     - repeating: The interval to repeat, otherwise the same timeInterval is reused
     ///     - queue: The queue to use for the timer
-    public init(timeInterval: TimeInterval, repeating: DispatchTimeInterval? = nil, queue: TealiumQueue, eventHandler: @escaping () -> Void) {
+    public init(timeInterval: TimeInterval,
+                repeating: DispatchTimeInterval? = nil,
+                leeway: DispatchTimeInterval = .nanoseconds(0),
+                queue: TealiumQueue,
+                eventHandler: @escaping () -> Void) {
         self.timeInterval = max(0, timeInterval)
         self.repeating = repeating ?? DispatchTimeInterval.milliseconds(Int(timeInterval * 1000))
         self.queue = queue
         self.eventHandler = eventHandler
+        self.leeway = leeway
     }
 
     private lazy var timer: DispatchSourceTimer = {
         let timer = DispatchSource.makeTimerSource(flags: [], queue: queue.dispatchQueue)
 
-        timer.schedule(deadline: .now() + self.timeInterval, repeating: self.repeating)
+        timer.schedule(deadline: .now() + self.timeInterval, repeating: self.repeating, leeway: self.leeway)
         timer.setEventHandler(handler: { [weak self] in
             self?.eventHandler?()
         })

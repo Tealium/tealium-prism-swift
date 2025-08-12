@@ -20,10 +20,9 @@ class TealiumBaseTests: XCTestCase {
                                     environment: "mockEnv",
                                     modules: [],
                                     settingsFile: nil,
-                                    settingsUrl: nil,
-                                    forcingSettings: { builder in
-        builder.setMinLogLevel(.trace)
-    })
+                                    settingsUrl: nil) { builder in
+        builder.setMinLogLevel(.silent)
+    }
 
     let disposer = DisposeContainer()
 

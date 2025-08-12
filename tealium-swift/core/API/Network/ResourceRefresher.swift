@@ -169,7 +169,7 @@ public class ResourceRefresher<Resource: Codable> {
      * Updates the refreshInterval to the specified seconds.
      *
      * - Parameters:
-     *   - seconds: The amound of seconds to wait between refreshes.
+     *   - seconds: The amount of seconds to wait between refreshes.
      */
     public func setRefreshInterval(_ seconds: Double) {
         parameters.refreshInterval = seconds

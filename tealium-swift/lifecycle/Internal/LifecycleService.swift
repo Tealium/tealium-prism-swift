@@ -321,7 +321,7 @@ class LifecycleService {
     }
 
     func daysSince(startEventMs: Int64?, endEventMs: Int64) -> Int64? {
-        let dayInMs: Int64 = Int64(1.days.seconds()) * 1000
+        let dayInMs = 1.days.inMilliseconds()
         guard let startEventMs, startEventMs >= 0, endEventMs >= startEventMs else {
             return nil
         }

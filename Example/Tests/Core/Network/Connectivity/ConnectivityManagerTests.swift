@@ -174,14 +174,13 @@ final class ConnectivityManagerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    @available(tvOS, deprecated: 13.0, message: "URLSessionTask init not supported")
-    @available(macOS, deprecated: 10.15, message: "URLSessionTask init not supported")
     func test_waiting_for_connectivity_causes_empirical_connection_failure() {
         let empiricalConnectionFailure = expectation(description: "Empirical connection failure is reported")
         empiricalConnectivity.onConnectionFail.subscribeOnce {
             empiricalConnectionFailure.fulfill()
         }
-        manager.waitingForConnectivity(URLSessionTask())
+        let task = URLSession.shared.dataTask(with: URLRequest())
+        manager.waitingForConnectivity(task)
         waitForDefaultTimeout()
     }
 }
