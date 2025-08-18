@@ -11,11 +11,14 @@ import Foundation
 
 class MockDebouncer: DebouncerProtocol {
     let queue: DispatchQueue
+    @ToAnyObservable(BasePublisher())
+    var onDebounce: Observable<TimeInterval>
     init(queue: DispatchQueue) {
         self.queue = queue
     }
     func debounce(time: TimeInterval, completion: @escaping () -> Void) {
         queue.async {
+            self._onDebounce.publish(time)
             completion()
         }
     }

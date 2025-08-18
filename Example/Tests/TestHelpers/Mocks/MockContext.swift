@@ -15,6 +15,7 @@ let mockContext = MockContext(modulesManager: ModulesManager(queue: queue), conf
 
 class MockContext: TealiumContext {
     init(modulesManager: ModulesManager,
+         sessionRegistry: SessionRegistry? = nil,
          config: TealiumConfig = mockConfig,
          coreSettings: ObservableState<CoreSettings> = .constant(CoreSettings()),
          tracker: Tracker = MockTracker(),
@@ -26,25 +27,32 @@ class MockContext: TealiumContext {
          activityListener: ApplicationStatusListener = ApplicationStatusListener.shared,
          queue: TealiumQueue = TealiumQueue.worker,
          visitorId: ObservableState<String> = mockVisitorId) {
-        let transformerRegistry = transformerRegistry ?? TransformerCoordinator(transformers: .constant([]),
-                                                                                transformations: .constant([]),
-                                                                                moduleMappings: .constant([:]),
-                                                                                queue: queue)
-        let queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: modulesManager.modules, addingConsent: true),
-                                            queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
-                                                                                maxQueueSize: 10,
-                                                                                expiration: 1.days),
-                                            coreSettings: coreSettings,
-                                            logger: nil)
+        let transformerRegistry = transformerRegistry ?? TransformerCoordinator(
+            transformers: .constant([]),
+            transformations: .constant([]),
+            moduleMappings: .constant([:]),
+            queue: queue
+        )
+        let queueManager = MockQueueManager(
+            processors: TealiumImpl.queueProcessors(from: modulesManager.modules, addingConsent: true),
+            queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
+                                                maxQueueSize: 10,
+                                                expiration: 1.days),
+            coreSettings: coreSettings,
+            logger: nil
+        )
         super.init(modulesManager: modulesManager,
+                   sessionRegistry: MockSessionManager(databaseProvider: databaseProvider),
                    config: config,
                    coreSettings: coreSettings,
                    tracker: tracker,
                    barrierRegistry: barrierRegistry,
                    transformerRegistry: transformerRegistry,
                    databaseProvider: databaseProvider,
-                   moduleStoreProvider: ModuleStoreProvider(databaseProvider: databaseProvider,
-                                                            modulesRepository: SQLModulesRepository(dbProvider: databaseProvider)),
+                   moduleStoreProvider: ModuleStoreProvider(
+                    databaseProvider: databaseProvider,
+                    modulesRepository: SQLModulesRepository(dbProvider: databaseProvider)
+                   ),
                    logger: logger,
                    networkHelper: networkHelper,
                    activityListener: activityListener,

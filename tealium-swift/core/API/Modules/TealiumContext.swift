@@ -17,6 +17,7 @@ public class TealiumContext {
     public let databaseProvider: DatabaseProviderProtocol
     public let moduleStoreProvider: ModuleStoreProvider
     public let modulesManager: ModulesManager
+    public let sessionRegistry: SessionRegistry
     public let logger: LoggerProtocol?
     public let networkHelper: NetworkHelperProtocol
     public let activityListener: ApplicationStatusListener
@@ -25,6 +26,7 @@ public class TealiumContext {
     public let queueMetrics: QueueMetrics
 
     init(modulesManager: ModulesManager,
+         sessionRegistry: SessionRegistry,
          config: TealiumConfig,
          coreSettings: ObservableState<CoreSettings>,
          tracker: Tracker,
@@ -39,6 +41,7 @@ public class TealiumContext {
          visitorId: ObservableState<String>,
          queueMetrics: QueueMetrics) {
         self.modulesManager = modulesManager
+        self.sessionRegistry = sessionRegistry
         self.config = config
         self.barrierRegistry = barrierRegistry
         self.transformerRegistry = transformerRegistry

@@ -16,13 +16,15 @@ final class CoreSettingsBuilderTests: XCTestCase {
             .setQueueExpiration(50.seconds)
             .setRefreshInterval(100.seconds)
             .setMaxQueueSize(20)
+            .setSessionTimeout(10.seconds)
             .build()
             .asDictionary()
         XCTAssertEqual(settings, [
             "log_level": "trace",
             "max_queue_size": 20,
             "expiration": 50.0,
-            "refresh_interval": 100.0
+            "refresh_interval": 100.0,
+            "session_timeout": 10
         ])
     }
 

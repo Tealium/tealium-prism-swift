@@ -16,27 +16,32 @@ public struct CoreSettings: Equatable {
         static let expirationSeconds = "expiration"
         static let refreshIntervalSeconds = "refresh_interval"
         static let visitorIdentityKey = "visitor_identity_key"
+        static let sessionTimeout = "session_timeout"
     }
     enum Defaults {
         static let minLogLevel = LogLevel.Minimum.error
         static let maxQueueSize = 100
         static let queueExpiration = 1.days
         static let refreshInterval = 15.minutes
+        static let sessionTimeout = 5.minutes
     }
     init(minLogLevel: LogLevel.Minimum? = nil,
          maxQueueSize: Int? = nil,
          queueExpiration: TimeFrame? = nil,
          refreshInterval: TimeFrame? = nil,
-         visitorIdentityKey: String? = nil) {
+         visitorIdentityKey: String? = nil,
+         sessionTimeout: TimeFrame? = nil) {
         self.minLogLevel = minLogLevel ?? Defaults.minLogLevel
         self.maxQueueSize = maxQueueSize ?? Defaults.maxQueueSize
         self.queueExpiration = queueExpiration ?? Defaults.queueExpiration
         self.refreshInterval = refreshInterval ?? Defaults.refreshInterval
+        self.sessionTimeout = sessionTimeout ?? Defaults.sessionTimeout
         self.visitorIdentityKey = visitorIdentityKey
     }
     public let minLogLevel: LogLevel.Minimum
     public let maxQueueSize: Int
     public let queueExpiration: TimeFrame
     public let refreshInterval: TimeFrame
+    public let sessionTimeout: TimeFrame
     public let visitorIdentityKey: String?
 }

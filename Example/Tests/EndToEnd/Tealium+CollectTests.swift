@@ -40,6 +40,7 @@ final class TealiumCollectTests: TealiumBaseTests {
             httpRequestSent.fulfill()
             Self.decodeBody(request.httpBody) { body in
                 XCTAssertEqual(body, [
+                    "_dc_ttl_": 5.minutes.inMilliseconds(),
                     "enabled_modules": [
                         "Collect",
                         "DataLayer",
@@ -50,6 +51,7 @@ final class TealiumCollectTests: TealiumBaseTests {
                         TealiumConstants.libraryVersion,
                         TealiumConstants.libraryVersion
                     ],
+                    "is_new_session": true,
                     "tealium_account": "mockAccount",
                     "tealium_profile": "mockProfile",
                     "tealium_environment": "mockEnv",
@@ -58,6 +60,7 @@ final class TealiumCollectTests: TealiumBaseTests {
                     "tealium_library_name": "swift",
                     "tealium_library_version": TealiumConstants.libraryVersion,
                     "tealium_random": body["tealium_random"],
+                    "tealium_session_id": body["tealium_session_id"],
                     "tealium_timestamp_epoch_milliseconds": body["tealium_timestamp_epoch_milliseconds"],
                     "tealium_visitor_id": body["tealium_visitor_id"]
                 ])
@@ -120,8 +123,18 @@ final class TealiumCollectTests: TealiumBaseTests {
                     "tealium_profile": "mockProfile",
                     "tealium_visitor_id": shared?["tealium_visitor_id"]
                 ])
-                let events = body["events"] as? [[String: Any]]
-                XCTAssertEqual(events?.map { $0["tealium_event"] }, ["Event1", "Event2"])
+                guard let events = body["events"] as? [[String: Any]] else {
+                    XCTFail("Events not found")
+                    return
+                }
+                XCTAssertEqual(events.map { $0["tealium_event"] }, ["Event1", "Event2"])
+                XCTAssertTrueOptional(events[0]["is_new_session"] as? Bool)
+                XCTAssertNil(events[1]["is_new_session"])
+                XCTAssertNotNil(events[0]["tealium_session_id"])
+                XCTAssertEqual(events[0]["tealium_session_id"] as? Int64,
+                               events[1]["tealium_session_id"] as? Int64)
+                XCTAssertEqual(events[0]["_dc_ttl_"] as? Int64, 5.minutes.inMilliseconds())
+                XCTAssertEqual(events[1]["_dc_ttl_"] as? Int64, 5.minutes.inMilliseconds())
             }
         }
         barrierFactory.barrier.setState(.closed)
@@ -196,5 +209,40 @@ final class TealiumCollectTests: TealiumBaseTests {
         teal.track("Event")
         waitForDispatchQueueToBeEmpty()
         waitOnQueue(queue: queue, timeout: Self.longTimeout)
+    }
+
+    func test_collect_sends_events_with_updated_session_id_when_it_expires() {
+        config.addModule(Modules.collect())
+        let firstHttpRequestSent = expectation(description: "First HTTP Request is sent")
+        let secondHttpRequestSent = expectation(description: "Second HTTP Request is sent")
+        var sessionIds = [Int64?]()
+        client.requestDidSend = { request in
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
+            Self.decodeBody(request.httpBody) { body in
+                sessionIds.append(body["tealium_session_id"] as? Int64)
+            }
+            if sessionIds.count == 1 {
+                firstHttpRequestSent.fulfill()
+            } else {
+                secondHttpRequestSent.fulfill()
+                XCTAssertNotEqual(sessionIds[0], sessionIds[1])
+            }
+        }
+        let tenMinutesAgo = Date().unixTimeMilliseconds - 10.minutes.inMilliseconds()
+        var teal: Tealium? = createTealium()
+        _ = teal?.proxy.executeTask { tealium in
+            tealium.track(Dispatch(payload: ["tealium_event": "Event1"],
+                                   id: "1",
+                                   timestamp: tenMinutesAgo),
+                          onTrackResult: nil)
+        }
+        waitForDispatchQueueToBeEmpty()
+        waitOnQueue(queue: queue, expectations: [firstHttpRequestSent], timeout: Self.longTimeout)
+        // Make sure tealium deallocates before creating a new one, or it will use same implementation
+        teal = nil
+        teal = createTealium() // Next launch
+        teal?.track("Event2")
+        waitForDispatchQueueToBeEmpty()
+        waitOnQueue(queue: queue, expectations: [secondHttpRequestSent], timeout: Self.longTimeout)
     }
 }

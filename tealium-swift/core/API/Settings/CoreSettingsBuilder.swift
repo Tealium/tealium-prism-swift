@@ -43,6 +43,12 @@ public class CoreSettingsBuilder {
         return self
     }
 
+    /// Sets the length of time of inactivity before a session should be considered expired, and a new one started.
+    public func setSessionTimeout(_ sessionTimeout: TimeFrame) -> Self {
+        dataObject.set(sessionTimeout.inSeconds(), key: Keys.sessionTimeout)
+        return self
+    }
+
     func build() -> DataObject {
         dataObject
     }

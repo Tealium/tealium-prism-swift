@@ -15,35 +15,20 @@ public enum TimeUnit {
     case hours
     case days
 
-    /// The amount you need to multiply the current unit to approximately transform it to seconds.
+    /// The amount you need to multiply the current unit to transform it to milliseconds.
     func toMillisecondsMultiplier() -> Int64 {
         switch self {
-        case .milliseconds:
-            1
-        case .seconds:
-            1000 * TimeUnit.milliseconds.toMillisecondsMultiplier()
-        case .minutes:
-            60 * TimeUnit.seconds.toMillisecondsMultiplier()
-        case .hours:
-            60 * TimeUnit.minutes.toMillisecondsMultiplier()
-        case .days:
-            24 * TimeUnit.hours.toMillisecondsMultiplier()
+        case .milliseconds: return 1
+        case .seconds:      return 1000
+        case .minutes:      return 60_000
+        case .hours:        return 3_600_000
+        case .days:         return 86_400_000
         }
     }
 
-    func inSecondsMultiplier() -> Double {
-        switch self {
-        case .milliseconds:
-            1 / 1000
-        case .seconds:
-            1
-        case .minutes:
-            60 * TimeUnit.seconds.inSecondsMultiplier()
-        case .hours:
-            60 * TimeUnit.minutes.inSecondsMultiplier()
-        case .days:
-            24 * TimeUnit.hours.inSecondsMultiplier()
-        }
+    /// The amount you need to multiply the current unit to transform it to seconds.
+    func toSecondsMultiplier() -> Double {
+        Double(toMillisecondsMultiplier()) / 1000
     }
 }
 
@@ -59,7 +44,7 @@ public struct TimeFrame {
         Self.dateDifference(date: date, interval: inSeconds(), for: .second)
     }
 
-    func before(date: Date = Date()) -> Date? {
+    func before(date: Date) -> Date? {
         Self.dateDifference(date: date, interval: -inSeconds(), for: .second)
     }
 
@@ -76,7 +61,7 @@ public struct TimeFrame {
 
     /// Gets the amount of seconds approximately equivalent to this TimeFrame.
     func inSeconds() -> Double {
-        unit.inSecondsMultiplier() * Double(interval)
+        unit.toSecondsMultiplier() * Double(interval)
     }
 
     /// Gets the amount of milliseconds equivalent to this TimeFrame. Will be coerced to be less than `Int64.max`
@@ -91,19 +76,37 @@ public struct TimeFrame {
 
 public extension Int {
     var milliseconds: TimeFrame {
-        TimeFrame(unit: .milliseconds, interval: Int64(self))
+        Int64(self).milliseconds
     }
     var seconds: TimeFrame {
-        TimeFrame(unit: .seconds, interval: Int64(self))
+        Int64(self).seconds
     }
     var minutes: TimeFrame {
-        TimeFrame(unit: .minutes, interval: Int64(self))
+        Int64(self).minutes
     }
     var hours: TimeFrame {
-        TimeFrame(unit: .hours, interval: Int64(self))
+        Int64(self).hours
     }
     var days: TimeFrame {
-        TimeFrame(unit: .days, interval: Int64(self))
+        Int64(self).days
+    }
+}
+
+public extension Int64 {
+    var milliseconds: TimeFrame {
+        TimeFrame(unit: .milliseconds, interval: self)
+    }
+    var seconds: TimeFrame {
+        TimeFrame(unit: .seconds, interval: self)
+    }
+    var minutes: TimeFrame {
+        TimeFrame(unit: .minutes, interval: self)
+    }
+    var hours: TimeFrame {
+        TimeFrame(unit: .hours, interval: self)
+    }
+    var days: TimeFrame {
+        TimeFrame(unit: .days, interval: self)
     }
 }
 

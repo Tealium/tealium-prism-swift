@@ -16,7 +16,8 @@ final class CoreSettingsConverterTests: XCTestCase {
             "log_level": "trace",
             "max_queue_size": 20,
             "expiration": 50.0,
-            "refresh_interval": 100.0
+            "refresh_interval": 100.0,
+            "session_timeout": 10
         ])
         guard let settings = CoreSettings.converter.convert(dataItem: dataObject) else {
             XCTFail("Settings cannot be converted")
@@ -26,6 +27,7 @@ final class CoreSettingsConverterTests: XCTestCase {
         XCTAssertEqual(settings.maxQueueSize, 20)
         XCTAssertEqual(settings.queueExpiration, 50.seconds)
         XCTAssertEqual(settings.refreshInterval, 100.seconds)
+        XCTAssertEqual(settings.sessionTimeout, 10.seconds)
     }
 
     func test_init_from_empty_dictionary_fills_defaults() throws {
@@ -38,5 +40,6 @@ final class CoreSettingsConverterTests: XCTestCase {
         XCTAssertEqual(settings.maxQueueSize, CoreSettings.Defaults.maxQueueSize)
         XCTAssertEqual(settings.queueExpiration, CoreSettings.Defaults.queueExpiration)
         XCTAssertEqual(settings.refreshInterval, CoreSettings.Defaults.refreshInterval)
+        XCTAssertEqual(settings.sessionTimeout, CoreSettings.Defaults.sessionTimeout)
     }
 }

@@ -19,9 +19,11 @@ final class TrackerImplTests: XCTestCase {
     var sdkSettings: ObservableState<SDKSettings>
     lazy var loadRuleEngine = LoadRuleEngine(sdkSettings: sdkSettings)
     let mockDispatchManager = MockDispatchManager()
+    let sessionManager = MockSessionManager()
     lazy var tracker = TrackerImpl(modules: modules,
                                    loadRuleEngine: loadRuleEngine,
                                    dispatchManager: mockDispatchManager,
+                                   sessionManager: sessionManager,
                                    logger: nil)
 
     func test_track_collects_from_all_collectors() {
@@ -101,5 +103,41 @@ final class TrackerImplTests: XCTestCase {
             resultCalled.fulfill()
         }
         waitForDefaultTimeout()
+    }
+
+    func test_track_does_not_register_dispatch_when_no_modules_emitted_yet() {
+        let registerDispatchCalled = expectation(description: "Register dispatch should not be called")
+        registerDispatchCalled.isInverted = true
+        _modules.value = []
+        sessionManager.onRegisterDispatch.subscribeOnce { _ in
+            registerDispatchCalled.fulfill()
+        }
+        tracker.track(Dispatch(name: "event"), source: .application)
+        waitForDefaultTimeout()
+    }
+
+    func test_track_registers_dispatch_when_modules_emit() {
+        let registerDispatchCalled = expectation(description: "Register dispatch should be called")
+        sessionManager.onRegisterDispatch.subscribeOnce { _ in
+            registerDispatchCalled.fulfill()
+        }
+        tracker.track(Dispatch(name: "event"), source: .application)
+        waitForDefaultTimeout()
+    }
+
+    func test_track_registers_dispatch_before_collection() {
+        let registerDispatchCalled = expectation(description: "Register dispatch should be called")
+        let collectionCalled = expectation(description: "Collect should be called")
+        sessionManager.onRegisterDispatch.subscribeOnce { _ in
+            registerDispatchCalled.fulfill()
+        }
+        modules.value.compactMap { $0 as? MockCollector1 }
+            .first?.onCollect.subscribeOnce { _ in
+                collectionCalled.fulfill()
+            }
+        tracker.track(Dispatch(name: "event"), source: .application)
+        wait(for: [registerDispatchCalled, collectionCalled],
+             timeout: Self.defaultTimeout,
+             enforceOrder: true)
     }
 }

@@ -9,12 +9,18 @@
 class TrackerImpl: Tracker {
     let modules: ObservableState<[Module]>
     let dispatchManager: DispatchManagerProtocol
+    let sessionManager: SessionManager
     let logger: LoggerProtocol?
     let loadRuleEngine: LoadRuleEngine
-    init(modules: ObservableState<[Module]>, loadRuleEngine: LoadRuleEngine, dispatchManager: DispatchManagerProtocol, logger: LoggerProtocol?) {
+    init(modules: ObservableState<[Module]>,
+         loadRuleEngine: LoadRuleEngine,
+         dispatchManager: DispatchManagerProtocol,
+         sessionManager: SessionManager,
+         logger: LoggerProtocol?) {
         self.modules = modules
         self.loadRuleEngine = loadRuleEngine
         self.dispatchManager = dispatchManager
+        self.sessionManager = sessionManager
         self.logger = logger
     }
 
@@ -34,6 +40,7 @@ class TrackerImpl: Tracker {
         modules.filter { !$0.isEmpty }
             .subscribeOnce { [weak self] modules in
                 guard let self else { return }
+                sessionManager.registerDispatch(&trackable)
                 modules.compactMap { $0 as? Collector }
                     .filter { self.loadRuleEngine.rulesAllow(dispatch: trackable, forModule: $0) }
                     .forEach { collector in

@@ -51,6 +51,7 @@ final class LifecycleTrackerTests: XCTestCase {
     lazy var tracker = TrackerImpl(modules: modulesManager.modules,
                                    loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings),
                                    dispatchManager: dispatchManager,
+                                   sessionManager: MockSessionManager(databaseProvider: databaseProvider),
                                    logger: nil)
     lazy var context = MockContext(modulesManager: modulesManager,
                                    config: config,

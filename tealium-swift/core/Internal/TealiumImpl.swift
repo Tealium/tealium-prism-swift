@@ -18,9 +18,10 @@ class TealiumImpl {
     let instanceName: String
     let loadRuleEngine: LoadRuleEngine
     let barrierCoordinator: BarrierCoordinator
+    let sessionManager: SessionManager
     private let appStatusListener = ApplicationStatusListener.shared
 
-    // swiftlint:disable function_body_length
+    // swiftlint:disable:next function_body_length
     init(_ config: TealiumConfig, queue: TealiumQueue) throws {
         self.modulesManager = ModulesManager(queue: queue)
         var config = config
@@ -53,13 +54,20 @@ class TealiumImpl {
             .subscribe(onLogLevel).addTo(automaticDisposer)
         logger.debug(category: LogCategory.tealium, "Purging expired data from the database")
         storeProvider.modulesRepository.deleteExpired(expiry: .restart)
-        let queueManager = QueueManager(processors: Self.queueProcessors(from: modulesManager.modules,
-                                                                         addingConsent: config.cmpAdapter != nil),
-                                        queueRepository: SQLQueueRepository(dbProvider: storeProvider.databaseProvider,
-                                                                            maxQueueSize: coreSettings.value.maxQueueSize,
-                                                                            expiration: coreSettings.value.queueExpiration),
-                                        coreSettings: coreSettings,
-                                        logger: logger)
+        let sessionManager = SessionManager(debouncer: Debouncer(queue: queue),
+                                            dataStore: dataStore,
+                                            moduleRepository: storeProvider.modulesRepository,
+                                            sessionTimeout: coreSettings.mapState { $0.sessionTimeout },
+                                            logger: logger)
+        self.sessionManager = sessionManager
+        let queueManager = QueueManager(
+            processors: Self.queueProcessors(from: modulesManager.modules,
+                                             addingConsent: config.cmpAdapter != nil),
+            queueRepository: SQLQueueRepository(dbProvider: storeProvider.databaseProvider,
+                                                maxQueueSize: coreSettings.value.maxQueueSize,
+                                                expiration: coreSettings.value.queueExpiration),
+            coreSettings: coreSettings,
+            logger: logger)
         let transformers = modulesManager.modules
             .mapState { $0.compactMap { $0 as? Transformer } }
         let transformerCoordinator = Self.transformerCoordinator(transformers: transformers,
@@ -90,6 +98,7 @@ class TealiumImpl {
         let tracker = TrackerImpl(modules: modulesManager.modules,
                                   loadRuleEngine: loadRuleEngine,
                                   dispatchManager: dispatchManager,
+                                  sessionManager: sessionManager,
                                   logger: logger)
         self.tracker = tracker
 
@@ -102,6 +111,7 @@ class TealiumImpl {
                                                dataLayerStore: dataLayerStore).addTo(automaticDisposer)
 
         self.context = TealiumContext(modulesManager: modulesManager,
+                                      sessionRegistry: sessionManager,
                                       config: config,
                                       coreSettings: coreSettings,
                                       tracker: tracker,
@@ -120,7 +130,6 @@ class TealiumImpl {
         logger.info(category: LogCategory.tealium, "Instance \(self.instanceName) initialized.")
         self.handleSettingsUpdates()
     }
-    // swiftlint:enable function_body_length
 
     func track(_ trackable: Dispatch, onTrackResult: TrackResultCompletion?) {
         tracker.track(trackable, source: .application, onTrackResult: onTrackResult)

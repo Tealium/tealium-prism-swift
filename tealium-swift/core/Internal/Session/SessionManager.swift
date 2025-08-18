@@ -69,7 +69,10 @@ class SessionManager: SessionRegistry {
     }
 
     func restartExpirationTimer(timestamp: Int64) {
-        debouncer.debounce(time: sessionTimeout.value.inSeconds()) { [weak self] in
+        let expirationTime = Double(timestamp / 1000) + sessionTimeout.value.inSeconds()
+        let now = Date().timeIntervalSince1970
+        let delay = expirationTime - now
+        debouncer.debounce(time: delay) { [weak self] in
             guard let session = self?._session.publisher,
                   let currentSession = session.last(),
                   timestamp == currentSession.lastEventTimeMilliseconds else {

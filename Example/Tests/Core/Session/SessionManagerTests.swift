@@ -73,20 +73,32 @@ final class SessionManagerTests: XCTestCase {
         XCTAssertEqual(store.get(key: "some"), "value")
     }
 
-    func test_registerDispatch_starts_a_session() {
-        let sessionReported = expectation(description: "Session is reported")
-        sessionManager.session.subscribeOnce { _ in
-            sessionReported.fulfill()
-        }
-        sessionManager.registerDispatch(&dispatch)
-        waitForDefaultTimeout()
-    }
-
     func test_init_resumes_a_session_when_session_not_expired() {
         sessionManager.registerDispatch(&dispatch)
 
         let sessionReported = expectation(description: "Session is reported")
         sessionManager = createSessionManager()
+        sessionManager.session.subscribeOnce { newSession in
+            XCTAssertEqual(newSession.status, .resumed)
+            sessionReported.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_init_schedules_expiration_from_last_event_time_when_session_resumed() {
+        let threeMinutesAgo = Date().unixTimeMilliseconds - 3.minutes.inMilliseconds()
+        let expectedDelay = 5.minutes.inSeconds() - 3.minutes.inSeconds()
+        var pastDispatch = Dispatch(payload: [:], id: "1", timestamp: threeMinutesAgo)
+        sessionManager.registerDispatch(&pastDispatch)
+
+        let sessionReported = expectation(description: "Session is reported")
+        let debouncerCalled = expectation(description: "Debouncer is called")
+        let debouncer = MockDebouncer(queue: .main)
+        debouncer.onDebounce.subscribeOnce { interval in
+            XCTAssertEqual(interval, expectedDelay, accuracy: 10.0)
+            debouncerCalled.fulfill()
+        }
+        sessionManager = createSessionManager(debouncer: debouncer)
         sessionManager.session.subscribeOnce { newSession in
             XCTAssertEqual(newSession.status, .resumed)
             sessionReported.fulfill()
@@ -115,6 +127,15 @@ final class SessionManagerTests: XCTestCase {
             count += 1
             sessionReported.fulfill()
         }
+        waitForDefaultTimeout()
+    }
+
+    func test_registerDispatch_starts_a_session() {
+        let sessionReported = expectation(description: "Session is reported")
+        sessionManager.session.subscribeOnce { _ in
+            sessionReported.fulfill()
+        }
+        sessionManager.registerDispatch(&dispatch)
         waitForDefaultTimeout()
     }
 
@@ -206,6 +227,59 @@ final class SessionManagerTests: XCTestCase {
         DispatchQueue.main.async {
             self.sessionManager.registerDispatch(&dispatch2)
         }
+
+        waitForDefaultTimeout()
+    }
+
+    func test_registerDispatch_schedules_expiry_from_dispatch_timestamp_when_new_session_started() {
+        let threeMinutesAgo = Date().unixTimeMilliseconds - 3.minutes.inMilliseconds()
+        let expectedDelay = 5.minutes.inSeconds() - 3.minutes.inSeconds()
+        var pastDispatch = Dispatch(payload: [:], id: "1", timestamp: threeMinutesAgo)
+        let sessionReported = expectation(description: "Session is reported")
+        let debouncerCalled = expectation(description: "Debouncer is called")
+        let debouncer = MockDebouncer(queue: .main)
+        debouncer.onDebounce.subscribeOnce { interval in
+            XCTAssertEqual(interval, expectedDelay, accuracy: 10.0)
+            debouncerCalled.fulfill()
+        }
+        sessionManager = createSessionManager(debouncer: debouncer)
+        sessionManager.registerDispatch(&pastDispatch)
+        sessionManager.session.subscribeOnce { newSession in
+            XCTAssertEqual(newSession.status, .started)
+            sessionReported.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_registerDispatch_schedules_expiry_from_dispatch_timestamp_when_extending_a_session() {
+        let sessionReported = expectation(description: "Session is reported three times")
+        sessionReported.expectedFulfillmentCount = 3
+        let debouncerCalled = expectation(description: "Debouncer is called twice")
+        debouncerCalled.expectedFulfillmentCount = 2
+        let debouncer = MockDebouncer(queue: .main)
+        sessionManager = createSessionManager(debouncer: debouncer)
+
+        let now = Date().unixTimeMilliseconds
+        let expectedDelay = 5.minutes.inSeconds() + 3.minutes.inSeconds()
+        let threeMinutesHereafter = now + 3.minutes.inMilliseconds()
+        var count = 0
+        _ = debouncer.onDebounce.subscribe { interval in
+            if count == 0 {
+                XCTAssertEqual(interval, 5.minutes.inSeconds(), accuracy: 10.0)
+            } else {
+                XCTAssertEqual(interval, expectedDelay, accuracy: 10.0)
+            }
+            count += 1
+            debouncerCalled.fulfill()
+        }
+        _ = sessionManager.session.subscribe { _ in
+            sessionReported.fulfill()
+        }
+
+        var dispatch = Dispatch(payload: [:], id: "1", timestamp: now)
+        sessionManager.registerDispatch(&dispatch)
+        var futureDispatch = Dispatch(payload: [:], id: "1", timestamp: threeMinutesHereafter)
+        sessionManager.registerDispatch(&futureDispatch)
 
         waitForDefaultTimeout()
     }

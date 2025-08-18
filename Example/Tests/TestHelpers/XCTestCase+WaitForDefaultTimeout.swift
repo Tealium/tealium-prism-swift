@@ -27,4 +27,10 @@ public extension XCTestCase {
             waitForExpectations(timeout: timeout)
         }
     }
+
+    func waitOnQueue(queue: TealiumQueue, expectations: [XCTestExpectation], timeout: TimeInterval = defaultTimeout) {
+        queue.dispatchQueue.sync {
+            wait(for: expectations, timeout: timeout)
+        }
+    }
 }
