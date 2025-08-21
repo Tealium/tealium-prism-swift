@@ -10,12 +10,16 @@
 import XCTest
 
 final class ConditionStartsWithTests: XCTestCase {
-    let payload: DataObject = [
+    var payload: DataObject = [
         "string": "Value",
-        "int": 45,
+        "int": 345,
         "double": 3.14,
         "bool": true,
-        "array": ["a", "b", "c"],
+        "array": [
+            DataItem(value: "a"),
+            DataItem(value: 1),
+            DataItem(value: false),
+            DataItem(value: ["b", 2, true])],
         "dictionary": ["key": "Value"],
         "null": NSNull()
     ]
@@ -41,7 +45,7 @@ final class ConditionStartsWithTests: XCTestCase {
     }
 
     func test_startsWith_matches_int() {
-        let condition = Condition.startsWith(ignoreCase: false, variable: "int", prefix: "4")
+        let condition = Condition.startsWith(ignoreCase: false, variable: "int", prefix: "34")
         XCTAssertTrue(condition.matches(payload: payload))
     }
 
@@ -64,7 +68,12 @@ final class ConditionStartsWithTests: XCTestCase {
     }
 
     func test_startsWith_matches_array() {
-        let condition = Condition.startsWith(ignoreCase: false, variable: "array", prefix: "[\"a")
+        let condition = Condition.startsWith(ignoreCase: false, variable: "array", prefix: "a,1,false,b")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_startsWith_matches_array_ignoring_case() {
+        let condition = Condition.startsWith(ignoreCase: true, variable: "array", prefix: "A,1,FALSE,b")
         XCTAssertTrue(condition.matches(payload: payload))
     }
 
@@ -77,8 +86,13 @@ final class ConditionStartsWithTests: XCTestCase {
     }
 
     func test_startsWith_matches_null() {
-        let condition = Condition.startsWith(ignoreCase: false, variable: "null", prefix: "<nul")
+        let condition = Condition.startsWith(ignoreCase: false, variable: "null", prefix: "nul")
         XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_startsWith_doesnt_match_standard_null_string() {
+        let condition = Condition.startsWith(ignoreCase: false, variable: "null", prefix: "<nul")
+        XCTAssertFalse(condition.matches(payload: payload))
     }
 
     func test_startsWith_doesnt_match_keys_missing_from_the_payload() {
@@ -99,6 +113,13 @@ final class ConditionStartsWithTests: XCTestCase {
                                   variable: "string",
                                   operator: .startsWith(true),
                                   filter: nil)
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_startsWith_doesnt_match_dictionary() {
+        let condition = Condition.startsWith(ignoreCase: false,
+                                             variable: "dictionary",
+                                             prefix: "[\"key")
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

@@ -10,12 +10,16 @@
 import XCTest
 
 final class ConditionNotEqualsTests: XCTestCase {
-    let payload: DataObject = [
+    var payload: DataObject = [
         "string": "Value",
-        "int": 45,
+        "int": 345,
         "double": 3.14,
         "bool": true,
-        "array": ["a", "b", "c"],
+        "array": [
+            DataItem(value: "a"),
+            DataItem(value: 1),
+            DataItem(value: false),
+            DataItem(value: ["b", 2, true])],
         "dictionary": ["key": "Value"],
         "null": NSNull()
     ]
@@ -36,17 +40,17 @@ final class ConditionNotEqualsTests: XCTestCase {
     }
 
     func test_notEquals_doesnt_match_equal_int() {
-        let condition = Condition.doesNotEqual(ignoreCase: false, variable: "int", target: "45")
+        let condition = Condition.doesNotEqual(ignoreCase: false, variable: "int", target: "345")
         XCTAssertFalse(condition.matches(payload: payload))
     }
 
     func test_notEquals_matches_different_int() {
-        let condition = Condition.doesNotEqual(ignoreCase: false, variable: "int", target: "46")
+        let condition = Condition.doesNotEqual(ignoreCase: false, variable: "int", target: "346")
         XCTAssertTrue(condition.matches(payload: payload))
     }
 
     func test_notEquals_matches_different_type_of_number() {
-        let condition = Condition.doesNotEqual(ignoreCase: false, variable: "int", target: "45.1")
+        let condition = Condition.doesNotEqual(ignoreCase: false, variable: "int", target: "345.1")
         XCTAssertTrue(condition.matches(payload: payload))
     }
 
@@ -65,6 +69,11 @@ final class ConditionNotEqualsTests: XCTestCase {
         XCTAssertFalse(condition.matches(payload: payload))
     }
 
+    func test_notEquals_matches_different_bool() {
+        let condition = Condition.doesNotEqual(ignoreCase: false, variable: "bool", target: "false")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
     func test_notEquals_doesnt_match_nested_value() {
         let condition = Condition.doesNotEqual(ignoreCase: false,
                                                variable: VariableAccessor(path: ["dictionary"],
@@ -74,10 +83,18 @@ final class ConditionNotEqualsTests: XCTestCase {
     }
 
     func test_notEquals_doesnt_match_array() {
-        let condition = Condition.doesNotEqual(ignoreCase: false,
-                                               variable: "array",
-                                               target: "[\"a\", \"b\", \"c\"]")
+        let condition = Condition.doesNotEqual(ignoreCase: false, variable: "array", target: "a,1,false,b,2,true")
         XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notEquals_doesnt_match_array_ignoring_case() {
+        let condition = Condition.doesNotEqual(ignoreCase: true, variable: "array", target: "A,1,FALSE,B,2,TRUE")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notEquals_matches_standard_array_string() {
+        let condition = Condition.doesNotEqual(ignoreCase: false, variable: "array", target: "[\"a\", 1, false, [\"b\", 2, true]]")
+        XCTAssertTrue(condition.matches(payload: payload))
     }
 
     func test_notEquals_doesnt_match_nested_value_ignoring_case() {
@@ -88,9 +105,14 @@ final class ConditionNotEqualsTests: XCTestCase {
         XCTAssertFalse(condition.matches(payload: payload))
     }
 
-    func test_notEquals_matches_null() {
-        let condition = Condition.doesNotEqual(ignoreCase: false, variable: "null", target: "not null")
+    func test_notEquals_matches_standard_null_string() {
+        let condition = Condition.doesNotEqual(ignoreCase: false, variable: "null", target: "<null>")
         XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_notEquals_doesnt_match_null() {
+        let condition = Condition.doesNotEqual(ignoreCase: false, variable: "null", target: "null")
+        XCTAssertFalse(condition.matches(payload: payload))
     }
 
     func test_notEquals_doesnt_match_keys_missing_from_the_payload() {
@@ -107,10 +129,16 @@ final class ConditionNotEqualsTests: XCTestCase {
     }
 
     func test_notEquals_doesnt_match_when_filter_is_nil() {
-        let condition = Condition(path: nil,
-                                  variable: "int",
+        let condition = Condition(variable: "string",
                                   operator: .notEquals(true),
                                   filter: nil)
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notEquals_doesnt_match_dictionary() {
+        let condition = Condition.doesNotEqual(ignoreCase: false,
+                                               variable: "dictionary",
+                                               target: "[\"key\": \"Value\"]")
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

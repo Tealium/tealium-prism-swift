@@ -186,8 +186,6 @@ enum ConditionOperators {
     static let lessThan = "less_than"
     static let lessThanEqualTo = "less_than_equal_to"
     static let regularExpression = "regular_expression"
-    static let isBadgeAssigned = "is_badge_assigned"
-    static let isBadgeNotAssigned = "is_badge_not_assigned"
 }
 
 enum Transformers {

@@ -10,12 +10,16 @@
 import XCTest
 
 final class ConditionNotEndsWithTests: XCTestCase {
-    let payload: DataObject = [
+    var payload: DataObject = [
         "string": "Value",
         "int": 345,
         "double": 3.14,
         "bool": true,
-        "array": ["a", "b", "c"],
+        "array": [
+            DataItem(value: "a"),
+            DataItem(value: 1),
+            DataItem(value: false),
+            DataItem(value: ["b", 2, true])],
         "dictionary": ["key": "Value"],
         "null": NSNull()
     ]
@@ -55,6 +59,21 @@ final class ConditionNotEndsWithTests: XCTestCase {
         XCTAssertFalse(condition.matches(payload: payload))
     }
 
+    func test_notEndsWith_matches_different_int() {
+        let condition = Condition.doesNotEndWith(ignoreCase: false, variable: "int", suffix: "12")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_notEndsWith_matches_different_double() {
+        let condition = Condition.doesNotEndWith(ignoreCase: false, variable: "double", suffix: "2.7")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_notEndsWith_matches_different_bool() {
+        let condition = Condition.doesNotEndWith(ignoreCase: false, variable: "bool", suffix: "lse")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
     func test_notEndsWith_doesnt_match_ending_nested_value() {
         let condition = Condition.doesNotEndWith(ignoreCase: false,
                                                  variable: VariableAccessor(path: ["dictionary"],
@@ -64,8 +83,18 @@ final class ConditionNotEndsWithTests: XCTestCase {
     }
 
     func test_notEndsWith_doesnt_match_ending_array() {
-        let condition = Condition.doesNotEndWith(ignoreCase: false, variable: "array", suffix: "c\"]")
+        let condition = Condition.doesNotEndWith(ignoreCase: false, variable: "array", suffix: ",b,2,true")
         XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notEndsWith_doesnt_match_ending_array_ignoring_case() {
+        let condition = Condition.doesNotEndWith(ignoreCase: true, variable: "array", suffix: ",B,2,TRUE")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notEndsWith_matches_standard_array_string() {
+        let condition = Condition.doesNotEndWith(ignoreCase: false, variable: "array", suffix: "]]")
+        XCTAssertTrue(condition.matches(payload: payload))
     }
 
     func test_notEndsWith_doesnt_match_nested_value_ignoring_case() {
@@ -76,9 +105,14 @@ final class ConditionNotEndsWithTests: XCTestCase {
         XCTAssertFalse(condition.matches(payload: payload))
     }
 
-    func test_notEndsWith_matches_null() {
-        let condition = Condition.doesNotEndWith(ignoreCase: false, variable: "null", suffix: "Not null")
+    func test_notEndsWith_matches_standard_null_string() {
+        let condition = Condition.doesNotEndWith(ignoreCase: false, variable: "null", suffix: "ll>")
         XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_notEndsWith_doesnt_match_null() {
+        let condition = Condition.doesNotEndWith(ignoreCase: false, variable: "null", suffix: "ull")
+        XCTAssertFalse(condition.matches(payload: payload))
     }
 
     func test_notEndsWith_doesnt_match_keys_missing_from_the_payload() {
@@ -99,6 +133,13 @@ final class ConditionNotEndsWithTests: XCTestCase {
                                   variable: "string",
                                   operator: .notEndsWith(true),
                                   filter: nil)
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notEndsWith_doesnt_match_dictionary() {
+        let condition = Condition.doesNotEndWith(ignoreCase: false,
+                                                 variable: "dictionary",
+                                                 suffix: "ue\"]")
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

@@ -11,18 +11,28 @@ import XCTest
 
 final class ConditionGreaterThanTests: XCTestCase {
     let payload: DataObject = [
-        "string": "45",
+        "string": "fourty five",
+        "numberString": "45",
         "int": 45,
         "double": 3.14,
         "bool": true,
         "array": ["a", "b", "c"],
         "dictionary": ["key": 45],
-        "null": NSNull()
+        "null": NSNull(),
+        "infinity": "Infinity",
+        "negativeInfinity": "-Infinity",
+        "nan": "NaN",
+        "emptyString": ""
     ]
 
     func test_greaterThan_doesnt_match_strings() {
         let condition = Condition.isGreaterThan(orEqual: false, variable: "string", number: "10")
         XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_greaterThan_matches_number_strings() {
+        let condition = Condition.isGreaterThan(orEqual: false, variable: "numberString", number: "10")
+        XCTAssertTrue(condition.matches(payload: payload))
     }
 
     func test_greaterThan_doesnt_match_bools() {
@@ -93,6 +103,36 @@ final class ConditionGreaterThanTests: XCTestCase {
                                                 variable: VariableAccessor(path: ["dictionary", "missing"],
                                                                            variable: "key"),
                                                 number: "1")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_greaterThan_matches_infinity() {
+        let condition = Condition.isGreaterThan(orEqual: false, variable: "infinity", number: "10")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_greaterThan_doesnt_match_negative_infinity() {
+        let condition = Condition.isGreaterThan(orEqual: false, variable: "negativeInfinity", number: "10")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_greaterThan_doesnt_match_NaN() {
+        let condition = Condition.isGreaterThan(orEqual: false, variable: "nan", number: "0")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_greaterThan_doesnt_match_when_filter_is_NaN() {
+        let condition = Condition.isGreaterThan(orEqual: false, variable: "infinity", number: "NaN")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_greaterThan_doesnt_match_empty_string() {
+        let condition = Condition.isGreaterThan(orEqual: false, variable: "emptyString", number: "-99")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_greaterThan_doesnt_match_when_filter_is_empty_string() {
+        let condition = Condition.isGreaterThan(orEqual: false, variable: "infinity", number: "")
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

@@ -10,12 +10,16 @@
 import XCTest
 
 final class ConditionContainsTests: XCTestCase {
-    let payload: DataObject = [
+    var payload: DataObject = [
         "string": "Value",
         "int": 345,
         "double": 3.14,
         "bool": true,
-        "array": ["a", "b", "c"],
+        "array": [
+            DataItem(value: "a"),
+            DataItem(value: 1),
+            DataItem(value: false),
+            DataItem(value: ["b", 2, true])],
         "dictionary": ["key": "Value"],
         "null": NSNull()
     ]
@@ -64,7 +68,12 @@ final class ConditionContainsTests: XCTestCase {
     }
 
     func test_contains_matches_array() {
-        let condition = Condition.contains(ignoreCase: false, variable: "array", string: "a")
+        let condition = Condition.contains(ignoreCase: false, variable: "array", string: "alse,b,2,tr")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_contains_matches_array_ignoring_case() {
+        let condition = Condition.contains(ignoreCase: true, variable: "array", string: "Alse,B,2,TR")
         XCTAssertTrue(condition.matches(payload: payload))
     }
 
@@ -79,6 +88,11 @@ final class ConditionContainsTests: XCTestCase {
     func test_contains_matches_null() {
         let condition = Condition.contains(ignoreCase: false, variable: "null", string: "null")
         XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_contains_doesnt_match_standard_null_string() {
+        let condition = Condition.contains(ignoreCase: false, variable: "null", string: "<null")
+        XCTAssertFalse(condition.matches(payload: payload))
     }
 
     func test_contains_doesnt_match_keys_missing_from_the_payload() {
@@ -98,6 +112,13 @@ final class ConditionContainsTests: XCTestCase {
         let condition = Condition(variable: "string",
                                   operator: .contains(true),
                                   filter: nil)
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_contains_doesnt_match_dictionary() {
+        let condition = Condition.contains(ignoreCase: false,
+                                           variable: "dictionary",
+                                           string: "[\"key\": \"value\"]")
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

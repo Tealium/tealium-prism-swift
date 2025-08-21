@@ -10,12 +10,16 @@
 import XCTest
 
 final class ConditionEndsWithTests: XCTestCase {
-    let payload: DataObject = [
+    var payload: DataObject = [
         "string": "Value",
         "int": 345,
         "double": 3.14,
         "bool": true,
-        "array": ["a", "b", "c"],
+        "array": [
+            DataItem(value: "a"),
+            DataItem(value: 1),
+            DataItem(value: false),
+            DataItem(value: ["b", 2, true])],
         "dictionary": ["key": "Value"],
         "null": NSNull()
     ]
@@ -64,7 +68,12 @@ final class ConditionEndsWithTests: XCTestCase {
     }
 
     func test_endsWith_matches_array() {
-        let condition = Condition.endsWith(ignoreCase: false, variable: "array", suffix: "c\"]")
+        let condition = Condition.endsWith(ignoreCase: false, variable: "array", suffix: ",b,2,true")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_endsWith_matches_array_ignoring_case() {
+        let condition = Condition.endsWith(ignoreCase: true, variable: "array", suffix: ",B,2,TRUE")
         XCTAssertTrue(condition.matches(payload: payload))
     }
 
@@ -77,8 +86,13 @@ final class ConditionEndsWithTests: XCTestCase {
     }
 
     func test_endsWith_matches_null() {
-        let condition = Condition.endsWith(ignoreCase: false, variable: "null", suffix: "ull>")
+        let condition = Condition.endsWith(ignoreCase: false, variable: "null", suffix: "ull")
         XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_endsWith_doesnt_match_standard_null_string() {
+        let condition = Condition.endsWith(ignoreCase: false, variable: "null", suffix: "ull>")
+        XCTAssertFalse(condition.matches(payload: payload))
     }
 
     func test_endsWith_doesnt_match_keys_missing_from_the_payload() {
@@ -99,6 +113,13 @@ final class ConditionEndsWithTests: XCTestCase {
                                   variable: "string",
                                   operator: .endsWith(true),
                                   filter: nil)
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_endsWith_doesnt_match_dictionary() {
+        let condition = Condition.endsWith(ignoreCase: false,
+                                           variable: "dictionary",
+                                           suffix: "alue\"]")
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

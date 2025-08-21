@@ -619,9 +619,6 @@
 		87EE76DC2D7867F500BB1D77 /* Condition+IsPopulatedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE76DB2D7867F500BB1D77 /* Condition+IsPopulatedTests.swift */; };
 		87EE76DD2D7867F500BB1D77 /* Condition+IsPopulatedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE76DB2D7867F500BB1D77 /* Condition+IsPopulatedTests.swift */; };
 		87EE76DE2D7867F500BB1D77 /* Condition+IsPopulatedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE76DB2D7867F500BB1D77 /* Condition+IsPopulatedTests.swift */; };
-		87EE76E02D786B6400BB1D77 /* Condition+IsBadgeAssignedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE76DF2D786B6400BB1D77 /* Condition+IsBadgeAssignedTests.swift */; };
-		87EE76E12D786B6400BB1D77 /* Condition+IsBadgeAssignedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE76DF2D786B6400BB1D77 /* Condition+IsBadgeAssignedTests.swift */; };
-		87EE76E22D786B6400BB1D77 /* Condition+IsBadgeAssignedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE76DF2D786B6400BB1D77 /* Condition+IsBadgeAssignedTests.swift */; };
 		87EE76E42D786C4500BB1D77 /* Condition+GreaterThanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE76E32D786C4500BB1D77 /* Condition+GreaterThanTests.swift */; };
 		87EE76E52D786C4500BB1D77 /* Condition+GreaterThanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE76E32D786C4500BB1D77 /* Condition+GreaterThanTests.swift */; };
 		87EE76E62D786C4500BB1D77 /* Condition+GreaterThanTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE76E32D786C4500BB1D77 /* Condition+GreaterThanTests.swift */; };
@@ -1155,7 +1152,6 @@
 		87EE76D32D7865D300BB1D77 /* Condition+NotEqualsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Condition+NotEqualsTests.swift"; sourceTree = "<group>"; };
 		87EE76D72D78670400BB1D77 /* Condition+IsDefinedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Condition+IsDefinedTests.swift"; sourceTree = "<group>"; };
 		87EE76DB2D7867F500BB1D77 /* Condition+IsPopulatedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Condition+IsPopulatedTests.swift"; sourceTree = "<group>"; };
-		87EE76DF2D786B6400BB1D77 /* Condition+IsBadgeAssignedTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Condition+IsBadgeAssignedTests.swift"; sourceTree = "<group>"; };
 		87EE76E32D786C4500BB1D77 /* Condition+GreaterThanTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Condition+GreaterThanTests.swift"; sourceTree = "<group>"; };
 		87EE76E72D786F1F00BB1D77 /* Condition+GreaterThanOrEqualTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Condition+GreaterThanOrEqualTests.swift"; sourceTree = "<group>"; };
 		87EE76EB2D786FFD00BB1D77 /* Condition+LessThanOrEqualTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Condition+LessThanOrEqualTests.swift"; sourceTree = "<group>"; };
@@ -1745,7 +1741,6 @@
 				87EE76CE2D77443C00BB1D77 /* Condition+EqualsTests.swift */,
 				87EE76D32D7865D300BB1D77 /* Condition+NotEqualsTests.swift */,
 				87EE76D72D78670400BB1D77 /* Condition+IsDefinedTests.swift */,
-				87EE76DF2D786B6400BB1D77 /* Condition+IsBadgeAssignedTests.swift */,
 				87EE76DB2D7867F500BB1D77 /* Condition+IsPopulatedTests.swift */,
 				87EE76E32D786C4500BB1D77 /* Condition+GreaterThanTests.swift */,
 				87EE76E72D786F1F00BB1D77 /* Condition+GreaterThanOrEqualTests.swift */,
@@ -3194,7 +3189,6 @@
 				D54BBFDE2C78C01A003687C7 /* RetryPolicyTests.swift in Sources */,
 				EC2AF5E92DE9EAEC004AE72F /* DeviceDataModuleConfigurationTests.swift in Sources */,
 				87AF54822C8211B100F1C114 /* DataItem+SerializingTests.swift in Sources */,
-				87EE76E02D786B6400BB1D77 /* Condition+IsBadgeAssignedTests.swift in Sources */,
 				87FC086A2D931B9500E1041D /* LoadRule+ConverterTests.swift in Sources */,
 				ECBF304B2DC0EFA8007A1A42 /* TransformationSettingsTests.swift in Sources */,
 				D54BBFED2C78C01A003687C7 /* DispatchManager+ConsentTests.swift in Sources */,
@@ -3617,7 +3611,6 @@
 				873B78362DA7DB530026A356 /* MappingParametersTests.swift in Sources */,
 				87FC086E2D94133500E1041D /* SDKSettingsTests.swift in Sources */,
 				ECAB835B2DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift in Sources */,
-				87EE76E22D786B6400BB1D77 /* Condition+IsBadgeAssignedTests.swift in Sources */,
 				87A05D002DBA2F6800D280F4 /* BarrierManagerTests.swift in Sources */,
 				87EE76FE2D78785900BB1D77 /* Condition+StartsWithTests.swift in Sources */,
 				87FC08722D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift in Sources */,
@@ -3785,7 +3778,6 @@
 				87BA6DF52C6A47AF00784784 /* XCTAssert+Errors.swift in Sources */,
 				873B68812E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */,
 				87AF54732C7E389C00F1C114 /* TealiumDispatchGroupTests.swift in Sources */,
-				87EE76E12D786B6400BB1D77 /* Condition+IsBadgeAssignedTests.swift in Sources */,
 				87BA6DF82C6A47AF00784784 /* MockNetworkHelper.swift in Sources */,
 				87EE76F12D78720000BB1D77 /* Condition+LessThanTests.swift in Sources */,
 				87EE76D52D7865D300BB1D77 /* Condition+NotEqualsTests.swift in Sources */,

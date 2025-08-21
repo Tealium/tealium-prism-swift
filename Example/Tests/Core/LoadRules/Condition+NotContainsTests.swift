@@ -10,12 +10,16 @@
 import XCTest
 
 final class ConditionNotContainsTests: XCTestCase {
-    let payload: DataObject = [
+    var payload: DataObject = [
         "string": "Value",
         "int": 345,
         "double": 3.14,
         "bool": true,
-        "array": ["a", "b", "c"],
+        "array": [
+            DataItem(value: "a"),
+            DataItem(value: 1),
+            DataItem(value: false),
+            DataItem(value: ["b", 2, true])],
         "dictionary": ["key": "Value"],
         "null": NSNull()
     ]
@@ -55,6 +59,21 @@ final class ConditionNotContainsTests: XCTestCase {
         XCTAssertFalse(condition.matches(payload: payload))
     }
 
+    func test_notContains_matches_different_int() {
+        let condition = Condition.doesNotContain(ignoreCase: false, variable: "int", string: "9")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_notContains_matches_different_double() {
+        let condition = Condition.doesNotContain(ignoreCase: false, variable: "double", string: "9.9")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_notContains_matches_different_bool() {
+        let condition = Condition.doesNotContain(ignoreCase: false, variable: "bool", string: "als")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
     func test_notContains_doesnt_match_contained_nested_value() {
         let condition = Condition.doesNotContain(ignoreCase: false,
                                                  variable: VariableAccessor(path: ["dictionary"],
@@ -63,9 +82,19 @@ final class ConditionNotContainsTests: XCTestCase {
         XCTAssertFalse(condition.matches(payload: payload))
     }
 
-    func test_notContains_doesnt_match_contained_array() {
+    func test_notContains_doesnt_match_array_containing_value() {
         let condition = Condition.doesNotContain(ignoreCase: false, variable: "array", string: "a")
         XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notContains_doesnt_match_containing_array_containing_value_ignoring_case() {
+        let condition = Condition.doesNotContain(ignoreCase: true, variable: "array", string: "A")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notContains_matches_standard_array_string() {
+        let condition = Condition.doesNotContain(ignoreCase: false, variable: "array", string: "[\"a")
+        XCTAssertTrue(condition.matches(payload: payload))
     }
 
     func test_notContains_doesnt_match_nested_value_ignoring_case() {
@@ -76,9 +105,14 @@ final class ConditionNotContainsTests: XCTestCase {
         XCTAssertFalse(condition.matches(payload: payload))
     }
 
-    func test_notContains_matches_null() {
-        let condition = Condition.doesNotContain(ignoreCase: false, variable: "null", string: "not null")
+    func test_notContains_matches_standard_null_string() {
+        let condition = Condition.doesNotContain(ignoreCase: false, variable: "null", string: "<null>")
         XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_notContains_doesnt_match_null() {
+        let condition = Condition.doesNotContain(ignoreCase: false, variable: "null", string: "null")
+        XCTAssertFalse(condition.matches(payload: payload))
     }
 
     func test_notContains_doesnt_match_keys_missing_from_the_payload() {
@@ -98,6 +132,13 @@ final class ConditionNotContainsTests: XCTestCase {
         let condition = Condition(variable: "string",
                                   operator: .notContains(true),
                                   filter: nil)
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notContains_doesnt_match_dictionary() {
+        let condition = Condition.doesNotContain(ignoreCase: false,
+                                                 variable: "dictionary",
+                                                 string: "[\"key\": \"value\"]")
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

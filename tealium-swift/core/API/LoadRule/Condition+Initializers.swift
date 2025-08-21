@@ -171,8 +171,8 @@ public extension Condition {
     }
 
     /**
-     * Returns a `Condition` that checks whether the `Decimal` value found at key `variable`,
-     * is greater than the `Decimal` value given by `number`
+     * Returns a `Condition` that checks whether the `Double` value found at key `variable`,
+     * is greater than the `Double` value given by `number`
      *
      * - Parameters:
      *      - orEqual: `true` if numbers can also be equal; else `false`
@@ -184,8 +184,8 @@ public extension Condition {
     }
 
     /**
-     * Returns a `Condition` that checks whether the `Decimal` value found at key `variable`,
-     * is less than the `Decimal` value given by `number`
+     * Returns a `Condition` that checks whether the `Double` value found at key `variable`,
+     * is less than the `Double` value given by `number`
      *
      * - Parameters:
      *      - orEqual: `true` if numbers can also be equal; else `false`
@@ -207,25 +207,5 @@ public extension Condition {
      */
     static func regularExpression(variable: VariableAccessor, regex: String) -> Self {
         Condition(variable: variable, operator: .regex, filter: regex)
-    }
-
-    /**
-     * Returns a `Condition` that checks whether there is a badge found at key `variable`.
-     *
-     * - Parameters:
-     *      - variable: the variable in the data layer to extract the value from for the comparison
-     */
-    static func isBadgeAssigned(variable: VariableAccessor) -> Self {
-        Condition(variable: variable, operator: .isBadgeAssigned, filter: nil)
-    }
-
-    /**
-     * Returns a `Condition` that checks whether there is not a badge found at key `variable`.
-     *
-     * - Parameters:
-     *      - variable: the variable in the data layer to extract the value from for the comparison
-     */
-    static func isBadgeNotAssigned(variable: VariableAccessor) -> Self {
-        Condition(variable: variable, operator: .isBadgeNotAssigned, filter: nil)
     }
 }

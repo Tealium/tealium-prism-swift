@@ -10,12 +10,16 @@
 import XCTest
 
 final class ConditionNotStartsWithTests: XCTestCase {
-    let payload: DataObject = [
+    var payload: DataObject = [
         "string": "Value",
         "int": 345,
         "double": 3.14,
         "bool": true,
-        "array": ["a", "b", "c"],
+        "array": [
+            DataItem(value: "a"),
+            DataItem(value: 1),
+            DataItem(value: false),
+            DataItem(value: ["b", 2, true])],
         "dictionary": ["key": "Value"],
         "null": NSNull()
     ]
@@ -57,6 +61,21 @@ final class ConditionNotStartsWithTests: XCTestCase {
         XCTAssertFalse(condition.matches(payload: payload))
     }
 
+    func test_notStartsWith_matches_different_int() {
+        let condition = Condition.doesNotStartWith(ignoreCase: false, variable: "int", prefix: "12")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_notStartsWith_matches_different_double() {
+        let condition = Condition.doesNotStartWith(ignoreCase: false, variable: "double", prefix: "2.7")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_notStartsWith_matches_different_bool() {
+        let condition = Condition.doesNotStartWith(ignoreCase: false, variable: "bool", prefix: "fa")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
     func test_notStartsWith_doesnt_match_starting_nested_value() {
         let condition = Condition.doesNotStartWith(ignoreCase: false,
                                                    variable: VariableAccessor(path: ["dictionary"],
@@ -66,8 +85,18 @@ final class ConditionNotStartsWithTests: XCTestCase {
     }
 
     func test_notStartsWith_doesnt_match_starting_array() {
-        let condition = Condition.doesNotStartWith(ignoreCase: false, variable: "array", prefix: "[\"a")
+        let condition = Condition.doesNotStartWith(ignoreCase: false, variable: "array", prefix: "a,1,")
         XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notStartsWith_doesnt_match_starting_array_ignoring_case() {
+        let condition = Condition.doesNotStartWith(ignoreCase: true, variable: "array", prefix: "A,1,")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notStartsWith_matches_standard_array_string() {
+        let condition = Condition.doesNotStartWith(ignoreCase: false, variable: "array", prefix: "[\"a")
+        XCTAssertTrue(condition.matches(payload: payload))
     }
 
     func test_notStartsWith_doesnt_match_nested_value_ignoring_case() {
@@ -78,9 +107,14 @@ final class ConditionNotStartsWithTests: XCTestCase {
         XCTAssertFalse(condition.matches(payload: payload))
     }
 
-    func test_notStartsWith_matches_null() {
-        let condition = Condition.doesNotStartWith(ignoreCase: false, variable: "null", prefix: "Not Null")
+    func test_notStartsWith_matches_standard_null_string() {
+        let condition = Condition.doesNotStartWith(ignoreCase: false, variable: "null", prefix: "<nul")
         XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_notStartsWith_doesnt_match_null() {
+        let condition = Condition.doesNotStartWith(ignoreCase: false, variable: "null", prefix: "nul")
+        XCTAssertFalse(condition.matches(payload: payload))
     }
 
     func test_notStartsWith_doesnt_match_keys_missing_from_the_payload() {
@@ -101,6 +135,13 @@ final class ConditionNotStartsWithTests: XCTestCase {
                                   variable: "string",
                                   operator: .notStartsWith(true),
                                   filter: nil)
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_notStartsWith_doesnt_match_dictionary() {
+        let condition = Condition.doesNotStartWith(ignoreCase: false,
+                                                   variable: "dictionary",
+                                                   prefix: "[\"key")
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

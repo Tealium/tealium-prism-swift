@@ -53,12 +53,6 @@ public struct Condition: Codable, Equatable {
          * https://developer.apple.com/documentation/foundation/nsregularexpression
          */
         case regex
-        /// An operator that matches if the variable is defined. Used for when visitor profile enriches the requests.
-        /// Behavior is the same as `isDefined`.
-        case isBadgeAssigned
-        /// An operator that matches if the variable is not defined. Used for when visitor profile enriches the requests.
-        /// Behavior is the same as `isNotDefined`.
-        case isBadgeNotAssigned
     }
     /// The, optional, path components to a nested variable.
     let path: [String]?
@@ -75,7 +69,7 @@ public struct Condition: Codable, Equatable {
      * contains, notContains, endsWith, notEndsWith, startsWith, notStartsWith, regex.
      *
      * Ignored for:
-     * isDefined, isNotDefined, isPopulated, isNotPopulated, isBadgeAssigned, isBadgeNotAssigned.
+     * isDefined, isNotDefined, isPopulated, isNotPopulated.
      */
     let filter: String?
 

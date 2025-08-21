@@ -10,12 +10,16 @@
 import XCTest
 
 final class ConditionRegexTests: XCTestCase {
-    let payload: DataObject = [
+    var payload: DataObject = [
         "string": "Value",
         "int": 345,
         "double": 3.14,
         "bool": true,
-        "array": ["a", "b", "c"],
+        "array": [
+            DataItem(value: "a"),
+            DataItem(value: 1),
+            DataItem(value: false),
+            DataItem(value: ["b", 2, true])],
         "dictionary": ["key": "Value"],
         "null": NSNull()
     ]
@@ -63,7 +67,12 @@ final class ConditionRegexTests: XCTestCase {
     }
 
     func test_regex_matches_array() {
-        let condition = Condition.regularExpression(variable: "array", regex: "a")
+        let condition = Condition.regularExpression(variable: "array", regex: "a,1,false,b,2,true")
+        XCTAssertTrue(condition.matches(payload: payload))
+    }
+
+    func test_regex_matches_array_ignoring_case() {
+        let condition = Condition.regularExpression(variable: "array", regex: "(?i)A,1,false,b,2,TRUE")
         XCTAssertTrue(condition.matches(payload: payload))
     }
 
@@ -91,11 +100,22 @@ final class ConditionRegexTests: XCTestCase {
         XCTAssertFalse(condition.matches(payload: payload))
     }
 
+    func test_regex_doesnt_match_standard_null_string() {
+        let condition = Condition.regularExpression(variable: "null", regex: "<null")
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
     func test_regex_doesnt_match_when_filter_is_nil() {
         let condition = Condition(path: nil,
                                   variable: "string",
                                   operator: .regex,
                                   filter: nil)
+        XCTAssertFalse(condition.matches(payload: payload))
+    }
+
+    func test_regex_doesnt_match_dictionary() {
+        let condition = Condition.regularExpression(variable: "dictionary",
+                                                    regex: "\\[\"key\": \"Value\"\\]")
         XCTAssertFalse(condition.matches(payload: payload))
     }
 }

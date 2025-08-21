@@ -28,17 +28,20 @@ extension Condition: Matchable {
     static let formatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
+        formatter.positiveInfinitySymbol = "Infinity"
+        formatter.negativeInfinitySymbol = "-Infinity"
+        formatter.notANumberSymbol = "NaN"
         return formatter
     }()
     public func matches(payload: DataObject) -> Bool {
         guard let dataItem = extractValue(from: payload) else {
-            return self.operator == .isNotDefined || self.operator == .isBadgeNotAssigned
+            return self.operator == .isNotDefined
         }
 
         return switch self.operator {
-        case .isDefined, .isBadgeAssigned:
+        case .isDefined:
             true
-        case .isNotDefined, .isBadgeNotAssigned:
+        case .isNotDefined:
             false
         case .isPopulated:
             !dataItem.isEmpty
@@ -72,11 +75,11 @@ extension Condition: Matchable {
     }
 
     private func equals(dataItem: DataItem, filter: String, ignoreCase: Bool) -> Bool {
-        if let decimal = dataItem.get(as: Decimal.self),
-           let value = Self.formatter.number(from: filter)?.decimalValue {
-            return decimal == value
+        if let double = dataItem.get(as: Double.self),
+           let value = Self.formatter.number(from: filter)?.doubleValue {
+            return double == value
         }
-        var input = "\(dataItem.toDataInput())"
+        var input = stringify(dataItem.toDataInput())
         var filter = filter
         if ignoreCase {
             input = input.lowercased()
@@ -86,25 +89,25 @@ extension Condition: Matchable {
     }
 
     private func notEquals(dataItem: DataItem, ignoreCase: Bool) -> Bool {
-        guard let filter else {
+        guard let filter, !dataItem.isDictionary else {
             return false
         }
         return !equals(dataItem: dataItem, filter: filter, ignoreCase: ignoreCase)
     }
 
     private func equals(dataItem: DataItem, ignoreCase: Bool) -> Bool {
-        guard let filter else {
+        guard let filter, !dataItem.isDictionary else {
             return false
         }
         return equals(dataItem: dataItem, filter: filter, ignoreCase: ignoreCase)
     }
 
     private func stringsMatch(dataItem: DataItem, ignoreCase: Bool, _ predicate: (String, String) -> Bool) -> Bool {
-        let input = dataItem.toDataInput()
-        guard var filter else {
+        guard var filter, !dataItem.isDictionary else {
             return false
         }
-        var string = String(describing: input)
+        let input = dataItem.toDataInput()
+        var string = stringify(input)
         if ignoreCase {
             string = string.lowercased()
             filter = filter.lowercased()
@@ -112,16 +115,25 @@ extension Condition: Matchable {
         return predicate(string, filter)
     }
 
-    private func numbersMatch(dataItem: DataItem, orEqual: Bool, _ predicate: (Decimal, Decimal) -> Bool) -> Bool {
-        guard let number = dataItem.get(as: Decimal.self),
-              let filter,
-              let value = Self.formatter.number(from: filter)?.decimalValue else {
-             return false
+    private func numbersMatch(dataItem: DataItem, orEqual: Bool, _ predicate: (Double, Double) -> Bool) -> Bool {
+        guard let filter,
+              !dataItem.isDictionary,
+              let value = Self.formatter.number(from: filter)?.doubleValue,
+              let number = dataItem.get(as: Double.self)
+                ?? convertToDouble(dataItem, using: Self.formatter) else {
+            return false
         }
         if number == value {
             return orEqual
         }
         return predicate(number, value)
+    }
+
+    private func convertToDouble(_ dataItem: DataItem, using formatter: NumberFormatter) -> Double? {
+        guard let numString = dataItem.get(as: String.self), !numString.isEmpty else {
+            return nil
+        }
+        return formatter.number(from: numString)?.doubleValue
     }
 
     private func extractValue(from payload: DataObject) -> DataItem? {
@@ -136,5 +148,15 @@ extension Condition: Matchable {
             current = container.toDataObject()
         }
         return current.getDataItem(key: variable)
+    }
+
+    private func stringify<DataInput>(_ value: DataInput) -> String {
+        if value is NSNull {
+            return "null"
+        } else if let array = value as? [DataInput] {
+            return array.map({ stringify($0) }).joined(separator: ",")
+        } else {
+            return String(describing: value)
+        }
     }
 }

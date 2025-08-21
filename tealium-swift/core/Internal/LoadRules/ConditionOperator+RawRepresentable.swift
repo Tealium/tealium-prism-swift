@@ -39,8 +39,6 @@ extension Condition.Operator: RawRepresentable {
         case Const.lessThan: self = .lessThan(false)
         case Const.lessThanEqualTo: self = .lessThan(true)
         case Const.regularExpression: self = .regex
-        case Const.isBadgeAssigned: self = .isBadgeAssigned
-        case Const.isBadgeNotAssigned: self = .isBadgeNotAssigned
         default:
             return nil
         }
@@ -71,8 +69,6 @@ extension Condition.Operator: RawRepresentable {
         case .notStartsWith(let ignoreCase):
             ignoreCase ? Const.doesNotStartWithIgnoreCase : Const.doesNotStartWith
         case .regex: Const.regularExpression
-        case .isBadgeAssigned: Const.isBadgeAssigned
-        case .isBadgeNotAssigned: Const.isBadgeNotAssigned
         }
     }
 }
