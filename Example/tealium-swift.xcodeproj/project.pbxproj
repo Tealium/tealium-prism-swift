@@ -161,6 +161,9 @@
 		871237E22DD644160007C2CD /* DispatchManager+MappingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871237E12DD644160007C2CD /* DispatchManager+MappingsTests.swift */; };
 		871237E32DD644160007C2CD /* DispatchManager+MappingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871237E12DD644160007C2CD /* DispatchManager+MappingsTests.swift */; };
 		871237E42DD644160007C2CD /* DispatchManager+MappingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871237E12DD644160007C2CD /* DispatchManager+MappingsTests.swift */; };
+		872189032E5C6E7100D3CCF1 /* BackgroundTaskStarterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872189022E5C6E6B00D3CCF1 /* BackgroundTaskStarterTests.swift */; };
+		872189042E5C6E7100D3CCF1 /* BackgroundTaskStarterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872189022E5C6E6B00D3CCF1 /* BackgroundTaskStarterTests.swift */; };
+		872189052E5C6E7100D3CCF1 /* BackgroundTaskStarterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872189022E5C6E6B00D3CCF1 /* BackgroundTaskStarterTests.swift */; };
 		8732D7DE2E32936E00152296 /* DelegateProxyTests_iOS.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 8732D7DC2E32936E00152296 /* DelegateProxyTests_iOS.xctestplan */; };
 		8732D7E02E32936E00152296 /* DelegateProxyTests_iOS.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 8732D7DC2E32936E00152296 /* DelegateProxyTests_iOS.xctestplan */; };
 		8732D7E22E32936E00152296 /* DelegateProxyTests_iOS.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 8732D7DC2E32936E00152296 /* DelegateProxyTests_iOS.xctestplan */; };
@@ -1065,6 +1068,7 @@
 		871237D92DD60D720007C2CD /* DataObject+VariableAccessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataObject+VariableAccessorTests.swift"; sourceTree = "<group>"; };
 		871237DD2DD621DF0007C2CD /* MappingsEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MappingsEngineTests.swift; sourceTree = "<group>"; };
 		871237E12DD644160007C2CD /* DispatchManager+MappingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DispatchManager+MappingsTests.swift"; sourceTree = "<group>"; };
+		872189022E5C6E6B00D3CCF1 /* BackgroundTaskStarterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BackgroundTaskStarterTests.swift; sourceTree = "<group>"; };
 		8732D7DC2E32936E00152296 /* DelegateProxyTests_iOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = DelegateProxyTests_iOS.xctestplan; sourceTree = "<group>"; };
 		8732D7E92E3293B700152296 /* CoreTests_iOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = CoreTests_iOS.xctestplan; path = Tests/TestPlans/CoreTests_iOS.xctestplan; sourceTree = SOURCE_ROOT; };
 		8732D7EA2E3293FD00152296 /* LifecycleTests_iOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = LifecycleTests_iOS.xctestplan; sourceTree = "<group>"; };
@@ -1732,6 +1736,7 @@
 		87AF545C2C7E380600F1C114 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				872189022E5C6E6B00D3CCF1 /* BackgroundTaskStarterTests.swift */,
 				87451A692E1C29F00074EA1E /* ArrayTests.swift */,
 				87AF546B2C7E389C00F1C114 /* TealiumDispatchGroupTests.swift */,
 				87AF54692C7E389C00F1C114 /* RepeatingTimerTests.swift */,
@@ -3248,6 +3253,7 @@
 				15ED5AFF2A6021BD0027BB20 /* DeinitTester.swift in Sources */,
 				87795FD62C6BC52B00FEB0D6 /* DataItem+StringValueTests.swift in Sources */,
 				15C0DCC82B0CF6530007F6BE /* Operators+StartsWithTests.swift in Sources */,
+				872189042E5C6E7100D3CCF1 /* BackgroundTaskStarterTests.swift in Sources */,
 				1597DC7D2A446B1400C394D3 /* MockBackoff.swift in Sources */,
 				87EE76E82D786F1F00BB1D77 /* Condition+GreaterThanOrEqualTests.swift in Sources */,
 				EC2EA5F72DB1474E00CCB144 /* DeepLinkBaseTests.swift in Sources */,
@@ -3510,6 +3516,7 @@
 				87BA6D4E2C6A470C00784784 /* MockConsentManager.swift in Sources */,
 				875371072E2E49C400CDED6D /* AnyCodable+Equatable.swift in Sources */,
 				87BA6D4F2C6A470C00784784 /* CoreSettingsConverterTests.swift in Sources */,
+				872189052E5C6E7100D3CCF1 /* BackgroundTaskStarterTests.swift in Sources */,
 				87BA6D502C6A470C00784784 /* Operators+MapTests.swift in Sources */,
 				87BA6D522C6A470C00784784 /* Operators+DistinctTests.swift in Sources */,
 				87FC08692D931B9500E1041D /* LoadRule+ConverterTests.swift in Sources */,
@@ -3734,6 +3741,7 @@
 				87C6C23A2D528056008B91D8 /* DefaultModuleFactoryTests.swift in Sources */,
 				875371022E2E49C400CDED6D /* AnyCodable+Equatable.swift in Sources */,
 				08BD03292D356BBB00FA2E2E /* CollectBatcherTests.swift in Sources */,
+				872189032E5C6E7100D3CCF1 /* BackgroundTaskStarterTests.swift in Sources */,
 				08BD032A2D356BBB00FA2E2E /* CollectModuleTests.swift in Sources */,
 				08BD032B2D356BBB00FA2E2E /* CollectModuleFactoryTests.swift in Sources */,
 				87FC086B2D931B9500E1041D /* LoadRule+ConverterTests.swift in Sources */,

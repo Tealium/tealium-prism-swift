@@ -22,6 +22,9 @@ public struct TealiumConfig {
     public var bundle: Bundle = .main
     public var existingVisitorId: String?
     public var cmpAdapter: CMPAdapter?
+    /// Replace with nil in tests to use in memory DB
+    var databaseName: String? = "tealium"
+    var appStatusListener = ApplicationStatusListener.shared
     let coreSettings: DataObject?
     var consentSettings: DataObject?
     var loadRules = DataObject()

@@ -84,10 +84,7 @@ public class ResourceRefresher<Resource: Codable> {
         guard errorCooldown == nil || isFileCached else {
             return errorCooldown?.isInCooldown(lastFetch: lastFetch) == false
         }
-        guard let newFetchMinimumDate = lastFetch.addSeconds(parameters.refreshInterval) else {
-            return true
-        }
-        return newFetchMinimumDate < Date()
+        return parameters.refreshInterval.after(date: lastFetch) < Date()
     }
 
     /**
@@ -171,9 +168,9 @@ public class ResourceRefresher<Resource: Codable> {
      * - Parameters:
      *   - seconds: The amount of seconds to wait between refreshes.
      */
-    public func setRefreshInterval(_ seconds: Double) {
-        parameters.refreshInterval = seconds
-        errorCooldown?.maxInterval = seconds
+    public func setRefreshInterval(_ interval: TimeFrame) {
+        parameters.refreshInterval = interval
+        errorCooldown?.maxInterval = interval
     }
 
     deinit {

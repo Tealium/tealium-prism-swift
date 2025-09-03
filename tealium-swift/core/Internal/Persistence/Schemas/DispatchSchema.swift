@@ -19,7 +19,7 @@ class DispatchSchema {
 
     static let tableUUID = table[uuid]
 
-    static func createtable(database: Connection) throws {
+    static func createTable(database: Connection) throws {
         try database.run(table.create { table in
             table.column(uuid, primaryKey: true)
             table.column(timestamp)

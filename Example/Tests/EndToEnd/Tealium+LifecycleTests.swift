@@ -21,7 +21,7 @@ final class TealiumLifecycleTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             lifecycleEventCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_lifecycle_wrapper_throws_errors_if_not_enabled() throws {
@@ -41,7 +41,7 @@ final class TealiumLifecycleTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             lifecycleEventCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_lifecycle_wrapper_throws_errors_if_not_added() throws {
@@ -58,6 +58,42 @@ final class TealiumLifecycleTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             lifecycleEventCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
+
+#if os(iOS)
+    func test_lifecycle_sleep_event_is_batched_with_previous_events_when_transformation_slows_execution() {
+        let notificationCenter = NotificationCenter()
+        config.appStatusListener = ApplicationStatusListener(notificationCenter: notificationCenter)
+        config.addModule(Modules.lifecycle())
+        config.addModule(MockDispatcher2.factory)
+        config.addBarrier(Barriers.batching())
+        config.addModule(Modules.deviceData(forcingSettings: { enforcedSettings in
+            enforcedSettings.setDeviceNamesUrl("")
+        }))
+        let launchIsDispatched = expectation(description: "Launch is dispatched")
+        MockDispatcher.onDispatch.subscribeOnce { dispatches in
+            XCTAssertEqual(dispatches.map { $0.name }, ["launch"])
+            launchIsDispatched.fulfill()
+        }
+
+        let teal = createTealium()
+        waitForLongTimeout()
+
+        let barrierClosed = expectation(description: "Wait for barrier to close after 0.2 seconds")
+        queue.dispatchQueue.asyncAfter(deadline: .now() + .milliseconds(200)) {
+            barrierClosed.fulfill()
+        }
+        waitForLongTimeout()
+
+        let dispatchesAreBatched = expectation(description: "Dispatches are sent in one batch")
+        MockDispatcher.onDispatch.subscribeOnce { dispatches in
+            XCTAssertEqual(dispatches.map { $0.name }, ["event", "sleep"])
+            dispatchesAreBatched.fulfill()
+        }
+        teal.track("event")
+        notificationCenter.post(name: UIApplication.willResignActiveNotification, object: nil)
+        waitForLongTimeout()
+    }
+#endif
 }

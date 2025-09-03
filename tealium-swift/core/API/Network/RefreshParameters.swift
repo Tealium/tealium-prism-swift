@@ -11,8 +11,8 @@ import Foundation
 public struct RefreshParameters {
     let id: String
     let url: URL
-    var refreshInterval: Double
-    let errorCooldownBaseInterval: Double?
+    var refreshInterval: TimeFrame
+    let errorCooldownBaseInterval: TimeFrame?
 
     /**
      * Creates parameters to be used with a `ResourceRefresher`.
@@ -26,7 +26,7 @@ public struct RefreshParameters {
     public init(id: String, url: URL, refreshInterval: TimeFrame, errorCooldownBaseInterval: TimeFrame? = nil) {
         self.id = id
         self.url = url
-        self.refreshInterval = refreshInterval.inSeconds()
-        self.errorCooldownBaseInterval = errorCooldownBaseInterval?.inSeconds()
+        self.refreshInterval = refreshInterval
+        self.errorCooldownBaseInterval = errorCooldownBaseInterval
     }
 }

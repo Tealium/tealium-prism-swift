@@ -10,7 +10,7 @@
 import XCTest
 
 final class SessionManagerTests: XCTestCase {
-    var dispatch = Dispatch(name: "event")
+    lazy var dispatch = Dispatch(name: "event")
     let databaseProvider = MockDatabaseProvider()
     lazy var moduleRepository = SQLModulesRepository(dbProvider: databaseProvider)
     lazy var storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
@@ -59,7 +59,7 @@ final class SessionManagerTests: XCTestCase {
         let store = try storeProvider.getModuleStore(name: "some")
         try store.edit().put(key: "some", value: "value", expiry: .session).commit()
         XCTAssertEqual(store.get(key: "some"), "value")
-        sessionManager = createSessionManager(timestamp: Date().unixTimeMilliseconds + 20.minutes.inMilliseconds())
+        sessionManager = createSessionManager(timestamp: 20.minutes.afterNow().unixTimeMilliseconds)
         XCTAssertNil(store.getDataItem(key: "some"))
     }
 
@@ -86,7 +86,7 @@ final class SessionManagerTests: XCTestCase {
     }
 
     func test_init_schedules_expiration_from_last_event_time_when_session_resumed() {
-        let threeMinutesAgo = Date().unixTimeMilliseconds - 3.minutes.inMilliseconds()
+        let threeMinutesAgo = 3.minutes.beforeNow().unixTimeMilliseconds
         let expectedDelay = 5.minutes.inSeconds() - 3.minutes.inSeconds()
         var pastDispatch = Dispatch(payload: [:], id: "1", timestamp: threeMinutesAgo)
         sessionManager.registerDispatch(&pastDispatch)
@@ -142,7 +142,7 @@ final class SessionManagerTests: XCTestCase {
     func test_registerDispatch_ends_a_session_on_subsequent_initializations_if_expired() {
         sessionManager.registerDispatch(&dispatch)
         let sessionReported = expectation(description: "Session is reported")
-        sessionManager = createSessionManager(timestamp: Date().unixTimeMilliseconds + 6.minutes.inMilliseconds())
+        sessionManager = createSessionManager(timestamp: 6.minutes.afterNow().unixTimeMilliseconds)
         sessionManager.session.subscribeOnce { newSession in
             XCTAssertEqual(newSession.status, .ended)
             sessionReported.fulfill()
@@ -232,7 +232,7 @@ final class SessionManagerTests: XCTestCase {
     }
 
     func test_registerDispatch_schedules_expiry_from_dispatch_timestamp_when_new_session_started() {
-        let threeMinutesAgo = Date().unixTimeMilliseconds - 3.minutes.inMilliseconds()
+        let threeMinutesAgo = 3.minutes.beforeNow().unixTimeMilliseconds
         let expectedDelay = 5.minutes.inSeconds() - 3.minutes.inSeconds()
         var pastDispatch = Dispatch(payload: [:], id: "1", timestamp: threeMinutesAgo)
         let sessionReported = expectation(description: "Session is reported")

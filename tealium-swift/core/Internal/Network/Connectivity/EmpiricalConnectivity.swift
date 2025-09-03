@@ -40,7 +40,7 @@ class EmpiricalConnectivity: EmpiricalConnectivityProtocol {
      * - Note: the response doesn't have to be successful as long as we receive a response from a server,
      * the connection is still assumed to be available.
      *
-     * - Warning: make sure that the request was not returned from a local cache, otherwise there's no guarantee that we have conneciton.
+     * - Warning: make sure that the request was not returned from a local cache, otherwise there's no guarantee that we have connection.
      */
     func connectionSuccess() {
         numberOfFailedConsecutiveTimeouts = 0

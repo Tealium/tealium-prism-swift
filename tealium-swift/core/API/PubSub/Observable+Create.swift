@@ -19,7 +19,7 @@ public extension Observable {
      * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and publish a new event to the subscribers when the function completes.
      */
     static func Callback(from asyncFunction: @escaping (@escaping Observer) -> Void) -> Observable<Element> {
-        Callback { observer in
+        CustomObservable { observer in
             var cancelled = false
             asyncFunction { res in
                 if !cancelled {
@@ -28,23 +28,6 @@ public extension Observable {
             }
             return Subscription {
                 cancelled = true
-            }
-        }
-    }
-
-    /**
-     * Returns an observable that will send only one event once the asyncFunction has completed.
-     *
-     * - Parameter asyncFunction: is the function that needs to be called and needs to report the completion to the provided observer.
-     *  This function will only be called when an observer subscribes to the returned Observable. Every subscription will cause the asyncFunction to be called again.
-     *  It will return a `Disposable` that can be used to cancel the function itself.
-     *
-     * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and publish a new event to the subscribers when the function completes.
-     */
-    static func Callback(fromDisposable asyncFunction: @escaping (@escaping Observer) -> Disposable) -> Observable<Element> {
-        CustomObservable<Element> { observer in
-            asyncFunction { res in
-                observer(res)
             }
         }
     }

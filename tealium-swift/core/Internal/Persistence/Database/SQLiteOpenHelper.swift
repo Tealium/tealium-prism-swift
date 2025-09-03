@@ -22,19 +22,19 @@ class SQLiteOpenHelper {
      * Creates a new `SQLiteOpenHelper`
      *
      *  - Parameters:
-     *     - databaseName: the name of the database used to store the file to disk. Nil for in memory DB.
      *     - version: the current version of the DB, used to compare with the stored version and perform upgrades/downgrades
      *     - config: the configuration used to get the correct DB for account/profile
      */
-    init(databaseName: String?, version: Int, config: TealiumConfig) {
-        if let databaseName = databaseName {
-            databaseUrl = TealiumFileManager.getApplicationFileUrl(for: config.account,
-                                                                   profile: config.profile,
-                                                                   fileName: "\(databaseName).sqlite3")
-        } else {
-            databaseUrl = nil
-        }
+    init(version: Int, config: TealiumConfig?) {
         self.version = version
+        guard let config,
+              let databaseName = config.databaseName else {
+            databaseUrl = nil
+            return
+        }
+        databaseUrl = TealiumFileManager.getApplicationFileUrl(for: config.account,
+                                                               profile: config.profile,
+                                                               fileName: "\(databaseName).sqlite3")
     }
 
     func getDatabase() throws -> Connection {

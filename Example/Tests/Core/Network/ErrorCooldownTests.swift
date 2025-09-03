@@ -9,7 +9,7 @@
 import XCTest
 
 final class ErrorCooldownTests: XCTestCase {
-    let errorCooldown = ErrorCooldown(baseInterval: 10, maxInterval: 50)
+    let errorCooldown = ErrorCooldown(baseInterval: 10.seconds, maxInterval: 50.seconds)
     let error = NetworkError.non200Status(400)
 
     func testStartsNotInCooldown() {
@@ -66,7 +66,7 @@ final class ErrorCooldownTests: XCTestCase {
     }
 
     func testInitializationFailsWithoutBaseInterval() {
-        let errorCooldown = ErrorCooldown(baseInterval: nil, maxInterval: 50)
+        let errorCooldown = ErrorCooldown(baseInterval: nil, maxInterval: 50.seconds)
         XCTAssertNil(errorCooldown)
     }
 }

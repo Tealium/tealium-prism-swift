@@ -36,6 +36,7 @@ public class TealiumQueue {
 
     private let queueSpecificKey = DispatchSpecificKey<Void>()
     public let dispatchQueue: DispatchQueue
+    var enforceQoS = DispatchQoS.unspecified
     public convenience init(label: String, qos: DispatchQoS = .default) {
         self.init(dispatchQueue: DispatchQueue(label: label, qos: qos))
     }
@@ -56,7 +57,11 @@ public class TealiumQueue {
         if isOnQueue() {
             work()
         } else {
-            dispatchQueue.async(execute: work)
+            if enforceQoS != .unspecified {
+                dispatchQueue.async(qos: enforceQoS, flags: .enforceQoS, execute: work)
+            } else {
+                dispatchQueue.async(execute: work)
+            }
         }
     }
 

@@ -140,9 +140,9 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         _ = manager.onNewRefreshInterval().subscribe { newInterval in
             if firstInterval {
                 firstInterval = false
-                XCTAssertEqual(newInterval, 900)
+                XCTAssertEqual(newInterval, 900.seconds)
             } else {
-                XCTAssertEqual(newInterval, 100)
+                XCTAssertEqual(newInterval, 100.seconds)
             }
             refreshIntervalUpdated.fulfill()
         }
@@ -159,7 +159,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         ]]
         networkHelper.codableResult = .success(.successful(object: sdkSettings))
         _ = manager.onNewRefreshInterval().subscribe { newInterval in
-            XCTAssertEqual(newInterval, 900)
+            XCTAssertEqual(newInterval, 900.seconds)
             refreshIntervalUpdated.fulfill()
         }
         manager.startRefreshing(onActivity: onActivity.asObservable())

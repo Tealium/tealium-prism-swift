@@ -39,7 +39,6 @@ class BatchingBarrier: ConfigurableBarrier {
         let queueSize = queueMetrics.onQueueSizePendingDispatch(for: dispatcherId)
         return batchSizeReached(queueSize, dispatcherId)
             .map { $0 ? .open : .closed }
-            .distinct()
     }
 
     private func batchSizeReached(_ queueSize: Observable<Int>, _ dispatcherId: String) -> Observable<Bool> {

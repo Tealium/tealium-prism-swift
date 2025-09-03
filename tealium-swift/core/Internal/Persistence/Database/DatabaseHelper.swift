@@ -21,9 +21,8 @@ class DatabaseHelper: SQLiteOpenHelper {
     /// The current version of the DB implemented in the codebase
     static var DATABASE_VERSION = 1
 
-    init(databaseName: String?, config: TealiumConfig) {
-        super.init(databaseName: databaseName,
-                   version: DatabaseHelper.DATABASE_VERSION,
+    init(config: TealiumConfig?) {
+        super.init(version: DatabaseHelper.DATABASE_VERSION,
                    config: config)
     }
 
@@ -33,7 +32,7 @@ class DatabaseHelper: SQLiteOpenHelper {
 
     override func onCreate(database: Connection) throws {
         // Create Queue Tables
-        try DispatchSchema.createtable(database: database)
+        try DispatchSchema.createTable(database: database)
         try QueueSchema.createTable(database: database)
 
         // Create Module Tables

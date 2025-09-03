@@ -10,12 +10,12 @@ import Foundation
 
 /// An object that increases a cooldown for every error event, and resets the cooldown to 0 when a non-error event happens.
 public class ErrorCooldown {
-    let baseInterval: Double
-    var maxInterval: Double
+    let baseInterval: TimeFrame
+    var maxInterval: TimeFrame
     private var lastCallError: Error?
-    private var consecutiveErrorsCount = 0
+    private var consecutiveErrorsCount: Int64 = 0
 
-    convenience init?(baseInterval: Double?, maxInterval: Double) {
+    convenience init?(baseInterval: TimeFrame?, maxInterval: TimeFrame) {
         guard let baseInterval = baseInterval else {
             return nil
         }
@@ -23,23 +23,20 @@ public class ErrorCooldown {
                   maxInterval: maxInterval)
     }
 
-    init(baseInterval: Double, maxInterval: Double) {
+    init(baseInterval: TimeFrame, maxInterval: TimeFrame) {
         self.baseInterval = baseInterval
         self.maxInterval = maxInterval
     }
 
-    var cooldownInterval: Double {
-        return min(maxInterval, baseInterval * Double(consecutiveErrorsCount))
+    var cooldownInterval: TimeFrame {
+        return min(maxInterval, TimeFrame(unit: baseInterval.unit, interval: baseInterval.interval * consecutiveErrorsCount))
     }
 
     func isInCooldown(lastFetch: Date) -> Bool {
         guard lastCallError != nil else {
             return false
         }
-        guard let cooldownEndDate = lastFetch.addSeconds(cooldownInterval) else {
-            return false
-        }
-        return cooldownEndDate > Date()
+        return cooldownInterval.after(date: lastFetch) > Date()
     }
 
     func newCooldownEvent(error: Error?) {

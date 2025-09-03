@@ -13,12 +13,26 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
     @StateSubject([])
     var barriers: ObservableState<[ScopedBarrier]>
     let queueMetrics = MockQueueMetrics(queueSize: 0)
+    let queue = TealiumQueue.main
     @StateSubject(ApplicationStatus(type: .initialized))
     var onApplicationStatus: ObservableState<ApplicationStatus>
+
+    func publishStatus(_ status: ApplicationStatus) {
+        queue.ensureOnQueue {
+            self._onApplicationStatus.publish(status)
+        }
+    }
     lazy var coordinator = BarrierCoordinator(onScopedBarriers: barriers,
                                               onApplicationStatus: onApplicationStatus,
-                                              queueMetrics: queueMetrics)
+                                              queueMetrics: queueMetrics,
+                                              debouncer: MockInstantDebouncer(),
+                                              queue: queue)
     let disposer = AutomaticDisposer()
+
+    override func tearDown() {
+        super.tearDown()
+        disposer.dispose()
+    }
 
     func test_flush_opens_flushable_barriers() {
         let flushableBarrier = MockBarrier1()
@@ -202,7 +216,7 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
             }
         }.addTo(disposer)
         queueMetrics.setQueueSize(1)
-        _onApplicationStatus.value = ApplicationStatus(type: .backgrounded)
+        publishStatus(ApplicationStatus(type: .backgrounded))
 
         wait(for: [barriersClosed, barriersOpen], timeout: Self.defaultTimeout, enforceOrder: true)
     }
@@ -224,7 +238,7 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
             }
         }.addTo(disposer)
         queueMetrics.setQueueSize(1)
-        _onApplicationStatus.value = ApplicationStatus(type: .foregrounded)
+        publishStatus(ApplicationStatus(type: .foregrounded))
 
         wait(for: [barriersClosed, barriersOpen], timeout: Self.defaultTimeout, enforceOrder: true)
     }
@@ -246,8 +260,8 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
             }
         }.addTo(disposer)
         queueMetrics.setQueueSize(1)
-        _onApplicationStatus.value = ApplicationStatus(type: .initialized)
+        publishStatus(ApplicationStatus(type: .initialized))
 
-        wait(for: [barriersClosed, barriersOpen], timeout: Self.defaultTimeout, enforceOrder: true)
+        wait(for: [barriersClosed, barriersOpen], timeout: Self.longTimeout, enforceOrder: false)
     }
 }

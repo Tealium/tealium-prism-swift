@@ -99,9 +99,9 @@ class SettingsManager {
             }.addTo(automaticDisposer)
     }
 
-    func onNewRefreshInterval() -> Observable<Double> {
+    func onNewRefreshInterval() -> Observable<TimeFrame> {
         settings.asObservable()
-            .map { $0.core.refreshInterval.inSeconds() }
+            .map { $0.core.refreshInterval }
             .distinct()
     }
 

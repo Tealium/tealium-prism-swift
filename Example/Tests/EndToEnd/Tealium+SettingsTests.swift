@@ -10,21 +10,13 @@
 import XCTest
 
 final class TealiumSettingsTests: TealiumBaseTests {
-    var settingsUrl: String = "https://www.tealium.com/settings"
     override func setUp() {
+        settingsFile = "local"
+        settingsUrl = "https://www.tealium.com/settings"
         super.setUp()
-        config = TealiumConfig(account: "mockAccount",
-                               profile: "mockProfile",
-                               environment: "mockEnv",
-                               modules: [],
-                               settingsFile: "local",
-                               settingsUrl: settingsUrl,
-                               forcingSettings: { builder in
-            builder.setMinLogLevel(.silent)
-        })
         config.bundle = Bundle(for: self.classForCoder)
-        config.networkClient = client
         try? mockRemoteSettings(named: "settings")
+
     }
 
     func mockRemoteSettings(named: String) throws {
@@ -33,7 +25,9 @@ final class TealiumSettingsTests: TealiumBaseTests {
             throw TealiumError.genericError("File not found: \(named)")
         }
         let jsonData = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
-        client.resultMap[settingsUrl] = .success(.init(data: jsonData, urlResponse: .successful()))
+        if let url = settingsUrl {
+            client.resultMap[url] = .success(.init(data: jsonData, urlResponse: .successful()))
+        }
     }
 
     func test_remote_settings_update_core_settings() {

@@ -19,7 +19,6 @@ class TealiumImpl {
     let loadRuleEngine: LoadRuleEngine
     let barrierCoordinator: BarrierCoordinator
     let sessionManager: SessionManager
-    private let appStatusListener = ApplicationStatusListener.shared
 
     // swiftlint:disable:next function_body_length
     init(_ config: TealiumConfig, queue: TealiumQueue) throws {
@@ -41,7 +40,7 @@ class TealiumImpl {
                                                   dataStore: dataStore,
                                                   networkHelper: networkHelper,
                                                   logger: logger)
-        settingsManager.startRefreshing(onActivity: appStatusListener
+        settingsManager.startRefreshing(onActivity: config.appStatusListener
             .onApplicationStatus
             .observeOn(queue)
             .subscribeOn(queue))
@@ -75,8 +74,10 @@ class TealiumImpl {
                                                                  queue: modulesManager.queue)
         let barrierManager = BarrierManager(sdkBarrierSettings: settingsManager.settings.mapState { $0.barriers })
         barrierCoordinator = BarrierCoordinator(onScopedBarriers: barrierManager.onScopedBarriers,
-                                                onApplicationStatus: appStatusListener.onApplicationStatus,
-                                                queueMetrics: queueManager)
+                                                onApplicationStatus: config.appStatusListener.onApplicationStatus,
+                                                queueMetrics: queueManager,
+                                                debouncer: Debouncer(queue: queue),
+                                                queue: queue)
         let mappings = settingsManager.settings.mapState { $0.modules.compactMapValues { $0.mappings } }
         let mappingsEngine = MappingsEngine(mappings: mappings)
 
@@ -121,7 +122,7 @@ class TealiumImpl {
                                       moduleStoreProvider: storeProvider,
                                       logger: logger,
                                       networkHelper: networkHelper,
-                                      activityListener: appStatusListener,
+                                      activityListener: config.appStatusListener,
                                       queue: modulesManager.queue,
                                       visitorId: visitorIdProvider.visitorId,
                                       queueMetrics: queueManager)

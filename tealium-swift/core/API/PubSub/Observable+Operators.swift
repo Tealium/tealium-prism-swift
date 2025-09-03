@@ -333,7 +333,7 @@ public extension Observable {
      * the observer with which to emit downstream.
      */
     func callback<Result>(from block: @escaping (Element, @escaping Observable<Result>.Observer) -> Void) -> Observable<Result> {
-        return flatMap { value in
+        flatMap { value in
             Observable<Result>.Callback { observer in
                 block(value, observer)
             }
@@ -348,10 +348,43 @@ public extension Observable {
      * the observer with which to emit downstream, disposable by the returned `Disposable` object.
      */
     func callback<Result>(fromDisposable block: @escaping (Element, @escaping Observable<Result>.Observer) -> Disposable) -> Observable<Result> {
-        return flatMap { value in
-            Observable<Result>.Callback { observer in
+        flatMap { value in
+            CustomObservable<Result> { observer in
                 block(value, observer)
             }
+        }
+    }
+
+    /**
+     * Returns an observable that will emit the last element received after the provided delay if no other event is emitted in the meantime.
+     *
+     * - parameter delay: The delay to wait before emitting the elements
+     * - parameter debouncer: The debouncer handling the debounce operation.
+     */
+    func debounce(delay: TimeInterval, debouncer: DebouncerProtocol) -> Observable<Element> {
+        flatMap { element in
+            CustomObservable { observer in
+                let subscription = Subscription { }
+                debouncer.debounce(time: delay) {
+                    guard !subscription.isDisposed else { return }
+                    observer(element)
+                }
+                return subscription
+            }
+        }
+    }
+
+    /// Returns an observable that emits each emitted value after a set `time`.
+    func delay(_ time: DispatchTimeInterval, on queue: TealiumQueue) -> Observable<Element> {
+        CustomObservable { observer in
+            let disposable = DisposeContainer()
+            self.subscribe { element in
+                queue.dispatchQueue.asyncAfter(deadline: .now() + time) {
+                    guard !disposable.isDisposed else { return }
+                    observer(element)
+                }
+            }.addTo(disposable)
+            return disposable
         }
     }
 }

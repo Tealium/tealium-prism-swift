@@ -10,7 +10,7 @@
 import XCTest
 
 final class TimeFrameTests: XCTestCase {
-
+    let firstOfJanuary2000: Int64 = 946_684_800_000
     func test_lessThan_is_true_for_shorter_intervals_but_same_unit() {
         let time1 = 10.seconds
         let time2 = 20.seconds
@@ -90,16 +90,26 @@ final class TimeFrameTests: XCTestCase {
     }
 
     func test_after_adds_the_timeFrame_to_a_date() {
-        let firstOfJanuary2000: Int64 = 946_684_800_000
         let date = Date(unixMilliseconds: firstOfJanuary2000)
         let newDate = 5.days.after(date: date)
-        XCTAssertEqual(newDate?.unixTimeMilliseconds, firstOfJanuary2000 + 5.days.inMilliseconds())
+        XCTAssertEqual(newDate.unixTimeMilliseconds, firstOfJanuary2000 + 5.days.inMilliseconds())
     }
 
     func test_before_subtracts_the_timeFrame_to_a_date() {
-        let firstOfJanuary2000: Int64 = 946_684_800_000
         let date = Date(unixMilliseconds: firstOfJanuary2000)
         let newDate = 5.days.before(date: date)
-        XCTAssertEqual(newDate?.unixTimeMilliseconds, firstOfJanuary2000 - 5.days.inMilliseconds())
+        XCTAssertEqual(newDate.unixTimeMilliseconds, firstOfJanuary2000 - 5.days.inMilliseconds())
+    }
+
+    func test_after_does_not_crash_for_overflow() {
+        let date = Date(unixMilliseconds: firstOfJanuary2000)
+        let newDate = Int64.max.seconds.after(date: date)
+        XCTAssertEqual(newDate.unixTimeMilliseconds, Int64.max)
+    }
+
+    func test_before_does_not_crash_for_underflow() {
+        let date = Date(unixMilliseconds: -firstOfJanuary2000)
+        let newDate = Int64.max.seconds.before(date: date)
+        XCTAssertEqual(newDate.unixTimeMilliseconds, Int64.min)
     }
 }

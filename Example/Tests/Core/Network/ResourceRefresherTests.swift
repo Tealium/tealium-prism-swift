@@ -74,7 +74,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
     func test_shouldRefresh_is_false_during_errorCooldown() throws {
         networkHelper.codableResult = .failure(.non200Status(400))
         let refreshError = expectation(description: "Refresh error happened")
-        let refresher = try createResourceRefresher(refreshInterval: 0.seconds, errorCooldown: ErrorCooldown(baseInterval: 5, maxInterval: 10))
+        let refresher = try createResourceRefresher(refreshInterval: 0.seconds, errorCooldown: ErrorCooldown(baseInterval: 5.seconds, maxInterval: 10.seconds))
         refresher.onRefreshError.subscribeOnce { _ in
             refreshError.fulfill()
         }

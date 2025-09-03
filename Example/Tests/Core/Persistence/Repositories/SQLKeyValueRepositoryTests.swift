@@ -68,7 +68,7 @@ final class SQLKeyValueRepositoryTests: XCTestCase {
         try repository.upsert(key: "forever", value: "value", expiry: .forever)
         try repository.upsert(key: "untilrestart", value: "value", expiry: .untilRestart)
         try repository.upsert(key: "session", value: "value", expiry: .session)
-        let date = Date().addMinutes(5) ?? Date()
+        let date = 5.minutes.afterNow()
         try repository.upsert(key: "date", value: "value", expiry: .after(date))
 
         XCTAssertEqual(repository.getExpiry(key: "forever"), .forever)

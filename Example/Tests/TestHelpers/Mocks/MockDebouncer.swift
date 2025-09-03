@@ -9,18 +9,26 @@
 import Foundation
 @testable import TealiumSwift
 
-class MockDebouncer: DebouncerProtocol {
+class MockDebouncer: MockInstantDebouncer {
     let queue: DispatchQueue
-    @ToAnyObservable(BasePublisher())
-    var onDebounce: Observable<TimeInterval>
     init(queue: DispatchQueue) {
         self.queue = queue
     }
-    func debounce(time: TimeInterval, completion: @escaping () -> Void) {
+    override func debounce(time: TimeInterval, completion: @escaping () -> Void) {
         queue.async {
-            self._onDebounce.publish(time)
-            completion()
+            super.debounce(time: time, completion: completion)
         }
+    }
+}
+
+class MockInstantDebouncer: DebouncerProtocol {
+    @ToAnyObservable(BasePublisher())
+    var onDebounce: Observable<TimeInterval>
+    init() {
+    }
+    func debounce(time: TimeInterval, completion: @escaping () -> Void) {
+        self._onDebounce.publish(time)
+        completion()
     }
     func cancel() {}
 }

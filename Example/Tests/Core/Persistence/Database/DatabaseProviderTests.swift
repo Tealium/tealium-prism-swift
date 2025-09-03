@@ -12,7 +12,7 @@ import XCTest
 
 final class DatabaseProviderTests: XCTestCase {
     var path = ""
-    let config = mockConfig
+    var config = mockConfig
     override func setUp() {
         path = (try? TealiumFileManager.getTealiumApplicationFolder().path) ?? ""
         try? TealiumFileManager.deleteAtPath(path: path)
@@ -24,12 +24,13 @@ final class DatabaseProviderTests: XCTestCase {
     }
 
     func test_inMemory_db_is_created() throws {
-        let database = XCTAssertNoThrowReturn(try DatabaseProvider.getInMemoryDatabase(config: config))
+        let database = XCTAssertNoThrowReturn(try DatabaseProvider.getInMemoryDatabase())
         XCTAssertNotNil(database)
         XCTAssertFalse(FileManager.default.fileExists(atPath: path))
     }
 
     func test_persistent_db_is_created() throws {
+        config.databaseName = "tealium"
         let database = DatabaseProvider.getPersistentDatabase(config: config)
         XCTAssertNotNil(database)
         XCTAssertTrue(FileManager.default.fileExists(atPath: path))
@@ -48,6 +49,7 @@ final class DatabaseProviderTests: XCTestCase {
     }
 
     func test_created_database_is_persisted_by_default() throws {
+        config.databaseName = "tealium"
         _ = try DatabaseProvider(config: config)
         XCTAssertTrue(FileManager.default.fileExists(atPath: path))
     }

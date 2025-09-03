@@ -8,6 +8,22 @@
 
 import Foundation
 
+extension Int64 {
+    init(clamping double: Double) {
+        // Double conversion looses precision for numbers this big,
+        // and always creates a number that is bigger than Int64 with Double(Int64.max).
+        // Therefore, in case of equality, we need to force Int64.max or Int64.min
+        // or the conversion will crash anyway.
+        if double <= Double(Int64.min) {
+            self = Int64.min
+        } else if double >= Double(Int64.max) {
+            self = Int64.max
+        } else {
+            self = Int64(double)
+        }
+    }
+}
+
 public extension Date {
     init(unixMilliseconds: Int64) {
         self.init(timeIntervalSince1970: Double(unixMilliseconds) / 1000)
@@ -61,37 +77,12 @@ public extension Date {
 
     var unixTimeMilliseconds: Int64 {
         // must be forced to Int64 to avoid overflow on watchOS (32 bit)
-        Int64(self.timeIntervalSince1970 * 1000)
+        return Int64(clamping: self.timeIntervalSince1970 * 1000)
     }
 
     var unixTimeSeconds: Int64 {
         // must be forced to Int64 to avoid overflow on watchOS (32 bit)
-        Int64(self.timeIntervalSince1970)
-    }
-
-    func millisecondsFrom(earlierDate: Date) -> Int64 {
-        return Int64(self.timeIntervalSince(earlierDate) * 1000)
-    }
-
-    func addSeconds(_ seconds: Double?) -> Date? {
-        guard let seconds = seconds else {
-            return nil
-        }
-        guard let timeInterval = TimeInterval(exactly: seconds) else {
-            return nil
-        }
-        return addingTimeInterval(timeInterval)
-    }
-
-    func addMinutes(_ mins: Double?) -> Date? {
-        guard let mins = mins else {
-            return nil
-        }
-        let seconds = mins * 60
-        guard let timeInterval = TimeInterval(exactly: seconds) else {
-            return nil
-        }
-        return addingTimeInterval(timeInterval)
+        return Int64(clamping: self.timeIntervalSince1970)
     }
 
     var timeZoneOffset: Float {

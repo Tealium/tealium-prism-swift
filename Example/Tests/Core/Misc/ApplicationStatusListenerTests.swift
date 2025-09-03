@@ -9,13 +9,16 @@
 @testable import TealiumSwift
 import XCTest
 
-private let queue = TealiumQueue.worker.dispatchQueue
-
 final class ApplicationStatusListenerTests: XCTestCase {
     let notificationCenter = NotificationCenter()
     var graceTimeInterval: TimeInterval = 1.0
+    var queue: DispatchQueue {
+        listener.queue.dispatchQueue
+    }
     lazy var listener = ApplicationStatusListener(graceTimeInterval: graceTimeInterval,
                                                   leeway: .nanoseconds(0),
+                                                  queue: TealiumQueue(label: "testQueue",
+                                                                      qos: .userInteractive),
                                                   notificationCenter: notificationCenter)
 
     func test_initialized_status_is_published_on_launch() {
@@ -33,19 +36,19 @@ final class ApplicationStatusListenerTests: XCTestCase {
     }
 
     func test_cache_resized_after_grace_timeout() {
-        let resized = expectation(description: "Cache is not resized to 1")
+        let applicationStatusReceived = expectation(description: "Application status is received only once because it should be resized to 1")
         let subscriptionCalled = expectation(description: "Subscription called")
         graceTimeInterval = 0.01
         _ = listener
         notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
         let automaticDisposer = AutomaticDisposer()
         queue.asyncAfter(deadline: .now() + .milliseconds(100)) {
-            _ = self.listener.onApplicationStatus.subscribe {_ in
-                resized.fulfill()
+            self.listener.onApplicationStatus.subscribe {_ in
+                applicationStatusReceived.fulfill()
             }.addTo(automaticDisposer)
             subscriptionCalled.fulfill()
         }
-        waitForExpectations(timeout: 6 * Self.defaultTimeout)
+        waitForExpectations(timeout: 1)
     }
 
     func test_backgrounded_status_is_published() {

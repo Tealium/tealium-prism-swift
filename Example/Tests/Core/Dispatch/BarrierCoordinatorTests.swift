@@ -14,7 +14,9 @@ final class BarrierCoordinatorTests: XCTestCase {
     var barriers: ObservableState<[ScopedBarrier]>
     lazy var coordinator = BarrierCoordinator(onScopedBarriers: barriers,
                                               onApplicationStatus: ApplicationStatusListener.shared.onApplicationStatus,
-                                              queueMetrics: MockQueueMetrics(queueSize: 0))
+                                              queueMetrics: MockQueueMetrics(queueSize: 0),
+                                              debouncer: MockInstantDebouncer(),
+                                              queue: .main)
 
     func test_onBarriers_for_dispatcher_filters_barriers_by_scope() {
         let allBarrier = MockBarrier()
@@ -180,5 +182,17 @@ final class BarrierCoordinatorTests: XCTestCase {
         ]
         waitForDefaultTimeout()
         disposable.dispose()
+    }
+
+    func test_applicationStatus_backgrounded_starts_background_task() {
+        let status = StateSubject(ApplicationStatus(type: .initialized))
+        coordinator = BarrierCoordinator(onScopedBarriers: barriers,
+                                         onApplicationStatus: status.toStatefulObservable(),
+                                         queueMetrics: MockQueueMetrics(queueSize: 0),
+                                         debouncer: MockInstantDebouncer(),
+                                         queue: .main)
+        XCTAssertFalse(coordinator.ongoingBackgroundTask.value)
+        status.publish(ApplicationStatus(type: .backgrounded))
+        XCTAssertTrue(coordinator.ongoingBackgroundTask.value)
     }
 }

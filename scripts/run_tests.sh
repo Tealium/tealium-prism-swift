@@ -39,4 +39,7 @@ then
     exit 1
 fi
 cd ../Example || { echo "cd failure"; exit 1; }
+
+export FASTLANE_XCODEBUILD_SETTINGS_TIMEOUT=10
+
 rm -rf build && bundle exec fastlane scan --scheme "$SCHEME" --output_files "$SCHEME" --destination "$DESTINATION" --derived-data-path "./build" --skip_build true --result_bundle true --output_types junit --xcodebuild_formatter "xcbeautify -q --is-ci"

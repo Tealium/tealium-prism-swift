@@ -36,27 +36,28 @@ public struct TimeFrame {
     public let unit: TimeUnit
     public let interval: Int64
 
-    func afterNow() -> Date? {
+    func afterNow() -> Date {
         after(date: Date())
     }
 
-    func after(date: Date) -> Date? {
-        Self.dateDifference(date: date, interval: inSeconds(), for: .second)
+    func after(date: Date) -> Date {
+        Self.dateDifference(date: date, milliseconds: inMilliseconds())
     }
 
-    func before(date: Date) -> Date? {
-        Self.dateDifference(date: date, interval: -inSeconds(), for: .second)
+    func before(date: Date) -> Date {
+        Self.dateDifference(date: date, milliseconds: -inMilliseconds())
     }
 
-    func beforeNow() -> Date? {
+    func beforeNow() -> Date {
         before(date: Date())
     }
 
-    private static func dateDifference(date: Date, interval: Double, for component: Calendar.Component) -> Date? {
-        var components = DateComponents()
-        components.calendar = Calendar.autoupdatingCurrent
-        components.setValue(Int(interval), for: component)
-        return Calendar(identifier: .gregorian).date(byAdding: components, to: date)
+    private static func dateDifference(date: Date, milliseconds: Int64) -> Date {
+        var (timestamp, overflow) = date.unixTimeMilliseconds.addingReportingOverflow(milliseconds)
+        if overflow {
+            timestamp = Int64.max * milliseconds.signum()
+        }
+        return Date(unixMilliseconds: timestamp)
     }
 
     /// Gets the amount of seconds approximately equivalent to this TimeFrame.

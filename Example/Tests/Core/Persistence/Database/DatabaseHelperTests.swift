@@ -41,8 +41,8 @@ extension SQLite.Connection: Swift.Equatable {
 }
 
 class DatabaseHelperTests: XCTestCase {
-    let databaseHelper = DatabaseHelper(databaseName: nil,
-                                        config: mockConfig)
+    var config = createMockConfig()
+    lazy var databaseHelper = DatabaseHelper(config: mockConfig)
 
     func test_onCreate_creates_tables() throws {
         let connection = try Connection(.inMemory)

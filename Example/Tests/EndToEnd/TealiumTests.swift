@@ -15,13 +15,23 @@ class TealiumBaseTests: XCTestCase {
         instanceManager.queue
     }
     let instanceManager = TealiumInstanceManager(queue: .worker)
-    lazy var config = TealiumConfig(account: "mockAccount",
-                                    profile: "mockProfile",
-                                    environment: "mockEnv",
-                                    modules: [],
-                                    settingsFile: nil,
-                                    settingsUrl: nil) { builder in
-        builder.setMinLogLevel(.silent)
+    var minLogLevel = LogLevel.Minimum.silent
+    var settingsFile: String?
+    var settingsUrl: String?
+    lazy var config = createConfig()
+
+    func createConfig() -> TealiumConfig {
+        var config = TealiumConfig(account: "mockAccount",
+                                   profile: "mockProfile",
+                                   environment: "mockEnv",
+                                   modules: [],
+                                   settingsFile: settingsFile,
+                                   settingsUrl: settingsUrl) { builder in
+            builder.setMinLogLevel(self.minLogLevel)
+        }
+        config.databaseName = nil
+        config.networkClient = client
+        return config
     }
 
     let disposer = DisposeContainer()
@@ -30,21 +40,28 @@ class TealiumBaseTests: XCTestCase {
         instanceManager.create(config: config, completion: completion)
     }
 
-    override func setUp() {
+    override class func setUp() {
         super.setUp()
-        queue.dispatchQueue.sync {
-            try? TealiumFileManager.deleteAtPath(path: TealiumFileManager.getTealiumApplicationFolder().path)
-        }
+        TealiumQueue.worker.enforceQoS = .userInitiated
+    }
+
+    override class func tearDown() {
+        super.tearDown()
+        TealiumQueue.worker.enforceQoS = .unspecified
     }
 
     override func tearDown() {
         super.tearDown()
-        queue.dispatchQueue.sync {
-            instanceManager.proxies.removeAll()
-            instanceManager.instances.removeAll()
-            try? TealiumFileManager.deleteAtPath(path: TealiumFileManager.getTealiumApplicationFolder().path)
-            disposer.dispose()
+        waitForDispatchQueueToBeEmpty {
+            self.instanceManager.proxies.removeAll()
+            self.instanceManager.instances.removeAll()
+            self.disposer.dispose()
         }
+    }
+
+    /// Waits for the blocks currently dispatched to the queue to be completed synchronously.
+    func waitForDispatchQueueToBeEmpty(work: @escaping () -> Void = { }) {
+        self.queue.dispatchQueue.sync(execute: work)
     }
 }
 
@@ -55,7 +72,7 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             initCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_onReady_completes_on_our_queue() {
@@ -65,7 +82,7 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             onReadyCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_track_arrives_to_dispatcher() {
@@ -117,7 +134,7 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             flushCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_module_shutdown_on_our_queue_when_tealium_deinit() {
@@ -133,7 +150,7 @@ final class TealiumTests: TealiumBaseTests {
             moduleShutdown.fulfill()
         }
         helper.forceAndAssertObjectDeinit()
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_resetVisitorId_completes_on_our_queue() {
@@ -144,7 +161,7 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             resetCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_clearStoredVisitorIds_completes_on_our_queue() {
@@ -155,7 +172,7 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             clearCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_dataLayer_wrapper_works_on_our_queue() {
@@ -172,7 +189,7 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             putCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_deepLink_wrapper_works_on_our_queue() throws {
@@ -184,7 +201,7 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             handleDeeplinkCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_deepLink_wrapper_with_traceId_succeeds_if_trace_enabled() throws {
@@ -197,7 +214,7 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             handleDeeplinkCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_deepLink_wrapper_with_traceId_fails_if_trace_disabled() throws {
@@ -209,7 +226,7 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             handleDeeplinkCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_deeplink_wrapper_throws_errors_if_not_enabled() throws {
@@ -229,7 +246,7 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             handleDeeplinkCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_deeplink_wrapper_throws_errors_if_not_added() throws {
@@ -246,7 +263,7 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             handleDeeplinkCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_trace_wrapper_works_on_our_queue() throws {
@@ -258,7 +275,7 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             joinTraceCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_trace_wrapper_throws_errors_if_not_enabled() throws {
@@ -278,7 +295,7 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             joinTraceCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_trace_wrapper_throws_errors_if_not_added() throws {
@@ -295,7 +312,7 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             joinTraceCompleted.fulfill()
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_multiple_instances_share_same_implementation() {
@@ -309,6 +326,36 @@ final class TealiumTests: TealiumBaseTests {
                 XCTAssertIdentical(impl1, impl2)
             }
         }
-        waitOnQueue(queue: queue, timeout: Self.defaultTimeout)
+        waitOnQueue(queue: queue)
     }
+
+#if os(iOS) || os(tvOS)
+    func test_backgrounding_the_app_starts_background_task() {
+        let notificationCenter = NotificationCenter()
+        config.appStatusListener = ApplicationStatusListener(notificationCenter: notificationCenter)
+        config.addModule(Modules.collect())
+        let tealiumInitialized = expectation(description: "Tealium is initialized")
+        let backgroundTaskStarted = expectation(description: "Background task is started")
+        let teal = createTealium()
+        let disposable = DisposeContainer()
+        var count = 0
+        _ = teal.proxy.executeTask { impl in
+            impl.barrierCoordinator.ongoingBackgroundTask.subscribe { ongoing in
+                if count == 0 {
+                    XCTAssertFalse(ongoing)
+                } else {
+                    XCTAssertTrue(ongoing)
+                    backgroundTaskStarted.fulfill()
+                }
+                count += 1
+            }.addTo(disposable)
+            tealiumInitialized.fulfill()
+            DispatchQueue.main.async {
+                notificationCenter.post(name: UIApplication.willResignActiveNotification, object: nil)
+            }
+        }
+        waitForLongTimeout()
+        disposable.dispose()
+    }
+#endif
 }

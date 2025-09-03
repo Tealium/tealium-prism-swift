@@ -49,9 +49,7 @@ final class SQLModulesRepositoryTests: XCTestCase {
         let moduleId2 = try modulesRepository.registerModule(name: "test2")
         let keyValueRepository1 = SQLKeyValueRepository(dbProvider: dbProvider, moduleId: moduleId1)
         let keyValueRepository2 = SQLKeyValueRepository(dbProvider: dbProvider, moduleId: moduleId2)
-        guard let expiredDate = Date().addSeconds(-1) else {
-            throw UnexpectedNilError(expected: "Date \(Date())")
-        }
+        let expiredDate = 1.seconds.beforeNow()
         try keyValueRepository1.upsert(key: "expired", value: "value", expiry: .after(expiredDate))
         try keyValueRepository1.upsert(key: "restart", value: "value", expiry: .untilRestart)
         try keyValueRepository1.upsert(key: "session", value: "value", expiry: .session)

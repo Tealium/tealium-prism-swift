@@ -9,9 +9,14 @@
 import Foundation
 @testable import TealiumSwift
 
-let mockConfig = TealiumConfig(account: "mock_account",
+let mockConfig = createMockConfig()
+func createMockConfig() -> TealiumConfig {
+    var config = TealiumConfig(account: "mock_account",
                                profile: "mock_profile",
                                environment: "dev",
                                modules: [],
                                settingsFile: nil,
                                settingsUrl: nil)
+    config.databaseName = nil
+    return config
+}

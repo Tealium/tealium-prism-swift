@@ -21,16 +21,6 @@ final class TealiumCollectTests: TealiumBaseTests {
         asserting(deserializedBody)
     }
 
-    override func setUp() {
-        super.setUp()
-        config.networkClient = client
-    }
-
-    /// Waits for the blocks currently dispatched to the queue to be completed synchronously.
-    func waitForDispatchQueueToBeEmpty() {
-        self.queue.dispatchQueue.sync { }
-    }
-
     func test_collect_sends_basic_event() {
         config.addModule(Modules.collect())
         let httpRequestSent = expectation(description: "Http Request is sent")
@@ -228,7 +218,7 @@ final class TealiumCollectTests: TealiumBaseTests {
                 XCTAssertNotEqual(sessionIds[0], sessionIds[1])
             }
         }
-        let tenMinutesAgo = Date().unixTimeMilliseconds - 10.minutes.inMilliseconds()
+        let tenMinutesAgo = 10.minutes.beforeNow().unixTimeMilliseconds
         var teal: Tealium? = createTealium()
         _ = teal?.proxy.executeTask { tealium in
             tealium.track(Dispatch(payload: ["tealium_event": "Event1"],

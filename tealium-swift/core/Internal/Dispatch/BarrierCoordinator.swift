@@ -17,11 +17,39 @@ class BarrierCoordinator {
     private let onScopedBarriers: Observable<[ScopedBarrier]>
     private let onApplicationStatus: Observable<ApplicationStatus>
     private let queueMetrics: QueueMetrics
+    private let debouncer: DebouncerProtocol
+    private let queue: TealiumQueue
+    private let backgroundTaskStarter: BackgroundTaskStarter
+    private let disposer = AutomaticDisposer()
 
-    init(onScopedBarriers: Observable<[ScopedBarrier]>, onApplicationStatus: Observable<ApplicationStatus>, queueMetrics: QueueMetrics) {
+    /// The time to wait for extra events before definitively flushing
+    private let flushDebounceDelay: TimeInterval = 0.2
+    /// The amount of time a flush operation can last, both in foreground and background
+    private let flushTimeout = DispatchTimeInterval.seconds(5)
+
+    @StateSubject(false)
+    var ongoingBackgroundTask: ObservableState<Bool>
+
+    init(onScopedBarriers: Observable<[ScopedBarrier]>,
+         onApplicationStatus: Observable<ApplicationStatus>,
+         queueMetrics: QueueMetrics,
+         debouncer: DebouncerProtocol,
+         queue: TealiumQueue
+    ) {
         self.onScopedBarriers = onScopedBarriers
         self.onApplicationStatus = onApplicationStatus
         self.queueMetrics = queueMetrics
+        self.debouncer = debouncer
+        self.queue = queue
+        self.backgroundTaskStarter = BackgroundTaskStarter(queue: queue,
+                                                           backgroundTaskTimeout: .seconds(3))
+        onApplicationStatus.filter { $0.type == .backgrounded }
+            .flatMapLatest { [weak self] _ in
+                guard let self else { return .Empty() }
+                return self.backgroundTaskStarter.startBackgroundTask()
+            }.subscribe { [_ongoingBackgroundTask] ongoing in
+                _ongoingBackgroundTask.publishIfChanged(ongoing)
+            }.addTo(disposer)
     }
 
     @ToAnyObservable<BasePublisher<Void>>(BasePublisher())
@@ -76,12 +104,27 @@ class BarrierCoordinator {
     }
 
     func onQueueIsBeingFlushed(for dispatcherId: String) -> Observable<Bool> {
-        onApplicationStatus.map { _ in () }
+        onApplicationStatus
+            .flatMapLatest { [weak self] status in
+                guard let self else { return .Just(true) }
+                switch status.type {
+                case .backgrounded:
+                    return self.ongoingBackgroundTask.takeWhile({ $0 }, inclusive: true)
+                default:
+                    return .Just(true)
+                }
+            }.filter { $0 }
+            .map { _ in }
             .merge(flushTrigger)
-            .flatMapLatest {_ in
-                self.queueMetrics.onQueueSizePendingDispatch(for: dispatcherId)
-                    .map { $0 > 0 }
-                    .takeWhile({ $0 }, inclusive: true)
+            .flatMapLatest { [debouncer, queueMetrics, queue, flushDebounceDelay, flushTimeout] _ in
+                queueMetrics.onQueueSizePendingDispatch(for: dispatcherId)
+                // Debounce to make sure queue size is not changing again very soon,
+                // for example when a transformer (e.g. `DeviceData`) takes some time
+                // to transform a `sleep` event coming from lifecycle.
+                    .debounce(delay: flushDebounceDelay, debouncer: debouncer)
+                    .map { $0 > 0 }  // should flush is true until queue pending dispatches is empty
+                    .merge(.Just(false).delay(flushTimeout, on: queue)) // stop flush after a while anyway
+                    .takeWhile({ $0 }, inclusive: true) // stop listening when flush ended, include final false to stop the flush
             }.startWith(false)
             .distinct()
     }

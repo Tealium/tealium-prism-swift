@@ -155,9 +155,6 @@ class SQLQueueRepository: QueueRepository {
      * Returns the oldest unix timestamp (in milliseconds) that would be considered not-expired.
      */
     private func getExpiryTimestamp(expiration: TimeFrame) -> Int64 {
-        guard let expiryDate = expiration.beforeNow() else {
-            return .max
-        }
-        return expiryDate.unixTimeMilliseconds
+        expiration.beforeNow().unixTimeMilliseconds
     }
 }
