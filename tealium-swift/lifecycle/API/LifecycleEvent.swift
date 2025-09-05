@@ -6,6 +6,10 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
+#if lifecycle
+import TealiumCore
+#endif
+
 public enum LifecycleEvent: String, CaseIterable, Codable, DataInputConvertible {
     case launch, wake, sleep
 

@@ -6,6 +6,11 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
+import Foundation
+#if lifecycle
+import TealiumCore
+#endif
+
 class LifecycleModule {
     let version: String = TealiumConstants.libraryVersion
     static let id: String = "Lifecycle"

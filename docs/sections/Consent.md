@@ -1,0 +1,1 @@
+A Consent Integrations implementation for the Mobile SDKs.

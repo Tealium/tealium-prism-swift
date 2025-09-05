@@ -26,7 +26,7 @@ public class ModuleStoreProvider {
      *
      * - parameter name: The module name whose `DataStore` is required.
      */
-    func getModuleStore(name: String) throws -> DataStore {
+    public func getModuleStore(name: String) throws -> DataStore {
         let moduleId = try modulesRepository.registerModule(name: name)
         if let cached = stores[moduleId] {
             return cached

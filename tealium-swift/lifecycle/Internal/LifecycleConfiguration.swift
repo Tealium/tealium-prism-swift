@@ -6,6 +6,10 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
+#if lifecycle
+import TealiumCore
+#endif
+
 struct LifecycleConfiguration {
     /// If this timeout has been exceeded while the app is backgrounded, the next foreground event will be treated as a launch, rather than a wake.
     let sessionTimeoutInMinutes: Int

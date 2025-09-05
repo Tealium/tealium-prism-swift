@@ -61,12 +61,12 @@ public struct TimeFrame {
     }
 
     /// Gets the amount of seconds approximately equivalent to this TimeFrame.
-    func inSeconds() -> Double {
+    public func inSeconds() -> Double {
         unit.toSecondsMultiplier() * Double(interval)
     }
 
     /// Gets the amount of milliseconds equivalent to this TimeFrame. Will be coerced to be less than `Int64.max`
-    func inMilliseconds() -> Int64 {
+    public func inMilliseconds() -> Int64 {
         let (partialValue, overflowHappened) = unit.toMillisecondsMultiplier().multipliedReportingOverflow(by: interval)
         if overflowHappened {
             return Int64.max

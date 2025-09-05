@@ -6,10 +6,10 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-#if os(OSX)
-#else
+#if os(iOS) || os(tvOS)
 import UIKit
 #endif
+import Foundation
 
 extension DeviceDataProvider {
     static let formatter: NumberFormatter = {

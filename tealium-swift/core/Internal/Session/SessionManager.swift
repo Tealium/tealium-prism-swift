@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
+import Foundation
+
 /**
  * Handles the starting and stopping of sessions, as well as expiration of session-scoped data.
  *

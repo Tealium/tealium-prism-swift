@@ -6,6 +6,10 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
+#if lifecycle
+import TealiumCore
+#endif
+
 /**
  * LifecycleData target defines what targets the lifecycle event data is
  * added to. `LifecycleDataTarget.lifecycleEventsOnly` is selected by default,

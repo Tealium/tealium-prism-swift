@@ -6,6 +6,10 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
+#if os(iOS) || os(tvOS)
+import UIKit
+#endif
+
 import Foundation
 
 public struct ApplicationStatus {

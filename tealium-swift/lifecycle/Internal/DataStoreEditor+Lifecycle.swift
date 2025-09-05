@@ -6,6 +6,10 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
+#if lifecycle
+import TealiumCore
+#endif
+
 // TODO: Perhaps, the best way to go would be to have an increment method in the DataStoreEditor, so that we can do the read and write in a transaction and don't need these dependencies to the Storage
 extension DataStoreEditor {
     func incrementLaunch(_ storage: LifecycleStorage) -> Self {

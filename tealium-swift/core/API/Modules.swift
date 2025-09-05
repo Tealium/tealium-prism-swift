@@ -28,6 +28,13 @@ public extension Modules {
 /// The list of modules factories that can be used to instantiate and pass modules to the `TealiumConfig`.
 public enum Modules {
 
+    /**
+     * A block with a utility builder that can be used to enforce some of the `ModuleSettings` instead of relying on Local or Remote settings.
+     * Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `Module`,
+     * other settings will still be affected by Local and Remote settings and updates.
+     */
+    public typealias EnforcingSettings<Builder> = (_ enforcedSettings: Builder) -> Builder
+
     /// Returns a factory for creating the `AppDataModule`
     static public func appData() -> any ModuleFactory {
         DefaultModuleFactory<AppDataModule>()
@@ -37,24 +44,26 @@ public enum Modules {
      * Returns a factory for creating the `CollectModule`.
      *
      * - Parameters:
-     *   -  block: A block with a utility builder that can be used to enforce some of the `CollectSettings` instead of relying on Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `CollectModule` module, other settings will still be affected by Local and Remote settings and updates.
+     *   -  block: A block with a utility builder that can be used to enforce some of the `CollectSettings` instead of relying on
+     *   Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the
+     *   `CollectModule`, other settings will still be affected by Local and Remote settings and updates.
      */
-    static public func collect(forcingSettings block: ((_ enforcedSettings: CollectSettingsBuilder) -> CollectSettingsBuilder)? = nil) -> any ModuleFactory {
+    static public func collect(forcingSettings block: EnforcingSettings<CollectSettingsBuilder>? = nil) -> any ModuleFactory {
         CollectModule.Factory(forcingSettings: block)
     }
 
     /// Returns a factory for creating the `DataLayerModule`.
-    static func dataLayer() -> any ModuleFactory {
+    static public func dataLayer() -> any ModuleFactory {
         DefaultModuleFactory<DataLayerModule>()
     }
 
     /// Returns a factory for creating the `DeviceDataModule`.
-    static public func deviceData(forcingSettings block: ((_ enforcedSettings: DeviceDataSettingsBuilder) -> DeviceDataSettingsBuilder)? = nil) -> any ModuleFactory {
+    static public func deviceData(forcingSettings block: EnforcingSettings<DeviceDataSettingsBuilder>? = nil) -> any ModuleFactory {
         DeviceDataModule.Factory(forcingSettings: block)
     }
 
     /// Returns a factory for creating the `DeepLinkModule`.
-    static public func deepLink(forcingSettings block: ((_ enforcedSettings: DeepLinkSettingsBuilder) -> DeepLinkSettingsBuilder)? = nil) -> any ModuleFactory {
+    static public func deepLink(forcingSettings block: EnforcingSettings<DeepLinkSettingsBuilder>? = nil) -> any ModuleFactory {
         DeepLinkModule.Factory(forcingSettings: block)
     }
 
@@ -74,7 +83,7 @@ public enum Modules {
     }
 
     /// Returns a factory for creating the `TraceModule`.
-    static public func trace(forcingSettings block: ((_ enforcedSettings: CollectorSettingsBuilder) -> CollectorSettingsBuilder)? = nil) -> any ModuleFactory {
+    static public func trace(forcingSettings block: EnforcingSettings<CollectorSettingsBuilder>? = nil) -> any ModuleFactory {
         TraceModule.Factory(forcingSettings: block)
     }
 
@@ -85,7 +94,10 @@ public enum Modules {
      *   - module: The `TealiumBasicModule & Dispatcher` that will be created by this factory.
      *   - enforcedSettings: The settings that will remain constant on initialization and on future settings updates for this module.
      */
-    static public func customDispatcher<Module: BasicModule & Dispatcher>(_ module: Module.Type, enforcedSettings: DataObject? = nil) -> any ModuleFactory {
+    static public func customDispatcher<Module: BasicModule & Dispatcher>(
+        _ module: Module.Type,
+        enforcedSettings: DataObject? = nil
+    ) -> any ModuleFactory {
         DefaultModuleFactory<Module>(enforcedSettings: enforcedSettings)
     }
 
@@ -96,7 +108,10 @@ public enum Modules {
      *   - module: The `TealiumBasicModule & Collector` that will be created by this factory.
      *   - enforcedSettings: The settings that will remain constant on initialization and on future settings updates for this module.
      */
-    static public func customCollector<Module: BasicModule & Collector>(_ module: Module.Type, enforcedSettings: DataObject? = nil) -> any ModuleFactory {
+    static public func customCollector<Module: BasicModule & Collector>(
+        _ module: Module.Type,
+        enforcedSettings: DataObject? = nil
+    ) -> any ModuleFactory {
         DefaultModuleFactory<Module>(enforcedSettings: enforcedSettings)
     }
 }

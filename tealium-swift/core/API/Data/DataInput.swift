@@ -13,8 +13,8 @@ import Foundation
  *
  * - Warning: Do not conform custom types to the `DataInput` protocol or it will defeat the purpose of this protocol.
  *
- * Converting a custom object to a `DataInput` can be done easily by adopting the `DataInputConverible` protocol
- * and implementing the `toDataInput` method for a safe conversion.
+ * Converting a custom object to a `DataInput` can be done easily by adopting the `DataInputConvertible` protocol
+ * and implementing the `DataInputConvertible.toDataInput()` method for a safe conversion.
  *
  * Valid `DataInput` can only be:
  * - a String
@@ -35,7 +35,7 @@ public protocol DataInput { }
  * For cases in which you have only nested Arrays and Dictionaries that only contain valid `DataInput`,
  * implementing this protocol is not necessary and you can just wrap them with the prebuilt `DataItem` wrapper.
  *
- * Although not preferrable, you can make any `Encodable` type a `DataInputConvertible` by wrappping it with `DataItem(serializing:)`.
+ * Although not preferable, you can make any `Encodable` type a `DataInputConvertible` by wrapping it with `DataItem(serializing:)`.
  * Note that this method can fail, so you must handle the eventual `EncodingError` that can be thrown in case of failure.
  */
 public protocol DataInputConvertible {

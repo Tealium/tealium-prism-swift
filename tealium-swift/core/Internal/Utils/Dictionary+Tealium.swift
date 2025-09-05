@@ -15,7 +15,7 @@ func + <Key, Value>(lhs: [Key: Value], rhs: [Key: Value]) -> [Key: Value] {
 }
 
 /// Extend the use of += operators to dictionaries.
-public func += <K, V>(left: inout [K: V], right: [K: V]) {
+func += <K, V>(left: inout [K: V], right: [K: V]) {
     for (key, value) in right {
         left.updateValue(value, forKey: key)
     }

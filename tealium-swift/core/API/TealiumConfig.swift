@@ -32,8 +32,14 @@ public struct TealiumConfig {
     // this is lazy to allow creation of ConnectionManager from the right thread
     lazy var networkClient: NetworkClient = HTTPClient.shared
 
-    public init(account: String, profile: String, environment: String, dataSource: String? = nil, modules: [any ModuleFactory],
-                settingsFile: String?, settingsUrl: String?, forcingSettings block: ((_ builder: CoreSettingsBuilder) -> CoreSettingsBuilder)? = nil) {
+    public init(account: String,
+                profile: String,
+                environment: String,
+                dataSource: String? = nil,
+                modules: [any ModuleFactory],
+                settingsFile: String?,
+                settingsUrl: String?,
+                forcingSettings block: ((_ builder: CoreSettingsBuilder) -> CoreSettingsBuilder)? = nil) {
         self.account = account
         self.profile = profile
         self.environment = environment
@@ -124,7 +130,8 @@ public struct TealiumConfig {
      *
      * - Parameters:
      *      - cmpAdapter: The adapter that will report the `ConsentDecision` to the SDK
-     *      - block: An optional block called with a configuration builder, used to force some of the `ConsentConfiguration` properties. Properties set with this block will have precedence to local and remote settings.
+     *      - block: An optional block called with a configuration builder, used to force some of the `ConsentConfiguration` properties.
+     *      Properties set with this block will have precedence to local and remote settings.
      */
     mutating public func enableConsentIntegration(with cmpAdapter: CMPAdapter,
                                                   forcingConfiguration block: ((_ enforcedConfiguration: ConsentConfigurationBuilder) -> ConsentConfigurationBuilder)? = nil) {

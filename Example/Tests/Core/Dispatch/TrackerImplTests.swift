@@ -131,8 +131,10 @@ final class TrackerImplTests: XCTestCase {
         sessionManager.onRegisterDispatch.subscribeOnce { _ in
             registerDispatchCalled.fulfill()
         }
-        modules.value.compactMap { $0 as? MockCollector1 }
-            .first?.onCollect.subscribeOnce { _ in
+        modules.value
+            .compactMap { $0 as? MockCollector1 }
+            .first?.onCollect
+            .subscribeOnce { _ in
                 collectionCalled.fulfill()
             }
         tracker.track(Dispatch(name: "event"), source: .application)

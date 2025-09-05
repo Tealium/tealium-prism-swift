@@ -14,7 +14,7 @@ public struct DispatchContext {
         /// The `Dispatch` was created by a module
         case module(Module.Type)
 
-        var moduleType: Module.Type? {
+        public var moduleType: Module.Type? {
             switch self {
             case .application:
                 nil

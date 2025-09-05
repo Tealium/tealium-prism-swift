@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
+import Foundation
+
 class DeepLinkModule: BasicModule, Collector {
     let version: String = TealiumConstants.libraryVersion
     static let id: String = "DeepLink"

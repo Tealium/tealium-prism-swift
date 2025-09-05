@@ -8,20 +8,6 @@
 
 import Foundation
 
-/// An object that will apply different transformations, selected by `transformationId`, to a dispatch.
-public protocol Transformer: Module {
-    /// Applies a transformation, identified by a `transformationId`, to a `Dispatch` for the `DispatchScope` in which this transformation is called.
-    func applyTransformation(_ transformation: TransformationSettings,
-                             to dispatch: Dispatch,
-                             scope: DispatchScope,
-                             completion: @escaping (Dispatch?) -> Void)
-}
-
-public protocol TransformerRegistry {
-    func registerTransformation(_ transformation: TransformationSettings)
-    func unregisterTransformation(_ transformation: TransformationSettings)
-}
-
 /**
  * A class that takes a observable state of registered transformers and an observable state of transformations 
  * and can be used to transform the events after they have been enriched by the collectors 
@@ -30,7 +16,7 @@ public protocol TransformerRegistry {
  * The `transformations` are used to select the right transformer when we are transforming each event
  * and then are sent to the transformers.
  */
-public class TransformerCoordinator: TransformerRegistry {
+class TransformerCoordinator: TransformerRegistry {
     private var transformers: ObservableState<[Transformer]>
     /// The `TransformationSettings` defined in the `SDKSettings`.
     private let transformations: ObservableState<[TransformationSettings]>
@@ -102,12 +88,12 @@ public class TransformerCoordinator: TransformerRegistry {
         return transformer.applyTransformation(transformation, to: dispatch, scope: scope, completion: completion)
     }
 
-    public func registerTransformation(_ transformation: TransformationSettings) {
+    func registerTransformation(_ transformation: TransformationSettings) {
         if !additionalTransformations.value.contains(where: { self.transformation($0, matchesIdsOf: transformation) }) {
             additionalTransformations.value.append(transformation)
         }
     }
-    public func unregisterTransformation(_ transformation: TransformationSettings) {
+    func unregisterTransformation(_ transformation: TransformationSettings) {
         additionalTransformations.value.removeAll { self.transformation($0, matchesIdsOf: transformation) }
     }
 

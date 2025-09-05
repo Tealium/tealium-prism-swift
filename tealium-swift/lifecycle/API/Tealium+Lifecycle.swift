@@ -6,6 +6,10 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
+#if lifecycle
+import TealiumCore
+#endif
+
 public extension Modules {
     /**
      * Returns a factory for creating the `LifecycleModule`.

@@ -9,10 +9,6 @@ import UIKit
 // MARK: VALUES
 #endif
 
-public enum Collectors {}
-
-public enum Dispatchers {}
-
 public enum TealiumConstants {
     public static let libraryName = "swift"
     public static let libraryVersion = "3.0.0"
@@ -72,48 +68,6 @@ public extension TealiumDataKey {
     static let eventStop = "timed_event_end"
     static let eventDuration = "timed_event_duration"
     static let tagmanagementNotification = "com.tealium.tagmanagement.urlrequest"
-}
-
-public enum TealiumConfigKey {
-    public static let publishSettings = "remote_publish_settings"
-    public static let publishSettingsURL = "publish_settings_url"
-    public static let publishSettingsProfile = "publish_settings_profile"
-    static let visitorId = "tealium_visitor_id"
-    public static let libraryEnabled = "library_is_enabled"
-    public static let batterySaver = "battery_saver"
-    public static let queueSizeKey = "queue_size"
-    static let appDelegateProxy = "app_delegate_proxy"
-    static let skAdConversionKeys = "attribution_conversion_keys"
-    static let hostedDataLayerKeys = "hosted_data_layer_keys"
-    static let hostedDataLayerExpiry = "hosted_data_layer_expiry"
-    static let consentExpiry = "consent_expiry"
-    static let consentExpiryCallback = "consent_expiry_callback"
-    static let overrideConsentCategoriesKey = "override_consent_categories_key"
-    static let timedEventTriggers = "timed_event_triggers"
-    // number of events in a batch, max 10
-    public static let batchSizeKey = "batch_size"
-    // max stored events (e.g. if offline) to limit disk space consumed
-    public static let eventLimit = "event_limit"
-    public static let batchingEnabled = "batching_enabled"
-    public static let batchExpirationDaysKey = "batch_expiration_days"
-    public static let wifiOnlyKey = "wifi_only_sending"
-    public static let minutesBetweenRefresh = "minutes_between_refresh"
-    public static let tagManagementModuleName = "tagmanagement"
-    public static let loggerType = "logger_type"
-    public static let logLevel = "log_level"
-    public static let logger = "com.tealium.logger"
-    public static let dispatchValidators = "dispatch_validators"
-    public static let dispatchListeners = "dispatch_listeners"
-    public static let collectors = "collectors"
-    public static let dispatchers = "dispatchers"
-    static let lifecycleAutotrackingEnabled = "enable_lifecycle_autotracking"
-    static let shouldMigrate = "should_migrate_data"
-    public static let enableBackgroundMedia = "enable_background_media_tracking"
-    public static let autoEndSesssionTime = "media_auto_end_session_time"
-    static let minimumFreeDiskSpace = "min_free_disk_space"
-    static let diskStorageEnabled = "disk_storage"
-    public static let diskStorageDirectory = "disk_storage_directory"
-    public static let sessionCountingEnabled = "session_counting_enabled"
 }
 
 public enum TealiumKey {

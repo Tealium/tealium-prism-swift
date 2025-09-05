@@ -12,7 +12,7 @@ else
     echo "Couldn't match the library version, exiting"
     exit 1
 fi
-echo Version Constant $versionConstant
+echo Version Constant "$versionConstant"
 
 podspecFile=$(<../tealium-swift.podspec)
 podspecRegex="^.*s.version[[:space:]]*\= \'([0-9\.]*)\'"
@@ -24,11 +24,11 @@ else
     echo "Couldn't match the podspec version, exiting"
     exit 1
 fi
-echo Podspec Version  $podspecVersion
+echo Podspec Version "$podspecVersion"
 
-if [ $podspecVersion != $versionConstant ]
+if [ "$podspecVersion" != "$versionConstant" ]
 then
-    echo -e "The podspec version \"${podspecVersion}\" is different from the version constant \"${versionConstant}\".\nDid you forget to update one of the two?"
+    echo -e "The podspec version \"$podspecVersion\" is different from the version constant \"$versionConstant\".\nDid you forget to update one of the two?"
     exit 1
 fi
 

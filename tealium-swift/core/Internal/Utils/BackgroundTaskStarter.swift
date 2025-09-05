@@ -6,6 +6,11 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
+import Foundation
+#if os(iOS)
+import UIKit
+#endif
+
 class BackgroundTaskStarter {
 
     private let queue: TealiumQueue

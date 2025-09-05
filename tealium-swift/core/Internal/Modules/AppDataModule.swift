@@ -6,6 +6,8 @@
 //  Copyright © 2022 Tealium, Inc. All rights reserved.
 //
 
+import Foundation
+
 /// Protocol for app data collection.
 public protocol AppDataCollection {
 }

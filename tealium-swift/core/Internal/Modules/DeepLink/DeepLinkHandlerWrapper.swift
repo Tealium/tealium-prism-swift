@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
+import Foundation
+
 public class DeepLinkHandlerWrapper: DeepLinkHandler {
     private let moduleProxy: ModuleProxy<DeepLinkModule>
 

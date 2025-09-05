@@ -6,6 +6,11 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
+import Foundation
+#if lifecycle
+import TealiumCore
+#endif
+
 /**
  * The `LifecycleService` manages lifecycle events and provides methods for registering
  * launch, wake, and sleep events, as well as retrieving the current lifecycle state.

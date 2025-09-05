@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
+import Foundation
+
 typealias OrientationProvider = () -> DataObject
 
 class DeviceDataProvider {

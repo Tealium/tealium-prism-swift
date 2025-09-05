@@ -6,6 +6,10 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
+#if lifecycle
+import TealiumCore
+#endif
+
 public class LifecycleSettingsBuilder: CollectorSettingsBuilder {
     typealias Keys = LifecycleConfiguration.Keys
     override init() { } // making init internal instead of public

@@ -1,0 +1,1 @@
+A generic way to block `Dispatch`es from being sent to `Dispatcher`s until the `Barrier` opens.

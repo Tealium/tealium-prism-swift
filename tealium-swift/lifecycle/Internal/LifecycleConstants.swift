@@ -6,6 +6,10 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
+#if lifecycle
+import TealiumCore
+#endif
+
 enum LifecycleStateKey {
     static let autotracked = "autotracked"
     static let didDetectCrash = "lifecycle_diddetectcrash"

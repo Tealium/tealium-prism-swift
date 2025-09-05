@@ -117,7 +117,7 @@ public enum TealiumLoggerType {
     }
 }
 
-enum LogCategory {
+public enum LogCategory {
     static let collect = "Collect"
     static let dispatchManager = "DispatchManager"
     static let httpClient = "HTTPClient"

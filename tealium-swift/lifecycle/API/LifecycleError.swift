@@ -6,6 +6,10 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
+#if lifecycle
+import TealiumCore
+#endif
+
 public enum LifecycleError: Error, TealiumErrorEnum {
     case manualTrackNotAllowed
     case invalidEventOrder

@@ -6,6 +6,8 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
+import Foundation
+
 /**
  The `Referrer` allows the `DeepLinkHandler` to track the origin of a deep link, whether it came from a URL or another app.
  This can be passed as an optional parameter to the `handle(link:referrer:)` method for further processing.
