@@ -32,8 +32,8 @@ extension Condition.Operator: RawRepresentable {
         case Const.doesNotContainIgnoreCase: self = .notContains(true)
         case Const.defined: self = .isDefined
         case Const.notDefined: self = .isNotDefined
-        case Const.populated: self = .isPopulated
-        case Const.notPopulated: self = .isNotPopulated
+        case Const.empty: self = .isEmpty
+        case Const.notEmpty: self = .isNotEmpty
         case Const.greaterThan: self = .greaterThan(false)
         case Const.greaterThanEqualTo: self = .greaterThan(true)
         case Const.lessThan: self = .lessThan(false)
@@ -48,8 +48,8 @@ extension Condition.Operator: RawRepresentable {
         switch self {
         case .isDefined: Const.defined
         case .isNotDefined: Const.notDefined
-        case .isPopulated: Const.populated
-        case .isNotPopulated: Const.notPopulated
+        case .isEmpty: Const.empty
+        case .isNotEmpty: Const.notEmpty
         case .equals(let ignoreCase):
             ignoreCase ? Const.equalsIgnoreCase : Const.equals
         case .notEquals(let ignoreCase):

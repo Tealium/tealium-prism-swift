@@ -37,7 +37,8 @@ class ConsentIntegrationManagerBaseTests: XCTestCase {
     lazy var transformerCoordinator = TransformerCoordinator(transformers: .constant([]),
                                                              transformations: transformations,
                                                              moduleMappings: .constant([:]),
-                                                             queue: .main)
+                                                             queue: .main,
+                                                             logger: nil)
 
     static func buildConsentSettings(refireDispatchers: [String] = []) -> ConsentSettings {
         let configuration = ConsentConfiguration(tealiumPurposeId: "tealium",

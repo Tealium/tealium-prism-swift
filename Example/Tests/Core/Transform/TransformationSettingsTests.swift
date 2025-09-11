@@ -20,24 +20,24 @@ final class TransformationSettingsTests: XCTestCase {
     ])
 
     func test_transformation_matches_matching_dispatch() {
-        XCTAssertTrue(transformation.matchesDispatch(testEvent))
+        XCTAssertTrue(try transformation.matchesDispatch(testEvent))
     }
 
     func test_transformation_does_not_match_non_matching_dispatch() {
         let nonMatchingDispatch = Dispatch(name: "other_event")
-        XCTAssertFalse(transformation.matchesDispatch(nonMatchingDispatch))
+        XCTAssertFalse(try transformation.matchesDispatch(nonMatchingDispatch))
     }
 
     func test_transformation_matches_complex_matching_condition() {
         conditions = complexRule
         testEvent.enrich(data: ["screen_name": "home_screen"])
-        XCTAssertTrue(transformation.matchesDispatch(testEvent))
+        XCTAssertTrue(try transformation.matchesDispatch(testEvent))
     }
 
     func test_transformation_does_not_match_partially_matching_condition() {
         conditions = complexRule
         testEvent.enrich(data: ["screen_name": "profile"])
-        XCTAssertFalse(transformation.matchesDispatch(testEvent))
+        XCTAssertFalse(try transformation.matchesDispatch(testEvent))
     }
 
     func test_transformation_matches_dispatch_without_conditions() {
@@ -48,7 +48,23 @@ final class TransformationSettingsTests: XCTestCase {
                                                     conditions: nil)
 
         let dispatch = testEvent
-        XCTAssertTrue(transformation.matchesDispatch(dispatch))
+        XCTAssertTrue(try transformation.matchesDispatch(dispatch))
+    }
+
+    func test_matchesDispatch_throws_the_error_that_condition_matches_throws_inside() {
+        let transformation = TransformationSettings(id: "test",
+                                                    transformerId: "test",
+                                                    scopes: [.allDispatchers],
+                                                    conditions: .just(
+                                                        Condition(variable: "missing", operator: .equals(true), filter: "test")
+                                                    ))
+        let dispatch = testEvent
+        XCTAssertThrowsError(try transformation.matchesDispatch(dispatch)) { error in
+            guard let error = error as? ConditionEvaluationError, case .missingDataItem = error.type else {
+                XCTFail("Should be a ConditionEvaluationError.missingDataItem error")
+                return
+            }
+        }
     }
 
     func test_transformation_scope_rawValue() {

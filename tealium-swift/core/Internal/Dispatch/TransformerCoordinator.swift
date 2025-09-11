@@ -9,9 +9,9 @@
 import Foundation
 
 /**
- * A class that takes a observable state of registered transformers and an observable state of transformations 
- * and can be used to transform the events after they have been enriched by the collectors 
- * or before being sent to each individual dispatcher.
+ * A class that takes an observable state of registered `Transformer`s and an observable state of transformations
+ * and can be used to transform the events after they have been enriched by the `Collector`s
+ * or before being sent to each individual `Dispatcher`.
  *
  * The `transformations` are used to select the right transformer when we are transforming each event
  * and then are sent to the transformers.
@@ -26,20 +26,36 @@ class TransformerCoordinator: TransformerRegistry {
         transformations.value + additionalTransformations.value
     }
     private let queue: TealiumQueue
+    private let logger: LoggerProtocol?
     typealias TransformationCompletion = (Dispatch?) -> Void
     typealias DispatchesTransformationCompletion = ([Dispatch]) -> Void
     init(transformers: ObservableState<[Transformer]>,
          transformations: ObservableState<[TransformationSettings]>,
          moduleMappings: ObservableState<[String: TransformationSettings]>,
-         queue: TealiumQueue) {
+         queue: TealiumQueue,
+         logger: LoggerProtocol?) {
         self.transformers = transformers
         self.transformations = transformations
         self.queue = queue
+        self.logger = logger
     }
 
     func getTransformations(for dispatch: Dispatch, _ scope: DispatchScope) -> [TransformationSettings] {
         allTransformations.filter {
-            $0.matchesScope(scope) && $0.matchesDispatch(dispatch)
+            $0.matchesScope(scope) && match(transformation: $0, dispatch: dispatch)
+        }
+    }
+
+    private func match(transformation: TransformationSettings, dispatch: Dispatch) -> Bool {
+        do {
+            return try transformation.matchesDispatch(dispatch)
+        } catch {
+            logger?.warn(category: LogCategory.transformations,
+                         """
+                         Transformation conditions evaluation failed for Dispatch(\(dispatch.logDescription())) \
+                         and Transformation(\(transformation.compositeKey())). Cause: \(error)
+                         """)
+            return false
         }
     }
 

@@ -45,7 +45,7 @@ class TealiumImpl {
             .observeOn(queue)
             .subscribeOn(queue))
         self.settingsManager = settingsManager
-        self.loadRuleEngine = LoadRuleEngine(sdkSettings: settingsManager.settings)
+        self.loadRuleEngine = LoadRuleEngine(sdkSettings: settingsManager.settings, logger: logger)
         let coreSettings = settingsManager.settings.mapState { $0.core }
         settingsManager.settings
             .mapState { $0.core.minLogLevel }
@@ -71,7 +71,8 @@ class TealiumImpl {
             .mapState { $0.compactMap { $0 as? Transformer } }
         let transformerCoordinator = Self.transformerCoordinator(transformers: transformers,
                                                                  sdkSettings: settingsManager.settings,
-                                                                 queue: modulesManager.queue)
+                                                                 queue: modulesManager.queue,
+                                                                 logger: logger)
         let barrierManager = BarrierManager(sdkBarrierSettings: settingsManager.settings.mapState { $0.barriers })
         barrierCoordinator = BarrierCoordinator(onScopedBarriers: barrierManager.onScopedBarriers,
                                                 onApplicationStatus: config.appStatusListener.onApplicationStatus,

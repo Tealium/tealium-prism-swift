@@ -13,19 +13,22 @@ public struct Condition: Codable, Equatable {
         case isDefined
         /// An operator that matches if the variable is not defined.
         case isNotDefined
-        /// An operator that matches if the variable is defined and not empty.
-        case isPopulated
-        /// An operator that matches if the variable is defined and empty.
-        case isNotPopulated
-        /// An operator that matches if the variable is equal to the filter.
+        /// An operator that matches if the variable is considered to be empty.
+        case isEmpty
+        /// An operator that matches if the variable is considered not to be empty.
+        case isNotEmpty
+        /// An operator that matches if the variable is equal to the filter. Numeric comparison is attempted first,
+        /// and then falls back to string equality if either the `DataItem` or filter cannot be parsed as a `Double`.
         /// - parameter ignoreCase: If true the equality check is case insensitive.
         case equals(_ ignoreCase: Bool)
-        /// An operator that matches if the variable is not equal to the filter.
+        /// An operator that matches if the variable is not equal to the filter. Numeric comparison is attempted first,
+        /// and then falls back to string equality if either the `DataItem` or filter cannot be parsed as a `Double`.
+        /// - parameter ignoreCase: If true the equality check is case insensitive.
         case notEquals(_ ignoreCase: Bool)
-        /// An operator that matches if the numeric variable is greater than filter.
+        /// An operator that matches if the numeric variable is greater than filter. Both are converted to `Double`.
         /// - parameter orEqual: If true the comparison returns true for equal as well.
         case greaterThan(_ orEqual: Bool)
-        /// An operator that matches if the numeric variable is less than filter.
+        /// An operator that matches if the numeric variable is less than filter. Both are converted to `Double`.
         /// - parameter orEqual: If true the comparison returns true for equal as well.
         case lessThan(_ orEqual: Bool)
         /// An operator that matches if the variable, converted to a string, contains the filter.
@@ -69,7 +72,7 @@ public struct Condition: Codable, Equatable {
      * contains, notContains, endsWith, notEndsWith, startsWith, notStartsWith, regex.
      *
      * Ignored for:
-     * isDefined, isNotDefined, isPopulated, isNotPopulated.
+     * isDefined, isNotDefined, isEmpty, isNotEmpty.
      */
     let filter: String?
 

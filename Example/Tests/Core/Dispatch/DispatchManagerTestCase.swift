@@ -59,7 +59,8 @@ class DispatchManagerTestCase: XCTestCase {
     lazy var transformerCoordinator = TransformerCoordinator(transformers: transformers.toStatefulObservable(),
                                                              transformations: transformations,
                                                              moduleMappings: .constant([:]),
-                                                             queue: .main)
+                                                             queue: .main,
+                                                             logger: nil)
     lazy var context = MockContext(modulesManager: modulesManager,
                                    config: config,
                                    coreSettings: coreSettings,
@@ -69,7 +70,7 @@ class DispatchManagerTestCase: XCTestCase {
                                    queue: queue)
     var consentManager: MockConsentManager?
     lazy var dispatchManager = getDispatchManager()
-    lazy var loadRuleEngine = LoadRuleEngine(sdkSettings: sdkSettings)
+    lazy var loadRuleEngine = LoadRuleEngine(sdkSettings: sdkSettings, logger: nil)
     lazy var mappingsEngine = MappingsEngine(mappings: sdkSettings
         .mapState { $0.modules.compactMapValues { $0.mappings } })
 

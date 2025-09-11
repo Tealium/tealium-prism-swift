@@ -22,7 +22,8 @@ final class ModulesManagerTests: XCTestCase {
     lazy var transformerCoordinator = TransformerCoordinator(transformers: .constant([]),
                                                              transformations: .constant([]),
                                                              moduleMappings: .constant([:]),
-                                                             queue: .main)
+                                                             queue: .main,
+                                                             logger: nil)
     lazy var context = createContext()
     func createContext() -> TealiumContext {
         MockContext(modulesManager: modulesManager,

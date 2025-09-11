@@ -49,9 +49,10 @@ final class LifecycleTrackerTests: XCTestCase {
     lazy var transformerCoordinator = TransformerCoordinator(transformers: .constant([]),
                                                              transformations: transformations,
                                                              moduleMappings: .constant([:]),
-                                                             queue: queue)
+                                                             queue: queue,
+                                                             logger: nil)
     lazy var tracker = TrackerImpl(modules: modulesManager.modules,
-                                   loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings),
+                                   loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings, logger: nil),
                                    dispatchManager: dispatchManager,
                                    sessionManager: MockSessionManager(databaseProvider: databaseProvider),
                                    logger: nil)
@@ -64,7 +65,7 @@ final class LifecycleTrackerTests: XCTestCase {
                                    queue: queue)
     lazy var dispatchManager = getDispatchManager()
     func getDispatchManager() -> DispatchManager {
-        DispatchManager(loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings),
+        DispatchManager(loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings, logger: nil),
                         modulesManager: modulesManager,
                         consentManager: nil,
                         queueManager: queueManager,

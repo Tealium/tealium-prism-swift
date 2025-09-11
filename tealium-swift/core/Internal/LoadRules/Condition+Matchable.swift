@@ -22,65 +22,86 @@ extension DataItem {
             return false
         }
     }
+
+    func toString() -> String {
+        guard let result = self.stringValue ?? self.value else {
+            return "null"
+        }
+        return String(describing: result)
+    }
 }
 
 extension Condition: Matchable {
+    private typealias ErrorType = ConditionEvaluationError.ErrorType
     static let formatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
         formatter.positiveInfinitySymbol = "Infinity"
         formatter.negativeInfinitySymbol = "-Infinity"
         formatter.notANumberSymbol = "NaN"
+        formatter.maximumFractionDigits = 16
         return formatter
     }()
-    public func matches(payload: DataObject) -> Bool {
-        guard let dataItem = extractValue(from: payload) else {
-            return self.operator == .isNotDefined
-        }
-
-        return switch self.operator {
-        case .isDefined:
-            true
-        case .isNotDefined:
-            false
-        case .isPopulated:
-            !dataItem.isEmpty
-        case .isNotPopulated:
-            dataItem.isEmpty
-        case .equals(let ignoreCase):
-            equals(dataItem: dataItem, ignoreCase: ignoreCase)
-        case .notEquals(let ignoreCase):
-            notEquals(dataItem: dataItem, ignoreCase: ignoreCase)
-        case .greaterThan(let orEqual):
-            numbersMatch(dataItem: dataItem, orEqual: orEqual) { $0 > $1 }
-        case .lessThan(let orEqual):
-            numbersMatch(dataItem: dataItem, orEqual: orEqual) { $0 < $1 }
-        case .contains(let ignoreCase):
-            stringsMatch(dataItem: dataItem, ignoreCase: ignoreCase) { $0.contains($1) }
-        case .notContains(let ignoreCase):
-            stringsMatch(dataItem: dataItem, ignoreCase: ignoreCase) { !$0.contains($1) }
-        case .endsWith(let ignoreCase):
-            stringsMatch(dataItem: dataItem, ignoreCase: ignoreCase) { $0.hasSuffix($1) }
-        case .notEndsWith(let ignoreCase):
-            stringsMatch(dataItem: dataItem, ignoreCase: ignoreCase) { !$0.hasSuffix($1) }
-        case .startsWith(let ignoreCase):
-            stringsMatch(dataItem: dataItem, ignoreCase: ignoreCase) { $0.hasPrefix($1) }
-        case .notStartsWith(let ignoreCase):
-            stringsMatch(dataItem: dataItem, ignoreCase: ignoreCase) { !$0.hasPrefix($1) }
-        case .regex:
-            stringsMatch(dataItem: dataItem, ignoreCase: false) {
-                $0.range(of: $1, options: .regularExpression) != nil
+    public func matches(payload: DataObject) throws -> Bool {
+        do {
+            guard let dataItem = payload.extract(VariableAccessor(path: path, variable: variable)) else {
+                switch self.operator {
+                case .isDefined:
+                    return false
+                case .isNotDefined:
+                    return true
+                default:
+                    throw ErrorType.missingDataItem
+                }
             }
+            return switch self.operator {
+            case .isDefined:
+                true
+            case .isNotDefined:
+                false
+            case .isEmpty:
+                dataItem.isEmpty
+            case .isNotEmpty:
+                !dataItem.isEmpty
+            case .equals(let ignoreCase):
+                try equals(dataItem: dataItem, ignoreCase: ignoreCase)
+            case .notEquals(let ignoreCase):
+                try !equals(dataItem: dataItem, ignoreCase: ignoreCase)
+            case .greaterThan(let orEqual):
+                try numbersMatch(dataItem: dataItem, orEqual: orEqual) { $0 > $1 }
+            case .lessThan(let orEqual):
+                try numbersMatch(dataItem: dataItem, orEqual: orEqual) { $0 < $1 }
+            case .contains(let ignoreCase):
+                try stringsMatch(dataItem: dataItem, ignoreCase: ignoreCase) { $0.contains($1) }
+            case .notContains(let ignoreCase):
+                try stringsMatch(dataItem: dataItem, ignoreCase: ignoreCase) { !$0.contains($1) }
+            case .endsWith(let ignoreCase):
+                try stringsMatch(dataItem: dataItem, ignoreCase: ignoreCase) { $0.hasSuffix($1) }
+            case .notEndsWith(let ignoreCase):
+                try stringsMatch(dataItem: dataItem, ignoreCase: ignoreCase) { !$0.hasSuffix($1) }
+            case .startsWith(let ignoreCase):
+                try stringsMatch(dataItem: dataItem, ignoreCase: ignoreCase) { $0.hasPrefix($1) }
+            case .notStartsWith(let ignoreCase):
+                try stringsMatch(dataItem: dataItem, ignoreCase: ignoreCase) { !$0.hasPrefix($1) }
+            case .regex:
+                try stringsMatch(dataItem: dataItem, ignoreCase: false) {
+                    $0.range(of: $1, options: .regularExpression) != nil
+                }
+            }
+        } catch let error as ErrorType {
+            throw ConditionEvaluationError(type: error, condition: self)
         }
     }
 
-    private func equals(dataItem: DataItem, filter: String, ignoreCase: Bool) -> Bool {
+    private func equals(dataItem: DataItem, ignoreCase: Bool) throws -> Bool {
+        var filter = try requireFilter()
         if let double = dataItem.get(as: Double.self),
+           // we want equals to return true in case the item is Double.nan and the filter is "NaN"
+           // that is why we don't call `convertToDouble` here - to skip to the string equality check
            let value = Self.formatter.number(from: filter)?.doubleValue {
             return double == value
         }
-        var input = stringify(dataItem.toDataInput())
-        var filter = filter
+        var input = try stringify(dataItem)
         if ignoreCase {
             input = input.lowercased()
             filter = filter.lowercased()
@@ -88,26 +109,9 @@ extension Condition: Matchable {
         return input == filter
     }
 
-    private func notEquals(dataItem: DataItem, ignoreCase: Bool) -> Bool {
-        guard let filter, !dataItem.isDictionary else {
-            return false
-        }
-        return !equals(dataItem: dataItem, filter: filter, ignoreCase: ignoreCase)
-    }
-
-    private func equals(dataItem: DataItem, ignoreCase: Bool) -> Bool {
-        guard let filter, !dataItem.isDictionary else {
-            return false
-        }
-        return equals(dataItem: dataItem, filter: filter, ignoreCase: ignoreCase)
-    }
-
-    private func stringsMatch(dataItem: DataItem, ignoreCase: Bool, _ predicate: (String, String) -> Bool) -> Bool {
-        guard var filter, !dataItem.isDictionary else {
-            return false
-        }
-        let input = dataItem.toDataInput()
-        var string = stringify(input)
+    private func stringsMatch(dataItem: DataItem, ignoreCase: Bool, _ predicate: (String, String) -> Bool) throws -> Bool {
+        var filter = try requireFilter()
+        var string = try stringify(dataItem)
         if ignoreCase {
             string = string.lowercased()
             filter = filter.lowercased()
@@ -115,48 +119,52 @@ extension Condition: Matchable {
         return predicate(string, filter)
     }
 
-    private func numbersMatch(dataItem: DataItem, orEqual: Bool, _ predicate: (Double, Double) -> Bool) -> Bool {
-        guard let filter,
-              !dataItem.isDictionary,
-              let value = Self.formatter.number(from: filter)?.doubleValue,
-              let number = dataItem.get(as: Double.self)
-                ?? convertToDouble(dataItem, using: Self.formatter) else {
-            return false
-        }
+    private func numbersMatch(dataItem: DataItem, orEqual: Bool, _ predicate: (Double, Double) -> Bool) throws -> Bool {
+        let filter = try requireFilter()
+        let value = try convertToDouble(DataItem(value: filter), using: Self.formatter, source: "Filter")
+        let number = try dataItem.get(as: Double.self) ?? convertToDouble(dataItem, using: Self.formatter, source: "DataItem")
         if number == value {
             return orEqual
         }
         return predicate(number, value)
     }
 
-    private func convertToDouble(_ dataItem: DataItem, using formatter: NumberFormatter) -> Double? {
+    private func requireFilter() throws -> String {
+        guard let filter else {
+            throw ErrorType.missingFilter
+        }
+        return filter
+    }
+
+    private func convertToDouble(_ dataItem: DataItem, using formatter: NumberFormatter, source: String) throws -> Double {
         guard let numString = dataItem.get(as: String.self), !numString.isEmpty else {
-            return nil
+            throw ErrorType.numberParsingError(parsing: dataItem.toString(), source: source)
         }
-        return formatter.number(from: numString)?.doubleValue
+        if numString == "NaN" {
+            return Double.nan
+        }
+        guard let number = formatter.number(from: numString)?.doubleValue else {
+            throw ErrorType.numberParsingError(parsing: numString, source: source)
+        }
+        return number
     }
 
-    private func extractValue(from payload: DataObject) -> DataItem? {
-        guard let path = self.path else {
-            return payload.getDataItem(key: variable)
-        }
-        var current: DataObject = payload
-        for component in path {
-            guard let container = current.getDataDictionary(key: component) else {
-                return nil
+    private func stringify(_ value: DataItem) throws -> String {
+        if let array = value.getDataArray() {
+            do {
+                return try array.map({ try stringify($0) }).joined(separator: ",")
+            } catch let ErrorType.operationNotSupportedFor(typeFound) {
+                throw ErrorType.operationNotSupportedFor("Array containing: \(typeFound)")
             }
-            current = container.toDataObject()
-        }
-        return current.getDataItem(key: variable)
-    }
-
-    private func stringify<DataInput>(_ value: DataInput) -> String {
-        if value is NSNull {
-            return "null"
-        } else if let array = value as? [DataInput] {
-            return array.map({ stringify($0) }).joined(separator: ",")
+        } else if let dictionary = value.getDataDictionary() {
+            throw ErrorType.operationNotSupportedFor("\(type(of: dictionary))")
+        } else if let double = value.get(as: Double.self) {
+            // using custom formatter to get correct "Infinity" and "NaN" strings
+            // as well as to remove fraction zeroes (1.0 -> 1) and disable scientific notation
+            return Self.formatter.string(for: double) ?? String(describing: double)
         } else {
-            return String(describing: value)
+            let dataInput = value.toDataInput()
+            return String(describing: dataInput is NSNull ? "null" : dataInput)
         }
     }
 }

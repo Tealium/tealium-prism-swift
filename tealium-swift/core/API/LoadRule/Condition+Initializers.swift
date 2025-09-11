@@ -132,42 +132,39 @@ public extension Condition {
     }
 
     /**
-     * Returns a `Condition` that checks whether the value can be found at key `variable` and that
-     * the value is considered "populated".
+     * Returns a `Condition` that checks whether the value at key `variable` is considered to be "empty".
      *
-     * "populated" is considered as the following for the different supported input types:
-     *  - `!String.isEmpty`
-     *  - `!Array.isEmpty`
-     *  - `!Dictionary.isEmpty`
-     *  - `value != nil`, `value != NSNull()`
-     *
-     * Numeric values are always considered as populated.
-     *
-     * - Parameters:
-     *      - path: optional list of keys that form the access to sub-objects when accessing the `variable`
-     *      - variable: the variable in the data layer to extract the value from for the comparison
-     */
-    static func isPopulated(variable: VariableAccessor) -> Self {
-        Condition(variable: variable, operator: .isPopulated, filter: nil)
-    }
-
-    /**
-     * Returns a `Condition` that checks whether the value can be found at key `variable` and that
-     * the value is considered "not-populated".
-     *
-     * "not-populated" is considered as the following for the different supported input types:
+     * "Empty" is considered as the following for the different supported input types:
      *  - `String.isEmpty`
      *  - `Array.isEmpty`
      *  - `Dictionary.isEmpty`
-     *  - `value == nil`, `value == NSNull()`
+     *  - `value == NSNull()`
      *
-     * Numeric values are always considered as populated.
+     * Numeric values are always considered as not empty.
      *
      * - Parameters:
      *      - variable: the variable in the data layer to extract the value from for the comparison
      */
-    static func isNotPopulated(variable: VariableAccessor) -> Self {
-        Condition(variable: variable, operator: .isNotPopulated, filter: nil)
+    static func isEmpty(variable: VariableAccessor) -> Self {
+        Condition(variable: variable, operator: .isEmpty, filter: nil)
+    }
+
+    /**
+     * Returns a `Condition` that checks whether the value at key `variable` is considered to be "not empty".
+     *
+     * "Not empty" is considered as the following for the different supported input types:
+     *  - `!String.isEmpty`
+     *  - `!Array.isEmpty`
+     *  - `!Dictionary.isEmpty`
+     *  - `value != NSNull()`
+     *
+     * Numeric values are always considered as not empty.
+     *
+     * - Parameters:
+     *      - variable: the variable in the data layer to extract the value from for the comparison
+     */
+    static func isNotEmpty(variable: VariableAccessor) -> Self {
+        Condition(variable: variable, operator: .isNotEmpty, filter: nil)
     }
 
     /**

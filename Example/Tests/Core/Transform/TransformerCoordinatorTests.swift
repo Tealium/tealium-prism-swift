@@ -30,6 +30,7 @@ final class TransformerCoordinatorTests: XCTestCase {
         MockTransformer3()
     ]
     lazy var transformers = StateSubject<[Transformer]>(registeredTransformers)
+    lazy var logger: MockLogger? = nil
     var transformationsCount = 0
     var expectedTransformations: [Int] = []
     @StateSubject<[String: TransformationSettings]>([:])
@@ -38,7 +39,8 @@ final class TransformerCoordinatorTests: XCTestCase {
     lazy var coordinator = TransformerCoordinator(transformers: transformers.toStatefulObservable(),
                                                   transformations: transformations,
                                                   moduleMappings: mappings,
-                                                  queue: TealiumQueue.worker)
+                                                  queue: TealiumQueue.worker,
+                                                  logger: logger)
     let testEvent = Dispatch(name: "test_event")
 
     func test_getTransformationsForScope_afterCollectors_returns_all_afterCollectors_transformations() {
@@ -200,6 +202,28 @@ final class TransformerCoordinatorTests: XCTestCase {
         } else {
             XCTFail("Unexpected \(transformation) called at count \(transformationsCount)")
         }
+    }
+
+    func test_registerTransformation_does_not_add_transformation_and_logs_error_when_condition_throws() {
+        let errorLogged = expectation(description: "ConditionEvaluationError logged")
+        logger = MockLogger()
+        logger?.handler.onLogged.subscribeOnce({ logEvent in
+            XCTAssertEqual(logEvent.category, LogCategory.transformations)
+            XCTAssertEqual(logEvent.level, .warn)
+            errorLogged.fulfill()
+        })
+        let newTransformation = TransformationSettings(id: "new",
+                                                       transformerId: "new",
+                                                       scopes: [.allDispatchers],
+                                                       conditions: .just(Condition.equals(ignoreCase: false,
+                                                                                          variable: "missing",
+                                                                                          target: "test")))
+        XCTAssertFalse(coordinator.getTransformations(for: testEvent, .dispatcher("new"))
+            .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
+        coordinator.registerTransformation(newTransformation)
+        XCTAssertFalse(coordinator.getTransformations(for: testEvent, .dispatcher("new"))
+            .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
+        waitForDefaultTimeout()
     }
 
     func test_registerTransformation_Adds_Transformation_When_Not_Already_Registered() {

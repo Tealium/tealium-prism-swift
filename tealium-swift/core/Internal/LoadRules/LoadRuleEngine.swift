@@ -22,14 +22,17 @@ class LoadRuleEngine {
     private let disposer = AutomaticDisposer()
     /// RuleID : LoadRule.Condition
     let ruleIdToRuleMap: ObservableState<[String: Rule<Matchable>]>
+    private let logger: LoggerProtocol?
 
-    init(sdkSettings: ObservableState<SDKSettings>) {
+    init(sdkSettings: ObservableState<SDKSettings>, logger: LoggerProtocol?) {
+        self.logger = logger
         ruleIdToRuleMap = sdkSettings.mapState { $0.loadRules.mapValues { $0.conditions } }
         sdkSettings.subscribe { [weak self] settings in
             guard let self else { return }
-            self.moduleIdToRuleMap = settings.modules.compactMapValues { module in
-                guard let rule = module.rules else { return nil }
-                return Self.expand(rule: rule, with: self.ruleIdToRuleMap.value)
+            self.moduleIdToRuleMap = settings.modules.reduce(into: [:]) { result, element in
+                let (moduleId, module) = element
+                guard let rule = module.rules else { return }
+                result[moduleId] = Self.expand(rule: rule, with: self.ruleIdToRuleMap.value, moduleId: moduleId)
             }
         }.addTo(disposer)
     }
@@ -42,7 +45,12 @@ class LoadRuleEngine {
         guard let rule = moduleIdToRuleMap[module.id] else {
             return true // no rule set, safe to execute
         }
-        return rule.matches(payload: dispatch.payload)
+        do {
+            return try rule.matches(payload: dispatch.payload)
+        } catch {
+            logger?.warn(category: LogCategory.loadRules, "LoadRule evaluation failed for Dispatch(\(dispatch.logDescription())) and Module(\(module.id)). Cause: \(error)")
+            return false
+        }
     }
 
     /**
@@ -53,18 +61,25 @@ class LoadRuleEngine {
         guard let rule = moduleIdToRuleMap[module.id] else {
             return (dispatches, [])
         }
-        return dispatches.partitioned { rule.matches(payload: $0.payload) }
+        return dispatches.partitioned { dispatch in
+            do {
+                return try rule.matches(payload: dispatch.payload)
+            } catch {
+                logger?.warn(category: LogCategory.loadRules, "LoadRule evaluation failed for Dispatch(\(dispatch.logDescription())) and Module(\(module.id)). Cause: \(error)")
+                return false
+            }
+        }
     }
 
-    static func expand(rule: Rule<String>, with loadRules: [String: Rule<Matchable>]) -> Rule<Matchable> {
+    static func expand(rule: Rule<String>, with loadRules: [String: Rule<Matchable>], moduleId: String) -> Rule<Matchable> {
         rule.asMatchable { id in
             if id.lowercased() == "all" {
                 return .just(AlwaysTrue())
             } else if let rule = loadRules[id] {
                 return rule
             } else {
-                // In case of no load rule found we default to the rule not matching any payload
-                return .just(AlwaysFalse())
+                // In case of no load rule found we default to the rule throwing for any payload
+                return .just(AlwaysThrowingRuleNotFound(ruleId: id, moduleId: moduleId))
             }
         }
     }

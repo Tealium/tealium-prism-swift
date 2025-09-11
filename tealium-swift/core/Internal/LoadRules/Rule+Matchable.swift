@@ -7,16 +7,16 @@
 //
 
 extension Rule<Matchable>: Matchable {
-    public func matches(payload: DataObject) -> Bool {
+    public func matches(payload: DataObject) throws -> Bool {
         switch self {
         case .and(let children):
-            children.allSatisfy { $0.matches(payload: payload) }
+            try children.allSatisfy { try $0.matches(payload: payload) }
         case .or(let children):
-            children.contains { $0.matches(payload: payload) }
+            try children.contains { try $0.matches(payload: payload) }
         case .not(let child):
-            !child.matches(payload: payload)
+            try !child.matches(payload: payload)
         case .just(let item):
-            item.matches(payload: payload)
+            try item.matches(payload: payload)
         }
     }
 }

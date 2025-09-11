@@ -110,15 +110,6 @@ public enum HttpStatusCodes: Int {
     case ok = 200 // swiftlint:disable:this identifier_name
 }
 
-public protocol TealiumErrorEnum: Error {}
-
-// Add default localizedDescription
-extension TealiumErrorEnum {
-    var localizedDescription: String {
-        return "\(type(of: self)).\(self)"
-    }
-}
-
 enum ConditionOperators {
     static let equals = "equals"
     static let equalsIgnoreCase = "equals_ignore_case"
@@ -138,8 +129,8 @@ enum ConditionOperators {
     static let doesNotContainIgnoreCase = "does_not_contain_ignore_case"
     static let defined = "defined"
     static let notDefined = "notdefined"
-    static let populated = "populated"
-    static let notPopulated = "notpopulated"
+    static let empty = "empty"
+    static let notEmpty = "notempty"
     static let greaterThan = "greater_than"
     static let greaterThanEqualTo = "greater_than_equal_to"
     static let lessThan = "less_than"

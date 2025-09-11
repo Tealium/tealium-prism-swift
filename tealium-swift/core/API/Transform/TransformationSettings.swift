@@ -72,11 +72,15 @@ public struct TransformationSettings {
         }
     }
 
-    func matchesDispatch(_ dispatch: Dispatch) -> Bool {
+    func matchesDispatch(_ dispatch: Dispatch) throws -> Bool {
         guard let conditions else {
             return true
         }
-        return conditions.asMatchable().matches(payload: dispatch.payload)
+        return try conditions.asMatchable().matches(payload: dispatch.payload)
+    }
+
+    func compositeKey() -> String {
+        "\(transformerId)-\(id)"
     }
 
     enum Keys {

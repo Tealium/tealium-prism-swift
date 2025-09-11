@@ -17,7 +17,7 @@ final class OrTests: XCTestCase {
 
     func test_or_with_empty_conditions_returns_false() {
         let orCondition = or(conditions: [])
-        XCTAssertFalse(orCondition.matches(payload: [:]))
+        XCTAssertFalse(try orCondition.matches(payload: [:]))
     }
 
     func test_or_returns_true_if_at_least_one_contained_is_true() {
@@ -26,7 +26,7 @@ final class OrTests: XCTestCase {
             MockMatchable(result: true),
             MockMatchable(result: false)
         ])
-        XCTAssertTrue(orCondition.matches(payload: [:]))
+        XCTAssertTrue(try orCondition.matches(payload: [:]))
     }
 
     func test_or_returns_false_if_all_contained_return_false() {
@@ -35,7 +35,7 @@ final class OrTests: XCTestCase {
             MockMatchable(result: false),
             MockMatchable(result: false)
         ])
-        XCTAssertFalse(orCondition.matches(payload: [:]))
+        XCTAssertFalse(try orCondition.matches(payload: [:]))
     }
 
     func test_or_doesnt_request_match_after_first_true() {
@@ -49,7 +49,7 @@ final class OrTests: XCTestCase {
             MockMatchable(result: true),
             final
         ])
-        XCTAssertTrue(orCondition.matches(payload: [:]))
+        XCTAssertTrue(try orCondition.matches(payload: [:]))
         waitForDefaultTimeout()
     }
 
@@ -62,7 +62,7 @@ final class OrTests: XCTestCase {
             MockMatchable(result: false),
             MockMatchable(result: false)
         ])
-        XCTAssertTrue(orCondition.matches(payload: [:]))
+        XCTAssertTrue(try orCondition.matches(payload: [:]))
     }
 
     func test_or_returns_false_if_all_contained_return_false_when_nesting() {
@@ -74,7 +74,25 @@ final class OrTests: XCTestCase {
                 MockMatchable(result: false)
             ])
         ])
-        XCTAssertFalse(orCondition.matches(payload: [:]))
+        XCTAssertFalse(try orCondition.matches(payload: [:]))
     }
 
+    func test_or_throws_if_there_is_no_true_returned_from_conditions_before_throwing_one() {
+        let orRule = or(conditions: [
+            AlwaysFalse(),
+            AlwaysFalse(),
+            AlwaysThrowingRuleNotFound(ruleId: "testRuleId", moduleId: "testModuleId")
+        ])
+        XCTAssertThrowsError(try orRule.matches(payload: [:]))
+    }
+
+    func test_or_does_not_throw_if_any_contained_condition_before_throwing_one_returns_true() {
+        let orRule = or(conditions: [
+            AlwaysTrue(),
+            AlwaysFalse(),
+            AlwaysThrowingRuleNotFound(ruleId: "testRuleId", moduleId: "testModuleId")
+        ])
+        let result = XCTAssertNoThrowReturn(try orRule.matches(payload: [:]))
+        XCTAssertTrueOptional(result)
+    }
 }

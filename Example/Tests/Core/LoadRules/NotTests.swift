@@ -16,18 +16,23 @@ final class NotTests: XCTestCase {
     }
     func test_not_returns_true_if_contained_is_false() {
         let not = not(condition: MockMatchable(result: false))
-        XCTAssertTrue(not.matches(payload: [:]))
+        XCTAssertTrue(try not.matches(payload: [:]))
     }
 
     func test_not_returns_false_if_contained_is_true() {
         let not = not(condition: MockMatchable(result: true))
-        XCTAssertFalse(not.matches(payload: [:]))
+        XCTAssertFalse(try not.matches(payload: [:]))
     }
 
     func test_not_nested_returns_underlying_condition() {
         let doubleNotTrue = not(condition: not(condition: MockMatchable(result: true)))
         let doubleNotFalse = not(condition: not(condition: MockMatchable(result: false)))
-        XCTAssertTrue(doubleNotTrue.matches(payload: [:]))
-        XCTAssertFalse(doubleNotFalse.matches(payload: [:]))
+        XCTAssertTrue(try doubleNotTrue.matches(payload: [:]))
+        XCTAssertFalse(try doubleNotFalse.matches(payload: [:]))
+    }
+
+    func test_not_throws_when_contained_throws() {
+        let throwingNot = not(condition: AlwaysThrowingRuleNotFound(ruleId: "testRuleId", moduleId: "testModuleId"))
+        XCTAssertThrowsError(try throwingNot.matches(payload: [:]))
     }
 }

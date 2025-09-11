@@ -20,6 +20,14 @@ struct AlwaysTrue: Matchable {
     }
 }
 
+struct AlwaysThrowingRuleNotFound: Matchable {
+    let ruleId: String
+    let moduleId: String
+    func matches(payload: DataObject) throws -> Bool {
+        throw RuleNotFoundError(ruleId: ruleId, moduleId: moduleId)
+    }
+}
+
 extension Condition: DataObjectConvertible {
     public func toDataObject() -> DataObject {
         DataObject(compacting: [

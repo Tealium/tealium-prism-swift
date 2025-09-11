@@ -119,8 +119,10 @@ public enum TealiumLoggerType {
 
 public enum LogCategory {
     static let collect = "Collect"
+    static let consent = "Consent"
     static let dispatchManager = "DispatchManager"
     static let httpClient = "HTTPClient"
+    static let loadRules = "LoadRules"
     static let networkHelper = "NetworkHelper"
     static let queueManager = "QueueManager"
     static let resourceRefresher = "ResourceRefresher"
@@ -129,6 +131,6 @@ public enum LogCategory {
     static let startup = "Startup"
     static let tealium = "Tealium"
     static let tracking = "Tracking"
+    static let transformations = "Transformations"
     static let visitorIdProvider = "VisitorIdProvider"
-    static let consent = "Consent"
 }

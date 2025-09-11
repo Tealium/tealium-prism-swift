@@ -11,5 +11,6 @@ import Foundation
 /// A protocol to verify if an object matches a payload. To be used with the `Condition` engine.
 protocol Matchable {
     /// - returns: true if the object matches the given payload.
-    func matches(payload: DataObject) -> Bool
+    /// - throws: error conforming to `InvalidMatchError` if the matching operation cannot be done.
+    func matches(payload: DataObject) throws -> Bool
 }

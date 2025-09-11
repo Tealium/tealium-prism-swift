@@ -10,9 +10,10 @@
 import XCTest
 
 final class LoadRuleEngineTests: XCTestCase {
+    lazy var logger: MockLogger? = nil
     @StateSubject(SDKSettings())
     var sdkSettings: ObservableState<SDKSettings>
-    lazy var engine = LoadRuleEngine(sdkSettings: sdkSettings)
+    lazy var engine = LoadRuleEngine(sdkSettings: sdkSettings, logger: logger)
 
     let moduleWithRules = MockModule()
     let moduleWithoutRules = MockDispatcher()
@@ -23,7 +24,10 @@ final class LoadRuleEngineTests: XCTestCase {
             "false": LoadRule(id: "false", conditions: .just(AlwaysFalse())),
             "equals": LoadRule(id: "equals", conditions: .just(Condition.equals(ignoreCase: false,
                                                                                 variable: "variable",
-                                                                                target: "value")))
+                                                                                target: "value"))),
+            "noDataItem": LoadRule(id: "equals", conditions: .just(Condition.equals(ignoreCase: false,
+                                                                                    variable: "missing",
+                                                                                    target: "value")))
         ])
     }
 
@@ -36,10 +40,33 @@ final class LoadRuleEngineTests: XCTestCase {
     func test_expand_replaces_id_strings_with_provided_conditions() {
         let condition = Condition.equals(ignoreCase: true, variable: "key", target: "value")
         let expandedRule = LoadRuleEngine.expand(rule: .just("ruleId"),
-                                                 with: ["ruleId": .just(condition)])
+                                                 with: ["ruleId": .just(condition)],
+                                                 moduleId: "")
 
         XCTAssertTrue(Rule<Condition>.just(condition)
             .equals(expandedRule))
+    }
+
+    func test_expand_replaces_id_string_all_with_always_true_matchable() {
+        let expandedRule = LoadRuleEngine.expand(rule: .just("all"),
+                                                 with: [:],
+                                                 moduleId: "")
+
+        XCTAssertTrue(try expandedRule.matches(payload: [:]))
+    }
+
+    func test_expand_replaces_id_strings_with_throwing_matchable_when_not_found() {
+        let expandedRule = LoadRuleEngine.expand(rule: .just("missing"),
+                                                 with: [:],
+                                                 moduleId: "test")
+        XCTAssertThrowsError(try expandedRule.matches(payload: [:])) { error in
+            guard let loadRuleError = error as? RuleNotFoundError else {
+                XCTFail("Should be rule not found error, found: \(error)")
+                return
+            }
+            XCTAssertEqual(loadRuleError.ruleId, "missing")
+            XCTAssertEqual(loadRuleError.moduleId, "test")
+        }
     }
 
     func test_rulesAllow_allows_to_dispatch_for_module_when_loadRule_is_found_and_applies() {
@@ -63,11 +90,34 @@ final class LoadRuleEngineTests: XCTestCase {
                                         forModule: moduleWithoutRules))
     }
 
-    func test_rulesAllow_doesnt_allow_to_dispatch_for_module_when_loadRule_is_not_found() {
+    func test_rulesAllow_doesnt_allow_to_dispatch_for_module_and_logs_error_when_loadRule_is_not_found() {
         addRule("missing")
+        let errorLogged = expectation(description: "InvalidMatchError is logged")
+        logger = MockLogger()
+        logger?.handler.onLogged.subscribeOnce({ logEvent in
+            XCTAssertEqual(logEvent.category, LogCategory.loadRules)
+            XCTAssertEqual(logEvent.level, .warn)
+            errorLogged.fulfill()
+        })
 
         XCTAssertFalse(engine.rulesAllow(dispatch: Dispatch(name: "event"),
                                          forModule: moduleWithRules))
+        waitForDefaultTimeout()
+    }
+
+    func test_rulesAllow_doesnt_allow_to_dispatch_for_module_and_logs_error_when_condition_throws() {
+        addRule("noDataItem")
+        let errorLogged = expectation(description: "InvalidMatchError is logged")
+        logger = MockLogger()
+        logger?.handler.onLogged.subscribeOnce({ logEvent in
+            XCTAssertEqual(logEvent.category, LogCategory.loadRules)
+            XCTAssertEqual(logEvent.level, .warn)
+            errorLogged.fulfill()
+        })
+
+        XCTAssertFalse(engine.rulesAllow(dispatch: Dispatch(name: "event"),
+                                         forModule: moduleWithRules))
+        waitForDefaultTimeout()
     }
 
     func test_rulesAllow_allows_to_dispatch_for_module_when_module_has_no_rules_and_loadRule_is_not_found() {
@@ -112,6 +162,22 @@ final class LoadRuleEngineTests: XCTestCase {
         XCTAssertTrue(passed.isEmpty)
         XCTAssertTrue(failed.contains(where: { $0.name == "Allowed" }))
         XCTAssertTrue(failed.contains(where: { $0.name == "Not Allowed" }))
+    }
+
+    func test_filterDispatches_removes_dispatch_and_logs_error_when_condition_throws() {
+        addRule("noDataItem")
+        let errorLogged = expectation(description: "InvalidMatchError is logged")
+        logger = MockLogger()
+        logger?.handler.onLogged.subscribeOnce({ logEvent in
+            XCTAssertEqual(logEvent.category, LogCategory.loadRules)
+            XCTAssertEqual(logEvent.level, .warn)
+            errorLogged.fulfill()
+        })
+        let dispatches = [Dispatch(name: "Removed", data: ["variable": "value"])]
+        let (passed, failed) = engine.evaluateLoadRules(on: dispatches, forModule: moduleWithRules)
+        XCTAssertTrue(passed.isEmpty)
+        XCTAssertTrue(failed.contains(where: { $0.name == "Removed" }))
+        waitForDefaultTimeout()
     }
 
     func test_ruleMap_is_updated_on_settings_update() {

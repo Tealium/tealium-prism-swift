@@ -86,10 +86,6 @@ final public class DataItem {
         value is Bool
     }
 
-    var isDictionary: Bool {
-        value is [String: Any]
-    }
-
     private func getNumber<T: DataInput>(as type: T.Type = T.self) -> T? {
         guard !isBool, let number = value as? NSNumber else {
             return nil

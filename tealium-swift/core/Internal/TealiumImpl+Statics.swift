@@ -44,12 +44,14 @@ extension TealiumImpl {
 
     static func transformerCoordinator(transformers: ObservableState<[Transformer]>,
                                        sdkSettings: ObservableState<SDKSettings>,
-                                       queue: TealiumQueue) -> TransformerCoordinator {
+                                       queue: TealiumQueue,
+                                       logger: LoggerProtocol) -> TransformerCoordinator {
         let transformations = sdkSettings.mapState { $0.transformations.map { $0.value } }
         return TransformerCoordinator(transformers: transformers,
                                       transformations: transformations,
                                       moduleMappings: mappings(from: sdkSettings),
-                                      queue: queue)
+                                      queue: queue,
+                                      logger: logger)
     }
 
     static func queueProcessors(from modules: ObservableState<[Module]>, addingConsent: Bool) -> Observable<[String]> {

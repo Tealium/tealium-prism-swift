@@ -19,7 +19,8 @@ class DeviceDataModuleBaseTests: XCTestCase {
     lazy var transformerRegistry = TransformerCoordinator(transformers: .constant([]),
                                                           transformations: .constant([]),
                                                           moduleMappings: .constant([:]),
-                                                          queue: queue)
+                                                          queue: queue,
+                                                          logger: nil)
     lazy var context = MockContext(modulesManager: manager,
                                    config: config,
                                    transformerRegistry: transformerRegistry,

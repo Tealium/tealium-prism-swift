@@ -31,7 +31,8 @@ class MockContext: TealiumContext {
             transformers: .constant([]),
             transformations: .constant([]),
             moduleMappings: .constant([:]),
-            queue: queue
+            queue: queue,
+            logger: nil
         )
         let queueManager = MockQueueManager(
             processors: TealiumImpl.queueProcessors(from: modulesManager.modules, addingConsent: true),
