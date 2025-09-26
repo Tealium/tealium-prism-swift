@@ -43,6 +43,7 @@ final class SDKSettingsTests: XCTestCase {
             "modules": try DataItem(serializing: [
                 "moduleId": [
                     "enabled": false,
+                    "module_type": "moduleId",
                     "configuration": ["key": "value"]
                 ]
             ])
@@ -52,7 +53,7 @@ final class SDKSettingsTests: XCTestCase {
             XCTFail("Module not found.")
             return
         }
-        let expected = ModuleSettings(enabled: false, configuration: ["key": "value"])
+        let expected = ModuleSettings(moduleType: "moduleId", enabled: false, configuration: ["key": "value"])
         XCTAssertEqual(module.configuration, expected.configuration)
         XCTAssertEqual(module.enabled, expected.enabled)
     }

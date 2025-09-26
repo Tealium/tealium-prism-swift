@@ -209,7 +209,7 @@ extension _AnyEncodable {
     }
 
     public init(dictionaryLiteral elements: (AnyHashable, Any)...) {
-        self.init([AnyHashable: Any](elements, uniquingKeysWith: { first, _ in first }))
+        self.init([AnyHashable: Any](elements, prefersFirst: true))
     }
 }
 // swiftlint:enable cyclomatic_complexity

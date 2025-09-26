@@ -10,9 +10,8 @@ import Foundation
 
 class ConnectivityDataModule: BasicModule, Collector {
     let version: String = TealiumConstants.libraryVersion
-    static var canBeDisabled: Bool { true }
-    static let id: String = "ConnectivityData"
     let monitor: ConnectivityMonitorProtocol
+    let id = Modules.Types.connectivityData
 
     required convenience init?(context: TealiumContext, moduleConfiguration: DataObject) {
         self.init()

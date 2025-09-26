@@ -8,36 +8,46 @@
 
 @testable import TealiumSwift
 import XCTest
+
 class NonDisableableModule: BasicModule {
-    let version: String = "1.0.0"
-    required init?(context: TealiumContext, moduleConfiguration: DataObject) { }
-    static var id: String = "non-disableable"
+    static let moduleType: String = "non-disableable"
+    var id: String { Self.moduleType }
     static let canBeDisabled: Bool = false
+
+    let version: String = "1.0.0"
+    required init?(context: TealiumContext,
+                   moduleConfiguration: DataObject) {
+    }
 }
+
 final class ModulesTests: XCTestCase {
-    let nonDisableableFactory = DefaultModuleFactory<NonDisableableModule>()
-    let disableableFactory = DefaultModuleFactory<MockDispatcher1>()
+    let nonDisableableFactory = DefaultModuleFactory<NonDisableableModule>(moduleType: NonDisableableModule.moduleType)
+    let disableableFactory = MockDispatcher1.factory()
     func test_shouldBeEnabled_on_NonDisableableModule_returns_true_for_settings_enabled() {
-        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: ModuleSettings(enabled: true)))
+        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: ModuleSettings(moduleType: NonDisableableModule.moduleType,
+                                                                               enabled: true)))
     }
 
     func test_shouldBeEnabled_on_NonDisableableModule_returns_true_for_settings_disabled() {
-        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: ModuleSettings(enabled: false)))
+        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: ModuleSettings(moduleType: NonDisableableModule.moduleType,
+                                                                               enabled: false)))
     }
 
     func test_shouldBeEnabled_on_NonDisableableModule_returns_true_for_settings_without_enabled_key() {
-        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: ModuleSettings()))
+        XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: ModuleSettings(moduleType: NonDisableableModule.moduleType)))
     }
 
     func test_shouldBeEnabled_on_DisableableModule_returns_true_for_settings_enabled() {
-        XCTAssertTrue(disableableFactory.shouldBeEnabled(by: ModuleSettings(enabled: true)))
+        XCTAssertTrue(disableableFactory.shouldBeEnabled(by: ModuleSettings(moduleType: NonDisableableModule.moduleType,
+                                                                            enabled: true)))
     }
 
     func test_shouldBeEnabled_on_DisableableModule_returns_false_for_settings_disabled() {
-        XCTAssertFalse(disableableFactory.shouldBeEnabled(by: ModuleSettings(enabled: false)))
+        XCTAssertFalse(disableableFactory.shouldBeEnabled(by: ModuleSettings(moduleType: NonDisableableModule.moduleType,
+                                                                             enabled: false)))
     }
 
     func test_shouldBeEnabled_on_DisableableModule_returns_true_for_settings_without_enabled_key() {
-        XCTAssertTrue(disableableFactory.shouldBeEnabled(by: ModuleSettings()))
+        XCTAssertTrue(disableableFactory.shouldBeEnabled(by: ModuleSettings(moduleType: NonDisableableModule.moduleType)))
     }
 }

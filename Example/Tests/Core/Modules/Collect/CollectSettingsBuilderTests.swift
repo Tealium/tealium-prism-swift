@@ -18,8 +18,10 @@ final class CollectSettingsBuilderTests: XCTestCase {
             .setOverrideDomain("overrideDomain")
             .setOverrideProfile("overrideProfile")
             .setEnabled(true)
+            .setModuleId("ModuleID")
             .build()
         XCTAssertEqual(settings, [
+            "module_id": "ModuleID",
             "configuration": [
                 "url": "url",
                 "batch_url": "batchUrl",

@@ -37,9 +37,7 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
     public init(pairs elements: [(String, DataInputConvertible)]) {
         dictionary = Dictionary(elements.map { key, value in
             (key, value.toDataInput())
-        }, uniquingKeysWith: { _, second in
-            second
-        })
+        }, prefersFirst: false)
     }
 
     /**

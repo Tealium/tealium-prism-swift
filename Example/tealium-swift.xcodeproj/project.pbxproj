@@ -193,13 +193,13 @@
 		8732D8042E32949500152296 /* EndToEndTests_macOS.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 8732D7FF2E32949500152296 /* EndToEndTests_macOS.xctestplan */; };
 		8732D8052E32949500152296 /* EndToEndTests_macOS.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 8732D7FF2E32949500152296 /* EndToEndTests_macOS.xctestplan */; };
 		873B687C2E3114F900DC1B4E /* Tealium+CollectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687B2E3114F900DC1B4E /* Tealium+CollectTests.swift */; };
-		873B687E2E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* MockModuleFactory.swift */; };
-		873B687F2E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* MockModuleFactory.swift */; };
-		873B68802E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* MockModuleFactory.swift */; };
-		873B68812E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* MockModuleFactory.swift */; };
-		873B68822E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* MockModuleFactory.swift */; };
-		873B68832E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* MockModuleFactory.swift */; };
-		873B68842E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* MockModuleFactory.swift */; };
+		873B687E2E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
+		873B687F2E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
+		873B68802E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
+		873B68812E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
+		873B68822E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
+		873B68832E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
+		873B68842E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
 		873B78272DA7D8050026A356 /* ValueContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B78262DA7D8050026A356 /* ValueContainerTests.swift */; };
 		873B78282DA7D8050026A356 /* ValueContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B78262DA7D8050026A356 /* ValueContainerTests.swift */; };
 		873B78292DA7D8050026A356 /* ValueContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B78262DA7D8050026A356 /* ValueContainerTests.swift */; };
@@ -691,6 +691,20 @@
 		87EF5ACC2CE3A4BD00DB753C /* ModuleProxyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EF5ACB2CE3A4BD00DB753C /* ModuleProxyTests.swift */; };
 		87EF5ACD2CE3A4BD00DB753C /* ModuleProxyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EF5ACB2CE3A4BD00DB753C /* ModuleProxyTests.swift */; };
 		87EF5ACE2CE3A4BD00DB753C /* ModuleProxyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EF5ACB2CE3A4BD00DB753C /* ModuleProxyTests.swift */; };
+		87F0EA5F2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */; };
+		87F0EA602E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */; };
+		87F0EA612E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */; };
+		87F0EA622E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */; };
+		87F0EA632E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */; };
+		87F0EA642E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */; };
+		87F0EA652E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */; };
+		87F0EA672E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA662E7AFA00005C996D /* ModuleSettingsBuilder+SetProperty.swift */; };
+		87F0EA682E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA662E7AFA00005C996D /* ModuleSettingsBuilder+SetProperty.swift */; };
+		87F0EA692E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA662E7AFA00005C996D /* ModuleSettingsBuilder+SetProperty.swift */; };
+		87F0EA6A2E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA662E7AFA00005C996D /* ModuleSettingsBuilder+SetProperty.swift */; };
+		87F0EA6B2E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA662E7AFA00005C996D /* ModuleSettingsBuilder+SetProperty.swift */; };
+		87F0EA6C2E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA662E7AFA00005C996D /* ModuleSettingsBuilder+SetProperty.swift */; };
+		87F0EA6D2E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA662E7AFA00005C996D /* ModuleSettingsBuilder+SetProperty.swift */; };
 		87F8E6C22CAAD00E00F65EA1 /* XCTAssert+NaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F8E6C12CAAD00E00F65EA1 /* XCTAssert+NaN.swift */; };
 		87F8E6C32CAAD00E00F65EA1 /* XCTAssert+NaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F8E6C12CAAD00E00F65EA1 /* XCTAssert+NaN.swift */; };
 		87F8E6C42CAAD00E00F65EA1 /* XCTAssert+NaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F8E6C12CAAD00E00F65EA1 /* XCTAssert+NaN.swift */; };
@@ -1078,7 +1092,7 @@
 		8732D8062E32950300152296 /* CoreTests_macOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = CoreTests_macOS.xctestplan; path = Tests/TestPlans/CoreTests_macOS.xctestplan; sourceTree = SOURCE_ROOT; };
 		8732D8072E32950500152296 /* CoreTests_tvOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; name = CoreTests_tvOS.xctestplan; path = Tests/TestPlans/CoreTests_tvOS.xctestplan; sourceTree = SOURCE_ROOT; };
 		873B687B2E3114F900DC1B4E /* Tealium+CollectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Tealium+CollectTests.swift"; sourceTree = "<group>"; };
-		873B687D2E322CDA00DC1B4E /* MockModuleFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockModuleFactory.swift; sourceTree = "<group>"; };
+		873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StubModuleFactory.swift; sourceTree = "<group>"; };
 		873B78262DA7D8050026A356 /* ValueContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueContainerTests.swift; sourceTree = "<group>"; };
 		873B782A2DA7D8F50026A356 /* VariableAccessorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VariableAccessorTests.swift; sourceTree = "<group>"; };
 		873B782F2DA7DA890026A356 /* JsonTransformationConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JsonTransformationConfigurationTests.swift; sourceTree = "<group>"; };
@@ -1188,6 +1202,8 @@
 		87EE77562D81D6C300BB1D77 /* NestedMixedConditionRule.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NestedMixedConditionRule.json; sourceTree = "<group>"; };
 		87EE775A2D81D9A200BB1D77 /* XCTestCase+JSONFromBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+JSONFromBundle.swift"; sourceTree = "<group>"; };
 		87EF5ACB2CE3A4BD00DB753C /* ModuleProxyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleProxyTests.swift; sourceTree = "<group>"; };
+		87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDispatcherSettingsBuilder.swift; sourceTree = "<group>"; };
+		87F0EA662E7AFA00005C996D /* ModuleSettingsBuilder+SetProperty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModuleSettingsBuilder+SetProperty.swift"; sourceTree = "<group>"; };
 		87F8E6C12CAAD00E00F65EA1 /* XCTAssert+NaN.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTAssert+NaN.swift"; sourceTree = "<group>"; };
 		87FC08542D91ADF300E1041D /* Rule+DataInputConvertibleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Rule+DataInputConvertibleTests.swift"; sourceTree = "<group>"; };
 		87FC08642D92FB2C00E1041D /* LoadRuleEngineTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoadRuleEngineTests.swift; sourceTree = "<group>"; };
@@ -1414,6 +1430,7 @@
 			children = (
 				150410EA2A6EBC6300B91F30 /* Mocks */,
 				875371002E2E49BF00CDED6D /* AnyCodable+Equatable.swift */,
+				87F0EA662E7AFA00005C996D /* ModuleSettingsBuilder+SetProperty.swift */,
 				15ED5AFE2A6021BD0027BB20 /* DeinitTester.swift */,
 				1537812A2A6181BE007BCA70 /* SubscriptionRetainCycleHelper.swift */,
 				486956A22A448E7C0014AC58 /* XCTAssert+BoolOptional.swift */,
@@ -1423,6 +1440,7 @@
 				15AE2B852A127DD90093D154 /* XCTAssert+Result.swift */,
 				1569B3CA2B1F754800262108 /* RetainCycleHelper.swift */,
 				155C0F202C072AA0009630FC /* CreateDispatches.swift */,
+				87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */,
 				876F25022DDF2EA800C55FFE /* SDKSettings+copy.swift */,
 				875007BD2C5D225F00ED1AA4 /* XCTestCase+WaitForDefaultTimeout.swift */,
 				87AF54852C8217EE00F1C114 /* XCTAssert+NSNull.swift */,
@@ -1436,7 +1454,7 @@
 			isa = PBXGroup;
 			children = (
 				87DBB5A02E5361A90064C0DE /* MockSessionManager.swift */,
-				873B687D2E322CDA00DC1B4E /* MockModuleFactory.swift */,
+				873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */,
 				87A1631A2DCA079D00F6EA3F /* MockContext.swift */,
 				87FC087D2D94532000E1041D /* MockDispatchManager.swift */,
 				87FC08782D9452FD00E1041D /* MockCollector.swift */,
@@ -3117,9 +3135,10 @@
 				08A7773D2D2FF0A8005F7229 /* TimeDataModuleTests.swift in Sources */,
 				87FC08712D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift in Sources */,
 				158A82372A39F5750028FD7C /* MockConnectivity.swift in Sources */,
-				873B687F2E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */,
+				873B687F2E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */,
 				871237DF2DD621DF0007C2CD /* MappingsEngineTests.swift in Sources */,
 				D54BBFDB2C78C01A003687C7 /* ResourceRefresherTests+RequestRefresh.swift in Sources */,
+				87F0EA5F2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */,
 				87EE775B2D81D9B800BB1D77 /* XCTestCase+JSONFromBundle.swift in Sources */,
 				1523CE802ABAFC400001D6D3 /* MockDatabaseProvider.swift in Sources */,
 				15A223872B19EFE600191132 /* MockDispatcher.swift in Sources */,
@@ -3160,6 +3179,7 @@
 				155C0F212C072AA0009630FC /* CreateDispatches.swift in Sources */,
 				87EE77512D81B16A00BB1D77 /* Condition+ConverterTests.swift in Sources */,
 				15BBB28A2B07E362009D4CB5 /* MockConfig.swift in Sources */,
+				87F0EA6A2E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				15F518172BECD6E4002689C7 /* TealiumImplementationTests.swift in Sources */,
 				D5EF2DFC2C1731BC00F7BC40 /* MockCMPIntegration.swift in Sources */,
 				ECAB83572DAFDD2600B2CF64 /* DeepLinkModuleTests.swift in Sources */,
@@ -3291,7 +3311,7 @@
 				8702A3642E266EEA001C9743 /* MockCMPIntegration.swift in Sources */,
 				8702A3652E266EEA001C9743 /* MockLogHandler.swift in Sources */,
 				8702A3662E266EEA001C9743 /* XCTAssert+Result.swift in Sources */,
-				873B687E2E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */,
+				873B687E2E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */,
 				8702A3672E266EEA001C9743 /* DeinitTester.swift in Sources */,
 				8702A3682E266EEA001C9743 /* MockMatchable.swift in Sources */,
 				8702A3692E266EEA001C9743 /* MockQueueManager.swift in Sources */,
@@ -3301,10 +3321,12 @@
 				873B687C2E3114F900DC1B4E /* Tealium+CollectTests.swift in Sources */,
 				8702A36D2E266EEA001C9743 /* CreateDispatches.swift in Sources */,
 				8702A36E2E266EEA001C9743 /* RetainCycleHelper.swift in Sources */,
+				87F0EA652E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */,
 				8702A36F2E266EEA001C9743 /* XCTestCase+JSONFromBundle.swift in Sources */,
 				8702A3702E266EEA001C9743 /* SDKSettings+copy.swift in Sources */,
 				8702A3712E266EEA001C9743 /* MockDispatcher.swift in Sources */,
 				8702A3722E266EEA001C9743 /* MockNetworkClient.swift in Sources */,
+				87F0EA6D2E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				8702A3732E266EEA001C9743 /* XCTAssert+NSNull.swift in Sources */,
 				87DBB5A32E5361A90064C0DE /* MockSessionManager.swift in Sources */,
 				8702A3742E266EEA001C9743 /* MockNetworkHelper.swift in Sources */,
@@ -3353,7 +3375,7 @@
 				878C49B62E26919A00DA3155 /* XCTAssert+Errors.swift in Sources */,
 				878C49B72E26919A00DA3155 /* XCTAssert+ObservedValue.swift in Sources */,
 				878C49B82E26919A00DA3155 /* TealiumTests.swift in Sources */,
-				873B68842E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */,
+				873B68842E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */,
 				878C49B92E26919A00DA3155 /* MockConnectivity.swift in Sources */,
 				878C49BA2E26919A00DA3155 /* MockCMPIntegration.swift in Sources */,
 				878C49BB2E26919A00DA3155 /* MockLogHandler.swift in Sources */,
@@ -3366,6 +3388,7 @@
 				878C49C22E26919A00DA3155 /* MockUrlSession.swift in Sources */,
 				878C49C32E26919A00DA3155 /* CreateDispatches.swift in Sources */,
 				878C49C42E26919A00DA3155 /* RetainCycleHelper.swift in Sources */,
+				87F0EA6C2E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				878C49C52E26919A00DA3155 /* XCTestCase+JSONFromBundle.swift in Sources */,
 				878C49C62E26919A00DA3155 /* SDKSettings+copy.swift in Sources */,
 				878C49C72E26919A00DA3155 /* MockDispatcher.swift in Sources */,
@@ -3375,6 +3398,7 @@
 				878C49CB2E26919A00DA3155 /* MockDispatchManager.swift in Sources */,
 				878C49CC2E26919A00DA3155 /* XCTAssert+BoolOptional.swift in Sources */,
 				878C49CD2E26919A00DA3155 /* MockConsentManager.swift in Sources */,
+				87F0EA622E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */,
 				878C49CE2E26919A00DA3155 /* MockBarrier.swift in Sources */,
 				878C49CF2E26919A00DA3155 /* XCTAssert+EqualDictionaries.swift in Sources */,
 				878C49D02E26919A00DA3155 /* MockModulesRepository.swift in Sources */,
@@ -3405,7 +3429,7 @@
 				878C49EF2E2691D300DA3155 /* XCTAssert+Errors.swift in Sources */,
 				878C49F02E2691D300DA3155 /* XCTAssert+ObservedValue.swift in Sources */,
 				878C49F12E2691D300DA3155 /* TealiumTests.swift in Sources */,
-				873B68822E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */,
+				873B68822E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */,
 				878C49F22E2691D300DA3155 /* MockConnectivity.swift in Sources */,
 				878C49F32E2691D300DA3155 /* MockCMPIntegration.swift in Sources */,
 				878C49F42E2691D300DA3155 /* MockLogHandler.swift in Sources */,
@@ -3418,6 +3442,7 @@
 				878C49FB2E2691D300DA3155 /* MockUrlSession.swift in Sources */,
 				878C49FC2E2691D300DA3155 /* CreateDispatches.swift in Sources */,
 				878C49FD2E2691D300DA3155 /* RetainCycleHelper.swift in Sources */,
+				87F0EA682E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				878C49FE2E2691D300DA3155 /* XCTestCase+JSONFromBundle.swift in Sources */,
 				878C49FF2E2691D300DA3155 /* SDKSettings+copy.swift in Sources */,
 				878C4A002E2691D300DA3155 /* MockDispatcher.swift in Sources */,
@@ -3427,6 +3452,7 @@
 				878C4A042E2691D300DA3155 /* MockDispatchManager.swift in Sources */,
 				878C4A052E2691D300DA3155 /* XCTAssert+BoolOptional.swift in Sources */,
 				878C4A062E2691D300DA3155 /* MockConsentManager.swift in Sources */,
+				87F0EA632E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */,
 				878C4A072E2691D300DA3155 /* MockBarrier.swift in Sources */,
 				878C4A082E2691D300DA3155 /* XCTAssert+EqualDictionaries.swift in Sources */,
 				878C4A092E2691D300DA3155 /* MockModulesRepository.swift in Sources */,
@@ -3537,6 +3563,7 @@
 				87ED26E72CE4E47D0086FFA4 /* DataLayerModuleTests.swift in Sources */,
 				87BA6D5A2C6A470C00784784 /* TealiumImplementationTests.swift in Sources */,
 				876F24FF2DDF2AD400C55FFE /* CMPConfigurationSelectorTests.swift in Sources */,
+				87F0EA672E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				87EE76E62D786C4500BB1D77 /* Condition+GreaterThanTests.swift in Sources */,
 				D54BBFEF2C78C01A003687C7 /* DispatchManager+ConsentTests.swift in Sources */,
 				87BA6D5D2C6A470C00784784 /* MockCMPIntegration.swift in Sources */,
@@ -3589,11 +3616,12 @@
 				87BA6D7D2C6A470C00784784 /* RetainCycleHelper.swift in Sources */,
 				87BA6D7E2C6A470C00784784 /* ModuleStoreProviderTests.swift in Sources */,
 				D54BBFFB2C78C01A003687C7 /* DispatchManager+QueueTests.swift in Sources */,
-				873B68802E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */,
+				873B68802E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */,
 				87C6C2512D528189008B91D8 /* SelfDestructingCompletionTests.swift in Sources */,
 				87C6C2522D528189008B91D8 /* DebouncerTests.swift in Sources */,
 				87EE76DA2D78670400BB1D77 /* Condition+IsDefinedTests.swift in Sources */,
 				87C6C2532D528189008B91D8 /* TealiumQueueTests.swift in Sources */,
+				87F0EA602E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */,
 				87C6C2542D528189008B91D8 /* DisposableItemListTests.swift in Sources */,
 				87BA6D802C6A470C00784784 /* Operators+QueuesTests.swift in Sources */,
 				EC2AF5E72DE9EAEC004AE72F /* DeviceDataModuleConfigurationTests.swift in Sources */,
@@ -3762,6 +3790,7 @@
 				87BA6DD22C6A47AF00784784 /* Operators+FilterTests.swift in Sources */,
 				877C5F6F2CBD6C99008D4B78 /* Sha256Tests.swift in Sources */,
 				876F25012DDF2AD400C55FFE /* CMPConfigurationSelectorTests.swift in Sources */,
+				87F0EA692E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				87BA6DD42C6A47AF00784784 /* ObservableTests.swift in Sources */,
 				D54BBFC42C78C01A003687C7 /* ErrorCooldownTests.swift in Sources */,
 				87BA6DD52C6A47AF00784784 /* CreateDispatches.swift in Sources */,
@@ -3814,11 +3843,12 @@
 				87BA6DF42C6A47AF00784784 /* MockInterceptor.swift in Sources */,
 				87EE77092D7879FE00BB1D77 /* Condition+NotEndsWithTests.swift in Sources */,
 				87BA6DF52C6A47AF00784784 /* XCTAssert+Errors.swift in Sources */,
-				873B68812E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */,
+				873B68812E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */,
 				87AF54732C7E389C00F1C114 /* TealiumDispatchGroupTests.swift in Sources */,
 				87BA6DF82C6A47AF00784784 /* MockNetworkHelper.swift in Sources */,
 				87EE76F12D78720000BB1D77 /* Condition+LessThanTests.swift in Sources */,
 				87EE76D52D7865D300BB1D77 /* Condition+NotEqualsTests.swift in Sources */,
+				87F0EA642E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */,
 				87BA6DF92C6A47AF00784784 /* MockQueueManager.swift in Sources */,
 				EC2AF5E82DE9EAEC004AE72F /* DeviceDataModuleConfigurationTests.swift in Sources */,
 				87BA6DFA2C6A47AF00784784 /* Operators+ResubscribingWhileTests.swift in Sources */,
@@ -3921,6 +3951,8 @@
 				EC8EF8802E1810A000DB89C5 /* MockQueueMetrics.swift in Sources */,
 				87FC087E2D94532000E1041D /* MockDispatchManager.swift in Sources */,
 				876F25062DDF2EAC00C55FFE /* SDKSettings+copy.swift in Sources */,
+				87F0EA612E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */,
+				87F0EA6B2E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				EC1AA4DF2CCFA34200D1D9D1 /* FirstLaunchTests.swift in Sources */,
 				ECBF30532DC244A4007A1A42 /* MockBundle.swift in Sources */,
 				EC454C872CF60E21000CD849 /* LaunchSleepLaunchInAMonthTests.swift in Sources */,
@@ -3942,7 +3974,7 @@
 				87A1631C2DCA079D00F6EA3F /* MockContext.swift in Sources */,
 				EC1AA4D12CCF9FEC00D1D9D1 /* MockDebouncer.swift in Sources */,
 				EC1AA4D22CCF9FEC00D1D9D1 /* XCTAssert+Errors.swift in Sources */,
-				873B68832E322CDE00DC1B4E /* MockModuleFactory.swift in Sources */,
+				873B68832E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */,
 				EC454C822CF4CDCB000CD849 /* LifecycleConfigurationTests.swift in Sources */,
 				EC1AA4D32CCF9FEC00D1D9D1 /* MockInterceptorManager.swift in Sources */,
 				EC1AA4D42CCF9FEC00D1D9D1 /* MockInterceptor.swift in Sources */,

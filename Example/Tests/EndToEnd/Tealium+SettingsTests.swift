@@ -49,7 +49,7 @@ final class TealiumSettingsTests: TealiumBaseTests {
     }
 
     func test_remote_settings_can_disable_module() {
-        config.addModule(MockDispatcher1.factory)
+        config.addModule(MockDispatcher1.factory())
         let tealiumImplInitialized = expectation(description: "Tealium implementation initialized")
         let teal = createTealium()
         teal.proxy.getProxiedObject { impl in
@@ -69,7 +69,7 @@ final class TealiumSettingsTests: TealiumBaseTests {
         client.delayBlock = { block in
             completeSettingsRequest = block
         }
-        config.addModule(MockDispatcher1.factory)
+        config.addModule(MockDispatcher1.factory())
         let tealiumImplInitialized = expectation(description: "Tealium implementation initialized")
         let modulesListUpdated = expectation(description: "Modules List Updated")
         let teal = createTealium()
@@ -100,7 +100,7 @@ final class TealiumSettingsTests: TealiumBaseTests {
         client.delayBlock = { block in
             completeSettingsRequest = block
         }
-        config.addModule(MockDispatcher2.factory)
+        config.addModule(MockDispatcher2.factory())
         let tealiumImplInitialized = expectation(description: "Tealium implementation initialized")
         let modulesListUpdated = expectation(description: "Modules List Updated")
         let teal = createTealium()
@@ -127,7 +127,7 @@ final class TealiumSettingsTests: TealiumBaseTests {
     }
 
     func test_remote_settings_can_setup_batching_barrier() {
-        config.addModule(MockDispatcher2.factory)
+        config.addModule(MockDispatcher2.factory())
         config.addBarrier(Barriers.batching(defaultScopes: []))
         let eventsAreDispatchedInSingleBatch = expectation(description: "Events dispatched in single batch")
         let teal = createTealium()
@@ -157,17 +157,17 @@ final class TealiumSettingsTests: TealiumBaseTests {
     func test_loadRules_block_collection_from_collector() {
         let eventDispatched = expectation(description: "Two events are dispatched")
         eventDispatched.expectedFulfillmentCount = 2
-        let moduleSettings = CollectorSettingsBuilder()
+        let moduleSettings = CustomCollectorSettingsBuilder()
             .setRules(.not("event_contains_blocked"))
             .build()
-        config.addModule(DefaultModuleFactory<MockCollector>(enforcedSettings: moduleSettings))
-        config.addModule(MockDispatcher2.factory)
+        config.addModule(MockCollector.factory(enforcedSettings: moduleSettings))
+        config.addModule(MockDispatcher2.factory())
         MockDispatcher.onDispatch.subscribe { dispatches in
             for dispatch in dispatches {
                 if dispatch.name == "event_blocked" {
-                    XCTAssertNil(dispatch.payload.getDataItem(key: MockCollector.id))
+                    XCTAssertNil(dispatch.payload.getDataItem(key: MockCollector.moduleType))
                 } else {
-                    XCTAssertEqual(dispatch.payload.get(key: MockCollector.id, as: String.self), "value")
+                    XCTAssertEqual(dispatch.payload.get(key: MockCollector.moduleType, as: String.self), "value")
                 }
             }
             eventDispatched.fulfill()
@@ -180,10 +180,10 @@ final class TealiumSettingsTests: TealiumBaseTests {
 
     func test_loadRules_block_events_for_dispatcher() {
         let eventDispatched = expectation(description: "An event is dispatched")
-        let moduleSettings = DispatcherSettingsBuilder()
+        let moduleSettings = CustomDispatcherSettingsBuilder()
             .setRules(.not("event_contains_blocked"))
             .build()
-        config.addModule(DefaultModuleFactory<MockDispatcher2>(enforcedSettings: moduleSettings))
+        config.addModule(MockDispatcher2.factory(enforcedSettings: moduleSettings))
         MockDispatcher.onDispatch.subscribe { dispatches in
             XCTAssertEqual(dispatches.map { $0.name }, ["event_dispatched"])
             eventDispatched.fulfill()

@@ -37,9 +37,8 @@ extension TealiumDataKey {
 
 class TimeDataModule: Collector, BasicModule {
     let version: String = TealiumConstants.libraryVersion
-    static var id = "TimeData"
-    static var canBeDisabled: Bool { true }
-    required init?(context: TealiumContext, moduleConfiguration: DataObject) {}
+    required init?(context: TealiumContext, moduleConfiguration: DataObject) { }
+    let id: String = Modules.Types.timeData
 
     func collect(_ dispatchContext: DispatchContext) -> DataObject {
         guard let timestampUnixMilliseconds = dispatchContext.initialData

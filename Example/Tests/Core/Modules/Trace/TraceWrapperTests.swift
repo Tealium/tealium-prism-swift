@@ -72,7 +72,8 @@ final class TraceWrapperTests: XCTestCase {
     func test_killVisitorSession_completes_with_moduleNotEnabled_error_when_module_disabled() {
         let errorCaught = expectation(description: "Error caught")
         manager.updateSettings(context: context(), settings: SDKSettings(modules: [
-            TraceModule.id: ModuleSettings(enabled: false)
+            TraceModule.moduleType: ModuleSettings(moduleType: TraceModule.moduleType,
+                                                   enabled: false)
         ]))
         _ = wrapper.killVisitorSession().subscribe { result in
             XCTAssertResultIsFailure(result) { error in

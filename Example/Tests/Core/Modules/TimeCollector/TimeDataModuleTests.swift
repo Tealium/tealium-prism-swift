@@ -13,7 +13,7 @@ final class TimeDataModuleTests: XCTestCase {
     // MARK: - Initialization Tests
     func test_initialization_is_successful_when_time_collector_is_created() {
         XCTAssertNotNil(timeCollector, "TimeDataModule should not be nil after initialization.")
-        XCTAssertEqual(TimeDataModule.id, "TimeData", "TimeDataModule id should be 'Time'.")
+        XCTAssertEqual(timeCollector.id, "TimeData", "TimeDataModule id should be 'Time'.")
         XCTAssertTrue(TimeDataModule.canBeDisabled, "TimeDataModule should be able to be disabled.")
     }
 

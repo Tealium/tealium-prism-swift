@@ -10,9 +10,8 @@
 import TealiumCore
 #endif
 
-public class LifecycleSettingsBuilder: CollectorSettingsBuilder {
+public class LifecycleSettingsBuilder: ModuleSettingsBuilder, CollectorSettingsBuilder {
     typealias Keys = LifecycleConfiguration.Keys
-    override init() { } // making init internal instead of public
 
     /**
      * - parameter sessionTimeoutInMinutes: If this timeout has been exceeded while the app is backgrounded, the next foreground event will be treated as a launch, rather than a wake.

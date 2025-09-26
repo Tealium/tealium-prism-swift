@@ -25,7 +25,7 @@ final class DispatchManagerConsentTests: DispatchManagerTestCase {
         consentManager = MockConsentManager()
         consentManager?.currentDecision = nil
         dispatchManager.track(Dispatch(name: "someEvent"))
-        XCTAssertNil(queueManager.inflightEvents.value[MockDispatcher1.id], "Event is not dequeued because consentManager is enabled without consent decision")
+        XCTAssertNil(queueManager.inflightEvents.value[MockDispatcher1.moduleType], "Event is not dequeued because consentManager is enabled without consent decision")
     }
 
     func test_dispatch_process_is_stopped_before_transformations_for_tealium_purpose_disabled_explicitly() {

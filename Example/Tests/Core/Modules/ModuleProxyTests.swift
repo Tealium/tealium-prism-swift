@@ -30,7 +30,8 @@ final class ModuleProxyTests: XCTestCase {
     }
 
     func settings(moduleEnabled: Bool) -> SDKSettings {
-        SDKSettings(modules: [MockModule.id: ModuleSettings(enabled: moduleEnabled)])
+        SDKSettings(modules: [ModuleWithObservable.moduleType: ModuleSettings(moduleType: ModuleWithObservable.moduleType,
+                                                                              enabled: moduleEnabled)])
     }
 
     func test_getModule_waits_for_first_manager_to_be_published_to_report_the_completion() {
@@ -58,7 +59,7 @@ final class ModuleProxyTests: XCTestCase {
 
     func test_getModule_returns_module_when_module_is_present() {
         let completed = expectation(description: "GetModule completes")
-        config.modules = [ModuleWithObservable.factory]
+        config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: SDKSettings())
         _onModulesManager.publish(manager)
@@ -72,7 +73,7 @@ final class ModuleProxyTests: XCTestCase {
 
     func test_observeModule_emits_transformed_observable_when_module_is_present() {
         let completed = expectation(description: "ObserveModule completes")
-        config.modules = [ModuleWithObservable.factory]
+        config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: SDKSettings())
         _onModulesManager.publish(manager)
@@ -89,7 +90,7 @@ final class ModuleProxyTests: XCTestCase {
 
     func test_observeModule_with_keyPath_emits_transformed_observable_when_module_is_present() {
         let completed = expectation(description: "ObserveModule completes")
-        config.modules = [ModuleWithObservable.factory]
+        config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: SDKSettings())
         _onModulesManager.publish(manager)
@@ -104,7 +105,7 @@ final class ModuleProxyTests: XCTestCase {
     func test_observeModule_doesnt_emit_transformed_observable_if_module_is_disabled() {
         let completed = expectation(description: "ObserveModule completes")
         completed.isInverted = true
-        config.modules = [ModuleWithObservable.factory]
+        config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: settings(moduleEnabled: false))
         _onModulesManager.publish(manager)
@@ -122,7 +123,7 @@ final class ModuleProxyTests: XCTestCase {
     func test_observeModule_with_keyPath_doesnt_emit_transformed_observable_if_module_is_disabled() {
         let completed = expectation(description: "ObserveModule completes")
         completed.isInverted = true
-        config.modules = [ModuleWithObservable.factory]
+        config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: settings(moduleEnabled: false))
         _onModulesManager.publish(manager)
@@ -136,7 +137,7 @@ final class ModuleProxyTests: XCTestCase {
 
     func test_observeModule_emits_transformed_observable_after_module_is_enabled() {
         let completed = expectation(description: "ObserveModule completes")
-        config.modules = [ModuleWithObservable.factory]
+        config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: settings(moduleEnabled: false))
         _onModulesManager.publish(manager)
@@ -157,7 +158,7 @@ final class ModuleProxyTests: XCTestCase {
 
     func test_observeModule_with_keyPath_emits_transformed_observable_after_module_is_enabled() {
         let completed = expectation(description: "ObserveModule completes")
-        config.modules = [ModuleWithObservable.factory]
+        config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: settings(moduleEnabled: false))
         _onModulesManager.publish(manager)
@@ -176,7 +177,7 @@ final class ModuleProxyTests: XCTestCase {
     func test_observeModule_emits_transformed_observable_everytime_module_is_enabled() {
         let completed = expectation(description: "ObserveModule completes")
         completed.expectedFulfillmentCount = 2
-        config.modules = [ModuleWithObservable.factory]
+        config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: settings(moduleEnabled: false))
         _onModulesManager.publish(manager)
@@ -202,7 +203,7 @@ final class ModuleProxyTests: XCTestCase {
     func test_observeModule_with_keyPath_emits_transformed_observable_everytime_module_is_enabled() {
         let completed = expectation(description: "ObserveModule completes")
         completed.expectedFulfillmentCount = 2
-        config.modules = [ModuleWithObservable.factory]
+        config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: settings(moduleEnabled: false))
         _onModulesManager.publish(manager)

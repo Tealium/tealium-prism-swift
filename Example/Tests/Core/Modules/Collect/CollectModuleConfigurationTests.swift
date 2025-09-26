@@ -85,7 +85,7 @@ final class CollectModuleConfigurationTests: XCTestCase {
             .setUrl("url")
             .setBatchUrl("batchUrl")
             .setOverrideProfile("overrideProfile")
-        let moduleSettings = builder.build()
+        let moduleSettings = builder.build(withModuleType: Modules.Types.collect)
             .getConvertible(converter: ModuleSettings.converter)
         let configuration = CollectModuleConfiguration(configuration: moduleSettings?.configuration)
         XCTAssertEqual(configuration?.url, URL(string: "url"))
@@ -96,7 +96,7 @@ final class CollectModuleConfigurationTests: XCTestCase {
     func test_create_configuration_from_builder_sets_overrideDomain() {
         let builder = CollectSettingsBuilder()
             .setOverrideDomain("overrideDomain")
-        let moduleSettings = builder.build()
+        let moduleSettings = builder.build(withModuleType: Modules.Types.collect)
             .getConvertible(converter: ModuleSettings.converter)
         let configuration = CollectModuleConfiguration(configuration: moduleSettings?.configuration)
         XCTAssertEqual(configuration?.url, URL(string: "https://overrideDomain/event"))

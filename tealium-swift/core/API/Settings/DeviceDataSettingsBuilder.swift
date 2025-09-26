@@ -6,9 +6,8 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-public class DeviceDataSettingsBuilder: CollectSettingsBuilder {
+public class DeviceDataSettingsBuilder: ModuleSettingsBuilder, CollectorSettingsBuilder {
     typealias Keys = DeviceDataModuleConfiguration.Keys
-    override init() {}
 
     /// Set the custom URL from where the devices list with user friendly names (basically, retail ones) is loaded.
     public func setDeviceNamesUrl(_ deviceNamesUrl: String) -> Self {

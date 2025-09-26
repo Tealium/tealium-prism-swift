@@ -21,6 +21,13 @@ func += <K, V>(left: inout [K: V], right: [K: V]) {
     }
 }
 
+public extension Dictionary {
+    @inlinable
+    init<S>(_ keysAndValues: S, prefersFirst: Bool) where S: Sequence, S.Element == (Key, Value) {
+        self.init(keysAndValues) { prefersFirst ? $0 : $1 }
+    }
+}
+
 public extension Tealium {
     static let jsonEncoder: JSONEncoder = {
         let encoder = JSONEncoder()

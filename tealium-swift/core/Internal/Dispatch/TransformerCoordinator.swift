@@ -117,25 +117,3 @@ class TransformerCoordinator: TransformerRegistry {
         transformation.id == otherTransformation.id && transformation.transformerId == otherTransformation.transformerId
     }
 }
-
-/**
- * Just an example of what a Transformer is. The javascript transformer should be generic enough as it allows for everything we could ever want to do with a transformer.
- *
- * Other transformers might be a generic class that does some speicifc transformations:
- * - like a DispatchValidator that has a blacklist of events to stop
- * - or a specific mapper transformers that takes the data tracked in the "tealium" way and sends it to a specific dispatcher with some specific changes (like the current RemoteCommands)
- * - some JSON backed API that triggers some operations like concatenations/additions/other for people that don't want to use the javascript engine but prefer some "safer" approach.
- */
-class JavascriptTransformer: Transformer {
-    let version: String = TealiumConstants.libraryVersion
-    static let id: String = "JavascriptTransformer"
-    let transformations = [String: String]() // ID : javascript code
-    init() {
-        // download a list of all possible transformations, they will later be searched by ID
-        // Transformer initialization might be async, but for the first event we will wait, and later will transform synchronously.
-    }
-
-    func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: (Dispatch?) -> Void) {
-        // run transformations[transformationId] with the dispatch
-    }
-}

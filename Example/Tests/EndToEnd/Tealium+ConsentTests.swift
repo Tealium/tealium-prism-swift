@@ -15,14 +15,14 @@ final class TealiumConsentTests: TealiumBaseTests {
     override func setUp() {
         super.setUp()
         config.modules = [
-            MockDispatcher1.factory,
-            MockDispatcher2.factory,
+            MockDispatcher1.factory(),
+            MockDispatcher2.factory(),
         ]
         config.enableConsentIntegration(with: cmp) { enforcedConfiguration in
-            enforcedConfiguration.addPurpose("1", dispatcherIds: [MockDispatcher1.id])
-                .addPurpose("2", dispatcherIds: [MockDispatcher2.id])
+            enforcedConfiguration.addPurpose("1", dispatcherIds: [MockDispatcher1.moduleType])
+                .addPurpose("2", dispatcherIds: [MockDispatcher2.moduleType])
                 .setTealiumPurposeId("3")
-                .setRefireDispatchersIds([MockDispatcher1.id])
+                .setRefireDispatchersIds([MockDispatcher1.moduleType])
         }
     }
 

@@ -1,6 +1,7 @@
 {
     "modules": {
         "localModule": {
+            "module_type": "localModule",
             "configuration": {
                 "localKey": "localValue"
             }

@@ -41,7 +41,7 @@ final class QueueManagerTests: XCTestCase {
         let deletedExpectation = expectation(description: "Deleted dispatches for processors emitted")
         XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch], enqueueingFor: modulesIds))
         queueManager.onDeletedDispatchesForProcessors.subscribeOnce { deletedSet in
-            guard deletedSet == Set(["MockDispatcher1"]) else {
+            guard deletedSet == Set([MockDispatcher1.moduleType]) else {
                 XCTFail("Unexpected deleted dispatches: \(deletedSet)")
                 return
             }

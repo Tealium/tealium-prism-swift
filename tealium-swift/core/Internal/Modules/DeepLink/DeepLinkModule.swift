@@ -10,8 +10,6 @@ import Foundation
 
 class DeepLinkModule: BasicModule, Collector {
     let version: String = TealiumConstants.libraryVersion
-    static let id: String = "DeepLink"
-
     let dataStore: DataStore
     private let tracker: Tracker
     private let modulesManager: ModulesManager
@@ -19,9 +17,11 @@ class DeepLinkModule: BasicModule, Collector {
     private let onOpenUrl: Observable<(URL, Referrer?)>?
     private let disposer = AutomaticDisposer()
     private let logger: LoggerProtocol?
+    static let moduleType: String = Modules.Types.deepLink
+    var id: String { Self.moduleType }
 
     required convenience init?(context: TealiumContext, moduleConfiguration: DataObject) {
-        guard let dataStore = try? context.moduleStoreProvider.getModuleStore(name: Self.id) else {
+        guard let dataStore = try? context.moduleStoreProvider.getModuleStore(name: Self.moduleType) else {
             return nil
         }
         var onOpenUrl: Observable<(URL, Referrer?)>?
@@ -65,7 +65,7 @@ class DeepLinkModule: BasicModule, Collector {
                 try self.handle(link: url, referrer: referrer)
             } catch {
                 // Log the error
-                self.logger?.error(category: Self.id, "Failed to handle deep link \(url.absoluteString)\nError: \(error)")
+                self.logger?.error(category: id, "Failed to handle deep link \(url.absoluteString)\nError: \(error)")
             }
         }.addTo(disposer)
     }
@@ -87,11 +87,12 @@ class DeepLinkModule: BasicModule, Collector {
         if configuration.sendDeepLinkEvent {
             tracker.track(Dispatch(name: TealiumKey.deepLink, data: dataStore.getAll()),
                           source: .module(DeepLinkModule.self)) { [weak self] result in
+                guard let self else { return }
                 switch result.status {
                 case .accepted:
-                    self?.logger?.trace(category: Self.id, "DeepLink event accepted for dispatch.")
+                    logger?.trace(category: id, "DeepLink event accepted for dispatch.")
                 case .dropped:
-                    self?.logger?.warn(category: Self.id, "Failed to send DeepLink event: dispatch was dropped.")
+                    logger?.warn(category: id, "Failed to send DeepLink event: dispatch was dropped.")
                 }
             }
         }
@@ -131,11 +132,12 @@ class DeepLinkModule: BasicModule, Collector {
         // Session can be killed without needing to leave the trace
         if queryItems.contains(where: { $0.name == TealiumKey.killVisitorSession }) {
             try trace.killVisitorSession { [weak self] result in
+                guard let self else { return }
                 switch result.status {
                 case .accepted:
-                    self?.logger?.trace(category: Self.id, "Kill Visitor Session event accepted for dispatch.")
+                    logger?.trace(category: id, "Kill Visitor Session event accepted for dispatch.")
                 case .dropped:
-                    self?.logger?.warn(category: Self.id, "Failed to kill visitor session: dispatch was dropped.")
+                    logger?.warn(category: id, "Failed to kill visitor session: dispatch was dropped.")
                 }
             }
         }

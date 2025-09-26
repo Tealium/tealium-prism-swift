@@ -87,7 +87,7 @@ final class TealiumTests: TealiumBaseTests {
 
     func test_track_arrives_to_dispatcher() {
         let dispatched = expectation(description: "The Dispatch is dispatched to the dispatcher")
-        config.addModule(DefaultModuleFactory<MockDispatcher>())
+        config.addModule(MockDispatcher.factory())
         let teal = createTealium()
         MockDispatcher.onDispatch.subscribeOnce { dispatches in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -100,10 +100,10 @@ final class TealiumTests: TealiumBaseTests {
 
     func test_track_mapped_dispatch_arrives_to_dispatcher() {
         let dispatched = expectation(description: "The Dispatch is dispatched to the dispatcher")
-        let moduleSettings = DispatcherSettingsBuilder()
+        let moduleSettings = CustomDispatcherSettingsBuilder()
             .setMappings([.from("tealium_event", to: "mapped_event")])
             .build()
-        config.addModule(DefaultModuleFactory<MockDispatcher>(enforcedSettings: moduleSettings))
+        config.addModule(MockDispatcher.factory(enforcedSettings: moduleSettings))
         let teal = createTealium()
         MockDispatcher.onDispatch.subscribeOnce { dispatches in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -117,7 +117,7 @@ final class TealiumTests: TealiumBaseTests {
 
     func test_deinit_after_track() {
         let trackCompleted = expectation(description: "The track was completed")
-        config.addModule(DefaultModuleFactory<MockDispatcher>())
+        config.addModule(MockDispatcher.factory())
         let helper = RetainCycleHelper(variable: createTealium())
         helper.strongVariable?.track("Event").subscribe { result in
             XCTAssertResultIsSuccess(result)
@@ -139,7 +139,7 @@ final class TealiumTests: TealiumBaseTests {
 
     func test_module_shutdown_on_our_queue_when_tealium_deinit() {
         let initCompleted = expectation(description: "Tealium init completed")
-        config.addModule(DefaultModuleFactory<MockDispatcher>())
+        config.addModule(MockDispatcher.factory())
         let helper = RetainCycleHelper(variable: createTealium { _ in
             initCompleted.fulfill()
         })
@@ -358,4 +358,27 @@ final class TealiumTests: TealiumBaseTests {
         disposable.dispose()
     }
 #endif
+
+    func test_second_factory_added_with_same_moduleType_is_discarded() {
+        config.addModule(MockDispatcher1.factory(allowsMultipleInstances: true,
+                                                 enforcedSettings: MultipleInstancesSettingsBuilder()
+            .setModuleId("Module1")
+            .build()))
+        config.addModule(MockDispatcher1.factory(allowsMultipleInstances: true,
+                                                 enforcedSettings: MultipleInstancesSettingsBuilder()
+            .setModuleId("Module2")
+            .build()))
+        let initializationCompleted = expectation(description: "Tealium initialization completed")
+        let teal = createTealium()
+        _ = teal.proxy.executeTask { impl in
+            let modules = impl.modulesManager.modules.value
+            XCTAssertEqual(modules.map { $0.id }, [
+                "Module1",
+                "DataLayer",
+                "TealiumData"
+            ])
+            initializationCompleted.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
 }

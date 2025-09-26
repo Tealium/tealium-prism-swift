@@ -31,7 +31,7 @@ class DispatchManagerTestCase: XCTestCase {
     let config = TealiumConfig(account: "test",
                                profile: "test",
                                environment: "dev",
-                               modules: [MockDispatcher1.factory, MockDispatcher2.factory],
+                               modules: [MockDispatcher1.factory(), MockDispatcher2.factory()],
                                settingsFile: "",
                                settingsUrl: nil)
     let databaseProvider = MockDatabaseProvider()
@@ -105,12 +105,12 @@ class DispatchManagerTestCase: XCTestCase {
 
     func disableModule<T: Module>(module: T?) {
         guard let module = module else { return }
-        _sdkSettings.add(modules: [module.id: ModuleSettings(enabled: false)])
+        _sdkSettings.add(modules: [module.id: ModuleSettings(moduleId: module.id, moduleType: module.id, enabled: false)])
         modulesManager.updateSettings(context: context, settings: sdkSettings.value)
     }
 
-    func enableModule(_ moduleId: String) {
-        _sdkSettings.add(modules: [moduleId: ModuleSettings(enabled: true)])
+    func enableModule(_ moduleType: String) {
+        _sdkSettings.add(modules: [moduleType: ModuleSettings(moduleType: moduleType, enabled: true)])
         modulesManager.updateSettings(context: context, settings: sdkSettings.value)
     }
 }

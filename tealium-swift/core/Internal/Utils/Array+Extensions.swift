@@ -44,10 +44,11 @@ extension Array {
         return (first, second)
     }
 
-    func removingDuplicates<Value: Hashable>(by keyPath: KeyPath<Element, Value>) -> Self {
+    func removingDuplicates<Value: Hashable>(by keyPath: KeyPath<Element, Value>,
+                                             and shouldBeDiscarded: (Element) -> Bool = { _ in true }) -> Self {
         var valueSet = Set<Value>()
-        return filter {
-            valueSet.insert( $0[keyPath: keyPath]).inserted
+        return filter { element in
+            valueSet.insert(element[keyPath: keyPath]).inserted || !shouldBeDiscarded(element)
         }
     }
 }

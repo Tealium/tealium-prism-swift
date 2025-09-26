@@ -12,8 +12,8 @@ import Foundation
 public protocol Module: AnyObject {
     /// The version of this module
     var version: String { get }
-    /// The unique id for this module, used to uniquely identify each module.
-    static var id: String { get }
+    /// The unique id for this module, used to uniquely identify each module instance.
+    var id: String { get }
     /// Returns true if the module is optional and can be disabled, or false otherwise. Default is true.
     static var canBeDisabled: Bool { get }
     /// Updates the configuration and, if the configuration is valid, return the same class otherwise return nil and the module is considered disabled.
@@ -22,8 +22,8 @@ public protocol Module: AnyObject {
     func shutdown()
 }
 
-/// A restricted `Module` that can be created with some default parameters.
-public protocol BasicModule: Module {
+/// A restricted `Module` that can be created with some default parameters and only allows a single instance.
+protocol BasicModule: Module {
     /**
      *  Initializes the module with a `TealiumContext` and this module's specific configuration.
      *
@@ -35,9 +35,6 @@ public protocol BasicModule: Module {
 }
 
 public extension Module {
-    var id: String {
-        type(of: self).id
-    }
     static var canBeDisabled: Bool { true }
     func updateConfiguration(_ configuration: DataObject) -> Self? {
         return self
@@ -60,7 +57,7 @@ public protocol Dispatcher: Module {
      *
      * - Parameters:
      *    - data: The `Dispatch`es that have to be sent. They will always be less then or equal to the `dispatchLimit`.
-     *    - completion: The callback that needs to be called when one or more `Dispatch`es have completed. Completed in this case means both if it succeeded, or if it failed and won't be retried. This callback can be called multiple times, but must contain each `Dispatch` exactly once. All `TealiumDisaptches` provided in the data parameter need to be passed back in the completion block at some point to allow for it to be cleared from the queue and avoid multiple dispatches of the same events.
+     *    - completion: The callback that needs to be called when one or more `Dispatch`es have completed. Completed in this case means both if it succeeded, or if it failed and won't be retried. This callback can be called multiple times, but must contain each `Dispatch` exactly once. All `Dispatch`es provided in the data parameter need to be passed back in the completion block at some point to allow for it to be cleared from the queue and avoid multiple dispatches of the same events.
      *
      * - Returns: A `Disposable` that can be used to cancel the dispatch process if still in progress.
      */

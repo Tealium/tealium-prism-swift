@@ -11,7 +11,7 @@ import XCTest
 
 final class DeepLinkModuleTests: DeepLinkBaseTests {
     func test_the_module_id_is_correct() {
-        XCTAssertNotNil(context().moduleStoreProvider.modulesRepository.getModules()[DeepLinkModule.id])
+        XCTAssertNotNil(context().moduleStoreProvider.modulesRepository.getModules()[DeepLinkModule.moduleType])
     }
 
     func test_handle_joins_trace() throws {

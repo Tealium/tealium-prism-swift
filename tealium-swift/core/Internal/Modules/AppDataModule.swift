@@ -55,9 +55,8 @@ public extension AppDataCollection {
 /// - App version: Typically a string like "1.0.0", retrieved from the `CFBundleShortVersionString` key in the app's Info.plist.
 class AppDataModule: AppDataCollection, BasicModule, Collector {
     let version: String = TealiumConstants.libraryVersion
-    static let id: String = "AppData"
-
     private let bundle: Bundle
+    let id: String = Modules.Types.appData
 
     required convenience init?(context: TealiumContext, moduleConfiguration: DataObject) {
         self.init(bundle: .main)

@@ -11,28 +11,33 @@ import Foundation
 /**
  * A `Dispatcher` that sends events to our Tealium Collect service.
  */
-class CollectModule: BasicModule, Dispatcher {
+class CollectModule: Dispatcher {
     let version: String = TealiumConstants.libraryVersion
-    static let id: String = "Collect"
+    let id: String
     let dispatchLimit = 10
     let batcher = CollectBatcher()
     let networkHelper: NetworkHelperProtocol
     let logger: LoggerProtocol?
     var configuration: CollectModuleConfiguration
 
-    /// Generic `Dispatcher` initializer called by the `ModulesManager`.
-    required convenience init?(context: TealiumContext, moduleConfiguration: DataObject) {
-        self.init(networkHelper: context.networkHelper,
+    /// Generic `Dispatcher` initializer called by the `CollectModule.Factory`.
+    required convenience init?(moduleId: String, context: TealiumContext, moduleConfiguration: DataObject) {
+        self.init(moduleId: moduleId,
+                  networkHelper: context.networkHelper,
                   configuration: CollectModuleConfiguration(configuration: moduleConfiguration,
                                                             logger: context.logger),
                   logger: context.logger)
     }
 
     /// Internal initializer called by the generic one and by the tests.
-    init?(networkHelper: NetworkHelperProtocol, configuration: CollectModuleConfiguration?, logger: LoggerProtocol?) {
+    init?(moduleId: String = Modules.Types.collect,
+          networkHelper: NetworkHelperProtocol,
+          configuration: CollectModuleConfiguration?,
+          logger: LoggerProtocol?) {
         guard let configuration else {
             return nil
         }
+        self.id = moduleId
         self.networkHelper = networkHelper
         self.configuration = configuration
         self.logger = logger

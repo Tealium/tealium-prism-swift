@@ -91,4 +91,12 @@ class SettingsManagerTestCase: XCTestCase {
         manager.startRefreshing(onActivity: onActivity.asObservable())
         return manager
     }
+
+    func buildModulesSettings(moduleType: String, additionalProperties: [String: String] = [:]) -> DataObject {
+        [
+            moduleType: additionalProperties.reduce(ModuleSettingsBuilder(), { partialResult, keyValue in
+                partialResult.setProperty(keyValue.value, key: keyValue.key)
+            }).build(withModuleType: moduleType)
+        ]
+    }
 }

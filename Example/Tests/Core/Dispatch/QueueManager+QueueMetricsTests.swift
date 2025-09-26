@@ -26,25 +26,25 @@ final class QueueManagerQueueMetricsTests: XCTestCase {
 
     override func setUp() {
         // store one dispatch for MockDispatcher1 by default
-        queueManager.storeDispatches([Dispatch(name: "event_name1")], enqueueingFor: ["MockDispatcher1"])
+        queueManager.storeDispatches([Dispatch(name: "event_name1")], enqueueingFor: [MockDispatcher1.moduleType])
     }
 
     func test_onQueueSizePendingDispatch_emits_initial_value_for_given_processor() {
-        XCTAssertObservedValueEqual(queueManager.onQueueSizePendingDispatch(for: "MockDispatcher1"), 1)
+        XCTAssertObservedValueEqual(queueManager.onQueueSizePendingDispatch(for: MockDispatcher1.moduleType), 1)
     }
 
     func test_onQueueSizePendingDispatch_emits_correct_values_for_different_processors() {
-        queueManager.storeDispatches([Dispatch(name: "event_name1"), Dispatch(name: "event_name2")], enqueueingFor: ["MockDispatcher2"])
-        XCTAssertObservedValueEqual(queueManager.onQueueSizePendingDispatch(for: "MockDispatcher1"), 1)
-        XCTAssertObservedValueEqual(queueManager.onQueueSizePendingDispatch(for: "MockDispatcher2"), 2)
+        queueManager.storeDispatches([Dispatch(name: "event_name1"), Dispatch(name: "event_name2")], enqueueingFor: [MockDispatcher2.moduleType])
+        XCTAssertObservedValueEqual(queueManager.onQueueSizePendingDispatch(for: MockDispatcher1.moduleType), 1)
+        XCTAssertObservedValueEqual(queueManager.onQueueSizePendingDispatch(for: MockDispatcher2.moduleType), 2)
     }
 
     func test_onQueueSizePendingDispatch_does_not_emit_if_queue_size_unchanged() {
         let emitted = expectation(description: "Should not emit more than once")
-        queueManager.onQueueSizePendingDispatch(for: "MockDispatcher1").subscribe { _ in
+        queueManager.onQueueSizePendingDispatch(for: MockDispatcher1.moduleType).subscribe { _ in
             emitted.fulfill()
         }.addTo(disposer)
-        queueManager.deleteDispatches(["missing_dispatch"], for: "MockDispatcher1")
+        queueManager.deleteDispatches(["missing_dispatch"], for: MockDispatcher1.moduleType)
         waitForDefaultTimeout()
     }
 }

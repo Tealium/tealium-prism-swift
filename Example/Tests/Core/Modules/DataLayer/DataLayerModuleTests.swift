@@ -25,11 +25,11 @@ final class DataLayerModuleTests: XCTestCase {
     var dataLayerModule: DataLayerModule!
 
     override func setUpWithError() throws {
-        dataLayerModule = DataLayerModule(dataStore: try storeProvider.getModuleStore(name: DataLayerModule.id))
+        dataLayerModule = DataLayerModule(dataStore: try storeProvider.getModuleStore(name: DataLayerModule.moduleType))
     }
 
     func test_the_module_id_is_correct() {
-        XCTAssertNotNil(storeProvider.modulesRepository.getModules()[DataLayerModule.id])
+        XCTAssertNotNil(storeProvider.modulesRepository.getModules()[DataLayerModule.moduleType])
     }
 
     func test_put_and_remove_single_value() throws {

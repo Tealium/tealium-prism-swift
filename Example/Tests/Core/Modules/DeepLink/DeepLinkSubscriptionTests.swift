@@ -15,7 +15,7 @@ final class DeepLinkSubscriptionTests: DeepLinkBaseTests {
 
     func test_deep_link_is_handled_by_module_when_url_is_published() throws {
         let context = context()
-        let deeplinkDataStore = try context.moduleStoreProvider.getModuleStore(name: DeepLinkModule.id)
+        let deeplinkDataStore = try context.moduleStoreProvider.getModuleStore(name: DeepLinkModule.moduleType)
         deepLink = DeepLinkModule(dataStore: deeplinkDataStore,
                                   tracker: context.tracker,
                                   modulesManager: context.modulesManager,
@@ -33,7 +33,7 @@ final class DeepLinkSubscriptionTests: DeepLinkBaseTests {
         let errorLogged = expectation(description: "Error logged")
         config.modules = [] // remove trace module so that we caught an error when trying to get trace
         let context = context()
-        let deeplinkDataStore = try context.moduleStoreProvider.getModuleStore(name: DeepLinkModule.id)
+        let deeplinkDataStore = try context.moduleStoreProvider.getModuleStore(name: DeepLinkModule.moduleType)
         manager.updateSettings(context: context, settings: SDKSettings([:]))
         let logger = MockLogger()
         deepLink = DeepLinkModule(dataStore: deeplinkDataStore,
@@ -46,7 +46,7 @@ final class DeepLinkSubscriptionTests: DeepLinkBaseTests {
         let referrer = "https://google.com"
         let link = try urlString.asUrl()
         logger.handler.onLogged.subscribeOnce { logEvent in
-            guard logEvent.level == .error, logEvent.category == DeepLinkModule.id else {
+            guard logEvent.level == .error, logEvent.category == DeepLinkModule.moduleType else {
                 XCTFail("Invalid log event")
                 return
             }

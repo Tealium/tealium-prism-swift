@@ -11,17 +11,17 @@ import Foundation
 // but won't compile for iOS < 13 on Intel machines so any is used instead
 
 public extension Modules {
-    /// The IDs for the modules
-     enum IDs {
-        static public let appData = AppDataModule.id
-        static public let collect = CollectModule.id
-        static public let dataLayer = DataLayerModule.id
-        static public let deviceData = DeviceDataModule.id
-        static public let trace = TraceModule.id
-        static public let deepLink = DeepLinkModule.id
-        static public let tealiumData = TealiumDataModule.id
-        static public let connectivityData = ConnectivityDataModule.id
-        static public let timeData = TimeDataModule.id
+    /// The Types for the modules
+     enum Types {
+         static public let appData = "AppData"
+         static public let collect = "Collect"
+         static public let dataLayer = "DataLayer"
+         static public let deviceData = "DeviceData"
+         static public let trace = "Trace"
+         static public let deepLink = "DeepLink"
+         static public let tealiumData = "TealiumData"
+         static public let connectivityData = "ConnectivityData"
+         static public let timeData = "TimeData"
     }
 }
 
@@ -37,7 +37,7 @@ public enum Modules {
 
     /// Returns a factory for creating the `AppDataModule`
     static public func appData() -> any ModuleFactory {
-        DefaultModuleFactory<AppDataModule>()
+        DefaultModuleFactory<AppDataModule>(moduleType: Modules.Types.appData)
     }
 
     /**
@@ -48,88 +48,65 @@ public enum Modules {
      *   Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the
      *   `CollectModule`, other settings will still be affected by Local and Remote settings and updates.
      */
-    static public func collect(forcingSettings block: EnforcingSettings<CollectSettingsBuilder>? = nil) -> any ModuleFactory {
-        CollectModule.Factory(forcingSettings: block)
+    static public func collect(forcingSettings blocks: EnforcingSettings<CollectSettingsBuilder>...) -> any ModuleFactory {
+        CollectModule.Factory(forcingSettings: blocks)
     }
 
     /// Returns a factory for creating the `DataLayerModule`.
     static public func dataLayer() -> any ModuleFactory {
-        DefaultModuleFactory<DataLayerModule>()
+        DefaultModuleFactory<DataLayerModule>(moduleType: Modules.Types.dataLayer)
     }
 
     /// Returns a factory for creating the `DeviceDataModule`.
     static public func deviceData(forcingSettings block: EnforcingSettings<DeviceDataSettingsBuilder>? = nil) -> any ModuleFactory {
-        DeviceDataModule.Factory(forcingSettings: block)
+        DefaultModuleFactory<DeviceDataModule>(moduleType: Modules.Types.deviceData,
+                                               enforcedSettings: block?(DeviceDataSettingsBuilder()).build())
     }
 
     /// Returns a factory for creating the `DeepLinkModule`.
     static public func deepLink(forcingSettings block: EnforcingSettings<DeepLinkSettingsBuilder>? = nil) -> any ModuleFactory {
-        DeepLinkModule.Factory(forcingSettings: block)
+        DefaultModuleFactory<DeepLinkModule>(moduleType: Modules.Types.deepLink,
+                                             enforcedSettings: block?(DeepLinkSettingsBuilder()).build())
     }
 
     /// Returns a factory for creating the `TealiumDataModule`.
     static public func tealiumData() -> any ModuleFactory {
-        DefaultModuleFactory<TealiumDataModule>()
+        DefaultModuleFactory<TealiumDataModule>(moduleType: Modules.Types.tealiumData)
     }
 
     /// Returns a factory for creating the `TimeDataModule`.
     static public func timeData() -> any ModuleFactory {
-        DefaultModuleFactory<TimeDataModule>()
+        DefaultModuleFactory<TimeDataModule>(moduleType: Modules.Types.timeData)
     }
 
     /// Returns a factory for creating the `ConnectivityDataModule`.
     static public func connectivityData() -> any ModuleFactory {
-        DefaultModuleFactory<ConnectivityDataModule>()
+        DefaultModuleFactory<ConnectivityDataModule>(moduleType: Modules.Types.connectivityData)
     }
 
     /// Returns a factory for creating the `TraceModule`.
-    static public func trace(forcingSettings block: EnforcingSettings<CollectorSettingsBuilder>? = nil) -> any ModuleFactory {
-        TraceModule.Factory(forcingSettings: block)
-    }
-
-    /**
-     * Returns a factory for creating a custom Dispatcher.
-     *
-     * - Parameters:
-     *   - module: The `TealiumBasicModule & Dispatcher` that will be created by this factory.
-     *   - enforcedSettings: The settings that will remain constant on initialization and on future settings updates for this module.
-     */
-    static public func customDispatcher<Module: BasicModule & Dispatcher>(
-        _ module: Module.Type,
-        enforcedSettings: DataObject? = nil
-    ) -> any ModuleFactory {
-        DefaultModuleFactory<Module>(enforcedSettings: enforcedSettings)
-    }
-
-    /**
-     * Returns a factory for creating a custom Collector.
-     *
-     * - Parameters:
-     *   - module: The `TealiumBasicModule & Collector` that will be created by this factory.
-     *   - enforcedSettings: The settings that will remain constant on initialization and on future settings updates for this module.
-     */
-    static public func customCollector<Module: BasicModule & Collector>(
-        _ module: Module.Type,
-        enforcedSettings: DataObject? = nil
-    ) -> any ModuleFactory {
-        DefaultModuleFactory<Module>(enforcedSettings: enforcedSettings)
+    static public func trace(forcingSettings block: EnforcingSettings<TraceSettingsBuilder>? = nil) -> any ModuleFactory {
+        DefaultModuleFactory<TraceModule>(moduleType: Modules.Types.trace,
+                                          enforcedSettings: block?(TraceSettingsBuilder()).build())
     }
 }
 
-/// A basic factory that can be reused to create modules that have no extra dependencies and don't need utility for settings builders.
-public class DefaultModuleFactory<Module: BasicModule>: ModuleFactory {
-    let enforcedSettings: DataObject?
+/// A basic factory that can be reused to create modules that have no extra dependencies and can only be initialized once.
+class DefaultModuleFactory<Module: BasicModule>: ModuleFactory {
+    let enforcedSettings: [DataObject]
+    let moduleType: String
+    let allowsMultipleInstances: Bool = false
 
-    /// - parameter enforcedSettings: The `DataObject` representation of the full `ModuleSettings` object
-    public init(enforcedSettings: DataObject? = nil) {
-        self.enforcedSettings = enforcedSettings
+    init(moduleType: String, enforcedSettings: DataObject? = nil) {
+        self.moduleType = moduleType
+        self.enforcedSettings = [enforcedSettings].compactMap { $0 }
     }
 
-    public func create(context: TealiumContext, moduleConfiguration: DataObject) -> Module? {
+    func create(moduleId: String, context: TealiumContext, moduleConfiguration: DataObject) -> Module? {
         Module(context: context, moduleConfiguration: moduleConfiguration)
     }
 
-    public func getEnforcedSettings() -> DataObject? {
+    func getEnforcedSettings() -> [DataObject] {
         enforcedSettings
     }
 }

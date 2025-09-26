@@ -10,17 +10,17 @@ import Foundation
 
 class DeviceDataModule: Collector, Transformer, BasicModule {
     let version: String = TealiumConstants.libraryVersion
-    static let id: String = "DeviceData"
-
     private let deviceDataProvider: DeviceDataProvider
     private let networkHelper: NetworkHelperProtocol
     private let logger: LoggerProtocol?
-    private let storeProvider: ModuleStoreProvider
+    private let dataStore: DataStore?
     private var resourceRefresher: ResourceRefresher<DataObject>?
     private var transformerRegistry: TransformerRegistry
     private let onModelInfo = ReplaySubject<DataObject?>()
     private let constantData: [String: DataInput]
     private let queue: TealiumQueue
+    static let moduleType: String = Modules.Types.deviceData
+    var id: String { Self.moduleType }
 
     private(set) var configuration: DeviceDataModuleConfiguration {
         didSet {
@@ -49,9 +49,9 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
         self.deviceDataProvider = deviceDataProvider
         self.configuration = configuration
         self.networkHelper = networkHelper
-        self.storeProvider = storeProvider
+        self.dataStore = try? storeProvider.getModuleStore(name: Self.moduleType)
         self.transformerRegistry = transformerRegistry
-        self.transformerRegistry.registerTransformation(TransformationSettings(id: "model-info-and-orientation", transformerId: Self.id, scopes: [.afterCollectors]))
+        self.transformerRegistry.registerTransformation(TransformationSettings(id: "model-info-and-orientation", transformerId: Self.moduleType, scopes: [.afterCollectors]))
         self.queue = queue
         self.logger = logger
         self.constantData = deviceDataProvider.constantData()
@@ -84,8 +84,8 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
         guard self.onModelInfo.last() == nil else {
             return nil
         }
-        // try get module store, on error publish nil
-        guard let dataStore = try? storeProvider.getModuleStore(name: Self.id) else {
+        // without datastore publish nil
+        guard let dataStore else {
             self.onModelInfo.publish(nil)
             return nil
         }

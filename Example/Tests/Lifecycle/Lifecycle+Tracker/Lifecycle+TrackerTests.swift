@@ -19,7 +19,7 @@ final class LifecycleTrackerTests: XCTestCase {
                                profile: "test",
                                environment: "dev",
                                modules: [
-                                MockDispatcher.factory,
+                                MockDispatcher.factory(),
                                 Modules.lifecycle(forcingSettings: { enforcedSettings in
                                     enforcedSettings.setEnabled(true)
                                 }),

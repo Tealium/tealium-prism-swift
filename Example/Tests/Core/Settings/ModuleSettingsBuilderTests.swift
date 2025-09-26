@@ -10,7 +10,7 @@
 import XCTest
 
 final class ModuleSettingsBuilderTests: XCTestCase {
-    let builder = DispatcherSettingsBuilder()
+    let builder = CustomDispatcherSettingsBuilder()
     func test_build_returns_enabled_key_when_passed() {
         XCTAssertEqual(builder.setEnabled(true).build(),
                        ["enabled": true, "configuration": DataObject()])
@@ -19,7 +19,9 @@ final class ModuleSettingsBuilderTests: XCTestCase {
     }
 
     func test_build_returns_empty_dictionary_when_enabled_not_passed() {
-        XCTAssertEqual(builder.build(), ["configuration": DataObject()])
+        XCTAssertEqual(builder.build(), [
+            "configuration": DataObject()
+        ])
     }
 
     func test_build_returns_rules_when_passed() {
@@ -55,6 +57,16 @@ final class ModuleSettingsBuilderTests: XCTestCase {
                     ]
                 ]
             ]])
+        ])
+    }
+
+    func test_build_returns_module_id_when_passed() {
+        let builder = MultipleInstancesSettingsBuilder()
+        let build = builder.setModuleId("ModuleID")
+            .build()
+        XCTAssertEqual(build, [
+            "configuration": DataObject(),
+            "module_id": "ModuleID"
         ])
     }
 }

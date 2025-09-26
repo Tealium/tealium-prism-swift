@@ -12,27 +12,21 @@ import TealiumCore
 
 extension LifecycleModule {
     class Factory: ModuleFactory {
+        let enforcedSettings: [DataObject]
+        let moduleType: String = Modules.Types.lifecycle
+        let allowsMultipleInstances: Bool = false
+        typealias SettingsBuilderBlock = Modules.EnforcingSettings<LifecycleSettingsBuilder>
 
-        private var settings: DataObject?
-
-        init(forcingSettings block: ((_ enforcedSettings: LifecycleSettingsBuilder) -> LifecycleSettingsBuilder)? = nil) {
-            settings = block?(LifecycleSettingsBuilder()).build()
+        init(forcingSettings block: SettingsBuilderBlock? = nil) {
+            self.enforcedSettings = [block?(LifecycleSettingsBuilder()).build()].compactMap { $0 }
         }
 
-        func getEnforcedSettings() -> DataObject? {
-            return settings
+        func create(moduleId: String, context: TealiumContext, moduleConfiguration: DataObject) -> LifecycleModule? {
+            LifecycleModule(context: context, moduleConfiguration: moduleConfiguration)
         }
 
-        func create(context: TealiumContext, moduleConfiguration: DataObject) -> LifecycleModule? {
-            guard let dataStore = try? context.moduleStoreProvider.getModuleStore(name: LifecycleModule.id) else {
-                return nil
-            }
-            return LifecycleModule(
-                context: context,
-                configuration: LifecycleConfiguration(configuration: moduleConfiguration),
-                service: LifecycleService(lifecycleStorage: LifecycleStorage(dataStore: dataStore),
-                                          bundle: context.config.bundle)
-            )
+        func getEnforcedSettings() -> [DataObject] {
+            return enforcedSettings
         }
     }
 }

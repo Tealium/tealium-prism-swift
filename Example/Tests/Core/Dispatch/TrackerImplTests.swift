@@ -11,8 +11,8 @@ import XCTest
 
 final class TrackerImplTests: XCTestCase {
     @StateSubject([
-        MockCollector1(),
-        MockCollector2()
+        MockCollector(moduleId: "MockCollector1"),
+        MockCollector(moduleId: "MockCollector2")
     ])
     var modules: ObservableState<[Module]>
     @StateSubject(SDKSettings())
@@ -30,8 +30,9 @@ final class TrackerImplTests: XCTestCase {
     func test_track_collects_from_all_collectors() {
         let collected = expectation(description: "Collector called")
         collected.expectedFulfillmentCount = 2
-        guard let collector1 = modules.value.compactMap({ $0 as? MockCollector1 }).first,
-                  let collector2 = modules.value.compactMap({ $0 as? MockCollector2 }).first else {
+        let collectors = modules.value.compactMap({ $0 as? MockCollector })
+        guard let collector1 = collectors.first(where: { $0.id == "MockCollector1" }),
+              let collector2 = collectors.first(where: { $0.id == "MockCollector2" }) else {
             XCTFail("Collector not found")
             return
         }
@@ -52,14 +53,17 @@ final class TrackerImplTests: XCTestCase {
         let condition = Condition.endsWith(ignoreCase: false,
                                            variable: "tealium_event",
                                            suffix: "to_drop")
+        let collectorId1 = modules.value[0].id
+        let collectorId2 = modules.value[1].id
         _sdkSettings.add(modules: [
-            MockCollector1.id: ModuleSettings(rules: "ruleId"),
-            MockCollector2.id: ModuleSettings(rules: .not("ruleId"))
+            collectorId1: ModuleSettings(moduleId: collectorId1, moduleType: MockCollector.moduleType, rules: "ruleId"),
+            collectorId2: ModuleSettings(moduleId: collectorId2, moduleType: MockCollector.moduleType, rules: .not("ruleId"))
         ], loadRules: [
             "ruleId": LoadRule(id: "ruleId", conditions: .just(condition))
         ])
-        guard let collector1 = modules.value.compactMap({ $0 as? MockCollector1 }).first,
-                  let collector2 = modules.value.compactMap({ $0 as? MockCollector2 }).first else {
+        let collectors = modules.value.compactMap({ $0 as? MockCollector })
+        guard let collector1 = collectors.first(where: { $0.id == collectorId1 }),
+                  let collector2 = collectors.first(where: { $0.id == collectorId2 }) else {
             XCTFail("Collector not found")
             return
         }
@@ -77,7 +81,7 @@ final class TrackerImplTests: XCTestCase {
         let collected = expectation(description: "Collector called")
         _modules.value = []
         tracker.track(Dispatch(name: "event"), source: .application)
-        let collector = MockCollector1()
+        let collector = MockCollector()
         _ = collector.onCollect.subscribe { _ in
             collected.fulfill()
         }
@@ -87,9 +91,11 @@ final class TrackerImplTests: XCTestCase {
 
     func test_track_dispatches_enriched_dispatch() {
         let dispatched = expectation(description: "DispatchManager called")
+        let collectorId1 = modules.value[0].id
+        let collectorId2 = modules.value[1].id
         _ = mockDispatchManager.onDispatch.subscribeOnce { newDispatch in
-            XCTAssertNotNil(newDispatch.payload.getDataItem(key: MockCollector1.id))
-            XCTAssertNotNil(newDispatch.payload.getDataItem(key: MockCollector2.id))
+            XCTAssertNotNil(newDispatch.payload.getDataItem(key: collectorId1))
+            XCTAssertNotNil(newDispatch.payload.getDataItem(key: collectorId2))
             dispatched.fulfill()
         }
         tracker.track(Dispatch(name: "event"), source: .application)
@@ -133,7 +139,7 @@ final class TrackerImplTests: XCTestCase {
             registerDispatchCalled.fulfill()
         }
         modules.value
-            .compactMap { $0 as? MockCollector1 }
+            .compactMap { $0 as? MockCollector }
             .first?.onCollect
             .subscribeOnce { _ in
                 collectionCalled.fulfill()

@@ -52,17 +52,19 @@ public struct TealiumConfig {
 
     func getEnforcedSDKSettings() -> DataObject {
         var accumulator = DataObject()
-        let modulesSettings = modules.reduce(into: [String: DataObject]()) { partialResult, factory in
-            guard let moduleEnforcedSettings = factory.getEnforcedSettings() else {
-                return
+        let modulesSettingsKeyValue: [(moduleId: String, moduleSettings: DataObject)] = modules.flatMap { factory in
+            factory.getEnforcedSettings().map { moduleSettings in
+                var moduleSettings = moduleSettings
+                moduleSettings.set(factory.moduleType, key: ModuleSettings.Keys.moduleType)
+                return (moduleSettings.get(key: ModuleSettings.Keys.moduleId) ?? factory.moduleType, moduleSettings)
             }
-            partialResult[factory.id] = moduleEnforcedSettings
         }
         // TODO: Add barriers
         if let coreSettings {
             accumulator.set(converting: coreSettings, key: SDKSettings.Keys.core)
         }
-        if !modulesSettings.isEmpty {
+        if !modulesSettingsKeyValue.isEmpty {
+            let modulesSettings = [String: DataObject](modulesSettingsKeyValue, prefersFirst: true)
             accumulator.set(converting: modulesSettings, key: SDKSettings.Keys.modules)
         }
         if !loadRules.keys.isEmpty {
@@ -78,6 +80,15 @@ public struct TealiumConfig {
         return accumulator
     }
 
+    /**
+     * Adds a `ModuleFactory` to the list of modules that need to be instantiated by the SDK.
+     *
+     * You can add a `ModuleFactory` for a specific `Module` only once. Adding two of them will result in all but the first to be discarded.
+     * Some specific `ModuleFactory`, like `Modules.collect()` can potentially instantiate more than one `Collect` module,
+     * if they are provided with multiple settings and different `Module` IDs, but the factory still only needs to be added once.
+     *
+     * - parameter module: The unique `ModuleFactory` used to create a specific type of `Module`.
+     */
     mutating public func addModule<SpecificFactory: ModuleFactory>(_ module: SpecificFactory) {
         modules.append(module)
     }

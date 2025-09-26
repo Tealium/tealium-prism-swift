@@ -34,7 +34,8 @@ class DeepLinkBaseTests: XCTestCase {
         config.modules = [Modules.trace()]
         let context = context()
         manager.updateSettings(context: context, settings: SDKSettings([:]))
-        deepLink = DeepLinkModule(context: context, moduleConfiguration: [:])
+        deepLink = DeepLinkModule(context: context,
+                                  moduleConfiguration: [:])
     }
 
     func updateSettings(_ builder: DeepLinkSettingsBuilder) {

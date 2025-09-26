@@ -24,8 +24,8 @@ class SQLModulesRepository: ModulesRepository {
             return [:]
         }
         return [String: Int64](rows.compactMap({ row in
-            return (row[ModuleSchema.name], row[ModuleSchema.id])
-        }), uniquingKeysWith: { _, second in second })
+            (row[ModuleSchema.name], row[ModuleSchema.id])
+        }), prefersFirst: false)
     }
 
     func registerModule(name: String) throws -> Int64 {

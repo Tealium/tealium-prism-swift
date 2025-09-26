@@ -13,7 +13,7 @@ extension TealiumImpl {
         config.modules = (config.modules + [
             Modules.dataLayer(),
             Modules.tealiumData()
-        ]).removingDuplicates(by: \.id)
+        ]).removingDuplicates(by: \.moduleType)
     }
 
     static func addMandatoryAndRemoveDuplicateBarriers(from config: inout TealiumConfig) {

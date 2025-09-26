@@ -15,9 +15,9 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
         let eventIsNotDispatched = expectation(description: "Event is NOT dispatched")
         eventIsNotDispatched.isInverted = true
         let dispatches = createDispatches(amount: DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
-        queueManager.storeDispatches(dispatches, enqueueingFor: [MockDispatcher1.id])
-        _ = queueManager.dequeueDispatches(for: MockDispatcher1.id, limit: nil)
-        XCTAssertEqual(queueManager.inflightEvents.value[MockDispatcher1.id]?.count, DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
+        queueManager.storeDispatches(dispatches, enqueueingFor: [MockDispatcher1.moduleType])
+        _ = queueManager.dequeueDispatches(for: MockDispatcher1.moduleType, limit: nil)
+        XCTAssertEqual(queueManager.inflightEvents.value[MockDispatcher1.moduleType]?.count, DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
         module1?.onDispatch.subscribeOnce { _ in
             eventIsNotDispatched.fulfill()
         }
@@ -29,9 +29,9 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
         let eventIsNotDispatched = expectation(description: "Event is NOT dispatched")
         eventIsNotDispatched.isInverted = true
         let dispatches = createDispatches(amount: DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
-        queueManager.storeDispatches(dispatches, enqueueingFor: [MockDispatcher1.id])
-        _ = queueManager.dequeueDispatches(for: MockDispatcher1.id, limit: nil)
-        XCTAssertEqual(queueManager.inflightEvents.value[MockDispatcher1.id]?.count, DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
+        queueManager.storeDispatches(dispatches, enqueueingFor: [MockDispatcher1.moduleType])
+        _ = queueManager.dequeueDispatches(for: MockDispatcher1.moduleType, limit: nil)
+        XCTAssertEqual(queueManager.inflightEvents.value[MockDispatcher1.moduleType]?.count, DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
         let subscription = module1?.onDispatch.subscribeOnce { _ in
             eventIsNotDispatched.fulfill()
         }
@@ -44,7 +44,7 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
             XCTAssertEqual(dispatches.first?.name, "someEvent")
             eventIsDispatched.fulfill()
         }
-        queueManager.deleteDispatches(dispatches.map { $0.id }, for: MockDispatcher1.id)
+        queueManager.deleteDispatches(dispatches.map { $0.id }, for: MockDispatcher1.moduleType)
         waitForDefaultTimeout()
     }
 

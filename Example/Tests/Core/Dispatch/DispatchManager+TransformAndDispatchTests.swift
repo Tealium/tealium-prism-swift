@@ -16,7 +16,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         let transformerDropsAnEvent = expectation(description: "Transformer drops an event")
         transformers.value = [
             MockTransformer1(transformation: { _, dispatch, scope in
-                if dispatch.name == "event_to_be_dropped", scope == .dispatcher(MockDispatcher1.id) {
+                if dispatch.name == "event_to_be_dropped", scope == .dispatcher(MockDispatcher1.moduleType) {
                     transformerDropsAnEvent.fulfill()
                     return nil
                 } else {
@@ -44,7 +44,8 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         let eventsAreDeleted = expectation(description: "Events are deleted")
         disableModule(module: module1)
         let condition = Condition.endsWith(ignoreCase: false, variable: "tealium_event", suffix: "to_keep")
-        _sdkSettings.add(modules: [MockDispatcher2.id: ModuleSettings(rules: "ruleId")],
+        _sdkSettings.add(modules: [MockDispatcher2.moduleType: ModuleSettings(moduleType: MockDispatcher2.moduleType,
+                                                                              rules: "ruleId")],
                          loadRules: ["ruleId": LoadRule(id: "ruleId", conditions: .just(condition))])
         let dispatches = [
             Dispatch(name: "event_to_be_dropped"),
@@ -78,7 +79,8 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
             })
         ]
         disableModule(module: module2)
-        _sdkSettings.add(modules: [MockDispatcher1.id: ModuleSettings(rules: "ruleId")],
+        _sdkSettings.add(modules: [MockDispatcher1.moduleType: ModuleSettings(moduleType: MockDispatcher1.moduleType,
+                                                                              rules: "ruleId")],
                          loadRules: ["ruleId": LoadRule(id: "ruleId", conditions: .just(condition))])
         let dispatches = [
             Dispatch(name: "Event")
@@ -123,7 +125,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         consentManager = MockConsentManager()
         consentManager?._onConfigurationSelected.publish(ConsentConfiguration(tealiumPurposeId: "",
                                                                               refireDispatchersIds: [],
-                                                                              purposes: ["purpose1": ConsentPurpose(purposeId: "purpose1", dispatcherIds: [MockDispatcher2.id])]))
+                                                                              purposes: ["purpose1": ConsentPurpose(purposeId: "purpose1", dispatcherIds: [MockDispatcher2.moduleType])]))
         disableModule(module: module1)
         let dispatches = [
             Dispatch(name: "event_to_be_sent", data: [TealiumDataKey.allConsentedPurposes: ["purpose1"]]),
@@ -159,10 +161,11 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
             eventDispatched.fulfill()
         }
         queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
-        _ = queueManager.onInflightDispatchesCount(for: MockDispatcher2.id).subscribe { count in
-            XCTAssertEqual(count, 0)
-            eventsNotDequeued.fulfill()
-        }
+        _ = queueManager.onInflightDispatchesCount(for: MockDispatcher2.moduleType)
+            .subscribe { count in
+                XCTAssertEqual(count, 0)
+                eventsNotDequeued.fulfill()
+            }
         _ = queueManager.onDeleteRequest.subscribe { _, _ in
             eventsAreDeleted.fulfill()
         }

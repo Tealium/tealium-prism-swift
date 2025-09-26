@@ -168,7 +168,7 @@ final class TealiumCollectTests: TealiumBaseTests {
 
     func test_collect_sends_transformed_event() {
         config.addModule(Modules.collect())
-        config.addModule(MockModuleFactory(module: MockTransformer(transformation: { _, dispatch, _ in
+        config.addModule(StubModuleFactory(module: MockTransformer(transformation: { _, dispatch, _ in
             Dispatch(payload: [
                 "tealium_account": dispatch.payload.getDataItem(key: "tealium_account"),
                 "tealium_profile": dispatch.payload.getDataItem(key: "tealium_profile"),
@@ -178,7 +178,7 @@ final class TealiumCollectTests: TealiumBaseTests {
             ], id: dispatch.id, timestamp: 0)
         })))
         config.setTransformation(TransformationSettings(id: "transformation",
-                                                        transformerId: MockTransformer.id,
+                                                        transformerId: MockTransformer.moduleType,
                                                         scopes: [.allDispatchers]))
         let httpRequestSent = expectation(description: "Http Request is sent")
         client.requestDidSend = { request in
@@ -234,5 +234,55 @@ final class TealiumCollectTests: TealiumBaseTests {
         teal?.track("Event2")
         waitForDispatchQueueToBeEmpty()
         waitOnQueue(queue: queue, expectations: [secondHttpRequestSent], timeout: Self.longTimeout)
+    }
+
+    func test_collect_initializes_multiple_times_with_different_ids() {
+        config.addModule(Modules.collect(forcingSettings: { enforcedSettings in
+            enforcedSettings
+                .setUrl("Url1")
+                .setOrder(0)
+        }, { enforcedSettings in
+            enforcedSettings
+                .setModuleId("Collect2")
+                .setUrl("Url2")
+                .setOrder(1)
+        }))
+        let initializationCompleted = expectation(description: "Tealium initialization completed")
+        let teal = createTealium()
+        _ = teal.proxy.executeTask { impl in
+            let modules = impl.modulesManager.modules.value
+            XCTAssertEqual(modules.map { $0.id }, [
+                "Collect",
+                "Collect2",
+                "DataLayer",
+                "TealiumData"
+            ])
+            initializationCompleted.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_collect_does_not_initialize_multiple_times_if_using_same_moduleId() {
+        config.addModule(Modules.collect(forcingSettings: { enforcedSettings in
+            enforcedSettings
+                .setUrl("Url1")
+                .setOrder(0)
+        }, { enforcedSettings in
+            enforcedSettings
+                .setUrl("Url2")
+                .setOrder(1)
+        }))
+        let initializationCompleted = expectation(description: "Tealium initialization completed")
+        let teal = createTealium()
+        _ = teal.proxy.executeTask { impl in
+            let modules = impl.modulesManager.modules.value
+            XCTAssertEqual(modules.map { $0.id }, [
+                "Collect",
+                "DataLayer",
+                "TealiumData"
+            ])
+            initializationCompleted.fulfill()
+        }
+        waitForDefaultTimeout()
     }
 }

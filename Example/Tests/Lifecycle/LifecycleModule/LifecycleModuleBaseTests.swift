@@ -22,7 +22,7 @@ class LifecycleModuleBaseTests: XCTestCase {
     let autoDisposer = AutomaticDisposer()
 
     override func setUpWithError() throws {
-        let dataStore = try dataStoreProvider.getModuleStore(name: LifecycleModule.id)
+        let dataStore = try dataStoreProvider.getModuleStore(name: LifecycleModule.moduleType)
         module = LifecycleModule(tracker: tracker,
                                  onApplicationStatus: applicationStatus,
                                  configuration: configuration,

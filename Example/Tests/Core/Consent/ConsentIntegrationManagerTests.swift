@@ -11,7 +11,7 @@ import XCTest
 
 class ConsentIntegrationManagerBaseTests: XCTestCase {
     let databaseProvider = MockDatabaseProvider()
-    let allDispatchers = [MockDispatcher1(), MockDispatcher2()]
+    let allDispatchers = [MockDispatcher1(moduleId: MockDispatcher1.moduleType), MockDispatcher2(moduleId: MockDispatcher2.moduleType)]
     var allDispatchersIds: [String] {
         allDispatchers.map { $0.id }
     }
@@ -138,7 +138,7 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
             Dispatch(name: "event2"),
             Dispatch(name: "event3")
         ]
-        let refireDispatchers = ["dispatcher1", "dispatcher2"]
+        let refireDispatchers = [MockDispatcher1.moduleType, MockDispatcher2.moduleType]
         _ = queueManager.onStoreRequest
             .subscribe { storedDispatches, storingDispatchers in
                 XCTAssertEqual(storedDispatches.map { $0.id },

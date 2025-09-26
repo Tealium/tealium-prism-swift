@@ -107,7 +107,7 @@ class TealiumImpl {
         visitorIdProvider = VisitorIdProvider(config: config,
                                               visitorDataStore: try storeProvider.getModuleStore(name: "visitor"),
                                               logger: logger)
-        let dataLayerStore = try storeProvider.getModuleStore(name: DataLayerModule.id)
+        let dataLayerStore = try storeProvider.getModuleStore(name: Modules.Types.dataLayer)
         VisitorSwitcher.handleIdentitySwitches(visitorIdProvider: visitorIdProvider,
                                                onCoreSettings: coreSettings,
                                                dataLayerStore: dataLayerStore).addTo(automaticDisposer)

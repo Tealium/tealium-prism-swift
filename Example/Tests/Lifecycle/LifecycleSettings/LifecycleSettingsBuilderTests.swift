@@ -12,7 +12,9 @@ import XCTest
 final class LifecycleSettingsBuilderTests: XCTestCase {
     func test_build_without_setters_returns_empty_configuration() {
         let settings = LifecycleSettingsBuilder().build()
-        XCTAssertEqual(settings, ["configuration": DataObject()])
+        XCTAssertEqual(settings, [
+            "configuration": DataObject()
+        ])
     }
 
     func test_build_returns_correct_module_settings() throws {

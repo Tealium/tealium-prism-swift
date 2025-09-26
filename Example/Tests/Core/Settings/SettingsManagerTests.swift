@@ -11,65 +11,77 @@ import XCTest
 
 final class SettingsManagerTests: SettingsManagerTestCase {
 
+    func addMockDispatcher() {
+        config.addModule(MockDispatcher.factory(enforcedSettings: ModuleSettingsBuilder()
+            .setProperty("value", key: "key")
+            .build()))
+    }
+
     func test_init_fills_current_settings_with_programmatic() throws {
-        config.addModule(Modules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
+        addMockDispatcher()
         let manager = try getManager()
         let settings = manager.settings.value
-        XCTAssertEqual(settings.modules[MockDispatcher.id]?.configuration, ["key": "value"])
+        XCTAssertEqual(settings.modules[MockDispatcher.moduleType]?.configuration, ["key": "value"])
     }
 
     func test_init_fills_current_settings_with_local_and_programmatic() throws {
-        config.addModule(Modules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
+        addMockDispatcher()
         let manager = try setupForLocal()
         let settings = manager.settings.value
-        XCTAssertEqual(settings.modules[MockDispatcher.id]?.configuration, ["key": "value"])
+        XCTAssertEqual(settings.modules[MockDispatcher.moduleType]?.configuration, ["key": "value"])
         XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
     }
 
     func test_init_fills_current_settings_with_local_cached_and_programmatic() throws {
-        config.addModule(Modules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
+        addMockDispatcher()
         let cacher = try createCacher()
-        try cacher.saveResource(["modules": ["cached": ["configuration": ["key": "value"]]]],
-                                etag: nil)
+        try cacher.saveResource([
+            "modules": buildModulesSettings(moduleType: "cached",
+                                            additionalProperties: ["key": "value"])
+        ], etag: nil)
         let manager = try setupForLocal(url: "someUrl")
         let settings = manager.settings.value
-        XCTAssertEqual(settings.modules[MockDispatcher.id]?.configuration, ["key": "value"])
+        XCTAssertEqual(settings.modules[MockDispatcher.moduleType]?.configuration, ["key": "value"])
         XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
         XCTAssertEqual(settings.modules["cached"]?.configuration, ["key": "value"])
     }
 
     func test_init_without_url_fills_current_settings_with_local_and_programmatic() throws {
-        config.addModule(Modules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
+        addMockDispatcher()
         let cacher = try createCacher()
-        try cacher.saveResource(["modules": ["cached": ["configuration": ["key": "value"]]]],
+        try cacher.saveResource(["modules": buildModulesSettings(moduleType: "cached",
+                                                                 additionalProperties: ["key": "value"])],
                                 etag: nil)
         let manager = try setupForLocal()
         let settings = manager.settings.value
-        XCTAssertEqual(settings.modules[MockDispatcher.id]?.configuration, ["key": "value"])
+        XCTAssertEqual(settings.modules[MockDispatcher.moduleType]?.configuration, ["key": "value"])
         XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
     }
 
     func test_refresh_fills_merged_settings_with_local_remote_and_programmatic() throws {
-        config.addModule(Modules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
-        let manager = try setupForLocalAndRemote(codableResult: .success(.successful(object: DataObject(dictionary: ["modules": ["remote": ["configuration": ["key": "value"]]]]))))
+        addMockDispatcher()
+        let remoteResponse = DataObject(dictionary: [
+            "modules": buildModulesSettings(moduleType: "remote",
+                                            additionalProperties: ["key": "value"])])
+        let manager = try setupForLocalAndRemote(codableResult: .success(.successful(object: remoteResponse)))
         let settings = manager.settings.value
-        XCTAssertEqual(settings.modules[MockDispatcher.id]?.configuration, ["key": "value"])
+        XCTAssertEqual(settings.modules[MockDispatcher.moduleType]?.configuration, ["key": "value"])
         XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
         XCTAssertEqual(settings.modules["remote"]?.configuration, ["key": "value"])
     }
 
     func test_failed_refresh_doesnt_fill_merged_settings_with_remote() throws {
-        config.addModule(Modules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
+        addMockDispatcher()
         let manager = try setupForLocalAndRemote(codableResult: .failure(.non200Status(404)))
         let settings = manager.settings.value
-        XCTAssertEqual(settings.modules[MockDispatcher.id]?.configuration, ["key": "value"])
+        XCTAssertEqual(settings.modules[MockDispatcher.moduleType]?.configuration, ["key": "value"])
         XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
     }
 
     func test_onNewSettingsMerged_doesnt_publish_merged_settings_without_remote_refresh() throws {
         let settingsRefreshed = expectation(description: "Settings should not be refreshed")
         settingsRefreshed.isInverted = true
-        config.addModule(Modules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
+        addMockDispatcher()
         let manager = try setupForLocal(url: "someUrl")
         guard let refresher = manager.resourceRefresher else {
             XCTFail("Refresher unexpectedly found nil")
@@ -84,8 +96,11 @@ final class SettingsManagerTests: SettingsManagerTestCase {
 
     func test_onNewSettingsMerged_publishes_merged_settings_on_remote_refresh() throws {
         let settingsRefreshed = expectation(description: "Settings are refreshed")
-        config.addModule(Modules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
-        networkHelper.codableResult = .success(.successful(object: DataObject(dictionary: ["modules": ["remote": ["configuration": ["key": "value"]]]])))
+        addMockDispatcher()
+        networkHelper.codableResult = .success(.successful(object: DataObject(dictionary: [
+            "modules": buildModulesSettings(moduleType: "remote",
+                                            additionalProperties: ["key": "value"])
+        ])))
         let manager = try setupForLocal(url: "someUrl")
         guard let refresher = manager.resourceRefresher else {
             XCTFail("Refresher unexpectedly found nil")
@@ -93,14 +108,16 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         }
         let localRule = try localRules()
         let localTransformation = try self.localTransformation()
+        let expectedModules = buildModulesSettings(moduleType: MockDispatcher.moduleType,
+                                                   additionalProperties: ["key": "value"]) // Programmatic settings
+        + buildModulesSettings(moduleType: "localModule",
+                               additionalProperties: ["localKey": "localValue"]) // Local file settings
+        + buildModulesSettings(moduleType: "remote",
+                               additionalProperties: ["key": "value"]) // Remote settings
         _ = manager.onNewSettingsMerged(resourceRefresher: refresher)
             .subscribe { settings in
                 XCTAssertEqual(settings, [
-                    "modules": [
-                        MockDispatcher.id: ["configuration": ["key": "value"]], // Programmatic settings
-                        "localModule": ["configuration": ["localKey": "localValue"]], // Local file settings
-                        "remote": ["configuration": ["key": "value"]] // Remote settings
-                    ],
+                    "modules": expectedModules,
                     "load_rules": [
                         "localRule": localRule
                     ],
@@ -117,7 +134,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
     func test_onNewSettingsMerged_doesnt_publish_merged_settings_on_failed_remote_refresh() throws {
         let settingsRefreshed = expectation(description: "Settings should not be refreshed")
         settingsRefreshed.isInverted = true
-        config.addModule(Modules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
+        addMockDispatcher()
         let manager = try setupForLocalAndRemote(codableResult: .failure(.non200Status(404)))
         guard let refresher = manager.resourceRefresher else {
             XCTFail("Refresher unexpectedly found nil")
@@ -133,7 +150,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
     func test_onNewRefreshInterval_publishes_new_interval_when_it_changes() throws {
         let refreshIntervalUpdated = expectation(description: "RefreshInterval is updated")
         refreshIntervalUpdated.expectedFulfillmentCount = 2
-        config.addModule(Modules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
+        addMockDispatcher()
         networkHelper.codableResult = .success(.successful(object: DataObject(dictionary: [CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: Double(100)]])))
         let manager = try setupForLocal(url: "someUrl")
         var firstInterval = true
@@ -152,7 +169,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
 
     func test_onNewRefreshInterval_doesnt_publish_new_interval_when_it_doesnt_change() throws {
         let refreshIntervalUpdated = expectation(description: "RefreshInterval is updated only once")
-        config.addModule(Modules.customDispatcher(MockDispatcher.self, enforcedSettings: ["configuration": ["key": "value"]]))
+        addMockDispatcher()
         let manager = try setupForLocal(url: "someUrl")
         let sdkSettings: DataObject = ["modules": [
             CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: CoreSettings.Defaults.refreshInterval.inSeconds()]
@@ -189,14 +206,13 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_loadLocalSettings_returns_bundled_settings() {
+    func test_loadLocalSettings_returns_bundled_settings() throws {
         config.bundle = Bundle(for: type(of: self))
         let localSettings = SettingsManager.loadLocalSettings(config: config)
         XCTAssertNotNil(localSettings)
         XCTAssertEqual(localSettings, [
-            "modules": [
-                "localModule": ["configuration": ["localKey": "localValue"]]
-            ],
+            "modules": buildModulesSettings(moduleType: "localModule",
+                                            additionalProperties: ["localKey": "localValue"]),
             "load_rules": [
                 "localRule": try localRules()
             ],
@@ -210,10 +226,8 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         let settingsUpdatedOnlyOnce = expectation(description: "Settings are updated only at init and on one refresh even if we start refreshing multiple times")
         settingsUpdatedOnlyOnce.expectedFulfillmentCount = 2
         let settings: DataObject = [
-            "modules": [
-                CoreSettings.id: [
-                    "configuration": [CoreSettings.Keys.refreshIntervalSeconds: Double(0)]
-                ]
+            CoreSettings.id: [
+                "configuration": [CoreSettings.Keys.refreshIntervalSeconds: Double(0)]
             ]
         ]
         networkHelper.codableResult = .success(.successful(object: settings))
@@ -222,7 +236,11 @@ final class SettingsManagerTests: SettingsManagerTestCase {
             settingsUpdatedOnlyOnce.fulfill()
         }
         func newSettings(count: Int) -> DataObject {
-            SettingsManager.merge(orderedSettings: [settings, ["modules": ["remote": ["configuration": ["key": count]]]]])
+            SettingsManager.merge(orderedSettings: [settings, [
+                "modules": buildModulesSettings(moduleType: "remote",
+                                                additionalProperties: ["key": "value"])
+
+                    ]])
         }
         for count in 0..<3 {
             networkHelper.codableResult = .success(.successful(object: newSettings(count: count)))

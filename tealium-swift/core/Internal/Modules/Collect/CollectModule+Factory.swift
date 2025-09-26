@@ -9,9 +9,25 @@
 import Foundation
 
 extension CollectModule {
-    class Factory: DefaultModuleFactory<CollectModule> {
-        init(forcingSettings block: ((_ enforcedSettings: CollectSettingsBuilder) -> CollectSettingsBuilder)? = nil) {
-            super.init(enforcedSettings: block?(CollectSettingsBuilder()).build())
+
+    class Factory: ModuleFactory {
+        let allowsMultipleInstances: Bool = true
+        let moduleType: String = Modules.Types.collect
+
+        typealias Module = CollectModule
+        let enforcedSettings: [DataObject]
+        typealias SettingsBuilderBlock = Modules.EnforcingSettings<CollectSettingsBuilder>
+
+        init(forcingSettings blocks: [SettingsBuilderBlock] = []) {
+            self.enforcedSettings = blocks.map { block in block(CollectSettingsBuilder()).build() }
+        }
+
+        public func create(moduleId: String, context: TealiumContext, moduleConfiguration: DataObject) -> Module? {
+            Module(moduleId: moduleId, context: context, moduleConfiguration: moduleConfiguration)
+        }
+
+        public func getEnforcedSettings() -> [DataObject] {
+            enforcedSettings
         }
     }
 }

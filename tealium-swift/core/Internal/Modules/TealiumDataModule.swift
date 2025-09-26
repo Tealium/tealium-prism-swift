@@ -10,10 +10,10 @@ import Foundation
 
 class TealiumDataModule: BasicModule, Collector {
     let version: String = TealiumConstants.libraryVersion
-    static var canBeDisabled: Bool { false }
-    static let id: String = "TealiumData"
+    static let canBeDisabled: Bool = false
     let context: TealiumContext
     private let baseData: DataObject
+    let id: String = Modules.Types.tealiumData
 
     /// - Returns: `String` format of random 16 digit number
     private var random: String {

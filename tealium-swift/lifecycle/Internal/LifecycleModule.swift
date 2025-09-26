@@ -13,8 +13,6 @@ import TealiumCore
 
 class LifecycleModule {
     let version: String = TealiumConstants.libraryVersion
-    static let id: String = "Lifecycle"
-
     private var configuration: LifecycleConfiguration
     internal let lifecycleService: LifecycleService
 
@@ -29,6 +27,22 @@ class LifecycleModule {
         configuration.sessionTimeoutInMinutes <= LifecycleConstants.infiniteSession
     }
 
+    static let moduleType: String = Modules.Types.lifecycle
+    var id: String { Self.moduleType }
+
+    required convenience init?(context: TealiumContext,
+                               moduleConfiguration: DataObject) {
+        guard let dataStore = try? context.moduleStoreProvider.getModuleStore(name: Self.moduleType) else {
+            return nil
+        }
+        self.init(
+            context: context,
+            configuration: LifecycleConfiguration(configuration: moduleConfiguration),
+            service: LifecycleService(lifecycleStorage: LifecycleStorage(dataStore: dataStore),
+                                      bundle: context.config.bundle)
+        )
+    }
+
     convenience init(context: TealiumContext, configuration: LifecycleConfiguration, service: LifecycleService) {
         self.init(tracker: context.tracker,
                   onApplicationStatus: context.activityListener.onApplicationStatus,
@@ -37,7 +51,11 @@ class LifecycleModule {
                   logger: context.logger)
     }
 
-    init(tracker: Tracker, onApplicationStatus: Observable<ApplicationStatus>, configuration: LifecycleConfiguration, service: LifecycleService, logger: LoggerProtocol?) {
+    init(tracker: Tracker,
+         onApplicationStatus: Observable<ApplicationStatus>,
+         configuration: LifecycleConfiguration,
+         service: LifecycleService,
+         logger: LoggerProtocol?) {
         self.tracker = tracker
         self.configuration = configuration
         self.lifecycleService = service
@@ -213,11 +231,7 @@ class LifecycleModule {
     }
 
     private func isExpiredSession(timeElapsed: Int64) -> Bool {
-        return timeElapsed > minutesToMillis(minutes: configuration.sessionTimeoutInMinutes)
-    }
-
-    private func minutesToMillis(minutes: Int) -> Int64 {
-        return Int64(minutes * 60 * 1000)
+        return timeElapsed > configuration.sessionTimeoutInMinutes.minutes.inMilliseconds()
     }
 }
 

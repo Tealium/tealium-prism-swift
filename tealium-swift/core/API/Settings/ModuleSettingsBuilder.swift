@@ -24,15 +24,39 @@ open class ModuleSettingsBuilder {
         return self
     }
 
+    /// Set the order in which the `Module` needs to be initialized.
+    public func setOrder(_ order: Int) -> Self {
+        _dataObject.set(order, key: Keys.order)
+        return self
+    }
+
     /// - Returns: the `DataObject` representing the `ModuleSettings` object.
     public func build() -> DataObject {
-        _dataObject.set(converting: _configurationObject, key: ModuleSettings.Keys.configuration)
+        _dataObject.set(converting: _configurationObject, key: Keys.configuration)
         return _dataObject
     }
 }
 
-/// A builder for Collector Settings which adds the possibility to set `Rule`s.
-open class CollectorSettingsBuilder: ModuleSettingsBuilder {
+/// A settings builder for a module that supports multiple instances.
+public protocol MultipleInstancesModuleSettingsBuilder {
+    /**
+     * Set the `moduleId`. If you don't set it, `Module.moduleType` will be used later as a default.
+     *
+     * The module ID must be unique among all the modules provided in a single `Tealium` instance.
+     * When configuring a module multiple times with different settings, make sure to set a unique ID to each one other than the first to avoid clashing.
+     */
+    func setModuleId(_ moduleId: String) -> Self
+}
+
+public extension MultipleInstancesModuleSettingsBuilder where Self: ModuleSettingsBuilder {
+    func setModuleId(_ moduleId: String) -> Self {
+        _dataObject.set(moduleId, key: Keys.moduleId)
+        return self
+    }
+}
+
+/// A settings builder that can be updated with a specific `Rule<String>`.
+public protocol RuleModuleSettingsBuilder {
     /**
      * Set the rules that this module needs to match to collect or dispatch an event.
      *
@@ -42,27 +66,20 @@ open class CollectorSettingsBuilder: ModuleSettingsBuilder {
      *
      * - parameter rules: A `Rule` of `LoadRule` IDs, composed by AND, OR and NOT.
      */
-    public func setRules(_ rules: Rule<String>) -> Self {
+    func setRules(_ rules: Rule<String>) -> Self
+}
+
+public extension RuleModuleSettingsBuilder where Self: ModuleSettingsBuilder {
+    func setRules(_ rules: Rule<String>) -> Self {
         _dataObject.set(converting: rules, key: Keys.rules)
         return self
     }
 }
 
+public typealias CollectorSettingsBuilder = RuleModuleSettingsBuilder
+
 /// A builder for Dispatcher Settings which adds the possibility to set `Rule`s and `JSONOperation<MappingParameters>`.
-open class DispatcherSettingsBuilder: ModuleSettingsBuilder {
-    /**
-     * Set the rules that this module needs to match to collect or dispatch an event.
-     *
-     * The `String`s contained in the `Rule` correspond to a `LoadRule` ID
-     * and will be used to lookup for those `LoadRule`s as defined in the `SDKSettings`
-     * and then apply them according to the `Rule` specified as the method's parameter.
-     *
-     * - parameter rules: A `Rule` of `LoadRule` IDs, composed by AND, OR and NOT.
-     */
-    public func setRules(_ rules: Rule<String>) -> Self {
-        _dataObject.set(converting: rules, key: Keys.rules)
-        return self
-    }
+public protocol DispatcherSettingsBuilder: RuleModuleSettingsBuilder {
 
     /**
      * Set the mappings for this module.
@@ -92,7 +109,11 @@ open class DispatcherSettingsBuilder: ModuleSettingsBuilder {
      * ```
      * - parameter mappings: A list of `Mapping`s to be applied to each `Dispatch` before sending it to the `Dispatcher`.
      */
-    public func setMappings(_ mappings: [Mappings]) -> Self {
+    func setMappings(_ mappings: [Mappings]) -> Self
+}
+
+public extension DispatcherSettingsBuilder where Self: ModuleSettingsBuilder {
+    func setMappings(_ mappings: [Mappings]) -> Self {
         _dataObject.set(converting: mappings.map { $0.build() }, key: Keys.mappings)
         return self
     }

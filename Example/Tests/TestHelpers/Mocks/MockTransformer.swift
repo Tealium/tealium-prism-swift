@@ -10,23 +10,43 @@ import Foundation
 import TealiumSwift
 
 class MockTransformer1: MockTransformer {
-    class override var id: String { "transformer1" }
+    class override var moduleType: String { "transformer1" }
+    override init(moduleId: String = MockTransformer1.moduleType,
+                  transformation: @escaping TransformationBlock = { _, dispatch, _ in dispatch },
+                  delay milliseconds: Int? = nil) {
+        super.init(moduleId: moduleId, transformation: transformation, delay: milliseconds)
+    }
 }
 class MockTransformer2: MockTransformer {
-    class override var id: String { "transformer2" }
+    class override var moduleType: String { "transformer2" }
+    override init(moduleId: String = MockTransformer2.moduleType,
+                  transformation: @escaping TransformationBlock = { _, dispatch, _ in dispatch },
+                  delay milliseconds: Int? = nil) {
+        super.init(moduleId: moduleId, transformation: transformation, delay: milliseconds)
+    }
 }
 class MockTransformer3: MockTransformer {
-    class override var id: String { "transformer3" }
+    class override var moduleType: String { "transformer3" }
+    override init(moduleId: String = MockTransformer3.moduleType,
+                  transformation: @escaping TransformationBlock = { _, dispatch, _ in dispatch },
+                  delay milliseconds: Int? = nil) {
+        super.init(moduleId: moduleId, transformation: transformation, delay: milliseconds)
+    }
 }
 
 class MockTransformer: Transformer {
+    static var allowsMultipleInstances: Bool = true
     let version: String = TealiumConstants.libraryVersion
-    class var id: String { "MockTransformer" }
+    class var moduleType: String { "MockTransformer" }
+    let id: String
     typealias TransformationBlock = (TransformationSettings, Dispatch, DispatchScope) -> Dispatch?
     var transformation: TransformationBlock
     var delay: Int?
     var queue = DispatchQueue.main
-    init(transformation: @escaping TransformationBlock = { _, dispatch, _ in dispatch }, delay milliseconds: Int? = nil) {
+    init(moduleId: String = MockTransformer.moduleType,
+         transformation: @escaping TransformationBlock = { _, dispatch, _ in dispatch },
+         delay milliseconds: Int? = nil) {
+        self.id = moduleId
         self.transformation = transformation
         self.delay = milliseconds
     }

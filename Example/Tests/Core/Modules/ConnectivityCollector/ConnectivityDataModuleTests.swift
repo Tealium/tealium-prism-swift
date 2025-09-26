@@ -17,7 +17,7 @@ final class ConnectivityDataModuleTests: XCTestCase {
     // MARK: - Initialization Tests
     func test_initialization_is_successful_when_connectivity_collector_is_created() {
         XCTAssertNotNil(connectivityCollector, "ConnectivityDataModule should not be nil after initialization.")
-        XCTAssertEqual(ConnectivityDataModule.id, "ConnectivityData", "ConnectivityDataModule id should be 'ConnectivityData'.")
+        XCTAssertEqual(connectivityCollector.id, "ConnectivityData", "ConnectivityDataModule id should be 'ConnectivityData'.")
         XCTAssertTrue(ConnectivityDataModule.canBeDisabled, "ConnectivityDataModule should be able to be disabled.")
     }
 

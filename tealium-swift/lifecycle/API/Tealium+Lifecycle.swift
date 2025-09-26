@@ -17,7 +17,7 @@ public extension Modules {
      * - Parameters:
      *   - block: A block with a utility builder that can be used to enforce some of the `LifecycleSettings` instead of relying on Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `LifecycleModule`, other settings will still be affected by Local and Remote settings and updates.
      */
-    static func lifecycle(forcingSettings block: ((_ enforcedSettings: LifecycleSettingsBuilder) -> LifecycleSettingsBuilder)? = nil) -> any ModuleFactory {
+    static func lifecycle(forcingSettings block: EnforcingSettings<LifecycleSettingsBuilder>? = nil) -> any ModuleFactory {
         LifecycleModule.Factory(forcingSettings: block)
     }
 }

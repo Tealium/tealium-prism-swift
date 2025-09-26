@@ -32,7 +32,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
 
     func test_the_module_id_is_correct() {
         _ = deviceDataCollector
-        XCTAssertNotNil(context.moduleStoreProvider.modulesRepository.getModules()[DeviceDataModule.id])
+        XCTAssertNotNil(context.moduleStoreProvider.modulesRepository.getModules()[DeviceDataModule.moduleType])
     }
 
     func test_collect_returns_constant_data_plus_track_time_data_without_memory_usage_by_default() {
@@ -71,7 +71,9 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
     func test_applyTransformation_enriches_dispatch_with_model_info_and_orientation() {
         let transformationExpectation = expectation(description: "Transformation completed")
         let dispatch = Dispatch(name: "test_event", data: [:])
-        let transformation = TransformationSettings(id: "model-info", transformerId: DeviceDataModule.id, scopes: [.afterCollectors])
+        let transformation = TransformationSettings(id: "model-info",
+                                                    transformerId: DeviceDataModule.moduleType,
+                                                    scopes: [.afterCollectors])
         networkHelper.codableResult = ObjectResult.success(.successful(object: (modelsDataObject)))
         deviceDataCollector.applyTransformation(transformation, to: dispatch, scope: .afterCollectors) { result in
             guard let result else {
@@ -96,7 +98,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
     }
 
     func test_saveModelInfo_saves_data_to_store() throws {
-        let dataStore = try context.moduleStoreProvider.getModuleStore(name: DeviceDataModule.id)
+        let dataStore = try context.moduleStoreProvider.getModuleStore(name: DeviceDataModule.moduleType)
         let modelInfo: DataObject = [
             DeviceDataKey.deviceType: "iPhone14,3",
             DeviceDataKey.deviceModel: "iPhone 13 Pro Max",
@@ -120,7 +122,8 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
             DeviceDataModuleConfiguration.Keys.memoryReportingEnabled: true,
             DeviceDataModuleConfiguration.Keys.deviceNamesUrl: "example.com/device-names.json"
         ]
-        let module = DeviceDataModule(context: context, moduleConfiguration: moduleConfiguration)
+        let module = DeviceDataModule(context: context,
+                                      moduleConfiguration: moduleConfiguration)
         guard let module else {
             XCTFail("Module not initialized correctly")
             return
@@ -133,7 +136,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
         _ = deviceDataCollector
         let dispatch = Dispatch(name: "test_event", data: [:])
         let transformerId = transformerRegistry.getTransformations(for: dispatch, .afterCollectors)[0].transformerId
-        XCTAssertEqual(transformerId, DeviceDataModule.id)
+        XCTAssertEqual(transformerId, DeviceDataModule.moduleType)
     }
 
     #if os(iOS)
@@ -187,7 +190,9 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
     func test_default_model_info_is_added_on_apply_transformation_when_no_info_downloaded() {
         let transformationExpectation = expectation(description: "Transformation completed")
         let dispatch = Dispatch(name: "test_event", data: [:])
-        let transformation = TransformationSettings(id: "model-info-and-orientation", transformerId: DeviceDataModule.id, scopes: [.afterCollectors])
+        let transformation = TransformationSettings(id: "model-info-and-orientation",
+                                                    transformerId: DeviceDataModule.moduleType,
+                                                    scopes: [.afterCollectors])
         _configuration.value = [
             DeviceDataModuleConfiguration.Keys.deviceNamesUrl: ""
         ]

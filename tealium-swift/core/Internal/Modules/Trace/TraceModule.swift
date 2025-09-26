@@ -8,12 +8,13 @@
 
 class TraceModule: Collector, BasicModule {
     let version: String = TealiumConstants.libraryVersion
-    static let id: String = "Trace"
     let dataStore: DataStore
     let tracker: Tracker
+    static let moduleType: String = Modules.Types.trace
+    var id: String { Self.moduleType }
 
     required convenience init?(context: TealiumContext, moduleConfiguration: DataObject) {
-        guard let dataStore = try? context.moduleStoreProvider.getModuleStore(name: TraceModule.id) else {
+        guard let dataStore = try? context.moduleStoreProvider.getModuleStore(name: Self.moduleType) else {
             return nil
         }
         self.init(dataStore: dataStore, tracker: context.tracker)

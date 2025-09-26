@@ -4,6 +4,9 @@ description: Reusable workflow to setup the machine and XCode
 runs:
   using: "composite"
   steps:
+    - name: Runner - ${{ runner.name }}
+      run: echo "${{ runner.name }}"
+      shell: bash
     - uses: ruby/setup-ruby@v1
       with:
         ruby-version: '3.0'

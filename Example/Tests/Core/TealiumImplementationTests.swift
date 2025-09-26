@@ -59,18 +59,19 @@ final class TealiumImplementationTests: XCTestCase {
 
     func test_mappingsFromSettings_transforms_object_to_TransformationSettings() throws {
         let settings = StateSubject(SDKSettings(modules: [
-            MockModule.id: ModuleSettings(mappings: [
-                .init(destination: "key", parameters: MappingParameters(key: "key", filter: nil, mapTo: nil))
-            ])
+            MockModule.moduleType: ModuleSettings(moduleType: MockModule.moduleType,
+                                                  mappings: [
+                                                    .init(destination: "key", parameters: MappingParameters(key: "key", filter: nil, mapTo: nil))
+                                                  ])
         ]))
         let transformationsMap = TealiumImpl.mappings(from: settings.toStatefulObservable()).value
-        guard let transformation = transformationsMap[MockModule.id] else {
+        guard let transformation = transformationsMap[MockModule.moduleType] else {
             XCTFail("Failed to transform the mappings into a TransformationSettings")
             return
         }
-        XCTAssertEqual(transformation.id, "\(MockModule.id)-mapping")
+        XCTAssertEqual(transformation.id, "\(MockModule.moduleType)-mapping")
         XCTAssertEqual(transformation.transformerId, "JsonTransformer")
-        XCTAssertEqual(transformation.scopes, [.dispatcher(MockModule.id)])
+        XCTAssertEqual(transformation.scopes, [.dispatcher(MockModule.moduleType)])
         XCTAssertEqual(transformation.configuration, [
             "operations_type": "map",
             "operations": try DataItem(serializing: [

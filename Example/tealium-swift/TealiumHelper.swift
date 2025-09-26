@@ -32,9 +32,10 @@ class TealiumHelper {
          Modules.lifecycle(forcingSettings: { enforcedSettings in
              enforcedSettings.setEnabled(true)
          }),
-         Modules.customCollector(CustomCollector.self),
          Modules.timeData(),
          Modules.connectivityData(),
+         CustomCollector.Factory(),
+         CustomDispatcher.Factory(),
          ModuleWithExternalDependencies.Factory(otherDependencies: NSObject())
         ]
     }
@@ -53,8 +54,11 @@ class TealiumHelper {
         config.addBarrier(Barriers.batching())
         config.enableConsentIntegration(with: cmp) { enforcedConfiguration in
             enforcedConfiguration.setTealiumPurposeId(CustomCMP.Purposes.tealium.rawValue)
-                .setRefireDispatchersIds([Modules.IDs.collect])
-                .addPurpose(CustomCMP.Purposes.tracking.rawValue, dispatcherIds: [Modules.IDs.collect])
+                .setRefireDispatchersIds([Modules.Types.collect])
+                .addPurpose(CustomCMP.Purposes.tracking.rawValue, dispatcherIds: [
+                    Modules.Types.collect,
+                    "CustomDispatcher"
+                ])
         }
         return Tealium.create(config: config) { _ in }
     }

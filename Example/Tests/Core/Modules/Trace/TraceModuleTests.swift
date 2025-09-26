@@ -16,12 +16,12 @@ final class TraceModuleTests: XCTestCase {
     var traceManager: TraceModule!
 
     override func setUpWithError() throws {
-        let dataStore = try dataStoreProvider.getModuleStore(name: TraceModule.id)
+        let dataStore = try dataStoreProvider.getModuleStore(name: TraceModule.moduleType)
         traceManager = TraceModule(dataStore: dataStore, tracker: tracker)
     }
 
     func test_the_module_id_is_correct() {
-        XCTAssertNotNil(dataStoreProvider.modulesRepository.getModules()[TraceModule.id])
+        XCTAssertNotNil(dataStoreProvider.modulesRepository.getModules()[TraceModule.moduleType])
     }
 
     func test_killVisitorSession_throws_an_error_when_not_in_trace() {

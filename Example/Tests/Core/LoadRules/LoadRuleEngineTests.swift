@@ -31,9 +31,9 @@ final class LoadRuleEngineTests: XCTestCase {
         ])
     }
 
-    func addRule(_ rule: Rule<String>, moduleId: String = MockModule.id) {
+    func addRule(_ rule: Rule<String>, moduleType: String = MockModule.moduleType) {
         _sdkSettings.add(modules: [
-            moduleId: ModuleSettings(rules: rule)
+            moduleType: ModuleSettings(moduleType: moduleType, rules: rule)
         ])
     }
 
@@ -183,13 +183,13 @@ final class LoadRuleEngineTests: XCTestCase {
     func test_ruleMap_is_updated_on_settings_update() {
         let condition = Condition.equals(ignoreCase: false, variable: "variable", target: "value")
         addRule("equals")
-        guard let rule = engine.moduleIdToRuleMap[MockModule.id] else {
-            XCTFail("Rule not found for \(MockModule.id) in ruleMap \(engine.moduleIdToRuleMap)")
+        guard let rule = engine.moduleIdToRuleMap[MockModule.moduleType] else {
+            XCTFail("Rule not found for \(MockModule.moduleType) in ruleMap \(engine.moduleIdToRuleMap)")
             return
         }
         XCTAssertTrue(Rule<Condition>.just(condition).equals(rule))
-        addRule("equals", moduleId: "NewModuleId")
-        guard let newRule = engine.moduleIdToRuleMap["NewModuleId"] else {
+        addRule("equals", moduleType: "NewModuleType")
+        guard let newRule = engine.moduleIdToRuleMap["NewModuleType"] else {
             XCTFail("Rule not found for NewModuleId in ruleMap \(engine.moduleIdToRuleMap)")
             return
         }

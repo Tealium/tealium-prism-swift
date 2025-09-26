@@ -30,8 +30,10 @@ final class LifecycleWrapperTests: XCTestCase {
 
     override func setUp() {
         config.modules = [Modules.lifecycle()]
+        let lifecycleSettings = ModuleSettings(moduleType: LifecycleModule.moduleType,
+                                               configuration: [LifecycleConfiguration.Keys.autoTrackingEnabled: false])
         manager.updateSettings(context: context(), settings: SDKSettings(modules: [
-            LifecycleModule.id: ModuleSettings(configuration: [LifecycleConfiguration.Keys.autoTrackingEnabled: false])
+            lifecycleSettings.moduleId: lifecycleSettings
         ]))
     }
 

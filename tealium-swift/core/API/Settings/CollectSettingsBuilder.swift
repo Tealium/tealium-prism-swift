@@ -9,9 +9,11 @@
 import Foundation
 
 /// A builder used to enforce some of the `CollectSettings`.
-public class CollectSettingsBuilder: DispatcherSettingsBuilder {
+public class CollectSettingsBuilder: ModuleSettingsBuilder,
+                                     DispatcherSettingsBuilder,
+                                     MultipleInstancesModuleSettingsBuilder {
     typealias Keys = CollectModuleConfiguration.Keys
-    override init() { }
+
     /// Set the URL used to send single events
     public func setUrl(_ url: String) -> Self {
         _configurationObject.set(url, key: Keys.url)

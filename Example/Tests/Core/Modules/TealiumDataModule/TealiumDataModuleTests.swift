@@ -13,7 +13,8 @@ final class TealiumDataModuleTests: XCTestCase {
     let modulesManager = ModulesManager(queue: TealiumQueue.main)
     let config = TealiumDataModuleTests.getConfig(source: "mock_source")
     lazy var context = MockContext(modulesManager: modulesManager, config: config)
-    lazy var collector = TealiumDataModule(context: context, moduleConfiguration: [:])
+    lazy var collector = TealiumDataModule(context: context,
+                                           moduleConfiguration: [:])
     lazy var data = collector.collect(DispatchContext(source: .application, initialData: [:]))
     override func setUp() {
         modulesManager.updateSettings(context: context, settings: SDKSettings())
@@ -24,7 +25,7 @@ final class TealiumDataModuleTests: XCTestCase {
                       profile: "mock_profile",
                       environment: "mock_env",
                       dataSource: source,
-                      modules: [DefaultModuleFactory<MockDispatcher>()],
+                      modules: [MockDispatcher.factory()],
                       settingsFile: nil,
                       settingsUrl: nil)
     }
@@ -57,7 +58,7 @@ final class TealiumDataModuleTests: XCTestCase {
     }
 
     func test_collect_returns_modules_names() {
-        XCTAssertEqual(data.getArray(key: "enabled_modules"), ["MockDispatcher"])
+        XCTAssertEqual(data.getArray(key: "enabled_modules"), [MockDispatcher.moduleType])
     }
 
     func test_collect_returns_modules_versions() {

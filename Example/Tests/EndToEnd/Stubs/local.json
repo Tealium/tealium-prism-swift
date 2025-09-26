@@ -1,6 +1,7 @@
 {
     "modules": {
         "MockDispatcher2": {
+            "module_type": "MockDispatcher2",
             "enabled": false
         }
     },

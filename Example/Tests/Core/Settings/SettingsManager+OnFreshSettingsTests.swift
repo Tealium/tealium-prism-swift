@@ -34,7 +34,10 @@ final class SettingsManagerOnFreshSettingsTests: SettingsManagerTestCase {
     func test_onFreshSettings_emits_remoteSettings_when_settingsUrl_provided() throws {
         let settingsEmitted = expectation(description: "Settings are emitted")
         let manager = try setupForLocalAndRemote(codableResult: .success(
-            .successful(object: DataObject(dictionary: ["modules": ["remote": ["configuration": ["key": "value"]]]])))
+            .successful(object: DataObject(dictionary: [
+                "modules": buildModulesSettings(moduleType: "remote",
+                                                additionalProperties: ["key": "value"])
+            ])))
         )
         manager.onFreshSettings.subscribeOnce { settings in
             XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
