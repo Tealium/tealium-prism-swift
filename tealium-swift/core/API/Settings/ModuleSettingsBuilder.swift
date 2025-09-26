@@ -76,10 +76,13 @@ public extension RuleModuleSettingsBuilder where Self: ModuleSettingsBuilder {
     }
 }
 
-public typealias CollectorSettingsBuilder = RuleModuleSettingsBuilder
+/// A builder for Collector Settings which adds the possibility to set `Rule`s.
+public class CollectorSettingsBuilder: ModuleSettingsBuilder, RuleModuleSettingsBuilder {
+
+}
 
 /// A builder for Dispatcher Settings which adds the possibility to set `Rule`s and `JSONOperation<MappingParameters>`.
-public protocol DispatcherSettingsBuilder: RuleModuleSettingsBuilder {
+public class DispatcherSettingsBuilder: ModuleSettingsBuilder, RuleModuleSettingsBuilder {
 
     /**
      * Set the mappings for this module.
@@ -109,11 +112,7 @@ public protocol DispatcherSettingsBuilder: RuleModuleSettingsBuilder {
      * ```
      * - parameter mappings: A list of `Mapping`s to be applied to each `Dispatch` before sending it to the `Dispatcher`.
      */
-    func setMappings(_ mappings: [Mappings]) -> Self
-}
-
-public extension DispatcherSettingsBuilder where Self: ModuleSettingsBuilder {
-    func setMappings(_ mappings: [Mappings]) -> Self {
+    public func setMappings(_ mappings: [Mappings]) -> Self {
         _dataObject.set(converting: mappings.map { $0.build() }, key: Keys.mappings)
         return self
     }

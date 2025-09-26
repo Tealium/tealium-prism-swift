@@ -157,7 +157,7 @@ final class TealiumSettingsTests: TealiumBaseTests {
     func test_loadRules_block_collection_from_collector() {
         let eventDispatched = expectation(description: "Two events are dispatched")
         eventDispatched.expectedFulfillmentCount = 2
-        let moduleSettings = CustomCollectorSettingsBuilder()
+        let moduleSettings = CollectorSettingsBuilder()
             .setRules(.not("event_contains_blocked"))
             .build()
         config.addModule(MockCollector.factory(enforcedSettings: moduleSettings))
@@ -180,7 +180,7 @@ final class TealiumSettingsTests: TealiumBaseTests {
 
     func test_loadRules_block_events_for_dispatcher() {
         let eventDispatched = expectation(description: "An event is dispatched")
-        let moduleSettings = CustomDispatcherSettingsBuilder()
+        let moduleSettings = DispatcherSettingsBuilder()
             .setRules(.not("event_contains_blocked"))
             .build()
         config.addModule(MockDispatcher2.factory(enforcedSettings: moduleSettings))

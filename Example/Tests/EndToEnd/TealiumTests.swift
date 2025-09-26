@@ -100,7 +100,7 @@ final class TealiumTests: TealiumBaseTests {
 
     func test_track_mapped_dispatch_arrives_to_dispatcher() {
         let dispatched = expectation(description: "The Dispatch is dispatched to the dispatcher")
-        let moduleSettings = CustomDispatcherSettingsBuilder()
+        let moduleSettings = DispatcherSettingsBuilder()
             .setMappings([.from("tealium_event", to: "mapped_event")])
             .build()
         config.addModule(MockDispatcher.factory(enforcedSettings: moduleSettings))

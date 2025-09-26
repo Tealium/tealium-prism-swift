@@ -10,7 +10,7 @@
 import TealiumCore
 #endif
 
-public class LifecycleSettingsBuilder: ModuleSettingsBuilder, CollectorSettingsBuilder {
+public class LifecycleSettingsBuilder: CollectorSettingsBuilder {
     typealias Keys = LifecycleConfiguration.Keys
 
     /**

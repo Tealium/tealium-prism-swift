@@ -62,7 +62,8 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         addMockDispatcher()
         let remoteResponse = DataObject(dictionary: [
             "modules": buildModulesSettings(moduleType: "remote",
-                                            additionalProperties: ["key": "value"])])
+                                            additionalProperties: ["key": "value"])
+        ])
         let manager = try setupForLocalAndRemote(codableResult: .success(.successful(object: remoteResponse)))
         let settings = manager.settings.value
         XCTAssertEqual(settings.modules[MockDispatcher.moduleType]?.configuration, ["key": "value"])
@@ -240,7 +241,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
                 "modules": buildModulesSettings(moduleType: "remote",
                                                 additionalProperties: ["key": "value"])
 
-                    ]])
+            ]])
         }
         for count in 0..<3 {
             networkHelper.codableResult = .success(.successful(object: newSettings(count: count)))

@@ -10,7 +10,7 @@
 import XCTest
 
 final class ModuleSettingsBuilderTests: XCTestCase {
-    let builder = CustomDispatcherSettingsBuilder()
+    let builder = DispatcherSettingsBuilder()
     func test_build_returns_enabled_key_when_passed() {
         XCTAssertEqual(builder.setEnabled(true).build(),
                        ["enabled": true, "configuration": DataObject()])

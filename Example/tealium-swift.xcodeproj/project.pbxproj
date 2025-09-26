@@ -691,13 +691,13 @@
 		87EF5ACC2CE3A4BD00DB753C /* ModuleProxyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EF5ACB2CE3A4BD00DB753C /* ModuleProxyTests.swift */; };
 		87EF5ACD2CE3A4BD00DB753C /* ModuleProxyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EF5ACB2CE3A4BD00DB753C /* ModuleProxyTests.swift */; };
 		87EF5ACE2CE3A4BD00DB753C /* ModuleProxyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EF5ACB2CE3A4BD00DB753C /* ModuleProxyTests.swift */; };
-		87F0EA5F2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */; };
-		87F0EA602E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */; };
-		87F0EA612E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */; };
-		87F0EA622E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */; };
-		87F0EA632E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */; };
-		87F0EA642E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */; };
-		87F0EA652E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */; };
+		87F0EA5F2E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift */; };
+		87F0EA602E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift */; };
+		87F0EA612E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift */; };
+		87F0EA622E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift */; };
+		87F0EA632E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift */; };
+		87F0EA642E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift */; };
+		87F0EA652E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA5E2E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift */; };
 		87F0EA672E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA662E7AFA00005C996D /* ModuleSettingsBuilder+SetProperty.swift */; };
 		87F0EA682E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA662E7AFA00005C996D /* ModuleSettingsBuilder+SetProperty.swift */; };
 		87F0EA692E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F0EA662E7AFA00005C996D /* ModuleSettingsBuilder+SetProperty.swift */; };
@@ -1202,7 +1202,7 @@
 		87EE77562D81D6C300BB1D77 /* NestedMixedConditionRule.json */ = {isa = PBXFileReference; lastKnownFileType = text.json; path = NestedMixedConditionRule.json; sourceTree = "<group>"; };
 		87EE775A2D81D9A200BB1D77 /* XCTestCase+JSONFromBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+JSONFromBundle.swift"; sourceTree = "<group>"; };
 		87EF5ACB2CE3A4BD00DB753C /* ModuleProxyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleProxyTests.swift; sourceTree = "<group>"; };
-		87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CustomDispatcherSettingsBuilder.swift; sourceTree = "<group>"; };
+		87F0EA5E2E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultipleInstancesSettingsBuilder.swift; sourceTree = "<group>"; };
 		87F0EA662E7AFA00005C996D /* ModuleSettingsBuilder+SetProperty.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModuleSettingsBuilder+SetProperty.swift"; sourceTree = "<group>"; };
 		87F8E6C12CAAD00E00F65EA1 /* XCTAssert+NaN.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTAssert+NaN.swift"; sourceTree = "<group>"; };
 		87FC08542D91ADF300E1041D /* Rule+DataInputConvertibleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Rule+DataInputConvertibleTests.swift"; sourceTree = "<group>"; };
@@ -1440,7 +1440,7 @@
 				15AE2B852A127DD90093D154 /* XCTAssert+Result.swift */,
 				1569B3CA2B1F754800262108 /* RetainCycleHelper.swift */,
 				155C0F202C072AA0009630FC /* CreateDispatches.swift */,
-				87F0EA5E2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift */,
+				87F0EA5E2E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift */,
 				876F25022DDF2EA800C55FFE /* SDKSettings+copy.swift */,
 				875007BD2C5D225F00ED1AA4 /* XCTestCase+WaitForDefaultTimeout.swift */,
 				87AF54852C8217EE00F1C114 /* XCTAssert+NSNull.swift */,
@@ -3138,7 +3138,7 @@
 				873B687F2E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */,
 				871237DF2DD621DF0007C2CD /* MappingsEngineTests.swift in Sources */,
 				D54BBFDB2C78C01A003687C7 /* ResourceRefresherTests+RequestRefresh.swift in Sources */,
-				87F0EA5F2E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */,
+				87F0EA5F2E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */,
 				87EE775B2D81D9B800BB1D77 /* XCTestCase+JSONFromBundle.swift in Sources */,
 				1523CE802ABAFC400001D6D3 /* MockDatabaseProvider.swift in Sources */,
 				15A223872B19EFE600191132 /* MockDispatcher.swift in Sources */,
@@ -3321,7 +3321,7 @@
 				873B687C2E3114F900DC1B4E /* Tealium+CollectTests.swift in Sources */,
 				8702A36D2E266EEA001C9743 /* CreateDispatches.swift in Sources */,
 				8702A36E2E266EEA001C9743 /* RetainCycleHelper.swift in Sources */,
-				87F0EA652E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */,
+				87F0EA652E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */,
 				8702A36F2E266EEA001C9743 /* XCTestCase+JSONFromBundle.swift in Sources */,
 				8702A3702E266EEA001C9743 /* SDKSettings+copy.swift in Sources */,
 				8702A3712E266EEA001C9743 /* MockDispatcher.swift in Sources */,
@@ -3398,7 +3398,7 @@
 				878C49CB2E26919A00DA3155 /* MockDispatchManager.swift in Sources */,
 				878C49CC2E26919A00DA3155 /* XCTAssert+BoolOptional.swift in Sources */,
 				878C49CD2E26919A00DA3155 /* MockConsentManager.swift in Sources */,
-				87F0EA622E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */,
+				87F0EA622E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */,
 				878C49CE2E26919A00DA3155 /* MockBarrier.swift in Sources */,
 				878C49CF2E26919A00DA3155 /* XCTAssert+EqualDictionaries.swift in Sources */,
 				878C49D02E26919A00DA3155 /* MockModulesRepository.swift in Sources */,
@@ -3452,7 +3452,7 @@
 				878C4A042E2691D300DA3155 /* MockDispatchManager.swift in Sources */,
 				878C4A052E2691D300DA3155 /* XCTAssert+BoolOptional.swift in Sources */,
 				878C4A062E2691D300DA3155 /* MockConsentManager.swift in Sources */,
-				87F0EA632E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */,
+				87F0EA632E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */,
 				878C4A072E2691D300DA3155 /* MockBarrier.swift in Sources */,
 				878C4A082E2691D300DA3155 /* XCTAssert+EqualDictionaries.swift in Sources */,
 				878C4A092E2691D300DA3155 /* MockModulesRepository.swift in Sources */,
@@ -3621,7 +3621,7 @@
 				87C6C2522D528189008B91D8 /* DebouncerTests.swift in Sources */,
 				87EE76DA2D78670400BB1D77 /* Condition+IsDefinedTests.swift in Sources */,
 				87C6C2532D528189008B91D8 /* TealiumQueueTests.swift in Sources */,
-				87F0EA602E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */,
+				87F0EA602E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */,
 				87C6C2542D528189008B91D8 /* DisposableItemListTests.swift in Sources */,
 				87BA6D802C6A470C00784784 /* Operators+QueuesTests.swift in Sources */,
 				EC2AF5E72DE9EAEC004AE72F /* DeviceDataModuleConfigurationTests.swift in Sources */,
@@ -3848,7 +3848,7 @@
 				87BA6DF82C6A47AF00784784 /* MockNetworkHelper.swift in Sources */,
 				87EE76F12D78720000BB1D77 /* Condition+LessThanTests.swift in Sources */,
 				87EE76D52D7865D300BB1D77 /* Condition+NotEqualsTests.swift in Sources */,
-				87F0EA642E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */,
+				87F0EA642E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */,
 				87BA6DF92C6A47AF00784784 /* MockQueueManager.swift in Sources */,
 				EC2AF5E82DE9EAEC004AE72F /* DeviceDataModuleConfigurationTests.swift in Sources */,
 				87BA6DFA2C6A47AF00784784 /* Operators+ResubscribingWhileTests.swift in Sources */,
@@ -3951,7 +3951,7 @@
 				EC8EF8802E1810A000DB89C5 /* MockQueueMetrics.swift in Sources */,
 				87FC087E2D94532000E1041D /* MockDispatchManager.swift in Sources */,
 				876F25062DDF2EAC00C55FFE /* SDKSettings+copy.swift in Sources */,
-				87F0EA612E7AD645005C996D /* CustomDispatcherSettingsBuilder.swift in Sources */,
+				87F0EA612E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */,
 				87F0EA6B2E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				EC1AA4DF2CCFA34200D1D9D1 /* FirstLaunchTests.swift in Sources */,
 				ECBF30532DC244A4007A1A42 /* MockBundle.swift in Sources */,

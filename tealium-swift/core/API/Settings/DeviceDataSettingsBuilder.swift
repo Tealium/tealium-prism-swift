@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-public class DeviceDataSettingsBuilder: ModuleSettingsBuilder, CollectorSettingsBuilder {
+public class DeviceDataSettingsBuilder: CollectorSettingsBuilder {
     typealias Keys = DeviceDataModuleConfiguration.Keys
 
     /// Set the custom URL from where the devices list with user friendly names (basically, retail ones) is loaded.

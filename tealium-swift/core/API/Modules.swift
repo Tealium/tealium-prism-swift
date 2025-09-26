@@ -36,8 +36,9 @@ public enum Modules {
     public typealias EnforcingSettings<Builder> = (_ enforcedSettings: Builder) -> Builder
 
     /// Returns a factory for creating the `AppDataModule`
-    static public func appData() -> any ModuleFactory {
-        DefaultModuleFactory<AppDataModule>(moduleType: Modules.Types.appData)
+    static public func appData(forcingSettings block: EnforcingSettings<CollectorSettingsBuilder>? = nil) -> any ModuleFactory {
+        DefaultModuleFactory<AppDataModule>(moduleType: Modules.Types.appData,
+                                            enforcedSettings: block?(CollectorSettingsBuilder()).build())
     }
 
     /**
@@ -53,8 +54,9 @@ public enum Modules {
     }
 
     /// Returns a factory for creating the `DataLayerModule`.
-    static public func dataLayer() -> any ModuleFactory {
-        DefaultModuleFactory<DataLayerModule>(moduleType: Modules.Types.dataLayer)
+    static public func dataLayer(forcingSettings block: EnforcingSettings<CollectorSettingsBuilder>? = nil) -> any ModuleFactory {
+        DefaultModuleFactory<DataLayerModule>(moduleType: Modules.Types.dataLayer,
+                                              enforcedSettings: block?(CollectorSettingsBuilder()).build())
     }
 
     /// Returns a factory for creating the `DeviceDataModule`.
@@ -70,24 +72,27 @@ public enum Modules {
     }
 
     /// Returns a factory for creating the `TealiumDataModule`.
-    static public func tealiumData() -> any ModuleFactory {
-        DefaultModuleFactory<TealiumDataModule>(moduleType: Modules.Types.tealiumData)
+    static public func tealiumData(forcingSettings block: EnforcingSettings<CollectorSettingsBuilder>? = nil) -> any ModuleFactory {
+        DefaultModuleFactory<TealiumDataModule>(moduleType: Modules.Types.tealiumData,
+                                                enforcedSettings: block?(CollectorSettingsBuilder()).build())
     }
 
     /// Returns a factory for creating the `TimeDataModule`.
-    static public func timeData() -> any ModuleFactory {
-        DefaultModuleFactory<TimeDataModule>(moduleType: Modules.Types.timeData)
+    static public func timeData(forcingSettings block: EnforcingSettings<CollectorSettingsBuilder>? = nil) -> any ModuleFactory {
+        DefaultModuleFactory<TimeDataModule>(moduleType: Modules.Types.timeData,
+                                             enforcedSettings: block?(CollectorSettingsBuilder()).build())
     }
 
     /// Returns a factory for creating the `ConnectivityDataModule`.
-    static public func connectivityData() -> any ModuleFactory {
-        DefaultModuleFactory<ConnectivityDataModule>(moduleType: Modules.Types.connectivityData)
+    static public func connectivityData(forcingSettings block: EnforcingSettings<CollectorSettingsBuilder>? = nil) -> any ModuleFactory {
+        DefaultModuleFactory<ConnectivityDataModule>(moduleType: Modules.Types.connectivityData,
+                                                     enforcedSettings: block?(CollectorSettingsBuilder()).build())
     }
 
     /// Returns a factory for creating the `TraceModule`.
-    static public func trace(forcingSettings block: EnforcingSettings<TraceSettingsBuilder>? = nil) -> any ModuleFactory {
+    static public func trace(forcingSettings block: EnforcingSettings<CollectorSettingsBuilder>? = nil) -> any ModuleFactory {
         DefaultModuleFactory<TraceModule>(moduleType: Modules.Types.trace,
-                                          enforcedSettings: block?(TraceSettingsBuilder()).build())
+                                          enforcedSettings: block?(CollectorSettingsBuilder()).build())
     }
 }
 

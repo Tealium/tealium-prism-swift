@@ -1,5 +1,5 @@
 //
-//  CustomDispatcherSettingsBuilder.swift
+//  MultipleInstancesSettingsBuilder.swift
 //  tealium-swift
 //
 //  Created by Enrico Zannini on 17/09/25.
@@ -8,6 +8,4 @@
 
 import TealiumSwift
 
-class CustomDispatcherSettingsBuilder: ModuleSettingsBuilder, DispatcherSettingsBuilder { }
-class CustomCollectorSettingsBuilder: ModuleSettingsBuilder, CollectorSettingsBuilder { }
 class MultipleInstancesSettingsBuilder: ModuleSettingsBuilder, MultipleInstancesModuleSettingsBuilder { }
