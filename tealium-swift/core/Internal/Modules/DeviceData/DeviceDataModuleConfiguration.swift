@@ -16,8 +16,9 @@ struct DeviceDataModuleConfiguration {
     }
 
     enum Defaults {
+        private static let deviceNamesEndpoint = "/dle/tealiummobile/lib/device_names.json"
         // TODO: what address should we use here in production?
-        static let deviceNamesUrl: String = "https://api.npoint.io/a75cd05931ea972d6577"
+        static let deviceNamesUrl: String = TealiumConstants.tiqCdn + deviceNamesEndpoint
         static let memoryReportingEnabled: Bool = false
     }
 

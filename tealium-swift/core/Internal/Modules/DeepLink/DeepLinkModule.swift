@@ -85,7 +85,7 @@ class DeepLinkModule: BasicModule, Collector {
             .putAll(dataObject: dataToAdd, expiry: .session)
             .commit()
         if configuration.sendDeepLinkEvent {
-            tracker.track(Dispatch(name: TealiumKey.deepLink, data: dataStore.getAll()),
+            tracker.track(Dispatch(name: TealiumConstants.deepLinkEvent, data: dataStore.getAll()),
                           source: .module(DeepLinkModule.self)) { [weak self] result in
                 guard let self else { return }
                 switch result.status {
@@ -130,7 +130,7 @@ class DeepLinkModule: BasicModule, Collector {
         let trace = try getTrace()
         // Kill visitor session to trigger session end events
         // Session can be killed without needing to leave the trace
-        if queryItems.contains(where: { $0.name == TealiumKey.killVisitorSession }) {
+        if queryItems.contains(where: { $0.name == TealiumConstants.killVisitorSessionQueryParam }) {
             try trace.killVisitorSession { [weak self] result in
                 guard let self else { return }
                 switch result.status {
@@ -142,7 +142,7 @@ class DeepLinkModule: BasicModule, Collector {
             }
         }
         // Leave the trace if there is a leave param, if not - join with traceId
-        if queryItems.contains(where: { $0.name == TealiumKey.leaveTraceQueryParam }) {
+        if queryItems.contains(where: { $0.name == TealiumConstants.leaveTraceQueryParam }) {
             try trace.leave()
         } else {
             try trace.join(id: traceId)
@@ -151,7 +151,7 @@ class DeepLinkModule: BasicModule, Collector {
 
     fileprivate func extractTraceId(from queryItems: [URLQueryItem]) -> String? {
         queryItems.first {
-            $0.name == TealiumKey.traceIdQueryParam && $0.value != nil
+            $0.name == TealiumConstants.traceIdQueryParam && $0.value != nil
         }?.value
     }
 

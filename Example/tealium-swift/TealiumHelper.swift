@@ -45,8 +45,8 @@ class TealiumHelper {
                                    profile: "enrico-test",
                                    environment: "dev",
                                    modules: createModuleFactories(),
-                                   settingsFile: "TealiumConfig",
-                                   settingsUrl: "https://api.npoint.io/e6449d2df760465f7d7f",
+                                   settingsFile: "TealiumSettings",
+                                   settingsUrl: "https://tags.tiqcdn.com/dle/tealiummobile/lib/example_settings.json",
                                    forcingSettings: { builder in
             builder.setMinLogLevel(.trace)
                 .setVisitorIdentityKey("email")

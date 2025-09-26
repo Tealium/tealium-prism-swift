@@ -41,9 +41,9 @@ final class TraceModuleTests: XCTestCase {
         let dispatchTracked = expectation(description: "Dispatch should be tracked")
         try traceManager.join(id: "12345")
         _ = tracker.onTrack.subscribeOnce { event in
-            XCTAssertEqual(event.name, TealiumKey.killVisitorSession)
+            XCTAssertEqual(event.name, TealiumConstants.killVisitorSessionQueryParam)
             XCTAssertEqual(event.payload.get(key: TealiumDataKey.traceId), "12345")
-            XCTAssertEqual(event.payload.get(key: TealiumDataKey.killVisitorSessionEvent), TealiumKey.killVisitorSession)
+            XCTAssertEqual(event.payload.get(key: TealiumDataKey.killVisitorSessionEvent), TealiumConstants.killVisitorSessionQueryParam)
             dispatchTracked.fulfill()
         }
         try traceManager.killVisitorSession()

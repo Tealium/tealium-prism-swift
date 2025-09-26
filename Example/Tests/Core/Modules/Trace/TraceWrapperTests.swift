@@ -58,7 +58,7 @@ final class TraceWrapperTests: XCTestCase {
     func test_killVisitorSession_calls_module_method_which_tracks_dispatch() {
         let killVisitorSessionCalled = expectation(description: "KillVisitorSession is called")
         tracker.onTrack.subscribeOnce({ dispatch in
-            if dispatch.name == TealiumKey.killVisitorSession {
+            if dispatch.name == TealiumConstants.killVisitorSessionQueryParam {
                 killVisitorSessionCalled.fulfill()
             }
         })

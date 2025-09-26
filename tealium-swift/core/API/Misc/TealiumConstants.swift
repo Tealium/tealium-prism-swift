@@ -12,21 +12,14 @@ import UIKit
 public enum TealiumConstants {
     public static let libraryName = "swift"
     public static let libraryVersion = "3.0.0"
-    // This is the current limit for performance reasons. May be increased in future
-    public static let maxEventBatchSize = 10
-    public static let defaultMinimumDiskSpace: Int32 = 20_000_000
-    public static let tiqBaseURL = "https://tags.tiqcdn.com/utag/"
-    public static let tiqURLSuffix = "mobile.html?sdk_session_count=true"
-    public static let defaultBatchExpirationDays = 7
-    public static let defaultMaxQueueSize = 40
-//    static let defaultLoggerType: TealiumLoggerType = .os
-    static let connectionRestoredReason = "Connection Restored"
-    static let hdlMaxRetries = 3
-    static let hdlCacheSizeMax = 50
-//    static let defaultHDLExpiry: (Int, unit: TimeUnit) = (7, unit: .days)
-    static let mobile = "mobile"
     public static let unknown = "unknown"
-    public static let timedEvent = "timed_event"
+
+    static let tiqCdn =  "https://tags.tiqcdn.com"
+
+    static let killVisitorSessionQueryParam = "kill_visitor_session"
+    static let leaveTraceQueryParam = "leave_trace"
+    static let traceIdQueryParam = "tealium_trace_id"
+    static let deepLinkEvent = "deep_link"
 }
 
 public enum TealiumDataKey {
@@ -42,9 +35,6 @@ public extension TealiumDataKey {
     static let eventType = "tealium_event_type"
     static let libraryName = "tealium_library_name"
     static let libraryVersion = "tealium_library_version"
-    static let queueReason = "queue_reason"
-    static let wasQueued = "was_queued"
-    static let dispatchService = "dispatch_service"
     static let dataSource = "tealium_datasource"
     /// An `Int64` value containing the time, measured in seconds, since midnight 01-01-1970, in which the session was started.
     static let sessionId = "tealium_session_id"
@@ -53,8 +43,6 @@ public extension TealiumDataKey {
     /// An `Int64` value containing the session timeout measured in milliseconds.
     static let sessionTimeout = "_dc_ttl_"
     static let random = "tealium_random"
-    static let uuid = "app_uuid"
-    static let requestUUID = "request_uuid"
     static let enabledModules = "enabled_modules"
     static let enabledModulesVersions = "enabled_modules_versions"
     static let deepLinkURL = "deep_link_url"
@@ -63,32 +51,6 @@ public extension TealiumDataKey {
     static let deepLinkReferrerApp = "deep_link_referrer_app"
     static let killVisitorSessionEvent = "event"
     static let traceId = "cp.trace_id"
-    static let timedEventName = "timed_event_name"
-    static let eventStart = "timed_event_start"
-    static let eventStop = "timed_event_end"
-    static let eventDuration = "timed_event_duration"
-    static let tagmanagementNotification = "com.tealium.tagmanagement.urlrequest"
-}
-
-public enum TealiumKey {
-
-    public static let updateConsentCookieEventNames = ["update_consent_cookie", "set_dns_state"]
-    public static let jsNotificationName = "com.tealium.tagmanagement.jscommand"
-    public static let jsCommand = "js"
-    // used for remote commands
-    public static let persistentData = "persistentData"
-    public static let persistentVisitorId = "visitorId"
-    public static let logLevelConfig = "com.tealium.logger.loglevel"
-    public static let prod = "prod"
-    public static let dev = "dev"
-    public static let qa = "qa" // swiftlint:disable:this identifier_name
-    public static let errorHeaderKey = "X-Error"
-    public static let remoteAPIEventType = "remote_api"
-    public static let tealiumURLScheme = "tealium"
-    static let killVisitorSession = "kill_visitor_session"
-    static let leaveTraceQueryParam = "leave_trace"
-    static let traceIdQueryParam = "tealium_trace_id"
-    static let deepLink = "deep_link"
 }
 
 public enum TealiumTrackType: String {
