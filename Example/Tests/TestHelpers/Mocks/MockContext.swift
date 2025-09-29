@@ -1,12 +1,12 @@
 //
 //  MockContext.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Enrico Zannini on 06/05/25.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 
 private let mockDbProvider = MockDatabaseProvider()
 private let queue = TealiumQueue.worker
@@ -30,7 +30,6 @@ class MockContext: TealiumContext {
         let transformerRegistry = transformerRegistry ?? TransformerCoordinator(
             transformers: .constant([]),
             transformations: .constant([]),
-            moduleMappings: .constant([:]),
             queue: queue,
             logger: nil
         )

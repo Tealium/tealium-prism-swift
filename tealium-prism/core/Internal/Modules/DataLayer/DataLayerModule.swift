@@ -1,0 +1,75 @@
+//
+//  DataLayerModule.swift
+//  tealium-prism
+//
+//  Created by Enrico Zannini on 28/10/24.
+//  Copyright © 2024 Tealium, Inc. All rights reserved.
+//
+
+class DataLayerModule: BasicModule {
+    let version: String = TealiumConstants.libraryVersion
+    static let canBeDisabled: Bool = false
+    let dataStore: DataStore
+    static let moduleType: String = Modules.Types.dataLayer
+    var id: String { Self.moduleType }
+    convenience required init?(context: TealiumContext, moduleConfiguration: DataObject) {
+        do {
+            self.init(dataStore: try context.moduleStoreProvider.getModuleStore(name: Self.moduleType))
+        } catch {
+            return nil
+        }
+    }
+
+    init(dataStore: DataStore) {
+        self.dataStore = dataStore
+    }
+
+    func put(data: DataObject, expiry: Expiry) throws {
+        try dataStore.edit()
+            .putAll(dataObject: data, expiry: expiry)
+            .commit()
+    }
+
+    func put(key: String, value: DataInput, expiry: Expiry) throws {
+        try dataStore.edit()
+            .put(key: key, value: value, expiry: expiry)
+            .commit()
+    }
+
+    func remove(key: String) throws {
+        try dataStore.edit()
+            .remove(key: key)
+            .commit()
+    }
+
+    func remove(keys: [String]) throws {
+        try dataStore.edit()
+            .remove(keys: keys)
+            .commit()
+    }
+
+    func clear() throws {
+        try dataStore.edit()
+            .clear()
+            .commit()
+    }
+
+    // the difference between this method and collect(): this one is for arbitrary request for data, not in collection phase
+    func getAll() -> DataObject {
+        dataStore.getAll()
+    }
+}
+
+// MARK: Collector
+extension DataLayerModule: Collector {
+    func collect(_ dispatchContext: DispatchContext) -> DataObject {
+        dataStore.getAll()
+    }
+}
+
+// MARK: DataItemExtractor
+extension DataLayerModule: DataItemExtractor {
+    func getDataItem(key: String) -> DataItem? {
+        dataStore.getDataItem(key: key)
+    }
+}

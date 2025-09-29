@@ -1,12 +1,12 @@
 //
 //  DateFormatterTests.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Enrico Zannini on 01/07/25.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class DateFormatterTests: XCTestCase {

@@ -1,12 +1,12 @@
 //
 //  DataItemTests.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 12/09/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
-import TealiumSwift
+import TealiumPrism
 import XCTest
 
 final class DataItemTests: XCTestCase {

@@ -1,12 +1,12 @@
 //
 //  DataItem+SerializingTests.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Enrico Zannini on 30/08/24.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-import TealiumSwift
+import TealiumPrism
 import XCTest
 
 final class DataItemSerializingTests: XCTestCase {

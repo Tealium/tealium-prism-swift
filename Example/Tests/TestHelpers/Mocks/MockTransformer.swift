@@ -1,13 +1,13 @@
 //
 //  MockTransformer.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 28/11/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
 import Foundation
-import TealiumSwift
+import TealiumPrism
 
 class MockTransformer1: MockTransformer {
     class override var moduleType: String { "transformer1" }

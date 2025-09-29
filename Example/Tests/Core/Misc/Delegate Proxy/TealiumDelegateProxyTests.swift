@@ -1,11 +1,11 @@
 //
 //  TealiumDelegateProxyTests.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Copyright © 2020 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 enum SceneDelegateProxyError: Error {

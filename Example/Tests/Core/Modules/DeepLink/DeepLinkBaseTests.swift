@@ -1,12 +1,12 @@
 //
 //  DeepLinkBaseTests.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Den Guzov on 17/04/2025.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 class DeepLinkBaseTests: XCTestCase {

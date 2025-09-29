@@ -1,13 +1,13 @@
 //
 //  MockDebouncer.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 13/06/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
 import Foundation
-@testable import TealiumSwift
+@testable import TealiumPrism
 
 class MockDebouncer: MockInstantDebouncer {
     let queue: DispatchQueue

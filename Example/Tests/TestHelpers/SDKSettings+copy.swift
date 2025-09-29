@@ -1,12 +1,12 @@
 //
 //  SDKSettings+copy.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Enrico Zannini on 22/05/25.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 
 extension SDKSettings {
     func copyWith(modules: [String: ModuleSettings] = [:],

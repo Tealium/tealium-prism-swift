@@ -4,7 +4,7 @@ modules:
 title: TealiumPrism
 author: Tealium
 author_url: https://www.tealium.com
-source_host_url: https://github.com/tealium/tealium-swift-v3
+source_host_url: https://github.com/tealium/tealium-prism-swift
 readme: .README.md
 exclude:
   - "**/Internal*"

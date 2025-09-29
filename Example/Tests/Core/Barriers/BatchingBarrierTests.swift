@@ -1,12 +1,12 @@
 //
 //  BatchingBarrierTests.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Den Guzov on 04/07/2025.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class BatchingBarrierTests: XCTestCase {

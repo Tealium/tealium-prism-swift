@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-import TealiumSwift
+import TealiumPrism
 
 class MockQueueMetrics: QueueMetrics {
     @StateSubject(0)
@@ -16,7 +16,7 @@ class MockQueueMetrics: QueueMetrics {
         _size.value = queueSize
     }
 
-    func onQueueSizePendingDispatch(for processorId: String) -> TealiumSwift.Observable<Int> {
+    func onQueueSizePendingDispatch(for processorId: String) -> TealiumPrism.Observable<Int> {
         size.asObservable()
     }
 

@@ -1,12 +1,12 @@
 //
 //  XCTAssert+Errors.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 01/08/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 func XCTAssertNetworkError(

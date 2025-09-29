@@ -14,7 +14,7 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:tealium-swift.xcodeproj",
+        "containerPath" : "container:tealium-prism.xcodeproj",
         "identifier" : "EC1AA4B72CCF9CA400D1D9D1",
         "name" : "LifecycleTests_iOS"
       }

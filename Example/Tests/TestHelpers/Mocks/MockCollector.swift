@@ -1,12 +1,12 @@
 //
 //  MockCollector.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Enrico Zannini on 26/03/25.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-import TealiumSwift
+import TealiumPrism
 
 class MockCollector: MockModule, Collector {
     @ToAnyObservable(BasePublisher())

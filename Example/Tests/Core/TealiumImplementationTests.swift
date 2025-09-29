@@ -1,12 +1,12 @@
 //
 //  TealiumImplementationTests.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 09/05/24.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class TealiumImplementationTests: XCTestCase {
@@ -55,31 +55,5 @@ final class TealiumImplementationTests: XCTestCase {
                 queueProcessorsEmits.fulfill()
             }
         waitForDefaultTimeout()
-    }
-
-    func test_mappingsFromSettings_transforms_object_to_TransformationSettings() throws {
-        let settings = StateSubject(SDKSettings(modules: [
-            MockModule.moduleType: ModuleSettings(moduleType: MockModule.moduleType,
-                                                  mappings: [
-                                                    .init(destination: "key", parameters: MappingParameters(key: "key", filter: nil, mapTo: nil))
-                                                  ])
-        ]))
-        let transformationsMap = TealiumImpl.mappings(from: settings.toStatefulObservable()).value
-        guard let transformation = transformationsMap[MockModule.moduleType] else {
-            XCTFail("Failed to transform the mappings into a TransformationSettings")
-            return
-        }
-        XCTAssertEqual(transformation.id, "\(MockModule.moduleType)-mapping")
-        XCTAssertEqual(transformation.transformerId, "JsonTransformer")
-        XCTAssertEqual(transformation.scopes, [.dispatcher(MockModule.moduleType)])
-        XCTAssertEqual(transformation.configuration, [
-            "operations_type": "map",
-            "operations": try DataItem(serializing: [
-                [
-                    "destination": ["variable": "key"],
-                    "parameters": ["key": ["variable": "key"]]
-                ]
-            ])
-        ])
     }
 }

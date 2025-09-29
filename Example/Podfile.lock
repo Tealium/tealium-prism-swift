@@ -2,28 +2,28 @@ PODS:
   - SQLite.swift (0.15.4):
     - SQLite.swift/standard (= 0.15.4)
   - SQLite.swift/standard (0.15.4)
-  - tealium-swift/Core (3.0.0):
+  - tealium-prism/Core (3.0.0):
     - SQLite.swift (~> 0.15.0)
-  - tealium-swift/Lifecycle (3.0.0):
+  - tealium-prism/Lifecycle (3.0.0):
     - SQLite.swift (~> 0.15.0)
-    - tealium-swift/Core
+    - tealium-prism/Core
 
 DEPENDENCIES:
-  - tealium-swift/Core (from `../`)
-  - tealium-swift/Lifecycle (from `../`)
+  - tealium-prism/Core (from `../`)
+  - tealium-prism/Lifecycle (from `../`)
 
 SPEC REPOS:
   trunk:
     - SQLite.swift
 
 EXTERNAL SOURCES:
-  tealium-swift:
+  tealium-prism:
     :path: "../"
 
 SPEC CHECKSUMS:
   SQLite.swift: a107c734115fea616a4ad31371d39f1637e8de56
-  tealium-swift: c1d7fa3307e472076beeda3e4a9d3fd818194ef1
+  tealium-prism: 25755c2460da4caa8557c0e191bc1b2563c1584d
 
-PODFILE CHECKSUM: 8740008f05b91c3cdcc76d6d41806f199dfab5ed
+PODFILE CHECKSUM: ee05bcb089ba05111b479281ec079097052231ae
 
 COCOAPODS: 1.16.2

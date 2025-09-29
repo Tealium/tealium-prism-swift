@@ -1,6 +1,6 @@
 //
 //  DeinitTester.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 13/07/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.

@@ -1,13 +1,13 @@
 //
 //  MockInterceptor.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 22/06/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
 import Foundation
-import TealiumSwift
+import TealiumPrism
 
 class MockInterceptor: RequestInterceptor {
     typealias WaitingForConnectivityBlock = (_ task: URLSessionTask) -> Void

@@ -1,13 +1,13 @@
 //
 //  MockDispatcher.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 01/12/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
 import Foundation
-import TealiumSwift
+import TealiumPrism
 
 class MockModule: Module {
     var version = "1.0.0"

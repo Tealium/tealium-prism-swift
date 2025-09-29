@@ -1,5 +1,5 @@
 included:
-  - ./tealium-swift/
+  - ./tealium-prism/
 excluded:
   - "**/AnyCodable/"
   - "**/Data+Gzip.swift"

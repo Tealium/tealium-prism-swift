@@ -1,12 +1,12 @@
 //
 //  XCTestCase+WaitForDefaultTimeout.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 02/08/24.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-import TealiumSwift
+import TealiumPrism
 import XCTest
 
 public extension XCTestCase {

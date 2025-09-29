@@ -2,7 +2,7 @@
 # A script to verify that the versions are correct
 cd "$(dirname "$0")" || { echo "cd failure"; exit 1; }
 
-constants=$(<../tealium-swift/core/API/Misc/TealiumConstants.swift)
+constants=$(<../tealium-prism/core/API/Misc/TealiumConstants.swift)
 regex="^.*public static let libraryVersion \= \"([0-9\.]*)\""
 
 if [[ $constants =~ $regex ]]
@@ -14,7 +14,7 @@ else
 fi
 echo Version Constant "$versionConstant"
 
-podspecFile=$(<../tealium-swift.podspec)
+podspecFile=$(<../tealium-prism.podspec)
 podspecRegex="^.*s.version[[:space:]]*\= \'([0-9\.]*)\'"
 
 if [[ $podspecFile =~ $podspecRegex ]]

@@ -1,12 +1,12 @@
 //
 //  DispatchManager+TrackTests.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 28/11/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class DispatchManagerTrackTests: DispatchManagerTestCase {

@@ -1,12 +1,12 @@
 //
 //  ModuleSettingsBuilderTests.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 26/07/24.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class ModuleSettingsBuilderTests: XCTestCase {

@@ -1,6 +1,6 @@
 //
 //  XCTAssert+BoolOptional.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Tyler Rister on 22/6/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.

@@ -1,12 +1,12 @@
 //
 //  XCTAssert+ObservedValue.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Den Guzov on 27/06/2025.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 public extension XCTestCase {

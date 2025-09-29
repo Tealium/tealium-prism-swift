@@ -14,7 +14,7 @@
   "testTargets" : [
     {
       "target" : {
-        "containerPath" : "container:tealium-swift.xcodeproj",
+        "containerPath" : "container:tealium-prism.xcodeproj",
         "identifier" : "877B4F862DAE739600AB8A43",
         "name" : "DelegateProxyTests_iOS"
       }

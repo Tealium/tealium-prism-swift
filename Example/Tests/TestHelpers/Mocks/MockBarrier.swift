@@ -1,13 +1,13 @@
 //
 //  MockBarrier.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 21/11/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
 import Foundation
-import TealiumSwift
+import TealiumPrism
 
 class MockBarrier: Barrier {
     @ToAnyObservable(ReplaySubject<Bool>(initialValue: true))

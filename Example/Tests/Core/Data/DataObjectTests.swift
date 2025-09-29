@@ -1,12 +1,12 @@
 //
 //  DataObjectTests.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Enrico Zannini on 28/08/24.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 /// These tests are mainly used to showcase how the dictionary input can be used

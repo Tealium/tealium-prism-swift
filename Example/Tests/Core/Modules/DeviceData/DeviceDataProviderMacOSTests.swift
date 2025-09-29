@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class DeviceDataProviderMacOSTests: XCTestCase {

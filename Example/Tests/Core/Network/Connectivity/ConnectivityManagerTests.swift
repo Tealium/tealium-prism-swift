@@ -1,12 +1,12 @@
 //
 //  ConnectivityManagerTests.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 14/06/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class ConnectivityManagerTests: XCTestCase {
@@ -185,7 +185,7 @@ final class ConnectivityManagerTests: XCTestCase {
     }
 }
 
-extension TealiumSwift.RetryPolicy: Swift.Equatable {
+extension TealiumPrism.RetryPolicy: Swift.Equatable {
     /// Only for comparing during tests
     public static func == (lhs: RetryPolicy, rhs: RetryPolicy) -> Bool {
         switch (lhs, rhs) {

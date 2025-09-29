@@ -1,12 +1,12 @@
 //
 //  TimeFrameTests.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 24/05/24.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class TimeFrameTests: XCTestCase {

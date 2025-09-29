@@ -1,12 +1,12 @@
 //
 //  ConsentIntegrationManagerTests.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Denis Guzov on 10/06/2024.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 class ConsentIntegrationManagerBaseTests: XCTestCase {
@@ -36,7 +36,6 @@ class ConsentIntegrationManagerBaseTests: XCTestCase {
     var transformations: ObservableState<[TransformationSettings]>
     lazy var transformerCoordinator = TransformerCoordinator(transformers: .constant([]),
                                                              transformations: transformations,
-                                                             moduleMappings: .constant([:]),
                                                              queue: .main,
                                                              logger: nil)
 

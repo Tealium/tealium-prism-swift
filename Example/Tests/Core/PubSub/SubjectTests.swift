@@ -1,12 +1,12 @@
 //
 //  SubjectTests.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 17/07/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 class SubjectTests: XCTestCase {

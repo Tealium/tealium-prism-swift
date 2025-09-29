@@ -1,13 +1,13 @@
 //
 //  SQLiteOpenHelperTests.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Tyler Rister on 12/7/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
 import SQLite
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 class SQLiteOpenHelperTests: XCTestCase {

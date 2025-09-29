@@ -1,12 +1,12 @@
 //
 //  DeviceDataModuleBaseTests.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Den Guzov on 30/05/2025.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 class DeviceDataModuleBaseTests: XCTestCase {
@@ -18,7 +18,6 @@ class DeviceDataModuleBaseTests: XCTestCase {
     lazy var config: TealiumConfig = mockConfig
     lazy var transformerRegistry = TransformerCoordinator(transformers: .constant([]),
                                                           transformations: .constant([]),
-                                                          moduleMappings: .constant([:]),
                                                           queue: queue,
                                                           logger: nil)
     lazy var context = MockContext(modulesManager: manager,

@@ -25,7 +25,7 @@ done
 
 set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 
-podspecFile=$(<../tealium-swift.podspec)
+podspecFile=$(<../tealium-prism.podspec)
 podspecRegex="^.*s.version[[:space:]]*\= \'([0-9\.]*)\'"
 
 if [[ $podspecFile =~ $podspecRegex ]]

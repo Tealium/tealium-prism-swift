@@ -1,12 +1,12 @@
 //
 //  BarrierCoordinator+FlushTests.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Den Guzov on 14/07/2025.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class BarrierCoordinatorFlushTests: XCTestCase {

@@ -1,12 +1,12 @@
 //
 //  ConsentInspectorTests.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Enrico Zannini on 10/06/25.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 private let tealiumPurpose = "tealium_purpose_id"

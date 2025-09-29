@@ -1,12 +1,12 @@
 //
 //  DispatchManagerTestCase.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 07/12/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 class DispatchManagerTestCase: XCTestCase {
@@ -58,7 +58,6 @@ class DispatchManagerTestCase: XCTestCase {
                                                      queue: .main)
     lazy var transformerCoordinator = TransformerCoordinator(transformers: transformers.toStatefulObservable(),
                                                              transformations: transformations,
-                                                             moduleMappings: .constant([:]),
                                                              queue: .main,
                                                              logger: nil)
     lazy var context = MockContext(modulesManager: modulesManager,

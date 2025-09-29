@@ -6,7 +6,7 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class LifecycleTrackerTests: XCTestCase {
@@ -48,7 +48,6 @@ final class LifecycleTrackerTests: XCTestCase {
                                                      queue: queue)
     lazy var transformerCoordinator = TransformerCoordinator(transformers: .constant([]),
                                                              transformations: transformations,
-                                                             moduleMappings: .constant([:]),
                                                              queue: queue,
                                                              logger: nil)
     lazy var tracker = TrackerImpl(modules: modulesManager.modules,

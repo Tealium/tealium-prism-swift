@@ -1,6 +1,6 @@
 //
 //  MockDatabaseHelper.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Tyler Rister on 12/7/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
@@ -8,7 +8,7 @@
 
 import Foundation
 import SQLite
-@testable import TealiumSwift
+@testable import TealiumPrism
 
 class MockDatabaseHelper: SQLiteOpenHelper {
     var onUpgradeCallback: (Connection, Int, Int) throws -> Void

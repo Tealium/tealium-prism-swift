@@ -1,12 +1,12 @@
 //
 //  TealiumQueueTests.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Enrico Zannini on 23/08/24.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class TealiumQueueTests: XCTestCase {

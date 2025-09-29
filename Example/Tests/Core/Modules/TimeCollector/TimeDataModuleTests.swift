@@ -1,4 +1,4 @@
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class TimeDataModuleTests: XCTestCase {

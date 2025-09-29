@@ -1,12 +1,12 @@
 //
 //  StubModuleFactory.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Enrico Zannini on 24/07/25.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-import TealiumSwift
+import TealiumPrism
 
 class StubModuleFactory<SpecificModule: Module>: ModuleFactory {
     let allowsMultipleInstances: Bool = false

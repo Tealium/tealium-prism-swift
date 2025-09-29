@@ -1,12 +1,12 @@
 //
 //  TransformationSettingsTests.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Den Guzov on 29/04/2025.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class TransformationSettingsTests: XCTestCase {

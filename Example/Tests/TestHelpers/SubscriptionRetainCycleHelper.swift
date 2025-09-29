@@ -1,13 +1,13 @@
 //
 //  SubscriptionRetainCycleHelper.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 14/07/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
 import Foundation
-@testable import TealiumSwift
+@testable import TealiumPrism
 
 class SubscriptionRetainCycleHelper<P: Subscribable>: DeinitTester {
 

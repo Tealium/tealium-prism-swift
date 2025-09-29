@@ -1,8 +1,8 @@
 use_frameworks!
 
 def tealium_libs
-  pod 'tealium-swift/Core', :path => '../'
-  pod 'tealium-swift/Lifecycle', :path => '../'
+  pod 'tealium-prism/Core', :path => '../'
+  pod 'tealium-prism/Lifecycle', :path => '../'
 end
 
 target 'Example_iOS' do
@@ -17,12 +17,12 @@ end
 
 target 'CoreTests_macOS' do
   platform :osx, '10.14'
-  pod 'tealium-swift/Core', :path => '../'
+  pod 'tealium-prism/Core', :path => '../'
 end
 
 target 'CoreTests_tvOS' do
   platform :tvos, '14.1'
-  pod 'tealium-swift/Core', :path => '../'
+  pod 'tealium-prism/Core', :path => '../'
 end
 
 target 'EndToEndTests_iOS' do
@@ -32,12 +32,12 @@ end
 
 target 'EndToEndTests_macOS' do
   platform :osx, '14.1'
-  pod 'tealium-swift/Core', :path => '../'
+  pod 'tealium-prism/Core', :path => '../'
 end
 
 target 'EndToEndTests_tvOS' do
   platform :tvos, '14.1'
-  pod 'tealium-swift/Core', :path => '../'
+  pod 'tealium-prism/Core', :path => '../'
 end
 
 target 'DelegateProxyTests_iOS' do

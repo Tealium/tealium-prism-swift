@@ -1,12 +1,12 @@
 //
 //  Operators+MergeTests.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 21/11/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
-import TealiumSwift
+import TealiumPrism
 import XCTest
 
 final class OperatorsMergeTests: XCTestCase {

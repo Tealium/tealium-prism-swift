@@ -3,7 +3,7 @@
 import PackageDescription
 
 let package = Package(
-    name: "TealiumSwift",
+    name: "TealiumPrism",
     platforms: [ .iOS(.v12), .macOS(.v10_14), .tvOS(.v12), .watchOS(.v4) ],
     products: [
         .library(
@@ -22,18 +22,18 @@ let package = Package(
             dependencies: [
                 .product(name: "SQLite", package: "SQLite.swift")
             ],
-            path: "tealium-swift/core/",
+            path: "tealium-prism/core/",
             exclude: ["Internal/Misc/ObjC/"]
         ),
         .target(
             name: "TealiumCoreObjC",
             dependencies: ["TealiumCore"],
-            path: "tealium-swift/core/Internal/Misc/ObjC/"
+            path: "tealium-prism/core/Internal/Misc/ObjC/"
         ),
         .target(
             name: "TealiumLifecycle",
             dependencies: ["TealiumCore"],
-            path: "tealium-swift/lifecycle/",
+            path: "tealium-prism/lifecycle/",
             swiftSettings: [.define("lifecycle")]
         ),
     ]

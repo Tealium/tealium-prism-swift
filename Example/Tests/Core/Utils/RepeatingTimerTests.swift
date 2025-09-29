@@ -1,12 +1,12 @@
 //
 //  RepeatingTimerTests.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Denis Guzov on 09/08/2024.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class RepeatingTimerTests: XCTestCase {

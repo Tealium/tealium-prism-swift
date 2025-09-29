@@ -1,12 +1,12 @@
 //
 //  TransformerCoordinatorTests.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 27/11/23.
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class TransformerCoordinatorTests: XCTestCase {
@@ -33,12 +33,9 @@ final class TransformerCoordinatorTests: XCTestCase {
     lazy var logger: MockLogger? = nil
     var transformationsCount = 0
     var expectedTransformations: [Int] = []
-    @StateSubject<[String: TransformationSettings]>([:])
-    var mappings: ObservableState<[String: TransformationSettings]>
     lazy var allTransformationsAreApplied = expectation(description: "All transformations are applied")
     lazy var coordinator = TransformerCoordinator(transformers: transformers.toStatefulObservable(),
                                                   transformations: transformations,
-                                                  moduleMappings: mappings,
                                                   queue: TealiumQueue.worker,
                                                   logger: logger)
     let testEvent = Dispatch(name: "test_event")

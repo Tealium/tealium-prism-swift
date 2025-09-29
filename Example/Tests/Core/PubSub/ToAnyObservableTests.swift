@@ -1,12 +1,12 @@
 //
 //  ToAnyObservableTests.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Enrico Zannini on 01/09/21.
 //  Copyright © 2021 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 class ToAnyObservableTests: XCTestCase {

@@ -1,13 +1,13 @@
 //
 //  XCTAssertEqualDictionaries.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 26/06/24.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
 import Foundation
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 func XCTAssertEqual(

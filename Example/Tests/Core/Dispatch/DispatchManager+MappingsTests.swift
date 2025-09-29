@@ -1,12 +1,12 @@
 //
 //  DispatchManager+MappingsTests.swift
-//  tealium-swift
+//  tealium-prism
 //
 //  Created by Enrico Zannini on 15/05/25.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-@testable import TealiumSwift
+@testable import TealiumPrism
 import XCTest
 
 final class DispatchManagerMappingsTests: DispatchManagerTestCase {

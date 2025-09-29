@@ -1,13 +1,13 @@
 //
 //  MockCMPAdapter.swift
-//  tealium-swift_Tests
+//  tealium-prism_Tests
 //
 //  Created by Denis Guzov on 10/06/2024.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
 import Foundation
-import TealiumSwift
+import TealiumPrism
 
 class MockCMPAdapter: CMPAdapter {
     let id: String
