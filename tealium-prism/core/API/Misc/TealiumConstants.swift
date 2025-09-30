@@ -10,8 +10,8 @@ import UIKit
 #endif
 
 public enum TealiumConstants {
-    public static let libraryName = "swift"
-    public static let libraryVersion = "3.0.0"
+    public static let libraryName = "prism-swift"
+    public static let libraryVersion = "0.1.0"
     public static let unknown = "unknown"
 
     static let tiqCdn = "https://tags.tiqcdn.com"

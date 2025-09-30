@@ -36,7 +36,7 @@ extension DeviceDataProvider {
         #elseif os(tvOS)
         return OSName.tvOS
         #elseif os(watchOS)
-        return OS.watchOS
+        return OSName.watchOS
         #elseif os(OSX)
         return OSName.macOS
         #else

@@ -47,7 +47,7 @@ final class TealiumCollectTests: TealiumBaseTests {
                     "tealium_environment": "mockEnv",
                     "tealium_event": "Event",
                     "tealium_event_type": "event",
-                    "tealium_library_name": "swift",
+                    "tealium_library_name": "prism-swift",
                     "tealium_library_version": TealiumConstants.libraryVersion,
                     "tealium_random": body["tealium_random"],
                     "tealium_session_id": body["tealium_session_id"],
