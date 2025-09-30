@@ -7,7 +7,7 @@
 //
 
 /**
- * An object that univocally defines the way to access a variable in the data layer.
+ * An object that defines the way to access a variable in the data layer.
  *
  * The suggested way to save some constant accessors and reuse them in different part of your application
  * is to define them like so:

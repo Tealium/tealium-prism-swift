@@ -8,19 +8,50 @@
 
 import Foundation
 
+/**
+ * The object used to configure a `Tealium` instance with constant values and dependencies.
+ */
 public struct TealiumConfig {
+    /// The Tealium account
     public let account: String
+
+    /// The Tealium profile for the given account
     public let profile: String
+
+    /// The environment, typically prod/qa/dev
     public let environment: String
+
+    /// The datasource for the data coming from this SDK
     public let dataSource: String?
+
+    /// A key used to uniquely identify `Tealium` instances.
     public var key: String { "\(account)-\(profile)" }
+
+    /// The file name from which to read the Local JSON settings.
+    /// These settings will be deep merged with Remote and Programmatic settings, which will take priority over Local settings.
     public internal(set) var settingsFile: String?
+
+    /// The URL from which to download Remote settings.
+    /// These settings will be deep merged with Local and Programmatic settings.
+    /// Programmatic settings will take priority over Remote settings, Remote settings will take priority over Local settings.
     public internal(set) var settingsUrl: String?
+
+    /// A list of unique `ModuleFactory`s, each one for creating a specific `Module`.
     public internal(set) var modules: [any ModuleFactory]
+
+    /// A list of unique `BarrierFactory`s, each one for creating a specific `ConfigurableBarrier`
     public internal(set) var barriers: [any BarrierFactory] = []
+
+    /// A type of logger that can handle logs of different level
     public var loggerType: TealiumLoggerType = .os
+
+    /// The specific bundle in which to look for objects like the Local settings.
     public var bundle: Bundle = .main
+
+    /// A visitor ID to be used instead of our anonymous visitor ID.
     public var existingVisitorId: String?
+
+    /// An adapter that can convert CMP specific data to a `ConsentDecision` that the `Tealium` consent integration system can handle.
     public var cmpAdapter: CMPAdapter?
     /// Replace with nil in tests to use in memory DB
     var databaseName: String? = "tealium"

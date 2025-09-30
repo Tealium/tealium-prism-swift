@@ -36,9 +36,9 @@ public enum Modules {
     public typealias EnforcingSettings<Builder> = (_ enforcedSettings: Builder) -> Builder
 
     /// Returns a factory for creating the `AppDataModule`
-    static public func appData(forcingSettings block: EnforcingSettings<CollectorSettingsBuilder>? = nil) -> any ModuleFactory {
+    static public func appData(forcingSettings block: EnforcingSettings<AppDataSettingsBuilder>? = nil) -> any ModuleFactory {
         DefaultModuleFactory<AppDataModule>(moduleType: Modules.Types.appData,
-                                            enforcedSettings: block?(CollectorSettingsBuilder()).build())
+                                            enforcedSettings: block?(AppDataSettingsBuilder()).build())
     }
 
     /**
@@ -54,9 +54,9 @@ public enum Modules {
     }
 
     /// Returns a factory for creating the `DataLayerModule`.
-    static public func dataLayer(forcingSettings block: EnforcingSettings<CollectorSettingsBuilder>? = nil) -> any ModuleFactory {
+    static public func dataLayer(forcingSettings block: EnforcingSettings<DataLayerSettingsBuilder>? = nil) -> any ModuleFactory {
         DefaultModuleFactory<DataLayerModule>(moduleType: Modules.Types.dataLayer,
-                                              enforcedSettings: block?(CollectorSettingsBuilder()).build())
+                                              enforcedSettings: block?(DataLayerSettingsBuilder()).build())
     }
 
     /// Returns a factory for creating the `DeviceDataModule`.
@@ -72,27 +72,27 @@ public enum Modules {
     }
 
     /// Returns a factory for creating the `TealiumDataModule`.
-    static public func tealiumData(forcingSettings block: EnforcingSettings<CollectorSettingsBuilder>? = nil) -> any ModuleFactory {
+    static public func tealiumData(forcingSettings block: EnforcingSettings<TealiumDataSettingsBuilder>? = nil) -> any ModuleFactory {
         DefaultModuleFactory<TealiumDataModule>(moduleType: Modules.Types.tealiumData,
-                                                enforcedSettings: block?(CollectorSettingsBuilder()).build())
+                                                enforcedSettings: block?(TealiumDataSettingsBuilder()).build())
     }
 
     /// Returns a factory for creating the `TimeDataModule`.
-    static public func timeData(forcingSettings block: EnforcingSettings<CollectorSettingsBuilder>? = nil) -> any ModuleFactory {
+    static public func timeData(forcingSettings block: EnforcingSettings<TimeDataSettingsBuilder>? = nil) -> any ModuleFactory {
         DefaultModuleFactory<TimeDataModule>(moduleType: Modules.Types.timeData,
-                                             enforcedSettings: block?(CollectorSettingsBuilder()).build())
+                                             enforcedSettings: block?(TimeDataSettingsBuilder()).build())
     }
 
     /// Returns a factory for creating the `ConnectivityDataModule`.
-    static public func connectivityData(forcingSettings block: EnforcingSettings<CollectorSettingsBuilder>? = nil) -> any ModuleFactory {
+    static public func connectivityData(forcingSettings block: EnforcingSettings<ConnectivityDataSettingsBuilder>? = nil) -> any ModuleFactory {
         DefaultModuleFactory<ConnectivityDataModule>(moduleType: Modules.Types.connectivityData,
-                                                     enforcedSettings: block?(CollectorSettingsBuilder()).build())
+                                                     enforcedSettings: block?(ConnectivityDataSettingsBuilder()).build())
     }
 
     /// Returns a factory for creating the `TraceModule`.
-    static public func trace(forcingSettings block: EnforcingSettings<CollectorSettingsBuilder>? = nil) -> any ModuleFactory {
+    static public func trace(forcingSettings block: EnforcingSettings<TraceSettingsBuilder>? = nil) -> any ModuleFactory {
         DefaultModuleFactory<TraceModule>(moduleType: Modules.Types.trace,
-                                          enforcedSettings: block?(CollectorSettingsBuilder()).build())
+                                          enforcedSettings: block?(TraceSettingsBuilder()).build())
     }
 }
 
