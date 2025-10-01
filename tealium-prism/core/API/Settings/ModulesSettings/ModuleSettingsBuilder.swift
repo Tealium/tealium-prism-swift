@@ -77,12 +77,12 @@ public extension RuleModuleSettingsBuilder where Self: ModuleSettingsBuilder {
 }
 
 /// A builder for Collector Settings which adds the possibility to set `Rule`s.
-public class CollectorSettingsBuilder: ModuleSettingsBuilder, RuleModuleSettingsBuilder {
+open class CollectorSettingsBuilder: ModuleSettingsBuilder, RuleModuleSettingsBuilder {
 
 }
 
 /// A builder for Dispatcher Settings which adds the possibility to set `Rule`s and `JSONOperation<MappingParameters>`.
-public class DispatcherSettingsBuilder: ModuleSettingsBuilder, RuleModuleSettingsBuilder {
+open class DispatcherSettingsBuilder: ModuleSettingsBuilder, RuleModuleSettingsBuilder {
 
     /**
      * Set the mappings for this module.

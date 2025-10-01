@@ -7,18 +7,18 @@ let package = Package(
     platforms: [ .iOS(.v12), .macOS(.v10_14), .tvOS(.v12), .watchOS(.v4) ],
     products: [
         .library(
-            name: "TealiumCore",
-            targets: ["TealiumCore", "TealiumCoreObjC"]),
+            name: "TealiumPrismCore",
+            targets: ["TealiumPrismCore", "TealiumPrismCoreObjC"]),
         .library(
-            name: "TealiumLifecycle",
-            targets: ["TealiumLifecycle"]),
+            name: "TealiumPrismLifecycle",
+            targets: ["TealiumPrismLifecycle"]),
     ],
     dependencies: [
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.15.4")
     ],
     targets: [
         .target(
-            name: "TealiumCore",
+            name: "TealiumPrismCore",
             dependencies: [
                 .product(name: "SQLite", package: "SQLite.swift")
             ],
@@ -26,13 +26,13 @@ let package = Package(
             exclude: ["Internal/Misc/ObjC/"]
         ),
         .target(
-            name: "TealiumCoreObjC",
-            dependencies: ["TealiumCore"],
+            name: "TealiumPrismCoreObjC",
+            dependencies: ["TealiumPrismCore"],
             path: "tealium-prism/core/Internal/Misc/ObjC/"
         ),
         .target(
-            name: "TealiumLifecycle",
-            dependencies: ["TealiumCore"],
+            name: "TealiumPrismLifecycle",
+            dependencies: ["TealiumPrismCore"],
             path: "tealium-prism/lifecycle/",
             swiftSettings: [.define("lifecycle")]
         ),

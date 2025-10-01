@@ -7,7 +7,7 @@
 //
 
 #if lifecycle
-import TealiumCore
+import TealiumPrismCore
 #endif
 
 public enum LifecycleEvent: String, CaseIterable, Codable, DataInputConvertible {

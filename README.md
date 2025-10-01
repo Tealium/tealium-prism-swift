@@ -64,8 +64,8 @@ To start using the library:
 #if COCOAPODS
 import TealiumPrism
 #else
-import TealiumCore
-import TealiumLifecycle
+import TealiumPrismCore
+import TealiumPrismLifecycle
 #endif
 
 let config = TealiumConfig(account: "my_account",

@@ -1,6 +1,6 @@
 #!/bin/bash
 # Custom script to build a specific target
-cd "$(dirname "$0")" || { echo "cd failure"; exit 1; }
+# Assumes you are calling this from a folder that contains an XCode project, workspace or Package.swift.
 
 POSITIONAL_ARGS=()
 
@@ -38,5 +38,4 @@ then
     echo "--destination is NULL, make sure to pass it"
     exit 1
 fi
-cd ../Example || { echo "cd failure"; exit 1; }
 rm -rf build && bundle exec fastlane run xcodebuild scheme:"$SCHEME" destination:"$DESTINATION"

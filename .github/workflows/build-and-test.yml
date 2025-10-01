@@ -7,8 +7,6 @@ jobs:
     name: Inspect Machine
     runs-on: 'macOS-15'
     timeout-minutes: 10
-    env:
-      working-directory: Example
     steps:
       - name: List available Xcode versions
         run: ls /Applications | grep Xcode
@@ -19,8 +17,8 @@ jobs:
       - name: List runtimes
         run: xcrun simctl list runtimes
         shell: bash
-  build_iOS:
-    name: iOS Builds | ${{ matrix.scheme }}
+  build_example:
+    name: Example Builds | ${{ matrix.scheme }}
     runs-on: 'macOS-15'
     timeout-minutes: 60
     strategy:
@@ -29,6 +27,26 @@ jobs:
             - Example_iOS
         destination: 
             - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Run Local Action: Setup Machine"
+        uses: ./.github/workflows/setup-machine
+      - name: Build - "${{ matrix.scheme }}"
+        working-directory: Example
+        run: ../scripts/build.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+  build_SPM:
+    name: SPM Builds | ${{ matrix.scheme }} | ${{ matrix.destination }}
+    runs-on: 'macOS-15'
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        scheme:
+            - TealiumPrismCore
+            - TealiumPrismLifecycle
+        destination: 
+            - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
+            - "platform=tvOS Simulator,OS=18.5,name=Apple TV"
+            - "platform=macOS"
     steps:
       - uses: actions/checkout@v4
       - name: "Run Local Action: Setup Machine"

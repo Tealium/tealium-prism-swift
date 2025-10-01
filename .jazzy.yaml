@@ -1,6 +1,6 @@
 modules: 
-- TealiumCore
-- TealiumLifecycle
+- TealiumPrismCore
+- TealiumPrismLifecycle
 title: TealiumPrism
 author: Tealium
 author_url: https://www.tealium.com

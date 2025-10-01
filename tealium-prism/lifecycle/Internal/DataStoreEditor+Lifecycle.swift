@@ -7,7 +7,7 @@
 //
 
 #if lifecycle
-import TealiumCore
+import TealiumPrismCore
 #endif
 
 // TODO: Perhaps, the best way to go would be to have an increment method in the DataStoreEditor, so that we can do the read and write in a transaction and don't need these dependencies to the Storage

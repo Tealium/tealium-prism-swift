@@ -8,7 +8,7 @@
 
 import Foundation
 #if lifecycle
-import TealiumCore
+import TealiumPrismCore
 #endif
 
 class LifecycleModule {

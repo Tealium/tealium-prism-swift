@@ -17,9 +17,9 @@
 #endif
 #else
 #ifdef SWIFT_PACKAGE
-@import TealiumCore;
+@import TealiumPrismCore;
 #else
-#import <TealiumCore/TealiumCore-Swift.h>
+#import <TealiumPrismCore/TealiumPrismCore-Swift.h>
 #endif
 #endif
 

@@ -7,7 +7,7 @@
 //
 
 #if lifecycle
-import TealiumCore
+import TealiumPrismCore
 #endif
 
 public class LifecycleSettingsBuilder: CollectorSettingsBuilder {
