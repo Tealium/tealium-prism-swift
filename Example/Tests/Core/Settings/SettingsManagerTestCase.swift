@@ -1,0 +1,102 @@
+//
+//  SettingsManagerTestCase.swift
+//  tealium-prism
+//
+//  Created by Enrico Zannini on 27/03/25.
+//  Copyright © 2025 Tealium, Inc. All rights reserved.
+//
+
+@testable import TealiumPrism
+import XCTest
+
+class SettingsManagerTestCase: XCTestCase {
+    let databaseProvider = MockDatabaseProvider()
+    let networkHelper = MockNetworkHelper()
+    let onActivity = ReplaySubject<ApplicationStatus>()
+    lazy var config = createConfig(url: nil)
+    func createConfig(url: String?) -> TealiumConfig {
+        TealiumConfig(account: "test",
+                      profile: "test",
+                      environment: "dev",
+                      modules: [],
+                      settingsFile: "localSettings.json",
+                      settingsUrl: url)
+    }
+    func createCacher() throws -> ResourceCacher<DataObject> {
+        let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
+                                                modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
+        let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
+        return ResourceCacher<DataObject>(dataStore: dataStore,
+                                          fileName: "settings")
+    }
+    func getManager(url: String? = "someUrl") throws -> SettingsManager {
+        config.settingsUrl = url
+        let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
+                                                modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
+        let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
+        return try SettingsManager(config: config,
+                                   dataStore: dataStore,
+                                   networkHelper: networkHelper,
+                                   logger: MockLogger())
+    }
+
+    func localRules() throws -> DataItem {
+        try DataItem(serializing: [
+            "id": "localRule",
+            "conditions": [
+                "operator": "and",
+                "children": [
+                    [
+                        "variable": "variable",
+                        "operator": "defined"
+                    ]
+                ]
+            ]
+        ])
+    }
+
+    func localTransformation() throws -> DataItem {
+        try DataItem(serializing: [
+            "transformation_id": "transformationId",
+            "transformer_id": "transformerId",
+            "scopes": ["afterCollectors"],
+            "configuration": [
+                "key": "value"
+            ],
+            "conditions": [
+                "variable": "pageName",
+                "path": ["container"],
+                "operator": "equals",
+                "filter": "Home"
+            ]
+        ])
+    }
+
+    func setupForLocal(url: String? = nil) throws -> SettingsManager {
+        config.bundle = Bundle(for: type(of: self))
+        return try getManager(url: url)
+    }
+
+    func setupForRemote(codableResult: ObjectResult<Any>) throws -> SettingsManager {
+        networkHelper.codableResult = codableResult
+        let manager = try getManager()
+        manager.startRefreshing(onActivity: onActivity.asObservable())
+        return manager
+    }
+
+    func setupForLocalAndRemote(codableResult: ObjectResult<Any>) throws -> SettingsManager {
+        config.bundle = Bundle(for: type(of: self))
+        networkHelper.codableResult = codableResult
+        let manager = try getManager()
+        manager.startRefreshing(onActivity: onActivity.asObservable())
+        return manager
+    }
+
+    func buildModulesSettings(moduleType: String, additionalProperties: [String: String] = [:]) -> DataObject {
+        [
+            moduleType: additionalProperties.reduce(ModuleSettingsBuilder(), { partialResult, keyValue in
+                partialResult.setProperty(keyValue.value, key: keyValue.key)
+            }).build(withModuleType: moduleType)
+        ]
+    }
+}

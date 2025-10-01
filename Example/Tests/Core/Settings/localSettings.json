@@ -1,0 +1,40 @@
+{
+    "modules": {
+        "localModule": {
+            "module_type": "localModule",
+            "configuration": {
+                "localKey": "localValue"
+            }
+        }
+    },
+    "load_rules": {
+        "localRule": {
+            "id": "localRule",
+            "conditions": {
+                "operator": "and",
+                "children": [
+                    {
+                        "variable": "variable",
+                        "operator": "defined"
+                    }
+                ]
+            }
+        }
+    },
+    "transformations": {
+        "transformerId-transformationId": {
+            "transformation_id": "transformationId",
+            "transformer_id": "transformerId",
+            "scopes": ["afterCollectors"],
+            "configuration": {
+                "key": "value"
+            },
+            "conditions": {
+                "variable": "pageName",
+                "path": ["container"],
+                "operator": "equals",
+                "filter": "Home"
+            }
+        }
+    }
+}

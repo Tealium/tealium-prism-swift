@@ -1,0 +1,127 @@
+name: Build and Test
+
+on: [pull_request]
+
+jobs:
+  inspect:
+    name: Inspect Machine
+    runs-on: 'macOS-15'
+    timeout-minutes: 10
+    steps:
+      - name: List available Xcode versions
+        run: ls /Applications | grep Xcode
+        shell: bash
+      - name: List available devices
+        run: xcrun simctl list devices
+        shell: bash
+      - name: List runtimes
+        run: xcrun simctl list runtimes
+        shell: bash
+  build_example:
+    name: Example Builds | ${{ matrix.scheme }}
+    runs-on: 'macOS-15'
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        scheme:
+            - Example_iOS
+        destination: 
+            - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Run Local Action: Setup Machine"
+        uses: ./.github/workflows/setup-machine
+      - name: Build - "${{ matrix.scheme }}"
+        working-directory: Example
+        run: ../scripts/build.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+  build_SPM:
+    name: SPM Builds | ${{ matrix.scheme }} | ${{ matrix.destination }}
+    runs-on: 'macOS-15'
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        scheme:
+            - TealiumPrismCore
+            - TealiumPrismLifecycle
+        destination: 
+            - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
+            - "platform=tvOS Simulator,OS=18.5,name=Apple TV"
+            - "platform=macOS"
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Run Local Action: Setup Machine"
+        uses: ./.github/workflows/setup-machine
+      - name: Build - "${{ matrix.scheme }}"
+        run: scripts/build.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+  test_iOS:
+    name: iOS Tests | ${{ matrix.scheme }}
+    runs-on: 'macOS-15'
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        scheme:
+            - CoreTests_iOS
+            - DelegateProxyTests_iOS
+            - LifecycleTests_iOS
+        destination: 
+            - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Run Local Action: Setup Machine"
+        uses: ./.github/workflows/setup-machine
+      - name: Test - "${{ matrix.scheme }}"
+        run: scripts/run_tests.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+  end_to_end_test_iOS:
+    needs: # Add to make sure it starts after the others have finished, to maybe affect performance
+      - test_iOS 
+      - test_tvOS
+      - test_macOS
+    name: iOS Tests | ${{ matrix.scheme }}
+    runs-on: 'macOS-15'
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        scheme:
+            - EndToEndTests_iOS
+        destination: 
+            - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Run Local Action: Setup Machine"
+        uses: ./.github/workflows/setup-machine
+      - name: Test - "${{ matrix.scheme }}"
+        run: scripts/run_tests.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+  test_tvOS:
+    name: tvOS Tests | ${{ matrix.scheme }}
+    runs-on: 'macOS-15'
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        scheme:
+            - CoreTests_tvOS
+            - EndToEndTests_tvOS
+        destination: 
+            - "platform=tvOS Simulator,OS=18.5,name=Apple TV"
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Run Local Action: Setup Machine"
+        uses: ./.github/workflows/setup-machine
+      - name: Test - "${{ matrix.scheme }}"
+        run: scripts/run_tests.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+  test_macOS:
+    name: macOS Tests | ${{ matrix.scheme }}
+    runs-on: 'macOS-15'
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        scheme:
+            - CoreTests_macOS
+            - EndToEndTests_macOS
+        destination: 
+            - "platform=macOS"
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Run Local Action: Setup Machine"
+        uses: ./.github/workflows/setup-machine
+      - name: Test - "${{ matrix.scheme }}"
+        run: scripts/run_tests.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"

@@ -1,0 +1,55 @@
+use_frameworks!
+
+def tealium_libs
+  pod 'tealium-prism/Core', :path => '../'
+  pod 'tealium-prism/Lifecycle', :path => '../'
+end
+
+target 'Example_iOS' do
+  platform :ios, '14.1'
+  tealium_libs
+  end
+
+target 'CoreTests_iOS' do
+  platform :ios, '14.1'
+  tealium_libs
+end
+
+target 'CoreTests_macOS' do
+  platform :osx, '10.14'
+  pod 'tealium-prism/Core', :path => '../'
+end
+
+target 'CoreTests_tvOS' do
+  platform :tvos, '14.1'
+  pod 'tealium-prism/Core', :path => '../'
+end
+
+target 'EndToEndTests_iOS' do
+  platform :ios, '14.1'
+  tealium_libs
+end
+
+target 'EndToEndTests_macOS' do
+  platform :osx, '14.1'
+  pod 'tealium-prism/Core', :path => '../'
+end
+
+target 'EndToEndTests_tvOS' do
+  platform :tvos, '14.1'
+  pod 'tealium-prism/Core', :path => '../'
+end
+
+target 'DelegateProxyTests_iOS' do
+  platform :ios, '14.1'
+  tealium_libs
+end
+
+target 'LifecycleTests_iOS' do
+  platform :ios, '14.1'
+  tealium_libs
+end
+
+post_install do |installer|
+    installer.pods_project.root_object.attributes["ORGANIZATIONNAME"] = "Tealium, Inc"
+end

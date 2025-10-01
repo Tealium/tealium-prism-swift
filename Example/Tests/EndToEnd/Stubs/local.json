@@ -1,0 +1,18 @@
+{
+    "modules": {
+        "MockDispatcher2": {
+            "module_type": "MockDispatcher2",
+            "enabled": false
+        }
+    },
+    "load_rules": {
+        "event_contains_blocked": {
+            "id": "event_contains_blocked",
+            "conditions": {
+                "variable": "tealium_event",
+                "operator": "contains",
+                "filter": "blocked"
+            }
+        }
+    }
+}

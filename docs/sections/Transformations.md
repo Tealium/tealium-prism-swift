@@ -1,0 +1,1 @@
+A generic way to transform or drop `Dispatch`es before being sent to `Dispatcher`s.

@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "AFEE609D-A60C-4453-A770-41F699D81001",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "877B4F862DAE739600AB8A43",
+        "name" : "DelegateProxyTests_iOS"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -1,0 +1,30 @@
+//
+//  Tracker.swift
+//  tealium-prism
+//
+//  Created by Enrico Zannini on 20/11/23.
+//  Copyright © 2023 Tealium, Inc. All rights reserved.
+//
+
+import Foundation
+
+/// An object that receives a `Dispatch`, enriches it and sends it to be dispatched.
+public protocol Tracker: AnyObject {
+    /**
+     * Takes a trackable and a source, collects additional data from Collectors, and dispatches the result to the Dispatchers.
+     *
+     * - note: When this `onTrackResult` callback is called, even when accepted, the `Dispatch` is safely stored to disk but not yet dispatched to the Dispatchers.
+     *
+     * - Parameters:
+     *      - trackable: The `Dispatch` that needs to be tracked.
+     *      - source: The `Module` that generated this track or the application
+     *      - onTrackResult: A callback called when the track is either accepted or dropped.
+     */
+    func track(_ trackable: Dispatch, source: DispatchContext.Source, onTrackResult: TrackResultCompletion?)
+}
+
+public extension Tracker {
+    func track(_ trackable: Dispatch, source: DispatchContext.Source) {
+        track(trackable, source: source, onTrackResult: nil)
+    }
+}

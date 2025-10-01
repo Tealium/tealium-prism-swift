@@ -1,0 +1,60 @@
+included:
+  - ./Example/Tests
+excluded:
+disabled_rules:
+  - trailing_comma
+  - unused_optional_binding
+  - file_header
+opt_in_rules:
+  - file_length
+  - force_unwrapping
+  - explicit_init
+  - closure_spacing
+  - overridden_super_call
+  - redundant_nil_coalescing
+  - private_outlet
+  - nimble_operator
+  - attributes
+  - operator_usage_whitespace
+  - closure_end_indentation
+  - first_where
+  - sorted_imports
+  - object_literal
+  - prohibited_super_call
+  - fatal_error_message
+  - vertical_parameter_alignment_on_call
+  - unneeded_parentheses_in_closure_argument
+  - extension_access_modifier
+  - pattern_matching_keywords
+  - array_init
+  - literal_expression_end_indentation
+  - number_separator
+
+file_length:
+  warning: 700
+type_body_length:
+  warning: 500
+identifier_name:
+  allowed_symbols: "_"
+  excluded:
+    - id
+    - or
+line_length: 
+    warning: 200
+    error: 500
+    ignores_comments: true
+number_separator:
+  minimum_length: 5
+large_tuple: 4
+nesting:
+  ignore_typealiases_and_associatedtypes: true
+cyclomatic_complexity:
+  ignores_case_statements: true
+overridden_super_call:
+  excluded:
+  - tearDown()
+  - setUp()
+type_name:
+  excluded:
+  - Or
+

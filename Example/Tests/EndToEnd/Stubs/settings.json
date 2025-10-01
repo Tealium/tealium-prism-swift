@@ -1,0 +1,27 @@
+{
+    "core": {
+        "log_level": "trace",
+        "expiration": 200
+    },
+    "modules": {
+        "MockDispatcher1": {
+            "module_type": "MockDispatcher1",
+            "enabled": false
+        },
+        "MockDispatcher2": {
+            "module_type": "MockDispatcher2",
+            "enabled": true
+        }
+    },
+    "barriers": {
+        "BatchingBarrier": {
+            "scopes": [
+                "MockDispatcher2"
+            ],
+            "barrier_id": "BatchingBarrier",
+            "configuration" : {
+                "batch_size": 3
+            }
+        }
+    }
+}

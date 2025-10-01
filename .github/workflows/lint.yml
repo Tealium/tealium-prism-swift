@@ -1,0 +1,24 @@
+name: Lint
+
+on: [pull_request]
+
+jobs:
+  SwiftLint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Lint Source
+        uses: norio-nomura/action-swiftlint@3.2.1
+        with: 
+          args: --config .swiftlint.yml # --strict # To be added in the future
+      - name: Lint Tests
+        uses: norio-nomura/action-swiftlint@3.2.1
+        with: 
+          args: --config .swiftlint_test.yml
+  validate_versions:
+    name: Validate versions
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Validate Versions
+        run: scripts/validate_versions.sh

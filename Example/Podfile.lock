@@ -1,0 +1,29 @@
+PODS:
+  - SQLite.swift (0.15.4):
+    - SQLite.swift/standard (= 0.15.4)
+  - SQLite.swift/standard (0.15.4)
+  - tealium-prism/Core (0.1.0):
+    - SQLite.swift (~> 0.15.0)
+  - tealium-prism/Lifecycle (0.1.0):
+    - SQLite.swift (~> 0.15.0)
+    - tealium-prism/Core
+
+DEPENDENCIES:
+  - tealium-prism/Core (from `../`)
+  - tealium-prism/Lifecycle (from `../`)
+
+SPEC REPOS:
+  trunk:
+    - SQLite.swift
+
+EXTERNAL SOURCES:
+  tealium-prism:
+    :path: "../"
+
+SPEC CHECKSUMS:
+  SQLite.swift: a107c734115fea616a4ad31371d39f1637e8de56
+  tealium-prism: c652dfbc1e4d04bcd1644f159b34270ab2c17438
+
+PODFILE CHECKSUM: ee05bcb089ba05111b479281ec079097052231ae
+
+COCOAPODS: 1.16.2

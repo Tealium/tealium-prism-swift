@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "F67D57D9-F0F0-4317-A743-83C9919721C0",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "607FACE41AFB9204008FA782",
+        "name" : "CoreTests_iOS"
+      }
+    }
+  ],
+  "version" : 1
+}

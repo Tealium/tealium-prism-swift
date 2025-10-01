@@ -1,0 +1,90 @@
+modules: 
+- TealiumPrismCore
+- TealiumPrismLifecycle
+title: TealiumPrism
+author: Tealium
+author_url: https://www.tealium.com
+source_host_url: https://github.com/tealium/tealium-prism-swift
+readme: .README.md
+exclude:
+  - "**/Internal*"
+sdk: iphoneos
+swift_build_tool: spm
+abstract: 'docs/sections/**.md'
+output: '.build/docs'
+documentation: 'docs/guides/**.md'
+# theme: fullwidth
+
+# remove disabled_ prefix to apply the following categories. 
+# If the following contain any regex, make sure to use a version of jazzy that supports them.
+disabled_custom_categories: 
+  - name: Tealium
+    children:
+    - Tealium
+    - TealiumConfig
+    - TealiumInstanceManager
+    - CoreSettingsBuilder
+  - name: Modules
+    children:
+    - Modules
+    - AppData
+    - Collect
+    - ConnectivityData
+    - DataLayer
+    - DeepLinkHandler
+    - DeviceData
+    - Lifecycle
+    - TealiumData
+    - TimeData
+    - Trace
+  - name: Consent
+    children:
+    - regex: Consent
+    - regex: CMP
+  - name: Collect Module
+    children:
+    - regex: CollectSettings
+  - name: DeepLinkHandler Module
+    children:
+    - regex: DeepLink
+  - name: DeviceData Module
+    children:
+    - regex: DeviceData
+  - name: Lifecycle Module
+    children:
+    - regex: Lifecycle
+  - name: Rules
+    children:
+    - regex: Rule
+    - regex: Condition
+  - name: Barriers
+    children:
+    - Barriers
+    - regex: Barrier
+  - name: Transformations
+    children:
+    - regex: Transformation
+  - name: Module
+    children:
+    - Module
+    - regex: Module
+    - regex: Collector
+    - regex: Dispatcher
+    - regex: Transformer
+    - regex: Mapping
+  - name: Data
+    children:
+    - regex: ^Data
+    - Expiry
+    - regex: ^Dispatch
+    - VariableAccessor
+    - ValueContainer
+  - name: PubSub
+    children:
+    - regex: Observable
+    - regex: Publisher
+    - regex: Subject
+    - regex: ^(?!.*Signpost).*State.*
+    - regex: Single
+    - regex: Dispos
+    - regex: Subscri

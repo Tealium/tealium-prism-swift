@@ -1,0 +1,49 @@
+{
+    "operator": "and",
+    "children": [
+        {
+            "operator": "or",
+            "children": [
+                {
+                    "variable": "pageName_AND_OR",
+                    "path": ["container"],
+                    "operator": "equals",
+                    "filter": "Home"
+                },
+                {
+                    "operator": "not",
+                    "children": [
+                        {
+                            "operator": "and",
+                            "children": [
+                                {
+                                    "variable": "pageName_AND_OR_NOT_AND",
+                                    "path": ["container"],
+                                    "operator": "equals",
+                                    "filter": "Home"
+                                },
+                                {
+                                    "operator": "not",
+                                    "children": [
+                                        {
+                                            "variable": "pageName_AND_OR_NOT_AND_NOT",
+                                            "path": ["container"],
+                                            "operator": "equals",
+                                            "filter": "Home"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "variable": "pageName_AND",
+            "path": ["container"],
+            "operator": "equals",
+            "filter": "Home"
+        }
+    ]
+}
