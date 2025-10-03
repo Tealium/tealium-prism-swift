@@ -11,7 +11,7 @@ exclude:
 sdk: iphoneos
 swift_build_tool: spm
 abstract: 'docs/sections/**.md'
-output: '.build/docs'
+output: '_site'
 documentation: 'docs/guides/**.md'
 # theme: fullwidth
 

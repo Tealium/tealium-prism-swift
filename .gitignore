@@ -22,3 +22,4 @@ veracode/
 builder/veracode/
 test_output/
 .aider*
+_site/
