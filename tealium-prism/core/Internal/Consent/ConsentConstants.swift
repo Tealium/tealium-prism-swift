@@ -7,10 +7,10 @@
 //
 
 extension TealiumDataKey {
-    static let processedPurposes = "purposes_with_consent_processed"
-    static let unprocessedPurposes = "purposes_with_consent_unprocessed"
-    static let allConsentedPurposes = "purposes_with_consent_all"
-    static let consentType = "consent_type"
+    static let processedPurposes = "tci.purposes_with_consent_processed"
+    static let unprocessedPurposes = "tci.purposes_with_consent_unprocessed"
+    static let allConsentedPurposes = "tci.purposes_with_consent_all"
+    static let consentType = "tci.consent_type"
 }
 
 enum ConsentConstants {

@@ -96,14 +96,14 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
         let result = consentManager.applyConsent(to: Dispatch(name: "event1"))
         XCTAssertTrackResultIsAccepted(result) { dispatch in
             XCTAssertNotEqual(dispatch.payload.count, 3)
-            XCTAssertNotNil(dispatch.payload.getDataItem(key: "consent_type"))
+            XCTAssertNotNil(dispatch.payload.getDataItem(key: TealiumDataKey.consentType))
         }
     }
 
     func test_applyConsent_returns_dropped_result_and_original_dispatch_when_unprocessed_purposes_empty() {
         applyDecision(decisionType: .explicit, purposes: ["tealium"])
         var dispatch = Dispatch(name: "event1")
-        dispatch.enrich(data: ["purposes_with_consent_all": ["tealium"]]) // this is gonna be the 3rd property of payload...
+        dispatch.enrich(data: [TealiumDataKey.allConsentedPurposes: ["tealium"]]) // this is gonna be the 3rd property of payload...
         let result = consentManager.applyConsent(to: dispatch)
         XCTAssertTrackResultIsDropped(result) { dispatch in
             XCTAssertEqual(dispatch.payload.count, 4) // ...that's why 4 is here
