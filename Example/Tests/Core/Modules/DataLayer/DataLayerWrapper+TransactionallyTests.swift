@@ -23,7 +23,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
         let callbackCalled = expectation(description: "Transaction callback is called")
         let getCompleted = expectation(description: "Get callback is called")
         wrapper.transactionally { apply, _, _ in
-            apply(.put("key", "value", .forever))
+            apply(.put(key: "key", value: "value", expiry: .forever))
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
         }
@@ -39,7 +39,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
         let getCompleted = expectation(description: "Get callback is called")
         wrapper.transactionally { apply, _, commit in
             try commit()
-            apply(.put("key", "value", .forever))
+            apply(.put(key: "key", value: "value", expiry: .forever))
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
         }
@@ -55,7 +55,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
         let getCompleted = expectation(description: "Get callback is called")
         wrapper.put(key: "key", value: "value")
         wrapper.transactionally { apply, _, _ in
-            apply(.remove("key"))
+            apply(.remove(key: "key"))
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
         }
@@ -72,7 +72,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
         wrapper.put(key: "key", value: "value")
         wrapper.transactionally { apply, _, commit in
             try commit()
-            apply(.remove("key"))
+            apply(.remove(key: "key"))
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
         }
@@ -87,7 +87,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
         let callbackCalled = expectation(description: "Transaction callback is called")
         let getCompleted = expectation(description: "Get callback is called")
         wrapper.transactionally { apply, _, commit in
-            apply(.put("key", "value", .forever))
+            apply(.put(key: "key", value: "value", expiry: .forever))
             try commit()
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
@@ -104,7 +104,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
         let getCompleted = expectation(description: "Get callback is called")
         wrapper.put(key: "key", value: "value")
         wrapper.transactionally { apply, _, commit in
-            apply(.remove("key"))
+            apply(.remove(key: "key"))
             try commit()
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
@@ -130,7 +130,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
     func test_getDataItem_returns_data_added_by_previous_commit() {
         let callbackCalled = expectation(description: "Transaction callback is called")
         wrapper.transactionally { apply, getDataItem, commit in
-            apply(.put("key", "value", .forever))
+            apply(.put(key: "key", value: "value", expiry: .forever))
             try commit()
             XCTAssertEqual(getDataItem("key")?.get(), "value")
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -142,7 +142,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
     func test_getDataItem_returns_nil_for_value_not_committed_yet() {
         let callbackCalled = expectation(description: "Transaction callback is called")
         wrapper.transactionally { apply, getDataItem, commit in
-            apply(.put("key", "value", .forever))
+            apply(.put(key: "key", value: "value", expiry: .forever))
             XCTAssertNil(getDataItem("key"))
             try commit()
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -155,7 +155,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
         let callbackCalled = expectation(description: "Transaction callback is called")
         wrapper.put(key: "key", value: "value")
         wrapper.transactionally { apply, getDataItem, commit in
-            apply(.remove("key"))
+            apply(.remove(key: "key"))
             XCTAssertEqual(getDataItem("key")?.get(), "value")
             try commit()
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -168,7 +168,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
         let callbackCalled = expectation(description: "Transaction callback is called")
         wrapper.put(key: "key", value: "value")
         wrapper.transactionally { apply, getDataItem, commit in
-            apply(.remove("key"))
+            apply(.remove(key: "key"))
             try commit()
             XCTAssertNil(getDataItem("key"))
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -181,9 +181,9 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
         let callbackCalled = expectation(description: "Transaction callback is called")
         let getCompleted = expectation(description: "Get callback is called")
         wrapper.transactionally { apply, _, commit in
-            apply(.put("key", "value", .forever))
+            apply(.put(key: "key", value: "value", expiry: .forever))
             try commit()
-            apply(.put("key", "value2", .forever))
+            apply(.put(key: "key", value: "value2", expiry: .forever))
             try commit()
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
@@ -199,7 +199,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
         let callbackCalled = expectation(description: "Transaction callback is called")
         let transactionSuccessful = expectation(description: "Transaction is completed successfully")
         wrapper.transactionally { apply, _, commit in
-            apply(.put("key", "value", .forever))
+            apply(.put(key: "key", value: "value", expiry: .forever))
             try commit()
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()

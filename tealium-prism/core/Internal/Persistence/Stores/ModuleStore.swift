@@ -80,7 +80,7 @@ public class ModuleStore: DataStore {
         }
 
         func put(key: String, value: DataInput, expiry: Expiry) -> Self {
-            apply(edit: .put(key, value, expiry))
+            apply(edit: .put(key: key, value: value, expiry: expiry))
         }
 
         func putAll(dataObject: DataObject, expiry: Expiry) -> Self {
@@ -91,7 +91,7 @@ public class ModuleStore: DataStore {
         }
 
         func remove(key: String) -> Self {
-            apply(edit: .remove(key))
+            apply(edit: .remove(key: key))
         }
 
         func remove(keys: [String]) -> Self {
@@ -125,7 +125,7 @@ public class ModuleStore: DataStore {
             var appliedEdits = [DataStoreEdit]()
             try repository.transactionally { repo in
                 if shouldClear {
-                    appliedEdits.append(contentsOf: repo.keys().map { .remove($0) })
+                    appliedEdits.append(contentsOf: repo.keys().map { .remove(key: $0) })
                     _ = try repo.clear()
                 }
                 for edit in edits where try apply(edit, on: repo) {

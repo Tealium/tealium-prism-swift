@@ -124,7 +124,17 @@ public protocol DataStoreEditor {
     func commit() throws
 }
 
+/// A data store edit for a specific key
 public enum DataStoreEdit {
-    case remove(String)
-    case put(String, DataInput, Expiry)
+    /**
+     * Removes the data store item at the given key
+     */
+    case remove(key: String)
+
+    /**
+     * Puts the specified value at the given key for a specific expiry.
+     *
+     * If any previous value was stored at that key it will be replaced together with the new expiry.
+     */
+    case put(key: String, value: DataInput, expiry: Expiry)
 }

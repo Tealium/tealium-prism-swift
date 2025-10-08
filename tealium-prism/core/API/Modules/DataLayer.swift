@@ -17,7 +17,7 @@
  */
 public protocol DataLayer {
 
-    // MARK: - Typealiases
+    // MARK: - Type aliases
 
     /**
      * A block used to apply a `DataStoreEdit`.
@@ -76,11 +76,11 @@ public protocol DataLayer {
      * Usage example:
      * ```swift
      * teal.dataLayer.transactionally { apply, getDataItem, commit in
-     *   apply(.put("key1", "value", .forever))
-     *   apply(.put("key2", "value2", .untilRestart))
-     *   apply(.remove("key3"))
+     *   apply(.put(key: "key1", value: "value", expiry: .forever))
+     *   apply(.put(key: "key2", value: "value2", expiry: .untilRestart))
+     *   apply(.remove(key: "key3"))
      *   if let count = getDataItem("key4")?.get(as: Int.self) {
-     *       apply(.put("key4", count + 1, .forever))
+     *       apply(.put(key: "key4", value: count + 1, expiry: .forever))
      *   }
      *   do {
      *       try commit()

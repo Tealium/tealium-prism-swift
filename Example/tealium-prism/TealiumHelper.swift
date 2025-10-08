@@ -48,11 +48,11 @@ class TealiumHelper {
         let teal = createTeal()
         self.teal = teal
         teal.dataLayer.transactionally { apply, getDataItem, commit in
-            apply(.put("key", "value", .forever))
-            apply(.put("key2", "value2", .forever))
-            apply(.remove("key3"))
+            apply(.put(key: "key", value: "value", expiry: .forever))
+            apply(.put(key: "key2", value: "value2", expiry: .forever))
+            apply(.remove(key: "key3"))
             if let count = getDataItem("key4")?.get(as: Int.self) {
-                apply(.put("key4", count + 1, .forever))
+                apply(.put(key: "key4", value: count + 1, expiry: .forever))
             }
             do {
                 try commit()
