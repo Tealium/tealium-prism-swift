@@ -9,12 +9,8 @@
 #import <Foundation/Foundation.h>
 #if TARGET_OS_IOS
 
-//NS_ASSUME_NONNULL_BEGIN
-
 @interface SwiftClassesLoader: NSObject
 
 @end
-
-//NS_ASSUME_NONNULL_END
 
 #endif

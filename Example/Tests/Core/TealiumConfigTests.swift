@@ -18,46 +18,56 @@ final class TealiumConfigTests: XCTestCase {
                                settingsUrl: nil)
 
     func test_getEnforcedSDKSettings_returns_settings_for_each_module() {
-        let settings1: DataObject = ["module1_key": "module1_value"]
-        let settings2: DataObject = ["module2_key": "module2_value"]
+        let settings1 = MultipleInstancesSettingsBuilder()
+            .setOrder(10)
+        let settings2 = MultipleInstancesSettingsBuilder()
+            .setOrder(20)
         config.addModule(MockDispatcher1.factory(enforcedSettings: settings1))
         config.addModule(MockDispatcher2.factory(enforcedSettings: settings2))
         let settings = config.getEnforcedSDKSettings()
         XCTAssertEqual(settings, ["modules": [
-            MockDispatcher1.moduleType: settings1 + ["module_type": MockDispatcher1.moduleType],
-            MockDispatcher2.moduleType: settings2 + ["module_type": MockDispatcher2.moduleType],
+            MockDispatcher1.moduleType: settings1.build(withModuleType: MockDispatcher1.moduleType),
+            MockDispatcher2.moduleType: settings2.build(withModuleType: MockDispatcher2.moduleType)
         ]])
     }
 
     func test_getEnforcedSDKSettings_returns_settings_for_multiple_instance_module() {
-        let settings1: DataObject = ["module_id": "1", "module1_key": "module1_value"]
-        let settings2: DataObject = ["module_id": "2", "module2_key": "module2_value"]
-        config.addModule(MockDispatcher2.factory(allowsMultipleInstances: true, enforcedSettings: settings1, settings2))
+        let settings1 = MultipleInstancesSettingsBuilder()
+            .setModuleId("ID1")
+        let settings2 = MultipleInstancesSettingsBuilder()
+            .setModuleId("ID2")
+        config.addModule(MockDispatcher1.factory(allowsMultipleInstances: true, enforcedSettings: settings1))
+        config.addModule(MockDispatcher2.factory(allowsMultipleInstances: true, enforcedSettings: settings2))
         let settings = config.getEnforcedSDKSettings()
         XCTAssertEqual(settings, ["modules": [
-            "1": settings1 + ["module_type": MockDispatcher2.moduleType],
-            "2": settings2 + ["module_type": MockDispatcher2.moduleType],
+            "ID1": settings1.build(withModuleType: MockDispatcher1.moduleType),
+            "ID2": settings2.build(withModuleType: MockDispatcher2.moduleType)
         ]])
     }
 
     func test_getEnforcedSDKSettings_returns_settings_keyed_by_moduleType_if_moduleId_is_missing() {
-        let settings1: DataObject = ["module1_key": "module1_value"]
-        let settings2: DataObject = ["module_id": "2", "module2_key": "module2_value"]
+        let settings1 = MultipleInstancesSettingsBuilder()
+        let settings2 = MultipleInstancesSettingsBuilder()
+            .setModuleId("ID2")
         config.addModule(MockDispatcher2.factory(allowsMultipleInstances: true, enforcedSettings: settings1, settings2))
         let settings = config.getEnforcedSDKSettings()
         XCTAssertEqual(settings, ["modules": [
-            MockDispatcher2.moduleType: settings1 + ["module_type": MockDispatcher2.moduleType],
-            "2": settings2 + ["module_type": MockDispatcher2.moduleType],
+            MockDispatcher2.moduleType: settings1.build(withModuleType: MockDispatcher2.moduleType),
+            "ID2": settings2.build(withModuleType: MockDispatcher2.moduleType),
         ]])
     }
 
     func test_getEnforcedSDKSettings_returns_only_first_instance_of_settings_for_multiple_instance_module_if_moduleId_is_the_same() {
-        let settings1: DataObject = ["module_id": "1", "module1_key": "module1_value"]
-        let settings2: DataObject = ["module_id": "1", "module2_key": "module2_value"]
+        let settings1 = MultipleInstancesSettingsBuilder()
+            .setOrder(10)
+            .setModuleId("ID1")
+        let settings2 = MultipleInstancesSettingsBuilder()
+            .setOrder(20)
+            .setModuleId("ID1")
         config.addModule(MockDispatcher2.factory(allowsMultipleInstances: true, enforcedSettings: settings1, settings2))
         let settings = config.getEnforcedSDKSettings()
         XCTAssertEqual(settings, ["modules": [
-            "1": settings1 + ["module_type": MockDispatcher2.moduleType],
+            "ID1": settings1.build(withModuleType: MockDispatcher2.moduleType)
         ]])
     }
 

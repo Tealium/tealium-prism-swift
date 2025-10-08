@@ -159,7 +159,6 @@ final class TealiumSettingsTests: TealiumBaseTests {
         eventDispatched.expectedFulfillmentCount = 2
         let moduleSettings = CollectorSettingsBuilder()
             .setRules(.not("event_contains_blocked"))
-            .build()
         config.addModule(MockCollector.factory(enforcedSettings: moduleSettings))
         config.addModule(MockDispatcher2.factory())
         MockDispatcher.onDispatch.subscribe { dispatches in
@@ -182,7 +181,6 @@ final class TealiumSettingsTests: TealiumBaseTests {
         let eventDispatched = expectation(description: "An event is dispatched")
         let moduleSettings = DispatcherSettingsBuilder()
             .setRules(.not("event_contains_blocked"))
-            .build()
         config.addModule(MockDispatcher2.factory(enforcedSettings: moduleSettings))
         MockDispatcher.onDispatch.subscribe { dispatches in
             XCTAssertEqual(dispatches.map { $0.name }, ["event_dispatched"])

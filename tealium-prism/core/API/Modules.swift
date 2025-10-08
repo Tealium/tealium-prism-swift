@@ -35,8 +35,13 @@ public enum Modules {
      */
     public typealias EnforcingSettings<Builder> = (_ enforcedSettings: Builder) -> Builder
 
-    /// Returns a factory for creating the `AppDataModule`
-    static public func appData(forcingSettings block: EnforcingSettings<AppDataSettingsBuilder>? = nil) -> any ModuleFactory {
+    /**
+     * Returns a factory for creating the `AppDataModule`.
+     *
+     * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
+     * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     */
+    static public func appData(forcingSettings block: EnforcingSettings<AppDataSettingsBuilder>? = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<AppDataModule>(moduleType: Modules.Types.appData,
                                             enforcedSettings: block?(AppDataSettingsBuilder()).build())
     }
@@ -44,53 +49,102 @@ public enum Modules {
     /**
      * Returns a factory for creating the `CollectModule`.
      *
+     * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
+     * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     */
+    static public func collect(forcingSettings block: EnforcingSettings<CollectSettingsBuilder>? = { $0 }) -> any ModuleFactory {
+        CollectModule.Factory(forcingSettings: [block])
+    }
+
+    /**
+     * Returns a factory for creating the `CollectModule`.
+     *
+     * When using this method, be sure to provide different module IDs per each `CollectSettingsBuilder` provided.
+     * If multiple builders result in having the same module ID, only the first one will be used.
+     * Default module ID will be the `Modules.Types.collect` (`Collect`).
+     *
      * - Parameters:
      *   -  block: A block with a utility builder that can be used to enforce some of the `CollectSettings` instead of relying on
      *   Local or Remote settings. Only the settings built with this builder will be enforced and remain constant during the lifecycle of the
      *   `CollectModule`, other settings will still be affected by Local and Remote settings and updates.
+     *   - blocks: Other blocks used to configure additional collect modules.
      */
-    static public func collect(forcingSettings blocks: EnforcingSettings<CollectSettingsBuilder>...) -> any ModuleFactory {
-        CollectModule.Factory(forcingSettings: blocks)
+    static public func collect(forcingSettings block: @escaping EnforcingSettings<CollectSettingsBuilder>,
+                               _ blocks: EnforcingSettings<CollectSettingsBuilder>...) -> any ModuleFactory {
+        CollectModule.Factory(forcingSettings: [block] + blocks)
     }
 
-    /// Returns a factory for creating the `DataLayerModule`.
-    static public func dataLayer(forcingSettings block: EnforcingSettings<DataLayerSettingsBuilder>? = nil) -> any ModuleFactory {
+    /**
+     * Returns a factory for creating the `DataLayerModule`.
+     *
+     * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
+     */
+    static public func dataLayer(forcingSettings block: EnforcingSettings<DataLayerSettingsBuilder> = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<DataLayerModule>(moduleType: Modules.Types.dataLayer,
-                                              enforcedSettings: block?(DataLayerSettingsBuilder()).build())
+                                              enforcedSettings: block(DataLayerSettingsBuilder()).build())
     }
 
-    /// Returns a factory for creating the `DeviceDataModule`.
-    static public func deviceData(forcingSettings block: EnforcingSettings<DeviceDataSettingsBuilder>? = nil) -> any ModuleFactory {
+    /**
+     * Returns a factory for creating the `DeviceDataModule`.
+     *
+     * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
+     * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     */
+    static public func deviceData(forcingSettings block: EnforcingSettings<DeviceDataSettingsBuilder>? = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<DeviceDataModule>(moduleType: Modules.Types.deviceData,
                                                enforcedSettings: block?(DeviceDataSettingsBuilder()).build())
     }
 
-    /// Returns a factory for creating the `DeepLinkModule`.
-    static public func deepLink(forcingSettings block: EnforcingSettings<DeepLinkSettingsBuilder>? = nil) -> any ModuleFactory {
+    /**
+     * Returns a factory for creating the `DeepLinkModule`.
+     *
+     * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
+     * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     */
+    static public func deepLink(forcingSettings block: EnforcingSettings<DeepLinkSettingsBuilder>? = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<DeepLinkModule>(moduleType: Modules.Types.deepLink,
                                              enforcedSettings: block?(DeepLinkSettingsBuilder()).build())
     }
 
-    /// Returns a factory for creating the `TealiumDataModule`.
-    static public func tealiumData(forcingSettings block: EnforcingSettings<TealiumDataSettingsBuilder>? = nil) -> any ModuleFactory {
+    /**
+     * Returns a factory for creating the `TealiumDataModule`.
+     *
+     * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
+     */
+    static public func tealiumData(forcingSettings block: EnforcingSettings<TealiumDataSettingsBuilder> = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<TealiumDataModule>(moduleType: Modules.Types.tealiumData,
-                                                enforcedSettings: block?(TealiumDataSettingsBuilder()).build())
+                                                enforcedSettings: block(TealiumDataSettingsBuilder()).build())
     }
 
-    /// Returns a factory for creating the `TimeDataModule`.
-    static public func timeData(forcingSettings block: EnforcingSettings<TimeDataSettingsBuilder>? = nil) -> any ModuleFactory {
+    /**
+     * Returns a factory for creating the `TimeDataModule`.
+     *
+     * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
+     * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     */
+    static public func timeData(forcingSettings block: EnforcingSettings<TimeDataSettingsBuilder>? = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<TimeDataModule>(moduleType: Modules.Types.timeData,
                                              enforcedSettings: block?(TimeDataSettingsBuilder()).build())
     }
 
-    /// Returns a factory for creating the `ConnectivityDataModule`.
-    static public func connectivityData(forcingSettings block: EnforcingSettings<ConnectivityDataSettingsBuilder>? = nil) -> any ModuleFactory {
+    /**
+     * Returns a factory for creating the `ConnectivityDataModule`.
+     *
+     * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
+     * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     */
+    static public func connectivityData(forcingSettings block: EnforcingSettings<ConnectivityDataSettingsBuilder>? = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<ConnectivityDataModule>(moduleType: Modules.Types.connectivityData,
                                                      enforcedSettings: block?(ConnectivityDataSettingsBuilder()).build())
     }
 
-    /// Returns a factory for creating the `TraceModule`.
-    static public func trace(forcingSettings block: EnforcingSettings<TraceSettingsBuilder>? = nil) -> any ModuleFactory {
+    /**
+     * Returns a factory for creating the `TraceModule`.
+     *
+     * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
+     * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     */
+    static public func trace(forcingSettings block: EnforcingSettings<TraceSettingsBuilder>? = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<TraceModule>(moduleType: Modules.Types.trace,
                                           enforcedSettings: block?(TraceSettingsBuilder()).build())
     }

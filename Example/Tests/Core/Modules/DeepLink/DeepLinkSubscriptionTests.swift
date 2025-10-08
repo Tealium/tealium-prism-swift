@@ -31,7 +31,7 @@ final class DeepLinkSubscriptionTests: DeepLinkBaseTests {
 
     func test_deep_link_error_is_logged_when_handle_throws() throws {
         let errorLogged = expectation(description: "Error logged")
-        config.modules = [] // remove trace module so that we caught an error when trying to get trace
+        config.modules = [] // remove trace module so that we catch an error when trying to get trace
         let context = context()
         let deeplinkDataStore = try context.moduleStoreProvider.getModuleStore(name: DeepLinkModule.moduleType)
         manager.updateSettings(context: context, settings: SDKSettings([:]))

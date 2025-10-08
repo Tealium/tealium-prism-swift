@@ -48,6 +48,8 @@ public protocol ModuleFactory {
      * In case of multiple settings, be sure to provide a unique module ID by calling `MultipleInstancesModuleSettingsBuilder.setModuleId(_:)`.
      * If no module ID is provided, moduleType will be used instead. If two or more module IDs are the same, only the first settings object
      * will be used by the caller; subsequent settings will be discarded.
+     * If this method returns an empty array, the `ModuleFactory` will not instantiate any `Module` by default.
+     * In this case modules will be instantiated only if they are configured in the local or remote settings.
      */
     func getEnforcedSettings() -> [DataObject]
 }

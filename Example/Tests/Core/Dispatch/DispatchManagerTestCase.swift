@@ -28,16 +28,16 @@ class DispatchManagerTestCase: XCTestCase {
     lazy var transformers = StateSubject<[Transformer]>([transformer])
     lazy var onBarriers = Observable<[ScopedBarrier]>.Just([(barrier, [BarrierScope.all])])
     let barrier = MockBarrier()
-    let config = TealiumConfig(account: "test",
-                               profile: "test",
-                               environment: "dev",
-                               modules: [MockDispatcher1.factory(), MockDispatcher2.factory()],
-                               settingsFile: "",
-                               settingsUrl: nil)
+    lazy var config = TealiumConfig(account: "test",
+                                    profile: "test",
+                                    environment: "dev",
+                                    modules: [MockDispatcher1.factory(), MockDispatcher2.factory()],
+                                    settingsFile: "",
+                                    settingsUrl: nil)
     let databaseProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
     lazy var modulesManager = ModulesManager(queue: queue)
-    var _sdkSettings = StateSubject(SDKSettings())
+    lazy var _sdkSettings = StateSubject(SDKSettings(config.getEnforcedSDKSettings()))
     var sdkSettings: ObservableState<SDKSettings> {
         _sdkSettings.toStatefulObservable()
     }

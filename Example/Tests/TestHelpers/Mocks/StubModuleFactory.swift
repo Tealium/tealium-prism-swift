@@ -22,6 +22,6 @@ class StubModuleFactory<SpecificModule: Module>: ModuleFactory {
     }
 
     func getEnforcedSettings() -> [DataObject] {
-        []
+        [ModuleSettingsBuilder().build()]
     }
 }

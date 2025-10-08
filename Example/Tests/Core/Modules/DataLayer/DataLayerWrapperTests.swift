@@ -26,7 +26,7 @@ class BaseDataLayerWrapperTests: XCTestCase {
 
     override func setUp() {
         config.modules = [Modules.dataLayer()]
-        manager.updateSettings(context: context(), settings: SDKSettings())
+        manager.updateSettings(context: context(), settings: SDKSettings(config.getEnforcedSDKSettings()))
     }
 }
 

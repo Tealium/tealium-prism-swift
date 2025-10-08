@@ -36,6 +36,19 @@ public struct TealiumConfig {
     /// Programmatic settings will take priority over Remote settings, Remote settings will take priority over Local settings.
     public internal(set) var settingsUrl: String?
 
+    /// A list of default modules that will be added to the provided modules.
+    internal static var defaultModules: [any ModuleFactory] = [
+        Modules.appData(forcingSettings: nil),
+        Modules.collect(forcingSettings: nil),
+        Modules.connectivityData(forcingSettings: nil),
+        Modules.dataLayer(),
+        Modules.deepLink(forcingSettings: nil),
+        Modules.deviceData(forcingSettings: nil),
+        Modules.tealiumData(),
+        Modules.timeData(forcingSettings: nil),
+        Modules.trace(forcingSettings: nil)
+    ]
+
     /// A list of unique `ModuleFactory`s, each one for creating a specific `Module`.
     public internal(set) var modules: [any ModuleFactory]
 
@@ -67,7 +80,7 @@ public struct TealiumConfig {
                 profile: String,
                 environment: String,
                 dataSource: String? = nil,
-                modules: [any ModuleFactory],
+                modules: [any ModuleFactory] = [],
                 settingsFile: String?,
                 settingsUrl: String?,
                 forcingSettings block: ((_ builder: CoreSettingsBuilder) -> CoreSettingsBuilder)? = nil) {
@@ -122,6 +135,21 @@ public struct TealiumConfig {
      */
     mutating public func addModule<SpecificFactory: ModuleFactory>(_ module: SpecificFactory) {
         modules.append(module)
+    }
+
+    /**
+     * Adds a `ModuleFactory` to the list of default factories that are added to each `Tealium` instance.
+     *
+     * Each module added in this list will be added only if the same module wasn't already added in the specific config object.
+     * Generally factories added by default will not return any enforced settings, meaning that they will require some local or remote settings
+     * to be initialized.
+     *
+     * If they contain some settings, instead, they will be initialized even if they are not configured elsewhere.
+     */
+    static public func addDefaultModule<SpecificFactory: ModuleFactory>(_ module: SpecificFactory) {
+        TealiumQueue.worker.ensureOnQueue {
+            defaultModules.append(module)
+        }
     }
 
     /**

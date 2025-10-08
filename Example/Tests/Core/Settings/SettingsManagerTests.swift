@@ -13,8 +13,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
 
     func addMockDispatcher() {
         config.addModule(MockDispatcher.factory(enforcedSettings: ModuleSettingsBuilder()
-            .setProperty("value", key: "key")
-            .build()))
+            .setProperty("value", key: "key")))
     }
 
     func test_init_fills_current_settings_with_programmatic() throws {

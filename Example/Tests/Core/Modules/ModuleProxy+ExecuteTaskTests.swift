@@ -29,7 +29,7 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
 
     override func setUp() {
         config.modules = [MockModule.factory()]
-        manager.updateSettings(context: context(), settings: SDKSettings([:]))
+        manager.updateSettings(context: context(), settings: SDKSettings(config.getEnforcedSDKSettings()))
     }
 
     func test_executeModuleTask_completes_with_error_which_task_has_thrown() {

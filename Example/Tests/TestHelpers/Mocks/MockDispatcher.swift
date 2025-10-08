@@ -13,10 +13,18 @@ class MockModule: Module {
     var version = "1.0.0"
 
     class var moduleType: String { String(describing: Self.self) }
+
     class func factory(allowsMultipleInstances: Bool = false,
-                       enforcedSettings: DataObject...) -> any ModuleFactory {
+                       enforcedSettings builder: ModuleSettingsBuilder? = ModuleSettingsBuilder()) -> any ModuleFactory {
         Self.Factory<Self>(allowsMultipleInstances: allowsMultipleInstances,
-                           enforcedSettings: enforcedSettings)
+                           enforcedSettings: [builder].compactMap { $0?.build() })
+    }
+
+    class func factory(allowsMultipleInstances: Bool = false,
+                       enforcedSettings builder: ModuleSettingsBuilder,
+                       _ otherBuilders: ModuleSettingsBuilder...) -> any ModuleFactory {
+        Self.Factory<Self>(allowsMultipleInstances: allowsMultipleInstances,
+                           enforcedSettings: ([builder] + otherBuilders).map { $0.build() })
     }
     let id: String
     @StateSubject<DataObject>([:])

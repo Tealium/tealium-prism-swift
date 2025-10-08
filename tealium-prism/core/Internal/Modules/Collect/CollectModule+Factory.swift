@@ -18,8 +18,8 @@ extension CollectModule {
         let enforcedSettings: [DataObject]
         typealias SettingsBuilderBlock = Modules.EnforcingSettings<CollectSettingsBuilder>
 
-        init(forcingSettings blocks: [SettingsBuilderBlock] = []) {
-            self.enforcedSettings = blocks.map { block in block(CollectSettingsBuilder()).build() }
+        init(forcingSettings blocks: [SettingsBuilderBlock?] = []) {
+            self.enforcedSettings = blocks.compactMap { block in block?(CollectSettingsBuilder()).build() }
         }
 
         public func create(moduleId: String, context: TealiumContext, moduleConfiguration: DataObject) -> Module? {

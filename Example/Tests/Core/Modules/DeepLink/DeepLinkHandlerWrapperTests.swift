@@ -28,7 +28,7 @@ final class DeepLinkHandlerWrapperTests: XCTestCase {
 
     override func setUp() {
         config.modules = [Modules.deepLink()]
-        manager.updateSettings(context: context(), settings: SDKSettings([:]))
+        manager.updateSettings(context: context(), settings: SDKSettings(config.getEnforcedSDKSettings()))
     }
 
     func test_handle_calls_module_method_with_referrer() throws {

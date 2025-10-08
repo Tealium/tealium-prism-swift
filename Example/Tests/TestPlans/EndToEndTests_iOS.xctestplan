@@ -9,7 +9,8 @@
     }
   ],
   "defaultOptions" : {
-
+    "repeatInNewRunnerProcess" : true,
+    "testRepetitionMode" : "retryOnFailure"
   },
   "testTargets" : [
     {

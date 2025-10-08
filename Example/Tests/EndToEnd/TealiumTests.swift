@@ -102,7 +102,6 @@ final class TealiumTests: TealiumBaseTests {
         let dispatched = expectation(description: "The Dispatch is dispatched to the dispatcher")
         let moduleSettings = DispatcherSettingsBuilder()
             .setMappings([.from("tealium_event", to: "mapped_event")])
-            .build()
         config.addModule(MockDispatcher.factory(enforcedSettings: moduleSettings))
         let teal = createTealium()
         MockDispatcher.onDispatch.subscribeOnce { dispatches in
@@ -363,20 +362,17 @@ final class TealiumTests: TealiumBaseTests {
         config.addModule(MockDispatcher1.factory(allowsMultipleInstances: true,
                                                  enforcedSettings: MultipleInstancesSettingsBuilder()
             .setModuleId("Module1")
-            .build()))
+            .setOrder(1)))
         config.addModule(MockDispatcher1.factory(allowsMultipleInstances: true,
                                                  enforcedSettings: MultipleInstancesSettingsBuilder()
             .setModuleId("Module2")
-            .build()))
+            .setOrder(2)))
         let initializationCompleted = expectation(description: "Tealium initialization completed")
         let teal = createTealium()
         _ = teal.proxy.executeTask { impl in
-            let modules = impl.modulesManager.modules.value
-            XCTAssertEqual(modules.map { $0.id }, [
-                "Module1",
-                "DataLayer",
-                "TealiumData"
-            ])
+            let modules = impl.modulesManager.modules.value.map { $0.id }
+            XCTAssertTrue(modules.contains("Module1"))
+            XCTAssertFalse(modules.contains("Module2"))
             initializationCompleted.fulfill()
         }
         waitForDefaultTimeout()

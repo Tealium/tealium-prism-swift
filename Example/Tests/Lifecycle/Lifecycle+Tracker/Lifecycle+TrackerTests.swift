@@ -76,6 +76,7 @@ final class LifecycleTrackerTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
+        _sdkSettings.value = SDKSettings(config.getEnforcedSDKSettings())
         modulesManager.updateSettings(context: context, settings: sdkSettings.value)
     }
 

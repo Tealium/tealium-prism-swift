@@ -16,27 +16,9 @@ class TealiumHelper {
     let cmp = CustomCMP()
     func createModuleFactories() -> [any ModuleFactory] {
         [
-         Modules.appData(),
-         Modules.deepLink(forcingSettings: { enforcedSettings in
-             enforcedSettings.setSendDeepLinkEvent(true)
-         }),
-         Modules.trace(forcingSettings: { enforcedSettings in
-             enforcedSettings.setEnabled(true)
-         }),
-         Modules.collect(forcingSettings: { enforcedSettings in
-             enforcedSettings.setEnabled(true)
-         }),
-         Modules.deviceData(forcingSettings: { enforcedSettings in
-             enforcedSettings.setMemoryReportingEnabled(true)
-         }),
-         Modules.lifecycle(forcingSettings: { enforcedSettings in
-             enforcedSettings.setEnabled(true)
-         }),
-         Modules.timeData(),
-         Modules.connectivityData(),
-         CustomCollector.Factory(),
-         CustomDispatcher.Factory(),
-         ModuleWithExternalDependencies.Factory(otherDependencies: NSObject())
+            CustomCollector.Factory(),
+            CustomDispatcher.Factory(),
+            ModuleWithExternalDependencies.Factory(otherDependencies: NSObject())
         ]
     }
 

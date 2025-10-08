@@ -18,11 +18,7 @@ public class ModulesManager {
     }
 
     func updateSettings(context: TealiumContext, settings: SDKSettings) {
-        let missingSettings = context.config.modules
-            .map { $0.moduleType }
-            .diff(settings.modules.values.map { $0.moduleType }, by: \.self)
-            .map { ModuleSettings(moduleType: $0) }
-        let modulesSettings = settings.modules.values.sorted { $0.order < $1.order } + missingSettings
+        let modulesSettings = settings.modules.values.sorted { $0.order < $1.order }
         let initializedModules = Dictionary(modules.value.map { ($0.id, $0) }, prefersFirst: true)
         let factories = Dictionary(context.config.modules.map { ($0.moduleType, $0) }, prefersFirst: true)
         _modules.value = modulesSettings

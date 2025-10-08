@@ -68,7 +68,3 @@ extension LogCategory {
 enum LifecycleConstants {
     static let infiniteSession: Int = -1
 }
-
-public extension Modules.Types {
-    static let lifecycle = "Lifecycle"
-}

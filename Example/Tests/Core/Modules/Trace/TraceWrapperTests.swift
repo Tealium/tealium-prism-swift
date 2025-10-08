@@ -29,7 +29,7 @@ final class TraceWrapperTests: XCTestCase {
 
     override func setUp() {
         config.modules = [Modules.trace()]
-        manager.updateSettings(context: context(), settings: SDKSettings([:]))
+        manager.updateSettings(context: context(), settings: SDKSettings(config.getEnforcedSDKSettings()))
     }
 
     func test_join_calls_module_method_which_adds_trace_id() {

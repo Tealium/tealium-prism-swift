@@ -17,7 +17,7 @@ final class TealiumDataModuleTests: XCTestCase {
                                            moduleConfiguration: [:])
     lazy var data = collector.collect(DispatchContext(source: .application, initialData: [:]))
     override func setUp() {
-        modulesManager.updateSettings(context: context, settings: SDKSettings())
+        modulesManager.updateSettings(context: context, settings: SDKSettings(config.getEnforcedSDKSettings()))
     }
 
     static func getConfig(source: String?) -> TealiumConfig {

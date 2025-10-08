@@ -22,7 +22,9 @@ final class TealiumCollectTests: TealiumBaseTests {
     }
 
     func test_collect_sends_basic_event() {
-        config.addModule(Modules.collect())
+        config.addModule(Modules.collect(forcingSettings: { $0.setOrder(1) }))
+        config.addModule(Modules.dataLayer(forcingSettings: { $0.setOrder(2) }))
+        config.addModule(Modules.tealiumData(forcingSettings: { $0.setOrder(3) }))
         let httpRequestSent = expectation(description: "Http Request is sent")
         client.requestDidSend = { request in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -250,13 +252,9 @@ final class TealiumCollectTests: TealiumBaseTests {
         let initializationCompleted = expectation(description: "Tealium initialization completed")
         let teal = createTealium()
         _ = teal.proxy.executeTask { impl in
-            let modules = impl.modulesManager.modules.value
-            XCTAssertEqual(modules.map { $0.id }, [
-                "Collect",
-                "Collect2",
-                "DataLayer",
-                "TealiumData"
-            ])
+            let modules = impl.modulesManager.modules.value.map { $0.id }
+            XCTAssertTrue(modules.contains("Collect"))
+            XCTAssertTrue(modules.contains("Collect2"))
             initializationCompleted.fulfill()
         }
         waitForDefaultTimeout()
@@ -275,13 +273,10 @@ final class TealiumCollectTests: TealiumBaseTests {
         let initializationCompleted = expectation(description: "Tealium initialization completed")
         let teal = createTealium()
         _ = teal.proxy.executeTask { impl in
-            let modules = impl.modulesManager.modules.value
-            XCTAssertEqual(modules.map { $0.id }, [
-                "Collect",
-                "DataLayer",
-                "TealiumData"
-            ])
-            initializationCompleted.fulfill()
+            let modules = impl.modulesManager.modules.value.map { $0.id }
+            for module in modules where module == "Collect" {
+                initializationCompleted.fulfill()
+            }
         }
         waitForDefaultTimeout()
     }

@@ -33,7 +33,7 @@ class DeepLinkBaseTests: XCTestCase {
     override func setUp() {
         config.modules = [Modules.trace()]
         let context = context()
-        manager.updateSettings(context: context, settings: SDKSettings([:]))
+        manager.updateSettings(context: context, settings: SDKSettings(config.getEnforcedSDKSettings()))
         deepLink = DeepLinkModule(context: context,
                                   moduleConfiguration: [:])
     }

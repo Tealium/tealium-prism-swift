@@ -4,8 +4,35 @@
         "expiration": 200
     },
     "modules": {
+        "AppData": {
+            "module_type": "AppData"
+        },
         "Collect": {
-            "enabled": false
+            "module_type": "Collect"
+        },
+        "ConnectivityData": {
+            "module_type": "ConnectivityData"
+        },
+        "DataLayer": {
+            "module_type": "DataLayer"
+        },
+        "DeepLink": {
+            "module_type": "DeepLink"
+        },
+        "DeviceData": {
+            "module_type": "DeviceData"
+        },
+        "TealiumData": {
+            "module_type": "TealiumData"
+        },
+        "TimeData": {
+            "module_type": "TimeData"
+        },
+        "Trace": {
+            "module_type": "Trace"
+        },
+        "Lifecycle": {
+            "module_type": "Lifecycle"
         }
     }
 }
