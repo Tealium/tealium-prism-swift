@@ -22,7 +22,6 @@ extension DeviceDataProvider {
     var batteryPercent: String {
         // only available on iOS
         #if os(iOS)
-        UIDevice.current.isBatteryMonitoringEnabled = true
         let batteryLevel = UIDevice.current.batteryLevel * 100
         return Self.formatter.string(from: NSNumber(value: batteryLevel)) ?? TealiumConstants.unknown
         #else
@@ -34,7 +33,6 @@ extension DeviceDataProvider {
     var isCharging: String {
         // only available on iOS
         #if os(iOS)
-        UIDevice.current.isBatteryMonitoringEnabled = true
         let state = UIDevice.current.batteryState
         switch state {
         case .charging:

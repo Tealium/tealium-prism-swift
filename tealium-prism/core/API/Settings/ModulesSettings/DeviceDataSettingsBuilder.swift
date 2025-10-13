@@ -15,10 +15,24 @@ public class DeviceDataSettingsBuilder: CollectorSettingsBuilder {
         return self
     }
 
-    /// Enable or disable memory reporting by the module.
+    /// Enable or disable memory info reporting by the module.
     /// If `true`, additional data related to memory usage is collected too.
     public func setMemoryReportingEnabled(_ enabled: Bool) -> Self {
         _configurationObject.set(enabled, key: Keys.memoryReportingEnabled)
+        return self
+    }
+
+    /// Enable or disable battery info reporting by the module.
+    /// If `true`, additional data related to battery charge is collected too.
+    public func setBatteryReportingEnabled(_ enabled: Bool) -> Self {
+        _configurationObject.set(enabled, key: Keys.batteryReportingEnabled)
+        return self
+    }
+
+    /// Enable or disable screen info reporting by the module.
+    /// If `true`, additional data related to screen resolution and orientation is collected too.
+    public func setScreenReportingEnabled(_ enabled: Bool) -> Self {
+        _configurationObject.set(enabled, key: Keys.screenReportingEnabled)
         return self
     }
 }

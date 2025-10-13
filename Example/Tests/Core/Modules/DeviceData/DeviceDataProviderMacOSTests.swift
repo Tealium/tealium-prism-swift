@@ -62,13 +62,9 @@ final class DeviceDataProviderMacOSTests: XCTestCase {
     }
 
     func test_getScreenOrientation_returns_unknown_orientation_when_not_iOS() {
-        let expected = expectation(description: "Orientation is unknown")
-        deviceDataProvider.getScreenOrientation { orientationData in
-                XCTAssertEqual(orientationData.get(key: DeviceDataKey.orientation), TealiumConstants.unknown)
-                XCTAssertEqual(orientationData.get(key: DeviceDataKey.extendedOrientation), TealiumConstants.unknown)
-                expected.fulfill()
-        }
-        waitForDefaultTimeout()
+        let orientationData = deviceDataProvider.getScreenOrientation()
+        XCTAssertEqual(orientationData.get(key: DeviceDataKey.orientation), TealiumConstants.unknown)
+        XCTAssertEqual(orientationData.get(key: DeviceDataKey.extendedOrientation), TealiumConstants.unknown)
     }
 
     func test_osName() {

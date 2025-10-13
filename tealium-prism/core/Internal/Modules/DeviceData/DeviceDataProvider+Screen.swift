@@ -84,7 +84,10 @@ extension DeviceDataProvider {
         let stringRes = String(format: "%.0fx%.0f", width, height)
         return stringRes
         #else
-        let res = UIScreen.main.bounds
+        // Use fixedCoordinateSpace to ensure consistent screen size regardless of device orientation.
+        // This avoids issues where UIScreen.main.bounds changes with orientation, and helps with thread safety
+        // as fixedCoordinateSpace is less likely to be mutated unexpectedly.
+        let res = UIScreen.main.fixedCoordinateSpace.bounds
         let scale = UIScreen.main.scale
         let width = res.width * scale
         let height = res.height * scale
@@ -101,36 +104,17 @@ extension DeviceDataProvider {
         let stringRes = String(format: "%.0fx%.0f", res.width, res.height)
         return stringRes
         #else
-        let res = UIScreen.main.bounds
+        // Use fixedCoordinateSpace to ensure consistent screen size regardless of device orientation.
+        // This avoids issues where UIScreen.main.bounds changes with orientation, and helps with thread safety
+        // as fixedCoordinateSpace is less likely to be mutated unexpectedly.
+        let res = UIScreen.main.fixedCoordinateSpace.bounds
         let stringRes = String(format: "%.0fx%.0f", res.width, res.height)
         return stringRes
         #endif
     }
 
     // MARK: Orientation
-    func getScreenOrientation(completion: @escaping (DataObject) -> Void) {
-        TealiumQueue.main.ensureOnQueue {
-            completion(self.orientationProvider())
-        }
+    func getScreenOrientation() -> DataObject {
+        self.orientationProvider()
     }
-
-    /// - Returns: `String` containing the device's UI orientation
-    #if os(iOS)
-    private func _getExtendedOrientation(_ orientation: UIInterfaceOrientation?) -> String {
-        return switch orientation {
-        case .landscapeLeft:
-            ExtendedOrientation.landscapeLeft
-        case .landscapeRight:
-            ExtendedOrientation.landscapeRight
-        case .portrait:
-            ExtendedOrientation.portrait
-        case .portraitUpsideDown:
-            ExtendedOrientation.portraitUpsideDown
-        case .unknown, nil:
-            TealiumConstants.unknown
-        @unknown default:
-            TealiumConstants.unknown
-        }
-    }
-    #endif
 }

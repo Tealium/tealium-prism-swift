@@ -7,6 +7,9 @@
 //
 
 import Foundation
+#if os(iOS)
+import UIKit
+#endif
 
 class DeviceDataModule: Collector, Transformer, BasicModule {
     let version: String = TealiumConstants.libraryVersion
@@ -54,7 +57,15 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
         self.transformerRegistry.registerTransformation(TransformationSettings(id: "model-info-and-orientation", transformerId: Self.moduleType, scopes: [.afterCollectors]))
         self.queue = queue
         self.logger = logger
-        self.constantData = deviceDataProvider.constantData()
+        self.constantData = deviceDataProvider.getConstantData()
+#if os(iOS)
+        if configuration.batteryReportingEnabled {
+            // Battery monitoring must be enabled on the main queue due to iOS thread safety requirements.
+            TealiumQueue.main.ensureOnQueue {
+                UIDevice.current.isBatteryMonitoringEnabled = true
+            }
+        }
+#endif
         self.resourceRefresher = updateResourceRefresher()
     }
 
@@ -131,17 +142,29 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
         return result.asDataObject()
     }
 
-    private func onScreenOrientation() -> Observable<DataObject> {
-        Observable.Callback(from: { [deviceDataProvider] observer in
-            deviceDataProvider.getScreenOrientation(completion: observer)
+    private func onMainThreadData() -> Observable<DataObject> {
+        Observable.Callback(from: { [deviceDataProvider, configuration] observer in
+            TealiumQueue.main.ensureOnQueue {
+                var result: DataObject = [:]
+                if configuration.batteryReportingEnabled == true {
+                    result.set(deviceDataProvider.batteryPercent, key: DeviceDataKey.batteryPercent)
+                    result.set(deviceDataProvider.isCharging, key: DeviceDataKey.isCharging)
+                }
+                if configuration.screenReportingEnabled == true {
+                    result += deviceDataProvider.getScreenOrientation()
+                    result.set(deviceDataProvider.resolution, key: DeviceDataKey.resolution)
+                    result.set(deviceDataProvider.logicalResolution, key: DeviceDataKey.logicalResolution)
+                }
+                observer(result)
+            }
         }).observeOn(queue)
     }
 
     func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) {
         let model = DeviceDataProvider.basicModel
         onModelInfo.asObservable()
-            .combineLatest(onScreenOrientation())
-            .subscribeOnce { deviceModelData, orientationData in
+            .combineLatest(onMainThreadData())
+            .subscribeOnce { deviceModelData, mainThreadData in
                 let modelData = deviceModelData ?? [
                     DeviceDataKey.deviceType: model,
                     DeviceDataKey.deviceModel: model,
@@ -149,7 +172,7 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
                     DeviceDataKey.modelVariant: ""
                 ]
                 var newDispatch = dispatch
-                newDispatch.enrich(data: modelData + orientationData)
+                newDispatch.enrich(data: modelData + mainThreadData)
                 completion(newDispatch)
             }
     }
@@ -159,8 +182,6 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
     /// - Returns: `[String: Any]` of track-time device data.
     var trackTimeData: [String: DataInput] {
         var result = [String: DataInput]()
-        result[DeviceDataKey.batteryPercent] = deviceDataProvider.batteryPercent
-        result[DeviceDataKey.isCharging] = deviceDataProvider.isCharging
         result[DeviceDataKey.language] = deviceDataProvider.language
         if configuration.memoryReportingEnabled {
             result += deviceDataProvider.memoryUsage

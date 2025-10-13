@@ -10,6 +10,7 @@
 import XCTest
 
 final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
+    typealias Keys = DeviceDataModuleConfiguration.Keys
     @StateSubject([:])
     var configuration: ObservableState<DataObject>
     lazy var deviceDataCollector = DeviceDataModule(deviceDataProvider: DeviceDataProvider(),
@@ -37,7 +38,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
 
     func test_collect_returns_constant_data_plus_track_time_data_without_memory_usage_by_default() {
         let collected = deviceDataCollector.collect(dispatchContext).asDictionary()
-        XCTAssertEqual(collected.count, 13)
+        XCTAssertEqual(collected.count, 9)
         XCTAssertNotNil(collected[DeviceDataKey.architecture])
         XCTAssertNotNil(collected[DeviceDataKey.cpuType])
         XCTAssertNotNil(collected[DeviceDataKey.deviceOrigin])
@@ -46,19 +47,13 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
         XCTAssertNotNil(collected[DeviceDataKey.osName])
         XCTAssertNotNil(collected[DeviceDataKey.osVersion])
         XCTAssertNotNil(collected[DeviceDataKey.platform])
-        XCTAssertNotNil(collected[DeviceDataKey.resolution])
-        XCTAssertNotNil(collected[DeviceDataKey.logicalResolution])
-        XCTAssertNotNil(collected[DeviceDataKey.batteryPercent])
-        XCTAssertNotNil(collected[DeviceDataKey.isCharging])
         XCTAssertNotNil(collected[DeviceDataKey.language])
     }
 
     func test_collect_returns_data_with_memory_usage_when_enabled() {
-        _configuration.value = [
-            DeviceDataModuleConfiguration.Keys.memoryReportingEnabled: true
-        ]
+        _configuration.value = [Keys.memoryReportingEnabled: true]
         let collected = deviceDataCollector.collect(dispatchContext).asDictionary()
-        XCTAssertEqual(collected.count, 20)
+        XCTAssertEqual(collected.count, 16)
         XCTAssertNotNil(collected[DeviceDataKey.appMemoryUsage])
         XCTAssertNotNil(collected[DeviceDataKey.memoryActive])
         XCTAssertNotNil(collected[DeviceDataKey.memoryCompressed])
@@ -68,7 +63,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
         XCTAssertNotNil(collected[DeviceDataKey.physicalMemory])
     }
 
-    func test_applyTransformation_enriches_dispatch_with_model_info_and_orientation() {
+    func test_applyTransformation_enriches_dispatch_with_model_and_screen_and_battery_info() {
         let transformationExpectation = expectation(description: "Transformation completed")
         let dispatch = Dispatch(name: "test_event", data: [:])
         let transformation = TransformationSettings(id: "model-info",
@@ -84,14 +79,74 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
             XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.deviceModel))
             XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.device))
             XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.modelVariant))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.isCharging))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.batteryPercent))
             XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.orientation))
             XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.extendedOrientation))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.resolution))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.logicalResolution))
             #if os(iOS)
             XCTAssertEqual(result.payload.get(key: DeviceDataKey.deviceType), DeviceDataProvider.basicModel)
             XCTAssertNotEqual(result.payload.get(key: DeviceDataKey.deviceModel), DeviceDataProvider.basicModel)
             XCTAssertEqual(result.payload.get(key: DeviceDataKey.device, as: String.self), result.payload.get(key: DeviceDataKey.deviceModel, as: String.self))
             XCTAssertNotEqual(result.payload.get(key: DeviceDataKey.modelVariant), "")
             #endif
+            transformationExpectation.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_applyTransformation_skips_adding_screen_info_when_screen_reporting_disabled() {
+        _configuration.value = [Keys.screenReportingEnabled: false]
+        let transformationExpectation = expectation(description: "Transformation completed")
+        let dispatch = Dispatch(name: "test_event", data: [:])
+        let transformation = TransformationSettings(id: "model-info",
+                                                    transformerId: DeviceDataModule.moduleType,
+                                                    scopes: [.afterCollectors])
+        networkHelper.codableResult = ObjectResult.success(.successful(object: (modelsDataObject)))
+        deviceDataCollector.applyTransformation(transformation, to: dispatch, scope: .afterCollectors) { result in
+            guard let result else {
+                XCTFail("Transformation result should not be nil")
+                return
+            }
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.deviceType))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.deviceModel))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.device))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.modelVariant))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.isCharging))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.batteryPercent))
+            XCTAssertNil(result.payload.getDataItem(key: DeviceDataKey.orientation))
+            XCTAssertNil(result.payload.getDataItem(key: DeviceDataKey.extendedOrientation))
+            XCTAssertNil(result.payload.getDataItem(key: DeviceDataKey.resolution))
+            XCTAssertNil(result.payload.getDataItem(key: DeviceDataKey.logicalResolution))
+            transformationExpectation.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_applyTransformation_skips_adding_battery_info_when_battery_reporting_disabled() {
+        _configuration.value = [Keys.batteryReportingEnabled: false]
+        let transformationExpectation = expectation(description: "Transformation completed")
+        let dispatch = Dispatch(name: "test_event", data: [:])
+        let transformation = TransformationSettings(id: "model-info",
+                                                    transformerId: DeviceDataModule.moduleType,
+                                                    scopes: [.afterCollectors])
+        networkHelper.codableResult = ObjectResult.success(.successful(object: (modelsDataObject)))
+        deviceDataCollector.applyTransformation(transformation, to: dispatch, scope: .afterCollectors) { result in
+            guard let result else {
+                XCTFail("Transformation result should not be nil")
+                return
+            }
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.deviceType))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.deviceModel))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.device))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.modelVariant))
+            XCTAssertNil(result.payload.getDataItem(key: DeviceDataKey.isCharging))
+            XCTAssertNil(result.payload.getDataItem(key: DeviceDataKey.batteryPercent))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.orientation))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.extendedOrientation))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.resolution))
+            XCTAssertNotNil(result.payload.getDataItem(key: DeviceDataKey.logicalResolution))
             transformationExpectation.fulfill()
         }
         waitForDefaultTimeout()
@@ -119,8 +174,8 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
 
     func test_convenience_init_creates_module_with_valid_configuration() {
         let moduleConfiguration: DataObject = [
-            DeviceDataModuleConfiguration.Keys.memoryReportingEnabled: true,
-            DeviceDataModuleConfiguration.Keys.deviceNamesUrl: "example.com/device-names.json"
+            Keys.memoryReportingEnabled: true,
+            Keys.deviceNamesUrl: "example.com/device-names.json"
         ]
         let module = DeviceDataModule(context: context,
                                       moduleConfiguration: moduleConfiguration)
@@ -154,7 +209,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
             }
             defaultRequestSent.fulfill()
         }.addTo(disposer)
-        let newConfig: DataObject = [DeviceDataModuleConfiguration.Keys.deviceNamesUrl: "https://test.url"]
+        let newConfig: DataObject = [Keys.deviceNamesUrl: "https://test.url"]
         deviceDataCollector.updateConfiguration(newConfig)
         waitForExpectations(timeout: 1) { _ in
             XCTAssertNil(self.deviceDataCollector.updateResourceRefresher())
@@ -193,9 +248,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
         let transformation = TransformationSettings(id: "model-info-and-orientation",
                                                     transformerId: DeviceDataModule.moduleType,
                                                     scopes: [.afterCollectors])
-        _configuration.value = [
-            DeviceDataModuleConfiguration.Keys.deviceNamesUrl: ""
-        ]
+        _configuration.value = [Keys.deviceNamesUrl: ""]
         deviceDataCollector.applyTransformation(transformation, to: dispatch, scope: .afterCollectors) { result in
             guard let result else {
                 XCTFail("Transformation result should not be nil")

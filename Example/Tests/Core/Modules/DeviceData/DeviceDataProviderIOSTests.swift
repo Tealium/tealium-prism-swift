@@ -80,41 +80,30 @@ class DeviceDataProviderIOSTests: XCTestCase {
     }
 
     func test_getScreenOrientation_returns_unknown_orientation_when_cannot_get_it() {
-        let expected = expectation(description: "Orientation is unknown")
-        deviceDataProvider.getScreenOrientation { orientationData in
-                XCTAssertEqual(orientationData.get(key: DeviceDataKey.orientation), TealiumConstants.unknown)
-                XCTAssertEqual(orientationData.get(key: DeviceDataKey.extendedOrientation), TealiumConstants.unknown)
-                expected.fulfill()
-        }
-        waitForDefaultTimeout()
+        let orientationData = deviceDataProvider.getScreenOrientation()
+        XCTAssertEqual(orientationData.get(key: DeviceDataKey.orientation), TealiumConstants.unknown)
+        XCTAssertEqual(orientationData.get(key: DeviceDataKey.extendedOrientation), TealiumConstants.unknown)
     }
 
     func test_getScreenOrientation_returns_correct_orientation() {
-        let expected = expectation(description: "Orientation is correct")
-        expected.expectedFulfillmentCount = 2
         let deviceDataProvider1 = DeviceDataProvider(orientationProvider: {
             [
                 DeviceDataKey.orientation: ExtendedOrientation.landscape,
                 DeviceDataKey.extendedOrientation: ExtendedOrientation.landscapeLeft
             ]
         })
-        deviceDataProvider1.getScreenOrientation { orientationData in
-            XCTAssertEqual(orientationData.get(key: DeviceDataKey.orientation), ExtendedOrientation.landscape)
-            XCTAssertEqual(orientationData.get(key: DeviceDataKey.extendedOrientation), ExtendedOrientation.landscapeLeft)
-                expected.fulfill()
-        }
+        var orientationData = deviceDataProvider1.getScreenOrientation()
+        XCTAssertEqual(orientationData.get(key: DeviceDataKey.orientation), ExtendedOrientation.landscape)
+        XCTAssertEqual(orientationData.get(key: DeviceDataKey.extendedOrientation), ExtendedOrientation.landscapeLeft)
         let deviceDataProvider2 = DeviceDataProvider(orientationProvider: {
             [
                 DeviceDataKey.orientation: ExtendedOrientation.portrait,
                 DeviceDataKey.extendedOrientation: ExtendedOrientation.portraitUpsideDown
             ]
         })
-        deviceDataProvider2.getScreenOrientation { orientationData in
-            XCTAssertEqual(orientationData.get(key: DeviceDataKey.orientation), ExtendedOrientation.portrait)
-            XCTAssertEqual(orientationData.get(key: DeviceDataKey.extendedOrientation), ExtendedOrientation.portraitUpsideDown)
-                expected.fulfill()
-        }
-        waitForDefaultTimeout()
+        orientationData = deviceDataProvider2.getScreenOrientation()
+        XCTAssertEqual(orientationData.get(key: DeviceDataKey.orientation), ExtendedOrientation.portrait)
+        XCTAssertEqual(orientationData.get(key: DeviceDataKey.extendedOrientation), ExtendedOrientation.portraitUpsideDown)
     }
 
     func test_osName() {

@@ -20,6 +20,8 @@ final class DeviceDataSettingsBuilderTests: XCTestCase {
             .setEnabled(true)
             .setDeviceNamesUrl("someUrl")
             .setMemoryReportingEnabled(true)
+            .setBatteryReportingEnabled(false)
+            .setScreenReportingEnabled(false)
             .build()
         XCTAssertEqual(settings,
                        [
@@ -27,7 +29,9 @@ final class DeviceDataSettingsBuilderTests: XCTestCase {
                         "configuration":
                             try DataItem(serializing: [
                                 "device_names_url": "someUrl",
-                                "memory_reporting_enabled": true
+                                "memory_reporting_enabled": true,
+                                "battery_reporting_enabled": false,
+                                "screen_reporting_enabled": false
                             ])
                        ])
     }

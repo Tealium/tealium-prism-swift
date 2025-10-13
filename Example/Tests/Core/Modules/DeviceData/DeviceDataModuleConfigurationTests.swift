@@ -14,14 +14,20 @@ final class DeviceDataModuleConfigurationTests: XCTestCase {
         let configuration = DeviceDataModuleConfiguration(configuration: [:])
         XCTAssertEqual(configuration.deviceNamesUrl, DeviceDataModuleConfiguration.Defaults.deviceNamesUrl)
         XCTAssertEqual(configuration.memoryReportingEnabled, DeviceDataModuleConfiguration.Defaults.memoryReportingEnabled)
+        XCTAssertEqual(configuration.batteryReportingEnabled, DeviceDataModuleConfiguration.Defaults.batteryReportingEnabled)
+        XCTAssertEqual(configuration.screenReportingEnabled, DeviceDataModuleConfiguration.Defaults.screenReportingEnabled)
     }
 
     func test_init_with_dataObject_returns_correct_configuration() {
         let configuration = DeviceDataModuleConfiguration(configuration: [
             "device_names_url": "test.it",
-            "memory_reporting_enabled": true
+            "memory_reporting_enabled": true,
+            "battery_reporting_enabled": false,
+            "screen_reporting_enabled": false
         ])
         XCTAssertEqual(configuration.deviceNamesUrl, "test.it")
         XCTAssertEqual(configuration.memoryReportingEnabled, true)
+        XCTAssertEqual(configuration.batteryReportingEnabled, false)
+        XCTAssertEqual(configuration.screenReportingEnabled, false)
     }
 }

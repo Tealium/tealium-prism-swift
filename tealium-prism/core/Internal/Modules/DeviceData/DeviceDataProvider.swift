@@ -155,7 +155,7 @@ class DeviceDataProvider {
 
 extension DeviceDataProvider {
     /// Data that only needs to be retrieved once for the lifetime of the host app.
-    func constantData() -> [String: DataInput] {
+    func getConstantData() -> [String: DataInput] {
         var result = [String: DataInput]()
         result[DeviceDataKey.architecture] = architecture
         result[DeviceDataKey.cpuType] = cpuType
@@ -165,8 +165,6 @@ extension DeviceDataProvider {
         result[DeviceDataKey.osName] = osName
         result[DeviceDataKey.osVersion] = osVersion
         result[DeviceDataKey.platform] = osName.lowercased()
-        result[DeviceDataKey.resolution] = resolution
-        result[DeviceDataKey.logicalResolution] = logicalResolution
         return result
     }
 }

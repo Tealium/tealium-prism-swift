@@ -10,6 +10,7 @@
 import XCTest
 
 final class DeviceDataProviderCommonTests: XCTestCase {
+    typealias Keys = DeviceDataModuleConfiguration.Keys
     let deviceDataProvider = DeviceDataProvider()
 
     func test_architecture() {
@@ -51,9 +52,9 @@ final class DeviceDataProviderCommonTests: XCTestCase {
         XCTAssertNotNil(memoryUsage[DeviceDataKey.physicalMemory])
     }
 
-    func test_constantData() {
-        let constantData = deviceDataProvider.constantData()
-        XCTAssertEqual(constantData.count, 10)
+    func test_getConstantData() {
+        let constantData = deviceDataProvider.getConstantData()
+        XCTAssertEqual(constantData.count, 8)
         XCTAssertNotNil(constantData[DeviceDataKey.architecture])
         XCTAssertNotNil(constantData[DeviceDataKey.cpuType])
         XCTAssertNotNil(constantData[DeviceDataKey.deviceOrigin])
@@ -62,7 +63,5 @@ final class DeviceDataProviderCommonTests: XCTestCase {
         XCTAssertNotNil(constantData[DeviceDataKey.osName])
         XCTAssertNotNil(constantData[DeviceDataKey.osVersion])
         XCTAssertNotNil(constantData[DeviceDataKey.platform])
-        XCTAssertNotNil(constantData[DeviceDataKey.resolution])
-        XCTAssertNotNil(constantData[DeviceDataKey.logicalResolution])
     }
 }
