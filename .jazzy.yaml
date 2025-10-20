@@ -15,9 +15,7 @@ output: '_site'
 documentation: 'docs/guides/**.md'
 # theme: fullwidth
 
-# remove disabled_ prefix to apply the following categories. 
-# If the following contain any regex, make sure to use a version of jazzy that supports them.
-disabled_custom_categories: 
+custom_categories: 
   - name: Tealium
     children:
     - Tealium
