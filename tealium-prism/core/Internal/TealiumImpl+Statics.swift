@@ -10,7 +10,7 @@ import Foundation
 
 extension TealiumImpl {
     static func addMandatoryAndRemoveDuplicateModules(from config: inout TealiumConfig) {
-        config.modules = (config.modules + type(of: config).defaultModules )
+        config.modules = (config.modules + ModuleRegistry.shared.defaultModules )
             .removingDuplicates(by: \.moduleType)
     }
 

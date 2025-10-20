@@ -933,6 +933,10 @@
 		87A40AC82E99695F005D92CC /* NotificationCenter+PostApplicationNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A40ABE2E996951005D92CC /* NotificationCenter+PostApplicationNotification.swift */; };
 		87A40AC92E99695F005D92CC /* NotificationCenter+PostApplicationNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A40ABE2E996951005D92CC /* NotificationCenter+PostApplicationNotification.swift */; };
 		87A40ACA2E99695F005D92CC /* NotificationCenter+PostApplicationNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A40ABE2E996951005D92CC /* NotificationCenter+PostApplicationNotification.swift */; };
+		87A40AD72E9E57EA005D92CC /* ModuleRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A40AD62E9E57E6005D92CC /* ModuleRegistryTests.swift */; };
+		87A40AD82E9E57EA005D92CC /* ModuleRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A40AD62E9E57E6005D92CC /* ModuleRegistryTests.swift */; };
+		87A40AD92E9E57EA005D92CC /* ModuleRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A40AD62E9E57E6005D92CC /* ModuleRegistryTests.swift */; };
+		87A40ADA2E9E57EA005D92CC /* ModuleRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A40AD62E9E57E6005D92CC /* ModuleRegistryTests.swift */; };
 		87AA174B2CEE429C003E99A8 /* DataLayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA174A2CEE429C003E99A8 /* DataLayerTests.swift */; };
 		87AA174C2CEE429C003E99A8 /* DataLayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA174A2CEE429C003E99A8 /* DataLayerTests.swift */; };
 		87AA174D2CEE429C003E99A8 /* DataLayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA174A2CEE429C003E99A8 /* DataLayerTests.swift */; };
@@ -1689,6 +1693,7 @@
 		87A40AA82E99010A005D92CC /* LifecycleTests_macOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = LifecycleTests_macOS.xctestplan; sourceTree = "<group>"; };
 		87A40AB12E99010B005D92CC /* LifecycleTests_watchOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = LifecycleTests_watchOS.xctestplan; sourceTree = "<group>"; };
 		87A40ABE2E996951005D92CC /* NotificationCenter+PostApplicationNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationCenter+PostApplicationNotification.swift"; sourceTree = "<group>"; };
+		87A40AD62E9E57E6005D92CC /* ModuleRegistryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleRegistryTests.swift; sourceTree = "<group>"; };
 		87AA174A2CEE429C003E99A8 /* DataLayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLayerTests.swift; sourceTree = "<group>"; };
 		87AA174E2CF08ED4003E99A8 /* LifecycleModuleManualTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleModuleManualTrackingTests.swift; sourceTree = "<group>"; };
 		87AA17512CF08FC0003E99A8 /* LifecycleModuleSubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleModuleSubscriptionTests.swift; sourceTree = "<group>"; };
@@ -2469,6 +2474,7 @@
 				87EF5ACB2CE3A4BD00DB753C /* ModuleProxyTests.swift */,
 				87C6C2352D528056008B91D8 /* DefaultModuleFactoryTests.swift */,
 				87C6C2362D528056008B91D8 /* ModulesManagerTests.swift */,
+				87A40AD62E9E57E6005D92CC /* ModuleRegistryTests.swift */,
 				87C6C2372D528056008B91D8 /* ModulesTests.swift */,
 				EC9C455D2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift */,
 			);
@@ -4297,6 +4303,7 @@
 				D5EF2DFC2C1731BC00F7BC40 /* MockCMPIntegration.swift in Sources */,
 				ECAB83572DAFDD2600B2CF64 /* DeepLinkModuleTests.swift in Sources */,
 				87EE76EC2D786FFD00BB1D77 /* Condition+LessThanOrEqualTests.swift in Sources */,
+				87A40AD72E9E57EA005D92CC /* ModuleRegistryTests.swift in Sources */,
 				87FC089F2D95B09C00E1041D /* SettingsManager+LoadRulesTests.swift in Sources */,
 				87EE76F02D78720000BB1D77 /* Condition+LessThanTests.swift in Sources */,
 				15ED5B052A60463E0027BB20 /* ObservablesTests.swift in Sources */,
@@ -4687,6 +4694,7 @@
 				87A408CC2E97F06E005D92CC /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				87A408CD2E97F06E005D92CC /* Condition+GreaterThanTests.swift in Sources */,
 				87A408CE2E97F06E005D92CC /* DispatchManager+ConsentTests.swift in Sources */,
+				87A40AD82E9E57EA005D92CC /* ModuleRegistryTests.swift in Sources */,
 				87A408CF2E97F06E005D92CC /* MockCMPIntegration.swift in Sources */,
 				87A408D02E97F06E005D92CC /* ObservablesTests.swift in Sources */,
 				87A408D12E97F06E005D92CC /* SettingsManager+MergeTests.swift in Sources */,
@@ -5135,6 +5143,7 @@
 				87C6C23F2D528056008B91D8 /* ModulesTests.swift in Sources */,
 				87C6C2402D528056008B91D8 /* DefaultModuleFactoryTests.swift in Sources */,
 				87BA6D422C6A470C00784784 /* MockDebouncer.swift in Sources */,
+				87A40AD92E9E57EA005D92CC /* ModuleRegistryTests.swift in Sources */,
 				879CC0B62CB6835200A51BF2 /* VisitorStorageTests.swift in Sources */,
 				87BA6D432C6A470C00784784 /* DatabaseProviderTests.swift in Sources */,
 				87908E5A2DA95DD800193F08 /* Operator+AsSingleTests.swift in Sources */,
@@ -5361,6 +5370,7 @@
 				87BA6DC02C6A47AF00784784 /* MockDebouncer.swift in Sources */,
 				879CC0B52CB6835200A51BF2 /* VisitorStorageTests.swift in Sources */,
 				87BA6DC12C6A47AF00784784 /* DatabaseProviderTests.swift in Sources */,
+				87A40ADA2E9E57EA005D92CC /* ModuleRegistryTests.swift in Sources */,
 				D54BC0002C78C01A003687C7 /* DispatchManagerTestCase.swift in Sources */,
 				87BA6DC32C6A47AF00784784 /* MockConnectivity.swift in Sources */,
 				87908E5B2DA95DD800193F08 /* Operator+AsSingleTests.swift in Sources */,

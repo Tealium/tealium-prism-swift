@@ -44,6 +44,7 @@ public extension Modules {
      *
      * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
      * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     * Omitting this parameter will initialize the module with its default settings.
      */
     static func appData(forcingSettings block: EnforcingSettings<AppDataSettingsBuilder>? = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<AppDataModule>(moduleType: Modules.Types.appData,
@@ -55,6 +56,7 @@ public extension Modules {
      *
      * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
      * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     * Omitting this parameter will initialize the module with its default settings.
      */
     static func collect(forcingSettings block: EnforcingSettings<CollectSettingsBuilder>? = { $0 }) -> any ModuleFactory {
         CollectModule.Factory(forcingSettings: [block])
@@ -82,6 +84,7 @@ public extension Modules {
      * Returns a factory for creating the `DataLayerModule`.
      *
      * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
+     * Omitting this parameter will initialize the module with its default settings.
      */
     static func dataLayer(forcingSettings block: EnforcingSettings<DataLayerSettingsBuilder> = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<DataLayerModule>(moduleType: Modules.Types.dataLayer,
@@ -93,6 +96,7 @@ public extension Modules {
      *
      * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
      * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     * Omitting this parameter will initialize the module with its default settings.
      */
     static func deviceData(forcingSettings block: EnforcingSettings<DeviceDataSettingsBuilder>? = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<DeviceDataModule>(moduleType: Modules.Types.deviceData,
@@ -104,6 +108,7 @@ public extension Modules {
      *
      * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
      * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     * Omitting this parameter will initialize the module with its default settings.
      */
     static func deepLink(forcingSettings block: EnforcingSettings<DeepLinkSettingsBuilder>? = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<DeepLinkModule>(moduleType: Modules.Types.deepLink,
@@ -114,6 +119,7 @@ public extension Modules {
      * Returns a factory for creating the `TealiumDataModule`.
      *
      * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
+     * Omitting this parameter will initialize the module with its default settings.
      */
     static func tealiumData(forcingSettings block: EnforcingSettings<TealiumDataSettingsBuilder> = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<TealiumDataModule>(moduleType: Modules.Types.tealiumData,
@@ -125,6 +131,7 @@ public extension Modules {
      *
      * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
      * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     * Omitting this parameter will initialize the module with its default settings.
      */
     static func timeData(forcingSettings block: EnforcingSettings<TimeDataSettingsBuilder>? = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<TimeDataModule>(moduleType: Modules.Types.timeData,
@@ -136,6 +143,7 @@ public extension Modules {
      *
      * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
      * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     * Omitting this parameter will initialize the module with its default settings.
      */
     static func connectivityData(forcingSettings block: EnforcingSettings<ConnectivityDataSettingsBuilder>? = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<ConnectivityDataModule>(moduleType: Modules.Types.connectivityData,
@@ -147,10 +155,26 @@ public extension Modules {
      *
      * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
      * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     * Omitting this parameter will initialize the module with its default settings.
      */
     static func trace(forcingSettings block: EnforcingSettings<TraceSettingsBuilder>? = { $0 }) -> any ModuleFactory {
         DefaultModuleFactory<TraceModule>(moduleType: Modules.Types.trace,
                                           enforcedSettings: block?(TraceSettingsBuilder()).build())
+    }
+
+    /**
+     * Adds a `ModuleFactory` to the list of default factories that are added to each `Tealium` instance.
+     *
+     * Each module added in this list will be added only if the same module wasn't already added in the specific config object.
+     * Generally factories added by default will not return any enforced settings, meaning that they will require some local or remote settings
+     * to initialize the respective modules.
+     *
+     * If they contain some settings, instead, their modules will be initialized even if they are not configured elsewhere.
+     */
+    static func addDefaultModule<SpecificFactory: ModuleFactory>(_ module: SpecificFactory) {
+        TealiumQueue.worker.ensureOnQueue {
+            ModuleRegistry.shared.addDefaultModule(module)
+        }
     }
 }
 
