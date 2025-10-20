@@ -13,17 +13,12 @@ import Foundation
  *
  * You can use `updates` to receive only future updates in a new observable.
  */
-public class ObservableState<Element>: CustomObservable<Element> {
+public class ObservableState<Element>: Observable<Element> {
     typealias Element = Element
     private let valueProvider: () -> Element
+    /// The current state of this `Observable`
     public var value: Element {
         valueProvider()
-    }
-
-    convenience init(variableSubject: StateSubject<Element>) {
-        self.init(valueProvider: variableSubject.value) { observer in
-            variableSubject.subscribe(observer)
-        }
     }
 
     init(valueProvider: @autoclosure @escaping () -> Element, subscriptionHandler: @escaping SubscriptionHandler) {
@@ -31,9 +26,11 @@ public class ObservableState<Element>: CustomObservable<Element> {
         super.init(subscriptionHandler)
     }
 
+    /// Creates an `ObservableState` which can not emit other events, therefore keeping it's value constant.
     public class func constant(_ value: Element) -> ObservableState<Element> {
-        ObservableState<Element>(valueProvider: value) { _ in
-            Subscription { }
+        ObservableState<Element>(valueProvider: value) { observer in
+            observer(value)
+            return Disposables.disposed()
         }
     }
 

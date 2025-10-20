@@ -16,7 +16,7 @@ final class TrackerImplTests: XCTestCase {
     ])
     var modules: ObservableState<[Module]>
     @StateSubject(SDKSettings())
-    var sdkSettings: ObservableState<SDKSettings>
+    var sdkSettings
     lazy var loadRuleEngine = LoadRuleEngine(sdkSettings: sdkSettings,
                                              logger: nil)
     let mockDispatchManager = MockDispatchManager()

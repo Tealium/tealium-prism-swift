@@ -34,7 +34,7 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
             .flatMapLatest { monitoredConnection in
                 switch monitoredConnection {
                 case .connected:
-                    .Just(true)
+                    Observables.just(true)
                 case .notConnected:
                     empiricalConnectivity.onEmpiricalConnectionAvailable
                         .takeWhile({ $0 }, inclusive: true)
@@ -66,7 +66,7 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
      * and only report as unavailable when both do so or if empirical is unavailable and the monitored one is unknown.
      */
     @StateSubject(true)
-    public var connectionAssumedAvailable: ObservableState<Bool>
+    public var connectionAssumedAvailable
 
     public func didComplete(_ request: URLRequest, with response: NetworkResult) {
         // Here we always assume that the response is never coming from a local cache

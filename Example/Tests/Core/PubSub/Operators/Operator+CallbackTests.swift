@@ -11,7 +11,7 @@ import XCTest
 
 final class OperatorCallbackTests: XCTestCase {
 
-    let observable123 = Observable.Just(1, 2, 3)
+    let observable123 = Observables.just(1, 2, 3)
 
     func test_callback_emits_callback_results() {
         let emissionsReceived = expectation(description: "Emissions received")

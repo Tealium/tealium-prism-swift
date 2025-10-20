@@ -38,7 +38,7 @@ final class OperatorsMergeTests: XCTestCase {
         let expectation = expectation(description: "Retain Cycle removed")
         let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
-        let generatedObservable: Observable<Int> = observable.merge(Observable.Just(2))
+        let generatedObservable: Observable<Int> = observable.merge(Observables.just(2))
         var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })

@@ -1,5 +1,5 @@
 //
-//  Observable+Create.swift
+//  Observables.swift
 //  tealium-prism
 //
 //  Created by Enrico Zannini on 09/06/23.
@@ -8,8 +8,29 @@
 
 import Foundation
 
-public extension Observable {
-    // swiftlint:disable identifier_name
+/**
+ * Contains factory methods for creating common `Observable` instances for use with the Tealium SDK.
+ */
+public enum Observables {
+}
+
+public extension Observables {
+    /// The block called when an `Observable` of `Element` emits an event.
+    typealias Observer<Element> = Observable<Element>.Observer
+
+    /**
+     * Creates a custom observable that can call `Observer` callbacks with values of type `Element`.
+     *
+     * Use this method to create different behaviors upon `Observable` subscription.
+     *
+     * - parameter subscriptionHandler: The code run every time the returned `Observable` is subscribed upon.
+     * Within this block you can call the `Observer` block with values of type `Element`.
+     * - returns: An `Observable` that can be subscribed upon.
+     * Every time someone subscribes to this `Observable` the `subscriptionHandler` will be invoked.
+     */
+    static func create<Element>(subscriptionHandler: @escaping Observable<Element>.SubscriptionHandler) -> Observable<Element> {
+        Observable(subscriptionHandler)
+    }
     /**
      * Returns an observable that will send only one event once the asyncFunction has completed.
      *
@@ -18,8 +39,8 @@ public extension Observable {
      *
      * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and publish a new event to the subscribers when the function completes.
      */
-    static func Callback(from asyncFunction: @escaping (@escaping Observer) -> Void) -> Observable<Element> {
-        CustomObservable { observer in
+    static func callback<Element>(from asyncFunction: @escaping (@escaping Observer<Element>) -> Void) -> Observable<Element> {
+        Self.create { observer in
             var cancelled = false
             asyncFunction { res in
                 if !cancelled {
@@ -33,23 +54,23 @@ public extension Observable {
     }
 
     /// Returns an observable that just reports the provided elements in order to each new subscriber.
-    static func Just(_ elements: Element...) -> Observable<Element> {
-        From(elements)
+    static func just<Element>(_ elements: Element...) -> Observable<Element> {
+        Self.from(elements)
     }
 
     /// Returns an observable that just reports the provided elements in order to each new subscriber.
-    static func From(_ elements: [Element]) -> Observable<Element> {
-        CustomObservable<Element> { observer in
+    static func from<Element>(_ elements: [Element]) -> Observable<Element> {
+        self.create { observer in
             for element in elements {
                 observer(element)
             }
-            return Subscription { }
+            return Disposables.disposed()
         }
     }
 
     /// Returns an empty observable that never reports anything
-    static func Empty() -> Observable<Element> {
-        From([])
+    static func empty<Element>() -> Observable<Element> {
+        Self.from([])
     }
 
     /**
@@ -58,9 +79,9 @@ public extension Observable {
      * The first element published from the returned observable will be published when all the observables provided emit at list one element.
      * All subsequent changes to any observable will be emitted one by one.
      */
-    static func CombineLatest(_ observables: [Observable<Element>]) -> Observable<[Element]> {
+    static func combineLatest<Element>(_ observables: [Observable<Element>]) -> Observable<[Element]> {
         func subscriptionHandler(_ observer: @escaping ([Element]) -> Void) -> Disposable {
-            let container = DisposeContainer()
+            let container = DisposableContainer()
             let count = observables.count
             guard count > 0 else {
                 observer([])
@@ -82,14 +103,13 @@ public extension Observable {
                     observer(resultArray)
                 }
             }
-            for i in 0..<count {
-                observables[i].subscribe { element in
-                    notify(element: element, index: i)
+            for index in 0..<count {
+                observables[index].subscribe { element in
+                    notify(element: element, index: index)
                 }.addTo(container)
             }
             return container
         }
-        return CustomObservable<[Element]>(subscriptionHandler)
+        return Self.create(subscriptionHandler: subscriptionHandler)
     }
-    // swiftlint:enable identifier_name
 }

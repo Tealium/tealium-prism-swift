@@ -11,8 +11,8 @@ import TealiumPrism
 
 class MockCMPAdapter: CMPAdapter {
     let id: String
-    @ToAnyObservable<ReplaySubject<ConsentDecision?>>(ReplaySubject<ConsentDecision?>(initialValue: nil))
-    var consentDecision: Observable<ConsentDecision?>
+    @ReplaySubject<ConsentDecision?>(nil)
+    var consentDecision
 
     var allPurposes: Set<String>?
 

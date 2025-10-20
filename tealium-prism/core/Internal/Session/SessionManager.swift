@@ -20,8 +20,7 @@ import Foundation
  */
 class SessionManager: SessionRegistry {
 
-    @ToAnyObservable<ReplaySubject<Session>>(ReplaySubject())
-    var session: Observable<Session>
+    @ReplaySubject<Session> var session
     let sessionTimeout: ObservableState<TimeFrame>
     let dataStore: DataStore
     let logger: LoggerProtocol?
@@ -75,7 +74,7 @@ class SessionManager: SessionRegistry {
         let now = Date().timeIntervalSince1970
         let delay = expirationTime - now
         debouncer.debounce(time: delay) { [weak self] in
-            guard let session = self?._session.publisher,
+            guard let session = self?._session,
                   let currentSession = session.last(),
                   timestamp == currentSession.lastEventTimeMilliseconds else {
                 return
@@ -108,7 +107,7 @@ class SessionManager: SessionRegistry {
     }
 
     func createOrExtendSession(timestamp: Int64) -> Session {
-        if let session = _session.publisher.last(), session.status != .ended {
+        if let session = _session.last(), session.status != .ended {
             session.incrementAndExtend(timestamp: timestamp)
         } else {
             Session(status: .started, sessionInfo: .new(timestamp: timestamp))

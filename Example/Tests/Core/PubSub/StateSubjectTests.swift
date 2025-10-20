@@ -83,7 +83,7 @@ final class StateSubjectTests: XCTestCase {
         let multipleValuesEmitted = expectation(description: "Multiple values are emitted")
         multipleValuesEmitted.expectedFulfillmentCount = 5
         var count = 0
-        _ = variableSubject.toStatefulObservable()
+        _ = variableSubject.asObservableState()
             .map { $0 + 1 }
             .subscribe { value in
                 count += 1
@@ -94,6 +94,39 @@ final class StateSubjectTests: XCTestCase {
         variableSubject.value = 2
         variableSubject.value = 3
         variableSubject.value = 4
+        waitForDefaultTimeout()
+    }
+
+    func test_constant_observableState_emits_constant_value() {
+        let valueEmitted = expectation(description: "Value is emitted")
+        let state = ObservableState.constant(1)
+        XCTAssertEqual(state.value, 1)
+        state.subscribeOnce { value in
+            XCTAssertEqual(value, 1)
+            valueEmitted.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_asObservable_returns_observableState() {
+        let valueEmitted = expectation(description: "Value is emitted")
+        let state = StateSubject(1)
+        XCTAssertEqual(state.value, 1)
+        state.asObservable().subscribeOnce { value in
+            XCTAssertEqual(value, 1)
+            valueEmitted.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_asObservableState_returns_observableState() {
+        let valueEmitted = expectation(description: "Value is emitted")
+        let state = StateSubject(1)
+        XCTAssertEqual(state.value, 1)
+        state.asObservableState().subscribeOnce { value in
+            XCTAssertEqual(value, 1)
+            valueEmitted.fulfill()
+        }
         waitForDefaultTimeout()
     }
 }

@@ -29,8 +29,8 @@ public struct ApplicationStatus {
 public class ApplicationStatusListener: NSObject {
     static let shared = ApplicationStatusListener()
 
-    @ToAnyObservable<ReplaySubject>(ReplaySubject<ApplicationStatus>(initialValue: ApplicationStatus(type: .initialized), cacheSize: Int.max))
-    public var onApplicationStatus: Observable<ApplicationStatus>
+    @ReplaySubject(ApplicationStatus(type: .initialized), cacheSize: Int.max)
+    public var onApplicationStatus
 
     private var wakeNotificationObserver: NSObjectProtocol?
     private var sleepNotificationObserver: NSObjectProtocol?
@@ -48,7 +48,7 @@ public class ApplicationStatusListener: NSObject {
                                         leeway: leeway,
                                         queue: queue,
                                         eventHandler: { [weak self] in
-            self?._onApplicationStatus.publisher.resize(1)
+            self?._onApplicationStatus.resize(1)
             self?.initGraceTimer = nil
         })
         initGraceTimer?.resume()

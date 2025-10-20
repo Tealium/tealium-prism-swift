@@ -85,7 +85,7 @@ final class OperatorsCombineLatestTests: XCTestCase {
         let expectation = expectation(description: "Retain Cycle removed")
         let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
-        let generatedObservable: Observable<(Int, String)> = observable.combineLatest(Observable.Just("a"))
+        let generatedObservable: Observable<(Int, String)> = observable.combineLatest(Observables.just("a"))
         var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })

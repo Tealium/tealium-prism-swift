@@ -12,7 +12,7 @@ import XCTest
 final class OperatorsIgnoreTests: XCTestCase {
     func test_ignoreN_ignores_first_N_events() {
         let expectation = expectation(description: "4th event received")
-        let sub = ReplaySubject(initialValue: 0)
+        let sub = ReplaySubject(0)
         let observable = sub.asObservable()
         observable.ignore(3)
             .subscribeOnce { element in

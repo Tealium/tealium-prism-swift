@@ -10,14 +10,10 @@ import Foundation
 @testable import TealiumPrism
 
 class MockQueueManager: QueueManager {
-    @ToAnyObservable(BasePublisher())
-    var onDequeueRequest: Observable<Void>
-    @ToAnyObservable(BasePublisher())
-    var onDeleteRequest: Observable<([String], String)>
-    @ToAnyObservable(BasePublisher())
-    var onDeleteAllRequest: Observable<String>
-    @ToAnyObservable(BasePublisher())
-    var onStoreRequest: Observable<([Dispatch], [String])>
+    @Subject<Void> var onDequeueRequest
+    @Subject<([String], String)> var onDeleteRequest
+    @Subject<String> var onDeleteAllRequest
+    @Subject<([Dispatch], [String])> var onStoreRequest
     override func dequeueDispatches(for processor: String, limit: Int?) -> [Dispatch] {
         _onDequeueRequest.publish()
         return super.dequeueDispatches(for: processor, limit: limit)

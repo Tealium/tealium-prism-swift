@@ -127,7 +127,7 @@ public protocol DataStoreEditor {
 /// A data store edit for a specific key
 public enum DataStoreEdit {
     /**
-     * Removes the data store item at the given key
+     * Removes the data store item at the given key.
      */
     case remove(key: String)
 

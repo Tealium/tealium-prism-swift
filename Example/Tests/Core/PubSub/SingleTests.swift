@@ -46,7 +46,7 @@ final class SingleTests: XCTestCase {
 
     func test_onSuccess_is_called_when_result_is_successful() {
         let observerCalled = expectation(description: "Observer called")
-        let single = SingleImpl<Result<Int, Error>>(observable: .Just(.success(1)),
+        let single = SingleImpl<Result<Int, Error>>(observable: Observables.just(.success(1)),
                                                     queue: .main)
 
         _ = single.onSuccess { value in
@@ -59,7 +59,7 @@ final class SingleTests: XCTestCase {
     func test_onSuccess_is_not_called_when_result_is_unsuccessful() {
         let observerCalled = expectation(description: "Observer called")
         observerCalled.isInverted = true
-        let single = SingleImpl<Result<Int, Error>>(observable: .Just(.failure(TealiumError.genericError("Failed"))),
+        let single = SingleImpl<Result<Int, Error>>(observable: Observables.just(.failure(TealiumError.genericError("Failed"))),
                                                     queue: .main)
 
         _ = single.onSuccess { _ in
@@ -70,7 +70,7 @@ final class SingleTests: XCTestCase {
 
     func test_onFailure_is_called_when_result_is_unsuccessful() {
         let observerCalled = expectation(description: "Observer called")
-        let single = SingleImpl<Result<Int, Error>>(observable: .Just(.failure(TealiumError.genericError("Failed"))),
+        let single = SingleImpl<Result<Int, Error>>(observable: Observables.just(.failure(TealiumError.genericError("Failed"))),
                                                     queue: .main)
 
         _ = single.onFailure { error in
@@ -87,7 +87,7 @@ final class SingleTests: XCTestCase {
     func test_onFailure_is_not_called_when_result_is_successful() {
         let observerCalled = expectation(description: "Observer called")
         observerCalled.isInverted = true
-        let single = SingleImpl<Result<Int, Error>>(observable: .Just(.success(1)),
+        let single = SingleImpl<Result<Int, Error>>(observable: Observables.just(.success(1)),
                                                     queue: .main)
 
         _ = single.onFailure { _ in
@@ -98,7 +98,7 @@ final class SingleTests: XCTestCase {
 
     @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
     func test_toAsync_returns_item_when_successful() async throws {
-        let single = SingleImpl<Result<Int, Error>>(observable: .Just(.success(1)),
+        let single = SingleImpl<Result<Int, Error>>(observable: Observables.just(.success(1)),
                                                     queue: .main)
 
         let item = try await single.toAsync()
@@ -107,7 +107,7 @@ final class SingleTests: XCTestCase {
 
     @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
     func test_toAsync_throws_error_when_unsuccessful() async throws {
-        let single = SingleImpl<Result<Int, Error>>(observable: .Just(.failure(TealiumError.genericError("Failed"))),
+        let single = SingleImpl<Result<Int, Error>>(observable: Observables.just(.failure(TealiumError.genericError("Failed"))),
                                                     queue: .main)
         do {
             _ = try await single.toAsync()

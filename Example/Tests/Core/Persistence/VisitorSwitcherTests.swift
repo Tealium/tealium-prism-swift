@@ -25,7 +25,7 @@ final class VisitorSwitcherTests: XCTestCase {
                                                              logger: nil)
     var dataLayerStore: DataStore?
     @StateSubject(CoreSettings(visitorIdentityKey: VisitorSwitcherTests.identityKey))
-    var coreSettings: ObservableState<CoreSettings>
+    var coreSettings
     override func setUpWithError() throws {
         let dataStore = try storeProvider.getModuleStore(name: "visitor")
         dataStorage = VisitorStorage(storage: dataStore)

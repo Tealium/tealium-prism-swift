@@ -13,8 +13,8 @@ class MockSessionManager: SessionManager {
 
     let databaseProvider: DatabaseProviderProtocol
 
-    @ToAnyObservable(BasePublisher<Dispatch>())
-    var onRegisterDispatch: Observable<Dispatch>
+    @Subject<Dispatch> var onRegisterDispatch
+
     init(databaseProvider: DatabaseProviderProtocol = MockDatabaseProvider()) {
         self.databaseProvider = databaseProvider
         let modulesRepository = SQLModulesRepository(dbProvider: databaseProvider)

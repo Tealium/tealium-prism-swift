@@ -85,7 +85,7 @@ public class HTTPClient: NetworkClient {
 
     private func sendRetryableRequest(_ request: URLRequest, retryCount: Int = 0, completion: @escaping (NetworkResult) -> Void) -> Disposable {
         let completion = SelfDestructingResultCompletion(completion: completion)
-        let disposeContainer = DisposeContainer()
+        let disposeContainer = DisposableContainer()
         self.sendBasicRequest(request) { result in
             self.interceptorManager.interceptResult(request: request, retryCount: retryCount, result: result) { [weak self] shouldRetry in
                 guard let self, !disposeContainer.isDisposed else {

@@ -10,8 +10,7 @@ import Foundation
 @testable import TealiumPrism
 
 class MockTracker: Tracker {
-    @ToAnyObservable<BasePublisher<Dispatch>>(BasePublisher<Dispatch>())
-    var onTrack: Observable<Dispatch>
+    @Subject<Dispatch> var onTrack
     var acceptTrack: Bool = true
     func trackResultBuilder(dispatch: Dispatch) -> TrackResult {
         if self.acceptTrack {

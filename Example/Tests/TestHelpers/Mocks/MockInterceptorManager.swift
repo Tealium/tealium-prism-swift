@@ -16,11 +16,9 @@ class MockInterceptorManager: NSObject, InterceptorManagerProtocol {
         shouldRetry(false)
     }
 
-    @ToAnyObservable(BasePublisher<NetworkResult>())
-    var onInterceptResponse: Observable<NetworkResult>
+    @Subject<NetworkResult> var onInterceptResponse
 
-    @ToAnyObservable(BasePublisher<Void>())
-    var onWaitingForConnectivity: Observable<Void>
+    @Subject<Void> var onWaitingForConnectivity
 
     required init(interceptors: [RequestInterceptor], queue: TealiumQueue) {
         self.interceptors = interceptors

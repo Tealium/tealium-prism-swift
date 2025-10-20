@@ -11,7 +11,7 @@ import XCTest
 
 final class OperatorsMapTests: XCTestCase {
 
-    let observable123 = Observable.Just(1, 2, 3)
+    let observable123 = Observables.just(1, 2, 3)
 
     func test_map_transforms_events() {
         let expectations = [
@@ -53,7 +53,7 @@ final class OperatorsMapTests: XCTestCase {
             expectation(description: "Event nil is removed")
         ]
         expectations[2].isInverted = true
-        let observable = Observable.Just(1, nil, 3)
+        let observable = Observables.just(1, nil, 3)
         _ = observable
             .compactMap({ (number: Int?) -> Int? in
                 guard let number = number else { return nil }

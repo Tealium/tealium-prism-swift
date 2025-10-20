@@ -11,7 +11,7 @@ import XCTest
 
 private extension Observable {
     func onSubscription(block: @escaping () -> Void) -> Observable<Element> {
-        CustomObservable { observer in
+        Observable { observer in
             block()
             return self.subscribe(observer)
         }
@@ -19,15 +19,15 @@ private extension Observable {
 }
 
 final class OperatorsQueuesTests: XCTestCase {
-    let observable123 = Observable.Just(1, 2, 3)
+    let observable123 = Observables.just(1, 2, 3)
 
     func test_subscribeOn_subscribes_on_provided_queue() {
         let expectation = expectation(description: "Subscribe handler is called")
         let queue = TealiumQueue(label: "ObservableTestQueue")
-        let observable = CustomObservable<Void> { _ in
+        let observable = Observable<Void> { _ in
             dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
             expectation.fulfill()
-            return Subscription { }
+            return Disposables.disposed()
         }
         _ = observable.subscribeOn(queue)
             .subscribe { }
@@ -37,7 +37,7 @@ final class OperatorsQueuesTests: XCTestCase {
     func test_subscribeOn_only_subscribes_prior_operators_on_provided_queue() {
         let expectation = expectation(description: "Subscribe handler is called")
         let queue = TealiumQueue(label: "ObservableTestQueue")
-        let replaySubject = ReplaySubject<Void>(initialValue: ())
+        let replaySubject = ReplaySubject<Void>(())
         let observable = replaySubject.asObservable()
 
         _ = observable

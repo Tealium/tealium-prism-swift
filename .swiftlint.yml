@@ -50,13 +50,6 @@ nesting:
   ignore_typealiases_and_associatedtypes: true
 cyclomatic_complexity:
   ignores_case_statements: true
-custom_rules:
-  any_observable_generics:
-    included: ./tealium
-    name: ToAnyObservable Generics
-    message: ToAnyObservable must always specify Generics type to avoid compile issues
-    regex: \@ToAnyObservable\s*\(
-    severity: error
 type_name:
   excluded:
   - Or

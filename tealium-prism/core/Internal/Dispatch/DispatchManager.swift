@@ -31,14 +31,13 @@ class DispatchManager: DispatchManagerProtocol {
         modulesManager?.modules.value.compactMap { $0 as? Dispatcher } ?? []
     }
     private var onDispatchers: Observable<[Dispatcher]> {
-        modulesManager?.modules.map { moduleList in moduleList.compactMap { $0 as? Dispatcher } } ?? .Just([])
+        modulesManager?.modules.map { moduleList in moduleList.compactMap { $0 as? Dispatcher } } ?? Observables.just([])
     }
     private weak var modulesManager: ModulesManager?
     private let queueManager: QueueManagerProtocol
     private let consentManager: ConsentManager?
     private let logger: LoggerProtocol?
-    @ToAnyObservable<BasePublisher<Void>>(BasePublisher<Void>())
-    private var onQueuedEvents: Observable<Void>
+    @Subject<Void> private var onQueuedEvents
     private let loadRuleEngine: LoadRuleEngine
     private let mappingsEngine: MappingsEngine
     init(loadRuleEngine: LoadRuleEngine,
@@ -100,17 +99,17 @@ class DispatchManager: DispatchManagerProtocol {
 
     func startDispatchLoop() {
         onDispatchers.flatMapLatest { dispatchers in
-            Observable.From(dispatchers)
+            Observables.from(dispatchers)
         }.flatMap { [weak self, coordinator = barrierCoordinator] dispatcher in
             coordinator.onBarriersState(for: dispatcher.id)
                 .flatMapLatest { [weak self] barriersState -> Observable<DispatchSplit> in
-                    guard let self else { return .Empty() }
+                    guard let self else { return Observables.empty() }
                     self.logger?.debug(category: LogCategory.dispatchManager,
                                        "BarrierState changed for \(dispatcher.id): \(barriersState)")
                     if barriersState == .open {
                         return self.startConsentedDequeueLoop(for: dispatcher)
                     } else {
-                        return .Empty()
+                        return Observables.empty()
                     }
                 }.callback(fromDisposable: { [weak self] dispatchSplit, observer in
                     let subscription = Subscription { }
@@ -136,7 +135,7 @@ class DispatchManager: DispatchManagerProtocol {
         if let consentManager {
             consentManager.onConfigurationSelected
                 .flatMapLatest { [weak self] configuration in
-                    guard let self, let configuration else { return .Empty() }
+                    guard let self, let configuration else { return Observables.empty() }
                     // Only dequeue events after we have a valid configuration from `ConsentManager`
                     return self.startDequeueLoop(for: dispatcher)
                         .map { dispatches in
@@ -177,7 +176,7 @@ class DispatchManager: DispatchManagerProtocol {
             onProcessedDispatches(dispatchSplit.unsuccessful)
         }
         let dispatches = dispatchSplit.successful
-        let container = DisposeContainer()
+        let container = DisposableContainer()
         guard !dispatches.isEmpty else {
             return container
         }

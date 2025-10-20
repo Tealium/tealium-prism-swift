@@ -34,7 +34,7 @@ class TealiumBaseTests: XCTestCase {
         return config
     }
 
-    let disposer = DisposeContainer()
+    let disposer = DisposableContainer()
 
     func createTealium(completion: ((Tealium.InitializationResult) -> Void)? = nil) -> Tealium {
         instanceManager.create(config: config, completion: completion)
@@ -336,7 +336,7 @@ final class TealiumTests: TealiumBaseTests {
         let tealiumInitialized = expectation(description: "Tealium is initialized")
         let backgroundTaskStarted = expectation(description: "Background task is started")
         let teal = createTealium()
-        let disposable = DisposeContainer()
+        let disposable = DisposableContainer()
         var count = 0
         _ = teal.proxy.executeTask { impl in
             impl.barrierCoordinator.ongoingBackgroundTask.subscribe { ongoing in

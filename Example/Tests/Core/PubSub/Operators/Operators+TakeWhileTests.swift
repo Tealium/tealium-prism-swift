@@ -11,7 +11,7 @@ import XCTest
 
 final class OperatorsTakeWhileTests: XCTestCase {
 
-    let observable123 = Observable.Just(1, 2, 3)
+    let observable123 = Observables.just(1, 2, 3)
 
     func test_events_over_conditions_are_not_emitted() {
         let expectations = [

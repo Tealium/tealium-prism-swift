@@ -12,7 +12,7 @@ import XCTest
 class CustomModule: BasicModule {
     var id: String { Self.moduleType }
 
-    @StateSubject<DataObject>([:])
+    @StateSubject([:])
     var moduleConfiguration: ObservableState<DataObject>
     required init?(context: TealiumContext, moduleConfiguration: DataObject) {
         _moduleConfiguration.value = moduleConfiguration

@@ -34,27 +34,24 @@ public class ResourceRefresher<Resource: Codable> {
     private let networkHelper: NetworkHelperProtocol
     private let logger: LoggerProtocol?
 
-    @ToAnyObservable<BasePublisher<Resource>>(BasePublisher())
-    var onResourceLoaded: Observable<Resource>
+    @Subject<Resource> var onResourceLoaded
 
     /// An observable sequence of resources, starting from whatever might be cached on disk, and followed with all the subsequent successful refreshes.
     public var onLatestResource: Observable<Resource> {
-        Observable.Just(readResource())
+        Observables.just(readResource())
             .compactMap { $0 }
             .merge(_onResourceLoaded.asObservable())
     }
 
     /// An observable that emits whenever a load completes either successfully or not.
-    @ToAnyObservable<ReplaySubject<Void>>(ReplaySubject())
-    public var onLoadCompleted: Observable<Void>
+    @ReplaySubject<Void> public var onLoadCompleted
 
     /**
      * An observable sequence of errors that might come from network or from failing to write the cached resource on disk.
      *
      * Note that 304 errors are ignored as they are the intended network response when the resource was not modified.
      */
-    @ToAnyObservable<BasePublisher<Error>>(BasePublisher<Error>())
-    public var onRefreshError: Observable<Error>
+    @Subject<Error> public var onRefreshError
 
     private var disposableRequest: Disposable?
 

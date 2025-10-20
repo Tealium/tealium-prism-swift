@@ -44,7 +44,7 @@ final class InterceptorManagerTests: XCTestCase {
                             shouldRetry: { _, retryCount, _ in
                                 defer { expectRetry.fulfill() }
                                 if retryCount == 0 {
-                                    return .afterEvent(.Just(()))
+                                    return .afterEvent(Observables.just(()))
                                 }
                                 return .doNotRetry
                             })

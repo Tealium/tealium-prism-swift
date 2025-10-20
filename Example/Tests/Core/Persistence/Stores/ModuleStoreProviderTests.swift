@@ -20,7 +20,8 @@ final class ModuleStoreProviderTests: XCTestCase {
     }
 
     func test_getModuleStore_filters_expiredData_for_correct_module() {
-        let storeProvider = ModuleStoreProvider(databaseProvider: dbProvider, modulesRepository: MockModulesRepository())
+        let repository = MockModulesRepository()
+        let storeProvider = ModuleStoreProvider(databaseProvider: dbProvider, modulesRepository: repository)
         let store = XCTAssertNoThrowReturn(try storeProvider.getModuleStore(name: "test"))
         XCTAssertNotNil(store)
         let onDataRemovedNotified = expectation(description: "onDataRemoved is notified")
@@ -29,6 +30,10 @@ final class ModuleStoreProviderTests: XCTestCase {
             XCTAssertFalse(dataRemoved.contains("key2"))
             onDataRemovedNotified.fulfill()
         }
+        repository.expire([
+            1: ["key1": DataItem(value: 1)],
+            2: ["key2": DataItem(value: 2)]
+        ])
         waitForDefaultTimeout()
     }
 

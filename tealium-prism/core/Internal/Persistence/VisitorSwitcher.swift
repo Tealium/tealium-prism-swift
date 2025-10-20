@@ -30,7 +30,7 @@ class VisitorSwitcher {
         return onCoreSettings.map { $0.visitorIdentityKey }
             .distinct()
             .flatMapLatest { key -> Observable<String> in
-                guard let key else { return .Empty() }
+                guard let key else { return Observables.empty() }
                 return dataLayerStore.onDataUpdated.map { newData in
                     newData.get(key: key)
                 }

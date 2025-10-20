@@ -14,7 +14,7 @@ class SubjectTests: XCTestCase {
     func testPublishSubject() {
         let eventNotified = expectation(description: "Event is notified")
         let value = 2
-        let subject = BaseSubject<Int>()
+        let subject = Subject<Int>()
         _ = subject.subscribe { val in
             XCTAssertEqual(val, value)
             eventNotified.fulfill()

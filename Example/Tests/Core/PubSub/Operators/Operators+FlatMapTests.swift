@@ -10,13 +10,13 @@ import TealiumPrism
 import XCTest
 
 final class OperatorsFlatMapTests: XCTestCase {
-    let observable123 = Observable.Just(1, 2, 3)
+    let observable123 = Observables.just(1, 2, 3)
 
     func test_flatMap_returns_new_observables_flattening_it() {
         let flatMappedEventIsCalled = expectation(description: "FlatMapped event is called 3 times")
         flatMappedEventIsCalled.expectedFulfillmentCount = 3
         _ = observable123.flatMap { _ in
-            Observable.Just("flatMapped")
+            Observables.just("flatMapped")
         }.subscribe { event in
             XCTAssertEqual(event, "flatMapped")
             flatMappedEventIsCalled.fulfill()
@@ -28,7 +28,7 @@ final class OperatorsFlatMapTests: XCTestCase {
         let flatMappedEventIsCalled = expectation(description: "FlatMapped event is called 3 times")
         flatMappedEventIsCalled.expectedFulfillmentCount = 3
         _ = observable123.flatMap { element in
-            Observable.Callback { observer in
+            Observables.callback { observer in
                 DispatchQueue.main.async {
                     observer(element)
                 }
@@ -42,7 +42,7 @@ final class OperatorsFlatMapTests: XCTestCase {
     func test_flatMapLatest_only_emits_events_from_latest_returned_observable() {
         let flatMappedEventIsCalled = expectation(description: "FlatMapped event is called only once")
         _ = observable123.flatMapLatest { element in
-            Observable.Callback { observer in
+            Observables.callback { observer in
                 DispatchQueue.main.async {
                     observer(element)
                 }
@@ -58,7 +58,7 @@ final class OperatorsFlatMapTests: XCTestCase {
         let expectation = expectation(description: "Retain Cycle removed")
         let pub = BasePublisher<Int>()
         let observable = pub.asObservable()
-        let generatedObservable: Observable<Int> = observable.flatMap { _ in Observable.Just(2) }
+        let generatedObservable: Observable<Int> = observable.flatMap { _ in Observables.just(2) }
         var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
@@ -70,9 +70,9 @@ final class OperatorsFlatMapTests: XCTestCase {
 
     func test_flatMapLatest_disposes_previous_subscriptions_when_reentrant_emission_occurs() {
         let observerCalled = expectation(description: "Observer called")
-        let subject = BaseSubject<Int>()
-        let innerSubject1 = BaseSubject<Int>()
-        let innerSubject2 = BaseSubject<Int>()
+        let subject = Subject<Int>()
+        let innerSubject1 = Subject<Int>()
+        let innerSubject2 = Subject<Int>()
         _ = subject.asObservable().flatMapLatest { value in
             if value == 1 {
                 subject.publish(2)
@@ -94,9 +94,9 @@ final class OperatorsFlatMapTests: XCTestCase {
 
     func test_flatMapLatest_doesnt_drop_legitimate_nil_values() {
         let observerCalled = expectation(description: "Observer called")
-        let subject = BaseSubject<Int?>()
+        let subject = Subject<Int?>()
         _ = subject.asObservable().flatMapLatest { _ in
-                .Just(200)
+            Observables.just(200)
         }.subscribe { value in
             XCTAssertEqual(value, 200)
             observerCalled.fulfill()

@@ -32,7 +32,7 @@ public class Tealium {
     private let onModulesManager: Observable<ModulesManager?>
 
     /// Disposer for async operations.
-    private lazy var asyncDisposer = AsyncDisposer(disposeOn: queue)
+    private lazy var asyncDisposer = AsyncDisposableContainer(queue: queue)
 
     /// Queue for Tealium operations.
     let queue: TealiumQueue

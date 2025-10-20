@@ -15,8 +15,7 @@ private class DataLayerMock: DataLayerWrapper {
         let value: any DataInput
         let expiry: Expiry
     }
-    @ToAnyObservable(BasePublisher<Put>())
-    var onPut: Observable<Put>
+    @Subject<Put> var onPut
 
     override func put(key: String, value: any DataInput, expiry: Expiry) -> SingleResult<Void> {
         _onPut.publish(Put(key: key, value: value, expiry: expiry))

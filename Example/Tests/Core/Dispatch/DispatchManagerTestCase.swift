@@ -17,8 +17,10 @@ class DispatchManagerTestCase: XCTestCase {
             .map { $0.id }
     }
 
-    @StateSubject([TransformationSettings(id: "transformation1", transformerId: "transformer1", scopes: [.afterCollectors, .allDispatchers])])
-    var transformations: ObservableState<[TransformationSettings]>
+    @StateSubject([TransformationSettings(id: "transformation1",
+                                          transformerId: "transformer1",
+                                          scopes: [.afterCollectors, .allDispatchers])])
+    var transformations
 
     let transformer = MockTransformer1 { transformation, dispatch, scope in
         var dispatch = dispatch
@@ -26,7 +28,7 @@ class DispatchManagerTestCase: XCTestCase {
         return dispatch
     }
     lazy var transformers = StateSubject<[Transformer]>([transformer])
-    lazy var onBarriers = Observable<[ScopedBarrier]>.Just([(barrier, [BarrierScope.all])])
+    lazy var onBarriers: Observable<[ScopedBarrier]> = Observables.just([(barrier, [BarrierScope.all])])
     let barrier = MockBarrier()
     lazy var config = TealiumConfig(account: "test",
                                     profile: "test",
@@ -39,7 +41,7 @@ class DispatchManagerTestCase: XCTestCase {
     lazy var modulesManager = ModulesManager(queue: queue)
     lazy var _sdkSettings = StateSubject(SDKSettings(config.getEnforcedSDKSettings()))
     var sdkSettings: ObservableState<SDKSettings> {
-        _sdkSettings.toStatefulObservable()
+        _sdkSettings.asObservableState()
     }
     var coreSettings: ObservableState<CoreSettings> {
         sdkSettings.mapState(transform: { $0.core })
@@ -56,7 +58,7 @@ class DispatchManagerTestCase: XCTestCase {
                                                      queueMetrics: queueManager,
                                                      debouncer: MockInstantDebouncer(),
                                                      queue: .main)
-    lazy var transformerCoordinator = TransformerCoordinator(transformers: transformers.toStatefulObservable(),
+    lazy var transformerCoordinator = TransformerCoordinator(transformers: transformers.asObservableState(),
                                                              transformations: transformations,
                                                              queue: .main,
                                                              logger: nil)

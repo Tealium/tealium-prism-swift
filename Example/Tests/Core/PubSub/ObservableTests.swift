@@ -49,9 +49,9 @@ final class ObservableTests: XCTestCase {
 
     func test_create_custom_observable_calls_subscription_handler_on_subscription() {
         let expectation = expectation(description: "Subscription handler is called")
-        let observable: CustomObservable<Int> = CustomObservable<Int> { _ in
+        let observable: Observable<Int> = Observable<Int> { _ in
             expectation.fulfill()
-            return Subscription { }
+            return Disposables.disposed()
         }
         _ = observable.subscribe { _ in }
         waitForDefaultTimeout()

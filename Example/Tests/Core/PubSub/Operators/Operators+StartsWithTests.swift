@@ -10,7 +10,7 @@ import TealiumPrism
 import XCTest
 
 final class OperatorsStartsWithTests: XCTestCase {
-    let observable123 = Observable.Just(1, 2, 3)
+    let observable123 = Observables.just(1, 2, 3)
 
     func test_start_with_prefixes_the_events_with_provided_events() {
         let expectations = [

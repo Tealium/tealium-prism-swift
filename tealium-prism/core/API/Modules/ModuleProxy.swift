@@ -55,12 +55,12 @@ public class ModuleProxy<SpecificModule: Module> {
      * - returns: A `Subscribable` for the inner `Observable`.
      */
     public func observeModule<Other>(transform: @escaping (SpecificModule) -> Observable<Other>) -> any Subscribable<Other> {
-        onModulesManager.flatMapLatest { $0?.modules.asObservable() ?? .Empty() }
+        onModulesManager.flatMapLatest { $0?.modules.asObservable() ?? Observables.empty() }
             .map { $0.compactMap { $0 as? SpecificModule }.first }
             .distinct { $0 === $1 }
             .flatMapLatest { module in
                 guard let module else {
-                    return .Empty()
+                    return Observables.empty()
                 }
                 return transform(module)
             }

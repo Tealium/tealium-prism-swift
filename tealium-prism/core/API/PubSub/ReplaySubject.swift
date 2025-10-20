@@ -8,8 +8,14 @@
 
 import Foundation
 
-/// A subject that, in addition to normal publish behavior, holds a cache of items and sends it, in order, to each new observer that is subscribed.
-public class ReplaySubject<Element>: BaseSubject<Element> {
+/**
+ * A `Subject` that, in addition to normal publish and subscribe behavior, holds a cache of items and sends it, in order, to each new observer that is subscribed.
+ *
+ * You can use it as a property wrapper to make the publishing private in the class where it's contained, but still expose an `Observable`
+ * to the other classes.
+ */
+@propertyWrapper
+public class ReplaySubject<Element>: Subject<Element> {
     private var cacheSize: Int?
     private var cache = [Element]()
     // Having a default value here would cause a crash on Carthage
@@ -21,13 +27,13 @@ public class ReplaySubject<Element>: BaseSubject<Element> {
         self.init(cacheSize: 1)
     }
 
-    convenience public init(initialValue: Element, cacheSize: Int? = 1) {
+    convenience public init(_ initialValue: Element, cacheSize: Int? = 1) {
         self.init(cacheSize: cacheSize)
         self.publish(initialValue)
     }
 
     public override func asObservable() -> Observable<Element> {
-        CustomObservable { observer in
+        Observable { observer in
             let cache = self.cache
             defer {
                 for element in cache {
@@ -63,6 +69,10 @@ public class ReplaySubject<Element>: BaseSubject<Element> {
         let newSize = size >= 0 ? size : Int.max
         cache = Array(cache.suffix(newSize))
         cacheSize = newSize
+    }
+
+    public override var wrappedValue: Observable<Element> {
+        super.wrappedValue
     }
 }
 

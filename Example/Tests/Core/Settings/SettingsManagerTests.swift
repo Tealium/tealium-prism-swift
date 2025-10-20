@@ -244,7 +244,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         }
         for count in 0..<3 {
             networkHelper.codableResult = .success(.successful(object: newSettings(count: count)))
-            manager.startRefreshing(onActivity: Observable.Empty())
+            manager.startRefreshing(onActivity: Observables.empty())
         }
         waitForDefaultTimeout()
     }

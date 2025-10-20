@@ -10,23 +10,23 @@ import Foundation
 import TealiumPrism
 
 class MockBarrier: Barrier {
-    @ToAnyObservable(ReplaySubject<Bool>(initialValue: true))
-    var isFlushable: Observable<Bool>
+    @ReplaySubject<Bool>(true)
+    var isFlushable
 
     init() {}
-    @ToAnyObservable(ReplaySubject<BarrierState>(initialValue: .open))
-    var state: Observable<BarrierState>
+    @ReplaySubject<BarrierState>(.open)
+    var state
 
     func onState(for dispatcherId: String) -> Observable<BarrierState> {
         return state
     }
 
     func setState(_ newState: BarrierState) {
-        _state.publisher.publish(newState)
+        _state.publish(newState)
     }
 
     func setFlushable(_ flushable: Bool) {
-        _isFlushable.publisher.publish(flushable)
+        _isFlushable.publish(flushable)
     }
 }
 

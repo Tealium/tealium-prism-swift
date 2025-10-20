@@ -29,8 +29,8 @@ class MockNetworkHelper: NetworkHelperProtocol {
         case post(URLConvertible, DataObject)
     }
 
-    @ToAnyObservable(ReplaySubject(cacheSize: 10))
-    var requests: Observable<Requests>
+    @ReplaySubject<Requests>(cacheSize: 10)
+    var requests
 
     private func delayBlock(_ work: @escaping () -> Void) {
         if let delay = delay {

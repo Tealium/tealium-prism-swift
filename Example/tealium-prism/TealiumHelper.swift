@@ -11,7 +11,7 @@ import TealiumPrism
 
 class TealiumHelper {
     private(set) var teal: Tealium?
-    var automaticDisposer = AutomaticDisposer()
+    var automaticDisposer = Disposables.composite()
     static let shared = TealiumHelper()
     let cmp = CustomCMP()
     func createModuleFactories() -> [any ModuleFactory] {

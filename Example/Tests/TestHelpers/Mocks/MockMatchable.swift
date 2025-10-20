@@ -10,8 +10,7 @@
 
 struct MockMatchable: Matchable {
     let result: Bool
-    @ToAnyObservable<BasePublisher<DataObject>>(BasePublisher())
-    var onMatchRequest: Observable<DataObject>
+    @Subject<DataObject> var onMatchRequest
     func matches(payload: DataObject) -> Bool {
         _onMatchRequest.publish(payload)
         return result

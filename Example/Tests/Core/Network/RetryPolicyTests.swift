@@ -38,13 +38,13 @@ final class RetryPolicyTests: XCTestCase {
         let queue = TealiumQueue(label: "queue_label")
         let otherQueue = DispatchQueue(label: "other_label")
         let expect = expectation(description: "Retry should subscribe once")
-        let policy = RetryPolicy.afterEvent(CustomObservable({ observer in
+        let policy = RetryPolicy.afterEvent(Observable({ observer in
             defer { expect.fulfill() }
             dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
             otherQueue.async {
                 observer(())
             }
-            return Subscription { }
+            return Disposables.disposed()
         }))
         let result = policy.shouldRetry(onQueue: queue) { }
         XCTAssertTrue(result)
@@ -54,12 +54,12 @@ final class RetryPolicyTests: XCTestCase {
     func test_after_event_should_retry_once_on_queue() {
         let queue = TealiumQueue(label: "queue_label")
         let otherQueue = DispatchQueue(label: "other_label")
-        let policy = RetryPolicy.afterEvent(CustomObservable({ observer in
+        let policy = RetryPolicy.afterEvent(Observable({ observer in
             dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
             otherQueue.async {
                 observer(())
             }
-            return Subscription { }
+            return Disposables.disposed()
         }))
         let expect = expectation(description: "Retry should happen once")
         let result = policy.shouldRetry(onQueue: queue) {

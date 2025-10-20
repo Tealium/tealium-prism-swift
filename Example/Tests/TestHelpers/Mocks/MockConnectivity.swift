@@ -31,8 +31,8 @@ class MockEmpiricalConnectivity: EmpiricalConnectivityProtocol {
 
     // MARK: EmpiricalConnectivityProtocol
 
-    @ToAnyObservable(ReplaySubject<Bool>(initialValue: true))
-    var onEmpiricalConnectionAvailable: Observable<Bool>
+    @ReplaySubject<Bool>(true)
+    var onEmpiricalConnectionAvailable
 
     func connectionSuccess() {
         _onConnectionSuccess.publish()
@@ -44,18 +44,16 @@ class MockEmpiricalConnectivity: EmpiricalConnectivityProtocol {
 
     // MARK: Testing Utilities
 
-    @ToAnyObservable(BasePublisher<Void>())
-    var onConnectionSuccess: Observable<Void>
+    @Subject<Void> var onConnectionSuccess
 
-    @ToAnyObservable(BasePublisher<Void>())
-    var onConnectionFail: Observable<Void>
+    @Subject<Void> var onConnectionFail
 
     func changeConnectionAvailable(_ available: Bool) {
-        _onEmpiricalConnectionAvailable.publisher.publishIfChanged(available)
+        _onEmpiricalConnectionAvailable.publishIfChanged(available)
     }
 
     func reset() {
-        _onEmpiricalConnectionAvailable.publisher.clear()
+        _onEmpiricalConnectionAvailable.clear()
         changeConnectionAvailable(true)
     }
 }

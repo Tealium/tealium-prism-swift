@@ -16,7 +16,7 @@ final class SessionManagerTests: XCTestCase {
     lazy var storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
                                                  modulesRepository: moduleRepository)
     @StateSubject(5.minutes)
-    var sessionTimeout: ObservableState<TimeFrame>
+    var sessionTimeout
 
     lazy var sessionManager: SessionManager! = createSessionManager()
 

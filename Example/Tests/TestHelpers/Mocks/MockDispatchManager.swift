@@ -9,8 +9,7 @@
 @testable import TealiumPrism
 
 class MockDispatchManager: DispatchManagerProtocol {
-    @ToAnyObservable(BasePublisher())
-    var onDispatch: Observable<Dispatch>
+    @Subject<Dispatch> var onDispatch
     var tealiumPurposeExplicitlyBlocked: Bool = false
     func track(_ dispatch: Dispatch, onTrackResult: TrackResultCompletion?) {
         _onDispatch.publish(dispatch)

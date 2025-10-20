@@ -8,12 +8,20 @@
 
 import Foundation
 
+/**
+ * A `Subject` that must always have a value.
+ *
+ * You can use it as a property wrapper to make the publishing private in the class where it's contained, but still expose an `ObservableState`
+ * to the other classes.
+ */
 @propertyWrapper
-public class StateSubject<Element>: ReplaySubject<Element> {
+public class StateSubject<Element>: Subject<Element> {
 
+    private var _value: Element
+    /// The current state. Set a new value to publish an event to all `Observer`s
     public var value: Element {
         get {
-            last()! // swiftlint:disable:this force_unwrapping
+            _value
         }
         set {
             self.publish(newValue)
@@ -21,16 +29,20 @@ public class StateSubject<Element>: ReplaySubject<Element> {
     }
 
     public init(_ initialValue: Element) {
-        super.init(cacheSize: 1)
-        self.publish(initialValue)
+        self._value = initialValue
     }
 
-    override public func clear() {
-        // Do nothing, can't clear this
+    public override func publish(_ element: Element) {
+        self._value = element
+        super.publish(element)
     }
 
-    public func toStatefulObservable() -> ObservableState<Element> {
-        ObservableState<Element>(variableSubject: self)
+    /// Converts this `StateSubject` to an `ObservableState` that is readonly and can only receive new values.
+    public func asObservableState() -> ObservableState<Element> {
+        ObservableState<Element>(valueProvider: self.value) { observer in
+            defer { observer(self.value) }
+            return super.asObservable().subscribe(observer)
+        }
     }
 
     /// Returns an observable that emits only new updates of this State.
@@ -38,7 +50,20 @@ public class StateSubject<Element>: ReplaySubject<Element> {
         asObservable().ignoreFirst()
     }
 
-    public var wrappedValue: ObservableState<Element> {
-        toStatefulObservable()
+    public override func asObservable() -> Observable<Element> {
+        asObservableState()
+    }
+
+    public override var wrappedValue: ObservableState<Element> {
+        asObservableState()
+    }
+}
+
+public extension StateSubject where Element: Equatable {
+    /// Publishes the new event only if the new one is different from the last one
+    func publishIfChanged(_ element: Element) {
+        if element != value {
+            publish(element)
+        }
     }
 }

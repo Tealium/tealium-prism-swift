@@ -12,7 +12,7 @@ import XCTest
 final class LoadRuleEngineTests: XCTestCase {
     lazy var logger: MockLogger? = nil
     @StateSubject(SDKSettings())
-    var sdkSettings: ObservableState<SDKSettings>
+    var sdkSettings
     lazy var engine = LoadRuleEngine(sdkSettings: sdkSettings, logger: logger)
 
     let moduleWithRules = MockModule()

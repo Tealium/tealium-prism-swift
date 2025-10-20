@@ -15,8 +15,8 @@ class MockLogHandler: LogHandler {
         let message: String
         let level: LogLevel
     }
-    @ToAnyObservable<ReplaySubject<LogEvent>>(ReplaySubject<LogEvent>())
-    var onLogged: Observable<LogEvent>
+    @ReplaySubject<LogEvent> var onLogged
+
     func log(category: String, message: String, level: LogLevel) {
         _onLogged.publish(LogEvent(category: category, message: message, level: level))
     }
@@ -34,5 +34,5 @@ struct MockLogger: LoggerProtocol {
 }
 
 let verboseLogger = TealiumLogger(logHandler: OSLogger(),
-                                  onLogLevel: .Empty(),
+                                  onLogLevel: Observables.empty(),
                                   forceLevel: .trace)

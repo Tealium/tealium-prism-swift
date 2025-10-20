@@ -128,7 +128,7 @@ final class ConnectivityManagerTests: XCTestCase {
         let policy = manager.shouldRetry(URLRequest(),
                                          retryCount: 0,
                                          with: connectionErrorResult)
-        XCTAssertEqual(policy, .afterEvent(.Just(())))
+        XCTAssertEqual(policy, .afterEvent(Observables.just(())))
     }
 
     func test_did_complete_with_connection_error_causes_empirical_connection_failure() {

@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TealiumPrism
+@testable import TealiumPrism
 
 class MockModule: Module {
     var version = "1.0.0"
@@ -27,13 +27,11 @@ class MockModule: Module {
                            enforcedSettings: ([builder] + otherBuilders).map { $0.build() })
     }
     let id: String
-    @StateSubject<DataObject>([:])
+    @StateSubject([:])
     var moduleConfiguration: ObservableState<DataObject>
 
-    @ToAnyObservable<BasePublisher<Void>>(BasePublisher<Void>())
-    static var onShutdown: Observable<Void>
-    @ToAnyObservable<BasePublisher<Void>>(BasePublisher<Void>())
-    var onShutdown: Observable<Void>
+    @Subject<Void> static var onShutdown
+    @Subject<Void> var onShutdown
     let disposer = AutomaticDisposer()
     required init(moduleId: String = MockModule.factory().moduleType) {
         self.id = moduleId
@@ -95,11 +93,9 @@ class MockDispatcher: MockModule, Dispatcher {
         }.addTo(disposer)
     }
 
-    @ToAnyObservable<BasePublisher<[Dispatch]>>(BasePublisher())
-    static var onDispatch: Observable<[Dispatch]>
+    @Subject<[Dispatch]> static var onDispatch
 
-    @ToAnyObservable<BasePublisher<[Dispatch]>>(BasePublisher())
-    var onDispatch: Observable<[Dispatch]>
+    @Subject<[Dispatch]> var onDispatch
 
     func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> Disposable {
         let subscription = Subscription { }

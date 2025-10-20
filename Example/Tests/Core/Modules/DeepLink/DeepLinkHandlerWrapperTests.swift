@@ -13,7 +13,7 @@ final class DeepLinkHandlerWrapperTests: XCTestCase {
     let dbProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
     lazy var manager = ModulesManager(queue: queue)
-    lazy var onManager: ReplaySubject<ModulesManager?> = ReplaySubject(initialValue: manager)
+    lazy var onManager = ReplaySubject<ModulesManager?>(manager)
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = DeepLinkHandlerWrapper(moduleProxy: ModuleProxy(queue: queue,
                                                                        onModulesManager: onManager.asObservable()))

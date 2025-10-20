@@ -15,7 +15,7 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
     let queueMetrics = MockQueueMetrics(queueSize: 0)
     let queue = TealiumQueue.main
     @StateSubject(ApplicationStatus(type: .initialized))
-    var onApplicationStatus: ObservableState<ApplicationStatus>
+    var onApplicationStatus
 
     func publishStatus(_ status: ApplicationStatus) {
         queue.ensureOnQueue {

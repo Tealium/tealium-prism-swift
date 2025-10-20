@@ -36,7 +36,7 @@ public class NetworkHelper: NetworkHelperProtocol {
             logger?.error(category: LogCategory.networkHelper,
                           "Failed to build request")
             completion(.failure(.unknown(error)))
-            return Subscription { }
+            return Disposables.disposed()
         }
     }
 

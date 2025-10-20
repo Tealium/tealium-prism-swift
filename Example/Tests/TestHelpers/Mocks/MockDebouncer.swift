@@ -22,8 +22,7 @@ class MockDebouncer: MockInstantDebouncer {
 }
 
 class MockInstantDebouncer: DebouncerProtocol {
-    @ToAnyObservable(BasePublisher())
-    var onDebounce: Observable<TimeInterval>
+    @Subject<TimeInterval> var onDebounce
     init() {
     }
     func debounce(time: TimeInterval, completion: @escaping () -> Void) {

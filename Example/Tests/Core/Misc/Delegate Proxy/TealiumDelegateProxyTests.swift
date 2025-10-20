@@ -16,7 +16,7 @@ enum SceneDelegateProxyError: Error {
 class BaseProxyTests: XCTestCase {
     static var testNumber = 0
     let queue = TealiumQueue.worker
-    let disposer = DisposeContainer()
+    let disposer = DisposableContainer()
 
     override func tearDown() {
         disposer.dispose()

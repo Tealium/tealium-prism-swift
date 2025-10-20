@@ -10,8 +10,7 @@
 import XCTest
 
 final class DeepLinkSubscriptionTests: DeepLinkBaseTests {
-    @ToAnyObservable<ReplaySubject<(URL, Referrer?)>>(ReplaySubject<(URL, Referrer?)>())
-    var onOpenUrl: Observable<(URL, Referrer?)>
+    @ReplaySubject<(URL, Referrer?)> var onOpenUrl
 
     func test_deep_link_is_handled_by_module_when_url_is_published() throws {
         let context = context()

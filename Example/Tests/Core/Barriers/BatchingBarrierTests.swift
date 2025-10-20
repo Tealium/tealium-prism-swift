@@ -11,7 +11,7 @@ import XCTest
 
 final class BatchingBarrierTests: XCTestCase {
     let queueMetrics = MockQueueMetrics(queueSize: 1)
-    @StateSubject<[Dispatcher]>([MockDispatcher1(), MockDispatcher2()]) // dispatch limits: 1, 3
+    @StateSubject([MockDispatcher1(), MockDispatcher2()]) // dispatch limits: 1, 3
     var dispatchers: ObservableState<[Dispatcher]>
     var testBatchSize: Int = 1
     lazy var barrier: BatchingBarrier = .init(queueMetrics: queueMetrics, dispatchers: dispatchers, configuration: [

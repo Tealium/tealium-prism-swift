@@ -11,8 +11,7 @@ import SQLite
 
 class SQLModulesRepository: ModulesRepository {
 
-    @ToAnyObservable<BasePublisher<ExpiredDataEvent>>(BasePublisher<ExpiredDataEvent>())
-    var onDataExpired: Observable<ExpiredDataEvent>
+    @Subject<ExpiredDataEvent> var onDataExpired
     private let database: Connection
 
     init(dbProvider: DatabaseProviderProtocol) {

@@ -11,13 +11,12 @@ import XCTest
 
 final class ModuleProxyTests: XCTestCase {
     class ModuleWithObservable: MockModule {
-        let someObservable = Observable<Int>.Just(1)
+        let someObservable = Observables.just(1)
     }
     let mockDbProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
     lazy var manager = ModulesManager(queue: queue)
-    @ToAnyObservable<ReplaySubject<ModulesManager?>>(ReplaySubject<ModulesManager?>())
-    var onModulesManager: Observable<ModulesManager?>
+    @ReplaySubject<ModulesManager?> var onModulesManager
     lazy var proxy = ModuleProxy<ModuleWithObservable>(queue: queue,
                                                        onModulesManager: onModulesManager)
     lazy var config: TealiumConfig = mockConfig

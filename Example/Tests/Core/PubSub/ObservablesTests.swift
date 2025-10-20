@@ -1,5 +1,5 @@
 //
-//  CustomObservableTests.swift
+//  ObservablesTests.swift
 //  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 13/07/23.
@@ -9,7 +9,7 @@
 @testable import TealiumPrism
 import XCTest
 
-final class CustomObservableTests: XCTestCase {
+final class ObservablesTests: XCTestCase {
 
     func test_Just_observable_publishes_parameters_as_events() {
         let expectations = [
@@ -17,7 +17,7 @@ final class CustomObservableTests: XCTestCase {
             expectation(description: "Event 1 is published"),
             expectation(description: "Event 2 is published"),
         ]
-        let observable = Observable<Int>.Just(0, 1, 2)
+        let observable = Observables.just(0, 1, 2)
         _ = observable.subscribe { number in
                 expectations[number].fulfill()
         }
@@ -32,7 +32,7 @@ final class CustomObservableTests: XCTestCase {
                 callback(1)
             }
         }
-        let observable = Observable<Int>.Callback(from: anAsyncFunctionWithACallback(callback:))
+        let observable = Observables.callback(from: anAsyncFunctionWithACallback(callback:))
         _ = observable.subscribe { number in
             XCTAssertEqual(number, 1)
             expectation.fulfill()
@@ -45,7 +45,7 @@ final class CustomObservableTests: XCTestCase {
 
     func test_CombineLatest_observable_is_notified_immediately_on_sync_observables() {
         let combineLatestIsNotifiedImmediately = expectation(description: "Combine latest event is notified immediately")
-        let sub = Observable<String>.CombineLatest([.Just("a1"), .Just("b1"), .Just("c1")])
+        let sub = Observables.combineLatest([Observables.just("a1"), Observables.just("b1"), Observables.just("c1")])
             .subscribe { result in
                 XCTAssertEqual(result, ["a1", "b1", "c1"])
                 combineLatestIsNotifiedImmediately.fulfill()
@@ -59,7 +59,7 @@ final class CustomObservableTests: XCTestCase {
         let pubA = BasePublisher<String>()
         let pubB = BasePublisher<String>()
         let pubC = BasePublisher<String>()
-        let sub = Observable<String>.CombineLatest([pubA.asObservable(), pubB.asObservable(), pubC.asObservable()])
+        let sub = Observables.combineLatest([pubA.asObservable(), pubB.asObservable(), pubC.asObservable()])
             .subscribe { result in
                 XCTAssertEqual(result, ["a3", "b1", "c1"])
                 combineLatestIsNotified.fulfill()
@@ -79,7 +79,7 @@ final class CustomObservableTests: XCTestCase {
         let pubA = BasePublisher<String>()
         let pubB = BasePublisher<String>()
         let pubC = BasePublisher<String>()
-        let sub = Observable<String>.CombineLatest([pubA.asObservable(), pubB.asObservable(), pubC.asObservable()])
+        let sub = Observables.combineLatest([pubA.asObservable(), pubB.asObservable(), pubC.asObservable()])
             .subscribe { result in
                 XCTAssertEqual(result, ["a", "b1", "c1"])
                 combineLatestIsNotified.fulfill()
@@ -95,7 +95,7 @@ final class CustomObservableTests: XCTestCase {
 
     func test_CombineLatest_observable_is_notified_immediately_with_an_empty_array_when_provided_with_an_empty_array() {
         let combineLatestIsNotified = expectation(description: "Combine latest event is notified")
-        let sub = Observable<String>.CombineLatest([])
+        let sub = Observables.combineLatest([])
             .subscribe { result in
                 XCTAssertEqual(result, [])
                 combineLatestIsNotified.fulfill()

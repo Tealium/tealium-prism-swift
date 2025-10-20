@@ -12,16 +12,15 @@ public class ModuleStore: DataStore {
 
     private let repository: KeyValueRepository
 
-    @ToAnyObservable<BasePublisher<DataObject>>(BasePublisher<DataObject>())
-    public var onDataUpdated: Observable<DataObject>
-    private let _onDataRemoved: BasePublisher<[String]>
-    public let onDataRemoved: Observable<[String]>
+    @Subject<DataObject> public var onDataUpdated
+    @Subject<[String]> public var onDataRemoved
+    let disposer = Disposables.automaticComposite()
 
     init(repository: KeyValueRepository, onDataExpired: Observable<[String: DataItem]>) {
         self.repository = repository
-        let onDataRemovedPublisher = BasePublisher<[String]>()
-        self._onDataRemoved = onDataRemovedPublisher
-        self.onDataRemoved = onDataExpired.map { expiredData in expiredData.keys.map { String($0) } }.merge(onDataRemovedPublisher.asObservable())
+        onDataExpired.map { expiredData in expiredData.keys.map { String($0) } }
+            .subscribe(_onDataRemoved)
+            .addTo(disposer)
     }
 
     public func edit() -> DataStoreEditor {

@@ -67,7 +67,7 @@ class CollectModule: Dispatcher {
             let batches = batcher.splitDispatchesByVisitorId(events)
             logger?.trace(category: LogCategory.collect,
                           "Collect events split in batches \(batches)")
-            let container = DisposeContainer()
+            let container = DisposableContainer()
             for batch in batches where !batch.isEmpty {
                 if batch.count == 1 {
                     sendSingleDispatch(batch[0], completion: completion)
@@ -105,11 +105,11 @@ class CollectModule: Dispatcher {
      * The provided events need to already be limited by the `dispatchLimit`
      * and be connected to the same `visitorId` (or eventually no `visitorId`).
      * This method will create the JSON by compressing those batches, eventually apply the `overrideProfile`,
-     * and then send the payload with a gzipped POST requst to the batch endpoint.
+     * and then send the payload with a gzipped POST request to the batch endpoint.
      */
     func sendBatchDispatches(_ events: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> Disposable {
         guard let batchData = batcher.compressDispatches(events, profileOverride: configuration.overrideProfile) else {
-            return Subscription { }
+            return Disposables.disposed()
         }
         return networkHelper.post(url: configuration.batchUrl, body: batchData) { result in
             if case .failure(.cancelled) = result {

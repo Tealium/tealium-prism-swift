@@ -31,6 +31,6 @@ class CMPConfigurationSelector {
                                     allPurposes: cmpAdapter.allPurposes)
         }.subscribe(inspectorState)
             .addTo(disposer)
-        self.consentInspector = inspectorState.toStatefulObservable()
+        self.consentInspector = inspectorState.asObservableState()
     }
 }

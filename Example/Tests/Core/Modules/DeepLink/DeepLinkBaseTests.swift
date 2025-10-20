@@ -14,7 +14,7 @@ class DeepLinkBaseTests: XCTestCase {
     let queue = TealiumQueue.worker
     let tracker = MockTracker()
     lazy var manager = ModulesManager(queue: queue)
-    lazy var onManager: ReplaySubject<ModulesManager?> = ReplaySubject(initialValue: manager)
+    lazy var onManager = ReplaySubject<ModulesManager?>(manager)
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = TraceWrapper(moduleProxy: ModuleProxy(queue: queue,
                                                              onModulesManager: onManager.asObservable()))

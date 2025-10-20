@@ -143,7 +143,7 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
     }
 
     private func onMainThreadData() -> Observable<DataObject> {
-        Observable.Callback(from: { [deviceDataProvider, configuration] observer in
+        Observables.callback(from: { [deviceDataProvider, configuration] observer in
             TealiumQueue.main.ensureOnQueue {
                 var result: DataObject = [:]
                 if configuration.batteryReportingEnabled == true {

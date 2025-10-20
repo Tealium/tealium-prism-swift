@@ -30,7 +30,7 @@ final class DisposableTests: XCTestCase {
     func test_dispose_container_disposes_all_subscriptions() {
         let subscriptionDisposedExpectation = expectation(description: "Subscription is disposed")
         subscriptionDisposedExpectation.expectedFulfillmentCount = 3
-        let disposeContainer = DisposeContainer()
+        let disposeContainer = DisposableContainer()
         disposeContainer.add(Subscription { subscriptionDisposedExpectation.fulfill() })
         disposeContainer.add(Subscription { subscriptionDisposedExpectation.fulfill() })
         disposeContainer.add(Subscription { subscriptionDisposedExpectation.fulfill() })
@@ -39,7 +39,7 @@ final class DisposableTests: XCTestCase {
     }
 
     func test_is_disposed_true_when_dispose_container_is_disposed() {
-        let container = DisposeContainer()
+        let container = DisposableContainer()
         XCTAssertFalse(container.isDisposed)
         container.dispose()
         XCTAssertTrue(container.isDisposed)
@@ -47,7 +47,7 @@ final class DisposableTests: XCTestCase {
 
     func test_disposed_container_automatically_disposes_new_disposable() {
         let subscriptionDisposed = expectation(description: "Subscription is disposed immediately")
-        let container = DisposeContainer()
+        let container = DisposableContainer()
         container.dispose()
         container.add(Subscription(unsubscribe: {
             subscriptionDisposed.fulfill()
@@ -66,9 +66,9 @@ final class DisposableTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_AsyncDisposer_disposes_on_given_queue() {
+    func test_AsyncDisposableContainer_disposes_on_given_queue() {
         let queue = TealiumQueue.worker
-        let disposer = AsyncDisposer(disposeOn: queue)
+        let disposer = AsyncDisposableContainer(queue: queue)
         let disposed = expectation(description: "Subscription is disposed")
         disposer.add(Subscription {
             dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))

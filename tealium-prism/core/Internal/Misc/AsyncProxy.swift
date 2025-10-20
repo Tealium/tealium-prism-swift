@@ -24,7 +24,7 @@ class AsyncProxy<Object: AnyObject> {
 
     let queue: TealiumQueue
     private(set) var onObject: Observable<ObjectResult>
-    let disposer = DisposeContainer()
+    let disposer = DisposableContainer()
     init(queue: TealiumQueue, onObject: Observable<ObjectResult>) {
         self.queue = queue
         self.onObject = onObject
@@ -67,6 +67,6 @@ class AsyncProxy<Object: AnyObject> {
 
     func shutDown() {
         disposer.dispose()
-        onObject = .Empty()
+        onObject = Observables.empty()
     }
 }

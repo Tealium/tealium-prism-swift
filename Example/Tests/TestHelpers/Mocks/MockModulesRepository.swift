@@ -10,14 +10,8 @@ import Foundation
 @testable import TealiumPrism
 
 class MockModulesRepository: ModulesRepository {
-    var onDataExpired: Observable<ExpiredDataEvent> = Observable.Just([
-        1: [
-            "key1": DataItem(value: "")
-        ],
-        2: [
-            "key2": DataItem(value: "")
-        ]
-    ])
+
+    @Subject<ExpiredDataEvent> var onDataExpired
     func getModules() -> [String: Int64] {
         [:]
     }
@@ -28,5 +22,9 @@ class MockModulesRepository: ModulesRepository {
 
     func deleteExpired(expiry: ExpirationRequest) {
 
+    }
+
+    func expire(_ event: ExpiredDataEvent) {
+        _onDataExpired.publish(event)
     }
 }

@@ -35,6 +35,6 @@ public protocol Barrier: AnyObject {
 
 extension Barrier {
     var isFlushable: Observable<Bool> {
-        return .Just(true)
+        Observables.just(true)
     }
 }

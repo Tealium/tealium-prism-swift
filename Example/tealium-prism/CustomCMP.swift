@@ -17,13 +17,13 @@ class CustomCMP: CMPAdapter, ObservableObject {
     let id = "custom"
     static let defaults = UserDefaults.standard
     var currentDecision: ConsentDecision {
-        guard let lastDecision = _consentDecision.publisher.last() as? ConsentDecision else {
+        guard let lastDecision = _consentDecision.last() as? ConsentDecision else {
             return Self.readDecision()
         }
         return lastDecision
     }
-    @ToAnyObservable<ReplaySubject<ConsentDecision?>>(ReplaySubject<ConsentDecision?>(initialValue: CustomCMP.readDecision()))
-    var consentDecision: Observable<ConsentDecision?>
+    @ReplaySubject<ConsentDecision?>(CustomCMP.readDecision())
+    var consentDecision
 
     let allPurposes: Set<String>? = Set(Purposes.allCases.map { $0.rawValue })
 

@@ -18,7 +18,7 @@ final class ReplaySubjectTests: SubjectTests {
     }
 
     func test_init_with_initialValue_immediately_publishes_the_initialValue() {
-        let subject = ReplaySubject(initialValue: 1)
+        let subject = ReplaySubject(1)
         XCTAssertEqual(subject.last(), 1)
     }
 

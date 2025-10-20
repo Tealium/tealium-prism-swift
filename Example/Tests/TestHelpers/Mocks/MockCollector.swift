@@ -9,8 +9,7 @@
 import TealiumPrism
 
 class MockCollector: MockModule, Collector {
-    @ToAnyObservable(BasePublisher())
-    var onCollect: Observable<DataObject>
+    @Subject<DataObject> var onCollect
 
     override class var moduleType: String { "MockCollector" }
 

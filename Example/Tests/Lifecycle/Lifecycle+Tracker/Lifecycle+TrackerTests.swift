@@ -14,7 +14,7 @@ final class LifecycleTrackerTests: XCTestCase {
     @StateSubject([TransformationSettings(id: "transformation1",
                                           transformerId: "transformer1",
                                           scopes: [.afterCollectors, .allDispatchers])])
-    var transformations: ObservableState<[TransformationSettings]>
+    var transformations
     let config = TealiumConfig(account: "test",
                                profile: "test",
                                environment: "dev",
@@ -31,7 +31,7 @@ final class LifecycleTrackerTests: XCTestCase {
     let queue = TealiumQueue.main
     lazy var modulesManager = ModulesManager(queue: queue)
     @StateSubject(SDKSettings())
-    var sdkSettings: ObservableState<SDKSettings>
+    var sdkSettings
     var coreSettings: ObservableState<CoreSettings> {
         sdkSettings.mapState(transform: { $0.core })
     }
@@ -41,7 +41,7 @@ final class LifecycleTrackerTests: XCTestCase {
                                                                                  expiration: 1.days),
                                              coreSettings: coreSettings,
                                              logger: nil)
-    lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: .Just([]),
+    lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: Observables.just([]),
                                                      onApplicationStatus: config.appStatusListener.onApplicationStatus,
                                                      queueMetrics: queueManager,
                                                      debouncer: MockInstantDebouncer(),

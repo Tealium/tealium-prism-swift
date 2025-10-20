@@ -14,20 +14,6 @@ public protocol Single<Element>: Subscribable {
     func subscribe(_ observer: @escaping Observer) -> any Disposable
 }
 
-class SingleImpl<Element>: Single {
-    private let subscribable: any Subscribable<Element>
-    init(observable: Observable<Element>, queue: TealiumQueue) {
-        self.subscribable = observable
-            .first()
-            .subscribeOn(queue)
-    }
-
-    @discardableResult
-    func subscribe(_ observer: @escaping Observer) -> any Disposable {
-        subscribable.subscribe(observer)
-    }
-}
-
 extension Result: ErrorExtractor {
     public func getError() -> Failure? {
         guard case let .failure(error) = self else {

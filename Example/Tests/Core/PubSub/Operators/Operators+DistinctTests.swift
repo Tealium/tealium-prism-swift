@@ -16,7 +16,7 @@ final class OperatorsDistinctTests: XCTestCase {
             expectation(description: "Event 1 is provided"),
             expectation(description: "Event 2 is provided"),
         ]
-        let observable = Observable.Just(0, 0, 0, 0, 0, 1, 1, 2)
+        let observable = Observables.just(0, 0, 0, 0, 0, 1, 1, 2)
         _ = observable.distinct()
             .subscribe { number in
                 expectations[number].fulfill()

@@ -51,7 +51,7 @@ public class TealiumDelegateProxy: NSProxy {
     }
 
     static let logger: LoggerProtocol = TealiumLogger(logHandler: OSLogger(),
-                                                      onLogLevel: .Just(.info),
+                                                      onLogLevel: Observables.just(.info),
                                                       forceLevel: .info)
     @objc
     public static func setup() {

@@ -32,8 +32,7 @@ class MockConsentManager: ConsentManager {
         }
     }
 
-    @ToAnyObservable(BasePublisher<Dispatch>())
-    var onApplyConsent: Observable<Dispatch>
+    @Subject<Dispatch> var onApplyConsent
 
     func applyConsent(to dispatch: Dispatch) -> TrackResult {
         _onApplyConsent.publish(dispatch)
@@ -41,7 +40,7 @@ class MockConsentManager: ConsentManager {
     }
 
     func filterDispatches(_ dispatches: [Dispatch], matchingPurposesForDispatcher dispatcher: Dispatcher) -> Observable<[Dispatch]> {
-        .Just(dispatches)
+        Observables.just(dispatches)
     }
 
     func getConsentDecision() -> ConsentDecision? {

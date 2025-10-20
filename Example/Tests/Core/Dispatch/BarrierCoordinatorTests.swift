@@ -187,7 +187,7 @@ final class BarrierCoordinatorTests: XCTestCase {
     func test_applicationStatus_backgrounded_starts_background_task() {
         let status = StateSubject(ApplicationStatus(type: .initialized))
         coordinator = BarrierCoordinator(onScopedBarriers: barriers,
-                                         onApplicationStatus: status.toStatefulObservable(),
+                                         onApplicationStatus: status.asObservableState(),
                                          queueMetrics: MockQueueMetrics(queueSize: 0),
                                          debouncer: MockInstantDebouncer(),
                                          queue: .main)

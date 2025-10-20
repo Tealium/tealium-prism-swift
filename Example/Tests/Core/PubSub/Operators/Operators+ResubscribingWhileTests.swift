@@ -10,7 +10,7 @@
 import XCTest
 
 final class OperatorsResubscribingTests: XCTestCase {
-    let observable123 = Observable.Just(1, 2, 3)
+    let observable123 = Observables.just(1, 2, 3)
 
     func test_resubscribing_on_a_synchronous_observable_only_publishes_the_first_event() {
         let onlyFirstEventIsPublished = expectation(description: "Only the first event is published on a synchronous observable")
@@ -37,14 +37,14 @@ final class OperatorsResubscribingTests: XCTestCase {
         let eventsPublished = expectation(description: "Events are published")
         eventsPublished.expectedFulfillmentCount = 2
         var eventCount = 0
-        _ = CustomObservable { observer in
+        _ = Observable { observer in
             if eventCount < 2 {
                 DispatchQueue.main.async {
                     eventCount += 1
                     observer(eventCount)
                 }
             }
-            return Subscription { }
+            return Disposables.disposed()
         }
         .resubscribingWhile { _ in eventCount < 2 }
         .subscribe { number in
@@ -58,7 +58,7 @@ final class OperatorsResubscribingTests: XCTestCase {
         let subscribeCalled = expectation(description: "Subscribe block is called")
         subscribeCalled.expectedFulfillmentCount = 2
         var eventCount = 0
-        _ = CustomObservable { observer in
+        _ = Observable { observer in
             subscribeCalled.fulfill()
             if eventCount < 2 {
                 DispatchQueue.main.async {
@@ -66,7 +66,7 @@ final class OperatorsResubscribingTests: XCTestCase {
                     observer(eventCount)
                 }
             }
-            return Subscription { }
+            return Disposables.disposed()
         }
         .resubscribingWhile { _ in eventCount < 2 }
         .subscribe { _ in }
@@ -77,7 +77,7 @@ final class OperatorsResubscribingTests: XCTestCase {
         let disposeCalled = expectation(description: "Dispose subscription is called on every event")
         disposeCalled.expectedFulfillmentCount = 2
         var eventCount = 0
-        _ = CustomObservable { observer in
+        _ = Observable { observer in
             if eventCount < 2 {
                 DispatchQueue.main.async {
                     eventCount += 1

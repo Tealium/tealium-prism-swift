@@ -27,7 +27,7 @@ public extension Tealium {
      * Creates and returns a `Lifecycle` object, that can be used to send custom lifecycle events.
      *
      * If you intend to use this multiple time, keep a reference to the returned object
-     * to avoid creating a new one every time you call `tealium.lifecycle`.
+     * to avoid creating a new one every time you call `Tealium.lifecycle()`.
      */
     func lifecycle() -> Lifecycle {
         LifecycleWrapper(moduleProxy: createModuleProxy())

@@ -12,6 +12,10 @@ class VisitorIdProvider {
     private let visitorCategory = LogCategory.visitorIdProvider
     private let visitorStorage: VisitorStorage
     private let logger: LoggerProtocol?
+    /**
+     * Observable State of the current visitor id.
+     */
+    @StateSubject var visitorId: ObservableState<String>
 
     convenience init(config: TealiumConfig, visitorDataStore: DataStore, logger: LoggerProtocol?) {
         self.init(existingVisitorId: config.existingVisitorId,
@@ -29,11 +33,6 @@ class VisitorIdProvider {
             changeVisitor(visitorId)
         }
     }
-
-    /**
-     * Observable State of the current visitor id.
-     */
-    @StateSubject var visitorId: ObservableState<String>
 
     /**
      * Resets the current visitor id to a new anonymous one.

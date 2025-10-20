@@ -33,8 +33,8 @@ class BackgroundTaskStarter {
     /// Returns an observable that emits true immediately, starts a background task on iOS or WatchOS,
     /// and emits false when the background task ended, expired or the subscription is disposed.
     func startBackgroundTask() -> Observable<Bool> {
-        CustomObservable { [queue, backgroundTaskTimeout] observer in
-            let disposable = DisposeContainer()
+        Observable { [queue, backgroundTaskTimeout] observer in
+            let disposable = DisposableContainer()
             observer(true)
             disposable.add(Subscription {
                 observer(false)

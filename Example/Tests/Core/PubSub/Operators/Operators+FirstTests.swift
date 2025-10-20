@@ -10,7 +10,7 @@ import TealiumPrism
 import XCTest
 
 final class OperatorsFirstTests: XCTestCase {
-    let observable123 = Observable.Just(1, 2, 3)
+    let observable123 = Observables.just(1, 2, 3)
 
     func test_first_returns_only_first_event() {
         let expectation = expectation(description: "Only first event is reported")

@@ -13,8 +13,8 @@ public extension Observable {
     /// Ensures that Observers to the returned observable are always subscribed on the provided queue.
     /// - Warning: Must be called as a last item in the observable chain. Failing to do so will result in subsequent operators to be subscribed on the calling Thread.
     func subscribeOn(_ queue: TealiumQueue) -> any Subscribable<Element> {
-        CustomObservable<Element> { observer in
-            let subscription = AsyncDisposer(disposeOn: queue)
+        Observable<Element> { observer in
+            let subscription = Disposables.composite(queue: queue)
             queue.ensureOnQueue {
                 guard !subscription.isDisposed else { return }
                 self.subscribe(observer).addTo(subscription)
@@ -25,8 +25,8 @@ public extension Observable {
 
     /// Ensures that Observers to the returned observable are always called on the provided queue.
     func observeOn(_ queue: TealiumQueue) -> Observable<Element> {
-        CustomObservable<Element> { observer in
-            let container = AsyncDisposer(disposeOn: queue)
+        Observable<Element> { observer in
+            let container = Disposables.composite(queue: queue)
             self.subscribe { element in
                 queue.ensureOnQueue {
                     guard !container.isDisposed else { return }
@@ -39,7 +39,7 @@ public extension Observable {
 
     /// Transforms the events provided to the observable into new events before calling the observers of the new observable.
     func map<Result>(_ transform: @escaping (Element) -> Result) -> Observable<Result> {
-        CustomObservable<Result> { observer in
+        Observable<Result> { observer in
             self.subscribe { element in
                 observer(transform(element))
             }
@@ -48,7 +48,7 @@ public extension Observable {
 
     /// Transforms the events provided to the observable into new events, stripping out the nil events, before calling the observers of the new observable.
     func compactMap<Result>(_ transform: @escaping (Element) -> Result?) -> Observable<Result> {
-        CustomObservable<Result> { observer in
+        Observable<Result> { observer in
             self.subscribe { element in
                 if let transformed = transform(element) {
                     observer(transformed)
@@ -59,7 +59,7 @@ public extension Observable {
 
     /// Only report the events that are included by the provided filter.
     func filter(_ isIncluded: @escaping (Element) -> Bool) -> Observable<Element> {
-        CustomObservable<Element> { observer in
+        Observable<Element> { observer in
             self.subscribe { element in
                 if isIncluded(element) {
                     observer(element)
@@ -76,8 +76,8 @@ public extension Observable {
      * - Returns: an observable that flattens the observables returned by the selector and emits all of their events.
      */
     func flatMap<Result>(_ selector: @escaping (Element) -> Observable<Result>) -> Observable<Result> {
-        CustomObservable<Result> { observer in
-            let container = DisposeContainer()
+        Observable<Result> { observer in
+            let container = DisposableContainer()
             self.subscribe { element in
                  selector(element)
                     .subscribe(observer)
@@ -99,9 +99,9 @@ public extension Observable {
      * As a very simplified example, the following code causes an endless loop:
      *
      * ```swift
-     * let subject = BaseSubject<Int>()
+     * let subject = Subject<Int>()
      * _ = subject.asObservable().flatMapLatest { value in
-     *     CustomObservable<Int> { observer in
+     *     Observable<Int> { observer in
      *         // This is the block that is called on each `subscribe` call
      *         subject.publish(value + 1)
      *         observer(value)
@@ -114,9 +114,9 @@ public extension Observable {
      * The following, instead, has an exit condition, so it's safe to use:
      *
      * ```swift
-     * let subject = BaseSubject<Int>()
+     * let subject = Subject<Int>()
      * _ = subject.asObservable().flatMapLatest { value in
-     *     CustomObservable<Int> { observer in
+     *     Observable<Int> { observer in
      *         // This is the block that is called on each `subscribe` call
      *         if value < 10 {
      *             subject.publish(value + 1)
@@ -135,8 +135,8 @@ public extension Observable {
      * - Returns: an observable that flattens the observable returned by the selector and emits all of the events from the latest returned observable.
      */
     func flatMapLatest<Result>(_ selector: @escaping (Element) -> Observable<Result>) -> Observable<Result> {
-        CustomObservable<Result> { observer in
-            let container = DisposeContainer()
+        Observable<Result> { observer in
+            let container = DisposableContainer()
             var isSubscribing = false
             var latestElement: Element?
             var subscription: Disposable?
@@ -165,7 +165,7 @@ public extension Observable {
 
     /// On subscription emits the provided elements before providing the other events from the original observable.
     func startWith(_ elements: Element...) -> Observable<Element> {
-        CustomObservable<Element> { observer in
+        Observable<Element> { observer in
             for startingElement in elements {
                 observer(startingElement)
             }
@@ -177,8 +177,8 @@ public extension Observable {
 
     /// Returns a new observable that emits the events of the original observable and the otherObservable passed as parameter.
     func merge(_ otherObservables: Observable<Element>...) -> Observable<Element> {
-        CustomObservable<Element> { observer in
-            let container = DisposeContainer()
+        Observable<Element> { observer in
+            let container = DisposableContainer()
             self.subscribe(observer)
                 .addTo(container)
             for observable in otherObservables {
@@ -196,8 +196,8 @@ public extension Observable {
      * After the first event is published it automatically disposes the observer.
      */
     func first(where isIncluded: @escaping (Element) -> Bool = { _ in true }) -> Observable<Element> {
-        CustomObservable<Element> { observer in
-            let container = DisposeContainer()
+        Observable<Element> { observer in
+            let container = DisposableContainer()
             self.filter(isIncluded)
                 .subscribe { element in
                     guard !container.isDisposed else { return } // Used to sync multiple events without unsubscribe capabilities
@@ -215,8 +215,8 @@ public extension Observable {
      * Then a new event with the tuple will be emitted every time one of the two emits a new event.
      */
     func combineLatest<Other>(_ otherObservable: Observable<Other>) -> Observable<(Element, Other)> {
-        CustomObservable<(Element, Other)> { observer in
-            let container = DisposeContainer()
+        Observable<(Element, Other)> { observer in
+            let container = DisposableContainer()
             var first: Element?
             var other: Other?
             func notify() {
@@ -238,7 +238,7 @@ public extension Observable {
 
     /// Returns an observable that ignores the first N published events.
     func ignore(_ count: Int) -> Observable<Element> {
-        CustomObservable<Element> { observer in
+        Observable<Element> { observer in
             var current = 0
             return self.subscribe { element in
                 guard current >= count else {
@@ -264,7 +264,7 @@ public extension Observable {
      * You need to treat the underlying observable as a recursive function and make sure there is an exit condition.
      */
     func resubscribingWhile(_ isIncluded: @escaping (Element) -> Bool) -> Observable<Element> {
-        func subscribeOnceInfiniteLoop(observer: @escaping (Element) -> Void, container: DisposeContainer) -> Disposable {
+        func subscribeOnceInfiniteLoop(observer: @escaping (Element) -> Void, container: DisposableContainer) -> Disposable {
             self.subscribeOnce { element in
                 guard !container.isDisposed else { return }
                 observer(element)
@@ -274,8 +274,8 @@ public extension Observable {
                 }
             }
         }
-        return CustomObservable<Element> { observer in
-            let container = DisposeContainer()
+        return Observable<Element> { observer in
+            let container = DisposableContainer()
             subscribeOnceInfiniteLoop(observer: observer, container: container)
                 .addTo(container)
             return container
@@ -285,8 +285,8 @@ public extension Observable {
     /// Returns an observable that automatically unsubscribes when the provided condition is no longer met.
     /// If inclusive is `true` the last element will also be published.
     func takeWhile(_ isIncluded: @escaping (Element) -> Bool, inclusive: Bool = false) -> Observable<Element> {
-        CustomObservable<Element> { observer in
-            let container = DisposeContainer()
+        Observable<Element> { observer in
+            let container = DisposableContainer()
             self.subscribe { element in
                 guard !container.isDisposed else { return }
                 if isIncluded(element) {
@@ -304,7 +304,7 @@ public extension Observable {
 
     /// Returns an observable that emits subsequent values only if they are different from the last one emitted by the underlying observable.
     func distinct(isEqual: @escaping (Element, Element) -> Bool) -> Observable<Element> {
-        CustomObservable<Element> { observer in
+        Observable<Element> { observer in
             var lastElement: Element?
             return self.subscribe { element in
                 let isDistinct = if let lastElement {
@@ -334,7 +334,7 @@ public extension Observable {
      */
     func callback<Result>(from block: @escaping (Element, @escaping Observable<Result>.Observer) -> Void) -> Observable<Result> {
         flatMap { value in
-            Observable<Result>.Callback { observer in
+            Observables.callback { observer in
                 block(value, observer)
             }
         }
@@ -349,7 +349,7 @@ public extension Observable {
      */
     func callback<Result>(fromDisposable block: @escaping (Element, @escaping Observable<Result>.Observer) -> Disposable) -> Observable<Result> {
         flatMap { value in
-            CustomObservable<Result> { observer in
+            Observable<Result> { observer in
                 block(value, observer)
             }
         }
@@ -363,7 +363,7 @@ public extension Observable {
      */
     func debounce(delay: TimeInterval, debouncer: DebouncerProtocol) -> Observable<Element> {
         flatMap { element in
-            CustomObservable { observer in
+            Observable { observer in
                 let subscription = Subscription { }
                 debouncer.debounce(time: delay) {
                     guard !subscription.isDisposed else { return }
@@ -376,8 +376,8 @@ public extension Observable {
 
     /// Returns an observable that emits each emitted value after a set `time`.
     func delay(_ time: DispatchTimeInterval, on queue: TealiumQueue) -> Observable<Element> {
-        CustomObservable { observer in
-            let disposable = DisposeContainer()
+        Observable { observer in
+            let disposable = DisposableContainer()
             self.subscribe { element in
                 queue.dispatchQueue.asyncAfter(deadline: .now() + time) {
                     guard !disposable.isDisposed else { return }

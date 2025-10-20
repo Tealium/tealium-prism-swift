@@ -15,7 +15,7 @@ class CustomDispatcher: Dispatcher {
     func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> Disposable {
         print("CustomDispatcher dispatch: \(data.compactMap { $0.name })")
         completion(data)
-        return Subscription { }
+        return Disposables.disposed()
     }
 
     init(context: TealiumContext, moduleConfiguration: DataObject) { }

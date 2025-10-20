@@ -28,7 +28,9 @@ class BarrierCoordinator {
     private let flushTimeout = DispatchTimeInterval.seconds(5)
 
     @StateSubject(false)
-    var ongoingBackgroundTask: ObservableState<Bool>
+    var ongoingBackgroundTask
+
+    @Subject<Void> var flushTrigger
 
     init(onScopedBarriers: Observable<[ScopedBarrier]>,
          onApplicationStatus: Observable<ApplicationStatus>,
@@ -45,15 +47,12 @@ class BarrierCoordinator {
                                                            backgroundTaskTimeout: .seconds(3))
         onApplicationStatus.filter { $0.type == .backgrounded }
             .flatMapLatest { [weak self] _ in
-                guard let self else { return .Empty() }
+                guard let self else { return Observables.empty() }
                 return self.backgroundTaskStarter.startBackgroundTask()
             }.subscribe { [_ongoingBackgroundTask] ongoing in
                 _ongoingBackgroundTask.publishIfChanged(ongoing)
             }.addTo(disposer)
     }
-
-    @ToAnyObservable<BasePublisher<Void>>(BasePublisher())
-    var flushTrigger
 
     /**
      * Places the `BarrierCoordinator` into a "flushing" state for each dispatcher until any queued
@@ -92,12 +91,12 @@ class BarrierCoordinator {
     func filterFlushableBarriers(_ barriers: [Barrier], for dispatcherId: String) -> Observable<[Barrier]> {
         onQueueIsBeingFlushed(for: dispatcherId).flatMapLatest { isFlushing in
             guard isFlushing else {
-                return Observable.Just(barriers)
+                return Observables.just(barriers)
             }
             let nonFlushableBarriers = barriers.map { barrier in
                 barrier.isFlushable.distinct().map { $0 ? nil : barrier }
             }
-            return Observable.CombineLatest(nonFlushableBarriers).map {
+            return Observables.combineLatest(nonFlushableBarriers).map {
                 $0.compactMap { $0 }
             }
         }
@@ -106,12 +105,12 @@ class BarrierCoordinator {
     func onQueueIsBeingFlushed(for dispatcherId: String) -> Observable<Bool> {
         onApplicationStatus
             .flatMapLatest { [weak self] status in
-                guard let self else { return .Just(true) }
+                guard let self else { return Observables.just(true) }
                 switch status.type {
                 case .backgrounded:
                     return self.ongoingBackgroundTask.takeWhile({ $0 }, inclusive: true)
                 default:
-                    return .Just(true)
+                    return Observables.just(true)
                 }
             }.filter { $0 }
             .map { _ in }
@@ -123,14 +122,14 @@ class BarrierCoordinator {
                 // to transform a `sleep` event coming from lifecycle.
                     .debounce(delay: flushDebounceDelay, debouncer: debouncer)
                     .map { $0 > 0 }  // should flush is true until queue pending dispatches is empty
-                    .merge(.Just(false).delay(flushTimeout, on: queue)) // stop flush after a while anyway
+                    .merge(Observables.just(false).delay(flushTimeout, on: queue)) // stop flush after a while anyway
                     .takeWhile({ $0 }, inclusive: true) // stop listening when flush ended, include final false to stop the flush
             }.startWith(false)
             .distinct()
     }
 
     private func areBarriersOpen(_ barriers: [any Barrier], dispatcherId: String) -> Observable<BarrierState> {
-        Observable.CombineLatest(barriers.map { $0.onState(for: dispatcherId) })
+        Observables.combineLatest(barriers.map { $0.onState(for: dispatcherId) })
             .map { barrierStates in
                 barrierStates.first { $0 == BarrierState.closed } ?? BarrierState.open
             }

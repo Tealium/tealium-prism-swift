@@ -29,8 +29,8 @@ class EmpiricalConnectivity: EmpiricalConnectivityProtocol {
     }
 
     /// An observable that emits `true` when connection is available and `false` otherwise. Starts with `true`.
-    @ToAnyObservable<ReplaySubject<Bool>>(ReplaySubject<Bool>(initialValue: true))
-    var onEmpiricalConnectionAvailable: Observable<Bool>
+    @ReplaySubject<Bool>(true)
+    var onEmpiricalConnectionAvailable
 
     /**
      * Call this method when an HTTP connection was successfully established.
@@ -67,7 +67,6 @@ class EmpiricalConnectivity: EmpiricalConnectivityProtocol {
     }
 
     private func notify(assumeAvailable: Bool) {
-        _onEmpiricalConnectionAvailable.publisher
-            .publishIfChanged(assumeAvailable)
+        _onEmpiricalConnectionAvailable.publishIfChanged(assumeAvailable)
     }
 }

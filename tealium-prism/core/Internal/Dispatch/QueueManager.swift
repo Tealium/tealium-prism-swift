@@ -10,12 +10,10 @@ import Foundation
 
 class QueueManager: QueueManagerProtocol {
     /// [DispatcherId: [DispatchId]]
-    @StateSubject([String: Set<String>]())
+    @StateSubject([:])
     var inflightEvents: ObservableState<[String: Set<String>]>
-    @ToAnyObservable<BasePublisher<Set<String>>>(BasePublisher<Set<String>>())
-    var onEnqueuedDispatchesForProcessors: Observable<Set<String>>
-    @ToAnyObservable<BasePublisher<Set<String>>>(BasePublisher<Set<String>>())
-    var onDeletedDispatchesForProcessors: Observable<Set<String>>
+    @Subject<Set<String>> var onEnqueuedDispatchesForProcessors
+    @Subject<Set<String>> var onDeletedDispatchesForProcessors
     private let queueRepository: QueueRepository
     private let disposer = AutomaticDisposer()
     private let logger: LoggerProtocol?

@@ -34,7 +34,7 @@ final class TransformerCoordinatorTests: XCTestCase {
     var transformationsCount = 0
     var expectedTransformations: [Int] = []
     lazy var allTransformationsAreApplied = expectation(description: "All transformations are applied")
-    lazy var coordinator = TransformerCoordinator(transformers: transformers.toStatefulObservable(),
+    lazy var coordinator = TransformerCoordinator(transformers: transformers.asObservableState(),
                                                   transformations: transformations,
                                                   queue: TealiumQueue.worker,
                                                   logger: logger)
