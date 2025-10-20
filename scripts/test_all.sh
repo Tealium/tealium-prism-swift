@@ -5,15 +5,21 @@ declare -a SCHEMES=(
     "CoreTests_iOS"
     "CoreTests_tvOS"
     "CoreTests_macOS"
+    "CoreTests_watchOS"
     "EndToEndTests_iOS"
     "EndToEndTests_tvOS"
     "EndToEndTests_macOS"
+    "EndToEndTests_watchOS"
     "DelegateProxyTests_iOS"
     "LifecycleTests_iOS" 
+    "LifecycleTests_tvOS" 
+    "LifecycleTests_macOS" 
+    "LifecycleTests_watchOS" 
 )
 IOS_DESTINATION='platform=iOS Simulator,name=iPhone 16 Pro'
 TVOS_DESTINATION='platform=tvOS Simulator,name=Apple TV'
 MACOS_DESTINATION='platform=macOS'
+WATCHOS_DESTINATION='platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)'
 
 errors=()
 
@@ -69,6 +75,8 @@ do
         ./run_tests.sh --scheme "$SCHEME" --destination "$TVOS_DESTINATION" || errors+=("$SCHEME")
     elif [[ $SCHEME == *'macOS'* ]]; then
         ./run_tests.sh --scheme "$SCHEME" --destination "$MACOS_DESTINATION" || errors+=("$SCHEME")
+    elif [[ $SCHEME == *'watchOS'* ]]; then
+        ./run_tests.sh --scheme "$SCHEME" --destination "$WATCHOS_DESTINATION" || errors+=("$SCHEME")
     fi
 done
 

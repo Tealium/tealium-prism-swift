@@ -1,6 +1,6 @@
 //
 //  ApplicationStatusListenerTests.swift
-//  CoreTests_iOS
+//  tealium-prism
 //
 //  Created by Denis Guzov on 20/08/2024.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
@@ -40,7 +40,7 @@ final class ApplicationStatusListenerTests: XCTestCase {
         let subscriptionCalled = expectation(description: "Subscription called")
         graceTimeInterval = 0.01
         _ = listener
-        notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+        notificationCenter.postBecomeActiveNotification()
         let automaticDisposer = AutomaticDisposer()
         queue.asyncAfter(deadline: .now() + .milliseconds(100)) {
             self.listener.onApplicationStatus.subscribe {_ in
@@ -65,7 +65,7 @@ final class ApplicationStatusListenerTests: XCTestCase {
                 return
             }
         }.addTo(automaticDisposer)
-        notificationCenter.post(name: UIApplication.willResignActiveNotification, object: nil)
+        notificationCenter.postResignActiveNotification()
         waitForDefaultTimeout()
     }
 
@@ -83,7 +83,7 @@ final class ApplicationStatusListenerTests: XCTestCase {
                 return
             }
         }.addTo(automaticDisposer)
-        notificationCenter.post(name: UIApplication.didBecomeActiveNotification, object: nil)
+        notificationCenter.postBecomeActiveNotification()
         waitForDefaultTimeout()
     }
 

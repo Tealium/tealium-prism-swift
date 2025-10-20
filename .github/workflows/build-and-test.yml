@@ -47,6 +47,7 @@ jobs:
             - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
             - "platform=tvOS Simulator,OS=18.5,name=Apple TV"
             - "platform=macOS"
+            - "platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)"
     steps:
       - uses: actions/checkout@v4
       - name: "Run Local Action: Setup Machine"
@@ -81,6 +82,7 @@ jobs:
         scheme:
             - CoreTests_tvOS
             - EndToEndTests_tvOS
+            - LifecycleTests_tvOS
         destination: 
             - "platform=tvOS Simulator,OS=18.5,name=Apple TV"
     steps:
@@ -98,8 +100,27 @@ jobs:
         scheme:
             - CoreTests_macOS
             - EndToEndTests_macOS
+            - LifecycleTests_macOS
         destination: 
             - "platform=macOS"
+    steps:
+      - uses: actions/checkout@v4
+      - name: "Run Local Action: Setup Machine"
+        uses: ./.github/workflows/setup-machine
+      - name: Test - "${{ matrix.scheme }}"
+        run: scripts/run_tests.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+  test_watchOS:
+    name: watchOS Tests | ${{ matrix.scheme }}
+    runs-on: 'macOS-15'
+    timeout-minutes: 60
+    strategy:
+      matrix:
+        scheme:
+            - CoreTests_watchOS
+            - EndToEndTests_watchOS
+            - LifecycleTests_watchOS
+        destination: 
+            - "platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)"
     steps:
       - uses: actions/checkout@v4
       - name: "Run Local Action: Setup Machine"

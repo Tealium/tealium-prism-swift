@@ -16,9 +16,10 @@ declare -a SPM_SCHEMES=(
 )
 
 declare -a SPM_DESTINATIONS=(
-    'platform=iOS Simulator,name=iPhone 16 Pro'
+    "platform=iOS Simulator,name=iPhone 16 Pro"
     "platform=tvOS Simulator,OS=18.5,name=Apple TV"
     "platform=macOS"
+    "platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)"
 )
 
 # Test SPM Schemes build

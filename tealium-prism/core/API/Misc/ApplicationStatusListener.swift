@@ -8,6 +8,10 @@
 
 #if os(iOS) || os(tvOS)
 import UIKit
+#elseif os(watchOS)
+import WatchKit
+#elseif os(macOS)
+import AppKit
 #endif
 
 import Foundation
@@ -57,29 +61,34 @@ public class ApplicationStatusListener: NSObject {
     /// Sets up notification listeners to trigger events in listening delegates.
     func addListeners() {
         #if os(watchOS)
+        guard #available(watchOS 7.0, *) else {
+            return // No notifications for watchOS < 7.0
+        }
+        let notificationApplicationDidBecomeActive = WKExtension.applicationDidBecomeActiveNotification
+        let notificationApplicationWillResignActive = WKExtension.applicationWillResignActiveNotification
+        #elseif os(macOS)
+        let notificationApplicationDidBecomeActive = NSApplication.didBecomeActiveNotification
+        let notificationApplicationWillResignActive = NSApplication.willResignActiveNotification
         #else
-        #if os(macOS)
-        #else
-        // swiftlint:disable identifier_name
-        let notificationNameApplicationDidBecomeActive = UIApplication.didBecomeActiveNotification
-        let notificationNameApplicationWillResignActive = UIApplication.willResignActiveNotification
-        // swiftlint:enable identifier_name
-
+        let notificationApplicationDidBecomeActive = UIApplication.didBecomeActiveNotification
+        let notificationApplicationWillResignActive = UIApplication.willResignActiveNotification
+        #endif
         let operationQueue = OperationQueue()
         operationQueue.underlyingQueue = queue.dispatchQueue
 
         /// Notifies listeners of a sleep event.
-        sleepNotificationObserver = notificationCenter.addObserver(forName: notificationNameApplicationWillResignActive, object: nil, queue: operationQueue) { [weak self] _ in
+        sleepNotificationObserver = notificationCenter.addObserver(forName: notificationApplicationWillResignActive,
+                                                                   object: nil,
+                                                                   queue: operationQueue) { [weak self] _ in
             self?._onApplicationStatus.publish(ApplicationStatus(type: .backgrounded))
         }
 
         /// Notifies listeners of a wake event.
-        wakeNotificationObserver = notificationCenter.addObserver(forName: notificationNameApplicationDidBecomeActive, object: nil, queue: operationQueue) { [weak self] _ in
+        wakeNotificationObserver = notificationCenter.addObserver(forName: notificationApplicationDidBecomeActive,
+                                                                  object: nil,
+                                                                  queue: operationQueue) { [weak self] _ in
             self?._onApplicationStatus.publish(ApplicationStatus(type: .foregrounded))
         }
-
-        #endif
-        #endif
     }
 
     deinit {

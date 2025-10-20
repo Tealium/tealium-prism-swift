@@ -61,7 +61,6 @@ final class TealiumLifecycleTests: TealiumBaseTests {
         waitOnQueue(queue: queue)
     }
 
-#if os(iOS)
     func test_lifecycle_sleep_event_is_batched_with_previous_events_when_transformation_slows_execution() {
         let notificationCenter = NotificationCenter()
         config.appStatusListener = ApplicationStatusListener(notificationCenter: notificationCenter)
@@ -92,8 +91,8 @@ final class TealiumLifecycleTests: TealiumBaseTests {
             dispatchesAreBatched.fulfill()
         }
         teal.track("event")
-        notificationCenter.post(name: UIApplication.willResignActiveNotification, object: nil)
+        notificationCenter.postResignActiveNotification()
         waitForLongTimeout()
     }
-#endif
+
 }

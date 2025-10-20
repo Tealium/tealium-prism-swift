@@ -100,6 +100,10 @@ class URLProtocolMock: URLProtocol {
         return request
     }
 
+    override init(request: URLRequest, cachedResponse: CachedURLResponse?, client: (any URLProtocolClient)?) {
+        super.init(request: request, cachedResponse: cachedResponse, client: client)
+    }
+
     static func succeedingWith(data: Data, response: HTTPURLResponse) {
         reply = .always((data, response, nil))
     }

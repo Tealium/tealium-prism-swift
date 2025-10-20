@@ -1,15 +1,15 @@
 //
-//  DeviceDataProviderMacOSTests.swift
-//  CoreTests_macOS
+//  DeviceDataProviderWatchOSTests.swift
+//  CoreTests_watchOS
 //
-//  Created by Den Guzov on 28/05/2025.
+//  Created by Enrico Zannini on 10/10/2025.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
 @testable import TealiumPrism
 import XCTest
 
-final class DeviceDataProviderMacOSTests: XCTestCase {
+final class DeviceDataProviderWatchOSTests: XCTestCase {
     let deviceDataProvider = DeviceDataProvider()
 
     func test_cpuType() {
@@ -26,23 +26,23 @@ final class DeviceDataProviderMacOSTests: XCTestCase {
 
     func test_getModelInfo_returns_expected_data_if_model_info_exists() {
         let modelsObject = DataObject(dictionaryInput: [
-            "Mac15,7": [
-                "device_model": "MacBook Pro (16-inch, M3 Pro, Late 2023)",
-                "model_variant": "3.5mm headphone jack"
+            "Watch7,8": [
+                "device_model": "Apple Watch Series 10",
+                "model_variant": "42mm"
             ]
         ])
-        guard let modelInfo = deviceDataProvider.getModelInfo(from: modelsObject, model: "Mac15,7") else {
+        guard let modelInfo = deviceDataProvider.getModelInfo(from: modelsObject, model: "Watch7,8") else {
             XCTFail("No model info found")
             return
         }
-        XCTAssertEqual(modelInfo.get(key: "device_type"), "Mac15,7")
-        XCTAssertEqual(modelInfo.get(key: "device_model"), "MacBook Pro (16-inch, M3 Pro, Late 2023)")
-        XCTAssertEqual(modelInfo.get(key: "device"), "MacBook Pro (16-inch, M3 Pro, Late 2023)")
-        XCTAssertEqual(modelInfo.get(key: "model_variant"), "3.5mm headphone jack")
+        XCTAssertEqual(modelInfo.get(key: "device_type"), "Watch7,8")
+        XCTAssertEqual(modelInfo.get(key: "device_model"), "Apple Watch Series 10")
+        XCTAssertEqual(modelInfo.get(key: "device"), "Apple Watch Series 10")
+        XCTAssertEqual(modelInfo.get(key: "model_variant"), "42mm")
     }
 
     func test_deviceOrigin() {
-        XCTAssertEqual(deviceDataProvider.deviceOrigin, "desktop")
+        XCTAssertEqual(deviceDataProvider.deviceOrigin, "watch")
     }
 
     func test_batteryPercent() {
@@ -54,11 +54,13 @@ final class DeviceDataProviderMacOSTests: XCTestCase {
     }
 
     func test_resolution() {
-        XCTAssertEqual(deviceDataProvider.resolution, TealiumConstants.unknown)
+        XCTAssertNotNil(deviceDataProvider.resolution
+            .range(of: #"\d+x\d+"#, options: .regularExpression, range: nil, locale: nil))
     }
 
     func test_logicalResolution() {
-        XCTAssertEqual(deviceDataProvider.logicalResolution, TealiumConstants.unknown)
+        XCTAssertNotNil(deviceDataProvider.logicalResolution
+            .range(of: #"\d+x\d+"#, options: .regularExpression, range: nil, locale: nil))
     }
 
     func test_getScreenOrientation_returns_unknown_orientation_when_not_iOS() {
@@ -68,6 +70,6 @@ final class DeviceDataProviderMacOSTests: XCTestCase {
     }
 
     func test_osName() {
-        XCTAssertEqual(deviceDataProvider.osName, DeviceDataProvider.OSName.macOS)
+        XCTAssertEqual(deviceDataProvider.osName, DeviceDataProvider.OSName.watchOS)
     }
 }

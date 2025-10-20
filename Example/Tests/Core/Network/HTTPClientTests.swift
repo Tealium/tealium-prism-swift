@@ -9,6 +9,9 @@
 @testable import TealiumPrism
 import XCTest
 
+#if !os(watchOS)
+// URLProtocolMock seems not to be working on watchos
+
 final class HTTPClientTests: XCTestCase {
     private let queue = TealiumQueue(label: "testQueue", qos: .userInteractive)
     lazy var config: NetworkConfiguration = NetworkConfiguration(sessionConfiguration: NetworkConfiguration.defaultUrlSessionConfiguration,
@@ -159,7 +162,7 @@ final class HTTPClientTests: XCTestCase {
 
     func test_retries_get_cancelled_and_subsequent_request_completes_after_the_cancelled_one() {
         let expectCancelled = expectation(description: "Request will complete with a cancel error immediately")
-        let expectsucceeded = expectation(description: "Request will complete with success and will happen after the first task completed with the cancel")
+        let expectSucceeded = expectation(description: "Request will complete with success and will happen after the first task completed with the cancel")
         mockSuccess(delay: 10)
         let queue = TealiumQueue.worker
         XCTAssertFalse(queue.isOnQueue())
@@ -175,10 +178,10 @@ final class HTTPClientTests: XCTestCase {
         _ = client.sendRequest(URLRequest()) { result in
             dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
             XCTAssertResultIsSuccess(result) { _ in
-                expectsucceeded.fulfill()
+                expectSucceeded.fulfill()
             }
         }
-        wait(for: [expectCancelled, expectsucceeded], timeout: Self.longTimeout, enforceOrder: true)
+        wait(for: [expectCancelled, expectSucceeded], timeout: Self.longTimeout, enforceOrder: true)
     }
 
     @discardableResult
@@ -213,3 +216,4 @@ final class HTTPClientTests: XCTestCase {
         URLProtocolMock.replyingWith(.list(list))
     }
 }
+#endif

@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "71B547A5-B934-4050-8771-E3CA95190EFB",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "repeatInNewRunnerProcess" : true,
+    "testRepetitionMode" : "retryOnFailure"
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "87A409702E98FFD9005D92CC",
+        "name" : "EndToEndTests_watchOS"
+      }
+    }
+  ],
+  "version" : 1
+}
