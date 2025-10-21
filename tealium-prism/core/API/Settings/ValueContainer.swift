@@ -40,7 +40,7 @@ extension ValueContainer {
         }
     }
 
-    static let converter: any DataItemConverter<Self> = Converter()
+    static let converter = Converter()
 }
 
 extension ValueContainer: ExpressibleByStringLiteral, ExpressibleByStringInterpolation {

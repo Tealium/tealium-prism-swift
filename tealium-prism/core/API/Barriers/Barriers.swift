@@ -23,7 +23,7 @@ public enum Barriers {
      * - parameter defaultScopes: Set of `BarrierScope`s to use by default in case no other scope was
      * configured in the settings.
      */
-    public static func connectivity(defaultScopes: [BarrierScope] = [.dispatcher(Modules.Types.collect)]) -> any BarrierFactory {
+    public static func connectivity(defaultScopes: [BarrierScope] = [.dispatcher(Modules.Types.collect)]) -> some BarrierFactory {
         ConnectivityBarrier.Factory(defaultScopes: defaultScopes)
     }
 
@@ -35,7 +35,7 @@ public enum Barriers {
      * - parameter defaultScopes: Set of `BarrierScope`s to use by default in case no other scope was
      * configured in the settings.
      */
-    public static func batching(defaultScopes: [BarrierScope] = [.all]) -> any BarrierFactory {
+    public static func batching(defaultScopes: [BarrierScope] = [.all]) -> some BarrierFactory {
         BatchingBarrier.Factory(defaultScopes: defaultScopes)
     }
 }

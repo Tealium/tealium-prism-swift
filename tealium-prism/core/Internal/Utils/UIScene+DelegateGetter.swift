@@ -17,7 +17,6 @@ private let swizzling: (AnyClass, Selector, Selector) -> Void = { forClass, orig
     method_exchangeImplementations(originalMethod, swizzledMethod)
 }
 
-@available(iOS 13.0, *)
 extension UIScene {
     static let tealSwizzleDelegateGetterOnce: Void = {
         let originalSelector = #selector(getter: delegate)

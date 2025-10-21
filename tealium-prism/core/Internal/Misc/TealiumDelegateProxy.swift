@@ -91,20 +91,14 @@ private extension TealiumDelegateProxy {
 
     typealias ApplicationOpenURL = @convention(c) (Any, Selector, UIApplication, URL, [UIApplication.OpenURLOptionsKey: Any]) -> Bool
     typealias ApplicationContinueUserActivity = @convention(c) (Any, Selector, UIApplication, NSUserActivity, @escaping ([UIUserActivityRestoring]?) -> Void) -> Bool
-    @available(iOS 13.0, *)
     typealias SceneWillConnectTo = @convention(c) (Any, Selector, UIScene, UISceneSession, UIScene.ConnectionOptions) -> Void
-    @available(iOS 13.0, *)
     typealias SceneOpenURLContexts = @convention(c) (Any, Selector, UIScene, Set<UIOpenURLContext>) -> Void
-    @available(iOS 13.0, *)
     typealias SceneContinueUserActivity = @convention(c) (Any, Selector, UIScene, NSUserActivity) -> Void
 
     static let ApplicationOpenUrlSelector = #selector(application(_:openURL:options:))
     static let ApplicationContinueUserActivitySelector = #selector(application(_:continueUserActivity:restorationHandler:))
-    @available(iOS 13.0, *)
     static let SceneWillConnectToSelector = #selector(scene(_:willConnectToSession:options:))
-    @available(iOS 13.0, *)
     static let SceneOpenURLContextsSelector = #selector(scene(_:openURLContexts:))
-    @available(iOS 13.0, *)
     static let SceneContinueUserActivitySelector = #selector(scene(_:continueUserActivity:))
 
     static var gOriginalDelegate: NSObjectProtocol?
@@ -115,7 +109,6 @@ private extension TealiumDelegateProxy {
         return UIApplication.perform(selector)?.takeUnretainedValue() as? UIApplication
     }
 
-    @available(iOS 13.0, *)
     static func proxySceneDelegate(_ sceneDelegate: UISceneDelegate) {
         sceneEnabled = true
         name = "SceneDelegate"
@@ -349,7 +342,6 @@ private extension TealiumDelegateProxy {
 
 // MARK: Scene Delegate
 
-@available(iOS 13.0, *)
 private extension TealiumDelegateProxy {
 
     @objc

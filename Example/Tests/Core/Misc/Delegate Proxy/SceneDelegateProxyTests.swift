@@ -9,7 +9,6 @@
 @testable import TealiumPrism
 import XCTest
 
-@available(iOS 13, *)
 class SceneDelegateProxyTests: BaseProxyTests {
 
     func test_onOpenUrl_is_called_with_connectSessionOpenUrl() throws {

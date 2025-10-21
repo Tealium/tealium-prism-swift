@@ -22,5 +22,5 @@ extension MappingParameters {
         }
     }
 
-    static let converter: any DataItemConverter<Self> = Converter()
+    static let converter = Converter()
 }

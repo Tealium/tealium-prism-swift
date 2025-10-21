@@ -1279,7 +1279,7 @@
 		B2102BFDE5438A48A9E5B2A7 /* Pods_EndToEndTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 33B5FEA78838D5787CC63E05 /* Pods_EndToEndTests_macOS.framework */; };
 		C0118690E99BBB40EE2D014A /* Pods_CoreTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04BA5D9B715C142DC6E611E8 /* Pods_CoreTests_macOS.framework */; };
 		C534166FDDBC1FDDC2BD70D4 /* Pods_EndToEndTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 437934127033F7D3C9FA76A8 /* Pods_EndToEndTests_iOS.framework */; };
-		D4C23DA1D3FBCDAB31A78C2E /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		D4C23DA1D3FBCDAB31A78C2E /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		D54BBFB42C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF7D2C78C015003687C7 /* TransformerCoordinatorTests.swift */; };
 		D54BBFB52C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF7D2C78C015003687C7 /* TransformerCoordinatorTests.swift */; };
 		D54BBFB62C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF7D2C78C015003687C7 /* TransformerCoordinatorTests.swift */; };
@@ -1490,7 +1490,7 @@
 		ECF1ACAC2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF1ACAB2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift */; };
 		ECF1ACAD2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF1ACAB2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift */; };
 		ECF1ACAE2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF1ACAB2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift */; };
-		F2ED517F7D6AFF17C2495C24 /* (null) in Frameworks */ = {isa = PBXBuildFile; };
+		F2ED517F7D6AFF17C2495C24 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		FE3E0808285F36A5F2CC4234 /* Pods_EndToEndTests_watchOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB08E5BBA1081FD13C99B63 /* Pods_EndToEndTests_watchOS.framework */; };
 /* End PBXBuildFile section */
 
@@ -1953,7 +1953,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D4C23DA1D3FBCDAB31A78C2E /* (null) in Frameworks */,
+				D4C23DA1D3FBCDAB31A78C2E /* BuildFile in Frameworks */,
 				C0118690E99BBB40EE2D014A /* Pods_CoreTests_macOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1970,7 +1970,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F2ED517F7D6AFF17C2495C24 /* (null) in Frameworks */,
+				F2ED517F7D6AFF17C2495C24 /* BuildFile in Frameworks */,
 				27C477C5FBF2A9E54ABCF504 /* Pods_LifecycleTests_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -3318,8 +3318,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-CoreTests_tvOS/Pods-CoreTests_tvOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift-tvOS14.1/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-prism-tvOS14.1/TealiumPrism.framework",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift-tvOS/SQLite.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-prism-tvOS/TealiumPrism.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -3338,8 +3338,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-DelegateProxyTests_iOS/Pods-DelegateProxyTests_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift-iOS14.1/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-prism-iOS14.1/TealiumPrism.framework",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift-iOS/SQLite.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-prism-iOS/TealiumPrism.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -3380,8 +3380,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-EndToEndTests_tvOS/Pods-EndToEndTests_tvOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift-tvOS14.1/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-prism-tvOS14.1/TealiumPrism.framework",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift-tvOS/SQLite.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-prism-tvOS/TealiumPrism.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -3460,8 +3460,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-EndToEndTests_watchOS/Pods-EndToEndTests_watchOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift-watchOS4.0/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-prism-watchOS4.0/TealiumPrism.framework",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift-watchOS/SQLite.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-prism-watchOS/TealiumPrism.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -3502,8 +3502,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-EndToEndTests_iOS/Pods-EndToEndTests_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift-iOS14.1/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-prism-iOS14.1/TealiumPrism.framework",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift-iOS/SQLite.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-prism-iOS/TealiumPrism.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -3522,8 +3522,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-LifecycleTests_iOS/Pods-LifecycleTests_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift-iOS14.1/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-prism-iOS14.1/TealiumPrism.framework",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift-iOS/SQLite.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-prism-iOS/TealiumPrism.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -3542,8 +3542,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-EndToEndTests_macOS/Pods-EndToEndTests_macOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift-macOS14.1/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-prism-macOS14.1/TealiumPrism.framework",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift-macOS/SQLite.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-prism-macOS/TealiumPrism.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -3723,8 +3723,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-CoreTests_watchOS/Pods-CoreTests_watchOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift-watchOS4.0/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-prism-watchOS4.0/TealiumPrism.framework",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift-watchOS/SQLite.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-prism-watchOS/TealiumPrism.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -3803,8 +3803,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-LifecycleTests_tvOS/Pods-LifecycleTests_tvOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift-tvOS14.1/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-prism-tvOS14.1/TealiumPrism.framework",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift-tvOS/SQLite.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-prism-tvOS/TealiumPrism.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -3864,8 +3864,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-LifecycleTests_macOS/Pods-LifecycleTests_macOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift-macOS10.14/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-prism-macOS10.14/TealiumPrism.framework",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift-macOS/SQLite.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-prism-macOS/TealiumPrism.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -3925,8 +3925,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-LifecycleTests_watchOS/Pods-LifecycleTests_watchOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift-watchOS4.0/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-prism-watchOS4.0/TealiumPrism.framework",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift-watchOS/SQLite.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-prism-watchOS/TealiumPrism.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -4005,8 +4005,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-Example_iOS/Pods-Example_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift-iOS14.1/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-prism-iOS14.1/TealiumPrism.framework",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift-iOS/SQLite.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-prism-iOS/TealiumPrism.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -4091,8 +4091,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-CoreTests_macOS/Pods-CoreTests_macOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift-macOS10.14/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-prism-macOS10.14/TealiumPrism.framework",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift-macOS/SQLite.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-prism-macOS/TealiumPrism.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -4130,8 +4130,8 @@
 			);
 			inputPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-CoreTests_iOS/Pods-CoreTests_iOS-frameworks.sh",
-				"${BUILT_PRODUCTS_DIR}/SQLite.swift-iOS14.1/SQLite.framework",
-				"${BUILT_PRODUCTS_DIR}/tealium-prism-iOS14.1/TealiumPrism.framework",
+				"${BUILT_PRODUCTS_DIR}/SQLite.swift-iOS/SQLite.framework",
+				"${BUILT_PRODUCTS_DIR}/tealium-prism-iOS/TealiumPrism.framework",
 			);
 			name = "[CP] Embed Pods Frameworks";
 			outputPaths = (
@@ -5698,7 +5698,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				ORGANIZATIONNAME = "Tealium, Inc";
@@ -5749,7 +5749,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 12.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 13.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				ORGANIZATIONNAME = "Tealium, Inc";
 				SDKROOT = iphoneos;

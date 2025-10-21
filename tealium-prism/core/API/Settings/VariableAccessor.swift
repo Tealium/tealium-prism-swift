@@ -79,7 +79,7 @@ extension VariableAccessor {
         }
     }
 
-    static let converter: any DataItemConverter<Self> = Converter()
+    static let converter = Converter()
 }
 
 extension VariableAccessor: ExpressibleByStringLiteral, ExpressibleByStringInterpolation {

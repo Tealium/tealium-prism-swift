@@ -114,7 +114,6 @@ public extension Single {
     }
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 public extension Single {
     /// Transforms this single into an async function that can be awaited on.
     func toAsync<Value>() async throws -> Value where Element == Result<Value, Error> {

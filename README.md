@@ -12,10 +12,10 @@ To run the example project, clone the repo, and run `pod install` from the Examp
 
 ## Requirements
 Minimum OS versions:
-- iOS: 12.0
-- tvOS: 12.0
-- macOS: 10.14
-- watchOS: 4.0
+- iOS: 13.0
+- tvOS: 13.0
+- macOS: 10.15
+- watchOS: 7.0
 
 ## Installation
 

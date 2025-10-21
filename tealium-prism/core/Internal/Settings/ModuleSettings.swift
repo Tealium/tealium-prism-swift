@@ -62,5 +62,5 @@ extension ModuleSettings {
                                   configuration: dataObject.getDataDictionary(key: Keys.configuration)?.toDataObject())
         }
     }
-    static let converter: any DataItemConverter<Self> = Converter()
+    static let converter = Converter()
 }

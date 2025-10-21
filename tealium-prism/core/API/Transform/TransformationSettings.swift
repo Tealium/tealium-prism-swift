@@ -125,5 +125,5 @@ extension TransformationSettings {
                                           conditions: conditions)
         }
     }
-    static let converter: any DataItemConverter<Self> = Converter()
+    static let converter = Converter()
 }

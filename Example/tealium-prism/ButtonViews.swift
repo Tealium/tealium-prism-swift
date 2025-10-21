@@ -74,7 +74,6 @@ public extension Color {
     static let tealBlue = Color(red: 0.0, green: 0.49, blue: 0.76)
 }
 
-@available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
 public extension View {
 
     func tealiumButtonUI() -> some View {

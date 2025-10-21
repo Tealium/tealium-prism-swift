@@ -16,7 +16,6 @@ import Network
  * network requests when a connection is established. It should not be used to prevent a user from initiating a network
  * request, as it's possible that an initial request may be required to establish reachability.
  */
-@available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *)
 class TealiumNWPathMonitor: ConnectivityMonitorProtocol {
 
     let monitor = NWPathMonitor()
@@ -36,7 +35,6 @@ class TealiumNWPathMonitor: ConnectivityMonitorProtocol {
     }
 }
 
-@available(macOS 10.14, iOS 12.0, watchOS 5.0, tvOS 12.0, *)
 extension NWPath {
     var connection: NetworkConnection {
         switch self.status {

@@ -59,5 +59,5 @@ extension BarrierSettings {
                                    configuration: configuration)
         }
     }
-    static let converter: any DataItemConverter<Self> = Converter()
+    static let converter = Converter()
 }

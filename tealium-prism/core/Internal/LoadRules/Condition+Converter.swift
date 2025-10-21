@@ -31,5 +31,5 @@ extension Condition {
                              filter: dictionary.get(key: Keys.filter))
         }
     }
-    static let converter: any DataItemConverter<Self> = Converter()
+    static let converter = Converter()
 }

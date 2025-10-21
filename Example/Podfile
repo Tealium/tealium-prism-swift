@@ -16,12 +16,12 @@ target 'CoreTests_iOS' do
 end
 
 target 'CoreTests_macOS' do
-  platform :osx, '10.14'
+  platform :osx, '10.15'
   tealium_libs
 end
 
 target 'CoreTests_watchOS' do
-  platform :watchos, '4.0'
+  platform :watchos, '7.0'
   tealium_libs
 end
 
@@ -36,7 +36,7 @@ target 'EndToEndTests_iOS' do
 end
 
 target 'EndToEndTests_macOS' do
-  platform :osx, '14.1'
+  platform :osx, '10.15'
   tealium_libs
 end
 
@@ -46,7 +46,7 @@ target 'EndToEndTests_tvOS' do
 end
 
 target 'EndToEndTests_watchOS' do
-  platform :watchos, '4.0'
+  platform :watchos, '7.0'
   tealium_libs
 end
 
@@ -66,12 +66,12 @@ target 'LifecycleTests_tvOS' do
 end
 
 target 'LifecycleTests_macOS' do
-  platform :osx, '10.14'
+  platform :osx, '10.15'
   tealium_libs
 end
 
 target 'LifecycleTests_watchOS' do
-  platform :watchos, '4.0'
+  platform :watchos, '7.0'
   tealium_libs
 end
 

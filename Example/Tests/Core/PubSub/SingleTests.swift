@@ -96,7 +96,6 @@ final class SingleTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
     func test_toAsync_returns_item_when_successful() async throws {
         let single = SingleImpl<Result<Int, Error>>(observable: Observables.just(.success(1)),
                                                     queue: .main)
@@ -105,7 +104,6 @@ final class SingleTests: XCTestCase {
         XCTAssertEqual(item, 1)
     }
 
-    @available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, *)
     func test_toAsync_throws_error_when_unsuccessful() async throws {
         let single = SingleImpl<Result<Int, Error>>(observable: Observables.just(.failure(TealiumError.genericError("Failed"))),
                                                     queue: .main)
