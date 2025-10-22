@@ -386,6 +386,7 @@
 		87908E5A2DA95DD800193F08 /* Operator+AsSingleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87908E592DA95DD800193F08 /* Operator+AsSingleTests.swift */; };
 		87908E5B2DA95DD800193F08 /* Operator+AsSingleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87908E592DA95DD800193F08 /* Operator+AsSingleTests.swift */; };
 		87908E5C2DA95DD800193F08 /* Operator+AsSingleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87908E592DA95DD800193F08 /* Operator+AsSingleTests.swift */; };
+		879394062EA689F3008C1408 /* JSONPathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A40AE42E9FA8F2005D92CC /* JSONPathTests.swift */; };
 		879CC0B42CB6835200A51BF2 /* VisitorStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879CC0B32CB6835200A51BF2 /* VisitorStorageTests.swift */; };
 		879CC0B52CB6835200A51BF2 /* VisitorStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879CC0B32CB6835200A51BF2 /* VisitorStorageTests.swift */; };
 		879CC0B62CB6835200A51BF2 /* VisitorStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 879CC0B32CB6835200A51BF2 /* VisitorStorageTests.swift */; };
@@ -937,6 +938,9 @@
 		87A40AD82E9E57EA005D92CC /* ModuleRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A40AD62E9E57E6005D92CC /* ModuleRegistryTests.swift */; };
 		87A40AD92E9E57EA005D92CC /* ModuleRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A40AD62E9E57E6005D92CC /* ModuleRegistryTests.swift */; };
 		87A40ADA2E9E57EA005D92CC /* ModuleRegistryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A40AD62E9E57E6005D92CC /* ModuleRegistryTests.swift */; };
+		87A40AE52E9FA8F2005D92CC /* JSONPathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A40AE42E9FA8F2005D92CC /* JSONPathTests.swift */; };
+		87A40AE62E9FA8F2005D92CC /* JSONPathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A40AE42E9FA8F2005D92CC /* JSONPathTests.swift */; };
+		87A40AE72E9FA8F2005D92CC /* JSONPathTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A40AE42E9FA8F2005D92CC /* JSONPathTests.swift */; };
 		87AA174B2CEE429C003E99A8 /* DataLayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA174A2CEE429C003E99A8 /* DataLayerTests.swift */; };
 		87AA174C2CEE429C003E99A8 /* DataLayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA174A2CEE429C003E99A8 /* DataLayerTests.swift */; };
 		87AA174D2CEE429C003E99A8 /* DataLayerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AA174A2CEE429C003E99A8 /* DataLayerTests.swift */; };
@@ -1694,6 +1698,7 @@
 		87A40AB12E99010B005D92CC /* LifecycleTests_watchOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = LifecycleTests_watchOS.xctestplan; sourceTree = "<group>"; };
 		87A40ABE2E996951005D92CC /* NotificationCenter+PostApplicationNotification.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationCenter+PostApplicationNotification.swift"; sourceTree = "<group>"; };
 		87A40AD62E9E57E6005D92CC /* ModuleRegistryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleRegistryTests.swift; sourceTree = "<group>"; };
+		87A40AE42E9FA8F2005D92CC /* JSONPathTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JSONPathTests.swift; sourceTree = "<group>"; };
 		87AA174A2CEE429C003E99A8 /* DataLayerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataLayerTests.swift; sourceTree = "<group>"; };
 		87AA174E2CF08ED4003E99A8 /* LifecycleModuleManualTrackingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleModuleManualTrackingTests.swift; sourceTree = "<group>"; };
 		87AA17512CF08FC0003E99A8 /* LifecycleModuleSubscriptionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleModuleSubscriptionTests.swift; sourceTree = "<group>"; };
@@ -2578,6 +2583,7 @@
 				87AF54752C7F4CCA00F1C114 /* DataObjectTests.swift */,
 				EC0E52D52D887F77002B0FD8 /* DataObject+DeepMergeTests.swift */,
 				871237D92DD60D720007C2CD /* DataObject+VariableAccessorTests.swift */,
+				87A40AE42E9FA8F2005D92CC /* JSONPathTests.swift */,
 			);
 			path = Data;
 			sourceTree = "<group>";
@@ -4288,6 +4294,7 @@
 				15A473882A5FEB7F00A7B7AE /* Operators+MapTests.swift in Sources */,
 				87A05CFE2DBA2F6800D280F4 /* BarrierManagerTests.swift in Sources */,
 				D54BBFFC2C78C01A003687C7 /* DispatchManager+TrackTests.swift in Sources */,
+				87A40AE62E9FA8F2005D92CC /* JSONPathTests.swift in Sources */,
 				15C0DCC42B0CF5DA0007F6BE /* Operators+DistinctTests.swift in Sources */,
 				876F24FD2DDF15C700C55FFE /* SettingsManager+OnFreshSettingsTests.swift in Sources */,
 				15C0DCC62B0CF6280007F6BE /* Operators+FilterTests.swift in Sources */,
@@ -4730,6 +4737,7 @@
 				87A408F02E97F06E005D92CC /* XCTAssert+NaN.swift in Sources */,
 				87A408F12E97F06E005D92CC /* Operators+IgnoreTests.swift in Sources */,
 				87A408F22E97F06E005D92CC /* QueueManager+QueueMetricsTests.swift in Sources */,
+				879394062EA689F3008C1408 /* JSONPathTests.swift in Sources */,
 				87A408F32E97F06E005D92CC /* MockInterceptor.swift in Sources */,
 				87A408F42E97F06E005D92CC /* XCTAssert+Errors.swift in Sources */,
 				87A408F52E97F06E005D92CC /* TealiumDispatchGroupTests.swift in Sources */,
@@ -5227,6 +5235,7 @@
 				87BA6D752C6A470C00784784 /* Operators+IgnoreTests.swift in Sources */,
 				ECDE37E72E0EEB73008F89E1 /* QueueManager+QueueMetricsTests.swift in Sources */,
 				87BA6D762C6A470C00784784 /* MockInterceptor.swift in Sources */,
+				87A40AE52E9FA8F2005D92CC /* JSONPathTests.swift in Sources */,
 				87BA6D772C6A470C00784784 /* XCTAssert+Errors.swift in Sources */,
 				87AF54742C7E389C00F1C114 /* TealiumDispatchGroupTests.swift in Sources */,
 				87FC08A12D95B09C00E1041D /* SettingsManager+LoadRulesTests.swift in Sources */,
@@ -5454,6 +5463,7 @@
 				87BA6DF12C6A47AF00784784 /* DisposableTests.swift in Sources */,
 				ECDE37E62E0EEB73008F89E1 /* QueueManager+QueueMetricsTests.swift in Sources */,
 				EC0D84F12D6F6D7A00436087 /* NetworkConnectionTests.swift in Sources */,
+				87A40AE72E9FA8F2005D92CC /* JSONPathTests.swift in Sources */,
 				877C5F732CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift in Sources */,
 				87EE77152D7887CA00BB1D77 /* MockMatchable.swift in Sources */,
 				87FC08A02D95B09C00E1041D /* SettingsManager+LoadRulesTests.swift in Sources */,

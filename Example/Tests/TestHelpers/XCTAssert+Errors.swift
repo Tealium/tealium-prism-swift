@@ -16,8 +16,21 @@ func XCTAssertNetworkError(
     line: UInt = #line
 ) {
     guard let underlyingError = underlyingError as? URLError else {
-        XCTFail("Underlying error is not an URLError")
+        XCTFail("Underlying error is not an URLError", file: file, line: line)
         return
     }
     XCTAssertEqual(networkError, .urlError(underlyingError))
+}
+
+func XCTAssertThrows<T, E: Error>(_ expression: @autoclosure () throws(E) -> T,
+                                  _ message: @autoclosure () -> String = "",
+                                  file: StaticString = #filePath,
+                                  line: UInt = #line,
+                                  _ errorHandler: (_ error: E) -> Void = { _ in }) {
+    do {
+        _ = try expression()
+        XCTFail("Expression expected to throw but succeeded instead", file: file, line: line)
+    } catch {
+        errorHandler(error)
+    }
 }

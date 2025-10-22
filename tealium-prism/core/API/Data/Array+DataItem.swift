@@ -9,8 +9,8 @@
 import Foundation
 
 public extension Array where Element == DataItem {
-    private subscript(safe index: Index) -> Iterator.Element? {
-        return indices.contains(index) ? self[index] : nil
+    subscript(safe index: Index) -> Iterator.Element? {
+        indices.contains(index) ? self[index] : nil
     }
 
     /**

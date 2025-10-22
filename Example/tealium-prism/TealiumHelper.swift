@@ -42,7 +42,7 @@ class TealiumHelper {
                     CustomDispatcher.Factory.moduleType
                 ])
         }
-        return Tealium.create(config: config) { _ in }
+        return Tealium.create(config: config)
     }
     func startTealium() {
         let teal = createTeal()
