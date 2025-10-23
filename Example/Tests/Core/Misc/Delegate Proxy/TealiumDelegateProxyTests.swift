@@ -23,7 +23,7 @@ class BaseProxyTests: XCTestCase {
     }
     func sendOpenUrlEvent(urlString: String) throws {
         let url = try urlString.asUrl()
-        if #available(iOS 13.0, *), TealiumDelegateProxy.sceneEnabled {
+        if TealiumDelegateProxy.sceneEnabled {
             guard let scene = UIApplication.shared.connectedScenes.first,
                   let sceneDelegate = scene.delegate else {
                 throw SceneDelegateProxyError.sceneDelegateNotFound
@@ -41,7 +41,7 @@ class BaseProxyTests: XCTestCase {
         let url = try urlString.asUrl()
         let activity = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
         activity.webpageURL = url
-        if #available(iOS 13.0, *), TealiumDelegateProxy.sceneEnabled {
+        if TealiumDelegateProxy.sceneEnabled {
             UIApplication.shared.manualSceneContinueUserActivity(activity)
         } else {
             UIApplication.shared.manualContinueUserActivity(activity)

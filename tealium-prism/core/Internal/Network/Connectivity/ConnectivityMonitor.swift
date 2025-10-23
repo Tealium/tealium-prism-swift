@@ -15,12 +15,8 @@ public class ConnectivityMonitor {
 
 private func defaultConnectivityMonitor() -> ConnectivityMonitorProtocol {
     #if !os(watchOS)
-    let queue = TealiumQueue.worker
-    if #available(iOS 12, tvOS 12, macCatalyst 13, OSX 10.14, *) {
-        return TealiumNWPathMonitor(queue: queue)
-    } else if let monitor = ReachabilityConnectivityMonitor(queue: queue) {
-        return monitor
-    }
-    #endif
+    return TealiumNWPathMonitor(queue: TealiumQueue.worker)
+    #else
     return AlwaysUnknownConnectivityMonitor()
+    #endif
 }

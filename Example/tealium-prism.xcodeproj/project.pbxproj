@@ -1283,7 +1283,6 @@
 		B2102BFDE5438A48A9E5B2A7 /* Pods_EndToEndTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 33B5FEA78838D5787CC63E05 /* Pods_EndToEndTests_macOS.framework */; };
 		C0118690E99BBB40EE2D014A /* Pods_CoreTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 04BA5D9B715C142DC6E611E8 /* Pods_CoreTests_macOS.framework */; };
 		C534166FDDBC1FDDC2BD70D4 /* Pods_EndToEndTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 437934127033F7D3C9FA76A8 /* Pods_EndToEndTests_iOS.framework */; };
-		D4C23DA1D3FBCDAB31A78C2E /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		D54BBFB42C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF7D2C78C015003687C7 /* TransformerCoordinatorTests.swift */; };
 		D54BBFB52C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF7D2C78C015003687C7 /* TransformerCoordinatorTests.swift */; };
 		D54BBFB62C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF7D2C78C015003687C7 /* TransformerCoordinatorTests.swift */; };
@@ -1296,9 +1295,6 @@
 		D54BBFBD2C78C01A003687C7 /* EmpiricalConnectivityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF812C78C017003687C7 /* EmpiricalConnectivityTests.swift */; };
 		D54BBFBE2C78C01A003687C7 /* EmpiricalConnectivityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF812C78C017003687C7 /* EmpiricalConnectivityTests.swift */; };
 		D54BBFBF2C78C01A003687C7 /* EmpiricalConnectivityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF812C78C017003687C7 /* EmpiricalConnectivityTests.swift */; };
-		D54BBFC02C78C01A003687C7 /* ReachabilityConnectivityMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF822C78C017003687C7 /* ReachabilityConnectivityMonitorTests.swift */; };
-		D54BBFC12C78C01A003687C7 /* ReachabilityConnectivityMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF822C78C017003687C7 /* ReachabilityConnectivityMonitorTests.swift */; };
-		D54BBFC22C78C01A003687C7 /* ReachabilityConnectivityMonitorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF822C78C017003687C7 /* ReachabilityConnectivityMonitorTests.swift */; };
 		D54BBFC32C78C01A003687C7 /* ErrorCooldownTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF842C78C017003687C7 /* ErrorCooldownTests.swift */; };
 		D54BBFC42C78C01A003687C7 /* ErrorCooldownTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF842C78C017003687C7 /* ErrorCooldownTests.swift */; };
 		D54BBFC52C78C01A003687C7 /* ErrorCooldownTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF842C78C017003687C7 /* ErrorCooldownTests.swift */; };
@@ -1494,7 +1490,6 @@
 		ECF1ACAC2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF1ACAB2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift */; };
 		ECF1ACAD2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF1ACAB2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift */; };
 		ECF1ACAE2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF1ACAB2E255D0A00653000 /* BarrierCoordinator+FlushTests.swift */; };
-		F2ED517F7D6AFF17C2495C24 /* BuildFile in Frameworks */ = {isa = PBXBuildFile; };
 		FE3E0808285F36A5F2CC4234 /* Pods_EndToEndTests_watchOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FAB08E5BBA1081FD13C99B63 /* Pods_EndToEndTests_watchOS.framework */; };
 /* End PBXBuildFile section */
 
@@ -1787,7 +1782,6 @@
 		D54BBF7F2C78C017003687C7 /* ConnectivityBarrierTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectivityBarrierTests.swift; sourceTree = "<group>"; };
 		D54BBF802C78C017003687C7 /* ConnectivityManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConnectivityManagerTests.swift; sourceTree = "<group>"; };
 		D54BBF812C78C017003687C7 /* EmpiricalConnectivityTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EmpiricalConnectivityTests.swift; sourceTree = "<group>"; };
-		D54BBF822C78C017003687C7 /* ReachabilityConnectivityMonitorTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ReachabilityConnectivityMonitorTests.swift; sourceTree = "<group>"; };
 		D54BBF842C78C017003687C7 /* ErrorCooldownTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ErrorCooldownTests.swift; sourceTree = "<group>"; };
 		D54BBF852C78C017003687C7 /* HTTPClientTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = HTTPClientTests.swift; sourceTree = "<group>"; };
 		D54BBF862C78C017003687C7 /* InterceptorManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = InterceptorManagerTests.swift; sourceTree = "<group>"; };
@@ -1958,7 +1952,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				D4C23DA1D3FBCDAB31A78C2E /* BuildFile in Frameworks */,
 				C0118690E99BBB40EE2D014A /* Pods_CoreTests_macOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -1975,7 +1968,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				F2ED517F7D6AFF17C2495C24 /* BuildFile in Frameworks */,
 				27C477C5FBF2A9E54ABCF504 /* Pods_LifecycleTests_iOS.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -2502,7 +2494,6 @@
 				D54BBF7F2C78C017003687C7 /* ConnectivityBarrierTests.swift */,
 				D54BBF802C78C017003687C7 /* ConnectivityManagerTests.swift */,
 				D54BBF812C78C017003687C7 /* EmpiricalConnectivityTests.swift */,
-				D54BBF822C78C017003687C7 /* ReachabilityConnectivityMonitorTests.swift */,
 				EC0D84EE2D6F6D7A00436087 /* NetworkConnectionTests.swift */,
 			);
 			path = Connectivity;
@@ -4357,7 +4348,6 @@
 				15C0DCCA2B0CF6730007F6BE /* Operators+IgnoreTests.swift in Sources */,
 				87A1631B2DCA079D00F6EA3F /* MockContext.swift in Sources */,
 				1597DC7B2A446ADA00C394D3 /* MockInterceptor.swift in Sources */,
-				D54BBFC02C78C01A003687C7 /* ReachabilityConnectivityMonitorTests.swift in Sources */,
 				D54BBFDE2C78C01A003687C7 /* RetryPolicyTests.swift in Sources */,
 				EC2AF5E92DE9EAEC004AE72F /* DeviceDataModuleConfigurationTests.swift in Sources */,
 				87AF54822C8211B100F1C114 /* DataItem+SerializingTests.swift in Sources */,
@@ -5133,7 +5123,6 @@
 				D54BBFD72C78C01A003687C7 /* ResourceCacherTests.swift in Sources */,
 				87EE775E2D81D9B800BB1D77 /* XCTestCase+JSONFromBundle.swift in Sources */,
 				87BA6D3A2C6A470C00784784 /* DataItemTests.swift in Sources */,
-				D54BBFC22C78C01A003687C7 /* ReachabilityConnectivityMonitorTests.swift in Sources */,
 				87EE76FA2D78773000BB1D77 /* Condition+NotContainsTests.swift in Sources */,
 				D54BBFBC2C78C01A003687C7 /* ConnectivityManagerTests.swift in Sources */,
 				87EF5ACE2CE3A4BD00DB753C /* ModuleProxyTests.swift in Sources */,
@@ -5362,7 +5351,6 @@
 				87BA6DB72C6A47AF00784784 /* XCTAssert+BoolOptional.swift in Sources */,
 				D54BBFD62C78C01A003687C7 /* ResourceCacherTests.swift in Sources */,
 				87BA6DB82C6A47AF00784784 /* DataItemTests.swift in Sources */,
-				D54BBFC12C78C01A003687C7 /* ReachabilityConnectivityMonitorTests.swift in Sources */,
 				87EE775C2D81D9B800BB1D77 /* XCTestCase+JSONFromBundle.swift in Sources */,
 				D54BBFBB2C78C01A003687C7 /* ConnectivityManagerTests.swift in Sources */,
 				873B78292DA7D8050026A356 /* ValueContainerTests.swift in Sources */,

@@ -61,9 +61,6 @@ public class ApplicationStatusListener: NSObject {
     /// Sets up notification listeners to trigger events in listening delegates.
     func addListeners() {
         #if os(watchOS)
-        guard #available(watchOS 7.0, *) else {
-            return // No notifications for watchOS < 7.0
-        }
         let notificationApplicationDidBecomeActive = WKExtension.applicationDidBecomeActiveNotification
         let notificationApplicationWillResignActive = WKExtension.applicationWillResignActiveNotification
         #elseif os(macOS)

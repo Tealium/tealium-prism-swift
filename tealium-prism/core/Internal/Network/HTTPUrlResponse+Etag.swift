@@ -11,7 +11,7 @@ import Foundation
 extension HTTPURLResponse {
     private static let etagKey = "Etag"
     var etag: String? {
-        if #available(iOS 13.0, macOS 10.15, tvOS 13.0, watchOS 6.0, macCatalyst 13.1, *) {
+        if #available(macCatalyst 13.1, *) {
             return value(forHTTPHeaderField: Self.etagKey)
         } else {
             return headerString(field: Self.etagKey)

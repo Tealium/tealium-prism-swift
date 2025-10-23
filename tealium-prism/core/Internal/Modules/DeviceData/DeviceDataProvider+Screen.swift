@@ -52,14 +52,10 @@ extension DeviceDataProvider {
         ]
         #if os(iOS)
         let orientation: UIInterfaceOrientation
-        if #available(iOS 13.0, *) {
-            guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
-                return unknownOrientation
-            }
-            orientation = windowScene.interfaceOrientation
-        } else {
-            orientation = UIApplication.shared.statusBarOrientation
+        guard let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene else {
+            return unknownOrientation
         }
+        orientation = windowScene.interfaceOrientation
         let isLandscape = orientation.isLandscape == true
         let fullOrientation: DataObject = [
             DeviceDataKey.orientation: isLandscape ? ExtendedOrientation.landscape : ExtendedOrientation.portrait,
