@@ -131,7 +131,8 @@ final class ConditionNotContainsTests: XCTestCase {
     func test_notContains_throws_for_keys_missing_from_the_payload() {
         let condition = Condition.doesNotContain(ignoreCase: false, variable: "missing", string: "something")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingDataItem = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingDataItem = operationError.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
@@ -145,7 +146,8 @@ final class ConditionNotContainsTests: XCTestCase {
                                                                             variable: "key"),
                                                  string: "something")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingDataItem = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingDataItem = operationError.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
@@ -158,7 +160,8 @@ final class ConditionNotContainsTests: XCTestCase {
                                   operator: .notContains(true),
                                   filter: nil)
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingFilter = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingFilter = operationError.kind else {
                 XCTFail("Should be missing filter error, found: \(error)")
                 return
             }
@@ -172,7 +175,7 @@ final class ConditionNotContainsTests: XCTestCase {
                                                  string: "value")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                    case let .operationNotSupportedFor(itemType) = operationError.type else {
+                    case let .operationNotSupportedFor(itemType) = operationError.kind else {
                 XCTFail("Should be operation not supported for type error, found: \(error)")
                 return
             }
@@ -187,7 +190,7 @@ final class ConditionNotContainsTests: XCTestCase {
                                                  string: "Value")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                    case let .operationNotSupportedFor(itemType) = operationError.type else {
+                    case let .operationNotSupportedFor(itemType) = operationError.kind else {
                 XCTFail("Should be operation not supported for type error, found: \(error)")
                 return
             }

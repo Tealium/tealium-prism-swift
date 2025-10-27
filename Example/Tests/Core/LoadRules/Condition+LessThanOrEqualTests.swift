@@ -32,7 +32,7 @@ final class ConditionLessThanOrEqualTests: XCTestCase {
         let condition = Condition.isLessThan(orEqual: true, variable: "string", number: "100")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -56,7 +56,7 @@ final class ConditionLessThanOrEqualTests: XCTestCase {
         let condition = Condition.isLessThan(orEqual: true, variable: "bool", number: "10")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -70,7 +70,7 @@ final class ConditionLessThanOrEqualTests: XCTestCase {
         let condition = Condition.isLessThan(orEqual: true, variable: "array", number: "10")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -84,7 +84,7 @@ final class ConditionLessThanOrEqualTests: XCTestCase {
         let condition = Condition.isLessThan(orEqual: true, variable: "dictionary", number: "10")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -136,7 +136,7 @@ final class ConditionLessThanOrEqualTests: XCTestCase {
         let condition = Condition.isLessThan(orEqual: true, variable: "null", number: "1")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -149,7 +149,8 @@ final class ConditionLessThanOrEqualTests: XCTestCase {
     func test_lessThanOrEqual_throws_for_keys_missing_from_the_payload() {
         let condition = Condition.isLessThan(orEqual: true, variable: "missing", number: "1")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingDataItem = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingDataItem = operationError.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
@@ -163,7 +164,8 @@ final class ConditionLessThanOrEqualTests: XCTestCase {
                                                                         variable: "key"),
                                              number: "1")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingDataItem = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingDataItem = operationError.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
@@ -230,7 +232,7 @@ final class ConditionLessThanOrEqualTests: XCTestCase {
         let condition = Condition.isLessThan(orEqual: true, variable: "emptyString", number: "99")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -244,7 +246,7 @@ final class ConditionLessThanOrEqualTests: XCTestCase {
         let condition = Condition.isLessThan(orEqual: true, variable: "negativeInfinity", number: "")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -258,7 +260,7 @@ final class ConditionLessThanOrEqualTests: XCTestCase {
         let condition = Condition.isLessThan(orEqual: true, variable: "negativeInfinity", number: "forty two")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -271,7 +273,8 @@ final class ConditionLessThanOrEqualTests: XCTestCase {
     func test_lessThanOrEqual_throws_when_filter_is_nil() {
         let condition = Condition(variable: "negativeInfinity", operator: .lessThan(true), filter: nil)
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingFilter = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingFilter = operationError.kind else {
                 XCTFail("Should be missing filter error, found: \(error)")
                 return
             }

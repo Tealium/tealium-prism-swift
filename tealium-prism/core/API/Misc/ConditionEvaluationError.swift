@@ -10,8 +10,8 @@ import Foundation
 
 /// Error to signify that matching a `Condition` has failed in an exceptional way during evaluation.
 /// It is therefore unable to return an accurate result.
-public struct ConditionEvaluationError: Error, InvalidMatchError {
-    public enum ErrorType: TealiumErrorEnum {
+public struct ConditionEvaluationError: InvalidMatchError {
+    enum Kind: TealiumErrorEnum {
         /// There is no data item defined for the specified key.
         case missingDataItem
         /// Filter was not defined, bit it's required for the operation.
@@ -21,7 +21,7 @@ public struct ConditionEvaluationError: Error, InvalidMatchError {
         /// Current operation is not supported for the described type of data item.
         case operationNotSupportedFor(_ typeDescription: String)
 
-        public var message: String {
+        var message: String {
             switch self {
             case .missingDataItem:
                 return "Data item is not defined"
@@ -34,10 +34,11 @@ public struct ConditionEvaluationError: Error, InvalidMatchError {
             }
         }
     }
-    public let type: ErrorType
+    let kind: Kind
+    /// The condition that was unsuccessfully evaluated.
     public let condition: Condition
 
     public var description: String {
-        "Matching operation failed: \(type.localizedDescription). \(type.message). Condition: \(condition)"
+        "Matching operation failed: \(kind.localizedDescription). \(kind.message). Condition: \(condition)"
     }
 }

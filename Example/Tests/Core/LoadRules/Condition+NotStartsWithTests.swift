@@ -121,7 +121,8 @@ final class ConditionNotStartsWithTests: XCTestCase {
     func test_notStartsWith_throws_for_keys_missing_from_the_payload() {
         let condition = Condition.doesNotStartWith(ignoreCase: false, variable: "missing", prefix: "something")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingDataItem = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingDataItem = operationError.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
@@ -135,7 +136,8 @@ final class ConditionNotStartsWithTests: XCTestCase {
                                                                               variable: "key"),
                                                    prefix: "something")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingDataItem = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingDataItem = operationError.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
@@ -148,7 +150,8 @@ final class ConditionNotStartsWithTests: XCTestCase {
                                   operator: .notStartsWith(true),
                                   filter: nil)
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingFilter = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingFilter = operationError.kind else {
                 XCTFail("Should be missing filter error, found: \(error)")
                 return
             }
@@ -162,7 +165,7 @@ final class ConditionNotStartsWithTests: XCTestCase {
                                                    prefix: "[")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                    case let .operationNotSupportedFor(itemType) = operationError.type else {
+                    case let .operationNotSupportedFor(itemType) = operationError.kind else {
                 XCTFail("Should be operation not supported for type error, found: \(error)")
                 return
             }
@@ -177,7 +180,7 @@ final class ConditionNotStartsWithTests: XCTestCase {
                                                    prefix: "[")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                    case let .operationNotSupportedFor(itemType) = operationError.type else {
+                    case let .operationNotSupportedFor(itemType) = operationError.kind else {
                 XCTFail("Should be operation not supported for type error, found: \(error)")
                 return
             }

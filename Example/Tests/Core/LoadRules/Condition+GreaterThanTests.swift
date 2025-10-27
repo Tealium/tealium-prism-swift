@@ -32,7 +32,7 @@ final class ConditionGreaterThanTests: XCTestCase {
         let condition = Condition.isGreaterThan(orEqual: false, variable: "string", number: "10")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -51,7 +51,7 @@ final class ConditionGreaterThanTests: XCTestCase {
         let condition = Condition.isGreaterThan(orEqual: false, variable: "bool", number: "10")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -65,7 +65,7 @@ final class ConditionGreaterThanTests: XCTestCase {
         let condition = Condition.isGreaterThan(orEqual: false, variable: "array", number: "10")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -79,7 +79,7 @@ final class ConditionGreaterThanTests: XCTestCase {
         let condition = Condition.isGreaterThan(orEqual: false, variable: "dictionary", number: "10")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -131,7 +131,7 @@ final class ConditionGreaterThanTests: XCTestCase {
         let condition = Condition.isGreaterThan(orEqual: false, variable: "null", number: "1")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -144,7 +144,8 @@ final class ConditionGreaterThanTests: XCTestCase {
     func test_greaterThan_throws_for_keys_missing_from_the_payload() {
         let condition = Condition.isGreaterThan(orEqual: false, variable: "missing", number: "1")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingDataItem = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingDataItem = operationError.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
@@ -158,7 +159,8 @@ final class ConditionGreaterThanTests: XCTestCase {
                                                                            variable: "key"),
                                                 number: "1")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingDataItem = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingDataItem = operationError.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
@@ -205,7 +207,7 @@ final class ConditionGreaterThanTests: XCTestCase {
         let condition = Condition.isGreaterThan(orEqual: false, variable: "emptyString", number: "-99")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -219,7 +221,7 @@ final class ConditionGreaterThanTests: XCTestCase {
         let condition = Condition.isGreaterThan(orEqual: false, variable: "infinity", number: "")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -233,7 +235,7 @@ final class ConditionGreaterThanTests: XCTestCase {
         let condition = Condition.isGreaterThan(orEqual: false, variable: "infinity", number: "forty two")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                  case let .numberParsingError(parsing, source) = operationError.type else {
+                  case let .numberParsingError(parsing, source) = operationError.kind else {
                 XCTFail("Should be number parsing error, found: \(error)")
                 return
             }
@@ -246,7 +248,8 @@ final class ConditionGreaterThanTests: XCTestCase {
     func test_greaterThan_throws_when_filter_is_nil() {
         let condition = Condition(variable: "infinity", operator: .greaterThan(false), filter: nil)
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingFilter = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingFilter = operationError.kind else {
                 XCTFail("Should be missing filter error, found: \(error)")
                 return
             }

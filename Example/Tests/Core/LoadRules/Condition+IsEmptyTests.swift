@@ -40,7 +40,8 @@ final class ConditionIsEmptyTests: XCTestCase {
     func test_isEmpty_throws_for_keys_missing_from_the_payload() {
         let condition = Condition.isEmpty(variable: "missing")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingDataItem = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingDataItem = operationError.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
@@ -52,7 +53,8 @@ final class ConditionIsEmptyTests: XCTestCase {
         let condition = Condition.isEmpty(variable: VariableAccessor(path: ["dictionary", "missing"],
                                                                      variable: "key"))
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingDataItem = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingDataItem = operationError.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
@@ -77,7 +79,8 @@ final class ConditionIsEmptyTests: XCTestCase {
     func test_isNotEmpty_throws_for_keys_missing_from_the_payload() {
         let condition = Condition.isNotEmpty(variable: "missing")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingDataItem = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingDataItem = operationError.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
@@ -89,7 +92,8 @@ final class ConditionIsEmptyTests: XCTestCase {
         let condition = Condition.isNotEmpty(variable: VariableAccessor(path: ["dictionary", "missing"],
                                                                         variable: "key"))
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingDataItem = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingDataItem = operationError.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }

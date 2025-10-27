@@ -53,20 +53,6 @@ public extension TealiumDataKey {
     static let traceId = "cp.trace_id"
 }
 
-public enum TealiumTrackType: String {
-    case view           // Whenever content is displayed to the user.
-    case event
-
-    var description: String {
-        switch self {
-        case .view:
-            return "view"
-        case .event:
-            return "event"
-        }
-    }
-}
-
 public enum HttpStatusCodes: Int {
     case notModified = 304
     case ok = 200 // swiftlint:disable:this identifier_name

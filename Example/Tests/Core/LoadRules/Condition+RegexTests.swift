@@ -112,7 +112,8 @@ final class ConditionRegexTests: XCTestCase {
     func test_regex_throws_for_keys_missing_from_the_payload() {
         let condition = Condition.regularExpression(variable: "missing", regex: "something")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingDataItem = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingDataItem = operationError.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
@@ -125,7 +126,8 @@ final class ConditionRegexTests: XCTestCase {
                                                                                variable: "key"),
                                                     regex: "something")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingDataItem = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingDataItem = operationError.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
@@ -143,7 +145,8 @@ final class ConditionRegexTests: XCTestCase {
                                   operator: .regex,
                                   filter: nil)
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError, case .missingFilter = operationError.type else {
+            guard let operationError = error as? ConditionEvaluationError,
+                    case .missingFilter = operationError.kind else {
                 XCTFail("Should be missing filter error, found: \(error)")
                 return
             }
@@ -156,7 +159,7 @@ final class ConditionRegexTests: XCTestCase {
                                                     regex: "Value")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                    case let .operationNotSupportedFor(itemType) = operationError.type else {
+                    case let .operationNotSupportedFor(itemType) = operationError.kind else {
                 XCTFail("Should be operation not supported for type error, found: \(error)")
                 return
             }
@@ -170,7 +173,7 @@ final class ConditionRegexTests: XCTestCase {
                                                     regex: "Value")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
-                    case let .operationNotSupportedFor(itemType) = operationError.type else {
+                    case let .operationNotSupportedFor(itemType) = operationError.kind else {
                 XCTFail("Should be operation not supported for type error, found: \(error)")
                 return
             }

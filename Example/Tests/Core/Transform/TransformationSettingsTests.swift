@@ -60,7 +60,8 @@ final class TransformationSettingsTests: XCTestCase {
                                                     ))
         let dispatch = testEvent
         XCTAssertThrowsError(try transformation.matchesDispatch(dispatch)) { error in
-            guard let error = error as? ConditionEvaluationError, case .missingDataItem = error.type else {
+            guard let error = error as? ConditionEvaluationError,
+                    case .missingDataItem = error.kind else {
                 XCTFail("Should be a ConditionEvaluationError.missingDataItem error")
                 return
             }

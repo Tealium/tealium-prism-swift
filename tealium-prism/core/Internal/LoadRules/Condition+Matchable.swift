@@ -32,7 +32,7 @@ extension DataItem {
 }
 
 extension Condition: Matchable {
-    private typealias ErrorType = ConditionEvaluationError.ErrorType
+    typealias ErrorKind = ConditionEvaluationError.Kind
     static let formatter: NumberFormatter = {
         let formatter = NumberFormatter()
         formatter.locale = Locale(identifier: "en_US_POSIX")
@@ -42,8 +42,9 @@ extension Condition: Matchable {
         formatter.maximumFractionDigits = 16
         return formatter
     }()
-    public func matches(payload: DataObject) throws -> Bool {
-        do {
+
+    public func matches(payload: DataObject) throws(ConditionEvaluationError) -> Bool {
+        do throws(ErrorKind) {
             guard let dataItem = payload.extract(VariableAccessor(path: path, variable: variable)) else {
                 switch self.operator {
                 case .isDefined:
@@ -51,7 +52,7 @@ extension Condition: Matchable {
                 case .isNotDefined:
                     return true
                 default:
-                    throw ErrorType.missingDataItem
+                    throw .missingDataItem
                 }
             }
             return switch self.operator {
@@ -88,12 +89,12 @@ extension Condition: Matchable {
                     $0.range(of: $1, options: .regularExpression) != nil
                 }
             }
-        } catch let error as ErrorType {
-            throw ConditionEvaluationError(type: error, condition: self)
+        } catch {
+            throw ConditionEvaluationError(kind: error, condition: self)
         }
     }
 
-    private func equals(dataItem: DataItem, ignoreCase: Bool) throws -> Bool {
+    private func equals(dataItem: DataItem, ignoreCase: Bool) throws(ErrorKind) -> Bool {
         var filter = try requireFilter()
         if let double = dataItem.get(as: Double.self),
            // we want equals to return true in case the item is Double.nan and the filter is "NaN"
@@ -109,7 +110,7 @@ extension Condition: Matchable {
         return input == filter
     }
 
-    private func stringsMatch(dataItem: DataItem, ignoreCase: Bool, _ predicate: (String, String) -> Bool) throws -> Bool {
+    private func stringsMatch(dataItem: DataItem, ignoreCase: Bool, _ predicate: (String, String) -> Bool) throws(ErrorKind) -> Bool {
         var filter = try requireFilter()
         var string = try stringify(dataItem)
         if ignoreCase {
@@ -119,45 +120,51 @@ extension Condition: Matchable {
         return predicate(string, filter)
     }
 
-    private func numbersMatch(dataItem: DataItem, orEqual: Bool, _ predicate: (Double, Double) -> Bool) throws -> Bool {
+    private func numbersMatch(dataItem: DataItem, orEqual: Bool, _ predicate: (Double, Double) -> Bool) throws(ErrorKind) -> Bool {
         let filter = try requireFilter()
         let value = try convertToDouble(DataItem(value: filter), using: Self.formatter, source: "Filter")
-        let number = try dataItem.get(as: Double.self) ?? convertToDouble(dataItem, using: Self.formatter, source: "DataItem")
+        let number = if let number = dataItem.get(as: Double.self) {
+            number
+        } else {
+            try convertToDouble(dataItem, using: Self.formatter, source: "DataItem")
+        }
         if number == value {
             return orEqual
         }
         return predicate(number, value)
     }
 
-    private func requireFilter() throws -> String {
+    private func requireFilter() throws(ErrorKind) -> String {
         guard let filter else {
-            throw ErrorType.missingFilter
+            throw .missingFilter
         }
         return filter
     }
 
-    private func convertToDouble(_ dataItem: DataItem, using formatter: NumberFormatter, source: String) throws -> Double {
+    private func convertToDouble(_ dataItem: DataItem, using formatter: NumberFormatter, source: String) throws(ErrorKind) -> Double {
         guard let numString = dataItem.get(as: String.self), !numString.isEmpty else {
-            throw ErrorType.numberParsingError(parsing: dataItem.toString(), source: source)
+            throw .numberParsingError(parsing: dataItem.toString(), source: source)
         }
         if numString == "NaN" {
             return Double.nan
         }
         guard let number = formatter.number(from: numString)?.doubleValue else {
-            throw ErrorType.numberParsingError(parsing: numString, source: source)
+            throw .numberParsingError(parsing: numString, source: source)
         }
         return number
     }
 
-    private func stringify(_ value: DataItem) throws -> String {
+    private func stringify(_ value: DataItem) throws(ErrorKind) -> String {
         if let array = value.getDataArray() {
             do {
-                return try array.map({ try stringify($0) }).joined(separator: ",")
-            } catch let ErrorType.operationNotSupportedFor(typeFound) {
-                throw ErrorType.operationNotSupportedFor("Array containing: \(typeFound)")
+                return try array.map { item throws(ErrorKind) in
+                    try stringify(item)
+                }.joined(separator: ",")
+            } catch let .operationNotSupportedFor(typeFound) {
+                throw .operationNotSupportedFor("Array containing: \(typeFound)")
             }
         } else if let dictionary = value.getDataDictionary() {
-            throw ErrorType.operationNotSupportedFor("\(type(of: dictionary))")
+            throw .operationNotSupportedFor("\(type(of: dictionary))")
         } else if let double = value.get(as: Double.self) {
             // using custom formatter to get correct "Infinity" and "NaN" strings
             // as well as to remove fraction zeroes (1.0 -> 1) and disable scientific notation
