@@ -117,7 +117,7 @@ class DeviceDataProvider {
      * }
      * ```
      */
-    func getModelInfo(from extractor: DataItemExtractor, model: String = basicModel) -> DataObject? {
+    func getModelInfo(from extractor: some DataItemExtractor, model: String = basicModel) -> DataObject? {
         guard let modelInfo = extractor.getDataDictionary(key: model),
               let deviceModel = modelInfo.get(key: DeviceDataKey.deviceModel, as: String.self),
               let modelVariant = modelInfo.get(key: DeviceDataKey.modelVariant, as: String.self) else {

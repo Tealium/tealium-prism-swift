@@ -20,7 +20,7 @@ class MockSessionManager: SessionManager {
         let modulesRepository = SQLModulesRepository(dbProvider: databaseProvider)
         let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
                                                 modulesRepository: modulesRepository)
-        let dataStore: DataStore
+        let dataStore: any DataStore
         do {
             dataStore = try storeProvider.getModuleStore(name: "core")
         } catch {

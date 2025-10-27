@@ -21,7 +21,7 @@ custom_categories:
     - Tealium
     - TealiumConfig
     - TealiumInstanceManager
-    - CoreSettingsBuilder
+    - regex: ^CoreSettings
   - name: Modules
     children:
     - Modules
@@ -35,6 +35,12 @@ custom_categories:
     - TealiumData
     - TimeData
     - Trace
+  - name: AppData Module
+    children:
+    - regex: ^AppData
+  - name: ConnectivityData Module
+    children:
+    - regex: ^ConnectivityData
   - name: Consent
     children:
     - regex: Consent
@@ -42,15 +48,25 @@ custom_categories:
   - name: Collect Module
     children:
     - regex: CollectSettings
+  - name: DataLayer Module
+    children:
+    - regex: ^DataLayer
   - name: DeepLinkHandler Module
     children:
     - regex: DeepLink
+    - Referrer
   - name: DeviceData Module
     children:
     - regex: DeviceData
   - name: Lifecycle Module
     children:
     - regex: Lifecycle
+  - name: TealiumData Module
+    children:
+    - regex: TealiumData
+  - name: TimeData Module
+    children:
+    - regex: TimeData
   - name: Rules
     children:
     - regex: Rule
@@ -75,6 +91,8 @@ custom_categories:
     - regex: ^Data
     - Expiry
     - regex: ^Dispatch
+    - regex: ^JSON
+    - regex: Root
     - VariableAccessor
     - ValueContainer
   - name: PubSub
@@ -86,3 +104,9 @@ custom_categories:
     - regex: Single
     - regex: Dispos
     - regex: Subscri
+  - name: Network
+    children:
+    - regex: Network
+    - regex: HTTP
+    - regex: Interceptor
+    - ObjectResult

@@ -10,7 +10,7 @@ import Foundation
 
 class DeepLinkModule: BasicModule, Collector {
     let version: String = TealiumConstants.libraryVersion
-    let dataStore: DataStore
+    let dataStore: any DataStore
     private let tracker: Tracker
     private let modulesManager: ModulesManager
     private var configuration: DeepLinkModuleConfiguration
@@ -36,7 +36,7 @@ class DeepLinkModule: BasicModule, Collector {
                   logger: context.logger)
     }
 
-    init(dataStore: DataStore,
+    init(dataStore: any DataStore,
          tracker: Tracker,
          modulesManager: ModulesManager,
          configuration: DeepLinkModuleConfiguration,

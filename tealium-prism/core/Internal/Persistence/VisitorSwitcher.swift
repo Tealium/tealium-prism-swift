@@ -26,7 +26,7 @@ class VisitorSwitcher {
      *   - onCoreSettings: The `CoreSettings` observable to derive the identity key from.
      *   - dataLayerStore: The `DataStore` to monitor for identity changes.
      */
-    static func handleIdentitySwitches(visitorIdProvider: VisitorIdProvider, onCoreSettings: Observable<CoreSettings>, dataLayerStore: DataStore) -> Disposable {
+    static func handleIdentitySwitches(visitorIdProvider: VisitorIdProvider, onCoreSettings: Observable<CoreSettings>, dataLayerStore: any DataStore) -> Disposable {
         return onCoreSettings.map { $0.visitorIdentityKey }
             .distinct()
             .flatMapLatest { key -> Observable<String> in

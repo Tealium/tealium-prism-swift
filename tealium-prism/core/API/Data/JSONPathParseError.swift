@@ -20,6 +20,25 @@ public struct JSONPathParseError: Error, CustomStringConvertible {
         case unclosedQuotedKey
         case invalidCharacter(Character, position: Int)
         case missingSeparator(position: Int)
+
+        var details: String {
+            switch self {
+            case .emptyPathComponent:
+                "Path component cannot be empty"
+            case .invalidFirstComponent:
+                "First component must be a key for JSON object or an index for JSON array"
+            case let .invalidArrayIndex(index):
+                "Invalid array index '\(index)' - must be a valid integer"
+            case .unclosedQuotedKey:
+                "Unclosed quoted key - missing closing bracket and quote"
+            case let .invalidCharacter(char, position):
+                "Invalid character '\(char)' at position \(position)"
+            case let .missingSeparator(position):
+                "Missing a separator between components at position \(position)"
+            case .unexpectedEndOfInput:
+                "Path terminated before completing path component"
+            }
+        }
     }
 
     let kind: Kind
@@ -30,27 +49,8 @@ public struct JSONPathParseError: Error, CustomStringConvertible {
         self.kind = kind
         self.pathString = pathString
     }
-    /// Details about the cause of the error.
-    public var errorDetails: String {
-        switch kind {
-        case .emptyPathComponent:
-            "Path component cannot be empty"
-        case .invalidFirstComponent:
-            "First component must be a valid key starting with alphanumeric character or quoted string within square brackets"
-        case let .invalidArrayIndex(index):
-            "Invalid array index '\(index)' - must be a valid integer"
-        case .unclosedQuotedKey:
-            "Unclosed quoted key - missing closing bracket and quote"
-        case let .invalidCharacter(char, position):
-            "Invalid character '\(char)' at position \(position)"
-        case let .missingSeparator(position):
-            "Missing a separator between components at position \(position)"
-        case .unexpectedEndOfInput:
-            "Path terminated before completing path component"
-        }
-    }
 
     public var description: String {
-        "Failed to parse JSONPath: \(errorDetails). Input: '\(pathString)'"
+        "Failed to parse JSONPath: \(kind.details). Input: '\(pathString)'"
     }
 }

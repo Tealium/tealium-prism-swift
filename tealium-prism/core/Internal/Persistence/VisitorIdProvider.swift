@@ -17,7 +17,7 @@ class VisitorIdProvider {
      */
     @StateSubject var visitorId: ObservableState<String>
 
-    convenience init(config: TealiumConfig, visitorDataStore: DataStore, logger: LoggerProtocol?) {
+    convenience init(config: TealiumConfig, visitorDataStore: any DataStore, logger: LoggerProtocol?) {
         self.init(existingVisitorId: config.existingVisitorId,
                   visitorStorage: VisitorStorage(storage: visitorDataStore),
                   logger: logger)

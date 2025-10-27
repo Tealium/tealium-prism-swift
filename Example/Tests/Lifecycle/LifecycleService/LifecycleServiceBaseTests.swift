@@ -13,7 +13,7 @@ class LifecycleServiceBaseTests: XCTestCase {
     let dbProvider = MockDatabaseProvider()
     lazy var modulesRepository = SQLModulesRepository(dbProvider: dbProvider)
     lazy var dataStoreProvider = ModuleStoreProvider(databaseProvider: dbProvider, modulesRepository: modulesRepository)
-    var dataStore: DataStore!
+    var dataStore: (any DataStore)!
     lazy var lifecycleStorage = LifecycleStorage(dataStore: dataStore)
     lazy var lifecycleService = LifecycleService(lifecycleStorage: lifecycleStorage, bundle: Bundle(for: type(of: self)))
 

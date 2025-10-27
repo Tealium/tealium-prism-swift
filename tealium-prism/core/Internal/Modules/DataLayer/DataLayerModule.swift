@@ -9,7 +9,7 @@
 class DataLayerModule: BasicModule {
     let version: String = TealiumConstants.libraryVersion
     static let canBeDisabled: Bool = false
-    let dataStore: DataStore
+    let dataStore: any DataStore
     static let moduleType: String = Modules.Types.dataLayer
     var id: String { Self.moduleType }
     convenience required init?(context: TealiumContext, moduleConfiguration: DataObject) {
@@ -20,7 +20,7 @@ class DataLayerModule: BasicModule {
         }
     }
 
-    init(dataStore: DataStore) {
+    init(dataStore: any DataStore) {
         self.dataStore = dataStore
     }
 

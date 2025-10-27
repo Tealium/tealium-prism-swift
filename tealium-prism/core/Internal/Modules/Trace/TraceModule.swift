@@ -8,7 +8,7 @@
 
 class TraceModule: Collector, BasicModule {
     let version: String = TealiumConstants.libraryVersion
-    let dataStore: DataStore
+    let dataStore: any DataStore
     let tracker: Tracker
     static let moduleType: String = Modules.Types.trace
     var id: String { Self.moduleType }
@@ -20,7 +20,7 @@ class TraceModule: Collector, BasicModule {
         self.init(dataStore: dataStore, tracker: context.tracker)
     }
 
-    init(dataStore: DataStore, tracker: Tracker) {
+    init(dataStore: any DataStore, tracker: Tracker) {
         self.dataStore = dataStore
         self.tracker = tracker
     }

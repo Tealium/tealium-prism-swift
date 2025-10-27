@@ -23,7 +23,7 @@ final class VisitorSwitcherTests: XCTestCase {
     lazy var provider: VisitorIdProvider = VisitorIdProvider(existingVisitorId: nil,
                                                              visitorStorage: dataStorage,
                                                              logger: nil)
-    var dataLayerStore: DataStore?
+    var dataLayerStore: (any DataStore)?
     @StateSubject(CoreSettings(visitorIdentityKey: VisitorSwitcherTests.identityKey))
     var coreSettings
     override func setUpWithError() throws {
@@ -39,7 +39,7 @@ final class VisitorSwitcherTests: XCTestCase {
                                                    dataLayerStore: dataLayerStore)
     }
 
-    func storeIdentityInDataLayer(_ value: String, forKey key: String = VisitorSwitcherTests.identityKey, store: DataStore? = nil) throws {
+    func storeIdentityInDataLayer(_ value: String, forKey key: String = VisitorSwitcherTests.identityKey, store: (any DataStore)? = nil) throws {
         guard let store = store ?? dataLayerStore else {
             XCTFail("Store not found")
             return

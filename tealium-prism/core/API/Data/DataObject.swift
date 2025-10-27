@@ -116,7 +116,7 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
      * - Returns: The required `DataItem` if available; else `nil`.
      */
     public func extract(_ accessor: VariableAccessor) -> DataItem? {
-        var extractor: DataItemExtractor? = self
+        var extractor: (any DataItemExtractor)? = self
         if let path = accessor.path {
             for component in path where extractor != nil {
                 extractor = extractor?.getDataDictionary(key: component)

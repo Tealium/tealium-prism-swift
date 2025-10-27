@@ -14,7 +14,7 @@ import Foundation
 public class ModuleStoreProvider {
     let databaseProvider: DatabaseProviderProtocol
     let modulesRepository: ModulesRepository
-    var stores = [Int64: DataStore]()
+    var stores = [Int64: any DataStore]()
 
     init(databaseProvider: DatabaseProviderProtocol, modulesRepository: ModulesRepository) {
         self.databaseProvider = databaseProvider
@@ -26,7 +26,7 @@ public class ModuleStoreProvider {
      *
      * - parameter name: The module name whose `DataStore` is required.
      */
-    public func getModuleStore(name: String) throws -> DataStore {
+    public func getModuleStore(name: String) throws -> any DataStore {
         let moduleId = try modulesRepository.registerModule(name: name)
         if let cached = stores[moduleId] {
             return cached
@@ -36,7 +36,7 @@ public class ModuleStoreProvider {
         return newStore
     }
 
-    private func createStore(moduleId: Int64) throws -> DataStore {
+    private func createStore(moduleId: Int64) throws -> any DataStore {
         ModuleStore(repository: SQLKeyValueRepository(dbProvider: databaseProvider, moduleId: moduleId),
                     onDataExpired: modulesRepository.onDataExpired.compactMap { dataExpiredEvent in dataExpiredEvent[moduleId] })
     }

@@ -11,9 +11,9 @@ import TealiumPrismCore
 #endif
 
 class LifecycleStorage {
-    let dataStore: DataStore
+    let dataStore: any DataStore
 
-    init(dataStore: DataStore) {
+    init(dataStore: any DataStore) {
         self.dataStore = dataStore
     }
 

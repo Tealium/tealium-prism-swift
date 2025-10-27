@@ -16,7 +16,7 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
     private let deviceDataProvider: DeviceDataProvider
     private let networkHelper: NetworkHelperProtocol
     private let logger: LoggerProtocol?
-    private let dataStore: DataStore?
+    private let dataStore: (any DataStore)?
     private var resourceRefresher: ResourceRefresher<DataObject>?
     private var transformerRegistry: TransformerRegistry
     private let onModelInfo = ReplaySubject<DataObject?>()
@@ -75,14 +75,14 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
         return self
     }
 
-    func saveModelInfo(_ modelInfo: DataObject, dataStore: DataStore) {
+    func saveModelInfo(_ modelInfo: DataObject, dataStore: any DataStore) {
         try? dataStore.edit()
             .clear() // to clear the cache of ResourceCacher too
             .putAll(dataObject: modelInfo, expiry: .forever)
             .commit()
     }
 
-    func readModelInfo(dataStore: DataStore) -> DataObject? {
+    func readModelInfo(dataStore: any DataStore) -> DataObject? {
         let modelInfo = dataStore.getAll()
         guard modelInfo.count > 0 else {
             return nil
@@ -115,7 +115,7 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
         return _prepareRefresher(dataStore: dataStore, url: url)
     }
 
-    private func _prepareRefresher(dataStore: DataStore, url: URL) -> ResourceRefresher<DataObject> {
+    private func _prepareRefresher(dataStore: any DataStore, url: URL) -> ResourceRefresher<DataObject> {
         let refresher = ResourceRefresher<DataObject>(networkHelper: networkHelper,
                                                       resourceCacher: ResourceCacher(dataStore: dataStore,
                                                                                      fileName: "device-models"),

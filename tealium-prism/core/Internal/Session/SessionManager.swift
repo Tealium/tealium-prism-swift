@@ -22,12 +22,12 @@ class SessionManager: SessionRegistry {
 
     @ReplaySubject<Session> var session
     let sessionTimeout: ObservableState<TimeFrame>
-    let dataStore: DataStore
+    let dataStore: any DataStore
     let logger: LoggerProtocol?
     let disposer = AutomaticDisposer()
     let debouncer: DebouncerProtocol
     init(debouncer: DebouncerProtocol,
-         dataStore: DataStore,
+         dataStore: any DataStore,
          moduleRepository: ModulesRepository,
          sessionTimeout: ObservableState<TimeFrame>,
          timestamp: Int64 = Date().unixTimeMilliseconds,

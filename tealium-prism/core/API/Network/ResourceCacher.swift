@@ -14,17 +14,17 @@ import Foundation
  * Resource is stored in the `DataStore` at the provided `fileName`, while the `etag` will be stored at `\(fileName)_etag`
  */
 public class ResourceCacher<Resource: Codable> {
-    let dataStore: DataStore
+    let dataStore: any DataStore
     let fileName: String
     var etagStorageKey: String {
         fileName + "_etag"
     }
-    public init(dataStore: DataStore, fileName: String) {
+    public init(dataStore: any DataStore, fileName: String) {
         self.dataStore = dataStore
         self.fileName = fileName
     }
 
-    /// Returns the stored resource, if present and successfuly decodable.
+    /// Returns the stored resource, if present and successfully decodable.
     public func readResource() -> Resource? {
         guard let stringValue = dataStore.get(key: fileName, as: String.self) else {
             return nil

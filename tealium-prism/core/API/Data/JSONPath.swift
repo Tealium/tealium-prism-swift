@@ -8,92 +8,61 @@
 
 import Foundation
 
-/**
- * A structure representing the location of an item in a JSON object, potentially nested in other JSON objects and in JSON arrays.
- */
-public struct JSONPath: CustomStringConvertible {
-    let head: JSONPathComponent
+/// An internal protocol used to differentiate between `ObjectRoot` and `ArrayRoot`.
+/// Do not adopt this protocol in other types.
+public protocol PathRoot { }
+/// A Phantom Type used to specify a type of `JSONPath` that can be applied to a JSON object.
+public enum ObjectRoot: PathRoot { }
+/// A Phantom Type used to specify a type of `JSONPath` that can be applied to a JSON array.
+public enum ArrayRoot: PathRoot { }
 
+/**
+ * A `JSONPath` that can be applied to a JSON object to represent the path to a potentially nested value.
+ * Nested items can be in both JSON objects and JSON arrays.
+ *
+ * To create a path like `container.array[0].property` you can use a subscript for each path component:
+ * ```swift
+ * JSONPath["container"]["array"][0]["property"]
+ * ```
+ */
+public typealias JSONObjectPath = JSONPath<ObjectRoot>
+/**
+ * A `JSONPath` that can be applied to a JSON array to represent the path to a potentially nested value.
+ * Nested items can be in both JSON objects and JSON arrays.
+ *
+ * To create a path like `[0].container.array[0].property` you can use a subscript for each path component:
+ * ```swift
+ * JSONPath[0]["container"]["array"][0]["property"]
+ * ```
+ */
+public typealias JSONArrayPath = JSONPath<ArrayRoot>
+
+public extension JSONPath where Root == ObjectRoot {
     /**
-     * Creates a `JSONPath` with the root component.
+     * Creates a `JSONObjectPath` with the root component.
      *
      * - warning: This will not parse the given key, but rather use it in its entirety as a root key.
-     * Use `JSONPath.parse` to parse a complete path like `container.property`.
+     * Use `JSONObjectPath.parse` to parse a complete path like `container.property`.
      *
-     * - parameter key: The root component of this `JSONPath`.
+     * - parameter key: The root component of this `JSONObjectPath`.
      */
-    public init(_ key: String) {
-        self.init(head: .key(key, next: nil))
-    }
-
-    private init(head: JSONPathComponent) {
-        self.head = head
+    static subscript(_ key: String) -> Self {
+        self.init(components: [.key(key)])
     }
 
     /**
-     * Creates a new `JSONPath` starting from self and adding a new component that looks up for an item in an array at the given index.
-     *
-     * As an example, given the following JSON:
-     * ```json
-     * {
-     *   "root": [
-     *      "item"
-     *   ]
-     * }
-     * ```
-     * `JSONPath("root")[0]` will point to the value `"item"`.
-     *
-     * - parameter index: The index to look for an item in an array, after reaching the current path.
-     * - returns: A new `JSONPath`, that has the index lookup appended at the end of the current path.
-     */
-    public subscript(_ index: Int) -> JSONPath {
-        self + .index(index, next: nil)
-    }
-
-    /**
-     * Creates a new `JSONPath` starting from self and adding a new component that looks up for an item in an object at the given key.
-     *
-     * As an example, given the following JSON:
-     * ```json
-     * {
-     *   "root": {
-     *      "property": "item"
-     *   }
-     * }
-     * ```
-     * `JSONPath("root")["property"]` will point to the value `"item"`.
-     *
-     * - parameter key: The key to look for an item in an object, after reaching the current path.
-     * - returns: A new `JSONPath`, that has the key lookup appended at the end of the current path.
-     */
-    public subscript(_ key: String) -> JSONPath {
-        self + .key(key, next: nil)
-    }
-
-    public var description: String {
-        head.description
-    }
-
-    static func + (path: JSONPath, component: JSONPathComponent) -> JSONPath {
-        JSONPath(head: path.head + component)
-    }
-
-    static func += (path: inout JSONPath, component: JSONPathComponent) {
-        path = JSONPath(head: path.head + component)
-    }
-
-    /**
-     * Parses a string into a `JSONPath`.
+     * Parses a string into a `JSONObjectPath`.
      *
      * The string to pass needs to conform to a specific format.
      * - It can be a dot (`.`) separated list of alphanumeric characters and/or underscores.
      *      - Each component of a list built this way represents one level of a JSON object.
      *      - The last one can represent any type of JSON value.
      * - Square brackets (`[]`)  could be used instead of the dot notation, to separate one (or each) of the components.
-     * Inside of these brackets you can put:
+     * Inside these brackets you can put:
      *      - An integer, to represent an element into a JSON array.
      *      - A quoted string (`""`) to represent an element into a JSON object.
      *      Inside of the quoted string any character is valid, except for other quotes (`"`).
+     * - It needs to start with a key component.
      *
      * Examples of valid strings:
      * - `property`
@@ -118,36 +87,144 @@ public struct JSONPath: CustomStringConvertible {
      * - `container.["property"]`: invalid character (`.`) before the brackets
      * - `array[12 3]`: invalid number with whitespace ( ) inside index brackets
      * - `container@property`: invalid character (`@`)
+     * - `[123].property`: index is not valid as a first component. Must start with a key.
      *
      * - parameter pathString: The `String` that will be parsed.
-     * - returns: A `JSONPath`, if the parsing succeeded.
+     * - returns: A `JSONObjectPath`, if the parsing succeeded.
      * - throws: A `JSONPathParseError` if the parsing failed.
      */
-    public static func parse(_ pathString: String) throws(JSONPathParseError) -> JSONPath {
-        do {
-            return try JSONPathParsing(pathString: pathString).start()
-        } catch {
-            throw JSONPathParseError(kind: error, pathString: pathString)
+    static func parse(_ pathString: String) throws(JSONPathParseError) -> JSONPath<Root> {
+        let components = try JSONPath<Root>.parseComponents(pathString)
+        guard case .key = components.first else {
+            throw JSONPathParseError(kind: .invalidFirstComponent, pathString: pathString)
         }
+        return self.init(components: components)
     }
 }
 
-extension JSONPath: ExpressibleByStringLiteral, ExpressibleByStringInterpolation {
+public extension JSONPath where Root == ArrayRoot {
     /**
-     * Creates a `JSONPath` with the root component.
+     * Creates a `JSONArrayPath` with the root component.
      *
-     * - warning: This will not parse the given key, but rather use it in its entirety as a root key.
-     * Use `JSONPath.parse` to parse a complete path like `container.property`.
-     *
-     * - parameter key: The root component of this `JSONPath`.
+     * - parameter index: The root component of this `JSONArrayPath`.
      */
-    public init(stringLiteral value: String) {
-        self.init(value)
+    static subscript(_ index: Int) -> Self {
+        self.init(components: [.index(index)])
+    }
+
+    /**
+     * Parses a string into a `JSONArrayPath`.
+     *
+     * The string to pass needs to conform to a specific format.
+     * - It can be a dot (`.`) separated list of alphanumeric characters and/or underscores.
+     *      - Each component of a list built this way represents one level of a JSON object.
+     *      - The last one can represent any type of JSON value.
+     * - Square brackets (`[]`)  could be used instead of the dot notation, to separate one (or each) of the components.
+     * Inside these brackets you can put:
+     *      - An integer, to represent an element into a JSON array.
+     *      - A quoted string (`""`) to represent an element into a JSON object.
+     *      Inside of the quoted string any character is valid, except for other quotes (`"`).
+     * - It needs to start with an index component.
+     *
+     * Examples of valid strings:
+     * - `[123]`
+     * - `[0].property`
+     * - `[0]["property"]`
+     * - `[0][123]`
+     *      - which is different from `[0]["123"]`, although both are valid.
+     *      Difference is that the quoted version treats the `[0]` item as an object and looks for a nested "123" by string instead of the item at index 123 in an array.
+     * - `[0].array[123].property`
+     * - `[0].some_property`
+     * - `[0].container.some_property`
+     * - `[0].container["some.property"]`
+     *      - which is different from `[0].container.some.property`, although both are valid
+     * - `[0].container["some@property"]`
+     *      - which would be wrong without the quoted brackets: `container.some@property`)
+     * - `[0]["array"][123]["property"]`
+     *
+     * Examples of invalid strings:
+     * - `[0]."property"`: invalid character (`"`)
+     * - `[0].container-property`: invalid character (`-`)
+     * - `[0].container[property]`: missing quotes (`"`) in brackets
+     * - `[0].container.["property"]`: invalid character (`.`) before the brackets
+     * - `[12 3]`: invalid number with whitespace ( ) inside index brackets
+     * - `[0].container@property`: invalid character (`@`)
+     * - `property`: key is not a valid first component. Must start with an index.
+     *
+     * - parameter pathString: The `String` that will be parsed.
+     * - returns: A `JSONArrayPath`, if the parsing succeeded.
+     * - throws: A `JSONPathParseError` if the parsing failed.
+     */
+    static func parse(_ pathString: String) throws(JSONPathParseError) -> JSONPath<Root> {
+        let components = try JSONPath<Root>.parseComponents(pathString)
+        guard case .index = components.first else {
+            throw JSONPathParseError(kind: .invalidFirstComponent, pathString: pathString)
+        }
+        return self.init(components: components)
     }
 }
 
-extension JSONPath: Equatable {
-    public static func == (lhs: JSONPath, rhs: JSONPath) -> Bool {
-        lhs.description == rhs.description
+/**
+ * A structure representing the location of an item in a JSON object or JSON array, potentially nested in other JSON objects and JSON arrays.
+ *
+ *
+ * To create a basic `JSONPath` you can call the `JSONPath` subscript with a `String` or an `Int` depending on where you want to start the path from: the first one would start from a JSON object, the second would start from a JSON array.
+ * ```swift
+ * let objectPath = JSONPath["container"]
+ * let arrayPath = JSONPath[0]
+ * ```
+ *
+ * To create a path like `container.array[0].property` you can use a subscript for each path component:
+ * ```swift
+ * JSONPath["container"]["array"][0]["property"]
+ * ```
+ */
+public struct JSONPath<Root: PathRoot> {
+    let components: [JSONPathComponent<Root>]
+
+    /// Create a JSONPath with a non empty array of `JSONPathComponent`s.
+    /// The first item needs to be a key if `Root` is an `ObjectRoot` or an index if `Root` is an `ArrayRoot`.
+    fileprivate init(components: [JSONPathComponent<Root>]) {
+        self.components = components
+    }
+
+    /**
+     * Creates a new `JSONPath` starting from self and adding a new component that looks up for an item in an object at the given key.
+     *
+     * As an example, given the following JSON:
+     * ```json
+     * {
+     *   "root": {
+     *      "property": "item"
+     *   }
+     * }
+     * ```
+     * `JSONPath["root"]["property"]` will point to the value `"item"`.
+     *
+     * - parameter key: The key to look for an item in an object, after reaching the current path component.
+     * - returns: A new `JSONPath`, that has the key lookup appended at the end of the current path.
+     */
+    public subscript(_ key: String) -> Self {
+        JSONPath<Root>(components: components + [.key(key)])
+    }
+
+    /**
+     * Creates a new `JSONPath` starting from self and adding a new component that looks up for an item in an array at the given index.
+     *
+     * As an example, given the following JSON:
+     * ```json
+     * {
+     *   "root": [
+     *      "item"
+     *   ]
+     * }
+     * ```
+     * `JSONPath["root"][0]` will point to the value `"item"`.
+     *
+     * - parameter index: The index to look for an item in an array, after reaching the current path component.
+     * - returns: A new `JSONPath`, that has the index lookup appended at the end of the current path.
+     */
+    public subscript(_ index: Int) -> Self {
+        JSONPath<Root>(components: components + [.index(index)])
     }
 }

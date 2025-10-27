@@ -22,7 +22,7 @@ class SettingsManager {
     private var refreshing = false
     let config: TealiumConfig
 
-    init(config: TealiumConfig, dataStore: DataStore, networkHelper: NetworkHelperProtocol, logger: LoggerProtocol) throws {
+    init(config: TealiumConfig, dataStore: any DataStore, networkHelper: NetworkHelperProtocol, logger: LoggerProtocol) throws {
         self.logger = logger
         self.config = config
         // MARK: Initialize Settings StateSubject

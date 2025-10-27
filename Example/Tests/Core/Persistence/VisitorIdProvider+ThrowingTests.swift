@@ -11,7 +11,7 @@ import XCTest
 
 class ThrowingVisitorStorage: VisitorStorage {
     struct AnError: Error {}
-    let storage: DataStore
+    let storage: any DataStore
     override init(storage: any DataStore) {
         self.storage = storage
         super.init(storage: storage)

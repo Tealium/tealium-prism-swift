@@ -8,13 +8,14 @@
 
 import Foundation
 
+private let basicKeyRegex = try? NSRegularExpression(pattern: "[^a-zA-Z0-9_]")
+
 /**
  * A non copyable, consuming on start, struct that represents the process of parsing a specific `pathString`.
  */
-struct JSONPathParsing: ~Copyable {
+struct JSONPathParsing<Root: PathRoot>: ~Copyable {
     let pathString: String
     private var cursor: String.Index
-    private static let basicKeyRegex = try? NSRegularExpression(pattern: "[^a-zA-Z0-9_]")
 
     init(pathString: String) {
         self.pathString = pathString
@@ -25,65 +26,44 @@ struct JSONPathParsing: ~Copyable {
      * Starts the parsing process and returns a `JSONPath` if successful.
      * Consumes this object upon being called so this method can't be called again.
      */
-    consuming func start() throws(JSONPathParseError.Kind) -> JSONPath {
-        let startKey = try parseFirstKey()
-
-        var path = JSONPath(startKey)
-
+    consuming func start() throws(JSONPathParseError.Kind) -> [JSONPathComponent<Root>] {
+        var components = [try parseNextComponent(first: true)]
         while cursor < pathString.endIndex {
-            let nextComponent = try parseNextComponent()
-            path += nextComponent
+            components.append(try parseNextComponent())
         }
-        return path
-    }
-
-    /// Parse first component which must be a key
-    private mutating func parseFirstKey() throws(JSONPathParseError.Kind) -> String {
-        if try getCharAtCursor() == "[" {
-            shiftCursor()
-
-            if try getCharAtCursor() == "\"" {
-                // Skip opening quote
-                shiftCursor()
-                // Parse quoted key without opening: key\"]
-                return try parseNextQuotedKey()
-            } else {
-                // Array index not valid for first component
-                throw .invalidFirstComponent
-            }
-        } else {
-            // Parse regular key
-            return try parseNextKey()
-        }
+        return components
     }
 
     /// Parse entire next component: .property or ["property"] or [123]
-    private mutating func parseNextComponent() throws(JSONPathParseError.Kind) -> JSONPathComponent {
+    private mutating func parseNextComponent(first: Bool = false) throws(JSONPathParseError.Kind) -> JSONPathComponent<Root> {
         switch try getCharAtCursor() {
         case "[":
             return try parseSquareBracketsComponent()
-        case ".": // Handle dot separator
+        case "." where !first: // Handle dot separator for all components except the first
             // Skip dot
             shiftCursor()
             // Parse regular key
-            return try .key(parseNextKey(), next: nil)
+            return try .key(parseNextKey())
         default:
-            throw .missingSeparator(position: position(of: cursor))
+            guard first else {
+                throw .missingSeparator(position: position(of: cursor))
+            }
+            return try .key(parseNextKey())
         }
     }
 
     // Parse quoted key [\"key\"] or array index [123]
-    private mutating func parseSquareBracketsComponent() throws(JSONPathParseError.Kind) -> JSONPathComponent {
+    private mutating func parseSquareBracketsComponent() throws(JSONPathParseError.Kind) -> JSONPathComponent<Root> {
         // Skip opening bracket
         shiftCursor()
         if try getCharAtCursor() == "\"" {
             // Skip opening quote
             shiftCursor()
             // Parse quoted key without opening: key\"]
-            return try .key(parseNextQuotedKey(), next: nil)
+            return try .key(parseNextQuotedKey())
         } else {
             // Parse array index without opening: 123]
-            return try .index(parseNextArrayIndex(), next: nil)
+            return try .index(parseNextArrayIndex())
         }
     }
 
@@ -107,7 +87,7 @@ struct JSONPathParsing: ~Copyable {
         }
 
         // Validate entire key contains only alphanumeric characters and underscores
-        if let match = Self.matchesInvalidCharacters(in: key) {
+        if let match = Self.matchesSpecialCharacters(in: key) {
             let invalidCharIndex = match.range.location
             let invalidChar = key[key.index(key.startIndex, offsetBy: invalidCharIndex)]
             let position = position(of: startIndex) + invalidCharIndex
@@ -117,8 +97,8 @@ struct JSONPathParsing: ~Copyable {
         return key
     }
 
-    static func matchesInvalidCharacters(in key: String) -> NSTextCheckingResult? {
-        guard let regex = Self.basicKeyRegex else {
+    static func matchesSpecialCharacters(in key: String) -> NSTextCheckingResult? {
+        guard let regex = basicKeyRegex else {
             return nil
         }
         return regex.firstMatch(in: key,

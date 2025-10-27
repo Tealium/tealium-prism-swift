@@ -9,9 +9,6 @@
 import Foundation
 
 public extension Array where Element == DataItem {
-    subscript(safe index: Index) -> Iterator.Element? {
-        indices.contains(index) ? self[index] : nil
-    }
 
     /**
      * Returns the data at the given index in the requested type if the conversion is possible.
@@ -143,5 +140,37 @@ public extension Array where Element == DataItem {
      */
     func getDictionary<T: DataInput>(index: Index, of type: T.Type = T.self) -> [String: T?]? {
         self[safe: index]?.getDictionary()
+    }
+}
+
+extension Array: JSONPathExtractable where Element == DataItem {
+    /**
+     * Extracts a nested `DataItem` according to the given `JSONArrayPath`.
+     *
+     * This is equivalent to `getDataItem(index:)`, except it can search for nested values inside dictionaries and arrays by using a `JSONArrayPath`.
+     *
+     * If any component of the `JSONArrayPath` is not found in this array or its nested objects and arrays, or if it is of the wrong type,
+     * `nil` will be returned.
+     *
+     * As an example, in the following snippet:
+     * ```swift
+     * let array = [
+     *     DataItem(converting: [
+     *       "property": [
+     *          "item"
+     *       ]
+     *     ])
+     * ])
+     * let result = array.extractDataItem(path: JSONPath[0]["property"][0])
+     * ```
+     * The result would be a `DataItem` containing the string "item".
+     *
+     *
+     * - Parameters:
+     *      - path: The `JSONArrayPath` describing the path to a potentially nested item.
+     * - Returns: The required `DataItem` if found; else `nil`.
+     */
+    public func extractDataItem(path: JSONArrayPath) -> DataItem? {
+        extract(path.components)
     }
 }

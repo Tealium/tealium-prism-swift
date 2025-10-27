@@ -20,8 +20,8 @@ class VisitorStorage {
         static let visitorId = "visitorId"
         static let currentIdentity = "currentIdentity"
     }
-    private let storage: DataStore
-    init(storage: DataStore) {
+    private let storage: any DataStore
+    init(storage: any DataStore) {
         self.storage = storage
     }
 
