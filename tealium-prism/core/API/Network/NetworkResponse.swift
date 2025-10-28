@@ -10,7 +10,9 @@ import Foundation
 
 /// A successful response returned by the NetworkClient
 public struct NetworkResponse {
+    /// The response data.
     public let data: Data
+    /// The HTTP URL response.
     public let urlResponse: HTTPURLResponse
 }
 

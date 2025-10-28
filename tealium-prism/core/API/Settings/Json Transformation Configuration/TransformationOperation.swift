@@ -17,7 +17,7 @@ public struct TransformationOperation<Parameters: DataInputConvertible> {
     let destination: VariableAccessor
     /// The parameters necessary for this operation to be performed.
     let parameters: Parameters
-
+    /// Initializes a new `TransformationOperation` with the specified destination and parameters.
     public init(destination: VariableAccessor, parameters: Parameters) {
         self.destination = destination
         self.parameters = parameters
@@ -25,6 +25,7 @@ public struct TransformationOperation<Parameters: DataInputConvertible> {
 }
 
 extension TransformationOperation: DataObjectConvertible {
+    /// Represents this operation as a `DataObject` with destination and parameters values.
     public func toDataObject() -> DataObject {
         [
             OperationKeys.destination: destination,

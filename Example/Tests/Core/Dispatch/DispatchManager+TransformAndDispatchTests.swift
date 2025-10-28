@@ -16,7 +16,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         let transformerDropsAnEvent = expectation(description: "Transformer drops an event")
         transformers.value = [
             MockTransformer1(transformation: { _, dispatch, scope in
-                if dispatch.name == "event_to_be_dropped", scope == .dispatcher(MockDispatcher1.moduleType) {
+                if dispatch.name == "event_to_be_dropped", scope == .dispatcher(id: MockDispatcher1.moduleType) {
                     transformerDropsAnEvent.fulfill()
                     return nil
                 } else {

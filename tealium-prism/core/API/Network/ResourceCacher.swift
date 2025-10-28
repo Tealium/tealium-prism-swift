@@ -19,6 +19,10 @@ public class ResourceCacher<Resource: Codable> {
     var etagStorageKey: String {
         fileName + "_etag"
     }
+    /// Creates a resource cacher with the specified data store and file name.
+    /// - Parameters:
+    ///   - dataStore: The data store to use for persistence.
+    ///   - fileName: The file name for storing the resource.
     public init(dataStore: any DataStore, fileName: String) {
         self.dataStore = dataStore
         self.fileName = fileName

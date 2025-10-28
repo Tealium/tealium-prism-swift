@@ -23,6 +23,12 @@ public struct NetworkConfiguration {
     var queue: TealiumQueue
     var interceptorManagerFactory: InterceptorManagerProtocol.Type
 
+    /// Creates a network configuration with the specified parameters.
+    /// - Parameters:
+    ///   - sessionConfiguration: The URL session configuration to use.
+    ///   - interceptors: The request interceptors to apply.
+    ///   - interceptorManagerFactory: The factory for creating interceptor managers.
+    ///   - queue: The queue for network operations.
     public init(sessionConfiguration: URLSessionConfiguration,
                 interceptors: [RequestInterceptor],
                 interceptorManagerFactory: InterceptorManagerProtocol.Type = InterceptorManager.self,
@@ -40,6 +46,7 @@ public struct NetworkConfiguration {
 }
 
 public extension NetworkConfiguration {
+    /// The default URL session configuration for network requests.
     static var defaultUrlSessionConfiguration: URLSessionConfiguration {
         let config = URLSessionConfiguration.ephemeral
         config.urlCache = nil
@@ -47,6 +54,7 @@ public extension NetworkConfiguration {
         return config
     }
 
+    /// The default set of request interceptors.
     static let defaultInterceptors: [RequestInterceptor] = [
         DefaultInterceptor(),
         ConnectivityManager.shared

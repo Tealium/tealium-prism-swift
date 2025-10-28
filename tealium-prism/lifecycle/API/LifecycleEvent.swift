@@ -10,8 +10,14 @@
 import TealiumPrismCore
 #endif
 
+/// The types of lifecycle events that can be tracked.
 public enum LifecycleEvent: String, CaseIterable, Codable, DataInputConvertible {
-    case launch, wake, sleep
+    /// App launch event.
+    case launch
+    /// App wake (foreground) event.
+    case wake
+    /// App sleep (background) event.
+    case sleep
 
     init?(rawValue: String?) {
         guard let rawValue else {

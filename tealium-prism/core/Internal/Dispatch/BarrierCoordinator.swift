@@ -83,7 +83,7 @@ class BarrierCoordinator {
 
     func onBarriers(for dispatcherId: String) -> Observable<[Barrier]> {
         onScopedBarriers.map { barrierList in
-            barrierList.filter { $0.scopes.contains(.dispatcher(dispatcherId)) || $0.scopes.contains(.all) }
+            barrierList.filter { $0.scopes.contains(.dispatcher(id: dispatcherId)) || $0.scopes.contains(.all) }
                 .map { $0.barrier }
         }
     }

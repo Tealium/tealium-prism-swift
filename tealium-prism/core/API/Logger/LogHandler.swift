@@ -8,7 +8,13 @@
 import Foundation
 import os.log
 
+/// A protocol for handling log messages with different severity levels.
 public protocol LogHandler: AnyObject {
+    /// Logs a message with the specified category, message, and level.
+    /// - Parameters:
+    ///   - category: The category or component generating the log.
+    ///   - message: The log message content.
+    ///   - level: The severity level of the log message.
     func log(category: String, message: String, level: LogLevel)
 }
 

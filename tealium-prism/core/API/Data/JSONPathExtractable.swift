@@ -10,6 +10,7 @@ import Foundation
 
 /// A generic container of items that can return a `DataItem` for a given `JSONPath`.
 public protocol JSONPathExtractable<Root> {
+    /// The root type that defines the starting point for JSON path extraction (if it's an object or an array).
     associatedtype Root: PathRoot
     /**
      * Extracts a nested `DataItem` according to the given `JSONPath`.

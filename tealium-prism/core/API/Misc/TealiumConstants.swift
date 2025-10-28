@@ -9,9 +9,13 @@ import UIKit
 // MARK: VALUES
 #endif
 
+/// Constants used throughout the Tealium SDK.
 public enum TealiumConstants {
+    /// The name of this Tealium library.
     public static let libraryName = "prism-swift"
+    /// The version of this Tealium library.
     public static let libraryVersion = "0.1.0"
+    /// A constant representing an unknown value as a string.
     public static let unknown = "unknown"
 
     static let tiqCdn = "https://tags.tiqcdn.com"
@@ -22,19 +26,31 @@ public enum TealiumConstants {
     static let deepLinkEvent = "deep_link"
 }
 
+/// Keys used for data in Tealium tracking events.
 public enum TealiumDataKey {
 }
 
+/// Extension containing standard Tealium data keys.
 public extension TealiumDataKey {
+    /// The Tealium account identifier.
     static let account = "tealium_account"
+    /// The Tealium profile identifier.
     static let profile = "tealium_profile"
+    /// The Tealium environment (dev, qa, prod).
     static let environment = "tealium_environment"
+    /// The unique visitor identifier.
     static let visitorId = "tealium_visitor_id"
+    /// The event name.
     static let event = "tealium_event"
+    /// The screen or page title.
     static let screenTitle = "screen_title"
+    /// The type of event (view, event).
     static let eventType = "tealium_event_type"
+    /// The name of the Tealium library.
     static let libraryName = "tealium_library_name"
+    /// The version of the Tealium library.
     static let libraryVersion = "tealium_library_version"
+    /// The data source identifier.
     static let dataSource = "tealium_datasource"
     /// An `Int64` value containing the time, measured in seconds, since midnight 01-01-1970, in which the session was started.
     static let sessionId = "tealium_session_id"
@@ -42,20 +58,24 @@ public extension TealiumDataKey {
     static let isNewSession = "is_new_session"
     /// An `Int64` value containing the session timeout measured in milliseconds.
     static let sessionTimeout = "_dc_ttl_"
+    /// A random value for unique event identification and deduplication.
     static let random = "tealium_random"
+    /// List of enabled modules.
     static let enabledModules = "enabled_modules"
+    /// Versions of enabled modules.
     static let enabledModulesVersions = "enabled_modules_versions"
+    /// The URL from a deep link.
     static let deepLinkURL = "deep_link_url"
+    /// Prefix for deep link query parameters.
     static let deepLinkQueryPrefix = "deep_link_param"
+    /// The referrer URL for a deep link.
     static let deepLinkReferrerUrl = "deep_link_referrer_url"
+    /// The referrer app for a deep link.
     static let deepLinkReferrerApp = "deep_link_referrer_app"
+    /// Event key for kill visitor session.
     static let killVisitorSessionEvent = "event"
+    /// The trace ID for debugging.
     static let traceId = "cp.trace_id"
-}
-
-public enum HttpStatusCodes: Int {
-    case notModified = 304
-    case ok = 200 // swiftlint:disable:this identifier_name
 }
 
 enum ConditionOperators {

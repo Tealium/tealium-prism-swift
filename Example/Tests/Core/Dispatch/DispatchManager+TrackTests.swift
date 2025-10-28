@@ -43,7 +43,7 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
             completionCalled.fulfill()
             XCTAssertTrackResultIsAccepted(result) { dispatch in
                 XCTAssertNotEqual(dispatch.payload.count, 2)
-                XCTAssertNotNil(dispatch.payload.getDataItem(key: "transformation-afterCollectors"))
+                XCTAssertNotNil(dispatch.payload.getDataItem(key: "transformation-aftercollectors"))
             }
         }
         waitForDefaultTimeout()

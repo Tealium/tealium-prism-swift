@@ -16,7 +16,10 @@ import TealiumPrismCore
  * and will only add related data to lifecycle events.
  */
 public enum LifecycleDataTarget: String, DataInputConvertible {
-    case allEvents, lifecycleEventsOnly
+    /// Add lifecycle data to all events.
+    case allEvents
+    /// Add lifecycle data only to lifecycle events.
+    case lifecycleEventsOnly
 
     init?(rawValue: String?) {
         guard let rawValue else {

@@ -10,6 +10,7 @@ import Foundation
 
 /// A protocol to provide all publisher-like classes access to a corresponding observable.
 public protocol ObservableConvertible<Element> {
+    /// The type of element emitted by this subscribable.
     associatedtype Element
 
     /// Convert the current object to an `Observable`

@@ -9,9 +9,13 @@
 
 import Foundation
 
+/// A protocol for objects that can repeat an action at regular intervals.
 public protocol Repeater {
+    /// The handler that gets called when the timer fires.
     var eventHandler: (() -> Void)? { get }
+    /// Resumes the repeating timer.
     func resume()
+    /// Suspends the repeating timer.
     func suspend()
 }
 
@@ -49,7 +53,8 @@ public class RepeatingTimer: Repeater {
         return timer
     }()
 
-    public private(set)  var eventHandler: (() -> Void)?
+    /// The handler that gets called when the timer fires.
+    public private(set) var eventHandler: (() -> Void)?
 
     private enum State {
         case suspended

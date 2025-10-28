@@ -8,13 +8,18 @@
 
 import Foundation
 
+/// A response containing a decoded object and the HTTP response.
 public struct ObjectResponse<T> {
+    /// The decoded object from the response.
     public let object: T
+    /// The HTTP URL response.
     public let urlResponse: HTTPURLResponse
 }
 
+/// A result type for object responses.
 public typealias ObjectResult<T> = Result<ObjectResponse<T>, NetworkError>
 
+/// Protocol defining methods for common network operations.
 public protocol NetworkHelperProtocol {
     /**
      * Just sends a GET request to the `NetworkClient`
@@ -51,6 +56,7 @@ public protocol NetworkHelperProtocol {
     func post(url: URLConvertible, body: DataObject, completion: @escaping (NetworkResult) -> Void) -> Disposable
 }
 
+/// Default implementations for NetworkHelperProtocol methods.
 public extension NetworkHelperProtocol {
     /**
      * Just sends a GET request to the `NetworkClient`. Same as using the `get` method with nil as the `etag` parameter.

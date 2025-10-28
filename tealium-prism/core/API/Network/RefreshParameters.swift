@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Parameters for configuring a resource refresher.
 public struct RefreshParameters {
     let id: String
     let url: URL

@@ -31,6 +31,7 @@ extension Result: ValueExtractor {
 
 /// An object from which you can extract an optional error.
 public protocol ErrorExtractor<ErrorType> {
+    /// The type of error that can be extracted.
     associatedtype ErrorType: Error
     /// - Returns: An error, if it's present in the object, or nil.
     func getError() -> ErrorType?
@@ -38,6 +39,7 @@ public protocol ErrorExtractor<ErrorType> {
 
 /// An object from which you can extract an optional value.
 public protocol ValueExtractor<ValueType> {
+    /// The type of value that can be extracted.
     associatedtype ValueType
     /// - Returns: The value, if it's present in the object, or nil.
     func getValue() -> ValueType?

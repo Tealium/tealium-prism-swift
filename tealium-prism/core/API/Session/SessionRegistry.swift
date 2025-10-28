@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
+/// Protocol for managing session state and updates.
 public protocol SessionRegistry {
     /**
      * An `Observable` of `Session` update events.

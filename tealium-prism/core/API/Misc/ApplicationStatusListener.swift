@@ -16,23 +16,39 @@ import AppKit
 
 import Foundation
 
+/// Represents the current status of the application lifecycle.
 public struct ApplicationStatus {
+    /// The type of status change that occurred.
     public let type: StatusType
+    /// The timestamp when this status change occurred, in milliseconds since Unix epoch.
     public let timestamp: Int64
 
+    /// Creates a new application status.
+    /// - Parameters:
+    ///   - type: The type of status change.
+    ///   - timestamp: The timestamp of the change, defaults to current time.
     public init(type: StatusType, timestamp: Int64 = Date().unixTimeMilliseconds) {
         self.type = type
         self.timestamp = timestamp
     }
 
+    /// The different types of application status changes.
     public enum StatusType {
-        case initialized, foregrounded, backgrounded
+        /// The application has been initialized.
+        case initialized
+        /// The application has come to the foreground.
+        case foregrounded
+        /// The application has gone to the background.
+        case backgrounded
     }
 }
 
+/// Listens for application lifecycle events and publishes status changes.
 public class ApplicationStatusListener: NSObject {
     static let shared = ApplicationStatusListener()
 
+    /// Observable that emits application status changes. By default, all published changes will be re-emitted to every new subscriber for 10 seconds after start.
+    /// After that grace period only the last change is re-emitted to every new subscriber.
     @ReplaySubject(ApplicationStatus(type: .initialized), cacheSize: Int.max)
     public var onApplicationStatus
 
@@ -94,8 +110,10 @@ public class ApplicationStatusListener: NSObject {
     }
 }
 
+/// Objective-C compatible extension for ApplicationStatusListener.
 @objc
 public extension ApplicationStatusListener {
+    /// Sets up the shared application status listener.
     static func setup() {
         _ = Self.shared
     }

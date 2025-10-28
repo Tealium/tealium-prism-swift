@@ -10,6 +10,7 @@
 import TealiumPrismCore
 #endif
 
+/// Builder for configuring Lifecycle module settings.
 public class LifecycleSettingsBuilder: CollectorSettingsBuilder {
     typealias Keys = LifecycleConfiguration.Keys
 

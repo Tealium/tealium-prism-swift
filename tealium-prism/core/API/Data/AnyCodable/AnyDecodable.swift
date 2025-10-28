@@ -50,8 +50,11 @@ import Foundation
  let dictionary = try! decoder.decode([String: AnyCodable].self, from: json)
  */
 public struct AnyDecodable: Decodable {
+    /// The wrapped value of any type.
     public let value: Any
 
+    /// Creates a type-erased decodable value.
+    /// - Parameter value: The value to wrap, or nil which becomes an empty tuple.
     public init<T>(_ value: T?) {
         self.value = value ?? ()
     }

@@ -25,9 +25,13 @@ public struct Session {
         /// Indicates that an existing session was ended.
         case ended
     }
+    /// The current status of this session.
     public let status: Status
+    /// The unique identifier for this session.
     public let sessionId: Int64
+    /// The timestamp of the last event in this session.
     public let lastEventTimeMilliseconds: Int64
+    /// The number of events that have occurred in this session.
     public let eventCount: Int
 
     init(status: Status, sessionId: Int64, lastEventTimeMilliseconds: Int64, eventCount: Int) {

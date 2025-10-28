@@ -40,10 +40,13 @@ private class ObserverListObservable<Element>: Observable<Element> {
 public class BasePublisher<Element>: Publisher {
     fileprivate let observable: ObserverListObservable<Element>
 
+    /// Creates a new base publisher.
     public init() {
         self.observable = ObserverListObservable<Element>()
     }
 
+    /// Publishes an element to all subscribers.
+    /// - Parameter element: The element to publish.
     public func publish(_ element: Element) {
         observable.publish(element)
     }

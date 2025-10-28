@@ -8,11 +8,17 @@
 
 import Foundation
 
+/// Units of time measurement.
 public enum TimeUnit {
+    /// Time measured in milliseconds.
     case milliseconds
+    /// Time measured in seconds.
     case seconds
+    /// Time measured in minutes.
     case minutes
+    /// Time measured in hours.
     case hours
+    /// Time measured in days.
     case days
 
     /// The amount you need to multiply the current unit to transform it to milliseconds.
@@ -32,22 +38,29 @@ public enum TimeUnit {
     }
 }
 
+/// Represents a duration of time with a specific unit and interval.
 public struct TimeFrame {
+    /// The unit of time measurement.
     public let unit: TimeUnit
+    /// The number of time units.
     public let interval: Int64
 
+    /// Returns a `Date` representing the time after the current moment by the duration of this `TimeFrame`.
     func afterNow() -> Date {
         after(date: Date())
     }
 
+    /// Returns a `Date` representing the time after the specified date by the duration of this `TimeFrame`.
     func after(date: Date) -> Date {
         Self.dateDifference(date: date, milliseconds: inMilliseconds())
     }
 
+    /// Returns a `Date` representing the time before the specified date by the duration of this `TimeFrame`.
     func before(date: Date) -> Date {
         Self.dateDifference(date: date, milliseconds: -inMilliseconds())
     }
 
+    /// Returns a `Date` representing the time before the current moment by the duration of this `TimeFrame`.
     func beforeNow() -> Date {
         before(date: Date())
     }
@@ -76,41 +89,52 @@ public struct TimeFrame {
 }
 
 public extension Int {
+    /// Creates a TimeFrame representing this many milliseconds.
     var milliseconds: TimeFrame {
         Int64(self).milliseconds
     }
+    /// Creates a TimeFrame representing this many seconds.
     var seconds: TimeFrame {
         Int64(self).seconds
     }
+    /// Creates a TimeFrame representing this many minutes.
     var minutes: TimeFrame {
         Int64(self).minutes
     }
+    /// Creates a TimeFrame representing this many hours.
     var hours: TimeFrame {
         Int64(self).hours
     }
+    /// Creates a TimeFrame representing this many days.
     var days: TimeFrame {
         Int64(self).days
     }
 }
 
 public extension Int64 {
+    /// Creates a TimeFrame representing this many milliseconds.
     var milliseconds: TimeFrame {
         TimeFrame(unit: .milliseconds, interval: self)
     }
+    /// Creates a TimeFrame representing this many seconds.
     var seconds: TimeFrame {
         TimeFrame(unit: .seconds, interval: self)
     }
+    /// Creates a TimeFrame representing this many minutes.
     var minutes: TimeFrame {
         TimeFrame(unit: .minutes, interval: self)
     }
+    /// Creates a TimeFrame representing this many hours.
     var hours: TimeFrame {
         TimeFrame(unit: .hours, interval: self)
     }
+    /// Creates a TimeFrame representing this many days.
     var days: TimeFrame {
         TimeFrame(unit: .days, interval: self)
     }
 }
 
+/// TimeFrame comparison and equality implementations.
 extension TimeFrame: Comparable, Equatable {
     public static func < (lhs: Self, rhs: Self) -> Bool {
         guard lhs.unit != rhs.unit else {

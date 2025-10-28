@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Protocol for intercepting and handling network requests and responses.
 public protocol RequestInterceptor: AnyObject {
     /**
      * A `URLSessionTask` was put on hold by the `URLSession` while waiting for connectivity to come back
@@ -36,6 +37,7 @@ public protocol RequestInterceptor: AnyObject {
     func shouldRetry(_ request: URLRequest, retryCount: Int, with response: NetworkResult) -> RetryPolicy
 }
 
+/// Default implementations for RequestInterceptor methods.
 public extension RequestInterceptor {
     func waitingForConnectivity(_ task: URLSessionTask) {}
     func didComplete(_ request: URLRequest, with response: NetworkResult) {}

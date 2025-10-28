@@ -8,12 +8,16 @@
 
 import Foundation
 
+/// Defines the scope where a transformation should be applied.
 public enum TransformationScope: RawRepresentable, Codable, Equatable {
     public typealias RawValue = String
 
+    /// Apply transformation after data collection.
     case afterCollectors
+    /// Apply transformation to all dispatchers.
     case allDispatchers
-    case dispatcher(String)
+    /// Apply transformation to the dispatcher with the given ID.
+    case dispatcher(id: String)
 
     public var rawValue: String {
         switch self {
@@ -34,17 +38,25 @@ public enum TransformationScope: RawRepresentable, Codable, Equatable {
         case "alldispatchers":
             self = .allDispatchers
         default:
-            self = .dispatcher(lowercasedScope)
+            self = .dispatcher(id: lowercasedScope)
         }
     }
 }
 
+/// Configuration for a data transformation.
 public struct TransformationSettings {
     let id: String
     let transformerId: String
     let scopes: [TransformationScope]
     let configuration: DataObject
     let conditions: Rule<Condition>?
+    /// Creates transformation settings with the specified parameters.
+    /// - Parameters:
+    ///   - id: Unique identifier for this transformation.
+    ///   - transformerId: Identifier of the transformer to use.
+    ///   - scopes: Scopes where this transformation applies.
+    ///   - configuration: Configuration data for the transformer.
+    ///   - conditions: Optional conditions for when to apply the transformation.
     public init(id: String,
                 transformerId: String,
                 scopes: [TransformationScope],
@@ -64,7 +76,7 @@ public struct TransformationSettings {
                 return true
             case (.allDispatchers, .dispatcher):
                 return true
-            case let (.dispatcher(requiredDispatcher), .dispatcher(selectedDispatcher)):
+            case let (.dispatcher(id: requiredDispatcher), .dispatcher(id: selectedDispatcher)):
                 return requiredDispatcher == selectedDispatcher
             default:
                 return false
@@ -92,6 +104,7 @@ public struct TransformationSettings {
     }
 }
 
+/// Makes TransformationSettings convertible to DataObject.
 extension TransformationSettings: DataObjectConvertible {
     public func toDataObject() -> DataObject {
         DataObject(compacting: [

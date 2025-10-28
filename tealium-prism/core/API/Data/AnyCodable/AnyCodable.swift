@@ -35,8 +35,11 @@ import Foundation
  - SeeAlso: `AnyDecodable`
  */
 public struct AnyCodable: Codable {
+    /// The wrapped value of any type.
     public let value: Any
 
+    /// Creates a type-erased codable value.
+    /// - Parameter value: The value to wrap, or nil which becomes an empty tuple.
     public init<T>(_ value: T?) {
         self.value = value ?? ()
     }

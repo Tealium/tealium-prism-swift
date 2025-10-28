@@ -19,19 +19,27 @@ public class ReplaySubject<Element>: Subject<Element> {
     private var cacheSize: Int?
     private var cache = [Element]()
     // Having a default value here would cause a crash on Carthage
+    /// Creates a replay subject with the specified cache size.
+    /// - Parameter cacheSize: The maximum number of elements to cache. If `nil` is provided, there will be no maximum.
     public init(cacheSize: Int?) {
         self.cacheSize = cacheSize
     }
 
+    /// Creates a replay subject with a default cache size of 1.
     convenience public override init() {
         self.init(cacheSize: 1)
     }
 
+    /// Creates a replay subject with an initial value and cache size.
+    /// - Parameters:
+    ///   - initialValue: The initial value to publish.
+    ///   - cacheSize: The maximum number of elements to cache. If `nil` is provided, there will be no maximum.
     convenience public init(_ initialValue: Element, cacheSize: Int? = 1) {
         self.init(cacheSize: cacheSize)
         self.publish(initialValue)
     }
 
+    /// Returns an observable that replays cached elements to new subscribers.
     public override func asObservable() -> Observable<Element> {
         Observable { observer in
             let cache = self.cache
@@ -44,6 +52,7 @@ public class ReplaySubject<Element>: Subject<Element> {
         }
     }
 
+    /// Publishes an element and adds it to the cache.
     public override func publish(_ element: Element) {
         while let size = cacheSize, cache.count >= size && cache.count > 0 {
             cache.remove(at: 0)
@@ -71,6 +80,7 @@ public class ReplaySubject<Element>: Subject<Element> {
         cacheSize = newSize
     }
 
+    /// The wrapped observable value for property wrapper usage.
     public override var wrappedValue: Observable<Element> {
         super.wrappedValue
     }

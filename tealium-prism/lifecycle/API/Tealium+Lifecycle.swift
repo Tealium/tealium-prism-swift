@@ -35,5 +35,6 @@ public extension Tealium {
 }
 
 public extension Modules.Types {
+    /// Module type identifier for Lifecycle module.
     static let lifecycle = "Lifecycle"
 }

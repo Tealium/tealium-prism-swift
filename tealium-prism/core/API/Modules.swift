@@ -11,14 +11,23 @@ import Foundation
 public extension Modules {
     /// The Types for the modules
      enum Types {
+         /// Module type identifier for AppData module.
          static public let appData = "AppData"
+         /// Module type identifier for Collect module.
          static public let collect = "Collect"
+         /// Module type identifier for DataLayer module.
          static public let dataLayer = "DataLayer"
+         /// Module type identifier for DeviceData module.
          static public let deviceData = "DeviceData"
+         /// Module type identifier for Trace module.
          static public let trace = "Trace"
+         /// Module type identifier for DeepLink module.
          static public let deepLink = "DeepLink"
+         /// Module type identifier for TealiumData module.
          static public let tealiumData = "TealiumData"
+         /// Module type identifier for ConnectivityData module.
          static public let connectivityData = "ConnectivityData"
+         /// Module type identifier for TimeData module.
          static public let timeData = "TimeData"
     }
 }

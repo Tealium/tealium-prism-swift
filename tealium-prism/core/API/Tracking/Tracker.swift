@@ -24,6 +24,10 @@ public protocol Tracker: AnyObject {
 }
 
 public extension Tracker {
+    /// Tracks a dispatch without a completion handler.
+    /// - Parameters:
+    ///   - trackable: The dispatch to track.
+    ///   - source: The source that created the dispatch.
     func track(_ trackable: Dispatch, source: DispatchContext.Source) {
         track(trackable, source: source, onTrackResult: nil)
     }

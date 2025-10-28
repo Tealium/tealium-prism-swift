@@ -8,8 +8,10 @@
 
 import Foundation
 
+/// A helper class that provides convenient methods for common network operations.
 public class NetworkHelper: NetworkHelperProtocol {
     private static let decoder = Tealium.jsonDecoder
+    /// The underlying network client used for sending requests.
     public let networkClient: NetworkClient
     let logger: LoggerProtocol?
 

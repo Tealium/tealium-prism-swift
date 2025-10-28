@@ -10,7 +10,9 @@ import Foundation
 
 /// An protocol representing some long-lived operation that can be disposed.
 public protocol Disposable {
+    /// Whether this disposable has been disposed.
     var isDisposed: Bool { get }
+    /// Disposes of this resource.
     func dispose()
 }
 
@@ -27,5 +29,7 @@ public extension Disposable {
 
 /// A group that contains many disposable objects and disposes them simultaneously.
 public protocol CompositeDisposable: Disposable {
+    /// Adds a disposable to this composite.
+    /// - Parameter disposable: The disposable to add.
     func add(_ disposable: Disposable)
 }

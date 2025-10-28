@@ -12,8 +12,11 @@ import Foundation
  * The policy, returned by a `RequestInterceptor` that the `NetworkClient` should apply on a given `NetworkResponse`.
  */
 public enum RetryPolicy {
+    /// Do not retry the request.
     case doNotRetry
+    /// Retry the request after the specified delay.
     case afterDelay(TimeInterval)
+    /// Retry the request after the specified observable emits.
     case afterEvent(Observable<Void>)
 
     /**

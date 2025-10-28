@@ -22,7 +22,7 @@ final class TransformationSettingsConverterTests: XCTestCase {
         let configuration: DataObject = ["key1": "value1", "key2": 123]
         let transformation = TransformationSettings(id: "test_id",
                                                     transformerId: "test_transformer",
-                                                    scopes: [.afterCollectors, .dispatcher("test_dispatcher")],
+                                                    scopes: [.afterCollectors, .dispatcher(id: "test_dispatcher")],
                                                     configuration: configuration,
                                                     conditions: .just(condition))
 
@@ -67,7 +67,7 @@ final class TransformationSettingsConverterTests: XCTestCase {
         XCTAssertEqual(transformation?.transformerId, transformerId)
         XCTAssertEqual(transformation?.scopes.count, 2)
         XCTAssertTrueOptional(transformation?.scopes.contains(.afterCollectors))
-        XCTAssertTrueOptional(transformation?.scopes.contains(.dispatcher("test_dispatcher")))
+        XCTAssertTrueOptional(transformation?.scopes.contains(.dispatcher(id: "test_dispatcher")))
         XCTAssertEqual(transformation?.configuration.get(key: "key1", as: String.self), "value1")
         XCTAssertEqual(transformation?.configuration.get(key: "key2", as: Int.self), 123)
         XCTAssertNil(transformation?.conditions)

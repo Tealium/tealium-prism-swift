@@ -31,12 +31,19 @@ import Foundation
  * Therefore we only have, and only should have, an async method which is `ensureOnQueue`.
  */
 public class TealiumQueue {
+    /// The main queue for UI-related operations.
     public static let main = TealiumQueue(dispatchQueue: .main)
+    /// A background worker queue for SDK operations.
     public static let worker = TealiumQueue(label: "com.tealium.swift", qos: .utility)
 
     private let queueSpecificKey = DispatchSpecificKey<Void>()
+    /// The underlying dispatch queue.
     public let dispatchQueue: DispatchQueue
     var enforceQoS = DispatchQoS.unspecified
+    /// Creates a new queue with the specified label and quality of service.
+    /// - Parameters:
+    ///   - label: The label for the queue.
+    ///   - qos: The quality of service level.
     public convenience init(label: String, qos: DispatchQoS = .default) {
         self.init(dispatchQueue: DispatchQueue(label: label, qos: qos))
     }

@@ -15,6 +15,8 @@ public struct ValueContainer {
     /// The string representation of a value. Will be parsed as a number if necessary.
     let value: String
 
+    /// Creates a value container with the specified string value.
+    /// - Parameter value: The string value to store.
     public init(_ value: String) {
         self.value = value
     }

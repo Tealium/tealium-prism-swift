@@ -54,9 +54,13 @@ extension Encodable {
   }
 }
 
+/// A type-erased encodable value that forwards encoding responsibilities to an underlying value.
 public struct AnyEncodable: Encodable {
+    /// The wrapped value of any type.
     public let value: Any
 
+    /// Creates a type-erased encodable value.
+    /// - Parameter value: The value to wrap, or nil which becomes an empty tuple.
     public init<T>(_ value: T?) {
         self.value = value ?? ()
     }
@@ -156,6 +160,7 @@ extension _AnyEncodable {
 }
 
 // swiftlint:enable cyclomatic_complexity
+/// Provides a string representation of the encodable value.
 extension AnyEncodable: CustomStringConvertible {
     public var description: String {
         switch value {
@@ -169,6 +174,7 @@ extension AnyEncodable: CustomStringConvertible {
     }
 }
 
+/// Provides a debug string representation of the encodable value.
 extension AnyEncodable: CustomDebugStringConvertible {
     public var debugDescription: String {
         switch value {
@@ -180,11 +186,17 @@ extension AnyEncodable: CustomDebugStringConvertible {
     }
 }
 
+/// Allows AnyEncodable to be created from nil literals.
 extension AnyEncodable: ExpressibleByNilLiteral {}
+/// Allows AnyEncodable to be created from boolean literals.
 extension AnyEncodable: ExpressibleByBooleanLiteral {}
+/// Allows AnyEncodable to be created from integer literals.
 extension AnyEncodable: ExpressibleByIntegerLiteral {}
+/// Allows AnyEncodable to be created from float literals.
 extension AnyEncodable: ExpressibleByFloatLiteral {}
+/// Allows AnyEncodable to be created from array literals.
 extension AnyEncodable: ExpressibleByArrayLiteral {}
+/// Allows AnyEncodable to be created from dictionary literals.
 extension AnyEncodable: ExpressibleByDictionaryLiteral {}
 
 extension _AnyEncodable {

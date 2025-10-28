@@ -6,12 +6,21 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-/// The scope used to define a `BarrierSettings` in the `SDKSettings`.
+/// The `BarrierScope` defines the available scopes that can be assigned to a `Barrier` via a `BarrierSettings`.
+///
+/// There are only two available scopes that a `Barrier` can impact:
+///  - `all`
+///  - `dispatcher`
+///
+/// A `Barrier` scoped to `all` will be checked for its state for every dispatcher before dispatching events to it.
+/// A `Barrier` scoped to `dispatcher` will only be checked for its state for the specific dispatcher as identified by the given dispatcher name.
 public enum BarrierScope: RawRepresentable, Equatable {
     public typealias RawValue = String
 
+    /// Applies to all dispatchers.
     case all
-    case dispatcher(String)
+    /// Applies to the dispatcher with the given ID.
+    case dispatcher(id: String)
 
     public var rawValue: String {
         switch self {
@@ -23,11 +32,12 @@ public enum BarrierScope: RawRepresentable, Equatable {
     }
 
     public init(rawValue: String) {
-        switch rawValue {
+        let lowercasedScope = rawValue.lowercased()
+        switch lowercasedScope {
         case "all":
             self = .all
         default:
-            self = .dispatcher(rawValue)
+            self = .dispatcher(id: rawValue)
         }
     }
 }

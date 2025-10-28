@@ -62,7 +62,7 @@ class SQLQueueRepository: QueueRepository {
         try database.transaction {
             try createSpaceIfNecessary(for: dispatches.count)
             try dispatches
-                .suffix(maxQueueSize)
+                .suffix(maxQueueSize < 0 ? Int.max : maxQueueSize)
                 .forEach { dispatch in
                     try database.run(DispatchSchema.insert(dispatch: dispatch))
                     /* Enqueue needs to be run immediately after each dispatch insert or,

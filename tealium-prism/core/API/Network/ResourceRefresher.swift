@@ -20,6 +20,7 @@ import Foundation
 public class ResourceRefresher<Resource: Codable> {
     let resourceCacher: ResourceCacher<Resource>
     private var parameters: RefreshParameters
+    /// The unique identifier for this resource refresher.
     public var id: String {
         parameters.id
     }
@@ -55,6 +56,13 @@ public class ResourceRefresher<Resource: Codable> {
 
     private var disposableRequest: Disposable?
 
+    /// Creates a resource refresher with the specified dependencies.
+    /// - Parameters:
+    ///   - networkHelper: Helper for network operations.
+    ///   - resourceCacher: Cacher for storing resources locally.
+    ///   - parameters: Configuration parameters for refreshing.
+    ///   - errorCooldown: Optional cooldown strategy for handling errors.
+    ///   - logger: Optional logger for debugging.
     public init(networkHelper: NetworkHelperProtocol,
                 resourceCacher: ResourceCacher<Resource>,
                 parameters: RefreshParameters,

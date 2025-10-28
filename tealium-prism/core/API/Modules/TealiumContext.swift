@@ -8,21 +8,37 @@
 
 import Foundation
 
+/// Provides context and dependencies for modules within the Tealium SDK.
 public class TealiumContext {
+    /// The configuration used to initialize Tealium.
     public let config: TealiumConfig
+    /// Observable core settings that can be updated at runtime.
     public let coreSettings: ObservableState<CoreSettings>
+    /// The tracker responsible for processing and dispatching events.
     public let tracker: Tracker
+    /// Registry for managing barriers that control dispatch flow.
     public let barrierRegistry: BarrierRegistry
+    /// Registry for managing data transformers.
     public let transformerRegistry: TransformerRegistry
+    /// Provider for database connections.
     public let databaseProvider: DatabaseProviderProtocol
+    /// Provider for module-specific data stores.
     public let moduleStoreProvider: ModuleStoreProvider
+    /// Manager for module lifecycle and configuration.
     public let modulesManager: ModulesManager
+    /// Registry for session management.
     public let sessionRegistry: SessionRegistry
+    /// Logger for SDK messages, if configured.
     public let logger: LoggerProtocol?
+    /// Helper for network operations.
     public let networkHelper: NetworkHelperProtocol
+    /// Listener for application lifecycle events.
     public let activityListener: ApplicationStatusListener
+    /// Queue for SDK operations.
     public let queue: TealiumQueue
+    /// Observable visitor ID.
     public let visitorId: ObservableState<String>
+    /// Metrics for queue status monitoring.
     public let queueMetrics: QueueMetrics
 
     init(modulesManager: ModulesManager,

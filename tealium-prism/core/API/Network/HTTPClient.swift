@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Protocol for sending network requests and handling responses.
 public protocol NetworkClient {
     /**
      * Sends a `URLRequest` as is and completes with a `NetworkResult`. It returns a `Disposable` that can be disposed to cancel the request sent.

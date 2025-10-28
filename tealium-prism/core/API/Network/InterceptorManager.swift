@@ -8,8 +8,11 @@
 
 import Foundation
 
+/// Protocol for managing request interceptors and handling network results.
 public protocol InterceptorManagerProtocol: URLSessionTaskDelegate {
+    /// Initializes the interceptor manager with interceptors and a queue.
     init(interceptors: [RequestInterceptor], queue: TealiumQueue)
+    /// Processes network results through interceptors to determine retry behavior.
     func interceptResult(request: URLRequest, retryCount: Int, result: NetworkResult, shouldRetry: @escaping (Bool) -> Void)
 }
 
@@ -20,11 +23,13 @@ public protocol InterceptorManagerProtocol: URLSessionTaskDelegate {
 public class InterceptorManager: NSObject, InterceptorManagerProtocol {
     var interceptors: [RequestInterceptor]
     let queue: TealiumQueue
+    /// Initializes the interceptor manager with the provided interceptors and queue.
     public required init(interceptors: [RequestInterceptor], queue: TealiumQueue) {
         self.interceptors = interceptors
         self.queue = queue
     }
 
+    /// Called when a URL session task is waiting for connectivity.
     public func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
         TealiumSignposter.networking.event("URLSession WaitingForConnectivity",
                                            "\(task.originalRequest?.url?.absoluteString ?? "")")

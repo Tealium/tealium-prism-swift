@@ -25,8 +25,8 @@ final class BarrierCoordinatorTests: XCTestCase {
 
         _barriers.value = [
             ScopedBarrier(barrier: allBarrier, scopes: [.all]),
-            ScopedBarrier(barrier: specificBarrier, scopes: [.dispatcher("test")]),
-            ScopedBarrier(barrier: otherBarrier, scopes: [.dispatcher("other")])
+            ScopedBarrier(barrier: specificBarrier, scopes: [.dispatcher(id: "test")]),
+            ScopedBarrier(barrier: otherBarrier, scopes: [.dispatcher(id: "other")])
         ]
 
         let barriersEmitted = expectation(description: "Barriers emitted")
@@ -47,7 +47,7 @@ final class BarrierCoordinatorTests: XCTestCase {
 
         _barriers.value = [
             ScopedBarrier(barrier: allBarrier, scopes: [.all]),
-            ScopedBarrier(barrier: specificBarrier, scopes: [.dispatcher("test")]),
+            ScopedBarrier(barrier: specificBarrier, scopes: [.dispatcher(id: "test")]),
         ]
 
         let barriersEmitted = expectation(description: "Barriers emitted")
@@ -78,7 +78,7 @@ final class BarrierCoordinatorTests: XCTestCase {
 
         _barriers.value = [
             ScopedBarrier(barrier: openBarrier1, scopes: [.all]),
-            ScopedBarrier(barrier: openBarrier2, scopes: [.dispatcher("test")])
+            ScopedBarrier(barrier: openBarrier2, scopes: [.dispatcher(id: "test")])
         ]
 
         let stateEmitted = expectation(description: "State emitted")
@@ -97,7 +97,7 @@ final class BarrierCoordinatorTests: XCTestCase {
 
         _barriers.value = [
             ScopedBarrier(barrier: openBarrier, scopes: [.all]),
-            ScopedBarrier(barrier: closedBarrier, scopes: [.dispatcher("test")])
+            ScopedBarrier(barrier: closedBarrier, scopes: [.dispatcher(id: "test")])
         ]
 
         let stateEmitted = expectation(description: "State emitted")

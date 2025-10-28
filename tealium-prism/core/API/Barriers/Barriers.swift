@@ -23,7 +23,7 @@ public enum Barriers {
      * - parameter defaultScopes: Set of `BarrierScope`s to use by default in case no other scope was
      * configured in the settings.
      */
-    public static func connectivity(defaultScopes: [BarrierScope] = [.dispatcher(Modules.Types.collect)]) -> some BarrierFactory {
+    public static func connectivity(defaultScopes: [BarrierScope] = [.dispatcher(id: Modules.Types.collect)]) -> some BarrierFactory {
         ConnectivityBarrier.Factory(defaultScopes: defaultScopes)
     }
 

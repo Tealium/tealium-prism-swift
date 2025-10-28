@@ -17,12 +17,22 @@ import Foundation
  * minimum log level and only send logs with higher severity than the configured minimum.
  */
 public enum LogLevel: Int, Comparable, CaseIterable, CustomStringConvertible {
+    /// The most verbose log level, used for detailed debugging information.
     case trace  = 0
+    /// Debug-level messages for development and troubleshooting.
     case debug  = 100
+    /// Informational messages about normal operation.
     case info   = 200
+    /// Warning messages about potential issues.
     case warn   = 300
+    /// Error messages about failures and problems.
     case error  = 400
 
+    /// Compares a log level against a minimum threshold.
+    /// - Parameters:
+    ///   - lhs: The log level to compare.
+    ///   - rhs: The minimum threshold level.
+    /// - Returns: True if the log level meets or exceeds the minimum threshold.
     public static func >= (lhs: LogLevel, rhs: Minimum) -> Bool {
         lhs.rawValue >= rhs.rawValue
     }
@@ -51,13 +61,21 @@ public enum LogLevel: Int, Comparable, CaseIterable, CustomStringConvertible {
      * It includes the same log levels as the `LogLevel` plus an additional `silent` level to stop all logging.
      */
     public enum Minimum: Int, Comparable {
+        /// Allow all trace-level and above messages.
         case trace  = 0
+        /// Allow debug-level and above messages.
         case debug  = 100
+        /// Allow info-level and above messages.
         case info   = 200
+        /// Allow warning-level and above messages.
         case warn   = 300
+        /// Allow only error-level messages.
         case error  = 400
+        /// Disable all logging.
         case silent = 999_999
 
+        /// Creates a minimum log level from a string representation.
+        /// - Parameter string: The string representation of the log level.
         public init?(from string: String?) {
             guard let string else {
                 return nil
@@ -80,6 +98,8 @@ public enum LogLevel: Int, Comparable, CaseIterable, CustomStringConvertible {
             }
         }
 
+        /// Returns the string representation of this minimum log level.
+        /// - Returns: The string representation.
         public func toString() -> String {
             switch self {
             case .trace: "trace"
@@ -103,8 +123,11 @@ extension LogLevel.Minimum: DataInputConvertible {
     }
 }
 
+/// The type of logger to use for handling log messages.
 public enum TealiumLoggerType {
+    /// Use the system's OSLog for logging.
     case os // swiftlint:disable:this identifier_name
+    /// Use a custom log handler.
     case custom(LogHandler)
 
     func getHandler() -> LogHandler {
@@ -117,6 +140,7 @@ public enum TealiumLoggerType {
     }
 }
 
+/// Constants for log categories used throughout the SDK.
 public enum LogCategory {
     static let collect = "Collect"
     static let consent = "Consent"

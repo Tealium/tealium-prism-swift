@@ -181,7 +181,7 @@ class DispatchManager: DispatchManagerProtocol {
             return container
         }
         self.transformerCoordinator.transform(dispatches: dispatches,
-                                              for: .dispatcher(dispatcher.id)) { [weak self] transformedDispatches in
+                                              for: .dispatcher(id: dispatcher.id)) { [weak self] transformedDispatches in
             guard !container.isDisposed, let self else { return }
             let (passed, _) = self.loadRuleEngine.evaluateLoadRules(on: transformedDispatches,
                                                                     forModule: dispatcher)

@@ -8,6 +8,8 @@
 
 import Foundation
 
+/// Describes all the available configurable settings that control behavior of core SDK functionality.
+/// All settings available on this object are able to be set from remote, local and programmatic sources.
 public struct CoreSettings: Equatable {
     static let id = "core"
     enum Keys {
@@ -38,10 +40,22 @@ public struct CoreSettings: Equatable {
         self.sessionTimeout = sessionTimeout ?? Defaults.sessionTimeout
         self.visitorIdentityKey = visitorIdentityKey
     }
+    /// The minimum log level for messages.
     public let minLogLevel: LogLevel.Minimum
+    /// How many events can be queued at any given time. Events will be removed
+    /// on an oldest-first basis when the limit is reached.
+    /// Negative value indicates an infinite queue length.
     public let maxQueueSize: Int
+    /// How long events remain in the queue before expiring.
+    /// If events cannot be processed by all registered `Dispatcher`s, then they will remain
+    /// persisted until either this expiration time has elapsed, or they are eventually successfully processed
+    /// by all registered `Dispatcher`s.
     public let queueExpiration: TimeFrame
+    /// How often to refresh remote settings.
     public let refreshInterval: TimeFrame
+    /// How long before a session times out.
     public let sessionTimeout: TimeFrame
+    /// The key to look for in the data layer when identifying a user.
+    /// This setting is used to automatically control when the Tealium Visitor Id is updated.
     public let visitorIdentityKey: String?
 }

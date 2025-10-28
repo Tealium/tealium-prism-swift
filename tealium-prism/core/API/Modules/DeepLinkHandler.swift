@@ -13,14 +13,22 @@ import Foundation
  This can be passed as an optional parameter to the `handle(link:referrer:)` method for further processing.
  */
 public enum Referrer {
+    /// The deep link came from a URL.
     case url(_ url: URL)
+    /// The deep link came from another app.
     case app(_ identifier: String)
 
+    /// Creates a referrer from a URL if it's not nil.
+    /// - Parameter url: The URL to create a referrer from.
+    /// - Returns: A URL referrer or nil if the URL is nil.
     public static func fromUrl(_ url: URL?) -> Self? {
         guard let url = url else { return nil }
         return .url(url)
     }
 
+    /// Creates a referrer from an app identifier if it's not nil.
+    /// - Parameter identifier: The app identifier to create a referrer from.
+    /// - Returns: An app referrer or nil if the identifier is nil.
     public static func fromAppId(_ identifier: String?) -> Self? {
         guard let id = identifier else { return nil }
         return .app(id)

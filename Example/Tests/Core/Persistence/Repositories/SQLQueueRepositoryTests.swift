@@ -163,6 +163,17 @@ final class SQLQueueRepositoryTests: XCTestCase {
         XCTAssertTrue(retrievedDispatches.contains(where: { $0.name == "test_event3" }))
     }
 
+    func test_storeDispatches_stores_all_passed_dispatches_when_max_queue_size_is_negative() {
+        XCTAssertNoThrow(try queueRepository.resize(newSize: 3))
+        let dispatches1 = [Dispatch(name: "test_event1"), Dispatch(name: "test_event2"), Dispatch(name: "test_event3")]
+        XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches1, enqueueingFor: allProcessors))
+        XCTAssertEqual(queueRepository.size, 3)
+        XCTAssertNoThrow(try queueRepository.resize(newSize: -5))
+        let dispatches2 = [Dispatch(name: "test_event4"), Dispatch(name: "test_event5"), Dispatch(name: "test_event6")]
+        XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches2, enqueueingFor: allProcessors))
+        XCTAssertEqual(queueRepository.size, 6)
+    }
+
     func test_getQueuedDispatches_returns_dispatches_by_timestamp() {
         let now = Date().unixTimeMilliseconds
         let dispatches = [

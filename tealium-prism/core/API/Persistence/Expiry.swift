@@ -8,11 +8,15 @@
 
 import Foundation
 
-/// The expiration type of some persisted value
+/// The expiration type of some persisted value.
 public enum Expiry: Equatable {
+    /// Expires when the session ends.
     case session
+    /// Expires when the app restarts.
     case untilRestart
+    /// Never expires.
     case forever
+    /// Expires after the specified date.
     case after(Date)
 
     /// Creates an `.after(Date)` expiry with a date that is value unit of time ahead of now.

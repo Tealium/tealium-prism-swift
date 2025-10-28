@@ -16,7 +16,7 @@ final class BarrierManagerTests: XCTestCase {
 
     func test_initializeBarriers_creates_configurable_barriers_from_factories() {
         let mockFactory1 = MockBarrierFactory<MockBarrier1>(defaultScope: [.all])
-        let mockFactory2 = MockBarrierFactory<MockBarrier2>(defaultScope: [.dispatcher("test")])
+        let mockFactory2 = MockBarrierFactory<MockBarrier2>(defaultScope: [.dispatcher(id: "test")])
 
         barrierManager.initializeBarriers(factories: [mockFactory1, mockFactory2], context: mockContext)
         XCTAssertEqual(barrierManager.configBarriers.value.count, 2)
@@ -27,12 +27,12 @@ final class BarrierManagerTests: XCTestCase {
     func test_onBarriers_emits_initialized_barriers_with_default_scopes() {
         let onBarrierEmitted = expectation(description: "On Barrier emitted")
         let mockFactory1 = MockBarrierFactory<MockBarrier1>(defaultScope: [.all])
-        let mockFactory2 = MockBarrierFactory<MockBarrier2>(defaultScope: [.dispatcher("test")])
+        let mockFactory2 = MockBarrierFactory<MockBarrier2>(defaultScope: [.dispatcher(id: "test")])
 
         barrierManager.initializeBarriers(factories: [mockFactory1, mockFactory2], context: mockContext)
         barrierManager.onScopedBarriers.subscribeOnce { barriers in
             XCTAssertEqual(barriers[0].scopes, [.all])
-            XCTAssertEqual(barriers[1].scopes, [.dispatcher("test")])
+            XCTAssertEqual(barriers[1].scopes, [.dispatcher(id: "test")])
             onBarrierEmitted.fulfill()
         }
         waitForDefaultTimeout()
@@ -52,7 +52,7 @@ final class BarrierManagerTests: XCTestCase {
         let mockBarrier1 = MockBarrier()
         let mockBarrier2 = MockBarrier()
         barrierManager.registerScopedBarrier(mockBarrier1, scopes: [.all])
-        barrierManager.registerScopedBarrier(mockBarrier2, scopes: [.dispatcher("test")])
+        barrierManager.registerScopedBarrier(mockBarrier2, scopes: [.dispatcher(id: "test")])
 
         barrierManager.unregisterScopedBarrier(mockBarrier1)
         XCTAssertEqual(barrierManager.nonConfigBarriers.value.count, 1)
@@ -63,10 +63,10 @@ final class BarrierManagerTests: XCTestCase {
         let mockBarrier = MockBarrier()
         barrierManager.registerScopedBarrier(mockBarrier, scopes: [.all])
 
-        barrierManager.registerScopedBarrier(mockBarrier, scopes: [.dispatcher("new")])
+        barrierManager.registerScopedBarrier(mockBarrier, scopes: [.dispatcher(id: "new")])
         XCTAssertEqual(barrierManager.nonConfigBarriers.value.count, 1)
         XCTAssertIdentical(barrierManager.nonConfigBarriers.value[0].barrier, mockBarrier)
-        XCTAssertEqual(barrierManager.nonConfigBarriers.value[0].scopes, [.dispatcher("new")])
+        XCTAssertEqual(barrierManager.nonConfigBarriers.value[0].scopes, [.dispatcher(id: "new")])
     }
 
     func test_onBarriers_combines_nonConfigBarriers_and_configBarriers() {
@@ -74,13 +74,13 @@ final class BarrierManagerTests: XCTestCase {
         let mockExtraBarrier = MockBarrier()
 
         barrierManager.initializeBarriers(factories: [mockFactory], context: mockContext)
-        barrierManager.registerScopedBarrier(mockExtraBarrier, scopes: [.dispatcher("test")])
+        barrierManager.registerScopedBarrier(mockExtraBarrier, scopes: [.dispatcher(id: "test")])
         let barriersReported = expectation(description: "Barriers are reported")
 
         barrierManager.onScopedBarriers.subscribeOnce { barriers in
             XCTAssertEqual(barriers.count, 2)
             XCTAssertIdentical(barriers[0].barrier, mockExtraBarrier)
-            XCTAssertEqual(barriers[0].scopes, [.dispatcher("test")])
+            XCTAssertEqual(barriers[0].scopes, [.dispatcher(id: "test")])
             XCTAssertTrue(barriers[1].barrier is MockBarrier1)
             XCTAssertEqual(barriers[1].scopes, [.all])
             barriersReported.fulfill()
@@ -115,11 +115,11 @@ final class BarrierManagerTests: XCTestCase {
         }
         _barrierSettings.value = [
             "barrier1": BarrierSettings(barrierId: "barrier1",
-                                        scopes: [.dispatcher("test")],
+                                        scopes: [.dispatcher(id: "test")],
                                         configuration: ["key": "value"])
         ]
         barrierManager.onScopedBarriers.subscribeOnce { barriers in
-            XCTAssertEqual(barriers[0].scopes, [.dispatcher("test")])
+            XCTAssertEqual(barriers[0].scopes, [.dispatcher(id: "test")])
             barriersReported.fulfill()
         }
         waitForDefaultTimeout()
@@ -127,7 +127,7 @@ final class BarrierManagerTests: XCTestCase {
 
     func test_scopedConfigBarriers_uses_defaultScopes_from_factories() {
         let mockFactory1 = MockBarrierFactory<MockBarrier1>(defaultScope: [.all])
-        let mockFactory2 = MockBarrierFactory<MockBarrier2>(defaultScope: [.dispatcher("test")])
+        let mockFactory2 = MockBarrierFactory<MockBarrier2>(defaultScope: [.dispatcher(id: "test")])
 
         barrierManager.initializeBarriers(factories: [mockFactory1, mockFactory2], context: mockContext)
         let barriersReported = expectation(description: "Barriers are reported")
@@ -135,7 +135,7 @@ final class BarrierManagerTests: XCTestCase {
         barrierManager.scopedConfigBarriers().subscribeOnce { scopedBarriers in
             XCTAssertEqual(scopedBarriers.count, 2)
             XCTAssertEqual(scopedBarriers[0].scopes, [.all])
-            XCTAssertEqual(scopedBarriers[1].scopes, [.dispatcher("test")])
+            XCTAssertEqual(scopedBarriers[1].scopes, [.dispatcher(id: "test")])
             barriersReported.fulfill()
         }
         waitForDefaultTimeout()

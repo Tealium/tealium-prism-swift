@@ -8,8 +8,11 @@
 
 import Foundation
 
+/// Protocol for managing network connectivity state and monitoring.
 public protocol ConnectivityManagerProtocol: RequestInterceptor {
+    /// Observable state indicating whether connection is assumed to be available.
     var connectionAssumedAvailable: ObservableState<Bool> { get }
+    /// Observable state of the current network connection.
     var connection: ObservableState<NetworkConnection> { get }
 }
 
@@ -55,6 +58,7 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
         connectionAssumedAvailable.value
     }
 
+    /// The current network connection state from the connectivity monitor.
     public var connection: ObservableState<NetworkConnection> {
         connectivityMonitor.connection
     }

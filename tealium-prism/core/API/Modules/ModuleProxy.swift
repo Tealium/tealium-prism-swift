@@ -18,7 +18,9 @@ import Foundation
 public class ModuleProxy<SpecificModule: Module> {
     private let onModulesManager: Observable<ModulesManager?>
 
+    /// A synchronous task that can be executed on a module.
     public typealias ModuleTask<T> = (_ module: SpecificModule) throws -> T
+    /// An asynchronous task that can be executed on a module.
     public typealias AsyncModuleTask<T> = (
         _ module: SpecificModule,
         _ completion: @escaping (Result<T, Error>) -> Void

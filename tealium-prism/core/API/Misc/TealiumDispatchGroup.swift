@@ -16,10 +16,16 @@ import Foundation
  */
 public class TealiumDispatchGroup {
     let queue: TealiumQueue
+    /// Creates a new dispatch group with the specified queue.
+    /// - Parameter queue: The queue on which to execute operations.
     public init(queue: TealiumQueue) {
         self.queue = queue
     }
 
+    /// Executes multiple operations in parallel and collects their results.
+    /// - Parameters:
+    ///   - works: An array of work items that take a completion handler.
+    ///   - completion: Called when all work items complete with their results.
     public func parallelExecution<Result>(_ works: [(@escaping (Result) -> Void) -> Void], completion: @escaping ([Result]) -> Void) {
         guard works.count > 0 else {
             completion([])

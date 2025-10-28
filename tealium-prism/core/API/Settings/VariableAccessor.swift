@@ -51,6 +51,10 @@ public struct VariableAccessor {
      */
     let path: [String]?
 
+    /// Creates a variable accessor with the specified path and variable name.
+    /// - Parameters:
+    ///   - path: The path components to the variable, or nil for root level.
+    ///   - variable: The name of the variable to access.
     public init(path: [String]? = nil, variable: String) {
         self.path = path
         self.variable = variable

@@ -69,6 +69,8 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
         self.init(dictionary: dictionary.compactMapValues { $0 })
     }
 
+    /// Creates a DataObject from a dictionary of DataInput values.
+    /// - Parameter dictionaryInput: The dictionary containing DataInput values.
     public init(dictionaryInput: [String: DataInput]) {
         self.dictionary = dictionaryInput
     }
@@ -277,6 +279,8 @@ extension [String: DataInput] {
         return result
     }
 
+    /// Converts this dictionary to a DataObject.
+    /// - Returns: A new DataObject containing the dictionary's key-value pairs.
     public func asDataObject() -> DataObject {
         return DataObject(dictionaryInput: self)
     }

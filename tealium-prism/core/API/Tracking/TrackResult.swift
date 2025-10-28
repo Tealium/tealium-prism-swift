@@ -14,7 +14,9 @@
 public struct TrackResult: CustomStringConvertible {
     /// Informs if the `Dispatch` has been accepted for processing, or dropped.
     public enum Status: CustomStringConvertible {
+        /// The dispatch was accepted for processing.
         case accepted
+        /// The dispatch was dropped and will not be processed.
         case dropped
 
         public var description: String {

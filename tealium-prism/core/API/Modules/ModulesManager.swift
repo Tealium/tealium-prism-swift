@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Manages the lifecycle and configuration of modules within the Tealium SDK.
 public class ModulesManager {
     private typealias SettingsFactoryPair = (moduleSettings: ModuleSettings, factory: any ModuleFactory)
     @StateSubject var modules: ObservableState<[Module]>
@@ -100,6 +101,8 @@ public class ModulesManager {
         modules.value.compactMap { $0 as? T }.first
     }
 
+    /// Asynchronously retrieves a module of the specified type.
+    /// - Parameter completion: Called with the module instance or nil if not found.
     public func getModule<T: Module>(completion: @escaping (T?) -> Void) {
         queue.ensureOnQueue { [weak self] in
             completion(self?.getModule())

@@ -44,7 +44,7 @@ final class DispatchManagerMappingsTests: DispatchManagerTestCase {
     func test_mappings_are_applied_after_transformations() {
         let dispatchReceived = expectation(description: "Dispatcher received tracked dispatch")
         addMappings(moduleType: MockDispatcher1.moduleType, mappings: [
-            Mappings.from("transformation-dispatcher(\"\(MockDispatcher1.moduleType)\")",
+            Mappings.from("transformation-\(MockDispatcher1.moduleType)",
                           to: "destination").build()
         ])
         module1?.onDispatch.subscribeOnce { dispatches in

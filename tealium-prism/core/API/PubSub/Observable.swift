@@ -10,6 +10,7 @@ import Foundation
 
 /// A class that allows to subscribe for events until the returned subscription is disposed.
 public class Observable<Element>: Subscribable {
+    /// A handler called upon subscription to an observable with the observer.
     public typealias SubscriptionHandler = (@escaping Observer) -> Disposable
     private let subscriptionHandler: SubscriptionHandler
 

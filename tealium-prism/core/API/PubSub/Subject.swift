@@ -16,6 +16,7 @@ import Foundation
  */
 @propertyWrapper
 public class Subject<Element>: BasePublisher<Element>, Subscribable {
+    /// The wrapped observable value for property wrapper usage.
     public var wrappedValue: Observable<Element> {
         asObservable()
     }

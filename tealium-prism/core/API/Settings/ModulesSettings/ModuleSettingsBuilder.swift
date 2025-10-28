@@ -16,6 +16,7 @@ open class ModuleSettingsBuilder {
     /// A custom dictionary that holds the configuration for this module.
     /// Do not use this one directly unless you are subclassing this class.
     public var _configurationObject = DataObject()
+    /// Creates a new module settings builder.
     public init() { }
 
     /// Set the enabled flag for these settings.

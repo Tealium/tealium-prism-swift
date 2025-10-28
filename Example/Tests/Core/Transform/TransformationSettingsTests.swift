@@ -72,7 +72,7 @@ final class TransformationSettingsTests: XCTestCase {
         // Test the rawValue property for all cases
         XCTAssertEqual(TransformationScope.afterCollectors.rawValue, "aftercollectors")
         XCTAssertEqual(TransformationScope.allDispatchers.rawValue, "alldispatchers")
-        XCTAssertEqual(TransformationScope.dispatcher("test_dispatcher").rawValue, "test_dispatcher")
+        XCTAssertEqual(TransformationScope.dispatcher(id: "test_dispatcher").rawValue, "test_dispatcher")
     }
 
     func test_transformation_scope_init_from_rawValue() {
@@ -81,23 +81,23 @@ final class TransformationSettingsTests: XCTestCase {
         XCTAssertEqual(TransformationScope(rawValue: "AFTERCOLLECTORS"), .afterCollectors) // Case insensitive
         XCTAssertEqual(TransformationScope(rawValue: "alldispatchers"), .allDispatchers)
         XCTAssertEqual(TransformationScope(rawValue: "ALLDISPATCHERS"), .allDispatchers) // Case insensitive
-        XCTAssertEqual(TransformationScope(rawValue: "test_dispatcher"), .dispatcher("test_dispatcher"))
+        XCTAssertEqual(TransformationScope(rawValue: "test_dispatcher"), .dispatcher(id: "test_dispatcher"))
     }
 
     func test_transformation_matches_equal_scopes() {
-        scopes = [.afterCollectors, .dispatcher("specific_dispatcher")]
+        scopes = [.afterCollectors, .dispatcher(id: "specific_dispatcher")]
         XCTAssertTrue(transformation.matchesScope(.afterCollectors))
-        XCTAssertTrue(transformation.matchesScope(.dispatcher("specific_dispatcher")))
+        XCTAssertTrue(transformation.matchesScope(.dispatcher(id: "specific_dispatcher")))
     }
 
     func test_transformation_does_not_match_different_scopes() {
-        scopes = [.dispatcher("specific_dispatcher")]
-        XCTAssertFalse(transformation.matchesScope(.dispatcher("other_dispatcher")))
+        scopes = [.dispatcher(id: "specific_dispatcher")]
+        XCTAssertFalse(transformation.matchesScope(.dispatcher(id: "other_dispatcher")))
         XCTAssertFalse(transformation.matchesScope(.afterCollectors))
     }
 
     func test_allDispatcher_transformation_matches_any_dispatcher_scope() {
-        XCTAssertTrue(transformation.matchesScope(.dispatcher("any_dispatcher")))
+        XCTAssertTrue(transformation.matchesScope(.dispatcher(id: "any_dispatcher")))
     }
 
     func test_allDispatcher_transformation_does_not_match_afterCollectors_scope() {

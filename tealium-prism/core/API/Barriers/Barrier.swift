@@ -8,8 +8,11 @@
 
 import Foundation
 
+/// Represents the current state of a barrier that controls dispatch flow.
 public enum BarrierState {
+    /// The barrier is closed, preventing dispatches from proceeding.
     case closed
+    /// The barrier is open, allowing dispatches to proceed.
     case open
 }
 

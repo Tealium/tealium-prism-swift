@@ -8,6 +8,7 @@
 
 /// A Condition that can be used to verify the matching to a payload.
 public struct Condition: Codable, Equatable {
+    /// The operator used to evaluate a condition against a variable.
     public enum Operator: Codable, Equatable {
         /// An operator that matches if the variable is defined.
         case isDefined

@@ -63,6 +63,16 @@ public struct TealiumConfig {
     // this is lazy to allow creation of ConnectionManager from the right thread
     lazy var networkClient: NetworkClient = HTTPClient.shared
 
+    /// Creates a new Tealium configuration.
+    /// - Parameters:
+    ///   - account: The Tealium account identifier.
+    ///   - profile: The Tealium profile identifier.
+    ///   - environment: The environment (dev, qa, prod).
+    ///   - dataSource: Optional data source identifier.
+    ///   - modules: Array of module factories to initialize.
+    ///   - settingsFile: Optional local settings file name.
+    ///   - settingsUrl: Optional remote settings URL.
+    ///   - block: Optional block for forcing core settings.
     public init(account: String,
                 profile: String,
                 environment: String,

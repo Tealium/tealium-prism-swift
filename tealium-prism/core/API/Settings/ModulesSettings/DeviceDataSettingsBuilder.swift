@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
+/// Builder for configuring `DeviceData` module settings.
 public class DeviceDataSettingsBuilder: CollectorSettingsBuilder {
     typealias Keys = DeviceDataModuleConfiguration.Keys
 
