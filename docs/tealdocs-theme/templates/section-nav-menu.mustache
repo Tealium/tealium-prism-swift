@@ -1,0 +1,26 @@
+<div id="menu" class="order-0 w-auto max-vh-100 overflow-hidden overflow-y-auto dn sticky-l pt3 pl125" style="width:280px;">
+<nav class="side-nav f6 pb6" role="navigation">
+  <ul class="list pa0 mt0 mb1">
+    <li class="w-100 fw4 f5 text-color-primary pv1 pl2"><a href="/platforms/ios-swift/" class="w-100 link text-color-primary hover-primary-color pv2 pl0 pr2"><img src="/images/icons/icon-arrow-left.svg" height="10" width="16" class="di v-mid pr1">Tealium for Swift 3.x</a></li>
+  </ul>
+  <ul class="list pa0" data-nav-section="ios-swift">
+    <li data-level="1" class="relative w-100 fw8 f4 mv2 text-color-primary pv1 ind2">  
+      <span class="pb2">Tealium for iOS (Swift) SDK Reference</span>
+      <ul class="nav-groups list pl0 mt2">
+        {{#structure}}
+        <li class="nav-group-name relative w-100 hover-accent-color-light fw5 f5">
+          <a href="{{path_to_root}}{{url}}" class="db link pr2 pv2 text-color-primary hover-primary-color">{{section}}</a>
+          <ul class="nav-group-tasks list pl2 mt2">
+            {{#children}}
+            <li class="nav-group-task relative w-100 hover-accent-color-light fw3 f5 ind2">
+              <a href="{{path_to_root}}{{url}}" class="db link pr2 pv2 text-color-primary hover-primary-color">{{name}}</a>
+            </li>
+            {{/children}}
+          </ul>
+        </li>
+        {{/structure}}
+      </ul>
+    </li>
+  </ul>
+</nav>
+</div>

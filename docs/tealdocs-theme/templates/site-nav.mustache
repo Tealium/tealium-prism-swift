@@ -1,0 +1,20 @@
+<nav class="w-100 sticky-t bg-primary-color-light bb b--light-gray dn-p" role="navigation">
+  <div class="flex flex-wrap items-center justify-start mw9">
+    <div class="lh-solid ml0-ns mr0 mr4-l mv3 pl15 dib db-ns relative" style="height: 40px;">
+      <a href="/">{{> tealium-logo}}</a>
+    </div>
+    {{^disable_search}}
+    <div class="dib center">
+      <form role="search" action="{{path_to_root}}search.json">
+        <input type="text" placeholder="Search documentation" data-typeahead>
+      </form>
+    </div>
+    {{/disable_search}}
+
+    <ul class="list ma0 pa0 dn dib-ns">
+      <li class="f5 dib mr4">
+         <a href="/help/" class="dim link mid-gray">Help</a>
+      </li>
+    </ul>
+  </div>
+</nav>

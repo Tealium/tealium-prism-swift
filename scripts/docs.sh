@@ -12,6 +12,16 @@ while [[ $# -gt 0 ]]; do
         shift # past argument
         shift # past value
         ;;
+        -o|--output)
+        OUTPUT="$2"
+        shift # past argument
+        shift # past value
+        ;;
+        -t|--theme)
+        THEME="$2"
+        shift # past argument
+        shift # past value
+        ;;
         --*|-*)
         echo "Unknown option $1"
         exit 1
@@ -49,8 +59,18 @@ else
     fi
 fi
 
+if [ -z "${THEME}" ];     
+then
+THEME=fullwidth
+fi
+
+if [ -z "${OUTPUT}" ];     
+then
+OUTPUT=_site
+fi
+
 echo "Building Documentation for Version" "$VERSION"
 
 cd ..
 
-bundle exec jazzy --clean
+bundle exec jazzy --clean --theme="$THEME" --output="$OUTPUT"
