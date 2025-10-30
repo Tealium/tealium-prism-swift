@@ -60,14 +60,20 @@ public extension JSONPath where Root == ObjectRoot {
      * - Square brackets (`[]`)  could be used instead of the dot notation, to separate one (or each) of the components.
      * Inside these brackets you can put:
      *      - An integer, to represent an element into a JSON array.
-     *      - A quoted string (`""`) to represent an element into a JSON object.
-     *      Inside of the quoted string any character is valid, except for other quotes (`"`).
+     *      - A single (`'`) or double  (`"`)  quoted string to represent an element into a JSON object.
+     *      - Inside of the quoted string any character is valid, but the character used to quote the string (`'` or `"`)
+     *      needs to be escaped with a backslash (`\`), and same for backslashes, which need to be escaped with an additional backslash.
      * - It needs to start with a key component.
      *
      * Examples of valid strings:
      * - `property`
      * - `container.property`
      * - `container["property"]`
+     * - `container['property']`
+     * - `container["john's party"]`
+     * - `container['john\'s party']`
+     * - `container["\"nested quote\""]`
+     * - `container["escaped\\backslash"]`
      * - `array[123]`
      *      - which is different from `array["123"]`, although both are valid.
      *      Difference is that the quoted version treats the `array` property as an object and looks for a nested "123" by string instead of the item at index 123 in an array.
@@ -85,6 +91,10 @@ public extension JSONPath where Root == ObjectRoot {
      * - `container-property`: invalid character (`-`)
      * - `container[property]`: missing quotes (`"`) in brackets
      * - `container.["property"]`: invalid character (`.`) before the brackets
+     * - `container["property']`: closing quote (`'`) different from opening one (`"`) in brackets
+     * - `container['john's party']`: unescaped quote (`'`)
+     * - `container[""nested quote""]`: unescaped quotes (`"`)
+     * - `container["unescaped\backslash"]`: unescaped backslash (`\`)
      * - `array[12 3]`: invalid number with whitespace ( ) inside index brackets
      * - `container@property`: invalid character (`@`)
      * - `[123].property`: index is not valid as a first component. Must start with a key.
@@ -122,14 +132,20 @@ public extension JSONPath where Root == ArrayRoot {
      * - Square brackets (`[]`)  could be used instead of the dot notation, to separate one (or each) of the components.
      * Inside these brackets you can put:
      *      - An integer, to represent an element into a JSON array.
-     *      - A quoted string (`""`) to represent an element into a JSON object.
-     *      Inside of the quoted string any character is valid, except for other quotes (`"`).
+     *      - A single (`'`) or double  (`"`)  quoted string to represent an element into a JSON object.
+     *      - Inside of the quoted string any character is valid, but the character used to quote the string (`'` or `"`)
+     *      needs to be escaped with a backslash (`\`), and same for backslashes, which need to be escaped with an additional backslash.
      * - It needs to start with an index component.
      *
      * Examples of valid strings:
      * - `[123]`
      * - `[0].property`
      * - `[0]["property"]`
+     * - `[0]['property']`
+     * - `[0]["john's party"]`
+     * - `[0]['john\'s party']`
+     * - `[0]["\"nested quote\""]`
+     * - `[0]["escaped\\backslash"]`
      * - `[0][123]`
      *      - which is different from `[0]["123"]`, although both are valid.
      *      Difference is that the quoted version treats the `[0]` item as an object and looks for a nested "123" by string instead of the item at index 123 in an array.
@@ -147,6 +163,10 @@ public extension JSONPath where Root == ArrayRoot {
      * - `[0].container-property`: invalid character (`-`)
      * - `[0].container[property]`: missing quotes (`"`) in brackets
      * - `[0].container.["property"]`: invalid character (`.`) before the brackets
+     * - `[0].container["property']`: closing quote (`'`) different from opening quote (`"`) in brackets
+     * - `[0]['john's party']`: unescaped quote (`'`)
+     * - `[0][""nested quote""]`: unescaped quotes (`"`)
+     * - `[0]["unescaped\backslash"]`: unescaped backslash (`\`)
      * - `[12 3]`: invalid number with whitespace ( ) inside index brackets
      * - `[0].container@property`: invalid character (`@`)
      * - `property`: key is not a valid first component. Must start with an index.

@@ -77,7 +77,7 @@ class DatabaseHelperTests: XCTestCase {
         }
     }
 
-    func test_onConfigure_sets_the_foreigKeysConstraint() throws {
+    func test_onConfigure_sets_the_foreignKeysConstraint() throws {
         let connection = try Connection(.inMemory)
         try databaseHelper.onConfigure(database: connection)
         XCTAssertTrue(connection.foreignKeys)

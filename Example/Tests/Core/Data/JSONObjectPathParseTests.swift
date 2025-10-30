@@ -35,10 +35,23 @@ final class JSONObjectPathParseTests: XCTestCase {
         XCTAssertEqual(parsedPath, expectedPath)
     }
 
-    func test_parse_simple_property_starting_with_number() throws {
-        let parsedPath = try JSONObjectPath.parse("container.1property")
-        let expectedPath = JSONPath["container"]["1property"]
+    func test_parse_simple_property_containing_other_languages_characters() throws {
+        let parsedPath = try JSONObjectPath.parse("àϴڈ")
+        let expectedPath = JSONPath["àϴڈ"]
         XCTAssertEqual(parsedPath, expectedPath)
+    }
+
+    func test_parse_simple_property_starting_with_number_throws_error() throws {
+        let string = "container.1property"
+        XCTAssertThrows(try JSONObjectPath.parse(string)) { (parseError: JSONPathParseError) in
+            guard case let .invalidCharacter(char, position, _) = parseError.kind else {
+                XCTFail("Expected invalidCharacter error, but got: \(parseError)")
+                return
+            }
+            XCTAssertEqual(char, "1")
+            XCTAssertEqual(position, 10)
+            XCTAssertEqual(char, Array(string)[position])
+        }
     }
 
     func test_parse_array_index() throws {
@@ -91,9 +104,37 @@ final class JSONObjectPathParseTests: XCTestCase {
     }
 
     func test_parse_missing_closing_quoted_bracket_throws_error() {
-        XCTAssertThrows(try JSONObjectPath.parse("container[\"invalid\"property")) { (parseError: JSONPathParseError) in
-            guard case .unclosedQuotedKey = parseError.kind else {
-                XCTFail("Expected unclosedQuotedKey error, but got: \(parseError)")
+        let string = "container[\"invalid\"property"
+        XCTAssertThrows(try JSONObjectPath.parse(string)) { (parseError: JSONPathParseError) in
+            guard case let .invalidCharacter(char, position, _) = parseError.kind else {
+                XCTFail("Expected invalidCharacter error, but got: \(parseError)")
+                return
+            }
+
+            XCTAssertEqual(char, "p")
+            XCTAssertEqual(position, 19)
+            XCTAssertEqual(char, Array(string)[position])
+        }
+    }
+
+    func test_parse_unescaped_backslash_throws_error() {
+        let string = "container[\"inva\\lid\"]"
+        XCTAssertThrows(try JSONObjectPath.parse(string)) { (parseError: JSONPathParseError) in
+            guard case let .invalidCharacter(char, position, _) = parseError.kind else {
+                XCTFail("Expected invalidCharacter error, but got: \(parseError)")
+                return
+            }
+
+            XCTAssertEqual(char, "l")
+            XCTAssertEqual(position, 16)
+            XCTAssertEqual(char, Array(string)[position])
+        }
+    }
+
+    func test_parse_closing_quote_different_from_opening_quote_throws_error() {
+        XCTAssertThrows(try JSONObjectPath.parse("container[\"invalid'].property")) { (parseError: JSONPathParseError) in
+            guard case .unexpectedEndOfInput = parseError.kind else {
+                XCTFail("Expected unexpectedEndOfInput error, but got: \(parseError)")
                 return
             }
         }
@@ -118,11 +159,15 @@ final class JSONObjectPathParseTests: XCTestCase {
     }
 
     func test_parse_starting_with_dot_throws_error() {
-        XCTAssertThrows(try JSONObjectPath.parse(".invalid")) { (parseError: JSONPathParseError) in
-            guard case .emptyPathComponent = parseError.kind else {
-                XCTFail("Expected emptyPathComponent error, but got: \(parseError)")
+        let string = ".invalid"
+        XCTAssertThrows(try JSONObjectPath.parse(string)) { (parseError: JSONPathParseError) in
+            guard case let .invalidCharacter(char, position, _) = parseError.kind else {
+                XCTFail("Expected invalidCharacter error, but got: \(parseError)")
                 return
             }
+            XCTAssertEqual(char, ".")
+            XCTAssertEqual(position, 0)
+            XCTAssertEqual(char, Array(string)[position])
         }
     }
 
@@ -132,6 +177,19 @@ final class JSONObjectPathParseTests: XCTestCase {
                 XCTFail("Expected invalidFirstComponent error, but got: \(parseError)")
                 return
             }
+        }
+    }
+
+    func test_parse_basic_key_with_special_char_throws_error() {
+        let string = "invalid@property"
+        XCTAssertThrows(try JSONObjectPath.parse(string)) { (parseError: JSONPathParseError) in
+            guard case let .invalidCharacter(char, position, _) = parseError.kind else {
+                XCTFail("Expected invalidCharacter error, but got: \(parseError)")
+                return
+            }
+            XCTAssertEqual(char, "@")
+            XCTAssertEqual(position, 7)
+            XCTAssertEqual(char, Array(string)[position])
         }
     }
 
@@ -146,6 +204,12 @@ final class JSONObjectPathParseTests: XCTestCase {
 
     func test_parse_quoted_key() throws {
         let parsedPath = try JSONObjectPath.parse("container[\"special.key\"]")
+        let expectedPath = JSONPath["container"]["special.key"]
+        XCTAssertEqual(parsedPath, expectedPath)
+    }
+
+    func test_parse_single_quoted_key() throws {
+        let parsedPath = try JSONObjectPath.parse("container['special.key']")
         let expectedPath = JSONPath["container"]["special.key"]
         XCTAssertEqual(parsedPath, expectedPath)
     }
@@ -169,24 +233,28 @@ final class JSONObjectPathParseTests: XCTestCase {
     }
 
     func test_parse_invalid_key_character_throws_error() {
-        XCTAssertThrows(try JSONObjectPath.parse("special-key")) { (parseError: JSONPathParseError) in
-            guard case let .invalidCharacter(character, position) = parseError.kind else {
+        let string = "special-key"
+        XCTAssertThrows(try JSONObjectPath.parse(string)) { (parseError: JSONPathParseError) in
+            guard case let .invalidCharacter(character, position, _) = parseError.kind else {
                 XCTFail("Expected invalidCharacter error, but got: \(parseError)")
                 return
             }
             XCTAssertEqual(character, "-")
             XCTAssertEqual(position, 7)
+            XCTAssertEqual(character, Array(string)[position])
         }
     }
 
     func test_parse_invalid_key_character_in_middle_throws_error() {
-        XCTAssertThrows(try JSONObjectPath.parse("valid.key@special")) { (parseError: JSONPathParseError) in
-            guard case let .invalidCharacter(character, position) = parseError.kind else {
+        let string = "valid.key@special"
+        XCTAssertThrows(try JSONObjectPath.parse(string)) { (parseError: JSONPathParseError) in
+            guard case let .invalidCharacter(character, position, _) = parseError.kind else {
                 XCTFail("Expected invalidCharacter error, but got: \(parseError)")
                 return
             }
             XCTAssertEqual(character, "@")
             XCTAssertEqual(position, 9)
+            XCTAssertEqual(character, Array(string)[position])
         }
     }
 
@@ -197,11 +265,15 @@ final class JSONObjectPathParseTests: XCTestCase {
     }
 
     func test_parse_two_dots_throws_error() {
-        XCTAssertThrows(try JSONObjectPath.parse("invalid..key")) { (parseError: JSONPathParseError) in
-            guard case .emptyPathComponent = parseError.kind else {
-                XCTFail("Expected emptyPathComponent error, but got: \(parseError)")
+        let string = "invalid..key"
+        XCTAssertThrows(try JSONObjectPath.parse(string)) { (parseError: JSONPathParseError) in
+            guard case let .invalidCharacter(char, position, _) = parseError.kind else {
+                XCTFail("Expected invalidCharacter error, but got: \(parseError)")
                 return
             }
+            XCTAssertEqual(char, ".")
+            XCTAssertEqual(position, 8)
+            XCTAssertEqual(char, Array(string)[position])
         }
     }
 
@@ -215,21 +287,22 @@ final class JSONObjectPathParseTests: XCTestCase {
         }
     }
 
-    func test_parse_empty_quoted_string_throws_error() {
-        XCTAssertThrows(try JSONObjectPath.parse("[\"\"]")) { (parseError: JSONPathParseError) in
-            guard case .emptyPathComponent = parseError.kind else {
-                XCTFail("Expected emptyPathComponent error, but got: \(parseError)")
-                return
-            }
-        }
+    func test_parse_empty_quoted_string() throws {
+        let parsedPath = try JSONObjectPath.parse("[\"\"]")
+        let expectedPath = JSONPath[""]
+        XCTAssertEqual(parsedPath, expectedPath)
     }
 
     func test_parse_empty_array_index_throws_error() {
-        XCTAssertThrows(try JSONObjectPath.parse("array[]")) { (parseError: JSONPathParseError) in
-            guard case .emptyPathComponent = parseError.kind else {
+        let string = "array[]"
+        XCTAssertThrows(try JSONObjectPath.parse(string)) { (parseError: JSONPathParseError) in
+            guard case let .invalidCharacter(char, position, _) = parseError.kind else {
                 XCTFail("Expected emptyPathComponent error, but got: \(parseError)")
                 return
             }
+            XCTAssertEqual(char, "]")
+            XCTAssertEqual(position, 6)
+            XCTAssertEqual(char, Array(string)[position])
         }
     }
 }

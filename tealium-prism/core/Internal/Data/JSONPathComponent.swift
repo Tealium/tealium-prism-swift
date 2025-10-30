@@ -19,26 +19,35 @@ enum JSONPathComponent<Root: PathRoot> {
     func render() -> String {
         switch self {
         case let .key(key):
-            if key.containsSpecialCharacters() {
-                "[\"\(key)\"]"
-            } else {
-                key
-            }
+            key.isAllowedPathKey ? key : escape(key)
         case let .index(index):
             "[\(index)]"
         }
+    }
+
+    private func escape(_ key: String) -> String {
+        // Prefer double quote if not contained for clarity
+        let quote = (!key.contains("\"") || key.contains("'")) ? "\"" : "'"
+        let escaped = key.replacingOccurrences(of: "\\", with: "\\\\")
+            .replacingOccurrences(of: "\(quote)", with: "\\\(quote)")
+        return "[\(quote)\(escaped)\(quote)]"
     }
 
     func rendersWithBracketsNotation() -> Bool {
         guard case let .key(component) = self else {
             return true
         }
-        return component.containsSpecialCharacters()
+        return !component.isAllowedPathKey
     }
 }
 
 private extension String {
-    func containsSpecialCharacters() -> Bool {
-        JSONPathParsing<ObjectRoot>.matchesSpecialCharacters(in: self) != nil
+    /// Returns true if it is allowed as a path key, or false if it needs to be rendered with brackets notation.
+    var isAllowedPathKey: Bool {
+        guard let first, // invalid empty component
+              first.isAllowedPathKeyStart else { // invalid number first component
+            return false
+        }
+        return allSatisfy { $0.isAllowedPathKeyBody }
     }
 }

@@ -13,26 +13,20 @@ import Foundation
  */
 public struct JSONPathParseError: Error, CustomStringConvertible {
     enum Kind: Error {
-        case emptyPathComponent
         case invalidFirstComponent
         case invalidArrayIndex(String)
         case unexpectedEndOfInput
-        case unclosedQuotedKey
-        case invalidCharacter(Character, position: Int)
+        case invalidCharacter(Character, position: Int, expected: String)
         case missingSeparator(position: Int)
 
         var details: String {
             switch self {
-            case .emptyPathComponent:
-                "Path component cannot be empty"
             case .invalidFirstComponent:
                 "First component must be a key for JSON object or an index for JSON array"
             case let .invalidArrayIndex(index):
                 "Invalid array index '\(index)' - must be a valid integer"
-            case .unclosedQuotedKey:
-                "Unclosed quoted key - missing closing bracket and quote"
-            case let .invalidCharacter(char, position):
-                "Invalid character '\(char)' at position \(position)"
+            case let .invalidCharacter(char, position, expected):
+                "Invalid character '\(char)' at position \(position). Expected: \(expected)"
             case let .missingSeparator(position):
                 "Missing a separator between components at position \(position)"
             case .unexpectedEndOfInput:

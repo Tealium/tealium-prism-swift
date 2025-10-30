@@ -8,10 +8,7 @@
 
 import Foundation
 
-extension JSONPath: CustomStringConvertible {
-    public var description: String {
-        render()
-    }
+extension JSONPath {
 
     /// Renders the path as a `String`
     public func render() -> String {

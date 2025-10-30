@@ -1,5 +1,5 @@
 //
-//  DataItemExtractor+ExtractPathComponents.swift
+//  DataItemExtractor+Internals.swift
 //  tealium-prism
 //
 //  Created by Enrico Zannini on 22/10/25.
