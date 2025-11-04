@@ -91,7 +91,7 @@ custom_categories:
     - regex: ^Dispatch
     - regex: ^JSON
     - regex: Root
-    - VariableAccessor
+    - ReferenceContainer
     - ValueContainer
   - name: PubSub
     children:

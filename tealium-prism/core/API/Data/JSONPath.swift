@@ -38,6 +38,15 @@ public typealias JSONObjectPath = JSONPath<ObjectRoot>
 public typealias JSONArrayPath = JSONPath<ArrayRoot>
 
 public extension JSONPath where Root == ObjectRoot {
+
+    var root: String {
+        switch components.first {
+        case let .key(key):
+            return key
+        default:
+            fatalError("JSONObjectPath with non key as a root")
+        }
+    }
     /**
      * Creates a `JSONObjectPath` with the root component.
      *

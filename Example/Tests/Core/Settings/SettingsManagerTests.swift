@@ -251,7 +251,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
 
     func test_merge_merges_loadRules() throws {
         config.bundle = Bundle(for: type(of: self))
-        let condition = Condition(path: nil, variable: "variable", operator: .equals(true), filter: "value")
+        let condition = Condition(variable: "variable", operator: .equals(true), filter: "value")
         config.setLoadRule(.just(condition), forId: "programmaticRule")
         let manager = try getManager()
         let settings = manager.settings.value
@@ -268,6 +268,6 @@ final class SettingsManagerTests: SettingsManagerTestCase {
             XCTFail("Failed to extract local JUST rule")
             return
         }
-        XCTAssertEqual(localItem as? Condition, Condition(path: nil, variable: "variable", operator: .isDefined, filter: nil))
+        XCTAssertEqual(localItem as? Condition, Condition(variable: "variable", operator: .isDefined, filter: nil))
     }
 }

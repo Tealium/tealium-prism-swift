@@ -78,8 +78,8 @@ public struct TealiumConfig {
                 environment: String,
                 dataSource: String? = nil,
                 modules: [any ModuleFactory] = [],
-                settingsFile: String?,
-                settingsUrl: String?,
+                settingsFile: String? = nil,
+                settingsUrl: String? = nil,
                 forcingSettings block: ((_ builder: CoreSettingsBuilder) -> CoreSettingsBuilder)? = nil) {
         self.account = account
         self.profile = profile

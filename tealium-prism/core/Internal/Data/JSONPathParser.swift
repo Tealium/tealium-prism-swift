@@ -52,16 +52,19 @@ struct JSONPathParser<Root: PathRoot>: ~Copyable {
 
     // Parse quoted key [\"key\"] or array index [123]
     private mutating func parseSquareBracketsComponent() throws(JSONPathParseError.Kind) -> JSONPathComponent<Root> {
-        // Skip opening bracket
-        try shift()
-        switch try peek() {
+        try expect("[")
+        let component: JSONPathComponent<Root> = switch try peek() {
         case "\"", "'":
-            // Parse quoted key without opening bracket: \"key\"] or 'key']
-            return try .key(parseNextQuotedKey())
+            // Parse quoted key (opening bracket already consumed): "key" or 'key'
+            try .key(parseNextQuotedKey())
         default:
-            // Parse array index without opening bracket: 123]
-            return try .index(parseNextArrayIndex())
+            // Parse array index after opening bracket has been consumed; closing bracket will be handled by the parent: 123
+            try .index(parseNextArrayIndex())
         }
+
+        try expect("]")
+
+        return component
     }
 
     /// Parse direct key: some_property123
@@ -95,38 +98,24 @@ struct JSONPathParser<Root: PathRoot>: ~Copyable {
     private mutating func parseNextQuotedKey() throws(JSONPathParseError.Kind) -> String {
         var key = ""
         let quote = try next()
-        var escaping = false
-        var quoteFound = false
-        while !quoteFound {
-            let char = try next()
-            if escaping {
-                switch char {
-                // Only escapable characters
-                case "\"", "'", "\\":
-                    key.append(char)
-                    escaping = false
+        var char = try next()
+        while char != quote {
+            switch char {
+            case "\\":
+                let escaped = try next()
+                switch escaped {
+                case "\\", "\"", "'":
+                    key.append(escaped)
                 default:
-                    throw .invalidCharacter(char,
+                    throw .invalidCharacter(escaped,
                                             position: position(of: cursor) - 1,
                                             expected: "One of the escapable characters: single quote ('), double quote (\") or another backslash (\\)")
                 }
-            } else {
-                switch char {
-                case quote:
-                    // Unescaped quote, ended quoted key
-                    quoteFound = true
-                case "\\":
-                    // Escape next char, don't add the escape
-                    escaping = true
-                default:
-                    key.append(char)
-                }
+            default:
+                key.append(char)
             }
+            char = try next()
         }
-
-        // Skip closing bracket
-        try expect("]")
-
         return key
     }
 
@@ -134,17 +123,14 @@ struct JSONPathParser<Root: PathRoot>: ~Copyable {
     private mutating func parseNextArrayIndex() throws(JSONPathParseError.Kind) -> Int {
         var indexString = ""
 
-        while true {
+        while try peek() != "]" {
             let char = try next()
-            guard char != "]" else {
-                break
-            }
             indexString.append(char)
         }
 
         guard !indexString.isEmpty else {
             throw .invalidCharacter("]",
-                                    position: position(of: cursor) - 1,
+                                    position: position(of: cursor),
                                     expected: "Integer index in square brackets")
         }
 

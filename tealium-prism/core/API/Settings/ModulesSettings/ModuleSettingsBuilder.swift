@@ -100,15 +100,15 @@ open class DispatcherSettingsBuilder: ModuleSettingsBuilder, RuleModuleSettingsB
      * ])
      * ```
      *
-     * For more complex use cases you can leverage the `Mappings` methods and the `VariableAccessor` constructor:
+     * For more complex use cases you can leverage the `Mappings` methods and the `JSONObjectPath` constructor:
      * ```swift
      * DispatcherSettingsBuilder().setMappings([
-     *  .from(VariableAccessor(path: ["container"], variable: "input1"),
-     *        to: VariableAccessor(path: ["resultContainer"], variable: "destination"))
+     *  .from(JSONPath["container"]["input1"],
+     *        to: JSONPath["resultContainer"]["destination"])
      *      .ifValueEquals("value"),
-     *  .constant("value": to: VariableAccessor(path: ["resultContainer"], variable: "destination"))
-     *      .ifValueIn(VariableAccessor(path: ["container"], variable: "input2"), equals: "targetValue"),
-     *  .keep(VariableAccessor(path: ["container"], variable: "inputToMapAsIs")
+     *  .constant("value": to: JSONPath["resultContainer"]["destination"])
+     *      .ifValueIn(JSONPath["container"]["input2"]), equals: "targetValue"),
+     *  .keep(JSONPath["container"]["inputToMapAsIs"]
      * ])
      * ```
      * - parameter mappings: A list of `Mapping`s to be applied to each `Dispatch` before sending it to the `Dispatcher`.

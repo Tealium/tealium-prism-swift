@@ -45,7 +45,7 @@ extension Condition: Matchable {
 
     public func matches(payload: DataObject) throws(ConditionEvaluationError) -> Bool {
         do throws(ErrorKind) {
-            guard let dataItem = payload.extract(VariableAccessor(path: path, variable: variable)) else {
+            guard let dataItem = payload.extractDataItem(path: variable.path) else {
                 switch self.operator {
                 case .isDefined:
                     return false
@@ -138,7 +138,7 @@ extension Condition: Matchable {
         guard let filter else {
             throw .missingFilter
         }
-        return filter
+        return filter.value
     }
 
     private func convertToDouble(_ dataItem: DataItem, using formatter: NumberFormatter, source: String) throws(ErrorKind) -> Double {

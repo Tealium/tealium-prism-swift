@@ -89,8 +89,7 @@ final class ConditionNotContainsTests: XCTestCase {
 
     func test_notContains_doesnt_match_contained_nested_value() {
         let condition = Condition.doesNotContain(ignoreCase: false,
-                                                 variable: VariableAccessor(path: ["dictionary"],
-                                                                            variable: "key"),
+                                                 variable: JSONPath["dictionary"]["key"],
                                                  string: "al")
         XCTAssertFalse(try condition.matches(payload: payload))
     }
@@ -112,8 +111,7 @@ final class ConditionNotContainsTests: XCTestCase {
 
     func test_notContains_doesnt_match_nested_value_ignoring_case() {
         let condition = Condition.doesNotContain(ignoreCase: true,
-                                                 variable: VariableAccessor(path: ["dictionary"],
-                                                                            variable: "key"),
+                                                 variable: JSONPath["dictionary"]["key"],
                                                  string: "AL")
         XCTAssertFalse(try condition.matches(payload: payload))
     }
@@ -142,8 +140,7 @@ final class ConditionNotContainsTests: XCTestCase {
 
     func test_notContains_throws_for_keys_with_wrong_path_from_the_payload() {
         let condition = Condition.doesNotContain(ignoreCase: false,
-                                                 variable: VariableAccessor(path: ["dictionary", "missing"],
-                                                                            variable: "key"),
+                                                 variable: JSONPath["dictionary"]["missing"]["key"],
                                                  string: "something")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,

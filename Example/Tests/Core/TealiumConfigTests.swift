@@ -120,14 +120,14 @@ final class TealiumConfigTests: XCTestCase {
                 "rule1": [
                     "id": "rule1",
                     "conditions": [
-                        "variable": "key1",
+                        "variable": ["key": "key1"],
                         "operator": "defined"
                     ]
                 ],
                 "rule2": [
                     "id": "rule2",
                     "conditions": [
-                        "variable": "key2",
+                        "variable": ["key": "key2"],
                         "operator": "defined"
                     ]
                 ]

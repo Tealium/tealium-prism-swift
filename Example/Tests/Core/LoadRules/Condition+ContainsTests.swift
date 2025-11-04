@@ -94,8 +94,7 @@ final class ConditionContainsTests: XCTestCase {
 
     func test_contains_matches_nested_value() {
         let condition = Condition.contains(ignoreCase: false,
-                                           variable: VariableAccessor(path: ["dictionary"],
-                                                                      variable: "key"),
+                                           variable: JSONPath["dictionary"]["key"],
                                            string: "al")
         XCTAssertTrue(try condition.matches(payload: payload))
     }
@@ -112,8 +111,7 @@ final class ConditionContainsTests: XCTestCase {
 
     func test_contains_matches_nested_value_ignoring_case() {
         let condition = Condition.contains(ignoreCase: true,
-                                           variable: VariableAccessor(path: ["dictionary"],
-                                                                      variable: "key"),
+                                           variable: JSONPath["dictionary"]["key"],
                                            string: "AL")
         XCTAssertTrue(try condition.matches(payload: payload))
     }
@@ -142,8 +140,7 @@ final class ConditionContainsTests: XCTestCase {
 
     func test_contains_throws_for_keys_with_wrong_path_from_the_payload() {
         let condition = Condition.contains(ignoreCase: false,
-                                           variable: VariableAccessor(path: ["dictionary", "missing"],
-                                                                      variable: "key"),
+                                           variable: JSONPath["dictionary"]["missing"]["key"],
                                            string: "something")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,

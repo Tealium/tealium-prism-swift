@@ -79,8 +79,7 @@ final class ConditionNotStartsWithTests: XCTestCase {
 
     func test_notStartsWith_doesnt_match_starting_nested_value() {
         let condition = Condition.doesNotStartWith(ignoreCase: false,
-                                                   variable: VariableAccessor(path: ["dictionary"],
-                                                                              variable: "key"),
+                                                   variable: JSONPath["dictionary"]["key"],
                                                    prefix: "Val")
         XCTAssertFalse(try condition.matches(payload: payload))
     }
@@ -102,8 +101,7 @@ final class ConditionNotStartsWithTests: XCTestCase {
 
     func test_notStartsWith_doesnt_match_nested_value_ignoring_case() {
         let condition = Condition.doesNotStartWith(ignoreCase: true,
-                                                   variable: VariableAccessor(path: ["dictionary"],
-                                                                              variable: "key"),
+                                                   variable: JSONPath["dictionary"]["key"],
                                                    prefix: "VAL")
         XCTAssertFalse(try condition.matches(payload: payload))
     }
@@ -132,8 +130,7 @@ final class ConditionNotStartsWithTests: XCTestCase {
 
     func test_notStartsWith_throws_for_keys_with_wrong_path_from_the_payload() {
         let condition = Condition.doesNotStartWith(ignoreCase: false,
-                                                   variable: VariableAccessor(path: ["dictionary", "missing"],
-                                                                              variable: "key"),
+                                                   variable: JSONPath["dictionary"]["missing"]["key"],
                                                    prefix: "something")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,

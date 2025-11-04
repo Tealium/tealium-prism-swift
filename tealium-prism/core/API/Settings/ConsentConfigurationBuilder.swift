@@ -29,9 +29,8 @@ public class ConsentConfigurationBuilder {
      */
     public func addPurpose(_ purposeId: String, dispatcherIds: [String]) -> Self {
         let purpose = ConsentPurpose(purposeId: purposeId, dispatcherIds: dispatcherIds)
-        let accessor = VariableAccessor(path: [Keys.purposes], variable: purposeId)
-        _dataObject.buildPathAndSet(accessor: accessor,
-                                    item: DataItem(value: purpose.toDataInput()))
+        _dataObject.buildPath(JSONPath[Keys.purposes][purposeId],
+                              andSet: DataItem(value: purpose.toDataInput()))
         return self
     }
 

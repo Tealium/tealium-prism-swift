@@ -10,7 +10,16 @@ import Foundation
 
 extension Array where Element == DataItem {
     subscript(safe index: Index) -> Iterator.Element? {
-        indices.contains(index) ? self[index] : nil
+        get {
+            indices.contains(index) ? self[index] : nil
+        }
+        set {
+            let item = newValue ?? DataItem(converting: Optional<String>.none)
+            while index > count {
+                self.insert(DataItem(converting: Optional<String>.none), at: count)
+            }
+            self.insert(item, at: index)
+        }
     }
 
     /// Internal method to extract with path components. Use `JSONPathExtractable.extractDataItem(path:)` instead.

@@ -77,8 +77,7 @@ final class ConditionNotEndsWithTests: XCTestCase {
 
     func test_notEndsWith_doesnt_match_ending_nested_value() {
         let condition = Condition.doesNotEndWith(ignoreCase: false,
-                                                 variable: VariableAccessor(path: ["dictionary"],
-                                                                            variable: "key"),
+                                                 variable: JSONPath["dictionary"]["key"],
                                                  suffix: "alue")
         XCTAssertFalse(try condition.matches(payload: payload))
     }
@@ -100,8 +99,7 @@ final class ConditionNotEndsWithTests: XCTestCase {
 
     func test_notEndsWith_doesnt_match_nested_value_ignoring_case() {
         let condition = Condition.doesNotEndWith(ignoreCase: true,
-                                                 variable: VariableAccessor(path: ["dictionary"],
-                                                                            variable: "key"),
+                                                 variable: JSONPath["dictionary"]["key"],
                                                  suffix: "ALUE")
         XCTAssertFalse(try condition.matches(payload: payload))
     }
@@ -130,8 +128,7 @@ final class ConditionNotEndsWithTests: XCTestCase {
 
     func test_notEndsWith_throws_for_keys_with_wrong_path_from_the_payload() {
         let condition = Condition.doesNotEndWith(ignoreCase: false,
-                                                 variable: VariableAccessor(path: ["dictionary", "missing"],
-                                                                            variable: "key"),
+                                                 variable: JSONPath["dictionary"]["missing"]["key"],
                                                  suffix: "something")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,

@@ -14,13 +14,11 @@ final class ConditionConverterTests: XCTestCase {
 
     func test_convert_converts_full_dataItem() throws {
         let conditionObject = try DataItem(serializing: [
-            "variable": "pageName",
-            "path": ["container"],
+            "variable": ["path": "container.pageName"],
             "operator": "equals",
-            "filter": "Home"
+            "filter": ["value": "Home"]
         ])
-        let expected = Condition(path: ["container"],
-                                 variable: "pageName",
+        let expected = Condition(variable: JSONPath["container"]["pageName"],
                                  operator: .equals(false),
                                  filter: "Home")
         let converted = converter.convert(dataItem: conditionObject)
@@ -28,12 +26,11 @@ final class ConditionConverterTests: XCTestCase {
     }
 
     func test_convert_converts_dataItem_with_just_operator_and_variable() throws {
-        let conditionObject = DataItem(converting: [
-            "variable": "pageName",
+        let conditionObject = try DataItem(serializing: [
+            "variable": ["key": "pageName"],
             "operator": "defined"
         ])
-        let expected = Condition(path: nil,
-                                 variable: "pageName",
+        let expected = Condition(variable: "pageName",
                                  operator: .isDefined,
                                  filter: nil)
         let converted = converter.convert(dataItem: conditionObject)
@@ -82,13 +79,11 @@ final class ConditionConverterTests: XCTestCase {
 
     func test_convert_succeeds_with_non_lowercased_operator() throws {
         let conditionObject = try DataItem(serializing: [
-            "variable": "pageName",
-            "path": ["container"],
+            "variable": ["path": "container.pageName"],
             "operator": "eQuaLs",
-            "filter": "Home"
+            "filter": ["value": "Home"]
         ])
-        let expected = Condition(path: ["container"],
-                                 variable: "pageName",
+        let expected = Condition(variable: JSONPath["container"]["pageName"],
                                  operator: .equals(false),
                                  filter: "Home")
         let converted = converter.convert(dataItem: conditionObject)

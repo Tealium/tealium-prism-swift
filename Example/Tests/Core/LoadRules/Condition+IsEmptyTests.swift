@@ -25,14 +25,14 @@ final class ConditionIsEmptyTests: XCTestCase {
 
     func test_isEmpty_doesnt_match_every_key_present_in_the_payload_that_is_not_empty() {
         for key in payload.keys.filter({ !$0.contains("empty") }) {
-            let condition = Condition.isEmpty(variable: VariableAccessor(variable: key))
+            let condition = Condition.isEmpty(variable: key)
             XCTAssertFalse(try condition.matches(payload: payload))
         }
     }
 
     func test_isEmpty_matches_every_key_present_in_the_payload_that_is_empty() {
         for key in payload.keys.filter({ $0.contains("empty") }) {
-            let condition = Condition.isEmpty(variable: VariableAccessor(variable: key))
+            let condition = Condition.isEmpty(variable: key)
             XCTAssertTrue(try condition.matches(payload: payload))
         }
     }
@@ -50,8 +50,7 @@ final class ConditionIsEmptyTests: XCTestCase {
     }
 
     func test_isEmpty_throws_for_keys_with_wrong_path_from_the_payload() {
-        let condition = Condition.isEmpty(variable: VariableAccessor(path: ["dictionary", "missing"],
-                                                                     variable: "key"))
+        let condition = Condition.isEmpty(variable: JSONPath["dictionary"]["missing"]["key"])
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
                     case .missingDataItem = operationError.kind else {
@@ -64,14 +63,14 @@ final class ConditionIsEmptyTests: XCTestCase {
 
     func test_isNotEmpty_matches_every_key_present_in_the_payload_that_is_not_empty() {
         for key in payload.keys.filter({ !$0.contains("empty") }) {
-            let condition = Condition.isNotEmpty(variable: VariableAccessor(variable: key))
+            let condition = Condition.isNotEmpty(variable: key)
             XCTAssertTrue(try condition.matches(payload: payload))
         }
     }
 
     func test_isNotEmpty_doesnt_match_every_key_present_in_the_payload_that_is_empty() {
         for key in payload.keys.filter({ $0.contains("empty") }) {
-            let condition = Condition.isNotEmpty(variable: VariableAccessor(variable: key))
+            let condition = Condition.isNotEmpty(variable: key)
             XCTAssertFalse(try condition.matches(payload: payload))
         }
     }
@@ -89,8 +88,7 @@ final class ConditionIsEmptyTests: XCTestCase {
     }
 
     func test_isNotEmpty_throws_for_keys_with_wrong_path_from_the_payload() {
-        let condition = Condition.isNotEmpty(variable: VariableAccessor(path: ["dictionary", "missing"],
-                                                                        variable: "key"))
+        let condition = Condition.isNotEmpty(variable: JSONPath["dictionary"]["missing"]["key"])
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,
                     case .missingDataItem = operationError.kind else {

@@ -10,7 +10,6 @@ import Foundation
 
 extension Condition {
     enum Keys {
-        static let path = "path"
         static let variable = "variable"
         static let `operator` = "operator"
         static let filter = "filter"
@@ -21,14 +20,13 @@ extension Condition {
             guard let dictionary = dataItem.getDataDictionary(),
                   let operatorString: String = dictionary.get(key: Keys.operator),
                   let operatorValue = Condition.Operator(rawValue: operatorString),
-                  let variable: String = dictionary.get(key: Keys.variable)
+                  let referenceContainer = dictionary.getConvertible(key: Keys.variable, converter: ReferenceContainer.converter)
             else {
                 return nil
             }
-            return Condition(path: dictionary.getArray(key: Keys.path)?.compactMap { $0 },
-                             variable: variable,
+            return Condition(variable: referenceContainer,
                              operator: operatorValue,
-                             filter: dictionary.get(key: Keys.filter))
+                             filter: dictionary.getConvertible(key: Keys.filter, converter: ValueContainer.converter))
         }
     }
     static let converter = Converter()

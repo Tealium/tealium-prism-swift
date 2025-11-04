@@ -81,8 +81,7 @@ final class ConditionRegexTests: XCTestCase {
     }
 
     func test_regex_matches_nested_value() {
-        let condition = Condition.regularExpression(variable: VariableAccessor(path: ["dictionary"],
-                                                                               variable: "key"),
+        let condition = Condition.regularExpression(variable: JSONPath["dictionary"]["key"],
                                                     regex: "al")
         XCTAssertTrue(try condition.matches(payload: payload))
     }
@@ -98,8 +97,7 @@ final class ConditionRegexTests: XCTestCase {
     }
 
     func test_regex_matches_nested_value_ignoring_case() {
-        let condition = Condition.regularExpression(variable: VariableAccessor(path: ["dictionary"],
-                                                                               variable: "key"),
+        let condition = Condition.regularExpression(variable: JSONPath["dictionary"]["key"],
                                                     regex: "(?i)AL")
         XCTAssertTrue(try condition.matches(payload: payload))
     }
@@ -122,8 +120,7 @@ final class ConditionRegexTests: XCTestCase {
     }
 
     func test_regex_throws_for_keys_with_wrong_path_from_the_payload() {
-        let condition = Condition.regularExpression(variable: VariableAccessor(path: ["dictionary", "missing"],
-                                                                               variable: "key"),
+        let condition = Condition.regularExpression(variable: JSONPath["dictionary"]["missing"]["key"],
                                                     regex: "something")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,

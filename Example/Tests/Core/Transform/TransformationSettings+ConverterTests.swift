@@ -12,8 +12,8 @@ import XCTest
 final class TransformationSettingsConverterTests: XCTestCase {
     let testCondition: DataObject = [
         "operator": "equals",
-        "variable": "tealium_event",
-        "filter": "test_event"
+        "variable": ["key": "tealium_event"],
+        "filter": ["value": "test_event"]
     ]
 
     func test_transformation_to_data_object() {

@@ -108,49 +108,21 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
     }
 
     /**
-     * Extracts a nested `DataItem` according to the given `accessor`.
+     * Sets the item in the `DataObject` by following the `JSONObjectPath` and recursively creating the required containers.
      *
-     * If the `VariableAccessor.variable` is not found at the `VariableAccessor.path`, or any path
-     * component is not also a `DataObject`, `nil` will be returned.
-     *
-     * - Parameters:
-     *      - accessor: The `VariableAccessor` describing how to access the variable.
-     * - Returns: The required `DataItem` if available; else `nil`.
-     */
-    public func extract(_ accessor: VariableAccessor) -> DataItem? {
-        var extractor: (any DataItemExtractor)? = self
-        if let path = accessor.path {
-            for component in path where extractor != nil {
-                extractor = extractor?.getDataDictionary(key: component)
-            }
-        }
-        return extractor?.getDataItem(key: accessor.variable)
-    }
-
-    /**
-     * Sets the item in the `DataObject` by following the `VariableAccessor` key and path and recursively creating the required containers.
-     *
-     * In case the `DataObject` contains already the nested object as expressed in the `VariableAccessor.path`
-     * it will insert the new item in those object.
+     * In case the `DataObject` contains already the nested object or array as expressed in the `JSONObjectPath`
+     * it will insert the new item in those objects or arrays.
      * The missing containers will, instead, be automatically be created by this method.
+     * In case an array is not big enough to insert an item at the given index, nil items will be put until we reach the required capacity.
      *
      * - Parameters:
-     *      - accessor: The accessor that expresses the (eventually nested) location in which to put the item
+     *      - path: The `JSONObjectPath` that expresses the (eventually nested) location in which to put the item
      *      - item: The item to insert at the provided location
      */
-    mutating public func buildPathAndSet(accessor: VariableAccessor, item: DataItem) {
-        buildPathAndSet(key: accessor.variable, path: accessor.path, item: item)
-    }
-
-    private mutating func buildPathAndSet(key: String, path: [String]?, item: DataItem) {
-        guard var path, !path.isEmpty else {
-            self.set(converting: item, key: key)
-            return
-        }
-        let firstComponent = path.removeFirst()
-        var subObject = self.getDataDictionary(key: firstComponent)?.toDataObject() ?? DataObject()
-        subObject.buildPathAndSet(key: key, path: path, item: item)
-        self.set(converting: subObject, key: firstComponent)
+    mutating public func buildPath(_ path: JSONObjectPath, andSet item: DataItem) {
+        var components = path.components
+        _ = components.removeFirst()
+        self.buildPath(key: path.root, components: &components, andSet: item)
     }
 }
 
@@ -283,5 +255,49 @@ extension [String: DataInput] {
     /// - Returns: A new DataObject containing the dictionary's key-value pairs.
     public func asDataObject() -> DataObject {
         return DataObject(dictionaryInput: self)
+    }
+}
+
+fileprivate extension DataObject {
+     mutating func buildPath<Root: PathRoot>(key: String, components: inout [JSONPathComponent<Root>], andSet item: DataItem) {
+        guard !components.isEmpty else {
+            set(converting: item, key: key)
+            return
+        }
+        let component = components.removeFirst()
+        let nested = self.getDataItem(key: key)
+        switch component {
+        case let .index(index):
+            var array = nested?.getDataArray() ?? []
+            array.buildPath(index: index, components: &components, andSet: item)
+            set(converting: array, key: key)
+        case let .key(internalKey):
+            let dictionary = nested?.getDataDictionary() ?? [:]
+            var dataObject = dictionary.toDataObject()
+            dataObject.buildPath(key: internalKey, components: &components, andSet: item)
+            set(converting: dataObject, key: key)
+        }
+    }
+}
+
+fileprivate extension Array where Element == DataItem {
+    mutating func buildPath<Root: PathRoot>(index: Int, components: inout [JSONPathComponent<Root>], andSet item: DataItem) {
+        guard !components.isEmpty else {
+            self[safe: index] = item
+            return
+        }
+        let component = components.removeFirst()
+        let nested = self[safe: index]
+        switch component {
+        case let .index(internalIndex):
+            var array = nested?.getDataArray() ?? []
+            array.buildPath(index: internalIndex, components: &components, andSet: item)
+            self[safe: index] = DataItem(converting: array)
+        case let .key(key):
+            let dictionary = nested?.getDataDictionary() ?? [:]
+            var dataObject = dictionary.toDataObject()
+            dataObject.buildPath(key: key, components: &components, andSet: item)
+            self[safe: index] = DataItem(converting: dataObject)
+        }
     }
 }

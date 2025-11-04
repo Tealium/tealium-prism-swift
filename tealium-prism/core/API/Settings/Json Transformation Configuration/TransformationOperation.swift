@@ -14,18 +14,25 @@ private enum OperationKeys {
 /// An object representing an operation to be performed during a transformation.
 public struct TransformationOperation<Parameters: DataInputConvertible> {
     /// The variable onto which this transformation will put the result to.
-    let destination: VariableAccessor
+    let destination: ReferenceContainer
     /// The parameters necessary for this operation to be performed.
     let parameters: Parameters
-    /// Initializes a new `TransformationOperation` with the specified destination and parameters.
-    public init(destination: VariableAccessor, parameters: Parameters) {
+
+    init(destination: ReferenceContainer, parameters: Parameters) {
         self.destination = destination
         self.parameters = parameters
+    }
+
+    public init(destination: String, parameters: Parameters) {
+        self.init(destination: ReferenceContainer(key: destination), parameters: parameters)
+    }
+
+    public init(destination: JSONObjectPath, parameters: Parameters) {
+        self.init(destination: ReferenceContainer(path: destination), parameters: parameters)
     }
 }
 
 extension TransformationOperation: DataObjectConvertible {
-    /// Represents this operation as a `DataObject` with destination and parameters values.
     public func toDataObject() -> DataObject {
         [
             OperationKeys.destination: destination,
@@ -41,7 +48,7 @@ extension TransformationOperation {
         func convert(dataItem: DataItem) -> Convertible? {
             guard let object = dataItem.getDataDictionary(),
                   let destination = object.getConvertible(key: OperationKeys.destination,
-                                                          converter: VariableAccessor.converter),
+                                                          converter: ReferenceContainer.converter),
                   let parameters = object.getConvertible(key: OperationKeys.parameters,
                                                          converter: parametersConverter) else {
                 return nil

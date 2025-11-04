@@ -13,8 +13,8 @@ extension MappingParameters {
             guard let object = dataItem.getDataDictionary() else {
                 return nil
             }
-            return MappingParameters(key: object.getConvertible(key: Keys.key,
-                                                                converter: VariableAccessor.converter),
+            return MappingParameters(reference: object.getConvertible(key: Keys.reference,
+                                                                      converter: ReferenceContainer.converter),
                                      filter: object.getConvertible(key: Keys.filter,
                                                                    converter: ValueContainer.converter),
                                      mapTo: object.getConvertible(key: Keys.mapTo,

@@ -67,7 +67,7 @@ final class SDKSettingsTests: XCTestCase {
                         "operator": "and",
                         "children": [
                             [
-                                "variable": "variable",
+                                "variable": ["key": "variable"],
                                 "operator": "defined"
                             ]
                         ]
@@ -80,7 +80,7 @@ final class SDKSettingsTests: XCTestCase {
             XCTFail("LoadRule not found.")
             return
         }
-        let expected = Condition(path: nil, variable: "variable", operator: .isDefined, filter: nil)
+        let expected = Condition(variable: "variable", operator: .isDefined, filter: nil)
         guard case let .and(children) = rule.conditions else {
             XCTFail("Rule conditions \(rule.conditions) should be AND")
             return

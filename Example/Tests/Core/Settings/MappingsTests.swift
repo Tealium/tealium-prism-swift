@@ -15,8 +15,8 @@ final class MappingsTests: XCTestCase {
         let builder = Mappings.from("source", to: "destination")
         let operation = builder.build()
 
-        XCTAssertEqual(operation.parameters.key?.variable, "source")
-        XCTAssertEqual(operation.destination.variable, "destination")
+        XCTAssertEqual(operation.parameters.reference?.path, JSONPath["source"])
+        XCTAssertEqual(operation.destination.path, JSONPath["destination"])
         XCTAssertNil(operation.parameters.filter)
         XCTAssertNil(operation.parameters.mapTo)
     }
@@ -32,23 +32,22 @@ final class MappingsTests: XCTestCase {
     }
 
     func test_constant_creates_mapTo_and_destination() {
-        let destinationKey = VariableAccessor(path: ["target"], variable: "destination")
+        let destinationKey = JSONPath["target"]["destination"]
         let mapToValue = "mappedValue"
 
         let builder = Mappings.constant(mapToValue, to: destinationKey)
 
         let operation = builder.build()
 
-        XCTAssertEqual(operation.destination.variable, "destination")
-        XCTAssertEqual(operation.destination.path, ["target"])
+        XCTAssertEqual(operation.destination.path, JSONPath["target"]["destination"])
         XCTAssertEqual(operation.parameters.mapTo?.value, mapToValue)
         XCTAssertNil(operation.parameters.filter)
-        XCTAssertNil(operation.parameters.key)
+        XCTAssertNil(operation.parameters.reference)
     }
 
     func test_ifValueIn_creates_complete_operation() {
-        let sourceKey = VariableAccessor(path: ["nested"], variable: "source")
-        let destinationKey = VariableAccessor(path: ["target"], variable: "destination")
+        let sourceKey = JSONPath["nested"]["source"]
+        let destinationKey = JSONPath["target"]["destination"]
         let filterValue = "originalValue"
         let mapToValue = "mappedValue"
 
@@ -57,10 +56,8 @@ final class MappingsTests: XCTestCase {
 
         let operation = builder.build()
 
-        XCTAssertEqual(operation.destination.variable, "destination")
-        XCTAssertEqual(operation.destination.path, ["target"])
-        XCTAssertEqual(operation.parameters.key?.variable, "source")
-        XCTAssertEqual(operation.parameters.key?.path, ["nested"])
+        XCTAssertEqual(operation.destination.path, JSONPath["target"]["destination"])
+        XCTAssertEqual(operation.parameters.reference?.path, JSONPath["nested"]["source"])
         XCTAssertEqual(operation.parameters.filter?.value, filterValue)
         XCTAssertEqual(operation.parameters.mapTo?.value, mapToValue)
     }
@@ -69,7 +66,7 @@ final class MappingsTests: XCTestCase {
         let builder = Mappings.keep("source")
         let operation = builder.build()
 
-        XCTAssertEqual(operation.parameters.key?.variable, "source")
-        XCTAssertEqual(operation.destination.variable, "source")
+        XCTAssertEqual(operation.parameters.reference?.path, JSONPath["source"])
+        XCTAssertEqual(operation.destination.path, JSONPath["source"])
     }
 }

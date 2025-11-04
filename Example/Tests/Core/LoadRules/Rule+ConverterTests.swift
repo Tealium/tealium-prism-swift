@@ -41,26 +41,22 @@ final class RuleConverterTests: XCTestCase {
             "operator": "and",
             "children": [
                 [
-                    "variable": "pageName1",
-                    "path": ["container1"],
+                    "variable": ["path": "container1.pageName1"],
                     "operator": "equals",
-                    "filter": "Home1"
+                    "filter": ["value": "Home1"]
                 ],
                 [
-                    "variable": "pageName2",
-                    "path": ["container2"],
+                    "variable": ["path": "container2.pageName2"],
                     "operator": "equals",
-                    "filter": "Home2"
+                    "filter": ["value": "Home2"]
                 ]
             ]
         ])
         let expected = Rule<Condition>.and([
-            .just(Condition(path: ["container1"],
-                            variable: "pageName1",
+            .just(Condition(variable: JSONPath["container1"]["pageName1"],
                             operator: .equals(false),
                             filter: "Home1")),
-            .just(Condition(path: ["container2"],
-                            variable: "pageName2",
+            .just(Condition(variable: JSONPath["container2"]["pageName2"],
                             operator: .equals(false),
                             filter: "Home2")),
         ])
@@ -76,26 +72,22 @@ final class RuleConverterTests: XCTestCase {
             "operator": "or",
             "children": [
                 [
-                    "variable": "pageName1",
-                    "path": ["container1"],
+                    "variable": ["path": "container1.pageName1"],
                     "operator": "equals",
-                    "filter": "Home1"
+                    "filter": ["value": "Home1"]
                 ],
                 [
-                    "variable": "pageName2",
-                    "path": ["container2"],
+                    "variable": ["path": "container2.pageName2"],
                     "operator": "equals",
-                    "filter": "Home2"
+                    "filter": ["value": "Home2"]
                 ]
             ]
         ])
         let expected = Rule<Condition>.or([
-            .just(Condition(path: ["container1"],
-                            variable: "pageName1",
+            .just(Condition(variable: JSONPath["container1"]["pageName1"],
                             operator: .equals(false),
                             filter: "Home1")),
-            .just(Condition(path: ["container2"],
-                            variable: "pageName2",
+            .just(Condition(variable: JSONPath["container2"]["pageName2"],
                             operator: .equals(false),
                             filter: "Home2")),
         ])
@@ -112,16 +104,14 @@ final class RuleConverterTests: XCTestCase {
             "operator": "not",
             "children": [
                 [
-                    "variable": "pageName1",
-                    "path": ["container1"],
+                    "variable": ["path": "container1.pageName1"],
                     "operator": "equals",
-                    "filter": "Home1"
+                    "filter": ["value": "Home1"]
                 ]
             ]
         ])
         let expected = Rule<Condition>.not(
-            .just(Condition(path: ["container1"],
-                            variable: "pageName1",
+            .just(Condition(variable: JSONPath["container1"]["pageName1"],
                             operator: .equals(false),
                             filter: "Home1"))
         )
@@ -137,8 +127,7 @@ final class RuleConverterTests: XCTestCase {
         let item = DataItem(stringValue: try jsonStringFromBundle("NestedMixedConditionRule"))
 
         func condition(_ variable: String) -> Condition {
-            Condition(path: ["container"],
-                      variable: variable,
+            Condition(variable: JSONPath["container"][variable],
                       operator: .equals(false),
                       filter: "Home")
         }
@@ -150,8 +139,7 @@ final class RuleConverterTests: XCTestCase {
                     .not(.just(condition("pageName_AND_OR_NOT_AND_NOT"))),
                 ]))
             ]),
-            .just(Condition(path: ["container"],
-                            variable: "pageName_AND",
+            .just(Condition(variable: JSONPath["container"]["pageName_AND"],
                             operator: .equals(false),
                             filter: "Home")),
         ])

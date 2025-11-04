@@ -5,10 +5,9 @@
             "operator": "or",
             "children": [
                 {
-                    "variable": "pageName_AND_OR",
-                    "path": ["container"],
+                    "variable": {"path": "container.pageName_AND_OR"},
                     "operator": "equals",
-                    "filter": "Home"
+                    "filter": {"value": "Home"}
                 },
                 {
                     "operator": "not",
@@ -17,19 +16,17 @@
                             "operator": "and",
                             "children": [
                                 {
-                                    "variable": "pageName_AND_OR_NOT_AND",
-                                    "path": ["container"],
+                                    "variable": {"path": "container.pageName_AND_OR_NOT_AND"},
                                     "operator": "equals",
-                                    "filter": "Home"
+                                    "filter": {"value": "Home"}
                                 },
                                 {
                                     "operator": "not",
                                     "children": [
                                         {
-                                            "variable": "pageName_AND_OR_NOT_AND_NOT",
-                                            "path": ["container"],
+                                            "variable": {"path": "container.pageName_AND_OR_NOT_AND_NOT"},
                                             "operator": "equals",
-                                            "filter": "Home"
+                                            "filter": {"value": "Home"}
                                         }
                                     ]
                                 }
@@ -40,10 +37,9 @@
             ]
         },
         {
-            "variable": "pageName_AND",
-            "path": ["container"],
+            "variable": {"path": "container.pageName_AND"},
             "operator": "equals",
-            "filter": "Home"
+            "filter": {"value": "Home"}
         }
     ]
 }

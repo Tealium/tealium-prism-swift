@@ -49,11 +49,11 @@ final class ModuleSettingsBuilderTests: XCTestCase {
             "configuration": DataObject(),
             "mappings": try DataItem(serializing: [[
                 "destination": [
-                    "variable": "destinationVariable"
+                    "key": "destinationVariable"
                 ],
                 "parameters": [
-                    "key": [
-                        "variable": "inputVariable"
+                    "reference": [
+                        "key": "inputVariable"
                     ]
                 ]
             ]])

@@ -11,8 +11,8 @@ import Foundation
 typealias MappingOperation = TransformationOperation<MappingParameters>
 
 extension MappingOperation {
-    var key: VariableAccessor? {
-        parameters.key
+    var path: JSONObjectPath? {
+        parameters.reference?.path
     }
     var filter: ValueContainer? {
         parameters.filter
@@ -70,20 +70,20 @@ class MappingsEngine {
         }
         let shouldCombineResults = mapping.mapTo != nil
         let itemToInsert: DataItem
-        if shouldCombineResults, let itemToReplace = result.extract(mapping.destination) {
+        if shouldCombineResults, let itemToReplace = result.extractDataItem(path: mapping.destination.path) {
             var array = itemToReplace.getDataArray() ?? [itemToReplace]
             array.append(mapped)
             itemToInsert = DataItem(converting: array)
         } else {
             itemToInsert = mapped
         }
-        result.buildPathAndSet(accessor: mapping.destination,
-                               item: itemToInsert)
+        result.buildPath(mapping.destination.path,
+                         andSet: itemToInsert)
     }
 
     private func getMappedValue(payload: DataObject, mapping: MappingOperation) -> DataItem? {
-        let extracted: DataItem? = if let key = mapping.key {
-            payload.extract(key)
+        let extracted: DataItem? = if let path = mapping.path {
+            payload.extractDataItem(path: path)
         } else { nil }
         guard isFilter(mapping.filter?.value, matching: extracted?.value) else {
             return nil

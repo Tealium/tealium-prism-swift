@@ -18,10 +18,9 @@ final class LoadRuleConverterTests: XCTestCase {
                 "operator": "and",
                 "children": [
                     [
-                        "path": ["container"],
-                        "variable": "pageName",
+                        "variable": ["path": "container.pageName"],
                         "operator": "equals",
-                        "filter": "Home"
+                        "filter": ["value": "Home"]
                     ]
                 ]
             ]
@@ -41,8 +40,7 @@ final class LoadRuleConverterTests: XCTestCase {
             XCTFail("Conditions condition children are not just an item \(children)")
             return
         }
-        let expected = Condition(path: ["container"],
-                                 variable: "pageName",
+        let expected = Condition(variable: JSONPath["container"]["pageName"],
                                  operator: .equals(false),
                                  filter: "Home")
         XCTAssertEqual(item as? Condition, expected)
@@ -55,10 +53,9 @@ final class LoadRuleConverterTests: XCTestCase {
                 "operator": "or",
                 "children": [
                     [
-                        "path": ["container"],
-                        "variable": "pageName",
+                        "variable": ["path": "container.pageName"],
                         "operator": "equals",
-                        "filter": "Home"
+                        "filter": ["value": "Home"]
                     ]
                 ]
             ]
@@ -78,8 +75,7 @@ final class LoadRuleConverterTests: XCTestCase {
             XCTFail("Conditions condition children are not just an item \(children)")
             return
         }
-        let expected = Condition(path: ["container"],
-                                 variable: "pageName",
+        let expected = Condition(variable: JSONPath["container"]["pageName"],
                                  operator: .equals(false),
                                  filter: "Home")
         XCTAssertEqual(item as? Condition, expected)
@@ -92,10 +88,9 @@ final class LoadRuleConverterTests: XCTestCase {
                 "operator": "not",
                 "children": [
                     [
-                        "path": ["container"],
-                        "variable": "pageName",
+                        "variable": ["path": "container.pageName"],
                         "operator": "equals",
-                        "filter": "Home"
+                        "filter": ["value": "Home"]
                     ]
                 ]
             ]
@@ -114,8 +109,7 @@ final class LoadRuleConverterTests: XCTestCase {
             XCTFail("Conditions condition children are not just an item \(child)")
             return
         }
-        let expected = Condition(path: ["container"],
-                                 variable: "pageName",
+        let expected = Condition(variable: JSONPath["container"]["pageName"],
                                  operator: .equals(false),
                                  filter: "Home")
         XCTAssertEqual(item as? Condition, expected)
@@ -125,10 +119,9 @@ final class LoadRuleConverterTests: XCTestCase {
         let loadRule = try DataItem(serializing: [
             "id": "ruleId",
             "conditions": [
-                "path": ["container"],
-                "variable": "pageName",
+                "variable": ["path": "container.pageName"],
                 "operator": "equals",
-                "filter": "Home"
+                "filter": ["value": "Home"]
             ]
         ])
         let converted = converter.convert(dataItem: loadRule)
@@ -141,8 +134,7 @@ final class LoadRuleConverterTests: XCTestCase {
             XCTFail("Conditions condition children are not just an item \(conditions)")
             return
         }
-        let expected = Condition(path: ["container"],
-                                 variable: "pageName",
+        let expected = Condition(variable: JSONPath["container"]["pageName"],
                                  operator: .equals(false),
                                  filter: "Home")
         XCTAssertEqual(item as? Condition, expected)

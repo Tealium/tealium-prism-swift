@@ -38,9 +38,8 @@ class ConsentSettingsBuilder {
         guard !configuration.isEmpty else {
             return self
         }
-        _dataObject.buildPathAndSet(accessor: VariableAccessor(path: [Keys.configurations],
-                                                               variable: vendorId),
-                                    item: configuration.build().toDataItem())
+        _dataObject.buildPath(JSONPath[Keys.configurations][vendorId],
+                              andSet: configuration.build().toDataItem())
         return self
     }
 

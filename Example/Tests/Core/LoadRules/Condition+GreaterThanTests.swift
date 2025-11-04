@@ -121,8 +121,7 @@ final class ConditionGreaterThanTests: XCTestCase {
 
     func test_greaterThan_matches_if_int_greater_than_filter_in_nested_object() {
         let condition = Condition.isGreaterThan(orEqual: false,
-                                                variable: VariableAccessor(path: ["dictionary"],
-                                                                           variable: "key"),
+                                                variable: JSONPath["dictionary"]["key"],
                                                 number: "44")
         XCTAssertTrue(try condition.matches(payload: payload))
     }
@@ -155,8 +154,7 @@ final class ConditionGreaterThanTests: XCTestCase {
 
     func test_greaterThan_throws_for_keys_with_wrong_path_from_the_payload() {
         let condition = Condition.isGreaterThan(orEqual: false,
-                                                variable: VariableAccessor(path: ["dictionary", "missing"],
-                                                                           variable: "key"),
+                                                variable: JSONPath["dictionary"]["missing"]["key"],
                                                 number: "1")
         XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
             guard let operationError = error as? ConditionEvaluationError,

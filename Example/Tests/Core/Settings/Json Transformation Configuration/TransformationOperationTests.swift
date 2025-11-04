@@ -16,23 +16,23 @@ final class TransformationOperationTests: XCTestCase {
 
     func test_toDataObject_returns_complete_object() throws {
         XCTAssertEqual(operation.toDataObject(), [
-            "destination": ["variable": "key"],
+            "destination": ["key": "key"],
             "parameters": "SomeParameter",
         ])
     }
 
     func test_toDataInput_returns_complete_object() {
         XCTAssertEqual(operation.toDataInput() as? [String: DataInput], [
-            "destination": ["variable": "key"],
+            "destination": ["key": "key"],
             "parameters": "SomeParameter",
         ])
     }
 
     func test_init_from_converter_succeeds() {
-        let item = DataItem(value: ["destination": ["variable": "key"],
+        let item = DataItem(value: ["destination": ["key": "key"],
                                     "parameters": "SomeParameter"])
         let result = converter.convert(dataItem: item)
-        XCTAssertEqual(result?.destination.variable, "key")
+        XCTAssertEqual(result?.destination.path, JSONPath["key"])
         XCTAssertEqual(result?.parameters, "SomeParameter")
     }
 
@@ -43,7 +43,7 @@ final class TransformationOperationTests: XCTestCase {
     }
 
     func test_init_from_converter_fails_if_parameters_are_the_wrong_type() {
-        let item = DataItem(value: ["destination": ["variable": "key"],
+        let item = DataItem(value: ["destination": ["key": "key"],
                                     "parameters": ["SomeParameter"]])
         let result = converter.convert(dataItem: item)
         XCTAssertNil(result)

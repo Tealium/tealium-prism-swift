@@ -47,7 +47,7 @@ class SettingsManagerTestCase: XCTestCase {
                 "operator": "and",
                 "children": [
                     [
-                        "variable": "variable",
+                        "variable": ["key": "variable"],
                         "operator": "defined"
                     ]
                 ]
@@ -64,10 +64,9 @@ class SettingsManagerTestCase: XCTestCase {
                 "key": "value"
             ],
             "conditions": [
-                "variable": "pageName",
-                "path": ["container"],
+                "variable": ["path": "container.pageName"],
                 "operator": "equals",
-                "filter": "Home"
+                "filter": ["value": "Home"]
             ]
         ])
     }

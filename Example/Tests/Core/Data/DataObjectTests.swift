@@ -190,4 +190,63 @@ final class DataObjectTests: XCTestCase {
         ]
         XCTAssertEqual(dataObject.asDictionary(), ["key": "otherValue"])
     }
+
+    func test_buildPath_creates_missing_components() {
+        var dataObject: DataObject = [:]
+        dataObject.buildPath(JSONPath["container"][0]["property"], andSet: DataItem(value: "value"))
+        XCTAssertEqual(dataObject, ["container": [["property": "value"]]])
+    }
+
+    func test_buildPath_fills_arrays_with_nils() {
+        var dataObject: DataObject = [:]
+        dataObject.buildPath(JSONPath["container"][3]["property"], andSet: DataItem(value: "value"))
+        XCTAssertEqual(dataObject, ["container": [nil, nil, nil, ["property": "value"]]])
+    }
+
+    func test_buildPath_merges_objects() {
+        var dataObject: DataObject = [
+            "container": [
+                "array": ["1", "2", "3"]
+            ]
+        ]
+        dataObject.buildPath(JSONPath["container"]["property"], andSet: DataItem(value: "value"))
+        XCTAssertEqual(dataObject, ["container": DataItem(value: [
+            "property": "value",
+            "array": ["1", "2", "3"]
+        ])])
+    }
+
+    func test_buildPath_merges_arrays() {
+        var dataObject: DataObject = [
+            "container": [
+                "array": ["1", "2", "3"]
+            ]
+        ]
+        dataObject.buildPath(JSONPath["container"]["array"][5], andSet: DataItem(value: "value"))
+        XCTAssertEqual(dataObject, ["container": [
+            "array": ["1", "2", "3", nil, nil, "value"]
+        ]])
+    }
+
+    func test_buildPath_replaces_arrays_with_objects_if_path_requires_object() {
+        var dataObject: DataObject = [
+            "container": [
+                "array": ["1", "2", "3"]
+            ]
+        ]
+        dataObject.buildPath(JSONPath["container"]["array"]["property"], andSet: DataItem(value: "value"))
+        XCTAssertEqual(dataObject, ["container": [
+            "array": ["property": "value"]
+        ]])
+    }
+
+    func test_buildPath_replaces_objects_with_arrays_if_path_requires_array() {
+        var dataObject: DataObject = [
+            "container": [
+                "array": ["1", "2", "3"]
+            ]
+        ]
+        dataObject.buildPath(JSONPath["container"][0]["property"], andSet: DataItem(value: "value"))
+        XCTAssertEqual(dataObject, ["container": [["property": "value"]]])
+    }
 }

@@ -22,7 +22,7 @@ final class ConditionIsDefinedTests: XCTestCase {
 
     func test_isDefined_matches_every_key_present_in_the_payload() {
         for key in payload.keys {
-            let condition = Condition.isDefined(variable: VariableAccessor(variable: key))
+            let condition = Condition.isDefined(variable: key)
             XCTAssertTrue(try condition.matches(payload: payload))
         }
     }
@@ -38,14 +38,13 @@ final class ConditionIsDefinedTests: XCTestCase {
     }
 
     func test_isDefined_doesnt_match_keys_with_wrong_path_from_the_payload() {
-        let condition = Condition.isDefined(variable: VariableAccessor(path: ["dictionary", "missing"],
-                                                                       variable: "key"))
+        let condition = Condition.isDefined(variable: JSONPath["dictionary"]["missing"]["key"])
         XCTAssertFalse(try condition.matches(payload: payload))
     }
 
     func test_isNotDefined_doesnt_match_any_key_present_in_the_payload() {
         for key in payload.keys {
-            let condition = Condition.isNotDefined(variable: VariableAccessor(variable: key))
+            let condition = Condition.isNotDefined(variable: key)
             XCTAssertFalse(try condition.matches(payload: payload))
         }
     }
@@ -61,8 +60,7 @@ final class ConditionIsDefinedTests: XCTestCase {
     }
 
     func test_isNotDefined_matches_keys_with_wrong_path_from_the_payload() {
-        let condition = Condition.isNotDefined(variable: VariableAccessor(path: ["dictionary", "missing"],
-                                                                          variable: "key"))
+        let condition = Condition.isNotDefined(variable: JSONPath["dictionary"]["missing"]["key"])
         XCTAssertTrue(try condition.matches(payload: payload))
     }
 }

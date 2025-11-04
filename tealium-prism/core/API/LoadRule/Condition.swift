@@ -7,9 +7,9 @@
 //
 
 /// A Condition that can be used to verify the matching to a payload.
-public struct Condition: Codable, Equatable {
+public struct Condition: Equatable {
     /// The operator used to evaluate a condition against a variable.
-    public enum Operator: Codable, Equatable {
+    public enum Operator: Equatable {
         /// An operator that matches if the variable is defined.
         case isDefined
         /// An operator that matches if the variable is not defined.
@@ -58,11 +58,8 @@ public struct Condition: Codable, Equatable {
          */
         case regex
     }
-    /// The, optional, path components to a nested variable.
-    let path: [String]?
-    /// The variable name, to be extracted from the event payload.
-    /// If `path` is defined, this is the name of a variable in a nested object inside of that payload.
-    let variable: String
+    /// The reference to an object in the payload
+    let variable: ReferenceContainer
     /// The operator used to match this condition.
     let `operator`: Operator
     /**
@@ -75,19 +72,19 @@ public struct Condition: Codable, Equatable {
      * Ignored for:
      * isDefined, isNotDefined, isEmpty, isNotEmpty.
      */
-    let filter: String?
+    let filter: ValueContainer?
 
-    init(variable: VariableAccessor, operator: Operator, filter: String?) {
-        self.init(path: variable.path,
-                  variable: variable.variable,
-                  operator: `operator`,
-                  filter: filter)
-    }
-
-    init(path: [String]?, variable: String, operator: Operator, filter: String?) {
-        self.path = path
+    init(variable: ReferenceContainer, operator: Operator, filter: ValueContainer?) {
         self.variable = variable
         self.operator = `operator`
         self.filter = filter
+    }
+
+    init(variable: JSONObjectPath, operator: Operator, filter: ValueContainer?) {
+        self.init(variable: ReferenceContainer(path: variable), operator: `operator`, filter: filter)
+    }
+
+    init(variable: String, operator: Operator, filter: ValueContainer?) {
+        self.init(variable: ReferenceContainer(key: variable), operator: `operator`, filter: filter)
     }
 }

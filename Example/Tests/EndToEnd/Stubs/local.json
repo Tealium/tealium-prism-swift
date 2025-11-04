@@ -9,9 +9,9 @@
         "event_contains_blocked": {
             "id": "event_contains_blocked",
             "conditions": {
-                "variable": "tealium_event",
+                "variable": {"key": "tealium_event"},
                 "operator": "contains",
-                "filter": "blocked"
+                "filter": {"value": "blocked"}
             }
         }
     }
