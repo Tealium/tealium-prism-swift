@@ -92,7 +92,7 @@ public protocol DataLayer {
      * ```
      */
     @discardableResult
-    func transactionally(execute block: @escaping TransactionBlock) -> SingleResult<Void>
+    func transactionally(execute block: @escaping TransactionBlock) -> SingleResult<Void, ModuleError<Error>>
 
     /**
      * Adds all key-value pairs from the `DataObject` into the storage.
@@ -103,7 +103,7 @@ public protocol DataLayer {
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the eventual error in case of failure.
      */
     @discardableResult
-    func put(data: DataObject, expiry: Expiry) -> SingleResult<Void>
+    func put(data: DataObject, expiry: Expiry) -> SingleResult<Void, ModuleError<Error>>
 
     /**
      * Adds a single key-value pair into the `DataLayer`.
@@ -115,7 +115,7 @@ public protocol DataLayer {
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the eventual error in case of failure.
      */
     @discardableResult
-    func put(key: String, value: DataInput, expiry: Expiry) -> SingleResult<Void>
+    func put(key: String, value: DataInput, expiry: Expiry) -> SingleResult<Void, ModuleError<Error>>
 
     // MARK: - Getters
 
@@ -128,7 +128,7 @@ public protocol DataLayer {
      *      - key: The key used to look for the `DataItem`.
      * - Returns: A `Single` onto which you can subscribe to receive the completion with `DataItem` or the eventual error in case of failure.
      */
-    func getDataItem(key: String) -> SingleResult<DataItem?>
+    func getDataItem(key: String) -> SingleResult<DataItem?, ModuleError<Error>>
 
     /**
      * Gets a `DataObject` containing all data stored in the `DataLayer`.
@@ -137,7 +137,7 @@ public protocol DataLayer {
      *
      * - Returns: A `Single` onto which you can subscribe to receive the completion with `DataObject` or the eventual error in case of failure.
      */
-    func getAll() -> SingleResult<DataObject>
+    func getAll() -> SingleResult<DataObject, ModuleError<Error>>
 
     // MARK: - Deletions
 
@@ -148,7 +148,7 @@ public protocol DataLayer {
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the eventual error in case of failure.
      */
     @discardableResult
-    func remove(key: String) -> SingleResult<Void>
+    func remove(key: String) -> SingleResult<Void, ModuleError<Error>>
     /**
      * Removes multiple keys from the `DataLayer`.
      *
@@ -156,13 +156,13 @@ public protocol DataLayer {
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the eventual error in case of failure.
      */
     @discardableResult
-    func remove(keys: [String]) -> SingleResult<Void>
+    func remove(keys: [String]) -> SingleResult<Void, ModuleError<Error>>
     /**
      * Clears all entries from the `DataLayer`.
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the eventual error in case of failure.
      */
     @discardableResult
-    func clear() -> SingleResult<Void>
+    func clear() -> SingleResult<Void, ModuleError<Error>>
 
     // MARK: - Events
 
@@ -224,7 +224,7 @@ public protocol DataLayer {
      *      - type: The type to convert the item into. Can be omitted if it's inferred in the completion block.
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the `DataInput` or the eventual error in case of failure.
      */
-    func get<T: DataInput>(key: String, as type: T.Type) -> SingleResult<T?>
+    func get<T: DataInput>(key: String, as type: T.Type) -> SingleResult<T?, ModuleError<Error>>
     /**
      * Returns the value at the given `key`, after converting it via the converter, in the completion block.
      *
@@ -235,7 +235,7 @@ public protocol DataLayer {
      *      - converter: The `DataItemConverter` used to convert the item, if found.
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the converted item or the eventual error in case of failure.
      */
-    func getConvertible<T>(key: String, converter: any DataItemConverter<T>) -> SingleResult<T?>
+    func getConvertible<T>(key: String, converter: any DataItemConverter<T>) -> SingleResult<T?, ModuleError<Error>>
 
     /**
      * Returns the value as an Array of `DataItem` if the underlying value is an Array, in the completion block.
@@ -247,7 +247,7 @@ public protocol DataLayer {
      *      - key: The key in which to look for the convertible item.
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the `DataItem` array or the eventual error in case of failure.
      */
-    func getDataArray(key: String) -> SingleResult<[DataItem]?>
+    func getDataArray(key: String) -> SingleResult<[DataItem]?, ModuleError<Error>>
 
     /**
      * Returns the value as a Dictionary of `DataItem` if the underlying value is a Dictionary, in the completion block.
@@ -259,7 +259,7 @@ public protocol DataLayer {
      *      - key: The key in which to look for the convertible item.
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the `DataItem` dictionary or the eventual error in case of failure.
      */
-    func getDataDictionary(key: String) -> SingleResult<[String: DataItem]?>
+    func getDataDictionary(key: String) -> SingleResult<[String: DataItem]?, ModuleError<Error>>
 
     /**
      * Returns the value at the given key as an `Array` of the (optional) given type, in the completion block.
@@ -302,7 +302,7 @@ public protocol DataLayer {
      *      - type: The type of elements contained in the Array. Can be omitted if it's inferred in the completion block.
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the array of items or the eventual error in case of failure.
      */
-    func getArray<T: DataInput>(key: String, of type: T.Type) -> SingleResult<[T?]?>
+    func getArray<T: DataInput>(key: String, of type: T.Type) -> SingleResult<[T?]?, ModuleError<Error>>
 
     /**
      * Returns the value at the given key as a `Dictionary` of the (optional) given type, in the completion block.
@@ -344,7 +344,7 @@ public protocol DataLayer {
      *      - type: The type of the values in the `Dictionary`. Can be omitted if it's inferred in the completion block.
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the dictionary of items or the eventual error in case of failure.
      */
-    func getDictionary<T: DataInput>(key: String, of type: T.Type) -> SingleResult<[String: T?]?>
+    func getDictionary<T: DataInput>(key: String, of type: T.Type) -> SingleResult<[String: T?]?, ModuleError<Error>>
 }
 
 // MARK: - Utility Extension
@@ -360,7 +360,7 @@ public extension DataLayer {
      *      - data: A `DataObject` containing the key-value pairs to be stored.
      */
     @discardableResult
-    func put(data: DataObject) -> SingleResult<Void> {
+    func put(data: DataObject) -> SingleResult<Void, ModuleError<Error>> {
         self.put(data: data, expiry: .forever)
     }
 
@@ -374,7 +374,7 @@ public extension DataLayer {
      *      - value: The `DataInput` to be stored.
      */
     @discardableResult
-    func put(key: String, value: DataInput) -> SingleResult<Void> {
+    func put(key: String, value: DataInput) -> SingleResult<Void, ModuleError<Error>> {
         self.put(key: key, value: value, expiry: .forever)
     }
 
@@ -387,7 +387,7 @@ public extension DataLayer {
      *      - expiry: The time frame for this data to remain stored.
      */
     @discardableResult
-    func put(key: String, converting convertible: DataInputConvertible, expiry: Expiry) -> SingleResult<Void> {
+    func put(key: String, converting convertible: DataInputConvertible, expiry: Expiry) -> SingleResult<Void, ModuleError<Error>> {
         self.put(key: key, value: convertible.toDataInput(), expiry: expiry)
     }
 
@@ -401,7 +401,7 @@ public extension DataLayer {
      *      - convertible: The `DataInputConvertible` to be stored after conversion.
      */
     @discardableResult
-    func put(key: String, converting convertible: DataInputConvertible) -> SingleResult<Void> {
+    func put(key: String, converting convertible: DataInputConvertible) -> SingleResult<Void, ModuleError<Error>> {
         self.put(key: key, converting: convertible, expiry: .forever)
     }
 }

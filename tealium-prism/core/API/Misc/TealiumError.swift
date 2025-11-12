@@ -1,6 +1,6 @@
 //
 //  TealiumError.swift
-//  tealium-prism-Core-iOS
+//  tealium-prism
 //
 //  Created by Den Guzov on 29/11/2024.
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
@@ -8,22 +8,11 @@
 
 import Foundation
 
-public enum TealiumError: Error, TealiumErrorEnum {
-    /**
-     * An object of a specific class could not be found.
-     *
-     * This could happen when that object was deallocated before it could be used.
-     */
-    case objectNotFound(AnyClass)
-
-    /**
-     * A module was used, or tried to be used, without it being enabled.
-     */
-    case moduleNotEnabled(Module.Type)
-
+/// Errors that can occur when calling methods directly on a `Tealium` instance.
+public enum TealiumError: ErrorEnum, ErrorWrapping {
     /// An error happened during `Tealium` initialization that prevented the correct initialization of the `Tealium` instance.
-    case initializationError(Error)
+    case initializationError(_ error: Error)
 
-    /// A generic error with a human readable description.
-    case genericError(String)
+    /// The underlying error caused by the specific failed operation.
+    case underlyingError(_ error: Error)
 }

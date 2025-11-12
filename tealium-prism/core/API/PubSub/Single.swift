@@ -78,7 +78,7 @@ public protocol ValueExtractor<ValueType> {
  *   // Handle failure
  * }
  */
-public typealias SingleResult<T> = any Single<Result<T, Error>>
+public typealias SingleResult<T, E: Error> = any Single<Result<T, E>>
 
 public extension Single {
     /**

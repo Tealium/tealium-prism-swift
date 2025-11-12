@@ -17,8 +17,8 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
     lazy var onManager = ReplaySubject<ModulesManager?>(manager)
     lazy var config: TealiumConfig = mockConfig
 
-    lazy var moduleProxy = ModuleProxy<MockModule>(queue: queue,
-                                                   onModulesManager: onManager.asObservable())
+    lazy var moduleProxy = ModuleProxy<MockModule, Error>(queue: queue,
+                                                          onModulesManager: onManager.asObservable())
     func context() -> TealiumContext {
         MockContext(modulesManager: manager,
                     config: config,
@@ -35,10 +35,11 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
     func test_executeModuleTask_completes_with_error_which_task_has_thrown() {
         let errorCaught = expectation(description: "Error caught")
         let single = moduleProxy.executeModuleTask { _ in
-            throw TealiumError.genericError("test error")
+            throw NetworkError.unknown(nil)
         }
         _ = single.subscribe { result in
-            guard case .genericError("test error") = result.getError() as? TealiumError else {
+            guard case .underlyingError(let error) = result.getError(),
+                case .unknown = error as? NetworkError else {
                 XCTFail("Unexpected result: \(result)")
                 return
             }
@@ -68,11 +69,11 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
         let single = moduleProxy.executeModuleTask { _ in
         }
         _ = single.subscribe { result in
-            guard case .moduleNotEnabled(let mockModule) = result.getError() as? TealiumError else {
+            guard case .moduleNotEnabled(let mockModule) = result.getError() else {
                 XCTFail("Unexpected result: \(result)")
                 return
             }
-            XCTAssertTrue(mockModule == MockModule.self)
+            XCTAssertTrue(mockModule == "\(MockModule.self)")
             errorCaught.fulfill()
         }
         waitOnQueue(queue: queue)
@@ -80,11 +81,12 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
 
     func test_executeAsyncModuleTask_completes_with_error_which_task_has_thrown() {
         let errorCaught = expectation(description: "Error caught")
-        let single: SingleResult<Void> = moduleProxy.executeAsyncModuleTask { _, completion in
-            completion(.failure(TealiumError.genericError("test error")))
+        let single: SingleResult<Void, ModuleError<Error>> = moduleProxy.executeAsyncModuleTask { _, completion in
+            completion(.failure(ModuleError.underlyingError(NetworkError.unknown(nil))))
         }
         _ = single.subscribe { result in
-            guard case .genericError("test error") = result.getError() as? TealiumError else {
+            guard case .underlyingError(let error) = result.getError(),
+                  case .unknown = error as? NetworkError else {
                 XCTFail("Unexpected result: \(result)")
                 return
             }
@@ -95,7 +97,7 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
 
     func test_executeAsyncModuleTask_completes_without_error_when_task_completes_successfully() {
         let errorNotCaught = expectation(description: "Error not caught")
-        let single: SingleResult<Void> = moduleProxy.executeAsyncModuleTask { _, completion in
+        let single: SingleResult<Void, ModuleError<Error>> = moduleProxy.executeAsyncModuleTask { _, completion in
             completion(.success(()))
         }
         _ = single.subscribe { result in
@@ -111,15 +113,15 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
                                                   enabled: false)
         ]))
         let errorCaught = expectation(description: "Error caught")
-        let single: SingleResult<Void> = moduleProxy.executeAsyncModuleTask { _, completion in
+        let single: SingleResult<Void, ModuleError<Error>> = moduleProxy.executeAsyncModuleTask { _, completion in
             completion(.success(()))
         }
         _ = single.subscribe { result in
-            guard case .moduleNotEnabled(let mockModule) = result.getError() as? TealiumError else {
+            guard case .moduleNotEnabled(let mockModule) = result.getError() else {
                 XCTFail("Unexpected result: \(result)")
                 return
             }
-            XCTAssertTrue(mockModule == MockModule.self)
+            XCTAssertTrue(mockModule == "\(MockModule.self)")
             errorCaught.fulfill()
         }
         waitOnQueue(queue: queue)

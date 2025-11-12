@@ -36,7 +36,7 @@ class TealiumBaseTests: XCTestCase {
 
     let disposer = DisposableContainer()
 
-    func createTealium(completion: ((Tealium.InitializationResult) -> Void)? = nil) -> Tealium {
+    func createTealium(completion: ((InitializationResult<Tealium>) -> Void)? = nil) -> Tealium {
         instanceManager.create(config: config, completion: completion)
     }
 
@@ -236,11 +236,11 @@ final class TealiumTests: TealiumBaseTests {
         let teal = createTealium()
         teal.deepLink.handle(link: try "https://www.tealium.com".asUrl(), referrer: nil).subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                guard case .moduleNotEnabled(let object) = error as? TealiumError else {
+                guard case .moduleNotEnabled(let object) = error else {
                     XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(object == DeepLinkModule.self)
+                XCTAssertTrue(object == "\(DeepLinkModule.self)")
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             handleDeeplinkCompleted.fulfill()
@@ -253,11 +253,11 @@ final class TealiumTests: TealiumBaseTests {
         let teal = createTealium()
         teal.deepLink.handle(link: try "https://www.tealium.com".asUrl(), referrer: nil).subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                guard case .moduleNotEnabled(let object) = error as? TealiumError else {
+                guard case .moduleNotEnabled(let object) = error else {
                     XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(object == DeepLinkModule.self)
+                XCTAssertTrue(object == "\(DeepLinkModule.self)")
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             handleDeeplinkCompleted.fulfill()
@@ -285,11 +285,11 @@ final class TealiumTests: TealiumBaseTests {
         let teal = createTealium()
         teal.trace.join(id: "new trace").subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                guard case .moduleNotEnabled(let object) = error as? TealiumError else {
+                guard case .moduleNotEnabled(let object) = error else {
                     XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(object == TraceModule.self)
+                XCTAssertTrue(object == "\(TraceModule.self)")
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             joinTraceCompleted.fulfill()
@@ -302,11 +302,11 @@ final class TealiumTests: TealiumBaseTests {
         let teal = createTealium()
         teal.trace.join(id: "new trace").subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                guard case .moduleNotEnabled(let object) = error as? TealiumError else {
+                guard case .moduleNotEnabled(let object) = error else {
                     XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(object == TraceModule.self)
+                XCTAssertTrue(object == "\(TraceModule.self)")
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             joinTraceCompleted.fulfill()

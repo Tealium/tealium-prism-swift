@@ -1,6 +1,6 @@
 //
 //  ConditionEvaluationError.swift
-//  tealium-prism-Core-iOS
+//  tealium-prism
 //
 //  Created by Den Guzov on 28/08/2025.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
@@ -11,7 +11,7 @@ import Foundation
 /// Error to signify that matching a `Condition` has failed in an exceptional way during evaluation.
 /// It is therefore unable to return an accurate result.
 public struct ConditionEvaluationError: InvalidMatchError {
-    enum Kind: TealiumErrorEnum {
+    enum Kind: ErrorEnum {
         /// There is no data item defined for the specified key.
         case missingDataItem
         /// Filter was not defined, bit it's required for the operation.

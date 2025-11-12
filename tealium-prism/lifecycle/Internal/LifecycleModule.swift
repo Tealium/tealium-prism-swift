@@ -63,7 +63,7 @@ class LifecycleModule {
         subscribeToApplicationStatus(onApplicationStatus).addTo(automaticDisposer)
     }
 
-    func launch(data: DataObject? = nil) throws {
+    func launch(data: DataObject? = nil) throws(LifecycleError) {
         if configuration.autoTrackingEnabled {
             throw LifecycleError.manualTrackNotAllowed
         }
@@ -71,7 +71,7 @@ class LifecycleModule {
         try registerLifecycleEvent(event: LifecycleEvent.launch, timestamp: Date().unixTimeMilliseconds, data: data)
     }
 
-    func wake(data: DataObject? = nil) throws {
+    func wake(data: DataObject? = nil) throws(LifecycleError) {
         if configuration.autoTrackingEnabled {
             throw LifecycleError.manualTrackNotAllowed
         }
@@ -79,7 +79,7 @@ class LifecycleModule {
         try registerLifecycleEvent(event: LifecycleEvent.wake, timestamp: Date().unixTimeMilliseconds, data: data)
     }
 
-    func sleep(data: DataObject? = nil) throws {
+    func sleep(data: DataObject? = nil) throws(LifecycleError) {
         if configuration.autoTrackingEnabled {
             throw LifecycleError.manualTrackNotAllowed
         }
@@ -111,32 +111,34 @@ class LifecycleModule {
         event: LifecycleEvent,
         timestamp: Int64,
         data: DataObject?
-    ) throws {
-        do {
-            guard isAcceptable(event) else {
-                throw LifecycleError.invalidEventOrder
-            }
-            var state = switch event {
-            case .launch:
-                try lifecycleService.registerLaunch(timestamp: timestamp)
-            case .wake:
-                try lifecycleService.registerWake(timestamp: timestamp)
-            case .sleep:
-                try lifecycleService.registerSleep(timestamp: timestamp)
-            }
-            if isTrackableEvent(event: event) {
-                if let data {
-                    state += data
+    ) throws(LifecycleError) {
+        try LifecycleError.wrapErrors {
+            do {
+                guard isAcceptable(event) else {
+                    throw LifecycleError.invalidEventOrder
                 }
-                let dispatch = Dispatch(name: event.rawValue, data: state)
-                self.tracker.track(dispatch, source: .module(LifecycleModule.self))
+                var state = switch event {
+                case .launch:
+                    try lifecycleService.registerLaunch(timestamp: timestamp)
+                case .wake:
+                    try lifecycleService.registerWake(timestamp: timestamp)
+                case .sleep:
+                    try lifecycleService.registerSleep(timestamp: timestamp)
+                }
+                if isTrackableEvent(event: event) {
+                    if let data {
+                        state += data
+                    }
+                    let dispatch = Dispatch(name: event.rawValue, data: state)
+                    self.tracker.track(dispatch, source: .module(LifecycleModule.self))
+                }
+                if !hasLaunched {
+                    hasLaunched = true
+                }
+            } catch {
+                self.logger?.error(category: LogCategory.lifecycle, "Failed to process lifecycle event \(event)\nError: \(error)")
+                throw error
             }
-            if !hasLaunched {
-                hasLaunched = true
-            }
-        } catch {
-            self.logger?.error(category: LogCategory.lifecycle, "Failed to process lifecycle event \(event)\nError: \(error)")
-            throw error
         }
     }
 

@@ -1,5 +1,5 @@
 //
-//  DatabaseErrors.swift
+//  DatabaseError.swift
 //  tealium-prism
 //
 //  Created by Tyler Rister on 14/7/23.
@@ -8,6 +8,7 @@
 
 import Foundation
 
-enum DatabaseErrors: Error {
+public enum DatabaseError: ErrorEnum, ErrorWrapping {
     case unsupportedDowngrade
+    case underlyingError(_ error: Error)
 }

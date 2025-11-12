@@ -51,9 +51,9 @@ class DeepLinkModule: BasicModule, Collector {
         subscribeToOpenUrl()
     }
 
-    func getTrace() throws -> TraceModule {
+    func getTrace() throws(ModuleError<Error>) -> TraceModule {
         guard let trace: TraceModule = modulesManager.getModule() else {
-            throw TealiumError.moduleNotEnabled(TraceModule.self)
+            throw .moduleNotEnabled("\(TraceModule.self)")
         }
         return trace
     }

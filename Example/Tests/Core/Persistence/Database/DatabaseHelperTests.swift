@@ -73,7 +73,10 @@ class DatabaseHelperTests: XCTestCase {
     func test_onDowngrade_recreates_database() throws {
         let connection = try Connection(.inMemory)
         XCTAssertThrowsError(try databaseHelper.onDowngrade(database: connection, fromOldVersion: 3, toNewVersion: 1)) { error in
-            XCTAssertEqual(DatabaseErrors.unsupportedDowngrade, error as? DatabaseErrors)
+            guard let error = error as? DatabaseError, case .unsupportedDowngrade = error else {
+                XCTFail("Expected unsupportedDowngrade error but got \(error)")
+                return
+            }
         }
     }
 

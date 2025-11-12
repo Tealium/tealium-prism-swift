@@ -23,7 +23,7 @@ public protocol Lifecycle {
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the eventual error in case of failure.
      */
     @discardableResult
-    func launch(_ dataObject: DataObject?) -> SingleResult<Void>
+    func launch(_ dataObject: DataObject?) -> SingleResult<Void, ModuleError<LifecycleError>>
 
     /**
      * Sends a wake event and gathers all lifecycle data at the time event is triggered.
@@ -33,7 +33,7 @@ public protocol Lifecycle {
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the eventual error in case of failure.
      */
     @discardableResult
-    func wake(_ dataObject: DataObject?) -> SingleResult<Void>
+    func wake(_ dataObject: DataObject?) -> SingleResult<Void, ModuleError<LifecycleError>>
 
     /**
      * Sends a sleep event and gathers all lifecycle data at the time event is triggered.
@@ -43,7 +43,7 @@ public protocol Lifecycle {
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the eventual error in case of failure.
      */
     @discardableResult
-    func sleep(_ dataObject: DataObject?) -> SingleResult<Void>
+    func sleep(_ dataObject: DataObject?) -> SingleResult<Void, ModuleError<LifecycleError>>
 }
 
 public extension Lifecycle {
@@ -53,7 +53,7 @@ public extension Lifecycle {
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the eventual error in case of failure.
      */
     @discardableResult
-    func launch() -> SingleResult<Void> {
+    func launch() -> SingleResult<Void, ModuleError<LifecycleError>> {
         launch(nil)
     }
 
@@ -63,7 +63,7 @@ public extension Lifecycle {
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the eventual error in case of failure.
      */
     @discardableResult
-    func wake() -> SingleResult<Void> {
+    func wake() -> SingleResult<Void, ModuleError<LifecycleError>> {
         wake(nil)
     }
 
@@ -73,7 +73,7 @@ public extension Lifecycle {
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the eventual error in case of failure.
      */
     @discardableResult
-    func sleep() -> SingleResult<Void> {
+    func sleep() -> SingleResult<Void, ModuleError<LifecycleError>> {
         sleep(nil)
     }
 }

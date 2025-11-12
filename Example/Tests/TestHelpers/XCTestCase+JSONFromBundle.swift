@@ -10,7 +10,7 @@
 import XCTest
 
 extension XCTestCase {
-    enum JSONError: TealiumErrorEnum {
+    enum JSONError: ErrorEnum {
         case pathNotFoundForResource(String)
         case conversionToStringFailed
     }

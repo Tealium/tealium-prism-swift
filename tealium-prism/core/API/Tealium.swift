@@ -11,6 +11,8 @@ import Foundation
 /// Completion handler for tracking operations that provides the result with either dropped or accepted dispatch.
 public typealias TrackResultCompletion = (_ result: TrackResult) -> Void
 
+/// Result type for initialization operations.
+public typealias InitializationResult<Object> = Result<Object, Error>
 /**
  * The main class for the Tealium SDK.
  *
@@ -19,14 +21,9 @@ public typealias TrackResultCompletion = (_ result: TrackResult) -> Void
  * various modules like data layer, deep linking, and tracing.
  */
 public class Tealium {
-    /// Result type for Tealium initialization operations.
-    public typealias InitializationResult = Result<Tealium, TealiumError>
-
-    /// Result type for internal implementation operations.
-    typealias ImplementationResult = Result<TealiumImpl, TealiumError>
 
     /// Observable type for `ImplementationResult`.
-    typealias ImplementationObservable = Observable<ImplementationResult>
+    typealias ImplementationObservable = Observable<InitializationResult<TealiumImpl>>
 
     /// Observable for the modules manager.
     private let onModulesManager: Observable<ModulesManager?>
@@ -38,7 +35,7 @@ public class Tealium {
     let queue: TealiumQueue
 
     /// The proxy used to access `TealiumImpl` from the right thread.
-    let proxy: AsyncProxy<TealiumImpl>
+    let proxy: AsyncProxy<TealiumImpl, TealiumError>
 
     /**
      * Creates a new Tealium instance with the provided configuration.
@@ -48,7 +45,7 @@ public class Tealium {
      *   - completion: A closure that is called when initialization completes, providing either the Tealium instance or an error.
      * - Returns: A new Tealium instance.
      */
-    public static func create(config: TealiumConfig, completion: ((InitializationResult) -> Void)? = nil) -> Tealium {
+    public static func create(config: TealiumConfig, completion: ((InitializationResult<Tealium>) -> Void)? = nil) -> Tealium {
         TealiumInstanceManager.shared.create(config: config, completion: completion)
     }
 
@@ -67,7 +64,7 @@ public class Tealium {
             }
         }
         proxy = AsyncProxy(queue: queue,
-                           onObject: onTealiumImplementation.map { $0.mapError { $0 as Error } })
+                           onObject: onTealiumImplementation.map { $0.mapError { .initializationError($0) } })
     }
 
     /**
@@ -101,7 +98,7 @@ public class Tealium {
      * or the `TrackResult` for this track request.
      */
     @discardableResult
-    public func track(_ name: String, type: DispatchType = .event, data: DataObject? = nil) -> SingleResult<TrackResult> {
+    public func track(_ name: String, type: DispatchType = .event, data: DataObject? = nil) -> SingleResult<TrackResult, TealiumError> {
         let dispatch = Dispatch(name: name, type: type, data: data)
         return proxy.executeAsyncTask { tealium, completion in
             tealium.track(dispatch) { result in
@@ -121,7 +118,7 @@ public class Tealium {
      * The returned `Single`, in case of success, completes when the flush request is accepted, not when all the events have been flushed.
      */
     @discardableResult
-    public func flushEventQueue() -> SingleResult<Void> {
+    public func flushEventQueue() -> SingleResult<Void, TealiumError> {
         proxy.executeTask { tealium in
             tealium.barrierCoordinator.flush()
         }
@@ -136,9 +133,11 @@ public class Tealium {
      * or the new visitor ID.
      */
     @discardableResult
-    public func resetVisitorId() -> SingleResult<String> {
-        proxy.executeTask { tealium in
-            try tealium.visitorIdProvider.resetVisitorId()
+    public func resetVisitorId() -> SingleResult<String, TealiumError> {
+        proxy.executeTask { tealium throws(TealiumError) in
+            try TealiumError.wrapErrors {
+                try tealium.visitorIdProvider.resetVisitorId()
+            }
         }
     }
 
@@ -150,9 +149,11 @@ public class Tealium {
      * or the new visitor ID.
      */
     @discardableResult
-    public func clearStoredVisitorIds() -> SingleResult<String> {
-        proxy.executeTask { tealium in
-            try tealium.visitorIdProvider.clearStoredVisitorIds()
+    public func clearStoredVisitorIds() -> SingleResult<String, TealiumError> {
+        proxy.executeTask { tealium throws(TealiumError) in
+            try TealiumError.wrapErrors {
+                try tealium.visitorIdProvider.clearStoredVisitorIds()
+            }
         }
     }
 
@@ -174,7 +175,7 @@ public class Tealium {
      *   - module: The `Module` type that the Proxy needs to wrap.
      * - Returns: The `ModuleProxy` for the given module.
      */
-    public func createModuleProxy<T: Module>(for module: T.Type = T.self) -> ModuleProxy<T> {
+    public func createModuleProxy<T: Module, E: Error>(for module: T.Type = T.self) -> ModuleProxy<T, E> {
         ModuleProxy(queue: queue, onModulesManager: onModulesManager)
     }
 

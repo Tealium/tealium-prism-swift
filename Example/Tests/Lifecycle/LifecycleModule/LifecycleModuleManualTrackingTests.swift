@@ -26,14 +26,20 @@ final class LifecycleModuleManualTrackingTests: LifecycleModuleBaseTests {
     }
 
     func test_sleep_throws_invalidEventOrder_error_if_first_event() throws {
-        XCTAssertThrowsError(try module.sleep()) { error in
-            XCTAssertEqual(error as? LifecycleError, .invalidEventOrder)
+        XCTAssertThrows(try module.sleep()) { (error: LifecycleError) in
+            guard case .invalidEventOrder = error else {
+                XCTFail("Expected invalidEventOrder but got \(error)")
+                return
+            }
         }
     }
 
     func test_wake_throws_invalidEventOrder_error_if_first_event() throws {
-        XCTAssertThrowsError(try module.wake()) { error in
-            XCTAssertEqual(error as? LifecycleError, .invalidEventOrder)
+        XCTAssertThrows(try module.wake()) { (error: LifecycleError) in
+            guard case .invalidEventOrder = error else {
+                XCTFail("Expected invalidEventOrder but got \(error)")
+                return
+            }
         }
     }
 
@@ -87,8 +93,11 @@ final class LifecycleModuleManualTrackingTests: LifecycleModuleBaseTests {
         try module.launch()
         try module.sleep()
         try module.wake()
-        XCTAssertThrowsError(try module.launch()) { error in
-            XCTAssertEqual(error as? LifecycleError, .invalidEventOrder)
+        XCTAssertThrows(try module.launch()) { (error: LifecycleError) in
+            guard case .invalidEventOrder = error else {
+                XCTFail("Expected invalidEventOrder but got \(error)")
+                return
+            }
         }
         waitForDefaultTimeout()
     }
@@ -101,8 +110,11 @@ final class LifecycleModuleManualTrackingTests: LifecycleModuleBaseTests {
             }
         }.addTo(autoDisposer)
         try module.launch()
-        XCTAssertThrowsError(try module.launch()) { error in
-            XCTAssertEqual(error as? LifecycleError, .invalidEventOrder)
+        XCTAssertThrows(try module.launch()) { (error: LifecycleError) in
+            guard case .invalidEventOrder = error else {
+                XCTFail("Expected invalidEventOrder but got \(error)")
+                return
+            }
         }
         waitForDefaultTimeout()
     }
@@ -117,16 +129,22 @@ final class LifecycleModuleManualTrackingTests: LifecycleModuleBaseTests {
         try module.launch()
         try module.sleep()
         try module.wake()
-        XCTAssertThrowsError(try module.wake()) { error in
-            XCTAssertEqual(error as? LifecycleError, .invalidEventOrder)
+        XCTAssertThrows(try module.wake()) { (error: LifecycleError) in
+            guard case .invalidEventOrder = error else {
+                XCTFail("Expected invalidEventOrder but got \(error)")
+                return
+            }
         }
         waitForDefaultTimeout()
     }
 
     func test_wake_throws_invalidEventOrder_error_on_wake_after_launch() throws {
         try module.launch()
-        XCTAssertThrowsError(try module.wake()) { error in
-            XCTAssertEqual(error as? LifecycleError, .invalidEventOrder)
+        XCTAssertThrows(try module.wake()) { (error: LifecycleError) in
+            guard case .invalidEventOrder = error else {
+                XCTFail("Expected invalidEventOrder but got \(error)")
+                return
+            }
         }
     }
 
@@ -139,8 +157,11 @@ final class LifecycleModuleManualTrackingTests: LifecycleModuleBaseTests {
         }.addTo(autoDisposer)
         try module.launch()
         try module.sleep()
-        XCTAssertThrowsError(try module.sleep()) { error in
-            XCTAssertEqual(error as? LifecycleError, .invalidEventOrder)
+        XCTAssertThrows(try module.sleep()) { (error: LifecycleError) in
+            guard case .invalidEventOrder = error else {
+                XCTFail("Expected invalidEventOrder but got \(error)")
+                return
+            }
         }
         waitForDefaultTimeout()
     }

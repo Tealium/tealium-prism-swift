@@ -128,13 +128,12 @@ final class ConditionNotContainsTests: XCTestCase {
 
     func test_notContains_throws_for_keys_missing_from_the_payload() {
         let condition = Condition.doesNotContain(ignoreCase: false, variable: "missing", string: "something")
-        XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError,
-                    case .missingDataItem = operationError.kind else {
+        XCTAssertThrows(try condition.matches(payload: payload)) { (error: ConditionEvaluationError) in
+            guard case .missingDataItem = error.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
-            XCTAssertEqual(operationError.condition, condition)
+            XCTAssertEqual(error.condition, condition)
         }
     }
 
@@ -142,13 +141,12 @@ final class ConditionNotContainsTests: XCTestCase {
         let condition = Condition.doesNotContain(ignoreCase: false,
                                                  variable: JSONPath["dictionary"]["missing"]["key"],
                                                  string: "something")
-        XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError,
-                    case .missingDataItem = operationError.kind else {
+        XCTAssertThrows(try condition.matches(payload: payload)) { (error: ConditionEvaluationError) in
+            guard case .missingDataItem = error.kind else {
                 XCTFail("Should be missing data item error, found: \(error)")
                 return
             }
-            XCTAssertEqual(operationError.condition, condition)
+            XCTAssertEqual(error.condition, condition)
         }
     }
 
@@ -156,13 +154,12 @@ final class ConditionNotContainsTests: XCTestCase {
         let condition = Condition(variable: "string",
                                   operator: .notContains(true),
                                   filter: nil)
-        XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError,
-                    case .missingFilter = operationError.kind else {
+        XCTAssertThrows(try condition.matches(payload: payload)) { (error: ConditionEvaluationError) in
+            guard case .missingFilter = error.kind else {
                 XCTFail("Should be missing filter error, found: \(error)")
                 return
             }
-            XCTAssertEqual(operationError.condition, condition)
+            XCTAssertEqual(error.condition, condition)
         }
     }
 
@@ -170,14 +167,13 @@ final class ConditionNotContainsTests: XCTestCase {
         let condition = Condition.doesNotContain(ignoreCase: true,
                                                  variable: "dictionary",
                                                  string: "value")
-        XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError,
-                    case let .operationNotSupportedFor(itemType) = operationError.kind else {
+        XCTAssertThrows(try condition.matches(payload: payload)) { (error: ConditionEvaluationError) in
+            guard case let .operationNotSupportedFor(itemType) = error.kind else {
                 XCTFail("Should be operation not supported for type error, found: \(error)")
                 return
             }
             XCTAssertTrue(itemType == "\([String: DataItem].self)", "Expected dictionary type but got \(itemType)")
-            XCTAssertEqual(operationError.condition, condition)
+            XCTAssertEqual(error.condition, condition)
         }
     }
 
@@ -185,14 +181,13 @@ final class ConditionNotContainsTests: XCTestCase {
         let condition = Condition.doesNotContain(ignoreCase: false,
                                                  variable: "arrayWithDictionary",
                                                  string: "Value")
-        XCTAssertThrowsError(try condition.matches(payload: payload)) { error in
-            guard let operationError = error as? ConditionEvaluationError,
-                    case let .operationNotSupportedFor(itemType) = operationError.kind else {
+        XCTAssertThrows(try condition.matches(payload: payload)) { (error: ConditionEvaluationError) in
+            guard case let .operationNotSupportedFor(itemType) = error.kind else {
                 XCTFail("Should be operation not supported for type error, found: \(error)")
                 return
             }
             XCTAssertTrue(itemType == "Array containing: \([String: DataItem].self)", "Expected array type but got \(itemType)")
-            XCTAssertEqual(operationError.condition, condition)
+            XCTAssertEqual(error.condition, condition)
         }
     }
 }

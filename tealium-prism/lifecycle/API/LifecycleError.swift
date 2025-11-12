@@ -10,9 +10,14 @@
 import TealiumPrismCore
 #endif
 
-public enum LifecycleError: Error, TealiumErrorEnum {
+/// An error from the `Lifecycle` module.
+public enum LifecycleError: Error, ErrorEnum, ErrorWrapping {
+    /// Lifecycle auto-tracking is enabled, cannot manually track lifecycle event.
     case manualTrackNotAllowed
+    /// Invalid lifecycle event order. The event is not registered/tracked.
     case invalidEventOrder
+    /// Lifecycle failed to perform a specific operation.
+    case underlyingError(_ error: Error)
 
     var localizedDescription: String {
         switch self {
@@ -20,6 +25,8 @@ public enum LifecycleError: Error, TealiumErrorEnum {
             "Lifecycle auto-tracking is enabled, cannot manually track lifecycle event."
         case .invalidEventOrder:
             "Invalid lifecycle event order. The event is not registered/tracked."
+        case let .underlyingError(error):
+            "Lifecycle failed due to error: \(error)"
         }
     }
 }

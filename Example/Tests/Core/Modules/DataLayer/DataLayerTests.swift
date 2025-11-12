@@ -17,12 +17,12 @@ private class DataLayerMock: DataLayerWrapper {
     }
     @Subject<Put> var onPut
 
-    override func put(key: String, value: any DataInput, expiry: Expiry) -> SingleResult<Void> {
+    override func put(key: String, value: any DataInput, expiry: Expiry) -> SingleResult<Void, ModuleError<Error>> {
         _onPut.publish(Put(key: key, value: value, expiry: expiry))
         return super.put(key: key, value: value, expiry: expiry)
     }
 
-    override func put(data: DataObject, expiry: Expiry) -> SingleResult<Void> {
+    override func put(data: DataObject, expiry: Expiry) -> SingleResult<Void, ModuleError<Error>> {
         for key in data.keys {
             if let dataItem = data.getDataItem(key: key) {
                 _onPut.publish(Put(key: key, value: dataItem.toDataInput(), expiry: expiry))

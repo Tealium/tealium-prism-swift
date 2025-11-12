@@ -11,20 +11,29 @@ import XCTest
 
 final class LifecycleModuleSubscriptionTests: LifecycleModuleBaseTests {
     func test_manual_launch_throws_an_error_if_autotracking_enabled() {
-        XCTAssertThrowsError(try module.launch()) { error in
-            XCTAssertEqual(error as? LifecycleError, .manualTrackNotAllowed)
+        XCTAssertThrows(try module.launch()) { (error: LifecycleError) in
+            guard case .manualTrackNotAllowed = error else {
+                XCTFail("Expected manualTrackNotAllowed but got \(error)")
+                return
+            }
         }
     }
 
     func test_manual_wake_throws_an_error_if_autotracking_enabled() {
-        XCTAssertThrowsError(try module.wake()) { error in
-            XCTAssertEqual(error as? LifecycleError, .manualTrackNotAllowed)
+        XCTAssertThrows(try module.wake()) { (error: LifecycleError) in
+            guard case .manualTrackNotAllowed = error else {
+                XCTFail("Expected manualTrackNotAllowed but got \(error)")
+                return
+            }
         }
     }
 
     func test_manual_sleep_throws_an_error_if_autotracking_enabled() {
-        XCTAssertThrowsError(try module.sleep()) { error in
-            XCTAssertEqual(error as? LifecycleError, .manualTrackNotAllowed)
+        XCTAssertThrows(try module.sleep()) { (error: LifecycleError) in
+            guard case .manualTrackNotAllowed = error else {
+                XCTFail("Expected manualTrackNotAllowed but got \(error)")
+                return
+            }
         }
     }
 

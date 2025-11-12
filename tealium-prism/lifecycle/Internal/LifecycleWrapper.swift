@@ -11,28 +11,28 @@ import TealiumPrismCore
 #endif
 
 class LifecycleWrapper: Lifecycle {
-    private let moduleProxy: ModuleProxy<LifecycleModule>
-    init(moduleProxy: ModuleProxy<LifecycleModule>) {
+    private let moduleProxy: ModuleProxy<LifecycleModule, LifecycleError>
+    init(moduleProxy: ModuleProxy<LifecycleModule, LifecycleError>) {
         self.moduleProxy = moduleProxy
     }
 
     @discardableResult
-    func launch(_ event: DataObject?) -> SingleResult<Void> {
-        moduleProxy.executeModuleTask { module in
+    func launch(_ event: DataObject?) -> SingleResult<Void, ModuleError<LifecycleError>> {
+        moduleProxy.executeModuleTask { module throws(LifecycleError) in
             try module.launch(data: event)
         }
     }
 
     @discardableResult
-    func wake(_ event: DataObject?) -> SingleResult<Void> {
-        moduleProxy.executeModuleTask { module in
+    func wake(_ event: DataObject?) -> SingleResult<Void, ModuleError<LifecycleError>> {
+        moduleProxy.executeModuleTask { module throws(LifecycleError) in
             try module.wake(data: event)
         }
     }
 
     @discardableResult
-    func sleep(_ event: DataObject?) -> SingleResult<Void> {
-        moduleProxy.executeModuleTask { module in
+    func sleep(_ event: DataObject?) -> SingleResult<Void, ModuleError<LifecycleError>> {
+        moduleProxy.executeModuleTask { module throws(LifecycleError) in
             try module.sleep(data: event)
         }
     }

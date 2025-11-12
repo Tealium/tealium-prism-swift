@@ -15,17 +15,17 @@ import Foundation
  * Any external `Module` implementation that provides functionality expected to be used by a
  * developer should wrap their access to `Tealium` through a `ModuleProxy`.
  */
-public class ModuleProxy<SpecificModule: Module> {
+public class ModuleProxy<SpecificModule: Module, Failure: Error> {
     private let onModulesManager: Observable<ModulesManager?>
 
     /// A synchronous task that can be executed on a module.
-    public typealias ModuleTask<T> = (_ module: SpecificModule) throws -> T
+    public typealias ModuleTask<T> = (_ module: SpecificModule) throws(Failure) -> T
     /// An asynchronous task that can be executed on a module.
     public typealias AsyncModuleTask<T> = (
         _ module: SpecificModule,
-        _ completion: @escaping (Result<T, Error>) -> Void
-    ) throws -> Void
-    let asyncProxy: AsyncProxy<SpecificModule>
+        _ completion: @escaping (Result<T, ModuleError<Failure>>) -> Void
+    ) throws(Failure) -> Void
+    let asyncProxy: AsyncProxy<SpecificModule, ModuleError<Failure>>
 
     /**
      * Initialize the `ModuleProxy` for a specific `Module`.
@@ -37,12 +37,12 @@ public class ModuleProxy<SpecificModule: Module> {
      */
     init(queue: TealiumQueue, onModulesManager: Observable<ModulesManager?>) {
         self.onModulesManager = onModulesManager
-        let onModule: Observable<Result<SpecificModule, Error>> = onModulesManager.map { manager in
+        let onModule: Observable<Result<SpecificModule, ModuleError<Failure>>> = onModulesManager.map { manager in
             guard let manager else {
-                return .failure(TealiumError.objectNotFound(ModulesManager.self))
+                return .failure(ModuleError.objectNotFound("\(ModulesManager.self)"))
             }
             guard let module = manager.getModule(SpecificModule.self) else {
-                return .failure(TealiumError.moduleNotEnabled(SpecificModule.self))
+                return .failure(ModuleError.moduleNotEnabled("\(SpecificModule.self)"))
             }
             return .success(module)
         }
@@ -118,8 +118,12 @@ public class ModuleProxy<SpecificModule: Module> {
      *   - task: the task to be executed if module is enabled
      * - Returns: the `Single` with the `Result`
      */
-    public func executeModuleTask<T>(_ task: @escaping ModuleTask<T>) -> SingleResult<T> {
-        asyncProxy.executeTask(task)
+    public func executeModuleTask<T>(_ task: @escaping ModuleTask<T>) -> SingleResult<T, ModuleError<Failure>> {
+        asyncProxy.executeTask { object throws(ModuleError<Failure>) in
+            try ModuleError<Failure>.wrapErrors { () throws(Failure) -> T in
+                return try task(object)
+            }
+        }
     }
 
     /**
@@ -169,7 +173,11 @@ public class ModuleProxy<SpecificModule: Module> {
      *   - task: the task to be executed if module is enabled
      * - Returns: the `Single` with the `Result`.
      */
-    public func executeAsyncModuleTask<T>(_ asyncTask: @escaping AsyncModuleTask<T>) -> SingleResult<T> {
-        asyncProxy.executeAsyncTask(asyncTask)
+    public func executeAsyncModuleTask<T>(_ asyncTask: @escaping AsyncModuleTask<T>) -> SingleResult<T, ModuleError<Failure>> {
+        asyncProxy.executeAsyncTask { object, completion throws(ModuleError<Failure>) in
+            try ModuleError<Failure>.wrapErrors { () throws(Failure) in
+                try asyncTask(object, completion)
+            }
+        }
     }
 }

@@ -18,13 +18,13 @@ public protocol Trace {
      * events that are tracked until either `leave` is called, or the current session expires.
      */
     @discardableResult
-    func join(id: String) -> SingleResult<Void>
+    func join(id: String) -> SingleResult<Void, ModuleError<Error>>
 
     /**
      * Leaves the current trace if one has been joined.
      */
     @discardableResult
-    func leave() -> SingleResult<Void>
+    func leave() -> SingleResult<Void, ModuleError<Error>>
 
     /**
      * Attempts to kill the visitor session for the current trace.
@@ -39,5 +39,5 @@ public protocol Trace {
      * The track request will leave the device after it's been accepted, following standard dequeueing flows.
      */
     @discardableResult
-    func killVisitorSession() -> SingleResult<TrackResult>
+    func killVisitorSession() -> SingleResult<TrackResult, ModuleError<Error>>
 }

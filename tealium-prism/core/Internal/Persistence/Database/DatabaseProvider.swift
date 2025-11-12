@@ -24,7 +24,7 @@ public class DatabaseProvider: DatabaseProviderProtocol {
         let helper = DatabaseHelper(config: config)
         do {
             return try helper.getDatabase()
-        } catch DatabaseErrors.unsupportedDowngrade {
+        } catch DatabaseError.unsupportedDowngrade {
             helper.deleteDatabase()
             return try? helper.getDatabase()
         } catch {

@@ -14,13 +14,13 @@
  * The provided `onObject` observable is an `Observable` that, upon subscription, emits the proxied object,
  * if available, from the provided `queue`, or `nil` if it's not available.
  */
-class AsyncProxy<Object: AnyObject> {
-    typealias ObjectResult = Result<Object, any Error>
-    typealias Task<T> = (_ object: Object) throws -> T
+class AsyncProxy<Object: AnyObject, Failure: Error> {
+    typealias ObjectResult = Result<Object, Failure>
+    typealias Task<T> = (_ object: Object) throws(Failure) -> T
     typealias AsyncTask<T> = (
         _ object: Object,
-        _ completion: @escaping (Result<T, Error>) -> Void
-    ) throws -> Void
+        _ completion: @escaping (Result<T, Failure>) -> Void
+    ) throws(Failure) -> Void
 
     let queue: TealiumQueue
     private(set) var onObject: Observable<ObjectResult>
@@ -36,9 +36,9 @@ class AsyncProxy<Object: AnyObject> {
         single.subscribe(completion) // Split to reduce compilation complexity
     }
 
-    func executeTask<Output>(_ task: @escaping Task<Output>) -> SingleResult<Output> {
+    func executeTask<Output>(_ task: @escaping Task<Output>) -> SingleResult<Output, Failure> {
         executeAsyncTask { object, completion in
-            do {
+            do throws(Failure) {
                 let result = try task(object)
                 completion(.success(result))
             } catch {
@@ -47,12 +47,12 @@ class AsyncProxy<Object: AnyObject> {
         }
     }
 
-    func executeAsyncTask<Output>(_ asyncTask: @escaping AsyncTask<Output>) -> SingleResult<Output> {
+    func executeAsyncTask<Output>(_ asyncTask: @escaping AsyncTask<Output>) -> SingleResult<Output, Failure> {
         // Use the replay subject to make the returned Single a HOT observable.
         // A HOT observable doesn't require a subscription to start emitting events.
-        let replay = ReplaySubject<Result<Output, Error>>()
+        let replay = ReplaySubject<Result<Output, Failure>>()
         let observable = onObject.callback(from: { result, observer in
-            do {
+            do throws(Failure) {
                 let object = try result.get()
                 try asyncTask(object, observer)
             } catch {

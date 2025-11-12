@@ -119,7 +119,14 @@ final class LifecycleWrapperTests: XCTestCase {
         }
         _ = wrapper.launch(nil).subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                XCTAssertEqual(error as? LifecycleError, LifecycleError.invalidEventOrder)
+                guard case .underlyingError(let error) = error else {
+                    XCTFail("Expected underlying invalidEventOrder error, but got \(error)")
+                    return
+                }
+                guard case .invalidEventOrder = error else {
+                    XCTFail("Expected invalidEventOrder but got \(error)")
+                    return
+                }
                 calledWithError.fulfill()
             }
         }
@@ -136,7 +143,15 @@ final class LifecycleWrapperTests: XCTestCase {
         }
         _ = wrapper.sleep(nil).subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                XCTAssertEqual(error as? LifecycleError, LifecycleError.invalidEventOrder)
+                guard case .underlyingError(let error) = error else {
+                    XCTFail("Expected underlying invalidEventOrder error, but got \(error)")
+                    return
+                }
+                guard case .invalidEventOrder = error else {
+                    XCTFail("Expected invalidEventOrder but got \(error)")
+                    return
+                }
+
                 calledWithError.fulfill()
             }
         }
@@ -154,7 +169,15 @@ final class LifecycleWrapperTests: XCTestCase {
         }
         _ = wrapper.wake(nil).subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                XCTAssertEqual(error as? LifecycleError, LifecycleError.invalidEventOrder)
+                guard case .underlyingError(let error) = error else {
+                    XCTFail("Expected underlying invalidEventOrder error, but got \(error)")
+                    return
+                }
+                guard case .invalidEventOrder = error else {
+                    XCTFail("Expected invalidEventOrder but got \(error)")
+                    return
+                }
+
                 calledWithError.fulfill()
             }
         }

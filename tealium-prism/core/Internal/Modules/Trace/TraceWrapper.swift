@@ -7,27 +7,27 @@
 //
 
 class TraceWrapper: Trace {
-    private let moduleProxy: ModuleProxy<TraceModule>
-    init(moduleProxy: ModuleProxy<TraceModule>) {
+    private let moduleProxy: ModuleProxy<TraceModule, Error>
+    init(moduleProxy: ModuleProxy<TraceModule, Error>) {
         self.moduleProxy = moduleProxy
     }
 
     @discardableResult
-    public func join(id: String) -> SingleResult<Void> {
+    public func join(id: String) -> SingleResult<Void, ModuleError<Error>> {
         moduleProxy.executeModuleTask { module in
             try module.join(id: id)
         }
     }
 
     @discardableResult
-    public func leave() -> SingleResult<Void> {
+    public func leave() -> SingleResult<Void, ModuleError<Error>> {
         moduleProxy.executeModuleTask { module in
             try module.leave()
         }
     }
 
     @discardableResult
-    public func killVisitorSession() -> SingleResult<TrackResult> {
+    public func killVisitorSession() -> SingleResult<TrackResult, ModuleError<Error>> {
         moduleProxy.executeAsyncModuleTask { module, completion in
             try module.killVisitorSession { result in
                 completion(.success(result))

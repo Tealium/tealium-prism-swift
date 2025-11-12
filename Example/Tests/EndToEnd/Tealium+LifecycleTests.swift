@@ -32,11 +32,11 @@ final class TealiumLifecycleTests: TealiumBaseTests {
         let teal = createTealium()
         teal.lifecycle().launch().subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                guard case .moduleNotEnabled(let module) = error as? TealiumError else {
-                    XCTFail("Error should be objectNotFound, but failed with \(error)")
+                guard case .moduleNotEnabled(let module) = error else {
+                    XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(module == LifecycleModule.self)
+                XCTAssertTrue(module == "\(LifecycleModule.self)")
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             lifecycleEventCompleted.fulfill()
@@ -49,11 +49,11 @@ final class TealiumLifecycleTests: TealiumBaseTests {
         let teal = createTealium()
         teal.lifecycle().launch().subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                guard case .moduleNotEnabled(let module) = error as? TealiumError else {
-                    XCTFail("Error should be objectNotFound, but failed with \(error)")
+                guard case .moduleNotEnabled(let module) = error else {
+                    XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(module == LifecycleModule.self)
+                XCTAssertTrue(module == "\(LifecycleModule.self)")
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             lifecycleEventCompleted.fulfill()

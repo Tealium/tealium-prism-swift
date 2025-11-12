@@ -9,6 +9,10 @@
 @testable import TealiumPrism
 import XCTest
 
+enum TestError: Error {
+    case fileNotFound(named: String)
+}
+
 final class TealiumSettingsTests: TealiumBaseTests {
     override func setUp() {
         settingsFile = "local"
@@ -22,7 +26,7 @@ final class TealiumSettingsTests: TealiumBaseTests {
     func mockRemoteSettings(named: String) throws {
         guard let path = TealiumFileManager.fullJSONPath(from: Bundle(for: self.classForCoder), relativePath: named)
             else {
-            throw TealiumError.genericError("File not found: \(named)")
+            throw TestError.fileNotFound(named: named)
         }
         let jsonData = try Data(contentsOf: URL(fileURLWithPath: path), options: .mappedIfSafe)
         if let url = settingsUrl {

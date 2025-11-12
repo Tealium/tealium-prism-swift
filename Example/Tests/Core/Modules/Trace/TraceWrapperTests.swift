@@ -77,11 +77,11 @@ final class TraceWrapperTests: XCTestCase {
         ]))
         _ = wrapper.killVisitorSession().subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                guard case .moduleNotEnabled(let trace) = error as? TealiumError else {
+                guard case .moduleNotEnabled(let trace) = error else {
                     XCTFail("Unexpected error: \(String(describing: error))")
                     return
                 }
-                XCTAssertTrue(trace == TraceModule.self)
+                XCTAssertTrue(trace == "\(TraceModule.self)")
                 errorCaught.fulfill()
             }
         }

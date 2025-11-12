@@ -25,7 +25,7 @@ public class TealiumInstanceManager {
     public static let shared = TealiumInstanceManager()
 
     func createImplementation(config: TealiumConfig) -> Tealium.ImplementationObservable {
-        let subject = ReplaySubject<Tealium.ImplementationResult>()
+        let subject = ReplaySubject<InitializationResult<TealiumImpl>>()
         queue.ensureOnQueue { [weak self] in
             guard let self else { return }
             if let instance = instances[config.key]?.value {
@@ -39,7 +39,7 @@ public class TealiumInstanceManager {
                     instances[config.key] = Weak(value: instance)
                     subject.publish(.success(instance))
                 } catch {
-                    subject.publish(.failure(TealiumError.initializationError(error)))
+                    subject.publish(.failure(error))
                 }
             }
         }
@@ -64,7 +64,7 @@ public class TealiumInstanceManager {
      *
      * - Returns: The `Tealium` instance ready to accept input, although if the initialization fails, any method calls made to this object will also fail.
      */
-    public func create(config: TealiumConfig, completion: ((Tealium.InitializationResult) -> Void)? = nil) -> Tealium {
+    public func create(config: TealiumConfig, completion: ((InitializationResult<Tealium>) -> Void)? = nil) -> Tealium {
         let onImplementationReady = createImplementation(config: config)
         let teal = Tealium(queue: queue, onTealiumImplementation: onImplementationReady)
         _ = onImplementationReady

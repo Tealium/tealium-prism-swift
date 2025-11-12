@@ -221,6 +221,10 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
         }.onFailure { error in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             transactionFailure.fulfill()
+            guard case let .underlyingError(error) = error else {
+                XCTFail("Expected underlyingError but got \(error)")
+                return
+            }
             XCTAssertEqual(error as? NetworkError, anError)
         }
         waitOnQueue(queue: queue)

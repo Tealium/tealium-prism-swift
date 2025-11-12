@@ -6,6 +6,10 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
+enum TraceError: Error, ErrorEnum {
+    case noActiveTrace
+}
+
 class TraceModule: Collector, BasicModule {
     let version: String = TealiumConstants.libraryVersion
     let dataStore: any DataStore
@@ -25,9 +29,9 @@ class TraceModule: Collector, BasicModule {
         self.tracker = tracker
     }
 
-    func killVisitorSession(onTrackResult: TrackResultCompletion? = nil) throws {
+    func killVisitorSession(onTrackResult: TrackResultCompletion? = nil) throws(TraceError) {
         guard let traceId = dataStore.get(key: TealiumDataKey.traceId, as: String.self) else {
-            throw TealiumError.genericError("Not in an active Trace")
+            throw TraceError.noActiveTrace
         }
         let dispatch = Dispatch(name: TealiumConstants.killVisitorSessionQueryParam,
                                 data: [

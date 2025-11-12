@@ -9,14 +9,14 @@
 import Foundation
 
 public class DeepLinkHandlerWrapper: DeepLinkHandler {
-    private let moduleProxy: ModuleProxy<DeepLinkModule>
+    private let moduleProxy: ModuleProxy<DeepLinkModule, Error>
 
-    init(moduleProxy: ModuleProxy<DeepLinkModule>) {
+    init(moduleProxy: ModuleProxy<DeepLinkModule, Error>) {
         self.moduleProxy = moduleProxy
     }
 
     @discardableResult
-    public func handle(link: URL, referrer: Referrer? = nil) -> SingleResult<Void> {
+    public func handle(link: URL, referrer: Referrer? = nil) -> SingleResult<Void, ModuleError<Error>> {
         moduleProxy.executeModuleTask { module in
             try module.handle(link: link, referrer: referrer)
         }
