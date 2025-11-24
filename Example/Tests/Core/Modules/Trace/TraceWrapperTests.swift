@@ -35,7 +35,9 @@ final class TraceWrapperTests: XCTestCase {
     func test_join_calls_module_method_which_adds_trace_id() {
         let joinCalled = expectation(description: "Join is called")
         manager.getModule(TraceModule.self)?.dataStore.onDataUpdated.subscribeOnce({ data in
-            if data.get(key: TealiumDataKey.traceId) == "12345" {
+            // we save only one of the trace ID twins in the data store..
+            if data.get(key: TealiumDataKey.tealiumTraceId) == "12345",
+               data.getDataItem(key: TealiumDataKey.cpTraceId) == nil {
                 joinCalled.fulfill()
             }
         })
@@ -46,7 +48,9 @@ final class TraceWrapperTests: XCTestCase {
     func test_leave_calls_module_method_which_removes_trace_id() {
         let leaveCalled = expectation(description: "Leave is called")
         manager.getModule(TraceModule.self)?.dataStore.onDataRemoved.subscribeOnce({ data in
-            if data.contains(TealiumDataKey.traceId) {
+            // ..so, we remove only that one, too
+            if data.contains(TealiumDataKey.tealiumTraceId),
+               !data.contains(TealiumDataKey.cpTraceId) {
                 leaveCalled.fulfill()
             }
         })

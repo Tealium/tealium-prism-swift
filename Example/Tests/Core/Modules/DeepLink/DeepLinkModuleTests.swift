@@ -17,35 +17,35 @@ final class DeepLinkModuleTests: DeepLinkBaseTests {
     func test_handle_joins_trace() throws {
         let link = try "https://tealium.com?tealium_trace_id=\(testTraceId)".asUrl()
         try deepLink.handle(link: link)
-        XCTAssertEqual(try deepLink.getTrace().collect(dispatchContext).get(key: TealiumDataKey.traceId), testTraceId)
+        XCTAssertEqual(try deepLink.getTrace().collect(dispatchContext).get(key: TealiumDataKey.tealiumTraceId), testTraceId)
     }
 
     func test_handle_leaves_trace() throws {
         let link = try "https://tealium.com?tealium_trace_id=\(testTraceId)&leave_trace".asUrl()
         try deepLink.getTrace().join(id: testTraceId)
-        XCTAssertEqual(try deepLink.getTrace().collect(dispatchContext).get(key: TealiumDataKey.traceId), testTraceId)
+        XCTAssertEqual(try deepLink.getTrace().collect(dispatchContext).get(key: TealiumDataKey.tealiumTraceId), testTraceId)
         try deepLink.handle(link: link)
-        XCTAssertNil(try deepLink.getTrace().collect(dispatchContext).getDataItem(key: TealiumDataKey.traceId))
+        XCTAssertNil(try deepLink.getTrace().collect(dispatchContext).getDataItem(key: TealiumDataKey.tealiumTraceId))
     }
 
     func test_handle_does_not_join_trace_if_deepLink_trace_disabled() throws {
         updateSettings(DeepLinkSettingsBuilder().setDeepLinkTraceEnabled(false))
         let link = try "https://tealium.com?tealium_trace_id=\(testTraceId)".asUrl()
         try deepLink.handle(link: link)
-        XCTAssertNil(try deepLink.getTrace().collect(dispatchContext).getDataItem(key: TealiumDataKey.traceId))
+        XCTAssertNil(try deepLink.getTrace().collect(dispatchContext).getDataItem(key: TealiumDataKey.tealiumTraceId))
     }
 
     func test_handle_kills_visitor_session_and_leaves() throws {
         let visitorSessionKilled = expectation(description: "Session killed")
         let link = try "https://tealium.com?tealium_trace_id=\(testTraceId)&leave_trace&kill_visitor_session".asUrl()
         try deepLink.getTrace().join(id: testTraceId)
-        XCTAssertEqual(try deepLink.getTrace().collect(dispatchContext).get(key: TealiumDataKey.traceId), testTraceId)
+        XCTAssertEqual(try deepLink.getTrace().collect(dispatchContext).get(key: TealiumDataKey.tealiumTraceId), testTraceId)
         tracker.onTrack.subscribeOnce { dispatch in
             XCTAssertEqual(dispatch.name, TealiumConstants.killVisitorSessionQueryParam)
             visitorSessionKilled.fulfill()
         }
         try deepLink.handle(link: link)
-        XCTAssertNil(try deepLink.getTrace().collect(dispatchContext).getDataItem(key: TealiumDataKey.traceId))
+        XCTAssertNil(try deepLink.getTrace().collect(dispatchContext).getDataItem(key: TealiumDataKey.tealiumTraceId))
         waitForDefaultTimeout()
     }
 
@@ -58,7 +58,7 @@ final class DeepLinkModuleTests: DeepLinkBaseTests {
             visitorSessionKilled.fulfill()
         }
         try deepLink.handle(link: link)
-        XCTAssertEqual(try deepLink.getTrace().collect(dispatchContext).get(key: TealiumDataKey.traceId), testTraceId)
+        XCTAssertEqual(try deepLink.getTrace().collect(dispatchContext).get(key: TealiumDataKey.tealiumTraceId), testTraceId)
         waitForDefaultTimeout()
     }
 

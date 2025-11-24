@@ -37,12 +37,13 @@ final class TraceModuleTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_killVisitorSession_tracks_dispatch_with_trace_id_and_event_name_when_in_trace() throws {
+    func test_killVisitorSession_tracks_dispatch_with_trace_id_twins_and_event_name_when_in_trace() throws {
         let dispatchTracked = expectation(description: "Dispatch should be tracked")
         try traceManager.join(id: "12345")
         _ = tracker.onTrack.subscribeOnce { event in
             XCTAssertEqual(event.name, TealiumConstants.killVisitorSessionQueryParam)
-            XCTAssertEqual(event.payload.get(key: TealiumDataKey.traceId), "12345")
+            XCTAssertEqual(event.payload.get(key: TealiumDataKey.cpTraceId), "12345")
+            XCTAssertEqual(event.payload.get(key: TealiumDataKey.tealiumTraceId), "12345")
             XCTAssertEqual(event.payload.get(key: TealiumDataKey.killVisitorSessionEvent), TealiumConstants.killVisitorSessionQueryParam)
             dispatchTracked.fulfill()
         }
@@ -71,10 +72,12 @@ final class TraceModuleTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_collect_returns_trace_id_after_joining_trace() throws {
+    func test_collect_returns_trace_id_twins_after_joining_trace() throws {
         try traceManager.join(id: "12345")
         let context = DispatchContext(source: .application, initialData: [:])
-        XCTAssertEqual(traceManager.collect(context).get(key: TealiumDataKey.traceId), "12345")
+        let collectedData = traceManager.collect(context)
+        XCTAssertEqual(collectedData.get(key: TealiumDataKey.cpTraceId), "12345")
+        XCTAssertEqual(collectedData.get(key: TealiumDataKey.tealiumTraceId), "12345")
     }
 
     func test_collect_returns_empty_data_object_after_leaving_trace() throws {
@@ -84,9 +87,11 @@ final class TraceModuleTests: XCTestCase {
         XCTAssertEqual(traceManager.collect(context).count, 0)
     }
 
-    func test_collect_returns_empty_data_object_when_source_is_trace_manager() throws {
+    func test_collect_returns_trace_id_twins_even_when_source_is_trace_module() throws {
         try traceManager.join(id: "12345")
         let context = DispatchContext(source: .module(TraceModule.self), initialData: [:])
-        XCTAssertEqual(traceManager.collect(context).count, 0)
+        let collectedData = traceManager.collect(context)
+        XCTAssertEqual(collectedData.get(key: TealiumDataKey.cpTraceId), "12345")
+        XCTAssertEqual(collectedData.get(key: TealiumDataKey.tealiumTraceId), "12345")
     }
 }

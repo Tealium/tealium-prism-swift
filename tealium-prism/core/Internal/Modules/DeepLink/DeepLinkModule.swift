@@ -151,7 +151,7 @@ class DeepLinkModule: BasicModule, Collector {
 
     fileprivate func extractTraceId(from queryItems: [URLQueryItem]) -> String? {
         queryItems.first {
-            $0.name == TealiumConstants.traceIdQueryParam && $0.value != nil
+            $0.name == TealiumDataKey.tealiumTraceId && $0.value != nil
         }?.value
     }
 

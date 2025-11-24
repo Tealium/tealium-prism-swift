@@ -167,6 +167,26 @@ final class CollectModuleTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
+    func test_disposed_dispatches_batch_is_not_completed() {
+        let postRequestCancelled = expectation(description: "The POST request is cancelled")
+        networkHelper.delay = 0
+        let subscription = collect?.dispatch(stubDispatches, completion: { dispatches in
+            XCTAssertEqual(dispatches.count, 0)
+            postRequestCancelled.fulfill()
+        })
+        subscription?.dispose()
+        waitForDefaultTimeout()
+    }
+
+    func test_sendBatchDispatches_doesnt_send_when_events_array_is_empty() {
+        let postRequestSent = expectation(description: "The POST request is sent")
+        postRequestSent.isInverted = true
+        _ = collect?.sendBatchDispatches([], completion: { _ in
+            postRequestSent.fulfill()
+        })
+        waitForDefaultTimeout()
+    }
+
     func test_collect_is_not_initialized_when_settings_are_nil() {
         configuration = nil
         XCTAssertNil(collect)
@@ -181,5 +201,219 @@ final class CollectModuleTests: XCTestCase {
     func test_updateSettings_with_invalid_urls_returns_nil() {
         let updatedCollect = collect?.updateConfiguration(["url": ""])
         XCTAssertNil(updatedCollect)
+    }
+
+    func test_sendSingleDispatch_with_trace_id_adds_query_param() {
+        let postRequestSent = expectation(description: "The POST request is sent with trace ID")
+        let traceId = "test-trace-123"
+        let dispatchWithTrace = Dispatch(name: "event1", data: [
+            TealiumDataKey.account: "account",
+            TealiumDataKey.profile: "profile",
+            TealiumDataKey.tealiumTraceId: traceId
+        ])
+
+        networkHelper.requests.subscribeOnce { request in
+            if case let .post(url, _) = request {
+                guard let urlString = try? url.asUrl().absoluteString else {
+                    XCTFail("Could not convert to URL")
+                    return
+                }
+                XCTAssertTrue(urlString.contains("tealium_trace_id=\(traceId)"), "URL should contain trace ID query parameter")
+                postRequestSent.fulfill()
+            }
+        }
+        _ = collect?.dispatch([dispatchWithTrace], completion: { _ in })
+        waitForDefaultTimeout()
+    }
+
+    func test_sendSingleDispatch_without_trace_id_does_not_add_query_param() {
+        let postRequestSent = expectation(description: "The POST request is sent without trace ID")
+
+        networkHelper.requests.subscribeOnce { request in
+            if case let .post(url, _) = request {
+                guard let urlString = try? url.asUrl().absoluteString else {
+                    XCTFail("Could not convert to URL")
+                    return
+                }
+                XCTAssertFalse(urlString.contains("tealium_trace_id"), "URL should not contain trace ID query parameter")
+                postRequestSent.fulfill()
+            }
+        }
+        _ = collect?.dispatch([stubDispatches[0]], completion: { _ in })
+        waitForDefaultTimeout()
+    }
+
+    func test_sendBatchDispatches_with_trace_id_adds_query_param() {
+        let postRequestSent = expectation(description: "The batch POST request is sent with trace ID")
+        let traceId = "batch-trace-456"
+        let dispatchesWithTrace = [
+            Dispatch(name: "event1", data: [
+                TealiumDataKey.account: "account",
+                TealiumDataKey.profile: "profile",
+                TealiumDataKey.tealiumTraceId: traceId
+            ]),
+            Dispatch(name: "event2", data: [
+                TealiumDataKey.account: "account",
+                TealiumDataKey.profile: "profile",
+                TealiumDataKey.tealiumTraceId: traceId
+            ])
+        ]
+
+        networkHelper.requests.subscribeOnce { request in
+            if case let .post(url, _) = request {
+                guard let urlString = try? url.asUrl().absoluteString else {
+                    XCTFail("Could not convert to URL")
+                    return
+                }
+                XCTAssertTrue(urlString.contains("tealium_trace_id=\(traceId)"), "Batch URL should contain trace ID query parameter")
+                postRequestSent.fulfill()
+            }
+        }
+        _ = collect?.dispatch(dispatchesWithTrace, completion: { _ in })
+        waitForDefaultTimeout()
+    }
+
+    func test_sendBatchDispatches_without_trace_id_does_not_add_query_param() {
+        let postRequestSent = expectation(description: "The batch POST request is sent without trace ID")
+
+        networkHelper.requests.subscribeOnce { request in
+            if case let .post(url, _) = request {
+                guard let urlString = try? url.asUrl().absoluteString else {
+                    XCTFail("Could not convert to URL")
+                    return
+                }
+                XCTAssertFalse(urlString.contains("tealium_trace_id"), "Batch URL should not contain trace ID query parameter")
+                postRequestSent.fulfill()
+            }
+        }
+        _ = collect?.dispatch(stubDispatches, completion: { _ in })
+        waitForDefaultTimeout()
+    }
+
+    func test_sendSingleDispatch_with_empty_trace_id_does_not_add_query_param() {
+        let postRequestSent = expectation(description: "The POST request is sent without empty trace ID")
+        let dispatchWithEmptyTrace = Dispatch(name: "event1", data: [
+            TealiumDataKey.account: "account",
+            TealiumDataKey.profile: "profile",
+            TealiumDataKey.tealiumTraceId: ""
+        ])
+
+        networkHelper.requests.subscribeOnce { request in
+            if case let .post(url, _) = request {
+                guard let urlString = try? url.asUrl().absoluteString else {
+                    XCTFail("Could not convert to URL")
+                    return
+                }
+                XCTAssertFalse(urlString.contains("tealium_trace_id"),
+                               "URL should not contain trace ID query parameter for empty trace ID")
+                postRequestSent.fulfill()
+            }
+        }
+        _ = collect?.dispatch([dispatchWithEmptyTrace], completion: { _ in })
+        waitForDefaultTimeout()
+    }
+
+    func test_sendBatchDispatches_with_empty_trace_id_does_not_add_query_param() {
+        let postRequestSent = expectation(description: "The POST request is sent without empty trace ID")
+        let dispatchesWithEmptyTrace = [
+            Dispatch(name: "event1", data: [
+                TealiumDataKey.account: "account",
+                TealiumDataKey.profile: "profile",
+                TealiumDataKey.tealiumTraceId: ""
+            ]),
+            Dispatch(name: "event2", data: [
+                TealiumDataKey.account: "account",
+                TealiumDataKey.profile: "profile",
+                TealiumDataKey.tealiumTraceId: ""
+            ])
+        ]
+
+        networkHelper.requests.subscribeOnce { request in
+            if case let .post(url, _) = request {
+                guard let urlString = try? url.asUrl().absoluteString else {
+                    XCTFail("Could not convert to URL")
+                    return
+                }
+                XCTAssertFalse(urlString.contains("tealium_trace_id"),
+                               "URL should not contain trace ID query parameter for empty trace ID")
+                postRequestSent.fulfill()
+            }
+        }
+        _ = collect?.dispatch(dispatchesWithEmptyTrace, completion: { _ in })
+        waitForDefaultTimeout()
+    }
+
+    func test_sendBatchDispatches_with_mixed_trace_ids_uses_first_available() {
+        let postRequestSent = expectation(description: "The batch POST request uses first available trace ID")
+        let traceId = "first-trace-123"
+        let dispatchesWithMixedTrace = [
+            Dispatch(name: "event1", data: [
+                TealiumDataKey.account: "account",
+                TealiumDataKey.profile: "profile"
+                // No trace ID
+            ]),
+            Dispatch(name: "event2", data: [
+                TealiumDataKey.account: "account",
+                TealiumDataKey.profile: "profile",
+                TealiumDataKey.tealiumTraceId: traceId
+            ]),
+            Dispatch(name: "event3", data: [
+                TealiumDataKey.account: "account",
+                TealiumDataKey.profile: "profile",
+                TealiumDataKey.tealiumTraceId: "second-trace-456"
+            ])
+        ]
+
+        networkHelper.requests.subscribeOnce { request in
+            if case let .post(url, _) = request {
+                guard let urlString = try? url.asUrl().absoluteString else {
+                    XCTFail("Could not convert to URL")
+                    return
+                }
+                XCTAssertTrue(urlString.contains("tealium_trace_id=\(traceId)"),
+                              "Batch URL should contain the first available trace ID")
+                XCTAssertFalse(urlString.contains("second-trace-999"),
+                               "Batch URL should not contain the second trace ID")
+                postRequestSent.fulfill()
+            }
+        }
+        _ = collect?.dispatch(dispatchesWithMixedTrace, completion: { _ in })
+        waitForDefaultTimeout()
+    }
+
+    func test_urlWithTraceId_preserves_existing_query_parameters() {
+        // Test the urlWithTraceId method indirectly by using a custom configuration with existing query params
+        guard let customUrl = URL(string: "https://collect.tealiumiq.com/event?existing=param") else {
+            XCTFail("Could not create URL")
+            return
+        }
+        let customConfig = CollectModuleConfiguration(configuration: ["url": customUrl.absoluteString])
+        let customCollect = CollectModule(networkHelper: networkHelper,
+                                          configuration: customConfig,
+                                          logger: nil)
+
+        let postRequestSent = expectation(description: "The POST request preserves existing query params")
+        let traceId = "preserve-test-123"
+        let dispatchWithTrace = Dispatch(name: "event1", data: [
+            TealiumDataKey.account: "account",
+            TealiumDataKey.profile: "profile",
+            TealiumDataKey.tealiumTraceId: traceId
+        ])
+
+        networkHelper.requests.subscribeOnce { request in
+            if case let .post(url, _) = request {
+                guard let urlString = try? url.asUrl().absoluteString else {
+                    XCTFail("Could not convert to URL")
+                    return
+                }
+                XCTAssertTrue(urlString.contains("existing=param"),
+                              "URL should preserve existing query parameters")
+                XCTAssertTrue(urlString.contains("tealium_trace_id=\(traceId)"),
+                              "URL should contain trace ID query parameter")
+                postRequestSent.fulfill()
+            }
+        }
+        _ = customCollect?.dispatch([dispatchWithTrace], completion: { _ in })
+        waitForDefaultTimeout()
     }
 }

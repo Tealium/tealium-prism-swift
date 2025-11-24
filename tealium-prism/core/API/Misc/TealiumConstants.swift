@@ -22,7 +22,6 @@ public enum TealiumConstants {
 
     static let killVisitorSessionQueryParam = "kill_visitor_session"
     static let leaveTraceQueryParam = "leave_trace"
-    static let traceIdQueryParam = "tealium_trace_id"
     static let deepLinkEvent = "deep_link"
 }
 
@@ -74,8 +73,12 @@ public extension TealiumDataKey {
     static let deepLinkReferrerApp = "deep_link_referrer_app"
     /// Event key for kill visitor session.
     static let killVisitorSessionEvent = "event"
-    /// The trace ID for debugging.
-    static let traceId = "cp.trace_id"
+    /// The trace ID for debugging. The same value will be keyed by `tealium_trace_id` (see `tealiumTraceId` key).
+    /// Both keys should be kept and their associated values should be in sync. (see `Trace`)
+    static let cpTraceId = "cp.trace_id"
+    /// The trace ID for debugging. The same value will be keyed by `cp.trace_id` (see `cpTraceId` key).
+    /// Both keys should be kept and their associated values should be in sync. (see `Trace`)
+    static let tealiumTraceId = "tealium_trace_id"
 }
 
 enum ConditionOperators {

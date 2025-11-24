@@ -30,33 +30,35 @@ class TraceModule: Collector, BasicModule {
     }
 
     func killVisitorSession(onTrackResult: TrackResultCompletion? = nil) throws(TraceError) {
-        guard let traceId = dataStore.get(key: TealiumDataKey.traceId, as: String.self) else {
+        guard let traceId = dataStore.get(key: TealiumDataKey.tealiumTraceId, as: String.self) else {
             throw TraceError.noActiveTrace
         }
         let dispatch = Dispatch(name: TealiumConstants.killVisitorSessionQueryParam,
                                 data: [
                                     TealiumDataKey.killVisitorSessionEvent: TealiumConstants.killVisitorSessionQueryParam,
-                                    TealiumDataKey.traceId: traceId
+                                    TealiumDataKey.cpTraceId: traceId,
+                                    TealiumDataKey.tealiumTraceId: traceId
                                 ])
         tracker.track(dispatch, source: .module(TraceModule.self), onTrackResult: onTrackResult)
     }
 
     func join(id: String) throws {
         try dataStore.edit()
-            .put(key: TealiumDataKey.traceId, value: id, expiry: .session)
+            .put(key: TealiumDataKey.tealiumTraceId, value: id, expiry: .session)
             .commit()
     }
 
     func leave() throws {
         try dataStore.edit()
-            .remove(key: TealiumDataKey.traceId)
+            .remove(key: TealiumDataKey.tealiumTraceId)
             .commit()
     }
 
     func collect(_ dispatchContext: DispatchContext) -> DataObject {
-        guard dispatchContext.source.moduleType != TraceModule.self else {
-            return DataObject()
+        var result = dataStore.getAll()
+        if let traceId = result.get(key: TealiumDataKey.tealiumTraceId, as: String.self) {
+            result.set(traceId, key: TealiumDataKey.cpTraceId) // adding a twin for retrocompatibility
         }
-        return dataStore.getAll()
+        return result
     }
 }

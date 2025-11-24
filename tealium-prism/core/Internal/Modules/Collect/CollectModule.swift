@@ -90,7 +90,8 @@ class CollectModule: Dispatcher {
     func sendSingleDispatch(_ event: Dispatch, completion: @escaping ([Dispatch]) -> Void) -> Disposable {
         var data = event.payload
         batcher.applyProfileOverride(configuration.overrideProfile, to: &data)
-        return networkHelper.post(url: configuration.url, body: data) { result in
+        let urlWithTrace = urlWithTraceId(baseUrl: configuration.url, dispatches: [event])
+        return networkHelper.post(url: urlWithTrace, body: data) { result in
             if case .failure(.cancelled) = result {
                 completion([])
                 return
@@ -111,12 +112,28 @@ class CollectModule: Dispatcher {
         guard let batchData = batcher.compressDispatches(events, profileOverride: configuration.overrideProfile) else {
             return Disposables.disposed()
         }
-        return networkHelper.post(url: configuration.batchUrl, body: batchData) { result in
+        let urlForPost = urlWithTraceId(baseUrl: configuration.batchUrl, dispatches: events)
+        return networkHelper.post(url: urlForPost, body: batchData) { result in
             if case .failure(.cancelled) = result {
                 completion([])
                 return
             }
             completion(events)
+        }
+    }
+
+    /**
+     * Constructs a URL with trace ID query parameter if present in the payload.
+     */
+    private func urlWithTraceId(baseUrl urlFromConfig: URL, dispatches: [Dispatch]) -> URL {
+        if let traceId = dispatches.lazy
+            .compactMap({ $0.payload.get(key: TealiumDataKey.tealiumTraceId, as: String.self) })
+            .first(where: { !$0.isEmpty }) {
+            urlFromConfig.appendingQueryItems([
+                URLQueryItem(name: TealiumDataKey.tealiumTraceId, value: traceId)
+            ])
+        } else {
+            urlFromConfig
         }
     }
 }
