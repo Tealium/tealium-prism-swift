@@ -27,9 +27,9 @@ class TraceWrapper: Trace {
     }
 
     @discardableResult
-    public func killVisitorSession() -> SingleResult<TrackResult, ModuleError<Error>> {
+    public func forceEndOfVisit() -> SingleResult<TrackResult, ModuleError<Error>> {
         moduleProxy.executeAsyncModuleTask { module, completion in
-            try module.killVisitorSession { result in
+            try module.forceEndOfVisit { result in
                 completion(.success(result))
             }
         }

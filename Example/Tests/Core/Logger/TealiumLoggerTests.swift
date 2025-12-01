@@ -93,8 +93,34 @@ final class TealiumLoggerTests: XCTestCase {
         logger.trace(category: "category", createMessage(expectation: messageNotCreated))
         waitForDefaultTimeout()
         let messageIsCreated = expectation(description: "Message is created")
+        messageIsCreated.assertForOverFulfill = false
         logger.error(category: "category", createMessage(expectation: messageIsCreated))
         onLogLevel.publish(.info)
         waitForLongTimeout()
+    }
+
+    func test_error_events_are_published_when_logging_at_error_level() {
+        let errorEventPublished = expectation(description: "Error event should be published")
+        forceLevel = .trace
+        _ = logger.onError.subscribe { errorEvent in
+            XCTAssertEqual(errorEvent.description, "TestCategory: Test error message")
+            errorEventPublished.fulfill()
+        }
+        logger.error(category: "TestCategory", "Test error message")
+        waitForDefaultTimeout()
+    }
+
+    func test_error_events_are_not_published_for_non_error_levels() {
+        let errorEventNotPublished = expectation(description: "Error event should not be published")
+        errorEventNotPublished.isInverted = true
+        forceLevel = .trace
+        _ = logger.onError.subscribe { _ in
+            errorEventNotPublished.fulfill()
+        }
+        logger.trace(category: "TestCategory", "Trace message")
+        logger.debug(category: "TestCategory", "Debug message")
+        logger.info(category: "TestCategory", "Info message")
+        logger.warn(category: "TestCategory", "Warn message")
+        waitForDefaultTimeout()
     }
 }

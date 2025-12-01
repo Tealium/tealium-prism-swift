@@ -1437,6 +1437,10 @@
 		EC5325892E0ED7D60046FE05 /* QueueManager+DeletingDispatchesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5325882E0ED7D60046FE05 /* QueueManager+DeletingDispatchesTests.swift */; };
 		EC53258A2E0ED7D60046FE05 /* QueueManager+DeletingDispatchesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5325882E0ED7D60046FE05 /* QueueManager+DeletingDispatchesTests.swift */; };
 		EC53258B2E0ED7D60046FE05 /* QueueManager+DeletingDispatchesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC5325882E0ED7D60046FE05 /* QueueManager+DeletingDispatchesTests.swift */; };
+		EC6248F92EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6248F82EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift */; };
+		EC6248FA2EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6248F82EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift */; };
+		EC6248FB2EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6248F82EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift */; };
+		EC6248FC2EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC6248F82EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift */; };
 		EC7191872CFF209E00CDDC13 /* TwoLaunchSleepWakeSleepWithUpdateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC7191862CFF209E00CDDC13 /* TwoLaunchSleepWakeSleepWithUpdateTests.swift */; };
 		EC71918C2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC71918B2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift */; };
 		EC8BD8A52DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BD8A42DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift */; };
@@ -1472,6 +1476,10 @@
 		ECAB83622DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB835E2DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift */; };
 		ECAB83632DB0124E00B2CF64 /* DeepLinkModuleConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB835D2DB0124E00B2CF64 /* DeepLinkModuleConfigurationTests.swift */; };
 		ECAB83642DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECAB835E2DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift */; };
+		ECBCF9DA2ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCF9D92ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift */; };
+		ECBCF9DB2ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCF9D92ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift */; };
+		ECBCF9DC2ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCF9D92ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift */; };
+		ECBCF9DD2ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBCF9D92ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift */; };
 		ECBF304B2DC0EFA8007A1A42 /* TransformationSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF304A2DC0EFA8007A1A42 /* TransformationSettingsTests.swift */; };
 		ECBF304C2DC0EFA8007A1A42 /* TransformationSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF304A2DC0EFA8007A1A42 /* TransformationSettingsTests.swift */; };
 		ECBF304D2DC0EFA8007A1A42 /* TransformationSettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF304A2DC0EFA8007A1A42 /* TransformationSettingsTests.swift */; };
@@ -1849,6 +1857,7 @@
 		EC454C842CF5F34F000CD849 /* LifecycleWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleWrapperTests.swift; sourceTree = "<group>"; };
 		EC454C862CF60E21000CD849 /* LaunchSleepLaunchInAMonthTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSleepLaunchInAMonthTests.swift; sourceTree = "<group>"; };
 		EC5325882E0ED7D60046FE05 /* QueueManager+DeletingDispatchesTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QueueManager+DeletingDispatchesTests.swift"; sourceTree = "<group>"; };
+		EC6248F82EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceSettingsBuilderTests.swift; sourceTree = "<group>"; };
 		EC7191862CFF209E00CDDC13 /* TwoLaunchSleepWakeSleepWithUpdateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TwoLaunchSleepWakeSleepWithUpdateTests.swift; sourceTree = "<group>"; };
 		EC71918B2D088E2900CDDC13 /* Lifecycle+TrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Lifecycle+TrackerTests.swift"; sourceTree = "<group>"; };
 		EC8BD8A42DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDataProviderCommonTests.swift; sourceTree = "<group>"; };
@@ -1862,6 +1871,7 @@
 		ECAB83592DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkHandlerWrapperTests.swift; sourceTree = "<group>"; };
 		ECAB835D2DB0124E00B2CF64 /* DeepLinkModuleConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkModuleConfigurationTests.swift; sourceTree = "<group>"; };
 		ECAB835E2DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeepLinkSettingsBuilderTests.swift; sourceTree = "<group>"; };
+		ECBCF9D92ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceModuleConfigurationTests.swift; sourceTree = "<group>"; };
 		ECBF304A2DC0EFA8007A1A42 /* TransformationSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransformationSettingsTests.swift; sourceTree = "<group>"; };
 		ECBF304E2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransformationSettings+ConverterTests.swift"; sourceTree = "<group>"; };
 		ECBF30522DC244A4007A1A42 /* MockBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBundle.swift; sourceTree = "<group>"; };
@@ -2746,6 +2756,8 @@
 			children = (
 				EC9C453C2DA015940046AB3A /* TraceWrapperTests.swift */,
 				EC9C45402DA015B30046AB3A /* TraceModuleTests.swift */,
+				ECBCF9D92ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift */,
+				EC6248F82EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift */,
 			);
 			path = Trace;
 			sourceTree = "<group>";
@@ -4215,6 +4227,7 @@
 				15C0DCB92B0CF3F10007F6BE /* Operators+FlatMapTests.swift in Sources */,
 				D54BBFD22C78C01A003687C7 /* RequestBuilderTests.swift in Sources */,
 				4869569F2A3A07900014AC58 /* DatabaseHelperTests.swift in Sources */,
+				EC6248FA2EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift in Sources */,
 				876F25052DDF2EAC00C55FFE /* SDKSettings+copy.swift in Sources */,
 				EC53258B2E0ED7D60046FE05 /* QueueManager+DeletingDispatchesTests.swift in Sources */,
 				48F9CE0A2A5F2BDA00A7376F /* MockDatabaseHelper.swift in Sources */,
@@ -4411,6 +4424,7 @@
 				87795FD62C6BC52B00FEB0D6 /* DataItem+StringValueTests.swift in Sources */,
 				15C0DCC82B0CF6530007F6BE /* Operators+StartsWithTests.swift in Sources */,
 				872189042E5C6E7100D3CCF1 /* BackgroundTaskStarterTests.swift in Sources */,
+				ECBCF9DD2ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift in Sources */,
 				1597DC7D2A446B1400C394D3 /* MockBackoff.swift in Sources */,
 				87EE76E82D786F1F00BB1D77 /* Condition+GreaterThanOrEqualTests.swift in Sources */,
 				EC2EA5F72DB1474E00CCB144 /* DeepLinkBaseTests.swift in Sources */,
@@ -4804,6 +4818,8 @@
 				87A409212E97F06E005D92CC /* DateFormatterTests.swift in Sources */,
 				87A409222E97F06E005D92CC /* NotTests.swift in Sources */,
 				87A409232E97F06E005D92CC /* InterceptorManagerTests.swift in Sources */,
+				EC6248FB2EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift in Sources */,
+				ECBCF9DB2ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift in Sources */,
 				87A409242E97F06E005D92CC /* XCTAssert+NSNull.swift in Sources */,
 				87A409252E97F06E005D92CC /* Condition+NotStartsWithTests.swift in Sources */,
 				87A409262E97F06E005D92CC /* TealiumDataModuleTests.swift in Sources */,
@@ -5308,6 +5324,8 @@
 				D54BBFCB2C78C01A003687C7 /* InterceptorManagerTests.swift in Sources */,
 				87AF54882C8217EE00F1C114 /* XCTAssert+NSNull.swift in Sources */,
 				87EE77022D78791500BB1D77 /* Condition+NotStartsWithTests.swift in Sources */,
+				EC6248FC2EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift in Sources */,
+				ECBCF9DA2ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift in Sources */,
 				87C6C2322D528028008B91D8 /* TealiumDataModuleTests.swift in Sources */,
 				D54BBFC82C78C01A003687C7 /* HTTPClientTests.swift in Sources */,
 				87BA6D8D2C6A470C00784784 /* MockBackoff.swift in Sources */,
@@ -5537,6 +5555,8 @@
 				87BA6E042C6A47AF00784784 /* SettingsManagerTests.swift in Sources */,
 				87BA6E052C6A47AF00784784 /* SubjectTests.swift in Sources */,
 				87BA6E062C6A47AF00784784 /* DeinitTester.swift in Sources */,
+				EC6248F92EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift in Sources */,
+				ECBCF9DC2ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift in Sources */,
 				87795FD72C6BC52B00FEB0D6 /* DataItem+StringValueTests.swift in Sources */,
 				87BA6E082C6A47AF00784784 /* Operators+StartsWithTests.swift in Sources */,
 				D54BBFBE2C78C01A003687C7 /* EmpiricalConnectivityTests.swift in Sources */,

@@ -59,27 +59,27 @@ final class TraceWrapperTests: XCTestCase {
         waitOnQueue(queue: queue)
     }
 
-    func test_killVisitorSession_calls_module_method_which_tracks_dispatch() {
-        let killVisitorSessionCalled = expectation(description: "KillVisitorSession is called")
+    func test_forceEndOfVisit_calls_module_method_which_tracks_dispatch() {
+        let forceEndOfVisitCalled = expectation(description: "ForceEndOfVisit is called")
         tracker.onTrack.subscribeOnce({ dispatch in
-            if dispatch.name == TealiumConstants.killVisitorSessionQueryParam {
-                killVisitorSessionCalled.fulfill()
+            if dispatch.name == TealiumConstants.forceEndOfVisitQueryParam {
+                forceEndOfVisitCalled.fulfill()
             }
         })
         wrapper.join(id: "12345")
-        wrapper.killVisitorSession()
+        wrapper.forceEndOfVisit()
         waitOnQueue(queue: queue)
     }
 
     // MARK: the following 3 tests are needed due to custom completion logic of this method inside wrapper
     // currently, this is the only case when completion called outside track (since track doesn't throw)
-    func test_killVisitorSession_completes_with_moduleNotEnabled_error_when_module_disabled() {
+    func test_forceEndOfVisit_completes_with_moduleNotEnabled_error_when_module_disabled() {
         let errorCaught = expectation(description: "Error caught")
         manager.updateSettings(context: context(), settings: SDKSettings(modules: [
             TraceModule.moduleType: ModuleSettings(moduleType: TraceModule.moduleType,
                                                    enabled: false)
         ]))
-        _ = wrapper.killVisitorSession().subscribe { result in
+        _ = wrapper.forceEndOfVisit().subscribe { result in
             XCTAssertResultIsFailure(result) { error in
                 guard case .moduleNotEnabled(let trace) = error else {
                     XCTFail("Unexpected error: \(String(describing: error))")
@@ -92,21 +92,21 @@ final class TraceWrapperTests: XCTestCase {
         waitOnQueue(queue: queue)
     }
 
-    func test_killVisitorSession_completion_called_only_once_with_nil_on_successful_track() {
+    func test_forceEndOfVisit_completion_called_only_once_with_nil_on_successful_track() {
         let completionCalled = expectation(description: "Completion is called")
         wrapper.join(id: "12345")
-        _ = wrapper.killVisitorSession().subscribe { result in
+        _ = wrapper.forceEndOfVisit().subscribe { result in
             XCTAssertResultIsSuccess(result)
             completionCalled.fulfill()
         }
         waitOnQueue(queue: queue)
     }
 
-    func test_killVisitorSession_completion_called_only_once_with_success_on_dropped_dispatch() {
+    func test_forceEndOfVisit_completion_called_only_once_with_success_on_dropped_dispatch() {
         let completionCalled = expectation(description: "Completion is called")
         tracker.acceptTrack = false
         wrapper.join(id: "12345")
-        _ = wrapper.killVisitorSession().subscribe { result in
+        _ = wrapper.forceEndOfVisit().subscribe { result in
             XCTAssertResultIsSuccess(result) { trackResult in
                 XCTAssertTrackResultIsDropped(trackResult)
             }

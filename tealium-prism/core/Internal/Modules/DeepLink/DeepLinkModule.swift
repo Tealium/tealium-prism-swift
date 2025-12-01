@@ -128,16 +128,16 @@ class DeepLinkModule: BasicModule, Collector {
            return
        }
         let trace = try getTrace()
-        // Kill visitor session to trigger session end events
-        // Session can be killed without needing to leave the trace
-        if queryItems.contains(where: { $0.name == TealiumConstants.killVisitorSessionQueryParam }) {
-            try trace.killVisitorSession { [weak self] result in
+        // Force end of visit to trigger session end events
+        // Session can be forced to end without needing to leave the trace
+        if queryItems.contains(where: { $0.name == TealiumConstants.forceEndOfVisitQueryParam }) {
+            try trace.forceEndOfVisit { [weak self] result in
                 guard let self else { return }
                 switch result.status {
                 case .accepted:
-                    logger?.trace(category: id, "Kill Visitor Session event accepted for dispatch.")
+                    logger?.trace(category: id, "Force end of visit event accepted for dispatch.")
                 case .dropped:
-                    logger?.warn(category: id, "Failed to kill visitor session: dispatch was dropped.")
+                    logger?.warn(category: id, "Failed to force end of visit: dispatch was dropped.")
                 }
             }
         }

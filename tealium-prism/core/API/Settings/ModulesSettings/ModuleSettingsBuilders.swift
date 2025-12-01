@@ -20,6 +20,3 @@ public class ConnectivityDataSettingsBuilder: CollectorSettingsBuilder { }
 
 /// A builder for `TimeData` Settings.
 public class TimeDataSettingsBuilder: CollectorSettingsBuilder { }
-
-/// A builder for `Trace` Settings.
-public class TraceSettingsBuilder: CollectorSettingsBuilder { }

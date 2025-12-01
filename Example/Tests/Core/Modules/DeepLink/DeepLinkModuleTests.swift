@@ -35,27 +35,27 @@ final class DeepLinkModuleTests: DeepLinkBaseTests {
         XCTAssertNil(try deepLink.getTrace().collect(dispatchContext).getDataItem(key: TealiumDataKey.tealiumTraceId))
     }
 
-    func test_handle_kills_visitor_session_and_leaves() throws {
-        let visitorSessionKilled = expectation(description: "Session killed")
+    func test_handle_ends_visitor_session_and_leaves() throws {
+        let visitorSessionEnded = expectation(description: "Session ended")
         let link = try "https://tealium.com?tealium_trace_id=\(testTraceId)&leave_trace&kill_visitor_session".asUrl()
         try deepLink.getTrace().join(id: testTraceId)
         XCTAssertEqual(try deepLink.getTrace().collect(dispatchContext).get(key: TealiumDataKey.tealiumTraceId), testTraceId)
         tracker.onTrack.subscribeOnce { dispatch in
-            XCTAssertEqual(dispatch.name, TealiumConstants.killVisitorSessionQueryParam)
-            visitorSessionKilled.fulfill()
+            XCTAssertEqual(dispatch.name, TealiumConstants.forceEndOfVisitQueryParam)
+            visitorSessionEnded.fulfill()
         }
         try deepLink.handle(link: link)
         XCTAssertNil(try deepLink.getTrace().collect(dispatchContext).getDataItem(key: TealiumDataKey.tealiumTraceId))
         waitForDefaultTimeout()
     }
 
-    func test_handle_only_kills_visitor_session() throws {
-        let visitorSessionKilled = expectation(description: "Session killed")
+    func test_handle_only_ends_visitor_session() throws {
+        let visitorSessionEnded = expectation(description: "Session ended")
         let link = try "https://tealium.com?tealium_trace_id=\(testTraceId)&kill_visitor_session".asUrl()
         try deepLink.getTrace().join(id: testTraceId)
         tracker.onTrack.subscribeOnce { dispatch in
-            XCTAssertEqual(dispatch.name, TealiumConstants.killVisitorSessionQueryParam)
-            visitorSessionKilled.fulfill()
+            XCTAssertEqual(dispatch.name, TealiumConstants.forceEndOfVisitQueryParam)
+            visitorSessionEnded.fulfill()
         }
         try deepLink.handle(link: link)
         XCTAssertEqual(try deepLink.getTrace().collect(dispatchContext).get(key: TealiumDataKey.tealiumTraceId), testTraceId)

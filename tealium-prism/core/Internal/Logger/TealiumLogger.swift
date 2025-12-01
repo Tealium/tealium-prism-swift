@@ -8,11 +8,17 @@
 
 import Foundation
 
+struct ErrorEvent {
+    let description: String
+}
+
 class TealiumLogger: LoggerProtocol {
     var minimumLevel: LogLevel.Minimum?
     let logHandler: LogHandler
     let onLogLevel: Observable<LogLevel.Minimum>
     lazy private(set) var automaticDisposer = AutomaticDisposer()
+    @Subject<ErrorEvent> var onError
+
     init(logHandler: LogHandler, onLogLevel: Observable<LogLevel.Minimum>, forceLevel: LogLevel.Minimum? = nil) {
         self.logHandler = logHandler
         self.onLogLevel = onLogLevel
@@ -32,6 +38,9 @@ class TealiumLogger: LoggerProtocol {
     }
 
     func log(level: LogLevel, category: String, _ messageProvider: @autoclosure @escaping () -> String) {
+        if level == .error {
+            _onError.publish(ErrorEvent(description: "\(category): \(messageProvider())"))
+        }
         logOrQueue(level: level, category: category, messageProvider)
     }
 
