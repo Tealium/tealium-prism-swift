@@ -10,7 +10,7 @@ exclude:
   - "**/Internal*"
 sdk: iphoneos
 swift_build_tool: spm
-abstract: 'docs/sections/**.md'
+abstract: 'docs/abstracts/**/**.md'
 documentation: 'docs/guides/**.md'
 
 custom_categories: 

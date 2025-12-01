@@ -18,9 +18,12 @@ public enum DispatchType: String {
 
 /// Represents a tracking event or view to be dispatched.
 public struct Dispatch {
-    var payload: DataObject
-    let id: String
-    let timestamp: Int64
+    /// The payload data of the dispatch.
+    public internal(set) var payload: DataObject
+    /// The unique identifier of the dispatch.
+    public let id: String
+    /// The timestamp of when the dispatch was created, in Unix milliseconds.
+    public let timestamp: Int64
 
     /// Creates a new dispatch with the specified parameters.
     /// - Parameters:
@@ -48,8 +51,14 @@ public struct Dispatch {
         payload.get(key: TealiumDataKey.event)
     }
 
-    mutating func enrich(data: DataObject) {
+    /// Enriches the dispatch with additional data.
+    public mutating func enrich(data: DataObject) {
         payload += data
+    }
+
+    /// Replaces the current payload with a new one.
+    public mutating func replace(payload: DataObject) {
+        self.payload = payload
     }
 
     /// Returns a short description suitable for logging.

@@ -9,10 +9,10 @@
 import Foundation
 
 /// Protocol for app data collection.
-public protocol AppDataCollection {
+protocol AppDataCollection {
 }
 
-public extension AppDataCollection {
+extension AppDataCollection {
 
     /// Retrieves app name from `Bundle`.
     ///

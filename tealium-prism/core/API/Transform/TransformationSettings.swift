@@ -45,11 +45,11 @@ public enum TransformationScope: RawRepresentable, Codable, Equatable {
 
 /// Configuration for a data transformation.
 public struct TransformationSettings {
-    let id: String
-    let transformerId: String
-    let scopes: [TransformationScope]
-    let configuration: DataObject
-    let conditions: Rule<Condition>?
+    public let id: String
+    public let transformerId: String
+    public let scopes: [TransformationScope]
+    public let configuration: DataObject
+    public let conditions: Rule<Condition>?
     /// Creates transformation settings with the specified parameters.
     /// - Parameters:
     ///   - id: Unique identifier for this transformation.

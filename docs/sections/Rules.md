@@ -1,1 +1,0 @@
-A generic way to composite boolean `Condition`s.

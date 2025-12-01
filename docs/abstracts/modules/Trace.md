@@ -1,18 +1,17 @@
-# ConnectivityData
-
-The ConnectivityData module is a `Collector` module that automatically enriches tracking data with network connectivity information. This module monitors the device's internet connection status and type, providing real-time connectivity data for all tracking events.
+The Trace module is a `Collector` module that provides debugging and testing functionality for the Tealium SDK. This module allows developers to join trace sessions for real-time event monitoring, leave traces when debugging is complete, and kill visitor sessions for testing purposes. When a trace is active, the trace ID is automatically added to all tracking events for server-side filtering and analysis.
 
 ### Collected Data Points
 
-The ConnectivityData module collects the following information:
+The Trace module collects the following information when a trace session is active:
 
 | Data Point | Key | Description | Source |
 |------------|-----|-------------|--------|
-| Connection Type | `connection_type` | Current network connection type (e.g., "wifi", "cellular", "ethernet", "none") | System connectivity monitor |
+| Trace ID | `cp.trace_id` | The unique identifier for the active trace session (legacy compatibility) | Trace session |
+| Trace ID | `tealium_trace_id` | The unique identifier for the active trace session | Trace session |
 
 ## Installation/Configuration
 
-The ConnectivityData module can be configured using three different approaches:
+The Trace module can be configured using three different approaches:
 
 ### Local and Remote Settings
 Configure the module using local JSON settings file (via `settingsFile` parameter) and/or remote settings (via `settingsUrl` parameter):
@@ -29,8 +28,8 @@ var config = TealiumConfig(account: "tealiummobile",
 ```json
 {
     "modules": {
-        "ConnectivityData": {
-            "module_type": "ConnectivityData"
+        "Trace": {
+            "module_type": "Trace"
         }
     }
 }
@@ -40,8 +39,8 @@ var config = TealiumConfig(account: "tealiummobile",
 ```json
 {
     "modules": {
-        "ConnectivityData": {
-            "module_type": "ConnectivityData",
+        "Trace": {
+            "module_type": "Trace",
             "enabled": true,
             "order": 1,
             "rules": {
@@ -49,6 +48,9 @@ var config = TealiumConfig(account: "tealiummobile",
                 "children": [
                     "rule_id_from_settings"
                 ]
+            },
+            "configuration": {
+                "track_errors": true
             }
         }
     }
@@ -66,7 +68,7 @@ let config = TealiumConfig(account: "tealiummobile",
                           profile: "your-profile", 
                           environment: "dev",
                           modules: [
-                              Modules.connectivityData(),
+                              Modules.trace(),
                               // other modules...
                           ])
 ```
@@ -77,10 +79,11 @@ let config = TealiumConfig(account: "tealiummobile",
                           profile: "your-profile", 
                           environment: "dev",
                           modules: [
-                              Modules.connectivityData(forcingSettings: { builder in
+                              Modules.trace(forcingSettings: { builder in
                                   builder.setEnabled(true)
                                          .setOrder(1)
                                          .setRules(.and(["rule_id_from_settings"]))
+                                         .setTrackErrors(true)
                               }),
                               // other modules...
                           ])
@@ -90,8 +93,38 @@ let config = TealiumConfig(account: "tealiummobile",
 
 ## Settings Builders Reference
 
-The ConnectivityData module uses the `ConnectivityDataSettingsBuilder` for configuration. This is an extension of the `CollectorSettingsBuilder` which offers common settings like:
+The Trace module uses the `TraceSettingsBuilder` for configuration. This is an extension of the `CollectorSettingsBuilder` which offers common settings like:
 
 - `ModuleSettingsBuilder.setEnabled(_:)`
 - `ModuleSettingsBuilder.setOrder(_:)`
 - `RuleModuleSettingsBuilder.setRules(_:)`
+
+### Trace-specific Settings
+
+- `TraceSettingsBuilder.setTrackErrors(_:)` - Enable or disable automatic error tracking during trace sessions (default: `false`)
+
+# Usage
+You can use the trace functionality by accessing an interface on the `Tealium` object.
+
+```swift
+// Join a trace session
+tealium.trace.join(id: "trace_id").subscribe { result in
+    // Optionally handle result here
+}
+
+// Leave the current trace session
+tealium.trace.leave().subscribe { result in
+    // Optionally handle result here
+}
+
+// Force end of visit for testing
+tealium.trace.forceEndOfVisit().subscribe { result in
+    // Handle the track result
+}
+```
+
+> **⚠️ Note:** You can use trace directly from deep links, if the opened URL contains the right query parameter, and that's usually done with the QR trace tool on the platform. If you want to programmatically call trace, then, you can use the methods above.
+
+See more on the interface definition below.
+
+# Trace

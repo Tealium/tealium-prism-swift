@@ -6,7 +6,48 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-/// A Condition that can be used to verify the matching to a payload.
+/**
+ * A structure that defines conditional logic for determining whether data in your application
+ * meets specific criteria. Conditions are the building blocks used by `Rule`s to decide when
+ * to trigger certain actions, such as dispatching events, collecting or transforming data.
+ *
+ * ## Overview
+ * 
+ * A `Condition` evaluates data from your application's data layer against specified criteria.
+ * For example, you might create a condition to check if a user's subscription status equals "premium",
+ * or if a purchase amount is greater than $100.
+ *
+ * ## Basic Usage
+ *
+ * For creating `Condition` instances it's recommended to use the convenience
+ * static methods provided in the `Condition` extension:
+ *
+ * ```swift
+ * // Check if user type equals "premium"
+ * let condition = Condition.equals(ignoreCase: false, 
+ *                                  variable: "user_type", // for a flat key
+ *                                  target: "premium")
+ *
+ * // Check if purchase amount is greater than 100
+ * let condition = Condition.isGreaterThan(orEqual: false,
+ *                                         variable: JSONPath["order"]["purchase_amount"], // for a JSON path
+ *                                         number: "100")
+ * ```
+ *
+ * ## Error Handling
+ *
+ * When conditions are evaluated, they may throw `ConditionEvaluationError` in exceptional cases:
+ * - If the specified variable doesn't exist in the data (except for `isDefined`/`isNotDefined` operators)
+ * - If a required filter value is missing
+ * - If numeric operations are attempted on non-numeric data
+ * - If an operator is not supported for the data type found
+ *
+ * ## Supported Data Types
+ *
+ * Conditions can evaluate various data types including strings, numbers, booleans, arrays, 
+ * and dictionaries. The behavior varies by operator - for example, string operations will
+ * convert other types to strings, while numeric operations require parseable numbers.
+ */
 public struct Condition: Equatable {
     /// The operator used to evaluate a condition against a variable.
     public enum Operator: Equatable {
