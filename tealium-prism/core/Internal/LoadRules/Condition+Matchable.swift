@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension DataItem {
+fileprivate extension DataItem {
     var isEmpty: Bool {
         if let array = getDataArray() {
             return array.isEmpty
@@ -23,7 +23,7 @@ extension DataItem {
         }
     }
 
-    func toString() -> String {
+    func describeValue() -> String {
         guard let result = self.stringValue ?? self.value else {
             return "null"
         }
@@ -33,16 +33,7 @@ extension DataItem {
 
 extension Condition: Matchable {
     typealias ErrorKind = ConditionEvaluationError.Kind
-    static let formatter: NumberFormatter = {
-        let formatter = NumberFormatter()
-        formatter.locale = Locale(identifier: "en_US_POSIX")
-        formatter.positiveInfinitySymbol = "Infinity"
-        formatter.negativeInfinitySymbol = "-Infinity"
-        formatter.notANumberSymbol = "NaN"
-        formatter.maximumFractionDigits = 16
-        return formatter
-    }()
-
+    static let formatter = DataItemFormatter.self
     public func matches(payload: DataObject) throws(ConditionEvaluationError) -> Bool {
         do throws(ErrorKind) {
             guard let dataItem = payload.extractDataItem(path: variable.path) else {
@@ -122,11 +113,11 @@ extension Condition: Matchable {
 
     private func numbersMatch(dataItem: DataItem, orEqual: Bool, _ predicate: (Double, Double) -> Bool) throws(ErrorKind) -> Bool {
         let filter = try requireFilter()
-        let value = try convertToDouble(DataItem(value: filter), using: Self.formatter, source: "Filter")
+        let value = try convertToDouble(DataItem(value: filter), source: "Filter")
         let number = if let number = dataItem.get(as: Double.self) {
             number
         } else {
-            try convertToDouble(dataItem, using: Self.formatter, source: "DataItem")
+            try convertToDouble(dataItem, source: "DataItem")
         }
         if number == value {
             return orEqual
@@ -141,14 +132,14 @@ extension Condition: Matchable {
         return filter.value
     }
 
-    private func convertToDouble(_ dataItem: DataItem, using formatter: NumberFormatter, source: String) throws(ErrorKind) -> Double {
+    private func convertToDouble(_ dataItem: DataItem, source: String) throws(ErrorKind) -> Double {
         guard let numString = dataItem.get(as: String.self), !numString.isEmpty else {
-            throw .numberParsingError(parsing: dataItem.toString(), source: source)
+            throw .numberParsingError(parsing: dataItem.describeValue(), source: source)
         }
         if numString == "NaN" {
             return Double.nan
         }
-        guard let number = formatter.number(from: numString)?.doubleValue else {
+        guard let number = Self.formatter.number(from: numString)?.doubleValue else {
             throw .numberParsingError(parsing: numString, source: source)
         }
         return number
@@ -165,13 +156,8 @@ extension Condition: Matchable {
             }
         } else if let dictionary = value.getDataDictionary() {
             throw .operationNotSupportedFor("\(type(of: dictionary))")
-        } else if let double = value.get(as: Double.self) {
-            // using custom formatter to get correct "Infinity" and "NaN" strings
-            // as well as to remove fraction zeroes (1.0 -> 1) and disable scientific notation
-            return Self.formatter.string(for: double) ?? String(describing: double)
         } else {
-            let dataInput = value.toDataInput()
-            return String(describing: dataInput is NSNull ? "null" : dataInput)
+            return Self.formatter.format(dataItem: value) ?? "null"
         }
     }
 }
