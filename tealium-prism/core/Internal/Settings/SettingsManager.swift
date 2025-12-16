@@ -109,7 +109,8 @@ class SettingsManager {
          resourceRefresher.onResourceLoaded
             .compactMap { [weak self] newSettingsLoaded in
                 guard let self else { return nil }
-                if self.logger.shouldLog(level: .debug) {
+                self.logger.shouldLog(level: .debug) { shouldLog in
+                    guard shouldLog else { return }
                     self.logger.debug(category: LogCategory.settingsManager, "New SDK settings downloaded")
                     self.logger.trace(category: LogCategory.settingsManager,
                                       "Downloaded settings:\n\(newSettingsLoaded)")

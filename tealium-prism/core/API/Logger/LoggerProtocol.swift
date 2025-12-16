@@ -13,19 +13,28 @@ import Foundation
  *
  * Log messages are not guaranteed to be processed immediately upon calling one of the logging methods,
  * however they will be processed in the order that they are received.
+ *
+ * **Important:** When using the logging methods, always use a limited set of non-dynamic categories.
+ * Categories should be static strings that identify the component or feature being logged (e.g., "NetworkModule", "TraceModule").
+ * Avoid using dynamic values like user IDs, timestamps, or other variable data as categories, as this can lead to
+ * performance issues and potential memory problems in logging implementations.
  */
 public protocol LoggerProtocol {
     /**
-     * Returns whether or not the given `level` should be logged by the currently configured `LogLevel.Minimum`.
+     * Asynchronously determines whether or not the given `level` should be logged by the currently configured `LogLevel.Minimum`.
      *
-     * Note. This method will return `true` when there is not a `LogLevel.Minimum` set yet.
+     * This method executes asynchronously to ensure thread-safe access to the logger's internal state.
+     * The result is delivered via the completion handler.
+     *
+     * Note: The completion handler will be called with `true` when there is not a `LogLevel.Minimum` set yet.
      * Therefore, calling any of the logging methods (`trace`, `debug` etc) will queue the log message until
      * a `LogLevel.Minimum` has been set, deferring the decision on whether to log, or not, until then.
      *
      * - Parameters:
      *   - level: The `LogLevel` to compare against the currently configured `LogLevel.Minimum`.
+     *   - completion: A closure called asynchronously with the result of whether the level should be logged.
      */
-    func shouldLog(level: LogLevel) -> Bool
+    func shouldLog(level: LogLevel, completion: @escaping (Bool) -> Void)
 
     /**
      * Logs a `trace` level message by evaluating the message passed in an autoclosure when and if log needs to take place.

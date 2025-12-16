@@ -24,15 +24,11 @@ class MockLogHandler: LogHandler {
 
 struct MockLogger: LoggerProtocol {
     let handler = MockLogHandler()
-    func shouldLog(level: LogLevel) -> Bool {
-        return true
+    func shouldLog(level: LogLevel, completion: @escaping (Bool) -> Void) {
+        completion(true)
     }
 
     func log(level: LogLevel, category: String, _ messageProvider: @autoclosure @escaping () -> String) {
         handler.log(category: category, message: messageProvider(), level: level)
     }
 }
-
-let verboseLogger = TealiumLogger(logHandler: OSLogger(),
-                                  onLogLevel: Observables.empty(),
-                                  forceLevel: .trace)

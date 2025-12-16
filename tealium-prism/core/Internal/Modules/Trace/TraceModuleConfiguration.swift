@@ -17,7 +17,11 @@ struct TraceModuleConfiguration {
         static let trackErrors: Bool = false
     }
 
-    init(configuration: DataObject) {
-        trackErrors = configuration.get(key: Keys.trackErrors) ?? Defaults.trackErrors
+    init(configuration: DataObject = [:]) {
+        self.init(trackErrors: configuration.get(key: Keys.trackErrors) ?? Defaults.trackErrors)
+    }
+
+    init(trackErrors: Bool) {
+        self.trackErrors = trackErrors
     }
 }

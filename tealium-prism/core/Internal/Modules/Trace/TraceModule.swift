@@ -18,9 +18,15 @@ class TraceModule: Collector, BasicModule {
     let tracker: Tracker
     static let moduleType: String = Modules.Types.trace
     var id: String { Self.moduleType }
-    var trackErrors = false
+    private(set) var trackErrors = false
     var onErrorEvent: Observable<ErrorEvent>?
     private var errorSubscription: Disposable?
+    // for preventing 'doom-loop' of error events
+    private(set) var errorCategoryCache: Set<String> = []
+
+    var traceId: String? {
+        dataStore.get(key: TealiumDataKey.tealiumTraceId)
+    }
 
     required convenience init?(context: TealiumContext, moduleConfiguration: DataObject) {
         guard let dataStore = try? context.moduleStoreProvider.getModuleStore(name: Self.moduleType) else {
@@ -37,10 +43,11 @@ class TraceModule: Collector, BasicModule {
         self.tracker = tracker
         self.onErrorEvent = onErrorEvent
         self.trackErrors = configuration.trackErrors
+        updateErrorSubscription()
     }
 
     func forceEndOfVisit(onTrackResult: TrackResultCompletion? = nil) throws(TraceError) {
-        guard let traceId = dataStore.get(key: TealiumDataKey.tealiumTraceId, as: String.self) else {
+        guard let traceId else {
             throw TraceError.noActiveTrace
         }
         let dispatch = Dispatch(name: TealiumConstants.forceEndOfVisitQueryParam,
@@ -54,6 +61,7 @@ class TraceModule: Collector, BasicModule {
     }
 
     func join(id: String) throws {
+        errorCategoryCache.removeAll()
         try dataStore.edit()
             .put(key: TealiumDataKey.tealiumTraceId, value: id, expiry: .session)
             .commit()
@@ -64,23 +72,38 @@ class TraceModule: Collector, BasicModule {
         try dataStore.edit()
             .remove(key: TealiumDataKey.tealiumTraceId)
             .commit()
-        errorSubscription?.dispose()
+        unsubscribeFromErrors()
+        errorCategoryCache.removeAll()
+    }
+
+    private func updateErrorSubscription() {
+        // trace id saved for session - subscribe to errors if we're still in one
+        if trackErrors, traceId != nil {
+            subscribeToErrors()
+            return
+        }
+        unsubscribeFromErrors()
     }
 
     private func subscribeToErrors() {
-        guard let onErrorEvent else { return }
-        errorSubscription?.dispose()
+        guard let onErrorEvent, errorSubscription == nil else { return }
         errorSubscription = onErrorEvent.filter { [weak self] _ in self?.trackErrors == true }
             .subscribe { [weak self] errorEvent in
                 self?.trackError(errorEvent)
             }
     }
 
+    private func unsubscribeFromErrors() {
+        errorSubscription?.dispose()
+        errorSubscription = nil
+    }
+
     private func trackError(_ errorEvent: ErrorEvent) {
+        guard errorCategoryCache.insert(errorEvent.category).inserted else { return }
         let errorDispatch = Dispatch(
             name: "tealium_error",
             type: .event,
-            data: ["error_description": errorEvent.description]
+            data: ["error_description": "\(errorEvent.category): \(errorEvent.descriptionProvider())"]
         )
         tracker.track(errorDispatch, source: .module(TraceModule.self))
     }
@@ -100,7 +123,7 @@ class TraceModule: Collector, BasicModule {
     }
 
     deinit {
-        errorSubscription?.dispose()
+        unsubscribeFromErrors()
     }
 }
 

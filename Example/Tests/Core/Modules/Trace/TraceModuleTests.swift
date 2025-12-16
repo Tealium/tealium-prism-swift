@@ -14,20 +14,21 @@ final class TraceModuleTests: XCTestCase {
     lazy var dataStoreProvider = ModuleStoreProvider(databaseProvider: dbProvider, modulesRepository: SQLModulesRepository(dbProvider: dbProvider))
     let tracker: MockTracker = MockTracker()
     var traceModule: TraceModule!
+    let errorSubject = BasePublisher<ErrorEvent>()
+    func createTrace(trackErrors: Bool = false, onErrorEvent: Observable<ErrorEvent>? = nil) throws -> TraceModule {
+        let dataStore = try dataStoreProvider.getModuleStore(name: TraceModule.moduleType)
+        return TraceModule(dataStore: dataStore,
+                           tracker: tracker,
+                           configuration: TraceModuleConfiguration(trackErrors: trackErrors),
+                           onErrorEvent: onErrorEvent ?? errorSubject.asObservable())
+    }
 
     override func setUpWithError() throws {
-        let dataStore = try dataStoreProvider.getModuleStore(name: TraceModule.moduleType)
-        traceModule = TraceModule(dataStore: dataStore, tracker: tracker, configuration: TraceModuleConfiguration(configuration: [:]))
+        traceModule = try createTrace()
     }
 
     func test_error_tracking_creates_error_dispatch_when_enabled_and_in_trace() throws {
-        let dataStore = try dataStoreProvider.getModuleStore(name: TraceModule.moduleType)
-        let errorTrackingConfig = TraceModuleConfiguration(configuration: ["track_errors": true])
-        let errorSubject = ReplaySubject<ErrorEvent>()
-        traceModule = TraceModule(dataStore: dataStore,
-                                  tracker: tracker,
-                                  configuration: errorTrackingConfig,
-                                  onErrorEvent: errorSubject.asObservable())
+        traceModule = try createTrace(trackErrors: true, onErrorEvent: errorSubject.asObservable())
         let errorDispatchTracked = expectation(description: "Error dispatch should be tracked")
         _ = tracker.onTrack.subscribe { event in
             if event.name == "tealium_error" {
@@ -36,18 +37,12 @@ final class TraceModuleTests: XCTestCase {
             }
         }
         try traceModule.join(id: "test-trace")
-        errorSubject.publish(ErrorEvent(description: "TestCategory: Test error"))
+        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Test error" }))
         waitForDefaultTimeout()
     }
 
     func test_error_tracking_doesnt_create_error_dispatch_when_disabled_by_default() throws {
-        let dataStore = try dataStoreProvider.getModuleStore(name: TraceModule.moduleType)
-        let errorTrackingConfig = TraceModuleConfiguration(configuration: [:])
-        let errorSubject = ReplaySubject<ErrorEvent>()
-        traceModule = TraceModule(dataStore: dataStore,
-                                  tracker: tracker,
-                                  configuration: errorTrackingConfig,
-                                  onErrorEvent: errorSubject.asObservable())
+        traceModule = try createTrace(onErrorEvent: errorSubject.asObservable())
         let errorDispatchTracked = expectation(description: "Error dispatch should be tracked")
         errorDispatchTracked.isInverted = true
         _ = tracker.onTrack.subscribe { event in
@@ -56,18 +51,12 @@ final class TraceModuleTests: XCTestCase {
             }
         }
         try traceModule.join(id: "test-trace")
-        errorSubject.publish(ErrorEvent(description: "TestCategory: Test error"))
+        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Test error" }))
         waitForDefaultTimeout()
     }
 
     func test_error_tracking_doesnt_create_error_dispatch_when_enabled_but_not_in_trace() throws {
-        let dataStore = try dataStoreProvider.getModuleStore(name: TraceModule.moduleType)
-        let errorTrackingConfig = TraceModuleConfiguration(configuration: ["track_errors": true])
-        let errorSubject = ReplaySubject<ErrorEvent>()
-        traceModule = TraceModule(dataStore: dataStore,
-                                  tracker: tracker,
-                                  configuration: errorTrackingConfig,
-                                  onErrorEvent: errorSubject.asObservable())
+        traceModule = try createTrace(trackErrors: true, onErrorEvent: errorSubject.asObservable())
         let errorDispatchNotTracked = expectation(description: "Error dispatch should not be tracked when not in trace")
         errorDispatchNotTracked.isInverted = true
         _ = tracker.onTrack.subscribe { event in
@@ -76,18 +65,12 @@ final class TraceModuleTests: XCTestCase {
             }
         }
         // Note: NOT calling join() here - this is the key difference
-        errorSubject.publish(ErrorEvent(description: "TestCategory: Test error"))
+        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Test error" }))
         waitForDefaultTimeout()
     }
 
     func test_error_tracking_stops_when_leaving_trace() throws {
-        let dataStore = try dataStoreProvider.getModuleStore(name: TraceModule.moduleType)
-        let errorTrackingConfig = TraceModuleConfiguration(configuration: ["track_errors": true])
-        let errorSubject = ReplaySubject<ErrorEvent>()
-        traceModule = TraceModule(dataStore: dataStore,
-                                  tracker: tracker,
-                                  configuration: errorTrackingConfig,
-                                  onErrorEvent: errorSubject.asObservable())
+        traceModule = try createTrace(trackErrors: true, onErrorEvent: errorSubject.asObservable())
         try traceModule.join(id: "test-trace")
         try traceModule.leave()
         let errorDispatchNotTracked = expectation(description: "Error should not be tracked after leaving trace")
@@ -97,7 +80,7 @@ final class TraceModuleTests: XCTestCase {
                 errorDispatchNotTracked.fulfill()
             }
         }
-        errorSubject.publish(ErrorEvent(description: "TestCategory: Test error"))
+        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Test error" }))
         waitForDefaultTimeout()
     }
 
@@ -105,8 +88,13 @@ final class TraceModuleTests: XCTestCase {
         XCTAssertNotNil(dataStoreProvider.modulesRepository.getModules()[TraceModule.moduleType])
     }
 
-    func test_forceEndOfVisit_throws_an_error_when_not_in_trace() {
-        XCTAssertThrowsError(try traceModule.forceEndOfVisit())
+    func test_forceEndOfVisit_throws_trace_error_when_not_in_trace() {
+        XCTAssertThrows(try traceModule.forceEndOfVisit()) { (error: TraceError) in
+            guard case .noActiveTrace = error else {
+                XCTFail("Unexpected error: \(error)")
+                return
+            }
+        }
     }
 
     func test_forceEndOfVisit_tracks_dispatch_with_trace_id_twins_and_event_name_when_in_trace() throws {
@@ -172,5 +160,108 @@ final class TraceModuleTests: XCTestCase {
         let updatedModule = traceModule.updateConfiguration(newConfig)
         XCTAssertNotNil(updatedModule)
         XCTAssertTrue(traceModule.trackErrors)
+    }
+
+    func test_error_subscription_is_created_on_init_when_trace_exists_and_tracking_enabled() throws {
+        // Set up existing trace in dataStore
+        try dataStoreProvider.getModuleStore(name: TraceModule.moduleType).edit()
+            .put(key: TealiumDataKey.tealiumTraceId, value: "existing-trace", expiry: .session)
+            .commit()
+        let subscribed = expectation(description: "Trace should subscribe")
+        traceModule = try createTrace(trackErrors: true,
+                                      onErrorEvent: Observables.create(subscriptionHandler: { _ in
+            subscribed.fulfill()
+            return Disposables.disposed()
+        }))
+        waitForDefaultTimeout()
+    }
+
+    func test_error_subscription_is_not_created_on_init_when_no_trace_exists() throws {
+        let subscribed = expectation(description: "Trace should not subscribe")
+        subscribed.isInverted = true
+        traceModule = try createTrace(trackErrors: true,
+                                      onErrorEvent: Observables.create(subscriptionHandler: { _ in
+            subscribed.fulfill()
+            return Disposables.disposed()
+        }))
+        waitForDefaultTimeout()
+    }
+
+    func test_error_deduplication_tracks_first_error_per_category() throws {
+        traceModule = try createTrace(trackErrors: true, onErrorEvent: errorSubject.asObservable())
+        try traceModule.join(id: "test-trace")
+        let errorTracked = expectation(description: "First error should be tracked")
+        _ = tracker.onTrack.subscribe { event in
+            if event.name == "tealium_error" {
+                errorTracked.fulfill()
+            }
+        }
+        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 1" }))
+        waitForDefaultTimeout()
+        XCTAssertTrue(traceModule.errorCategoryCache.contains("TestCategory"))
+    }
+
+    func test_error_deduplication_blocks_duplicate_errors_in_same_category() throws {
+        traceModule = try createTrace(trackErrors: true, onErrorEvent: errorSubject.asObservable())
+        try traceModule.join(id: "test-trace")
+        let errorTracked = expectation(description: "Only first error should be tracked")
+        _ = tracker.onTrack.subscribe { event in
+            if event.name == "tealium_error" {
+                errorTracked.fulfill()
+            }
+        }
+        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 1" }))
+        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 2" }))
+        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 3" }))
+        waitForDefaultTimeout()
+        XCTAssertTrue(traceModule.errorCategoryCache.contains("TestCategory"))
+        XCTAssertEqual(traceModule.errorCategoryCache.count, 1)
+    }
+
+    func test_error_deduplication_allows_different_categories() throws {
+        traceModule = try createTrace(trackErrors: true, onErrorEvent: errorSubject.asObservable())
+        try traceModule.join(id: "test-trace")
+        let errorsTracked = expectation(description: "Errors from different categories should be tracked")
+        errorsTracked.expectedFulfillmentCount = 2
+        _ = tracker.onTrack.subscribe { event in
+            if event.name == "tealium_error" {
+                errorsTracked.fulfill()
+            }
+        }
+        errorSubject.publish(ErrorEvent(category: "Category1", descriptionProvider: { "Error 1" }))
+        errorSubject.publish(ErrorEvent(category: "Category2", descriptionProvider: { "Error 1" }))
+        waitForDefaultTimeout()
+        XCTAssertTrue(traceModule.errorCategoryCache.contains("Category1"))
+        XCTAssertTrue(traceModule.errorCategoryCache.contains("Category2"))
+        XCTAssertEqual(traceModule.errorCategoryCache.count, 2)
+    }
+
+    func test_errorCategoryCache_starts_empty() {
+        XCTAssertTrue(traceModule.errorCategoryCache.isEmpty, "Error category cash should start empty")
+    }
+
+    func test_errorCategoryCache_is_cleared_when_leaving_trace() throws {
+        traceModule = try createTrace(trackErrors: true, onErrorEvent: errorSubject.asObservable())
+        try traceModule.join(id: "test-trace")
+        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 1" }))
+        XCTAssertTrue(traceModule.errorCategoryCache.contains("TestCategory"))
+        try traceModule.leave()
+        XCTAssertTrue(traceModule.errorCategoryCache.isEmpty)
+    }
+
+    func test_errorCategoryCache_is_cleared_when_joining_new_trace() throws {
+        traceModule = try createTrace(trackErrors: true, onErrorEvent: errorSubject.asObservable())
+        try traceModule.join(id: "test-trace-1")
+        let errorTracked = expectation(description: "Error should be tracked")
+        _ = tracker.onTrack.subscribe { event in
+            if event.name == "tealium_error" {
+                errorTracked.fulfill()
+            }
+        }
+        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 1" }))
+        waitForDefaultTimeout()
+        XCTAssertTrue(traceModule.errorCategoryCache.contains("TestCategory"))
+        try traceModule.join(id: "test-trace-2")
+        XCTAssertTrue(traceModule.errorCategoryCache.isEmpty)
     }
 }

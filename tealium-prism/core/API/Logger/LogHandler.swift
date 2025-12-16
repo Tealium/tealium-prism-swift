@@ -32,13 +32,10 @@ class OSLogger: LogHandler {
     }
 
     func log(category: String, message: String, level: LogLevel) {
-        TealiumQueue.worker.ensureOnQueue { [weak self] in
-            guard let self else { return }
-            os_log("%{public}@",
-                   log: getOSLog(forCategory: category),
-                   type: OSLogType.from(logLevel: level),
-                   message as NSString)
-        }
+        os_log("%{public}@",
+               log: getOSLog(forCategory: category),
+               type: OSLogType.from(logLevel: level),
+               message as NSString)
     }
 }
 

@@ -103,6 +103,17 @@ The Trace module uses the `TraceSettingsBuilder` for configuration. This is an e
 
 - `TraceSettingsBuilder.setTrackErrors(_:)` - Enable or disable automatic error tracking during trace sessions (default: `false`)
 
+### Error Tracking Behavior
+
+When error tracking is enabled (`track_errors: true`), the Trace module will automatically track SDK errors that occur during an active trace session. To prevent duplicate error reports, the module implements error deduplication by category:
+
+- Only the first error from each category will be tracked per trace session
+- Subsequent errors from the same category are ignored until a new trace session begins
+- Each new trace session (via `join(id:)`) or restarting the app resets the error deduplication cache
+- Leaving a trace session (via `leave()`) also clears the deduplication cache
+
+This ensures that trace sessions capture representative error samples without being overwhelmed by repeated errors of the same type.
+
 # Usage
 You can use the trace functionality by accessing an interface on the `Tealium` object.
 

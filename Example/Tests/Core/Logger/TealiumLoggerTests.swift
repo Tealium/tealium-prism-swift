@@ -15,24 +15,60 @@ final class TealiumLoggerTests: XCTestCase {
     var forceLevel: LogLevel.Minimum?
     lazy var logger = createLogger()
     func createLogger() -> TealiumLogger {
-        TealiumLogger(logHandler: logHandler, onLogLevel: onLogLevel.asObservable(), forceLevel: forceLevel)
+        TealiumLogger(logHandler: logHandler, onLogLevel: onLogLevel.asObservable(), forceLevel: forceLevel, queue: .main)
     }
 
     func test_shouldLog_returns_true_for_higher_log_levels() {
         forceLevel = .info
-        XCTAssertFalse(logger.shouldLog(level: .trace))
-        XCTAssertFalse(logger.shouldLog(level: .debug))
-        XCTAssertTrue(logger.shouldLog(level: .info))
-        XCTAssertTrue(logger.shouldLog(level: .warn))
-        XCTAssertTrue(logger.shouldLog(level: .error))
+        let expectation = expectation(description: "All shouldLog calls complete")
+        expectation.expectedFulfillmentCount = 5
+        logger.shouldLog(level: .trace) { result in
+            XCTAssertFalse(result)
+            expectation.fulfill()
+        }
+        logger.shouldLog(level: .debug) { result in
+            XCTAssertFalse(result)
+            expectation.fulfill()
+        }
+        logger.shouldLog(level: .info) { result in
+            XCTAssertTrue(result)
+            expectation.fulfill()
+        }
+        logger.shouldLog(level: .warn) { result in
+            XCTAssertTrue(result)
+            expectation.fulfill()
+        }
+        logger.shouldLog(level: .error) { result in
+            XCTAssertTrue(result)
+            expectation.fulfill()
+        }
+        waitForDefaultTimeout()
     }
 
     func test_shouldLog_returns_true_when_minimumLevel_is_nil() {
-        XCTAssertTrue(logger.shouldLog(level: .trace))
-        XCTAssertTrue(logger.shouldLog(level: .debug))
-        XCTAssertTrue(logger.shouldLog(level: .info))
-        XCTAssertTrue(logger.shouldLog(level: .warn))
-        XCTAssertTrue(logger.shouldLog(level: .error))
+        let expectation = expectation(description: "All shouldLog calls complete")
+        expectation.expectedFulfillmentCount = 5
+        logger.shouldLog(level: .trace) { result in
+            XCTAssertTrue(result)
+            expectation.fulfill()
+        }
+        logger.shouldLog(level: .debug) { result in
+            XCTAssertTrue(result)
+            expectation.fulfill()
+        }
+        logger.shouldLog(level: .info) { result in
+            XCTAssertTrue(result)
+            expectation.fulfill()
+        }
+        logger.shouldLog(level: .warn) { result in
+            XCTAssertTrue(result)
+            expectation.fulfill()
+        }
+        logger.shouldLog(level: .error) { result in
+            XCTAssertTrue(result)
+            expectation.fulfill()
+        }
+        waitForDefaultTimeout()
     }
 
     func test_minimum_log_level_changes_when_observable_publishes_new_level() {
@@ -99,11 +135,12 @@ final class TealiumLoggerTests: XCTestCase {
         waitForLongTimeout()
     }
 
-    func test_error_events_are_published_when_logging_at_error_level() {
+    func test_error_events_are_published_even_when_minimumLevel_is_silent() {
         let errorEventPublished = expectation(description: "Error event should be published")
-        forceLevel = .trace
+        forceLevel = .silent
         _ = logger.onError.subscribe { errorEvent in
-            XCTAssertEqual(errorEvent.description, "TestCategory: Test error message")
+            XCTAssertEqual(errorEvent.category, "TestCategory")
+            XCTAssertEqual(errorEvent.descriptionProvider(), "Test error message")
             errorEventPublished.fulfill()
         }
         logger.error(category: "TestCategory", "Test error message")

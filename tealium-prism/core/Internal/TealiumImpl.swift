@@ -32,7 +32,8 @@ class TealiumImpl {
                                    onLogLevel: onLogLevel.asObservable(),
                                    forceLevel: config.coreSettings?
             .get(key: CoreSettings.Keys.minLogLevel, as: String.self)
-            .flatMap { LogLevel.Minimum(from: $0) })
+            .flatMap { LogLevel.Minimum(from: $0) },
+                                   queue: queue)
         let client = config.networkClient.newClient(withLogger: logger)
         let networkHelper = NetworkHelper(networkClient: client, logger: logger)
         let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
