@@ -156,7 +156,8 @@ public struct TealiumConfig {
      * - Parameters:
      *      - transformation: The `TransformationSettings` that defines which `Transformer` should handle this transformation and how.
      */
-    mutating public func setTransformation(_ transformation: TransformationSettings) {
+    mutating public func setTransformation(_ builder: TransformationSettingsBuilder) {
+        let transformation = builder.build()
         transformations.set(converting: transformation,
                             key: "\(transformation.transformerId)-\(transformation.id)")
     }

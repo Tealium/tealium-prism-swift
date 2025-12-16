@@ -17,9 +17,9 @@ extension ReferenceContainer {
             }
             if let pathString = object.get(key: Keys.path, as: String.self),
                       let path = try? JSONObjectPath.parse(pathString) {
-                return ReferenceContainer(path: path)
+                return .path(path)
             } else if let key = object.get(key: Keys.key, as: String.self) {
-                return ReferenceContainer(key: key)
+                return .key(key)
             }
             return nil
         }

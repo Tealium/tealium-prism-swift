@@ -24,18 +24,18 @@ public struct ReferenceContainer: Equatable {
     }
     let ref: ReferenceType
 
-    init(ref: ReferenceType) {
-        self.ref = ref
-    }
-
     /// Creates a ReferenceContainer to a variable in the root of a JSON object.
-    public init(key: String) {
-        self.init(ref: .key(key))
+    public static func key(_ key: String) -> Self {
+        ReferenceContainer(ref: .key(key))
     }
 
     /// Creates a ReferenceContainer to a variable nested in a JSON object.
-    public init(path: JSONObjectPath) {
-        self.init(ref: .path(path))
+    public static func path(_ path: JSONObjectPath) -> Self {
+        ReferenceContainer(ref: .path(path))
+    }
+
+    init(ref: ReferenceType) {
+        self.ref = ref
     }
 
     /// The path to a potentially nested variable in a JSON object.

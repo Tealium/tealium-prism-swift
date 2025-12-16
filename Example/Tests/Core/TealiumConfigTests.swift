@@ -90,8 +90,10 @@ final class TealiumConfigTests: XCTestCase {
     }
 
     func test_getEnforcedSDKSettings_returns_settings_with_transformations() throws {
-        config.setTransformation(TransformationSettings(id: "transformationId1", transformerId: "transformerId", scopes: [.allDispatchers]))
-        config.setTransformation(TransformationSettings(id: "transformationId2", transformerId: "transformerId", scopes: [.dispatcher(id: "123")]))
+        config.setTransformation(TransformationSettingsBuilder(id: "transformationId1", transformerId: "transformerId")
+            .setScopes([.allDispatchers]))
+        config.setTransformation(TransformationSettingsBuilder(id: "transformationId2", transformerId: "transformerId")
+            .setScopes([.dispatcher(id: "123")]))
         let settings = config.getEnforcedSDKSettings()
         XCTAssertEqual(settings, [
             "transformations": try DataItem(serializing: [

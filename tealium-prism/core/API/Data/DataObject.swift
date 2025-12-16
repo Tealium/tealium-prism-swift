@@ -126,6 +126,68 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
     }
 }
 
+public extension DataStore {
+    /**
+     * Builds a nested path in the data store and sets a value at that location.
+     *
+     * This method creates the necessary nested structure (objects and arrays) to accommodate
+     * the specified path, then sets the provided item at that location with the given expiry.
+     * If any part of the path doesn't exist, it will be automatically created.
+     *
+     * For nested objects, missing dictionary keys will be created as empty dictionaries.
+     * For nested arrays, if an index is beyond the current array bounds, the array will be
+     * extended with `nil` values until it reaches the required capacity.
+     *
+     * Example:
+     * ```swift
+     * // Creates nested structure: { "user": { "profile": { "name": "John" } } }
+     * let path = JSONPath["user"]["profile"]["name"]
+     * let nameItem = DataItem(value: "John")
+     * try dataStore.buildPath(path, andSet: nameItem, expiry: .session)
+     * ```
+     *
+     * - Parameters:
+     *   - path: The `JSONObjectPath` specifying where to set the value. Can include nested
+     *           object keys and array indices.
+     *   - item: The `DataItem` to store at the specified path location.
+     *   - expiry: The time frame for this data to remain stored before expiring.
+     *
+     * - Throws: An error if the commit operation fails during the transaction.
+     */
+    func buildPath(_ path: JSONObjectPath, andSet item: DataItem, expiry: Expiry) throws {
+        var components = path.components
+        _ = components.removeFirst()
+        let edit = self.edit()
+        guard !components.isEmpty else {
+            try edit
+                .put(key: path.root,
+                     value: item.toDataInput(),
+                     expiry: expiry)
+                .commit()
+            return
+        }
+        let component = components.removeFirst()
+        let nested = self.getDataItem(key: path.root)
+        switch component {
+        case let .index(index):
+            var array = nested?.getDataArray() ?? []
+            array.buildPath(index: index, components: &components, andSet: item)
+            _ = edit.put(key: path.root,
+                         value: array.toDataInput(),
+                         expiry: expiry)
+        case let .key(internalKey):
+            let dictionary = nested?.getDataDictionary() ?? [:]
+            var dataObject = dictionary.toDataObject()
+            dataObject.buildPath(key: internalKey, components: &components, andSet: item)
+            _ = edit
+                .put(key: path.root,
+                     value: dataObject.toDataInput(),
+                     expiry: expiry)
+        }
+        try edit.commit()
+    }
+}
+
 /// Allows use of plus operator for DataObject.
 public func + (lhs: DataObject, rhs: DataObject) -> DataObject {
     var lhsCopy = lhs
@@ -242,7 +304,7 @@ extension [String: DataInput] {
         var result = left
         for key in right.keys {
             if let dictR = right[key] as? [String: DataInput],
-                let dictL = left[key] as? [String: DataInput] {
+               let dictL = left[key] as? [String: DataInput] {
                 result[key] = recursiveMerge(dictL, dictR, depth - 1)
             } else if let value = right[key] {
                 result[key] = value
@@ -259,7 +321,7 @@ extension [String: DataInput] {
 }
 
 fileprivate extension DataObject {
-     mutating func buildPath<Root: PathRoot>(key: String, components: inout [JSONPathComponent<Root>], andSet item: DataItem) {
+    mutating func buildPath<Root: PathRoot>(key: String, components: inout [JSONPathComponent<Root>], andSet item: DataItem) {
         guard !components.isEmpty else {
             set(converting: item, key: key)
             return

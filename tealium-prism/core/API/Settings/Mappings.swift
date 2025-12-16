@@ -119,7 +119,7 @@ public class Mappings {
          * - Returns: The `Mappings` builder.
          */
         public func ifValueIn(_ path: JSONObjectPath, equals target: String) -> Mappings {
-            self.reference = ReferenceContainer(path: path)
+            self.reference = ReferenceContainer.path(path)
             self.filter = ValueContainer(target)
             return self
         }
@@ -134,7 +134,7 @@ public class Mappings {
          * - Returns: The `Mappings` builder.
          */
         public func ifValueIn(_ key: String, equals target: String) -> Mappings {
-            self.reference = ReferenceContainer(key: key)
+            self.reference = ReferenceContainer.key(key)
             self.filter = ValueContainer(target)
             return self
         }
@@ -151,7 +151,7 @@ public extension Mappings {
      * - Returns: A `VariableOptions` mapping operation builder.
      */
     static func from(_ key: String, to destination: JSONObjectPath) -> VariableOptions {
-        VariableOptions(reference: ReferenceContainer(key: key), destination: ReferenceContainer(path: destination))
+        VariableOptions(reference: .key(key), destination: .path(destination))
     }
 
     /**
@@ -163,7 +163,7 @@ public extension Mappings {
      * - Returns: A `VariableOptions` mapping operation builder.
      */
     static func from(_ path: JSONObjectPath, to destination: JSONObjectPath) -> VariableOptions {
-        VariableOptions(reference: ReferenceContainer(path: path), destination: ReferenceContainer(path: destination))
+        VariableOptions(reference: .path(path), destination: .path(destination))
     }
 
     /**
@@ -175,7 +175,7 @@ public extension Mappings {
      * - Returns: A `VariableOptions` mapping operation builder.
      */
     static func from(_ path: JSONObjectPath, to destination: String) -> VariableOptions {
-        VariableOptions(reference: ReferenceContainer(path: path), destination: ReferenceContainer(key: destination))
+        VariableOptions(reference: .path(path), destination: .key(destination))
     }
 
     /**
@@ -187,7 +187,7 @@ public extension Mappings {
      * - Returns: A `VariableOptions` mapping operation builder.
      */
     static func from(_ key: String, to destination: String) -> VariableOptions {
-        VariableOptions(reference: ReferenceContainer(key: key), destination: ReferenceContainer(key: destination))
+        VariableOptions(reference: .key(key), destination: .key(destination))
     }
 
     /**
@@ -222,7 +222,7 @@ public extension Mappings {
      * - Returns: A `ConstantOptions` mapping operation builder.
      */
     static func constant(_ value: String, to destination: JSONObjectPath) -> ConstantOptions {
-        ConstantOptions(constant: value, destination: ReferenceContainer(path: destination))
+        ConstantOptions(constant: value, destination: .path(destination))
     }
 
     /**
@@ -236,6 +236,6 @@ public extension Mappings {
      * - Returns: A `ConstantOptions` mapping operation builder.
      */
     static func constant(_ value: String, to destination: String) -> ConstantOptions {
-        ConstantOptions(constant: value, destination: ReferenceContainer(key: destination))
+        ConstantOptions(constant: value, destination: .key(destination))
     }
 }

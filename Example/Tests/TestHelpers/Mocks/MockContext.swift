@@ -41,6 +41,10 @@ class MockContext: TealiumContext {
             coreSettings: coreSettings,
             logger: nil
         )
+        let moduleStoreProvider = ModuleStoreProvider(
+            databaseProvider: databaseProvider,
+            modulesRepository: SQLModulesRepository(dbProvider: databaseProvider)
+           )
         super.init(modulesManager: modulesManager,
                    sessionRegistry: MockSessionManager(databaseProvider: databaseProvider),
                    config: config,
@@ -49,15 +53,13 @@ class MockContext: TealiumContext {
                    barrierRegistry: barrierRegistry,
                    transformerRegistry: transformerRegistry,
                    databaseProvider: databaseProvider,
-                   moduleStoreProvider: ModuleStoreProvider(
-                    databaseProvider: databaseProvider,
-                    modulesRepository: SQLModulesRepository(dbProvider: databaseProvider)
-                   ),
+                   moduleStoreProvider: moduleStoreProvider,
                    logger: logger,
                    networkHelper: networkHelper,
                    activityListener: activityListener,
                    queue: queue,
                    visitorId: visitorId,
-                   queueMetrics: queueManager)
+                   queueMetrics: queueManager,
+                   dataLayer: try! moduleStoreProvider.getModuleStore(name: Modules.Types.dataLayer)) // swiftlint:disable:this force_try
     }
 }

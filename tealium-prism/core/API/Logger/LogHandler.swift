@@ -51,9 +51,9 @@ extension OSLogType {
             return .info
         case .warn:
             /// `OSLog` doesn't have `warn`, so use `info`
-            return .info
-        case .error:
             return .error
+        case .error:
+            return .fault
         }
     }
 }

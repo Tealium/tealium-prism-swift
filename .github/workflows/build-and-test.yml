@@ -64,6 +64,7 @@ jobs:
             - CoreTests_iOS
             - DelegateProxyTests_iOS
             - LifecycleTests_iOS
+            - ExtensionsTests_iOS
             - EndToEndTests_iOS
         destination: 
             - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
@@ -83,6 +84,7 @@ jobs:
             - CoreTests_tvOS
             - EndToEndTests_tvOS
             - LifecycleTests_tvOS
+            - ExtensionsTests_tvOS
         destination: 
             - "platform=tvOS Simulator,OS=18.5,name=Apple TV"
     steps:
@@ -101,6 +103,7 @@ jobs:
             - CoreTests_macOS
             - EndToEndTests_macOS
             - LifecycleTests_macOS
+            - ExtensionsTests_macOS
         destination: 
             - "platform=macOS"
     steps:
@@ -119,6 +122,7 @@ jobs:
             - CoreTests_watchOS
             - EndToEndTests_watchOS
             - LifecycleTests_watchOS
+            - ExtensionsTests_watchOS
         destination: 
             - "platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)"
     steps:

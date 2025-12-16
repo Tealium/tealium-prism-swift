@@ -12,6 +12,12 @@ let package = Package(
         .library(
             name: "TealiumPrismLifecycle",
             targets: ["TealiumPrismLifecycle", "TealiumPrismLifecycleObjC"]),
+        // .library(
+        //     name: "TealiumPrismExtensions",
+        //     targets: ["TealiumPrismExtensions", "TealiumPrismExtensionsObjC"]),
+        // .library(
+        //     name: "TealiumPrismJavascriptTransformer",
+        //     targets: ["TealiumPrismJavascriptTransformer", "TealiumPrismJavascriptTransformerObjC"]),
     ],
     dependencies: [
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.15.4")
@@ -41,6 +47,30 @@ let package = Package(
             name: "TealiumPrismLifecycleObjC",
             dependencies: ["TealiumPrismLifecycle"],
             path: "tealium-prism/lifecycle/Internal/ObjC/"
+        ),
+        .target(
+            name: "TealiumPrismExtensions",
+            dependencies: ["TealiumPrismCore"],
+            path: "tealium-prism/extensions/",
+            exclude: ["Internal/ObjC/"],
+            swiftSettings: [.define("extensions")]
+        ),
+        .target(
+            name: "TealiumPrismExtensionsObjC",
+            dependencies: ["TealiumPrismExtensions"],
+            path: "tealium-prism/extensions/Internal/ObjC/"
+        ),
+        .target(
+            name: "TealiumPrismJavascriptTransformer",
+            dependencies: ["TealiumPrismCore"],
+            path: "tealium-prism/jstransformer/",
+            exclude: ["Internal/ObjC/"],
+            swiftSettings: [.define("jstransformer")]
+        ),
+        .target(
+            name: "TealiumPrismJavascriptTransformerObjC",
+            dependencies: ["TealiumPrismJavascriptTransformer"],
+            path: "tealium-prism/jstransformer/Internal/ObjC/"
         ),
     ]
 )

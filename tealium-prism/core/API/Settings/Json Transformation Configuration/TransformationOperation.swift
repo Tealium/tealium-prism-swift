@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-private enum OperationKeys {
+public enum OperationKeys {
     static let destination = "destination"
     static let parameters = "parameters"
 }
@@ -24,11 +24,11 @@ public struct TransformationOperation<Parameters: DataInputConvertible> {
     }
 
     public init(destination: String, parameters: Parameters) {
-        self.init(destination: ReferenceContainer(key: destination), parameters: parameters)
+        self.init(destination: .key(destination), parameters: parameters)
     }
 
     public init(destination: JSONObjectPath, parameters: Parameters) {
-        self.init(destination: ReferenceContainer(path: destination), parameters: parameters)
+        self.init(destination: .path(destination), parameters: parameters)
     }
 }
 

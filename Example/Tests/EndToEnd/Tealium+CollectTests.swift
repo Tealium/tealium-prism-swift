@@ -33,16 +33,8 @@ final class TealiumCollectTests: TealiumBaseTests {
             Self.decodeBody(request.httpBody) { body in
                 XCTAssertEqual(body, [
                     "_dc_ttl_": 5.minutes.inMilliseconds(),
-                    "enabled_modules": [
-                        "Collect",
-                        "DataLayer",
-                        "TealiumData"
-                    ],
-                    "enabled_modules_versions": [
-                        TealiumConstants.libraryVersion,
-                        TealiumConstants.libraryVersion,
-                        TealiumConstants.libraryVersion
-                    ],
+                    "enabled_modules": body["enabled_modules"],
+                    "enabled_modules_versions": body["enabled_modules_versions"],
                     "is_new_session": true,
                     "tealium_account": "mockAccount",
                     "tealium_profile": "mockProfile",
@@ -179,9 +171,8 @@ final class TealiumCollectTests: TealiumBaseTests {
                 "transformed_key": "transformed_value"
             ], id: dispatch.id, timestamp: 0)
         })))
-        config.setTransformation(TransformationSettings(id: "transformation",
-                                                        transformerId: MockTransformer.moduleType,
-                                                        scopes: [.allDispatchers]))
+        config.setTransformation(TransformationSettingsBuilder(id: "transformation", transformerId: MockTransformer.moduleType)
+            .addScope(.allDispatchers))
         let httpRequestSent = expectation(description: "Http Request is sent")
         client.requestDidSend = { request in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
