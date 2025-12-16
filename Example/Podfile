@@ -1,4 +1,5 @@
 use_frameworks!
+# install! 'cocoapods', :deterministic_uuids => false, :integrate_targets => false
 
 def tealium_libs
   pod 'tealium-prism/Core', :path => '../'
@@ -72,6 +73,26 @@ target 'LifecycleTests_macOS' do
 end
 
 target 'LifecycleTests_watchOS' do
+  platform :watchos, '7.0'
+  tealium_libs
+end
+
+target 'ExtensionsTests_iOS' do
+  platform :ios, '14.1'
+  tealium_libs
+end
+
+target 'ExtensionsTests_tvOS' do
+  platform :tvos, '14.1'
+  tealium_libs
+end
+
+target 'ExtensionsTests_macOS' do
+  platform :osx, '10.15'
+  tealium_libs
+end
+
+target 'ExtensionsTests_watchOS' do
   platform :watchos, '7.0'
   tealium_libs
 end

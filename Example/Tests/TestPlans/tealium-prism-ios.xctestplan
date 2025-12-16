@@ -15,6 +15,13 @@
     {
       "target" : {
         "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "EC1AA4B72CCF9CA400D1D9D1",
+        "name" : "LifecycleTests_iOS"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
         "identifier" : "607FACE41AFB9204008FA782",
         "name" : "CoreTests_iOS"
       }
@@ -29,15 +36,15 @@
     {
       "target" : {
         "containerPath" : "container:tealium-prism.xcodeproj",
-        "identifier" : "8702A2752E266E64001C9743",
-        "name" : "EndToEndTests_iOS"
+        "identifier" : "8709E67C2EF1A7A3008025C8",
+        "name" : "ExtensionsTests_iOS"
       }
     },
     {
       "target" : {
         "containerPath" : "container:tealium-prism.xcodeproj",
-        "identifier" : "EC1AA4B72CCF9CA400D1D9D1",
-        "name" : "LifecycleTests_iOS"
+        "identifier" : "8702A2752E266E64001C9743",
+        "name" : "EndToEndTests_iOS"
       }
     }
   ],
