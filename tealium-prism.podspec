@@ -30,4 +30,9 @@ Pod::Spec.new do |s|
       lifecycle.source_files = "tealium-prism/Lifecycle/**/*.{swift,h,m}"
       lifecycle.dependency "tealium-prism/Core"
     end
+
+  s.subspec "Extensions" do |extensions|
+      extensions.source_files = "tealium-prism/Extensions/**/*.{swift,h,m}"
+      extensions.dependency "tealium-prism/Core"
+    end
 end

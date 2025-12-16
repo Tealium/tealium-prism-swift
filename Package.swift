@@ -42,5 +42,17 @@ let package = Package(
             dependencies: ["TealiumPrismLifecycle"],
             path: "tealium-prism/lifecycle/Internal/ObjC/"
         ),
+        .target(
+            name: "TealiumPrismExtensions",
+            dependencies: ["TealiumPrismCore"],
+            path: "tealium-prism/extensions/",
+            exclude: ["Internal/ObjC/"],
+            swiftSettings: [.define("extensions")]
+        ),
+        .target(
+            name: "TealiumPrismExtensionsObjC",
+            dependencies: ["TealiumPrismExtensions"],
+            path: "tealium-prism/extensions/Internal/ObjC/"
+        ),
     ]
 )

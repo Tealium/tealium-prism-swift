@@ -42,6 +42,10 @@ class TealiumHelper {
                     CustomDispatcher.Factory.moduleType
                 ])
         }
+        config.setTransformation(SetDataValuesSettingsBuilder(id: "123")
+            .addScope(.allDispatchers)
+            .addOperation(input: .key("tealium_event"),
+                          destination: .key("SomeDestination")))
         return Tealium.create(config: config)
     }
     func startTealium() {

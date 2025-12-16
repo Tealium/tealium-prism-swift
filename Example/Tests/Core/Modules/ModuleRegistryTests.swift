@@ -24,13 +24,15 @@ class ModuleRegistryTests: XCTestCase {
         Modules.Types.tealiumData,
         Modules.Types.connectivityData,
         Modules.Types.timeData,
-        Modules.Types.lifecycle
+        Modules.Types.lifecycle,
+        Modules.Types.setDataValuesTransformer
     ]
 
     // When making a mandatory module, make sure to add them here as well
     let mandatoryModules = [
         Modules.Types.dataLayer,
-        Modules.Types.tealiumData
+        Modules.Types.tealiumData,
+        Modules.Types.setDataValuesTransformer
     ]
 
     func test_defaultModules_contain_all_installed_modules() {

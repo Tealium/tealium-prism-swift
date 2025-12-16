@@ -14,11 +14,12 @@ final class SettingsManagerTransformationsTests: SettingsManagerTestCase {
     func test_transformations_are_merged_on_init() throws {
         config.bundle = Bundle(for: type(of: self))
         let condition = Condition.equals(ignoreCase: false, variable: "tealium_event", target: "test_event")
-        config.setTransformation(TransformationSettings(id: "programmaticTransformation",
-                                                        transformerId: "someTransformer",
-                                                        scopes: [.allDispatchers],
-                                                        configuration: ["someKey": "someValue"],
-                                                        conditions: .just(condition)))
+        config.setTransformation(TransformationSettingsBuilder(id: "programmaticTransformation",
+                                                               transformerId: "someTransformer")
+            .addScope(.allDispatchers)
+            .setConditions(.just(condition))
+            ._setConfiguration(["someKey": "someValue"])
+        )
         let manager = try getManager()
         let sdkSettings = manager.settings.value
         guard let programmaticTransformation = sdkSettings.transformations.first(where: { $0.value.id == "programmaticTransformation" })?.value else {
@@ -57,10 +58,10 @@ final class SettingsManagerTransformationsTests: SettingsManagerTestCase {
 
     func test_transformation_configurations_are_merged_on_init() throws {
         config.bundle = Bundle(for: type(of: self))
-        config.setTransformation(TransformationSettings(id: "transformationId",
-                                                        transformerId: "transformerId",
-                                                        scopes: [.allDispatchers],
-                                                        configuration: ["someKey": "someValue"]))
+        config.setTransformation(TransformationSettingsBuilder(id: "transformationId",
+                                                               transformerId: "transformerId")
+            .addScope(.allDispatchers)
+            ._setConfiguration(["someKey": "someValue"]))
         let manager = try getManager()
         let sdkSettings = manager.settings.value
         guard let transformation = sdkSettings.transformations.first(where: { $0.value.id == "transformationId" })?.value else {
