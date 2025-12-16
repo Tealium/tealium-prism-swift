@@ -2,9 +2,9 @@ PODS:
   - SQLite.swift (0.15.4):
     - SQLite.swift/standard (= 0.15.4)
   - SQLite.swift/standard (0.15.4)
-  - tealium-prism/Core (0.1.0):
+  - tealium-prism/Core (0.2.0):
     - SQLite.swift (~> 0.15.0)
-  - tealium-prism/Lifecycle (0.1.0):
+  - tealium-prism/Lifecycle (0.2.0):
     - SQLite.swift (~> 0.15.0)
     - tealium-prism/Core
 
@@ -22,7 +22,7 @@ EXTERNAL SOURCES:
 
 SPEC CHECKSUMS:
   SQLite.swift: a107c734115fea616a4ad31371d39f1637e8de56
-  tealium-prism: 8771d109c7f0c5c9350036dbc0eaab47b7e23614
+  tealium-prism: 19ff9c13ba7050c3a3a609e20e143b7580efca5f
 
 PODFILE CHECKSUM: 1306da429fe41ad95941896cab95c8b1e28a9614
 

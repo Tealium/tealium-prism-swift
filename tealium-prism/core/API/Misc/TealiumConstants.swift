@@ -14,7 +14,7 @@ public enum TealiumConstants {
     /// The name of this Tealium library.
     public static let libraryName = "prism-swift"
     /// The version of this Tealium library.
-    public static let libraryVersion = "0.1.0"
+    public static let libraryVersion = "0.2.0"
     /// A constant representing an unknown value as a string.
     public static let unknown = "unknown"
 
