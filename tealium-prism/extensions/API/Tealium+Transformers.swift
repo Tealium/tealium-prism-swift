@@ -1,5 +1,5 @@
 //
-//  SetDataValuesFactory.swift
+//  Tealium+Transformers.swift
 //  tealium-prism
 //
 //  Created by Enrico Zannini on 16/12/25.
@@ -12,11 +12,17 @@ import TealiumPrismCore
 
 public extension Modules.Types {
     static let setDataValuesTransformer = "SetDataValues"
+    static let lowerCaseTransformer = "LowerCase"
 }
 
 public extension Modules {
     static func setDataValuesTransformer(forcingSettings block: EnforcingSettings<ModuleSettingsBuilder> = { $0 }) -> some ModuleFactory {
         DefaultModuleFactory<SetDataValuesTransformer>(moduleType: Modules.Types.setDataValuesTransformer,
                                                        enforcedSettings: block(DataLayerSettingsBuilder()).build())
+    }
+
+    static func lowerCaseTransformer(forcingSettings block: EnforcingSettings<ModuleSettingsBuilder> = { $0 }) -> some ModuleFactory {
+        DefaultModuleFactory<LowerCaseTransformer>(moduleType: Modules.Types.lowerCaseTransformer,
+                                                   enforcedSettings: block(DataLayerSettingsBuilder()).build())
     }
 }

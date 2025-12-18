@@ -25,5 +25,6 @@ public class ExtensionsAutomaticLoader: NSObject {
     /// thread-safety and called-once guarantees as dispatch_once provided.
     private static let runOnce: () = {
         Modules.addDefaultModule(Modules.setDataValuesTransformer())
+        Modules.addDefaultModule(Modules.lowerCaseTransformer())
     }()
 }

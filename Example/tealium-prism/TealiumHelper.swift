@@ -46,6 +46,16 @@ class TealiumHelper {
             .addScope(.allDispatchers)
             .addOperation(input: .key("tealium_event"),
                           destination: .key("SomeDestination")))
+        
+        config.setTransformation(
+            LowerCaseSettingsBuilder(id: "lowercase-specific")
+                .addScope(.allDispatchers)
+                .setAllVariables(false)
+                .addVariable(.key("event_category"))
+                .addVariable(.key("event_label"))
+                .addVariable(.key("user_id"))
+        )
+        
         return Tealium.create(config: config)
     }
     func startTealium() {
