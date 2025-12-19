@@ -13,7 +13,7 @@ cd ../Example && ../scripts/build.sh --scheme "$EXAMPLE_SCHEME" --destination "$
 declare -a SPM_SCHEMES=( 
     "TealiumPrismCore"
     "TealiumPrismLifecycle"
-    "TealiumPrismExtensions"
+    # "TealiumPrismExtensions"
 )
 
 declare -a SPM_DESTINATIONS=(

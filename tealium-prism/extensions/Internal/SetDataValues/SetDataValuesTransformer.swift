@@ -12,7 +12,7 @@ import TealiumPrismCore
 
 class SetDataValuesTransformer: Transformer, BasicModule {
     let id: String = Modules.Types.setDataValuesTransformer
-    let version: String = "1.0.0"
+    let version: String = TealiumConstants.libraryVersion
 
     required init?(context: TealiumContext, moduleConfiguration: DataObject) { }
 

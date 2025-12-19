@@ -43,7 +43,6 @@ jobs:
         scheme:
             - TealiumPrismCore
             - TealiumPrismLifecycle
-            - TealiumPrismExtensions
         destination: 
             - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
             - "platform=tvOS Simulator,OS=18.5,name=Apple TV"

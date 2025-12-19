@@ -13,7 +13,7 @@ import Foundation
 #endif
 
 public class LowerCaseSettingsBuilder: TransformationSettingsBuilder {
-    var allVariables: Bool = true
+    var allVariables: Bool?
     var operations: [TransformationOperation<LowerCaseInput>] = []
 
     public init(id: String) {

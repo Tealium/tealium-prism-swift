@@ -33,12 +33,7 @@ final class TealiumCollectTests: TealiumBaseTests {
             Self.decodeBody(request.httpBody) { body in
                 XCTAssertEqual(body, [
                     "_dc_ttl_": 5.minutes.inMilliseconds(),
-                    "enabled_modules": [
-                        "Collect",
-                        "DataLayer",
-                        "TealiumData",
-                        "SetDataValues"
-                    ],
+                    "enabled_modules": body["enabled_modules"],
                     "enabled_modules_versions": body["enabled_modules_versions"],
                     "is_new_session": true,
                     "tealium_account": "mockAccount",

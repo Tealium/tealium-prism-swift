@@ -13,14 +13,15 @@ import TealiumPrismCore
 
 class PersistDataValueTransformer: Transformer, BasicModule {
     let id: String = Modules.Types.persistDataValueTransformer
-    let version: String = "1.0.0"
+    let version: String = TealiumConstants.libraryVersion
 
     private let modulesManager: ModulesManager
     private let logger: LoggerProtocol?
-
+    private let dataLayer: any DataStore
     required init?(context: TealiumContext, moduleConfiguration: DataObject) {
         self.modulesManager = context.modulesManager
         self.logger = context.logger
+        self.dataLayer = context.dataLayer
     }
 
     func applyTransformation(
@@ -33,24 +34,17 @@ class PersistDataValueTransformer: Transformer, BasicModule {
             completion(dispatch)
             return
         }
-
-        guard let dataLayerModule: DataLayerModule = modulesManager.getModule() else {
-            completion(dispatch)
-            return
-        }
-
-        applyTransformation(config, to: dispatch, dataLayerModule: dataLayerModule, completion: completion)
+        applyTransformation(config, to: dispatch, completion: completion)
     }
 
     private func applyTransformation(_ config: PersistDataValueConfiguration,
                                      to dispatch: Dispatch,
-                                     dataLayerModule: DataLayerModule,
                                      completion: @escaping (Dispatch?) -> Void) {
         let payload = dispatch.payload
         let destinationPath = config.destination.path
 
         if config.updateBehavior == .keepFirstValue {
-            if dataLayerModule.extractDataItem(path: destinationPath) != nil {
+            if dataLayer.extractDataItem(path: destinationPath) != nil {
                 completion(dispatch)
                 return
             }
@@ -69,7 +63,7 @@ class PersistDataValueTransformer: Transformer, BasicModule {
         }
 
         do {
-            try dataLayerModule.dataStore.buildPath(
+            try dataLayer.buildPath(
                 destinationPath,
                 andSet: valueToStore,
                 expiry: config.expiry

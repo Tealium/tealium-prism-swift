@@ -12,6 +12,13 @@ import XCTest
 
 class ModuleRegistryTests: XCTestCase {
     let registry = ModuleRegistry.shared
+#if os(watchOS)
+    static let nonWatchModules = [String]()
+#else
+    static let nonWatchModules = [
+        Modules.Types.javaScriptTransformer
+    ]
+#endif
 
     // When creating new modules, make sure to add them here
     let installedModules = [
@@ -25,15 +32,19 @@ class ModuleRegistryTests: XCTestCase {
         Modules.Types.connectivityData,
         Modules.Types.timeData,
         Modules.Types.lifecycle,
-        Modules.Types.setDataValuesTransformer
-    ]
+        Modules.Types.setDataValuesTransformer,
+        Modules.Types.persistDataValueTransformer,
+        Modules.Types.lowerCaseTransformer
+    ] + ModuleRegistryTests.nonWatchModules
 
     // When making a mandatory module, make sure to add them here as well
     let mandatoryModules = [
         Modules.Types.dataLayer,
         Modules.Types.tealiumData,
-        Modules.Types.setDataValuesTransformer
-    ]
+        Modules.Types.setDataValuesTransformer,
+        Modules.Types.persistDataValueTransformer,
+        Modules.Types.lowerCaseTransformer
+    ] + ModuleRegistryTests.nonWatchModules
 
     func test_defaultModules_contain_all_installed_modules() {
         let defaultModules = registry.defaultModules

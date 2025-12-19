@@ -24,22 +24,22 @@ public class PersistDataValueSettingsBuilder: TransformationSettingsBuilder {
     /**
      * Configures the transformation to persist a constant value to a specified destination of the data layer.
      *
-     * This method sets up the transformation to store a fixed value (from a `ValueContainer`)
+     * This method sets up the transformation to store a fixed value
      * at the specified destination path in the data layer. The value will be persisted
      * according to the configured expiry and update behavior settings.
      *
      * - Parameters:
-     *   - input: A `ValueContainer` containing the constant value to be persisted.
+     *   - input: The constant value to be persisted.
      *   - destination: A `ReferenceContainer` specifying where in the data layer to store the value.
      *                  Can be a simple key or a nested path.
      *
      * - Returns: The builder instance for method chaining.
      */
     public func persist(
-        input: ValueContainer,
+        input: String,
         destination: ReferenceContainer
     ) -> Self {
-        self.input = .constant(input)
+        self.input = .constant(ValueContainer(input))
         self.destination = destination
         return self
     }

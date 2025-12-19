@@ -14,7 +14,7 @@ import Foundation
 
 class LowerCaseTransformer: Transformer, BasicModule {
     let id: String = Modules.Types.lowerCaseTransformer
-    let version: String = "1.0.0"
+    let version: String = TealiumConstants.libraryVersion
 
     required init?(context: TealiumContext, moduleConfiguration: DataObject) {}
 
@@ -34,7 +34,7 @@ class LowerCaseTransformer: Transformer, BasicModule {
     ) -> Dispatch {
         var payload = dispatch.payload
 
-        if config.allVariables {
+        if config.allVariables == true {
             // Lowercase all string values in the payload
             payload = lowercaseAllStrings(in: payload)
         } else {
@@ -62,7 +62,7 @@ class LowerCaseTransformer: Transformer, BasicModule {
 
     private func lowercaseAllStrings(in dataObject: DataObject) -> DataObject {
         var result = DataObject()
-        for key in dataObject.keys {
+        for key in dataObject.keys where key != TealiumDataKey.visitorId {
             if let item = dataObject.getDataItem(key: key) {
                 result.set(converting: lowercaseDataItem(item), key: key)
             }

@@ -46,6 +46,8 @@ public class TealiumContext {
     public let visitorId: ObservableState<String>
     /// Metrics for queue status monitoring.
     public let queueMetrics: QueueMetrics
+    /// The `DataStore` for the `DataLayer`
+    public let dataLayer: any DataStore
 
     init(modulesManager: ModulesManager,
          sessionRegistry: SessionRegistry,
@@ -61,7 +63,8 @@ public class TealiumContext {
          activityListener: ApplicationStatusListener,
          queue: TealiumQueue,
          visitorId: ObservableState<String>,
-         queueMetrics: QueueMetrics) {
+         queueMetrics: QueueMetrics,
+         dataLayer: any DataStore) {
         self.modulesManager = modulesManager
         self.sessionRegistry = sessionRegistry
         self.config = config
@@ -77,5 +80,6 @@ public class TealiumContext {
         self.queue = queue
         self.visitorId = visitorId
         self.queueMetrics = queueMetrics
+        self.dataLayer = dataLayer
     }
 }

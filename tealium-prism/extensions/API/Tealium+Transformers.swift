@@ -20,7 +20,7 @@ public extension Modules.Types {
 public extension Modules {
     static func setDataValuesTransformer(forcingSettings block: EnforcingSettings<ModuleSettingsBuilder> = { $0 }) -> some ModuleFactory {
         DefaultModuleFactory<SetDataValuesTransformer>(moduleType: Modules.Types.setDataValuesTransformer,
-                                                       enforcedSettings: block(DataLayerSettingsBuilder()).build())
+                                                       enforcedSettings: block(ModuleSettingsBuilder()).build())
     }
 
     static func persistDataValueTransformer(forcingSettings block: EnforcingSettings<ModuleSettingsBuilder> = { $0 }) -> some ModuleFactory {

@@ -18,11 +18,11 @@ struct LowerCaseConfiguration: DataObjectConvertible {
         static let operations = "operations"
     }
 
-    let allVariables: Bool
+    let allVariables: Bool?
     let operations: [TransformationOperation<LowerCaseInput>]
 
     init(
-        allVariables: Bool,
+        allVariables: Bool?,
         operations: [TransformationOperation<LowerCaseInput>]
     ) {
         self.allVariables = allVariables
@@ -30,7 +30,7 @@ struct LowerCaseConfiguration: DataObjectConvertible {
     }
 
     init(dataObject: DataObject) {
-        let allVariables = dataObject.get(key: Keys.allVariables, as: Bool.self) ?? false
+        let allVariables = dataObject.get(key: Keys.allVariables, as: Bool.self)
 
         let operations: [TransformationOperation<LowerCaseInput>]
         if let opsArray = dataObject.getDataArray(key: Keys.operations) {
