@@ -26,12 +26,12 @@ public enum Expiry: Equatable {
 
     init(timestamp milliseconds: Int64) {
         switch milliseconds {
+        case -1:
+            self = .forever
         case -2:
             self = .session
         case -3:
             self = .untilRestart
-        case -1:
-            self = .forever
         default:
             self = .after(Date(unixMilliseconds: milliseconds))
         }

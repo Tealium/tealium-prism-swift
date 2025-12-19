@@ -33,7 +33,7 @@ class TealiumHelper {
             builder.setMinLogLevel(.trace)
                 .setVisitorIdentityKey("email")
         })
-        config.addBarrier(Barriers.batching())
+        //        config.addBarrier(Barriers.batching())
         config.enableConsentIntegration(with: cmp) { enforcedConfiguration in
             enforcedConfiguration.setTealiumPurposeId(CustomCMP.Purposes.tealium.rawValue)
                 .setRefireDispatchersIds([Modules.Types.collect])
@@ -46,7 +46,32 @@ class TealiumHelper {
             .addScope(.allDispatchers)
             .addOperation(input: .key("tealium_event"),
                           destination: .key("SomeDestination")))
-        
+
+        config.setTransformation(
+            PersistDataValueSettingsBuilder(id: "persist-sdk-version")
+                .addScope(.allDispatchers)
+                .persist(
+                    input: ReferenceContainer.path(JSONPath["tealium_random"]),
+                    destination: ReferenceContainer.path(JSONPath["beta_sdk_version"]["value"])
+                ))
+
+        config.setTransformation(
+            PersistDataValueSettingsBuilder(id: "persist-sdk-version-key")
+                .addScope(.allDispatchers)
+                .persist(input: ValueContainer("v3.0.0-alfa"), destination: .key("alfa_sdk_version")))
+
+        config.setTransformation(
+            PersistDataValueSettingsBuilder(id: "persist-first-user-id")
+                .addScope(.allDispatchers)
+                .setUpdateBehavior(.keepFirstValue)
+                .setExpiry(.forever)
+                .persist(
+                    input: ReferenceContainer.path(JSONPath["tealium_random"]),
+                    destination: ReferenceContainer.key("forever-random")
+                )
+        )
+
+
         config.setTransformation(
             LowerCaseSettingsBuilder(id: "lowercase-specific")
                 .addScope(.allDispatchers)
@@ -55,7 +80,7 @@ class TealiumHelper {
                 .addVariable(.key("event_label"))
                 .addVariable(.key("user_id"))
         )
-        
+
         return Tealium.create(config: config)
     }
     func startTealium() {

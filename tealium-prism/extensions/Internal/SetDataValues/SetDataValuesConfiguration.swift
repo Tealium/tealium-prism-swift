@@ -12,9 +12,9 @@ struct SetDataValuesConfiguration: DataObjectConvertible {
     enum Keys {
         static let operations = "operations"
     }
-    let operations: [TransformationOperation<SetDataValuesInput>]
+    let operations: [TransformationOperation<SetDataValuesParameters>]
 
-    init(operations: [TransformationOperation<SetDataValuesInput>]) {
+    init(operations: [TransformationOperation<SetDataValuesParameters>]) {
         self.operations = operations
     }
 
@@ -22,7 +22,7 @@ struct SetDataValuesConfiguration: DataObjectConvertible {
         guard let operations = dataObject.getDataArray(key: Keys.operations) else {
             return nil
         }
-        let converter = TransformationOperation.converter(parametersConverter: SetDataValuesInput.converter)
+        let converter = TransformationOperation.converter(parametersConverter: SetDataValuesParameters.converter)
         self.init(operations: operations.compactMap { item in
             item.getConvertible(converter: converter)
         })

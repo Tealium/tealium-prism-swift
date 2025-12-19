@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-private enum OperationKeys {
+public enum OperationKeys {
     static let destination = "destination"
     static let parameters = "parameters"
 }

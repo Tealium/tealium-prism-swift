@@ -8,19 +8,19 @@
 
 import Foundation
 
-struct SetDataValuesInput: DataInputConvertible {
+struct SetDataValuesParameters: DataInputConvertible {
     let input: ValueSource
     func toDataInput() -> any DataInput {
         input.toDataInput()
     }
 
     struct Converter: DataItemConverter {
-        typealias Convertible = SetDataValuesInput
+        typealias Convertible = SetDataValuesParameters
         func convert(dataItem: DataItem) -> Convertible? {
             if let reference = dataItem.getConvertible(converter: ReferenceContainer.converter) {
-                return SetDataValuesInput(input: .reference(reference))
+                return SetDataValuesParameters(input: .reference(reference))
             } else if let value = dataItem.getConvertible(converter: ValueContainer.converter) {
-                return SetDataValuesInput(input: .constant(value))
+                return SetDataValuesParameters(input: .constant(value))
             }
             return nil
         }

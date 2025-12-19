@@ -11,7 +11,7 @@ import TealiumPrismCore
 #endif
 
 public class SetDataValuesSettingsBuilder: TransformationSettingsBuilder {
-    var operations: [TransformationOperation<SetDataValuesInput>] = []
+    var operations: [TransformationOperation<SetDataValuesParameters>] = []
 
     public init(id: String) {
         super.init(id: id, transformerId: Modules.Types.setDataValuesTransformer)
