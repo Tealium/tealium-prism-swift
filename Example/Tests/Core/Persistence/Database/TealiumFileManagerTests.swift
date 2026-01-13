@@ -18,7 +18,7 @@ class TealiumFileManagerTests: XCTestCase {
 
     func test_file_manager_creates_intermediate_directories() {
         let appSupportDir = try? FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-        guard let fullDirectory = appSupportDir?.appendingPathComponent("Tealium").appendingPathComponent("test_account.test_profile") else {
+        guard let fullDirectory = appSupportDir?.appendingPathComponent("tealium-prism").appendingPathComponent("test_account.test_profile") else {
             XCTFail("Failed to get url for directory")
             return
         }

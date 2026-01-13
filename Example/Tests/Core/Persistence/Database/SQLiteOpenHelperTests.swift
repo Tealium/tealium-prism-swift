@@ -21,7 +21,7 @@ class SQLiteOpenHelperTests: XCTestCase {
             XCTFail("Database url is nil")
             return
         }
-        let suffix = "/Tealium/mock_account.mock_profile/database_name.sqlite3"
+        let suffix = "/tealium-prism/mock_account.mock_profile/database_name.sqlite3"
         XCTAssertTrue(url.hasSuffix(suffix), "URL \(url) should have suffix \(suffix)")
     }
 
