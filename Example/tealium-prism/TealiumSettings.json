@@ -33,6 +33,12 @@
         },
         "Lifecycle": {
             "module_type": "Lifecycle"
+        },
+        "MomentsAPI": {
+            "module_type": "MomentsAPI",
+            "configuration": {
+                "moments_api_region": "us-east-1"
+            }
         }
     }
 }

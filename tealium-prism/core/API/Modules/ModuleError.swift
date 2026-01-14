@@ -9,7 +9,7 @@
 import Foundation
 
 /// An error caused when trying to use a `Module`.
-public enum ModuleError<SomeError: Error>: Error, ErrorWrapping {
+public enum ModuleError<SomeError: Error>: ErrorEnum, ErrorWrapping {
     /// A required object was not found.
     case objectNotFound(_ object: String)
     /// The requested module is not enabled.

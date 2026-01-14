@@ -1,6 +1,7 @@
 modules: 
 - TealiumPrismCore
 - TealiumPrismLifecycle
+- TealiumPrismMomentsAPI
 title: TealiumPrism
 author: Tealium
 author_url: https://www.tealium.com
@@ -30,9 +31,11 @@ custom_categories:
     - DeepLinkHandler
     - DeviceData
     - Lifecycle
+    - MomentsAPI
     - TealiumData
     - TimeData
     - Trace
+    - CustomModules
   - name: AppData Module
     children:
     - regex: ^AppData
@@ -65,6 +68,10 @@ custom_categories:
   - name: TimeData Module
     children:
     - regex: TimeData
+  - name: MomentsAPI Module
+    children:
+    - regex: MomentsAPI
+    - EngineResponse
   - name: Rules
     children:
     - regex: Rule

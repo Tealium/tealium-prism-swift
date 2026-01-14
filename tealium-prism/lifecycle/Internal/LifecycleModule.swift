@@ -11,7 +11,7 @@ import Foundation
 import TealiumPrismCore
 #endif
 
-class LifecycleModule {
+class LifecycleModule: BasicModule {
     let version: String = TealiumConstants.libraryVersion
     private var configuration: LifecycleConfiguration
     internal let lifecycleService: LifecycleService

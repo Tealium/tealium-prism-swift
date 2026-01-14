@@ -30,72 +30,81 @@ struct ContentView: View {
         NavigationView {
             ScrollView {
                 VStack(spacing: 16) {
+                    TealiumTextButton(title: tealiumStarted ? "Stop Tealium" : "Start Tealium") {
+                        if tealiumStarted {
+                            TealiumHelper.shared.stopTealium()
+                        } else {
+                            TealiumHelper.shared.startTealium()
+                        }
+                        self.tealiumStarted.toggle()
+                    }
                     Group {
-                        TealiumTextField($traceId, imageName: "person.fill", placeholder: "Enter Trace Id")
-                        TealiumTextButton(title: "Start Trace") {
-                            TealiumHelper.shared.teal?.trace.join(id: self.traceId)
-                        }
-                        TealiumTextButton(title: "Leave Trace") {
-                            TealiumHelper.shared.teal?.trace.leave()
-                        }
-                        TealiumTextButton(title: "Track View") {
-                            TealiumHelper.shared.teal?.track("screen_view", data: nil)
-                        }
-                        TealiumTextButton(title: "Track Event") {
-                            TealiumHelper.shared.teal?.track("button_tapped",
-                                                             data: ["event_category": "example",
-                                                                    "event_action": "tap",
-                                                                    "event_label": "Track Event"])
-                        }
-                        TealiumTextButton(title: "Flush Event Queue") {
-                            TealiumHelper.shared.teal?.flushEventQueue()
-                        }
-                        TealiumTextButton(title: tealiumStarted ? "Stop Tealium" : "Start Tealium") {
-                            if tealiumStarted {
-                                TealiumHelper.shared.stopTealium()
-                            } else {
-                                TealiumHelper.shared.startTealium()
+                        Group {
+                            TealiumTextField($traceId, imageName: "person.fill", placeholder: "Enter Trace Id")
+                            TealiumTextButton(title: "Start Trace") {
+                                TealiumHelper.shared.teal?.trace.join(id: self.traceId)
                             }
-                            self.tealiumStarted.toggle()
+                            TealiumTextButton(title: "Leave Trace") {
+                                TealiumHelper.shared.teal?.trace.leave()
+                            }
+                            TealiumTextButton(title: "Track View") {
+                                TealiumHelper.shared.teal?.track("screen_view", data: nil)
+                            }
+                            TealiumTextButton(title: "Track Event") {
+                                TealiumHelper.shared.teal?.track("button_tapped",
+                                                                 data: ["event_category": "example",
+                                                                        "event_action": "tap",
+                                                                        "event_label": "Track Event"])
+                            }
+                            TealiumTextButton(title: "Flush Event Queue") {
+                                TealiumHelper.shared.teal?.flushEventQueue()
+                            }
                         }
-                    }
-                    Group {
-                        NavigationLink("Consent") {
-                            ConsentView()
-                                .navigationTitle("Consent")
-                        }.tealiumButtonUI()
-                        NavigationLink("Login (VisitorId)") {
-                            ScrollView {
-                                VStack(spacing: 16) {
-                                    TealiumTextField($model.email, placeholder: "Enter email") {
-                                        applyEmail()
+                        Group {
+                            NavigationLink("Consent") {
+                                ConsentView()
+                                    .navigationTitle("Consent")
+                            }.tealiumButtonUI()
+                            NavigationLink("Login (VisitorId)") {
+                                ScrollView {
+                                    VStack(spacing: 16) {
+                                        TealiumTextField($model.email, placeholder: "Enter email") {
+                                            applyEmail()
+                                        }
+                                        TealiumTextButton(title: "Clear Stored Visitor IDs") {
+                                            TealiumHelper.shared.teal?.clearStoredVisitorIds()
+                                        }
+                                        TealiumTextButton(title: "Reset Visitor ID") {
+                                            TealiumHelper.shared.teal?.resetVisitorId()
+                                        }
                                     }
-                                    TealiumTextButton(title: "Clear Stored Visitor IDs") {
-                                        TealiumHelper.shared.teal?.clearStoredVisitorIds()
-                                    }
-                                    TealiumTextButton(title: "Reset Visitor ID") {
-                                        TealiumHelper.shared.teal?.resetVisitorId()
-                                    }
+                                }.navigationTitle("Login")
+                            }.tealiumButtonUI()
+                            NavigationLink("DataLayer") {
+                                if let teal = TealiumHelper.shared.teal {
+                                    ScrollView {
+                                        VStack(spacing: 16) {
+                                            NavigationLink("Add to DataLayer") {
+                                                AddToDataLayerView(dataLayer: teal.dataLayer)
+                                                    .navigationTitle("Add to DataLayer")
+                                            }.tealiumButtonUI()
+                                            NavigationLink("Remove from DataLayer") {
+                                                RemoveFromDataLayerView(dataLayer: teal.dataLayer)
+                                                    .navigationTitle("Remove from DataLayer")
+                                            }.tealiumButtonUI()
+
+                                        }
+                                    }.navigationTitle("DataLayer")
                                 }
-                            }.navigationTitle("Login")
-                        }.tealiumButtonUI()
-                        NavigationLink("DataLayer") {
-                            ScrollView {
-                                VStack(spacing: 16) {
-                                    NavigationLink("Add to DataLayer") {
-                                        AddToDataLayerView()
-                                            .navigationTitle("Add to DataLayer")
-                                    }.tealiumButtonUI()
-                                    NavigationLink("Remove from DataLayer") {
-                                        RemoveFromDataLayerView()
-                                            .navigationTitle("Remove from DataLayer")
-                                    }.tealiumButtonUI()
-                                        
+                            }.tealiumButtonUI()
+                            NavigationLink("Moments API") {
+                                if let teal = TealiumHelper.shared.teal {
+                                    MomentsAPIView(viewModel: MomentsAPIViewModel(moments: teal.momentsAPI()))
                                 }
-                            }.navigationTitle("DataLayer")
-                        }.tealiumButtonUI()
-                            
-                    }
+                            }.tealiumButtonUI()
+                        }
+                    }.disabled(!tealiumStarted)
+                        .frame(maxWidth: .infinity)
                 }
             }.navigationTitle("Tealium Sample")
         }
@@ -112,12 +121,14 @@ struct ContentView: View {
 struct AddToDataLayerView: View {
     @State var key: String = ""
     @State var value: String = ""
+    let dataLayer: DataLayer
+
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
                 TealiumTextField($key, placeholder: "Enter key")
                 TealiumTextField($value, placeholder: "Enter Value", applyButtonText: "Insert") {
-                    TealiumHelper.shared.teal?.dataLayer.put(key: key, value: value)
+                    dataLayer.put(key: key, value: value)
                 }
             }
         }
@@ -128,11 +139,12 @@ struct AddToDataLayerView: View {
 
 struct RemoveFromDataLayerView: View {
     @State var key: String = ""
+    let dataLayer: DataLayer
     var body: some View {
         ScrollView {
             VStack(spacing: 16) {
                 TealiumTextField($key, placeholder: "Enter key", applyButtonText: "Remove") {
-                    TealiumHelper.shared.teal?.dataLayer.remove(key: key)
+                    dataLayer.remove(key: key)
                 }
             }
         }

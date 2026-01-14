@@ -74,14 +74,22 @@ public extension Color {
     static let tealBlue = Color(red: 0.0, green: 0.49, blue: 0.76)
 }
 
-public extension View {
+struct TealiumButtonModifier: ViewModifier {
+    @Environment(\.isEnabled) var isEnabled
 
-    func tealiumButtonUI() -> some View {
-        self.frame(width: 200.0)
+    func body(content: Content) -> some View {
+        content.frame(width: 200.0)
             .padding()
-            .background(Color.tealBlue)
+            .background(isEnabled ? Color.tealBlue : Color.gray)
             .foregroundColor(.white)
             .cornerRadius(10)
             .shadow(radius: 8)
+    }
+}
+
+public extension View {
+
+    func tealiumButtonUI() -> some View {
+        self.modifier(TealiumButtonModifier())
     }
 }

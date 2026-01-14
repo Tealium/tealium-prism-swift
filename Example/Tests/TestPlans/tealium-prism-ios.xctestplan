@@ -39,6 +39,13 @@
         "identifier" : "EC1AA4B72CCF9CA400D1D9D1",
         "name" : "LifecycleTests_iOS"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "9E19FD382EBD634100FB205A",
+        "name" : "MomentsAPITests_iOS"
+      }
     }
   ],
   "version" : 1

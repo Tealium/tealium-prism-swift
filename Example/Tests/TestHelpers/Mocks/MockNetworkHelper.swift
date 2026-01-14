@@ -17,20 +17,21 @@ extension ObjectResponse {
 }
 
 class MockNetworkHelper: NetworkHelperProtocol {
-    enum MockError: Error {
-        case failedToConvertToExpectedResultType
-    }
     var result: NetworkResult = NetworkResult.success(.successful())
-    var codableResult: ObjectResult<Any> = ObjectResult.success(.successful(object: ()))
     var delay: Int?
     var queue = DispatchQueue.main
     enum Requests {
-        case get(URLConvertible, String?)
-        case post(URLConvertible, DataObject)
+        case get(URLConvertible, String?, [String: String]?)
+        case post(URLConvertible, DataObject, [String: String]?)
     }
 
     @ReplaySubject<Requests>(cacheSize: 10)
     var requests
+
+    func encodeResult<T: Codable>(_ resultObject: T) throws {
+        let data = try Tealium.jsonEncoder.encode(resultObject)
+        result = .success(.init(data: data, urlResponse: .successful()))
+    }
 
     private func delayBlock(_ work: @escaping () -> Void) {
         if let delay = delay {
@@ -44,49 +45,33 @@ class MockNetworkHelper: NetworkHelperProtocol {
         }
     }
 
-    func get(url: URLConvertible, etag: String?, completion: @escaping (NetworkResult) -> Void) -> Disposable {
+    func get(url: URLConvertible,
+             etag: String?,
+             additionalHeaders: [String: String]?,
+             completion: @escaping (NetworkResult) -> Void) -> Disposable {
         let sub = Subscription { }
         delayBlock {
             guard !sub.isDisposed else {
                 completion(.failure(.cancelled))
                 return
             }
-            self._requests.publish(.get(url, etag))
+            self._requests.publish(.get(url, etag, additionalHeaders))
             completion(self.result)
         }
         return sub
     }
 
-    func getJsonAsObject<T>(url: URLConvertible, etag: String?, completion: @escaping (ObjectResult<T>) -> Void) -> Disposable where T: Codable {
+    func post(url: URLConvertible,
+              body: DataObject,
+              additionalHeaders: [String: String]?,
+              completion: @escaping (NetworkResult) -> Void) -> Disposable {
         let sub = Subscription { }
         delayBlock {
             guard !sub.isDisposed else {
                 completion(.failure(.cancelled))
                 return
             }
-            self._requests.publish(.get(url, etag))
-            switch self.codableResult {
-            case let .success(response):
-                if let object = response.object as? T {
-                    completion(.success(.successful(object: object)))
-                } else {
-                    completion(.failure(.unknown(MockError.failedToConvertToExpectedResultType)))
-                }
-            case let .failure(error):
-                completion(.failure(error))
-            }
-        }
-        return sub
-    }
-
-    func post(url: URLConvertible, body: DataObject, completion: @escaping (NetworkResult) -> Void) -> Disposable {
-        let sub = Subscription { }
-        delayBlock {
-            guard !sub.isDisposed else {
-                completion(.failure(.cancelled))
-                return
-            }
-            self._requests.publish(.post(url, body))
+            self._requests.publish(.post(url, body, additionalHeaders))
             completion(self.result)
         }
         return sub

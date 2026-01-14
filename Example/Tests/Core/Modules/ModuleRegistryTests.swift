@@ -24,7 +24,8 @@ class ModuleRegistryTests: XCTestCase {
         Modules.Types.tealiumData,
         Modules.Types.connectivityData,
         Modules.Types.timeData,
-        Modules.Types.lifecycle
+        Modules.Types.lifecycle,
+        Modules.Types.momentsAPI
     ]
 
     // When making a mandatory module, make sure to add them here as well

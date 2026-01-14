@@ -23,7 +23,7 @@ public protocol Module: AnyObject {
 }
 
 /// A restricted `Module` that can be created with some default parameters and only allows a single instance.
-protocol BasicModule: Module {
+public protocol BasicModule: Module {
     /**
      *  Initializes the module with a `TealiumContext` and this module's specific configuration.
      *

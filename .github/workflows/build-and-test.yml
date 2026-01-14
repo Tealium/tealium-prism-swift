@@ -43,6 +43,7 @@ jobs:
         scheme:
             - TealiumPrismCore
             - TealiumPrismLifecycle
+            - TealiumPrismMomentsAPI
         destination: 
             - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
             - "platform=tvOS Simulator,OS=18.5,name=Apple TV"
@@ -65,6 +66,7 @@ jobs:
             - DelegateProxyTests_iOS
             - LifecycleTests_iOS
             - EndToEndTests_iOS
+            - MomentsAPITests_iOS
         destination: 
             - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
     steps:
@@ -83,6 +85,7 @@ jobs:
             - CoreTests_tvOS
             - EndToEndTests_tvOS
             - LifecycleTests_tvOS
+            - MomentsAPITests_tvOS
         destination: 
             - "platform=tvOS Simulator,OS=18.5,name=Apple TV"
     steps:
@@ -101,6 +104,7 @@ jobs:
             - CoreTests_macOS
             - EndToEndTests_macOS
             - LifecycleTests_macOS
+            - MomentsAPITests_macOS
         destination: 
             - "platform=macOS"
     steps:
@@ -119,6 +123,7 @@ jobs:
             - CoreTests_watchOS
             - EndToEndTests_watchOS
             - LifecycleTests_watchOS
+            - MomentsAPITests_watchOS
         destination: 
             - "platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)"
     steps:

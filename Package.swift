@@ -12,6 +12,9 @@ let package = Package(
         .library(
             name: "TealiumPrismLifecycle",
             targets: ["TealiumPrismLifecycle", "TealiumPrismLifecycleObjC"]),
+        .library(
+            name: "TealiumPrismMomentsAPI",
+            targets: ["TealiumPrismMomentsAPI", "TealiumPrismMomentsAPIObjC"]),
     ],
     dependencies: [
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.15.4")
@@ -41,6 +44,18 @@ let package = Package(
             name: "TealiumPrismLifecycleObjC",
             dependencies: ["TealiumPrismLifecycle"],
             path: "tealium-prism/lifecycle/Internal/ObjC/"
+        ),
+        .target(
+            name: "TealiumPrismMomentsAPI",
+            dependencies: ["TealiumPrismCore"],
+            path: "tealium-prism/momentsapi/",
+            exclude: ["Internal/ObjC/"],
+            swiftSettings: [.define("momentsapi")]
+        ),
+        .target(
+            name: "TealiumPrismMomentsAPIObjC",
+            dependencies: ["TealiumPrismMomentsAPI"],
+            path: "tealium-prism/momentsapi/Internal/ObjC/"
         ),
     ]
 )

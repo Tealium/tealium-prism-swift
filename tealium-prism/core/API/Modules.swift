@@ -10,25 +10,25 @@ import Foundation
 
 public extension Modules {
     /// The Types for the modules
-     enum Types {
-         /// Module type identifier for AppData module.
-         static public let appData = "AppData"
-         /// Module type identifier for Collect module.
-         static public let collect = "Collect"
-         /// Module type identifier for DataLayer module.
-         static public let dataLayer = "DataLayer"
-         /// Module type identifier for DeviceData module.
-         static public let deviceData = "DeviceData"
-         /// Module type identifier for Trace module.
-         static public let trace = "Trace"
-         /// Module type identifier for DeepLink module.
-         static public let deepLink = "DeepLink"
-         /// Module type identifier for TealiumData module.
-         static public let tealiumData = "TealiumData"
-         /// Module type identifier for ConnectivityData module.
-         static public let connectivityData = "ConnectivityData"
-         /// Module type identifier for TimeData module.
-         static public let timeData = "TimeData"
+    enum Types {
+        /// Module type identifier for AppData module.
+        static public let appData = "AppData"
+        /// Module type identifier for Collect module.
+        static public let collect = "Collect"
+        /// Module type identifier for DataLayer module.
+        static public let dataLayer = "DataLayer"
+        /// Module type identifier for DeviceData module.
+        static public let deviceData = "DeviceData"
+        /// Module type identifier for Trace module.
+        static public let trace = "Trace"
+        /// Module type identifier for DeepLink module.
+        static public let deepLink = "DeepLink"
+        /// Module type identifier for TealiumData module.
+        static public let tealiumData = "TealiumData"
+        /// Module type identifier for ConnectivityData module.
+        static public let connectivityData = "ConnectivityData"
+        /// Module type identifier for TimeData module.
+        static public let timeData = "TimeData"
     }
 }
 
@@ -52,8 +52,8 @@ public extension Modules {
      * Omitting this parameter will initialize the module with its default settings.
      */
     static func appData(forcingSettings block: EnforcingSettings<AppDataSettingsBuilder>? = { $0 }) -> some ModuleFactory {
-        DefaultModuleFactory<AppDataModule>(moduleType: Modules.Types.appData,
-                                            enforcedSettings: block?(AppDataSettingsBuilder()).build())
+        BasicModuleFactory<AppDataModule>(moduleType: Modules.Types.appData,
+                                          enforcedSettings: block?(AppDataSettingsBuilder()).build())
     }
 
     /**
@@ -92,8 +92,8 @@ public extension Modules {
      * Omitting this parameter will initialize the module with its default settings.
      */
     static func dataLayer(forcingSettings block: EnforcingSettings<DataLayerSettingsBuilder> = { $0 }) -> some ModuleFactory {
-        DefaultModuleFactory<DataLayerModule>(moduleType: Modules.Types.dataLayer,
-                                              enforcedSettings: block(DataLayerSettingsBuilder()).build())
+        BasicModuleFactory<DataLayerModule>(moduleType: Modules.Types.dataLayer,
+                                            enforcedSettings: block(DataLayerSettingsBuilder()).build())
     }
 
     /**
@@ -104,8 +104,8 @@ public extension Modules {
      * Omitting this parameter will initialize the module with its default settings.
      */
     static func deviceData(forcingSettings block: EnforcingSettings<DeviceDataSettingsBuilder>? = { $0 }) -> some ModuleFactory {
-        DefaultModuleFactory<DeviceDataModule>(moduleType: Modules.Types.deviceData,
-                                               enforcedSettings: block?(DeviceDataSettingsBuilder()).build())
+        BasicModuleFactory<DeviceDataModule>(moduleType: Modules.Types.deviceData,
+                                             enforcedSettings: block?(DeviceDataSettingsBuilder()).build())
     }
 
     /**
@@ -116,8 +116,8 @@ public extension Modules {
      * Omitting this parameter will initialize the module with its default settings.
      */
     static func deepLink(forcingSettings block: EnforcingSettings<DeepLinkSettingsBuilder>? = { $0 }) -> some ModuleFactory {
-        DefaultModuleFactory<DeepLinkModule>(moduleType: Modules.Types.deepLink,
-                                             enforcedSettings: block?(DeepLinkSettingsBuilder()).build())
+        BasicModuleFactory<DeepLinkModule>(moduleType: Modules.Types.deepLink,
+                                           enforcedSettings: block?(DeepLinkSettingsBuilder()).build())
     }
 
     /**
@@ -127,8 +127,8 @@ public extension Modules {
      * Omitting this parameter will initialize the module with its default settings.
      */
     static func tealiumData(forcingSettings block: EnforcingSettings<TealiumDataSettingsBuilder> = { $0 }) -> some ModuleFactory {
-        DefaultModuleFactory<TealiumDataModule>(moduleType: Modules.Types.tealiumData,
-                                                enforcedSettings: block(TealiumDataSettingsBuilder()).build())
+        BasicModuleFactory<TealiumDataModule>(moduleType: Modules.Types.tealiumData,
+                                              enforcedSettings: block(TealiumDataSettingsBuilder()).build())
     }
 
     /**
@@ -139,8 +139,8 @@ public extension Modules {
      * Omitting this parameter will initialize the module with its default settings.
      */
     static func timeData(forcingSettings block: EnforcingSettings<TimeDataSettingsBuilder>? = { $0 }) -> some ModuleFactory {
-        DefaultModuleFactory<TimeDataModule>(moduleType: Modules.Types.timeData,
-                                             enforcedSettings: block?(TimeDataSettingsBuilder()).build())
+        BasicModuleFactory<TimeDataModule>(moduleType: Modules.Types.timeData,
+                                           enforcedSettings: block?(TimeDataSettingsBuilder()).build())
     }
 
     /**
@@ -151,8 +151,8 @@ public extension Modules {
      * Omitting this parameter will initialize the module with its default settings.
      */
     static func connectivityData(forcingSettings block: EnforcingSettings<ConnectivityDataSettingsBuilder>? = { $0 }) -> some ModuleFactory {
-        DefaultModuleFactory<ConnectivityDataModule>(moduleType: Modules.Types.connectivityData,
-                                                     enforcedSettings: block?(ConnectivityDataSettingsBuilder()).build())
+        BasicModuleFactory<ConnectivityDataModule>(moduleType: Modules.Types.connectivityData,
+                                                   enforcedSettings: block?(ConnectivityDataSettingsBuilder()).build())
     }
 
     /**
@@ -163,8 +163,8 @@ public extension Modules {
      * Omitting this parameter will initialize the module with its default settings.
      */
     static func trace(forcingSettings block: EnforcingSettings<TraceSettingsBuilder>? = { $0 }) -> some ModuleFactory {
-        DefaultModuleFactory<TraceModule>(moduleType: Modules.Types.trace,
-                                          enforcedSettings: block?(TraceSettingsBuilder()).build())
+        BasicModuleFactory<TraceModule>(moduleType: Modules.Types.trace,
+                                        enforcedSettings: block?(TraceSettingsBuilder()).build())
     }
 
     /**
@@ -180,25 +180,5 @@ public extension Modules {
         TealiumQueue.worker.ensureOnQueue {
             ModuleRegistry.shared.addDefaultModule(module)
         }
-    }
-}
-
-/// A basic factory that can be reused to create modules that have no extra dependencies and can only be initialized once.
-class DefaultModuleFactory<Module: BasicModule>: ModuleFactory {
-    let enforcedSettings: [DataObject]
-    let moduleType: String
-    let allowsMultipleInstances: Bool = false
-
-    init(moduleType: String, enforcedSettings: DataObject? = nil) {
-        self.moduleType = moduleType
-        self.enforcedSettings = [enforcedSettings].compactMap { $0 }
-    }
-
-    func create(moduleId: String, context: TealiumContext, moduleConfiguration: DataObject) -> Module? {
-        Module(context: context, moduleConfiguration: moduleConfiguration)
-    }
-
-    func getEnforcedSettings() -> [DataObject] {
-        enforcedSettings
     }
 }

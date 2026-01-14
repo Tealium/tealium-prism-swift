@@ -76,16 +76,14 @@ class SettingsManagerTestCase: XCTestCase {
         return try getManager(url: url)
     }
 
-    func setupForRemote(codableResult: ObjectResult<Any>) throws -> SettingsManager {
-        networkHelper.codableResult = codableResult
-        let manager = try getManager()
-        manager.startRefreshing(onActivity: onActivity.asObservable())
-        return manager
-    }
-
-    func setupForLocalAndRemote(codableResult: ObjectResult<Any>) throws -> SettingsManager {
+    func setupForLocalAndRemote(codableResult: ObjectResult<DataObject>) throws -> SettingsManager {
         config.bundle = Bundle(for: type(of: self))
-        networkHelper.codableResult = codableResult
+        switch codableResult {
+        case let .success(response):
+            try networkHelper.encodeResult(response.object)
+        case let .failure(error):
+            networkHelper.result = .failure(error)
+        }
         let manager = try getManager()
         manager.startRefreshing(onActivity: onActivity.asObservable())
         return manager

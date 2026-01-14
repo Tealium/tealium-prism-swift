@@ -3,6 +3,7 @@ use_frameworks!
 def tealium_libs
   pod 'tealium-prism/Core', :path => '../'
   pod 'tealium-prism/Lifecycle', :path => '../'
+  pod 'tealium-prism/MomentsAPI', :path => '../'
 end
 
 target 'Example_iOS' do
@@ -72,6 +73,26 @@ end
 
 target 'LifecycleTests_watchOS' do
   platform :watchos, '7.0'
+  tealium_libs
+end
+
+target 'MomentsAPITests_iOS' do
+  platform :ios, '14.1'
+  tealium_libs
+end
+
+target 'MomentsAPITests_macOS' do
+  platform :osx, '10.15'
+  tealium_libs
+end
+
+target 'MomentsAPITests_watchOS' do
+  platform :watchos, '7.0'
+  tealium_libs
+end
+
+target 'MomentsAPITests_tvOS' do
+  platform :tvos, '14.1'
   tealium_libs
 end
 

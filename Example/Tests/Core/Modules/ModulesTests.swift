@@ -21,7 +21,7 @@ class NonDisableableModule: BasicModule {
 }
 
 final class ModulesTests: XCTestCase {
-    let nonDisableableFactory = DefaultModuleFactory<NonDisableableModule>(moduleType: NonDisableableModule.moduleType)
+    let nonDisableableFactory = BasicModuleFactory<NonDisableableModule>(moduleType: NonDisableableModule.moduleType)
     let disableableFactory = MockDispatcher1.factory()
     func test_shouldBeEnabled_on_NonDisableableModule_returns_true_for_settings_enabled() {
         XCTAssertTrue(nonDisableableFactory.shouldBeEnabled(by: ModuleSettings(moduleType: NonDisableableModule.moduleType,

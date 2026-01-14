@@ -24,7 +24,7 @@ final class CollectModuleTests: XCTestCase {
     func test_send_single_dispatch() {
         let postRequestSent = expectation(description: "The POST request is sent")
         networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, body) = request {
+            if case let .post(url, body, _) = request {
                 XCTAssertEqual(try? url.asUrl(), self.collect?.configuration.url)
                 XCTAssertEqual(body, self.stubDispatches[0].payload)
                 postRequestSent.fulfill()
@@ -37,7 +37,7 @@ final class CollectModuleTests: XCTestCase {
     func test_send_multiple_dispatches() {
         let postRequestSent = expectation(description: "The POST request is sent")
         networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, body) = request {
+            if case let .post(url, body, _) = request {
                 XCTAssertEqual(try? url.asUrl(), self.collect?.configuration.batchUrl)
                 let expectedEvents: [DataObject] = [
                     [
@@ -70,7 +70,7 @@ final class CollectModuleTests: XCTestCase {
         configuration = CollectModuleConfiguration(configuration: [CollectModuleConfiguration.Keys.overrideProfile: "override"])
         let postRequestSent = expectation(description: "The POST request is sent")
         networkHelper.requests.subscribeOnce { request in
-            if case let .post(_, body) = request {
+            if case let .post(_, body, _) = request {
                 XCTAssertEqual(body.get(key: TealiumDataKey.profile), "override")
                 postRequestSent.fulfill()
             }
@@ -83,7 +83,7 @@ final class CollectModuleTests: XCTestCase {
         configuration = CollectModuleConfiguration(configuration: [CollectModuleConfiguration.Keys.overrideProfile: "override"])
         let postRequestSent = expectation(description: "The POST request is sent")
         networkHelper.requests.subscribeOnce { request in
-            if case let .post(_, body) = request {
+            if case let .post(_, body, _) = request {
                 XCTAssertEqual(body.getDataDictionary(key: "shared")?.get(key: TealiumDataKey.profile), "override")
                 postRequestSent.fulfill()
             }
@@ -96,7 +96,7 @@ final class CollectModuleTests: XCTestCase {
         let firstVisitorSent = expectation(description: "The POST request for the first visitor is sent")
         let secondVisitorSent = expectation(description: "The POST request for the second visitor is sent")
         let subscription = networkHelper.requests.subscribe { request in
-            if case let .post(_, body) = request,
+            if case let .post(_, body, _) = request,
                let visitorId = body.get(key: TealiumDataKey.visitorId, as: String.self) {
                 if visitorId == "visitor1" {
                     firstVisitorSent.fulfill()
@@ -117,7 +117,7 @@ final class CollectModuleTests: XCTestCase {
         let firstVisitorSent = expectation(description: "The POST request for the first visitor is sent")
         let secondVisitorSent = expectation(description: "The POST request for the second visitor is sent")
         let subscription = networkHelper.requests.subscribe { request in
-            if case let .post(_, body) = request,
+            if case let .post(_, body, _) = request,
                let shared = body.getDataDictionary(key: "shared"),
                let visitorId = shared.get(key: TealiumDataKey.visitorId, as: String.self) {
                 if visitorId == "visitor1" {
@@ -213,7 +213,7 @@ final class CollectModuleTests: XCTestCase {
         ])
 
         networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _) = request {
+            if case let .post(url, _, _) = request {
                 guard let urlString = try? url.asUrl().absoluteString else {
                     XCTFail("Could not convert to URL")
                     return
@@ -230,7 +230,7 @@ final class CollectModuleTests: XCTestCase {
         let postRequestSent = expectation(description: "The POST request is sent without trace ID")
 
         networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _) = request {
+            if case let .post(url, _, _) = request {
                 guard let urlString = try? url.asUrl().absoluteString else {
                     XCTFail("Could not convert to URL")
                     return
@@ -260,7 +260,7 @@ final class CollectModuleTests: XCTestCase {
         ]
 
         networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _) = request {
+            if case let .post(url, _, _) = request {
                 guard let urlString = try? url.asUrl().absoluteString else {
                     XCTFail("Could not convert to URL")
                     return
@@ -277,7 +277,7 @@ final class CollectModuleTests: XCTestCase {
         let postRequestSent = expectation(description: "The batch POST request is sent without trace ID")
 
         networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _) = request {
+            if case let .post(url, _, _) = request {
                 guard let urlString = try? url.asUrl().absoluteString else {
                     XCTFail("Could not convert to URL")
                     return
@@ -299,7 +299,7 @@ final class CollectModuleTests: XCTestCase {
         ])
 
         networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _) = request {
+            if case let .post(url, _, _) = request {
                 guard let urlString = try? url.asUrl().absoluteString else {
                     XCTFail("Could not convert to URL")
                     return
@@ -329,7 +329,7 @@ final class CollectModuleTests: XCTestCase {
         ]
 
         networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _) = request {
+            if case let .post(url, _, _) = request {
                 guard let urlString = try? url.asUrl().absoluteString else {
                     XCTFail("Could not convert to URL")
                     return
@@ -365,7 +365,7 @@ final class CollectModuleTests: XCTestCase {
         ]
 
         networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _) = request {
+            if case let .post(url, _, _) = request {
                 guard let urlString = try? url.asUrl().absoluteString else {
                     XCTFail("Could not convert to URL")
                     return
@@ -401,7 +401,7 @@ final class CollectModuleTests: XCTestCase {
         ])
 
         networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _) = request {
+            if case let .post(url, _, _) = request {
                 guard let urlString = try? url.asUrl().absoluteString else {
                     XCTFail("Could not convert to URL")
                     return

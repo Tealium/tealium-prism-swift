@@ -76,7 +76,7 @@ final class SettingsManagerOnFreshSettingsTests: SettingsManagerTestCase {
             XCTAssertEqual(settings.core.refreshInterval.inSeconds(), 0)
             settingsEmitted.fulfill()
         }
-        networkHelper.codableResult = .success(.successful(object: DataObject(dictionary: [CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: Double(10)]])))
+        try networkHelper.encodeResult(DataObject(dictionary: [CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: Double(10)]]))
         onActivity.publish(ApplicationStatus(type: .backgrounded))
         onActivity.publish(ApplicationStatus(type: .foregrounded))
         manager.onFreshSettings.subscribeOnce { settings in
@@ -103,7 +103,7 @@ final class SettingsManagerOnFreshSettingsTests: SettingsManagerTestCase {
 
             settingsEmitted.fulfill()
         }
-        networkHelper.codableResult = .success(.successful(object: DataObject(dictionary: [CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: Double(10)]])))
+        try networkHelper.encodeResult(DataObject(dictionary: [CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: Double(10)]]))
         onActivity.publish(ApplicationStatus(type: .backgrounded))
         onActivity.publish(ApplicationStatus(type: .foregrounded))
         waitForDefaultTimeout()

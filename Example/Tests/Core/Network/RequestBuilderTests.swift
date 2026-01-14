@@ -49,4 +49,14 @@ final class RequestBuilderTests: XCTestCase {
         XCTAssertEqual(deserializedBody["nan"] as? String, "NaN")
         XCTAssertEqual(deserializedBody["infinity"] as? String, "Infinity")
     }
+
+    func test_additionalHeaders_adds_additionalHeaders() {
+        let urlRequest = XCTAssertNoThrowReturn(try RequestBuilder(url: url, method: .post)
+            .additionalHeaders(["header1": "value1", "header2": "value2"])
+            .build())
+        XCTAssertEqual(urlRequest?.url, try? url.asUrl())
+        XCTAssertEqual(urlRequest?.httpMethod, "POST")
+        XCTAssertEqual(urlRequest?.value(forHTTPHeaderField: "header1"), "value1")
+        XCTAssertEqual(urlRequest?.value(forHTTPHeaderField: "header2"), "value2")
+    }
 }

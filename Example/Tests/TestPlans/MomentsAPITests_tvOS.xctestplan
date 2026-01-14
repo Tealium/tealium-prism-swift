@@ -1,0 +1,25 @@
+{
+  "configurations" : [
+    {
+      "id" : "BE02015F-F70B-430B-977B-4D347BA49A1B",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "9EA12C872EC696D200B23C56",
+        "name" : "MomentsAPITests_tvOS"
+      }
+    }
+  ],
+  "version" : 1
+}
+

@@ -110,37 +110,38 @@ public class ResourceRefresher<Resource: Codable> {
 
     private func refresh(validatingResource: @escaping (Resource) -> Bool) {
         var isCompletionRun = false
-        disposableRequest = networkHelper.getJsonAsObject(url: parameters.url, etag: lastEtag) { [weak self] (result: ObjectResult<Resource>) in
-            guard let self else { return }
-            defer { self._onLoadCompleted.publish() }
-            switch result {
-            case .success(let response):
-                if validatingResource(response.object) {
-                    self.logger?.debug(category: LogCategory.resourceRefresher,
-                                       "Refreshed resource \(id)")
-                    self.saveResource(response.object, etag: response.urlResponse.etag)
-                    self._onResourceLoaded.publish(response.object)
-                } else {
-                    self.logger?.debug(category: LogCategory.resourceRefresher,
-                                       "Downloaded resource \(id) but discarded as not valid")
-                }
-                self.errorCooldown?.newCooldownEvent(error: nil)
-            case .failure(let error):
-                if case let .non200Status(code) = error, code == 304 {
-                    self.logger?.trace(category: LogCategory.resourceRefresher,
-                                       "Resource \(id) is not modified")
+        disposableRequest = networkHelper
+            .getJsonAsObject(url: parameters.url, etag: lastEtag, additionalHeaders: nil) { [weak self] (result: ObjectResult<Resource>) in
+                guard let self else { return }
+                defer { self._onLoadCompleted.publish() }
+                switch result {
+                case .success(let response):
+                    if validatingResource(response.object) {
+                        self.logger?.debug(category: LogCategory.resourceRefresher,
+                                           "Refreshed resource \(id)")
+                        self.saveResource(response.object, etag: response.urlResponse.etag)
+                        self._onResourceLoaded.publish(response.object)
+                    } else {
+                        self.logger?.debug(category: LogCategory.resourceRefresher,
+                                           "Downloaded resource \(id) but discarded as not valid")
+                    }
                     self.errorCooldown?.newCooldownEvent(error: nil)
-                } else {
-                    self.logger?.error(category: LogCategory.resourceRefresher,
-                                       "Failed to refresh resource \(id).\nError: \(error)")
-                    self._onRefreshError.publish(error)
-                    self.errorCooldown?.newCooldownEvent(error: error)
+                case .failure(let error):
+                    if case let .non200Status(code) = error, code == 304 {
+                        self.logger?.trace(category: LogCategory.resourceRefresher,
+                                           "Resource \(id) is not modified")
+                        self.errorCooldown?.newCooldownEvent(error: nil)
+                    } else {
+                        self.logger?.error(category: LogCategory.resourceRefresher,
+                                           "Failed to refresh resource \(id).\nError: \(error)")
+                        self._onRefreshError.publish(error)
+                        self.errorCooldown?.newCooldownEvent(error: error)
+                    }
                 }
+                self.lastFetch = Date()
+                self.disposableRequest = nil
+                isCompletionRun = true
             }
-            self.lastFetch = Date()
-            self.disposableRequest = nil
-            isCompletionRun = true
-        }
         if isCompletionRun { // Added for cases in which the network helper returns synchronously (mainly tests)
             self.disposableRequest = nil
         }

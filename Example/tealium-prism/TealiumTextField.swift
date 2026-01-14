@@ -15,7 +15,8 @@ public struct TealiumTextField: View {
     var placeholder: String?
     let applyButtonText: String
     let onCommit: (() -> ())?
-    
+    @Environment(\.isEnabled) var isEnabled
+
     public init(_ value: Binding<String>,
                 secure: Bool = false,
                 imageName: String? = nil,
@@ -31,28 +32,21 @@ public struct TealiumTextField: View {
     }
     
     public var body: some View {
+        let color = isEnabled ? Color.tealBlue : Color.gray
         HStack {
             if let imageName = imageName {
                 Image(systemName: imageName)
-                  .foregroundColor(.tealBlue)
+                    .foregroundColor(color)
             }
             if isSecure {
                 SecureField(placeholder ?? "", text: $value)
             } else {
-                if #available(iOS 15.0, *) {
-                    TextField(placeholder ?? "", text: $value)
-                        .foregroundColor(.tealBlue)
-                        .accentColor(.tealBlue)
-                        .onSubmit {
-                            onCommit?()
-                        }
-                } else {
-                    TextField(placeholder ?? "", text: $value, onCommit: {
+                TextField(placeholder ?? "", text: $value)
+                    .foregroundColor(color)
+                    .accentColor(color)
+                    .onSubmit {
                         onCommit?()
-                    })
-                        .foregroundColor(.tealBlue)
-                        .accentColor(.tealBlue)
-                }
+                    }
             }
             if let onCommit = onCommit {
                 Button {
@@ -60,7 +54,7 @@ public struct TealiumTextField: View {
                 } label: {
                     Text(applyButtonText)
                         .frame(width: 100, height: 50)
-                        .background(Color.tealBlue)
+                        .background(color)
                         .foregroundColor(.white)
                         .cornerRadius(10)
                 }
@@ -69,6 +63,6 @@ public struct TealiumTextField: View {
         .frame(width: 250.0)
         .padding()
         .overlay(RoundedRectangle(cornerRadius: 10)
-                    .stroke(Color.tealBlue, lineWidth: 1))
+                    .stroke(color, lineWidth: 1))
     }
 }

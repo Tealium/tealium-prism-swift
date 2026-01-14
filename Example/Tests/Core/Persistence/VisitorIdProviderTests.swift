@@ -33,6 +33,16 @@ final class VisitorIdProviderTests: XCTestCase {
         XCTAssertEqual(provider.visitorId.value, "existing")
     }
 
+    func test_init_with_empty_existingVisitorId_publishes_different_id_in_visitorId() {
+        existingVisitorId = ""
+        XCTAssertNotEqual(provider.visitorId.value, "")
+    }
+
+    func test_init_with_blank_existingVisitorId_publishes_different_id_in_visitorId() {
+        existingVisitorId = " "
+        XCTAssertNotEqual(provider.visitorId.value, " ")
+    }
+
     func test_identify_hashes_identities() {
         provider.identify(identity: identityValue)
         XCTAssertNotNil(dataStorage.getKnownVisitorId(identity: hashedIdentityValue))

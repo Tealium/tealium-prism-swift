@@ -48,6 +48,7 @@ import TealiumPrism
 #else
 import TealiumPrismCore
 import TealiumPrismLifecycle
+import TealiumPrismMomentsAPI
 #endif
 
 let config = TealiumConfig(account: "my_account",
@@ -60,6 +61,7 @@ let config = TealiumConfig(account: "my_account",
                             Modules.deepLink(),
                             Modules.deviceData(),
                             Modules.lifecycle(),
+                            Modules.momentsAPI(),
                             Modules.timeData(),
                             Modules.trace(),
                            ],

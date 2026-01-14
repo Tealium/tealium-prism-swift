@@ -10,7 +10,6 @@ import Foundation
 
 /// A helper class that provides convenient methods for common network operations.
 public class NetworkHelper: NetworkHelperProtocol {
-    private static let decoder = Tealium.jsonDecoder
     /// The underlying network client used for sending requests.
     public let networkClient: NetworkClient
     let logger: LoggerProtocol?
@@ -42,26 +41,21 @@ public class NetworkHelper: NetworkHelperProtocol {
         }
     }
 
-    public func get(url: URLConvertible, etag: String? = nil, completion: @escaping (NetworkResult) -> Void) -> Disposable {
-        send(requestBuilder: .makeGET(url: url, etag: etag),
+    public func get(url: URLConvertible,
+                    etag: String? = nil,
+                    additionalHeaders: [String: String]? = nil,
+                    completion: @escaping (NetworkResult) -> Void) -> Disposable {
+        send(requestBuilder: .makeGET(url: url, etag: etag)
+            .additionalHeaders(additionalHeaders),
              completion: completion)
     }
 
-    public func getJsonAsObject<T: Codable>(url: URLConvertible, etag: String? = nil, completion: @escaping (ObjectResult<T>) -> Void) -> Disposable {
-        get(url: url, etag: etag) { result in
-            completion(result.flatMap { response in
-                do {
-                    return .success(ObjectResponse(object: try Self.decoder.decode(T.self, from: response.data),
-                                                   urlResponse: response.urlResponse))
-                } catch {
-                    return .failure(.unknown(error))
-                }
-            })
-        }
-    }
-
-    public func post(url: URLConvertible, body: DataObject, completion: @escaping (NetworkResult) -> Void) -> Disposable {
-        send(requestBuilder: .makePOST(url: url, gzippedJson: body),
+    public func post(url: URLConvertible,
+                     body: DataObject,
+                     additionalHeaders: [String: String]? = nil,
+                     completion: @escaping (NetworkResult) -> Void) -> Disposable {
+        send(requestBuilder: .makePOST(url: url, gzippedJson: body)
+            .additionalHeaders(additionalHeaders),
              completion: completion)
     }
 }

@@ -43,7 +43,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
 
     func test_shouldRefresh_is_false_after_successful_refresh() throws {
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
-        networkHelper.codableResult = .success(.successful(object: inputResource))
+        try networkHelper.encodeResult(inputResource)
         let resourceLoaded = expectation(description: "Resource is loaded")
         let refresher = try createResourceRefresher()
         refresher.onLatestResource.subscribeOnce { loadedObj in
@@ -58,7 +58,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
 
     func test_shouldRefresh_is_true_when_lastFetch_is_older_than_refreshInterval() throws {
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
-        networkHelper.codableResult = .success(.successful(object: inputResource))
+        try networkHelper.encodeResult(inputResource)
         let resourceLoaded = expectation(description: "Resource is loaded")
         let refresher = try createResourceRefresher(refreshInterval: 0.seconds)
         refresher.onLatestResource.subscribeOnce { loadedObj in
@@ -72,7 +72,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
     }
 
     func test_shouldRefresh_is_false_during_errorCooldown() throws {
-        networkHelper.codableResult = .failure(.non200Status(400))
+        networkHelper.result = .failure(.non200Status(400))
         let refreshError = expectation(description: "Refresh error happened")
         let refresher = try createResourceRefresher(refreshInterval: 0.seconds, errorCooldown: ErrorCooldown(baseInterval: 5.seconds, maxInterval: 10.seconds))
         refresher.onRefreshError.subscribeOnce { _ in
@@ -85,7 +85,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
     }
 
     func test_shouldRefresh_is_true_after_error_if_errorCooldown_is_nil() throws {
-        networkHelper.codableResult = .failure(.non200Status(400))
+        networkHelper.result = .failure(.non200Status(400))
         let refreshError = expectation(description: "Refresh error happened")
         let refresher = try createResourceRefresher(refreshInterval: 0.seconds)
         refresher.onRefreshError.subscribeOnce { _ in
@@ -99,7 +99,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
 
     func test_shouldRefresh_is_false_during_another_fetch() throws {
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
-        networkHelper.codableResult = .success(.successful(object: inputResource))
+        try networkHelper.encodeResult(inputResource)
         networkHelper.delay = 0
         let resourceLoaded = expectation(description: "Resource is loaded")
         let refresher = try createResourceRefresher(refreshInterval: 0.seconds)
@@ -116,7 +116,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
 
     func test_onLatestResource_publishes_an_event_when_a_resource_is_cached() throws {
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
-        networkHelper.codableResult = .success(.successful(object: inputResource))
+        try networkHelper.encodeResult(inputResource)
         let resourceLoaded = expectation(description: "Resource is loaded")
         let refresher = try createResourceRefresher()
         try refresher.resourceCacher.saveResource(inputResource, etag: nil)
@@ -129,7 +129,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
 
     func test_onResourceLoaded_doesnt_publish_an_event_when_a_resource_is_cached() throws {
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
-        networkHelper.codableResult = .success(.successful(object: inputResource))
+        try networkHelper.encodeResult(inputResource)
         let resourceLoaded = expectation(description: "Resource is not loaded")
         resourceLoaded.isInverted = true
         let refresher = try createResourceRefresher()
@@ -142,7 +142,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
 
     func test_onLatestResource_doesnt_publish_an_event_when_a_resource_is_not_cached_and_not_refreshed() throws {
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
-        networkHelper.codableResult = .success(.successful(object: inputResource))
+        try networkHelper.encodeResult(inputResource)
         let resourceLoaded = expectation(description: "Resource should not be loaded")
         resourceLoaded.isInverted = true
         let refresher = try createResourceRefresher()
