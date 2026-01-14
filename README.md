@@ -27,31 +27,13 @@ tealium-prism is currently available via [Swift Package Manager](https://docs.sw
 3. Configure the version rules. Typically, Up to next major is recommended. If the current Tealium Prism library version does not appear in the list, then reset your Swift package cache.
 4. Select the modules to install, and select the app target you want the modules to be installed in.
 
-### Cocoapods (Coming Soon)
-tealium-prism will be available through [CocoaPods](https://cocoapods.org). To install
-it once it's released, simply add the following line to your Podfile:
+### Cocoapods
+tealium-prism is available through [CocoaPods](https://cocoapods.org). To install
+it, simply add the following line to your Podfile:
 
 ```ruby
 pod 'tealium-prism'
 ```
-
-### Carthage (Coming Soon)
-tealium-prism will be available through [Carthage](https://github.com/Carthage/Carthage). To install once it's released:
-
-
-1. Add the following to your Cartfile:
-
-```
-github "tealium/tealium-prism-swift"
-```
-
-2. To produce frameworks for iOS, macOS, tvOS and watchOS, run the following command:
-
-```
-carthage update --use-xcframeworks
-```
-
-3. Drag the frameworks you require into your Xcode project’s General > Embedded Binaries section.
 
 ## Usage
 To start using the library:
@@ -86,6 +68,8 @@ let config = TealiumConfig(account: "my_account",
 let tealium = Tealium.create(config: config)
 tealium.track("An Event")
 ```
+
+For more advanced usage and detailed documentation, visit our [developer documentation](https://tealium.github.io/tealium-prism-swift/).
 
 ## License
 
