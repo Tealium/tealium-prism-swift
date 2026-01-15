@@ -18,15 +18,36 @@ public struct TransformationOperation<Parameters: DataInputConvertible> {
     /// The parameters necessary for this operation to be performed.
     let parameters: Parameters
 
+    /**
+     * Creates a transformation operation with the specified destination and parameters.
+     *
+     * - Parameters:
+     *   - destination: The reference container specifying where to store the result.
+     *   - parameters: The parameters needed for the operation.
+     */
     init(destination: ReferenceContainer, parameters: Parameters) {
         self.destination = destination
         self.parameters = parameters
     }
 
+    /**
+     * Creates a transformation operation with a string destination key.
+     *
+     * - Parameters:
+     *   - destination: The key name where the result will be stored.
+     *   - parameters: The parameters needed for the operation.
+     */
     public init(destination: String, parameters: Parameters) {
         self.init(destination: ReferenceContainer(key: destination), parameters: parameters)
     }
 
+    /**
+     * Creates a transformation operation with a JSON object path destination.
+     *
+     * - Parameters:
+     *   - destination: The JSON path where the result will be stored.
+     *   - parameters: The parameters needed for the operation.
+     */
     public init(destination: JSONObjectPath, parameters: Parameters) {
         self.init(destination: ReferenceContainer(path: destination), parameters: parameters)
     }

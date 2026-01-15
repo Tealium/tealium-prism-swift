@@ -39,6 +39,17 @@ public typealias JSONArrayPath = JSONPath<ArrayRoot>
 
 public extension JSONPath where Root == ObjectRoot {
 
+    /**
+     * The root key component of this `JSONObjectPath`.
+     * 
+     * This property returns the first key component of the path, which represents
+     * the top-level property name in a JSON object.
+     *
+     * For example, given a path like `JSONPath["container"]["property"]`,
+     * the `root` would return `"container"`.
+     *
+     * - Returns: The root key as a `String`.
+     */
     var root: String {
         switch components.first {
         case let .key(key):

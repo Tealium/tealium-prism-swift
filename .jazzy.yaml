@@ -1,7 +1,7 @@
-modules: 
-- TealiumPrismCore
-- TealiumPrismLifecycle
-- TealiumPrismMomentsAPI
+modules:
+  - TealiumPrismCore
+  - TealiumPrismLifecycle
+  - TealiumPrismMomentsAPI
 title: TealiumPrism
 author: Tealium
 author_url: https://www.tealium.com
@@ -14,104 +14,123 @@ swift_build_tool: spm
 abstract: 'docs/abstracts/**/**.md'
 documentation: 'docs/guides/**.md'
 
-custom_categories: 
+custom_categories:
   - name: Tealium
     children:
-    - Tealium
-    - TealiumConfig
-    - TealiumInstanceManager
-    - regex: ^CoreSettings
+      - Tealium
+      - TealiumConfig
+      - TealiumError
+      - TealiumInstanceManager
+      - regex: ^CoreSettings
   - name: Modules
     children:
-    - Modules
-    - AppData
-    - Collect
-    - ConnectivityData
-    - DataLayer
-    - DeepLinkHandler
-    - DeviceData
-    - Lifecycle
-    - MomentsAPI
-    - TealiumData
-    - TimeData
-    - Trace
-    - CustomModules
+      - Modules
+      - AppData
+      - Collect
+      - ConnectivityData
+      - DataLayer
+      - DeepLinkHandler
+      - DeviceData
+      - Lifecycle
+      - MomentsAPI
+      - TealiumData
+      - TimeData
+      - Trace
+      - CustomModules
   - name: AppData Module
     children:
-    - regex: ^AppData
-  - name: ConnectivityData Module
-    children:
-    - regex: ^ConnectivityData
-  - name: Consent
-    children:
-    - regex: Consent
-    - regex: CMP
+      - regex: ^AppData
   - name: Collect Module
     children:
-    - regex: CollectSettings
+      - regex: CollectSettings
+  - name: ConnectivityData Module
+    children:
+      - regex: ^ConnectivityData
+  - name: Consent
+    children:
+      - regex: ^Consent
+      - regex: CMP
   - name: DataLayer Module
     children:
-    - regex: ^DataLayer
+      - regex: ^DataLayer
   - name: DeepLinkHandler Module
     children:
-    - regex: DeepLink
-    - Referrer
+      - regex: ^DeepLink
+      - Referrer
   - name: DeviceData Module
     children:
-    - regex: DeviceData
+      - regex: ^DeviceData
   - name: Lifecycle Module
     children:
-    - regex: Lifecycle
-  - name: TealiumData Module
-    children:
-    - regex: TealiumData
-  - name: TimeData Module
-    children:
-    - regex: TimeData
+      - regex: ^Lifecycle
   - name: MomentsAPI Module
     children:
-    - regex: MomentsAPI
-    - EngineResponse
+      - regex: ^MomentsAPI
+      - EngineResponse
+  - name: TealiumData Module
+    children:
+      - regex: ^TealiumData(?!Key)
+  - name: TimeData Module
+    children:
+      - regex: ^TimeData
+  - name: Trace Module
+    children:
+      - regex: ^Trace
   - name: Rules
     children:
-    - regex: Rule
-    - regex: Condition
+      - regex: Rule
+      - regex: Condition
+      - regex: Match
   - name: Barriers
     children:
-    - Barriers
-    - regex: Barrier
+      - Barriers
+      - regex: Barrier
   - name: Transformations
     children:
-    - regex: Transformation
+      - regex: Transformation
   - name: Module
     children:
-    - Module
-    - regex: Module
-    - regex: Collector
-    - regex: Dispatcher
-    - regex: Transformer
-    - regex: Mapping
+      - Module
+      - regex: Module
+      - regex: Collector
+      - regex: Dispatcher
+      - TealiumContext
+      - regex: Transformer
+      - regex: Mapping
   - name: Data
     children:
-    - regex: ^Data
-    - Expiry
-    - regex: ^Dispatch
-    - regex: ^JSON
-    - regex: Root
-    - ReferenceContainer
-    - ValueContainer
+      - regex: ^Data
+      - Expiry
+      - regex: ^Dispatch
+      - regex: ^JSON
+      - regex: Root
+      - ReferenceContainer
+      - ValueContainer
+      - regex: ^Any
   - name: PubSub
     children:
-    - regex: Observable
-    - regex: Publisher
-    - regex: Subject
-    - regex: ^(?!.*Signpost).*State.*
-    - regex: Single
-    - regex: Dispos
-    - regex: Subscri
+      - regex: Observable
+      - regex: Publisher
+      - regex: Subject
+      - regex: ^(?!.*Signpost).*State.*
+      - regex: Single
+      - regex: Dispos
+      - regex: Subscri
+      - ValueExtractor
   - name: Network
     children:
-    - regex: Network
-    - regex: HTTP
-    - regex: Interceptor
-    - ObjectResult
+      - regex: Network
+      - regex: ConnectivityManager
+      - regex: HTTP
+      - regex: Interceptor
+      - regex: Refresh
+      - regex: Resource
+      - regex: Retry
+      - regex: URL
+      - ErrorCooldown
+      - ObjectResponse
+      - ObjectResult
+  - name: Logging
+    children:
+      - regex: Log
+      - regex: Signpost

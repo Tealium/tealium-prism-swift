@@ -8,7 +8,10 @@
 
 import Foundation
 
+/// Errors that can occur during database operations.
 public enum DatabaseError: ErrorEnum, ErrorWrapping {
+    /// An attempt was made to downgrade the database to an unsupported version.
     case unsupportedDowngrade
+    /// A database operation failed due to an underlying error.
     case underlyingError(_ error: Error)
 }
