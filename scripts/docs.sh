@@ -1,17 +1,19 @@
 #!/bin/bash
-# Custom script to build a specific target
-cd "$(dirname "$0")" || { echo "cd failure"; exit 1; }
 
+set -euo pipefail
 
-POSITIONAL_ARGS=()
+# Resolve scripts dir and source the validator
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+REPO_ROOT="${SCRIPT_DIR}/.."
+# shellcheck source=/dev/null
+source "${SCRIPT_DIR}/validate_versions.sh"
+
+declare -a POSITIONAL_ARGS=()   # make sure array exists
+
 
 while [[ $# -gt 0 ]]; do
     case $1 in
-        -v|--version)
-        VERSION="$2"
-        shift # past argument
-        shift # past value
-        ;;
         -o|--output)
         OUTPUT="$2"
         shift # past argument
@@ -33,44 +35,20 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
-set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
-
-podspecFile=$(<../tealium-prism.podspec)
-podspecRegex="^.*s.version[[:space:]]*\= \'([0-9\.]*)\'"
-
-if [[ $podspecFile =~ $podspecRegex ]]
-then
-    podspecVersion=${BASH_REMATCH[1]}
-fi
-
-if [ -z "${VERSION}" ];     
-then
-    if [ -z "${podspecVersion}" ];
-    then
-        echo "Couldn't match the podspec version and no --version parameter provided, exiting."
-        exit 1
-    else
-        VERSION=${BASH_REMATCH[1]}    
-    fi
+# Safely restore positional parameters, even if none
+if ((${#POSITIONAL_ARGS[@]})); then
+  set -- "${POSITIONAL_ARGS[@]}"
 else
-    if [ "${podspecVersion}" != "${VERSION}" ];
-    then
-        echo "Podspec version" "${podspecVersion}" "is different from provided version" "${VERSION}," "proceeding with the latter."
-    fi
+  set --
 fi
 
-if [ -z "${THEME}" ];     
-then
-THEME=fullwidth
-fi
-
-if [ -z "${OUTPUT}" ];     
-then
-OUTPUT=_site
-fi
+VERSION="$(get_version)"
+: "${THEME:=fullwidth}"
+: "${OUTPUT:=_site}"
 
 echo "Building Documentation for Version" "$VERSION"
 
-cd ..
+cd "$REPO_ROOT" || { echo "cd failure" >&2; exit 1; }
 
-bundle exec jazzy --clean --theme="$THEME" --output="$OUTPUT"
+
+bundle exec jazzy --clean --theme="${THEME}" --output="${OUTPUT}"

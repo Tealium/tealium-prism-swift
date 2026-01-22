@@ -26,7 +26,7 @@ jobs:
         scheme:
             - Example_iOS
         destination: 
-            - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
+            - "generic/platform=iOS Simulator"
     steps:
       - uses: actions/checkout@v4
       - name: "Run Local Action: Setup Machine"
@@ -45,10 +45,13 @@ jobs:
             - TealiumPrismLifecycle
             - TealiumPrismMomentsAPI
         destination: 
-            - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
-            - "platform=tvOS Simulator,OS=18.5,name=Apple TV"
-            - "platform=macOS"
-            - "platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)"
+            - "generic/platform=iOS"
+            - "generic/platform=iOS Simulator"
+            - "generic/platform=tvOS"
+            - "generic/platform=tvOS Simulator"
+            - "generic/platform=macOS"
+            - "generic/platform=watchOS"
+            - "generic/platform=watchOS Simulator"
     steps:
       - uses: actions/checkout@v4
       - name: "Run Local Action: Setup Machine"

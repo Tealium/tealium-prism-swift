@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'tealium-prism'
   s.module_name      = "TealiumPrism"
-  s.version          = '0.2.0'
+  s.version          = '0.3.0'
   s.summary          = 'Tealium Prism Integration Library'
 
   s.description      = <<-DESC

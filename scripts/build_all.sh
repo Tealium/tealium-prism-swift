@@ -3,7 +3,7 @@
 cd "$(dirname "$0")" || { echo "cd failure"; exit 1; }
 
 EXAMPLE_SCHEME='Example_iOS'
-IOS_DESTINATION='platform=iOS Simulator,name=iPhone 16 Pro'
+IOS_DESTINATION="generic/platform=iOS"
 
 errors=()
 
@@ -17,10 +17,13 @@ declare -a SPM_SCHEMES=(
 )
 
 declare -a SPM_DESTINATIONS=(
-    "platform=iOS Simulator,name=iPhone 16 Pro"
-    "platform=tvOS Simulator,OS=18.5,name=Apple TV"
-    "platform=macOS"
-    "platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)"
+    "generic/platform=iOS"
+    "generic/platform=iOS Simulator"
+    "generic/platform=tvOS"
+    "generic/platform=tvOS Simulator"
+    "generic/platform=macOS"
+    "generic/platform=watchOS"
+    "generic/platform=watchOS Simulator"
 )
 
 # Test SPM Schemes build
