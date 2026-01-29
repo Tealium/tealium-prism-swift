@@ -34,29 +34,25 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=/dev/null
 source "${SCRIPT_DIR}/validate_versions.sh"
 
+if [ -n "$(git status --porcelain)" ]; then
+  echo "Working tree is not clean. Commit or stash your changes first." >&2
+  exit 1
+fi
+
 versionConstant="$(get_version)"
 
-branch_name="$(git rev-parse --abbrev-ref HEAD)"
-echo "Current branch $branch_name"
-if [ "$branch_name" != "main" ]
-then 
-  echo "Check out to main branch before trying to publish. Current branch: $branch_name"
-  exit 1
-fi
-
 git fetch --tags
-if ! git diff --quiet remotes/origin/main
+
+if ! currentTag=$(git describe --tags --exact-match HEAD 2>/dev/null)
 then
-  echo "Make sure you are up to date with the remote before publishing"
+  echo "HEAD is not currently at a tag. Please create and check out a tag matching the version constant (${versionConstant}) before publishing."
   exit 1
 fi
 
-latestTag=$(git describe --tags --abbrev=0)
-
-echo "Latest tag $latestTag"
-if [ "$latestTag" != "$versionConstant" ]
+echo "Current tag $currentTag"
+if [ "$currentTag" != "$versionConstant" ]
 then
-  printf "The latest published tag \"%s\" is different from the version constant \"%s\".\nDid you forget to add the tag to the release or did you forget to update the Constant?\n" "$latestTag" "$versionConstant"
+  printf "The current tag \"%s\" is different from the version constant \"%s\".\nDid you forget to add the tag to the release or did you forget to update the Constant?\n" "$currentTag" "$versionConstant"
   exit 1
 fi
 
