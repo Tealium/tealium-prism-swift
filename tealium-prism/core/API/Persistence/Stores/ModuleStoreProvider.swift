@@ -40,4 +40,8 @@ public class ModuleStoreProvider {
         ModuleStore(repository: SQLKeyValueRepository(dbProvider: databaseProvider, moduleId: moduleId),
                     onDataExpired: modulesRepository.onDataExpired.compactMap { dataExpiredEvent in dataExpiredEvent[moduleId] })
     }
+
+    func getSharedDataStore() throws -> any DataStore {
+        try getModuleStore(name: "shared")
+    }
 }

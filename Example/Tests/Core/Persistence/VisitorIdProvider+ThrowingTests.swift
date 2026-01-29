@@ -50,7 +50,7 @@ final class VisitorIdProviderThrowingTests: XCTestCase {
     override func setUpWithError() throws {
         let modulesRepository = SQLModulesRepository(dbProvider: databaseProvider)
         let dataStore = try ModuleStoreProvider(databaseProvider: databaseProvider,
-                                                modulesRepository: modulesRepository).getModuleStore(name: "visitor")
+                                                modulesRepository: modulesRepository).getSharedDataStore()
         dataStorage = ThrowingVisitorStorage(storage: dataStore)
     }
 

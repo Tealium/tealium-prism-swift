@@ -14,7 +14,7 @@ final class VisitorStorageTests: XCTestCase {
     func createStorage() throws -> VisitorStorage {
         let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
                                                 modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
-        return try VisitorStorage(storage: storeProvider.getModuleStore(name: "visitor"))
+        return try VisitorStorage(storage: storeProvider.getSharedDataStore())
     }
     var storage: VisitorStorage!
     override func setUp() {

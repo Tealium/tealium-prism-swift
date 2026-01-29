@@ -25,7 +25,7 @@ class SettingsManagerTestCase: XCTestCase {
     func createCacher() throws -> ResourceCacher<DataObject> {
         let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
                                                 modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
-        let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
+        let dataStore = try storeProvider.getSharedDataStore()
         return ResourceCacher<DataObject>(dataStore: dataStore,
                                           fileName: "settings")
     }
@@ -33,7 +33,7 @@ class SettingsManagerTestCase: XCTestCase {
         config.settingsUrl = url
         let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
                                                 modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
-        let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
+        let dataStore = try storeProvider.getSharedDataStore()
         return try SettingsManager(config: config,
                                    dataStore: dataStore,
                                    networkHelper: networkHelper,
