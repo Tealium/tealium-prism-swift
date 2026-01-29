@@ -26,7 +26,7 @@ class OSLogger: LogHandler {
         if let osLog = osLogs[category] {
             return osLog
         }
-        let newLog = OSLog(subsystem: "com.tealium.swift", category: category)
+        let newLog = OSLog(subsystem: TealiumConstants.subsystem, category: category)
         osLogs[category] = newLog
         return newLog
     }

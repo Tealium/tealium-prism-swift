@@ -34,7 +34,7 @@ public class TealiumQueue {
     /// The main queue for UI-related operations.
     public static let main = TealiumQueue(dispatchQueue: .main)
     /// A background worker queue for SDK operations.
-    public static let worker = TealiumQueue(label: "com.tealium.swift", qos: .utility)
+    public static let worker = TealiumQueue(label: TealiumConstants.subsystem, qos: .utility)
 
     private let queueSpecificKey = DispatchSpecificKey<Void>()
     /// The underlying dispatch queue.

@@ -23,6 +23,7 @@ public enum TealiumConstants {
     static let forceEndOfVisitQueryParam = "kill_visitor_session"
     static let leaveTraceQueryParam = "leave_trace"
     static let deepLinkEvent = "deep_link"
+    static let subsystem = "com.tealium.prism"
 }
 
 /// Keys used for data in Tealium tracking events.

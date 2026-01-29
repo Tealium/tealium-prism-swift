@@ -32,7 +32,7 @@ class TrackerImpl: Tracker {
             return
         }
         let trackingInterval = TealiumSignpostInterval(signposter: .tracking, name: "TrackingCall")
-            .begin(trackable.name ?? "unknown")
+            .begin(trackable.logDescription())
         logger?.debug(category: LogCategory.tealium, "New tracking event received: \(trackable.logDescription())")
         logger?.trace(category: LogCategory.tealium, "Event data: \(trackable.payload)")
         let dispatchContext = DispatchContext(source: source, initialData: trackable.payload)
@@ -51,8 +51,10 @@ class TrackerImpl: Tracker {
                     }
                 self.logger?.debug(category: LogCategory.tealium, "Event: \(trackable.logDescription()) has been enriched by collectors")
                 self.logger?.trace(category: LogCategory.tealium, "Enriched event data: \(trackable.payload)")
-                self.dispatchManager.track(trackable, onTrackResult: onTrackResult)
-                trackingInterval.end()
+                self.dispatchManager.track(trackable, onTrackResult: { result in
+                    onTrackResult?(result)
+                    trackingInterval.end()
+                })
             }
     }
 }

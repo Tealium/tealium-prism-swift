@@ -23,6 +23,8 @@ class SQLQueueRepository: QueueRepository {
     }
 
     func queueSizeByProcessor() -> [String: Int] {
+        let interval = TealiumSignpostInterval(signposter: .queue, name: "QueueSize by Processor").begin()
+        defer { interval.end() }
         let query = QueueSchema.table
             .join(.inner,
                   DispatchSchema.table,
@@ -41,6 +43,8 @@ class SQLQueueRepository: QueueRepository {
     }
 
     func queueSize(for processor: String) -> Int {
+        let interval = TealiumSignpostInterval(signposter: .queue, name: "QueueSize for Processor").begin(processor)
+        defer { interval.end() }
         let query = QueueSchema.table
             .join(.inner,
                   DispatchSchema.table,
@@ -50,6 +54,9 @@ class SQLQueueRepository: QueueRepository {
     }
 
     func deleteQueues(forProcessorsNotIn processors: [String]) throws {
+        let interval = TealiumSignpostInterval(signposter: .queue, name: "Delete Queues for Processors not in").begin("\(processors)")
+        defer { interval.end() }
+
         try database.transaction {
             try database.run(QueueSchema.deleteDispatches(forProcessorsNotContainedIn: processors))
         }
@@ -59,6 +66,8 @@ class SQLQueueRepository: QueueRepository {
         guard !dispatches.isEmpty && !processors.isEmpty else { // Enqueuing no dispatches or for no processors is not allowed
             return
         }
+        let interval = TealiumSignpostInterval(signposter: .queue, name: "Store Dispatches for processors").begin("\(dispatches.count)")
+        defer { interval.end() }
         try database.transaction {
             try createSpaceIfNecessary(for: dispatches.count)
             try dispatches
@@ -80,6 +89,8 @@ class SQLQueueRepository: QueueRepository {
     }
 
     func getQueuedDispatches(for processor: String, limit: Int?, excluding: [String] = []) -> [Dispatch] {
+        let interval = TealiumSignpostInterval(signposter: .queue, name: "Get Queued Dispatches for processor").begin(processor)
+        defer { interval.end() }
         let query = DispatchSchema.table
             .join(.inner,
                   QueueSchema.table,
@@ -109,12 +120,16 @@ class SQLQueueRepository: QueueRepository {
     }
 
     func deleteDispatches(_ dispatchUUIDs: [String], for processor: String) throws {
+        let interval = TealiumSignpostInterval(signposter: .queue, name: "Delete Dispatches").begin("\(dispatchUUIDs.count)")
+        defer { interval.end() }
         try database.transaction {
             try database.run(QueueSchema.deleteDispatches(dispatchUUIDs, for: processor))
         }
     }
 
     func deleteAllDispatches(for processor: String) throws {
+        let interval = TealiumSignpostInterval(signposter: .queue, name: "Delete All Dispatches for processor").begin(processor)
+        defer { interval.end() }
         try database.transaction {
             try database.run(QueueSchema.deleteAllDispatches(for: processor))
         }

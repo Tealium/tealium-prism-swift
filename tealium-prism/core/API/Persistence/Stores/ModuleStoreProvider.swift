@@ -31,13 +31,14 @@ public class ModuleStoreProvider {
         if let cached = stores[moduleId] {
             return cached
         }
-        let newStore = try createStore(moduleId: moduleId)
+        let newStore = try createStore(moduleId: moduleId,
+                                       signposter: TealiumSignposter(category: "\(name)-Repository"))
         stores[moduleId] = newStore
         return newStore
     }
 
-    private func createStore(moduleId: Int64) throws -> any DataStore {
-        ModuleStore(repository: SQLKeyValueRepository(dbProvider: databaseProvider, moduleId: moduleId),
+    private func createStore(moduleId: Int64, signposter: TealiumSignposter) throws -> any DataStore {
+        ModuleStore(repository: SQLKeyValueRepository(dbProvider: databaseProvider, moduleId: moduleId, signposter: signposter),
                     onDataExpired: modulesRepository.onDataExpired.compactMap { dataExpiredEvent in dataExpiredEvent[moduleId] })
     }
 

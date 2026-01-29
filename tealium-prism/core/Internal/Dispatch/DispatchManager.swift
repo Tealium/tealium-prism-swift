@@ -118,7 +118,10 @@ class DispatchManager: DispatchManagerProtocol {
                     }
                     self.logger?.debug(category: LogCategory.dispatchManager,
                                        "Sending events to dispatcher \(dispatcher.id): \(dispatchSplit.successful.shortDescription())")
+                    let interval = TealiumSignpostInterval(signposter: .dispatching, name: "Transform and Dispatch")
+                        .begin(dispatcher.id)
                     return self.transformAndDispatch(dispatchSplit: dispatchSplit, for: dispatcher) { processedDispatches in
+                        defer { interval.end(processedDispatches.shortDescription()) }
                         guard !subscription.isDisposed else { return }
                         observer((dispatcher, processedDispatches))
                     }
@@ -180,8 +183,11 @@ class DispatchManager: DispatchManagerProtocol {
         guard !dispatches.isEmpty else {
             return container
         }
+        let transformHandler = TealiumSignpostInterval(signposter: .dispatching, name: "Transform").begin(dispatcher.id)
+
         self.transformerCoordinator.transform(dispatches: dispatches,
                                               for: .dispatcher(id: dispatcher.id)) { [weak self] transformedDispatches in
+            transformHandler.end()
             guard !container.isDisposed, let self else { return }
             let (passed, _) = self.loadRuleEngine.evaluateLoadRules(on: transformedDispatches,
                                                                     forModule: dispatcher)
@@ -195,7 +201,9 @@ class DispatchManager: DispatchManagerProtocol {
             let mapped = passed.map {
                 self.mappingsEngine.map(dispatcherId: dispatcher.id, dispatch: $0)
             }
+            let dispatchHandler = TealiumSignpostInterval(signposter: .dispatching, name: "Dispatch").begin(dispatcher.id)
             dispatcher.dispatch(mapped) { processedDispatches in
+                dispatchHandler.end()
                 guard !container.isDisposed else { return }
                 onProcessedDispatches(processedDispatches)
             }.addTo(container)

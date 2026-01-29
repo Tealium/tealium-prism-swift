@@ -33,7 +33,6 @@ class TealiumHelper {
             builder.setMinLogLevel(.trace)
                 .setVisitorIdentityKey("email")
         })
-        config.addBarrier(Barriers.batching())
         config.enableConsentIntegration(with: cmp) { enforcedConfiguration in
             enforcedConfiguration.setTealiumPurposeId(CustomCMP.Purposes.tealium.rawValue)
                 .setRefireDispatchersIds([Modules.Types.collect])

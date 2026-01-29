@@ -9,6 +9,12 @@
 @testable import TealiumPrism
 import XCTest
 
+extension SQLKeyValueRepository {
+    convenience init(dbProvider: DatabaseProviderProtocol, moduleId: Int64) {
+        self.init(dbProvider: dbProvider, moduleId: moduleId, signposter: TealiumSignposter(category: "KeyValueTests"))
+    }
+}
+
 final class SQLKeyValueRepositoryTests: XCTestCase {
     let dbProvider = MockDatabaseProvider()
     lazy var repository = SQLKeyValueRepository(dbProvider: dbProvider, moduleId: 1)
