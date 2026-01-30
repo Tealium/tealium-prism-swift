@@ -27,9 +27,9 @@ final class DispatchManagerMappingsTests: DispatchManagerTestCase {
 
     func test_mappings_are_applied_to_dispatcher() {
         let dispatchReceived = expectation(description: "Dispatcher received tracked dispatch")
-        addMappings(moduleType: MockDispatcher1.moduleType, mappings: [
-            Mappings.constant("someConstant", to: "destination").build()
-        ])
+        let mappings = Mappings()
+        mappings.mapConstant("someConstant", to: "destination")
+        addMappings(moduleType: MockDispatcher1.moduleType, mappings: mappings.build())
         module1?.onDispatch.subscribeOnce { dispatches in
             XCTAssertGreaterThan(dispatches.count, 0)
             for dispatch in dispatches {
@@ -43,10 +43,10 @@ final class DispatchManagerMappingsTests: DispatchManagerTestCase {
 
     func test_mappings_are_applied_after_transformations() {
         let dispatchReceived = expectation(description: "Dispatcher received tracked dispatch")
-        addMappings(moduleType: MockDispatcher1.moduleType, mappings: [
-            Mappings.from("transformation-\(MockDispatcher1.moduleType)",
-                          to: "destination").build()
-        ])
+        let mappings = Mappings()
+        mappings.mapFrom("transformation-\(MockDispatcher1.moduleType)",
+                         to: "destination")
+        addMappings(moduleType: MockDispatcher1.moduleType, mappings: mappings.build())
         module1?.onDispatch.subscribeOnce { dispatches in
             XCTAssertEqual(dispatches.count, 1)
             XCTAssertNotNil(dispatches.first?.payload.getDataItem(key: "destination"))

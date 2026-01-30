@@ -6,7 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-/// The parameters necessary to perform a `JsonOperationType.map` operation.
+/// The parameters necessary to perform a `MappingOperation`.
 struct MappingParameters {
     enum Keys {
         static let reference = "reference"
@@ -37,7 +37,7 @@ struct MappingParameters {
 }
 
 extension MappingParameters: DataObjectConvertible {
-    func toDataObject() -> DataObject {
+    public func toDataObject() -> DataObject {
         DataObject(compacting: [
             Keys.reference: reference,
             Keys.filter: filter,

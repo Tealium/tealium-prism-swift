@@ -396,33 +396,30 @@ The SDK provides a specialized transformation system for remapping dispatch data
 
 ```swift
 // Simple key-to-key mapping
-let mappings = [
-    Mappings.from("source_key", to: "destination_key"),
-    Mappings.keep("unchanged_key")
-]
+let mappings = Mappings()
+mappings.mapFrom("source_key", to: "destination_key")
+mappings.keep("unchanged_key")
 ```
 
 ### Nested Data Mappings
 
 ```swift
 // Map from nested objects
-let mappings = [
-    Mappings.from(JSONPath["user"]["profile"]["name"], to: "user_name"),
-    Mappings.from(JSONPath["order"]["items"][0]["price"], to: "first_item_price")
-]
+let mappings = Mappings()
+mappings.mapFrom(JSONPath["user"]["profile"]["name"], to: "user_name")
+mappings.mapFrom(JSONPath["order"]["items"][0]["price"], to: "first_item_price")
 ```
 
 ### Conditional Mappings
 
 ```swift
 // Only map if value matches condition
-let mappings = [
-    Mappings.from("user_type", to: "segment")
-        .ifValueEquals("premium"),
-    
-    Mappings.constant("vip_user", to: "user_status")
-        .ifValueIn("purchase_amount", equals: "1000")
-]
+let mappings = Mappings()
+mappings.mapFrom("user_type", to: "segment")
+    .ifValueEquals("premium")
+
+mappings.mapConstant("vip_user", to: "user_status")
+    .ifValueIn("purchase_amount", equals: "1000")
 ```
 
 ### Configuring Mappings
@@ -430,7 +427,10 @@ let mappings = [
 ```swift
 // Add mappings to a dispatcher configuration (the Collect module in this case)
 config.addModule(Modules.collect(forcingSettings: { enforcedSettings in
-    enforcedSettings.setMappings(mappings)
+    enforcedSettings.setMappings { mappings in
+        mappings.mapFrom("source_key", to: "destination_key")
+        mappings.keep("unchanged_key")
+    }
 }))
 ```
 

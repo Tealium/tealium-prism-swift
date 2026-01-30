@@ -78,6 +78,8 @@ public extension TealiumDataKey {
     /// The trace ID for debugging. The same value will be keyed by `cp.trace_id` (see `cpTraceId` key).
     /// Both keys should be kept and their associated values should be in sync. (see `Trace`)
     static let tealiumTraceId = "tealium_trace_id"
+    /// Mapping destination for commands used by Remote Command Dispatchers.
+    static let commandName = "command_name"
 }
 
 enum ConditionOperators {

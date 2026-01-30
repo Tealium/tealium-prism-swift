@@ -83,7 +83,7 @@ open class CollectorSettingsBuilder: ModuleSettingsBuilder, RuleModuleSettingsBu
 }
 
 /// A builder for Dispatcher Settings which adds the possibility to set `Rule`s and `JSONOperation<MappingParameters>`.
-open class DispatcherSettingsBuilder: ModuleSettingsBuilder, RuleModuleSettingsBuilder {
+open class DispatcherSettingsBuilder<M: Mappings>: ModuleSettingsBuilder, RuleModuleSettingsBuilder {
 
     /**
      * Set the mappings for this module.
@@ -93,28 +93,30 @@ open class DispatcherSettingsBuilder: ModuleSettingsBuilder, RuleModuleSettingsB
      *
      * Basic usage is very simple:
      * ```swift
-     * DispatcherSettingsBuilder().setMappings([
-     *  .from("input1", to: "destination1"),
-     *  .constant("value", to: "destination2"),
-     *  .keep("input2)
-     * ])
+     * DispatcherSettingsBuilder().setMappings { mappings in
+     *     mappings.mapFrom("input1", to: "destination1")
+     *     mappings.mapConstant("value", to: "destination2")
+     *     mappings.keep("input2")
+     * }
      * ```
      *
      * For more complex use cases you can leverage the `Mappings` methods and the `JSONObjectPath` constructor:
      * ```swift
-     * DispatcherSettingsBuilder().setMappings([
-     *  .from(JSONPath["container"]["input1"],
-     *        to: JSONPath["resultContainer"]["destination"])
-     *      .ifValueEquals("value"),
-     *  .constant("value": to: JSONPath["resultContainer"]["destination"])
-     *      .ifValueIn(JSONPath["container"]["input2"]), equals: "targetValue"),
-     *  .keep(JSONPath["container"]["inputToMapAsIs"]
-     * ])
+     * DispatcherSettingsBuilder().setMappings { mappings in
+     *     mappings.mapFrom(JSONPath["container"]["input1"],
+     *                      to: JSONPath["resultContainer"]["destination"])
+     *             .ifValueEquals("value")
+     *     mappings.mapConstant("value", to: JSONPath["resultContainer"]["destination"])
+     *             .ifValueIn(JSONPath["container"]["input2"], equals: "targetValue")
+     *     mappings.keep(JSONPath["container"]["inputToMapAsIs"])
+     * }
      * ```
-     * - parameter mappings: A list of `Mapping`s to be applied to each `Dispatch` before sending it to the `Dispatcher`.
+     * - parameter mappingsSetup: A closure that configures the `Mappings` instance to be applied to each `Dispatch` before sending it to the `Dispatcher`.
      */
-    public func setMappings(_ mappings: [Mappings]) -> Self {
-        _dataObject.set(converting: mappings.map { $0.build() }, key: Keys.mappings)
+    public func setMappings(_ mappingsSetup: @escaping (M) -> Void) -> Self {
+        let mappings = M()
+        mappingsSetup(mappings)
+        _dataObject.set(converting: mappings.build(), key: Keys.mappings)
         return self
     }
 }

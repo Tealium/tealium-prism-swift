@@ -141,12 +141,12 @@ final class TealiumCollectTests: TealiumBaseTests {
 
     func test_collect_sends_mapped_event() {
         config.addModule(Modules.collect(forcingSettings: { enforcedSettings in
-            enforcedSettings.setMappings([
-                .keep("tealium_account"),
-                .keep("tealium_profile"),
-                .keep("tealium_visitor_id"),
-                .from("tealium_event", to: "event_name")
-            ])
+            enforcedSettings.setMappings { mappings in
+                mappings.keep("tealium_account")
+                mappings.keep("tealium_profile")
+                mappings.keep("tealium_visitor_id")
+                mappings.mapFrom("tealium_event", to: "event_name")
+            }
         }))
         let httpRequestSent = expectation(description: "Http Request is sent")
         client.requestDidSend = { request in
