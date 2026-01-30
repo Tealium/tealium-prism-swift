@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct BatchingSettings {
+struct BatchingBarrierConfiguration {
     enum Keys {
         static let batchSize = "batch_size"
     }
@@ -32,7 +32,7 @@ class BatchingBarrier: ConfigurableBarrier {
     init(queueMetrics: QueueMetrics, dispatchers: ObservableState<[Dispatcher]>, configuration: DataObject) {
         self.queueMetrics = queueMetrics
         self.dispatchers = dispatchers
-        _batchSize.value = BatchingSettings(dataObject: configuration).batchSize
+        _batchSize.value = BatchingBarrierConfiguration(dataObject: configuration).batchSize
     }
 
     func onState(for dispatcherId: String) -> Observable<BarrierState> {
@@ -53,7 +53,7 @@ class BatchingBarrier: ConfigurableBarrier {
             .map { configuredBatchSize, dispatchers in
                 let dispatchLimit = dispatchers.first(where: { $0.id == dispatcherId })?.dispatchLimit
                 guard let dispatchLimit else {
-                    return BatchingSettings.Defaults.batchSize
+                    return BatchingBarrierConfiguration.Defaults.batchSize
                 }
                 if let configuredBatchSize {
                     return max(min(configuredBatchSize, dispatchLimit), 1)
@@ -63,7 +63,7 @@ class BatchingBarrier: ConfigurableBarrier {
     }
 
     func updateConfiguration(_ configuration: DataObject) {
-        _batchSize.value = BatchingSettings(dataObject: configuration).batchSize
+        _batchSize.value = BatchingBarrierConfiguration(dataObject: configuration).batchSize
     }
 
 }
@@ -71,8 +71,11 @@ class BatchingBarrier: ConfigurableBarrier {
 extension BatchingBarrier {
     class Factory: BarrierFactory {
         let _defaultScopes: [BarrierScope]
-        init(defaultScopes: [BarrierScope]) {
+        let enforcedSettings: DataObject
+
+        init(defaultScopes: [BarrierScope], enforcedSettings: DataObject? = nil) {
             _defaultScopes = defaultScopes
+            self.enforcedSettings = enforcedSettings ?? [:]
         }
 
         func create(context: TealiumContext, configuration: DataObject) -> BatchingBarrier {
@@ -84,6 +87,10 @@ extension BatchingBarrier {
 
         func defaultScopes() -> [BarrierScope] {
             _defaultScopes
+        }
+
+        func getEnforcedSettings() -> DataObject {
+            enforcedSettings
         }
     }
 }

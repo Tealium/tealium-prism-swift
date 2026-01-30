@@ -17,7 +17,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
                                                     configuration: DeviceDataModuleConfiguration(configuration: configuration.value),
                                                     networkHelper: networkHelper,
                                                     storeProvider: context.moduleStoreProvider,
-                                                    transformerRegistry: transformerRegistry,
+                                                    transformerRegistrar: transformerCoordinator,
                                                     queue: .main,
                                                     logger: context.logger)
     let modelsDataObject: DataObject = [
@@ -190,7 +190,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
     func test_module_registers_transformation_on_init() {
         _ = deviceDataCollector
         let dispatch = Dispatch(name: "test_event", data: [:])
-        let transformerId = transformerRegistry.getTransformations(for: dispatch, .afterCollectors)[0].transformerId
+        let transformerId = transformerCoordinator.getTransformations(for: dispatch, .afterCollectors)[0].transformerId
         XCTAssertEqual(transformerId, DeviceDataModule.moduleType)
     }
 
@@ -236,7 +236,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
                              configuration: DeviceDataModuleConfiguration(configuration: [:]),
                              networkHelper: networkHelper,
                              storeProvider: context.moduleStoreProvider,
-                             transformerRegistry: transformerRegistry,
+                             transformerRegistrar: transformerCoordinator,
                              queue: .main,
                              logger: context.logger)
         waitForLongTimeout()

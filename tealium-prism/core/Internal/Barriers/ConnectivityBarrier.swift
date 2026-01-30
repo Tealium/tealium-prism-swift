@@ -8,7 +8,7 @@
 
 import Foundation
 
-struct ConnectivityBarrierSettings {
+struct ConnectivityBarrierConfiguration {
     enum Keys {
         static let wifiOnly = "wifi_only"
     }
@@ -24,11 +24,11 @@ struct ConnectivityBarrierSettings {
 
 class ConnectivityBarrier: ConfigurableBarrier {
     static var id: String = "ConnectivityBarrier"
-    private let settings: StateSubject<ConnectivityBarrierSettings>
+    private let wifiOnly: StateSubject<Bool>
     private let connectionManager: ConnectivityManagerProtocol
 
     init(connectionManager: ConnectivityManagerProtocol, configuration: DataObject) {
-        settings = StateSubject(ConnectivityBarrierSettings(dataObject: configuration))
+        wifiOnly = StateSubject(ConnectivityBarrierConfiguration(dataObject: configuration).wifiOnly)
         self.connectionManager = connectionManager
     }
 
@@ -39,10 +39,9 @@ class ConnectivityBarrier: ConfigurableBarrier {
     /** `dispatcherId` is ignored for ConnectivityBarrier */
     func onState(for dispatcherId: String) -> Observable<BarrierState> {
         let onConnectionAllowed = connectionManager.connection
-            .combineLatest(settings.asObservable())
-            .map { connection, settings in
-                guard settings.wifiOnly,
-                      case let .connected(connectionType) = connection else {
+            .combineLatest(wifiOnly.asObservable())
+            .map { connection, wifiOnly in
+                guard wifiOnly, case let .connected(connectionType) = connection else {
                     return true
                 }
                 return connectionType != .cellular // Allow both wifi and ethernet
@@ -59,7 +58,7 @@ class ConnectivityBarrier: ConfigurableBarrier {
     }
 
     func updateConfiguration(_ configuration: DataObject) {
-        settings.value = ConnectivityBarrierSettings(dataObject: configuration)
+        wifiOnly.value = ConnectivityBarrierConfiguration(dataObject: configuration).wifiOnly
     }
 
 }
@@ -67,8 +66,11 @@ class ConnectivityBarrier: ConfigurableBarrier {
 extension ConnectivityBarrier {
     class Factory: BarrierFactory {
         let _defaultScopes: [BarrierScope]
-        init(defaultScopes: [BarrierScope]) {
+        let enforcedSettings: DataObject
+
+        init(defaultScopes: [BarrierScope], enforcedSettings: DataObject? = nil) {
             _defaultScopes = defaultScopes
+            self.enforcedSettings = enforcedSettings ?? [:]
         }
 
         func create(context: TealiumContext, configuration: DataObject) -> ConnectivityBarrier {
@@ -78,6 +80,10 @@ extension ConnectivityBarrier {
 
         func defaultScopes() -> [BarrierScope] {
             _defaultScopes
+        }
+
+        func getEnforcedSettings() -> DataObject {
+            enforcedSettings
         }
     }
 }

@@ -15,9 +15,8 @@ extension TealiumImpl {
     }
 
     static func addMandatoryAndRemoveDuplicateBarriers(from config: inout TealiumConfig) {
-        config.barriers = (config.barriers + [
-            Barriers.connectivity()
-        ]).removingDuplicates(by: \.id)
+        config.barriers = (config.barriers + BarrierRegistry.shared.defaultBarriers)
+            .removingDuplicates(by: \.id)
     }
 
     static func initModuleStoreProvider(config: TealiumConfig) throws -> ModuleStoreProvider {

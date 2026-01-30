@@ -27,6 +27,18 @@ public protocol BarrierFactory<BarrierType> {
      * Creates a `ConfigurableBarrier` instance using the given `context` and `configuration`.
      */
     func create(context: TealiumContext, configuration: DataObject) -> BarrierType
+
+    /**
+     * Returns some optional settings for this barrier that override any other Local or Remote settings fields.
+     *
+     * Only the values at the specific keys returned in this Dictionary will be enforced and remain constant during the life of this `Barrier`.
+     * Other values at other keys that are not present in this Dictionary can be set by Local or Remote settings
+     * and be updated by future Remote settings refreshes during the life of this `Barrier`.
+     *
+     * - Returns: A `DataObject` representing the `BarrierSettings`, containing some of the settings used by the `Barrier`
+     * that will be enforced and remain constant during the life of this `Barrier`.
+     */
+    func getEnforcedSettings() -> DataObject
 }
 
 extension BarrierFactory {
@@ -35,4 +47,8 @@ extension BarrierFactory {
      * This String will be used to match up barriers scoped in the configuration JSON.
      */
     var id: String { BarrierType.id }
+
+    public func getEnforcedSettings() -> DataObject {
+        [:]
+    }
 }

@@ -1,5 +1,5 @@
 //
-//  BarrierRegistry.swift
+//  BarrierRegistrar.swift
 //  tealium-prism
 //
 //  Created by Enrico Zannini on 23/04/25.
@@ -7,11 +7,11 @@
 //
 
 /**
- * The `BarrierRegistry` is responsible for registering and unregistering additional `Barrier`s.
+ * The `BarrierRegistrar` is responsible for registering and unregistering additional `Barrier`s.
  *
- * - Attention: Barriers registered using the `BarrierRegistry` will not receive updated settings.
+ * - Attention: Barriers registered using the `BarrierRegistrar` will not receive updated settings.
  */
-public protocol BarrierRegistry {
+public protocol BarrierRegistrar {
     /**
      * Registers or updates an additional `Barrier` with the applied `scopes`.
      *

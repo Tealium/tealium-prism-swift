@@ -165,6 +165,10 @@ final class TealiumSettingsTests: TealiumBaseTests {
             .setRules(.not("event_contains_blocked"))
         config.addModule(MockCollector.factory(enforcedSettings: moduleSettings))
         config.addModule(MockDispatcher2.factory())
+        // disable batching
+        config.addBarrier(Barriers.batching(forcingSettings: { enforcedSettings in
+            enforcedSettings.setScopes([])
+        }))
         MockDispatcher.onDispatch.subscribe { dispatches in
             for dispatch in dispatches {
                 if dispatch.name == "event_blocked" {

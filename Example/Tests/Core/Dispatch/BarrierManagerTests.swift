@@ -15,8 +15,8 @@ final class BarrierManagerTests: XCTestCase {
     lazy var barrierManager = BarrierManager(sdkBarrierSettings: barrierSettings)
 
     func test_initializeBarriers_creates_configurable_barriers_from_factories() {
-        let mockFactory1 = MockBarrierFactory<MockBarrier1>(defaultScope: [.all])
-        let mockFactory2 = MockBarrierFactory<MockBarrier2>(defaultScope: [.dispatcher(id: "test")])
+        let mockFactory1 = MockBarrierFactory<MockBarrier1>(defaultScopes: [.all])
+        let mockFactory2 = MockBarrierFactory<MockBarrier2>(defaultScopes: [.dispatcher(id: "test")])
 
         barrierManager.initializeBarriers(factories: [mockFactory1, mockFactory2], context: mockContext)
         XCTAssertEqual(barrierManager.configBarriers.value.count, 2)
@@ -26,8 +26,8 @@ final class BarrierManagerTests: XCTestCase {
 
     func test_onBarriers_emits_initialized_barriers_with_default_scopes() {
         let onBarrierEmitted = expectation(description: "On Barrier emitted")
-        let mockFactory1 = MockBarrierFactory<MockBarrier1>(defaultScope: [.all])
-        let mockFactory2 = MockBarrierFactory<MockBarrier2>(defaultScope: [.dispatcher(id: "test")])
+        let mockFactory1 = MockBarrierFactory<MockBarrier1>(defaultScopes: [.all])
+        let mockFactory2 = MockBarrierFactory<MockBarrier2>(defaultScopes: [.dispatcher(id: "test")])
 
         barrierManager.initializeBarriers(factories: [mockFactory1, mockFactory2], context: mockContext)
         barrierManager.onScopedBarriers.subscribeOnce { barriers in
@@ -70,7 +70,7 @@ final class BarrierManagerTests: XCTestCase {
     }
 
     func test_onBarriers_combines_nonConfigBarriers_and_configBarriers() {
-        let mockFactory = MockBarrierFactory<MockBarrier1>(defaultScope: [.all])
+        let mockFactory = MockBarrierFactory<MockBarrier1>(defaultScopes: [.all])
         let mockExtraBarrier = MockBarrier()
 
         barrierManager.initializeBarriers(factories: [mockFactory], context: mockContext)
@@ -89,7 +89,7 @@ final class BarrierManagerTests: XCTestCase {
     }
 
     func test_barrierSettings_updates_trigger_configuration_updates() {
-        let mockFactory = MockBarrierFactory<MockBarrier1>(defaultScope: [.all])
+        let mockFactory = MockBarrierFactory<MockBarrier1>(defaultScopes: [.all])
 
         barrierManager.initializeBarriers(factories: [mockFactory], context: mockContext)
         let configBarrier = barrierManager.configBarriers.value.first as? MockConfigurableBarrier
@@ -104,7 +104,7 @@ final class BarrierManagerTests: XCTestCase {
     }
 
     func test_barrierSettings_updates_changes_configurable_barriers_scopes() {
-        let mockFactory = MockBarrierFactory<MockBarrier1>(defaultScope: [.all])
+        let mockFactory = MockBarrierFactory<MockBarrier1>(defaultScopes: [.all])
 
         barrierManager.initializeBarriers(factories: [mockFactory], context: mockContext)
         let configBarrier = barrierManager.configBarriers.value.first as? MockConfigurableBarrier
@@ -126,8 +126,8 @@ final class BarrierManagerTests: XCTestCase {
     }
 
     func test_scopedConfigBarriers_uses_defaultScopes_from_factories() {
-        let mockFactory1 = MockBarrierFactory<MockBarrier1>(defaultScope: [.all])
-        let mockFactory2 = MockBarrierFactory<MockBarrier2>(defaultScope: [.dispatcher(id: "test")])
+        let mockFactory1 = MockBarrierFactory<MockBarrier1>(defaultScopes: [.all])
+        let mockFactory2 = MockBarrierFactory<MockBarrier2>(defaultScopes: [.dispatcher(id: "test")])
 
         barrierManager.initializeBarriers(factories: [mockFactory1, mockFactory2], context: mockContext)
         let barriersReported = expectation(description: "Barriers are reported")

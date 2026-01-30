@@ -552,11 +552,11 @@ Create specific transformers for specific purposes rather than one large transfo
 
 ### Runtime Registration
 
-Your modules can register and unregister transformations at runtime using the `TransformerRegistry`:
+Your modules can register and unregister transformations at runtime using the `TransformerRegistrar`:
 
 ```swift
-// Get the transformer registry from `TealiumContext`
-let registry = context.transformerRegistry
+// Get the transformer registrar from `TealiumContext`
+let registrar = context.transformerRegistrar
 
 // Register a new transformation
 let newTransformation = TransformationSettings(
@@ -564,10 +564,10 @@ let newTransformation = TransformationSettings(
     transformerId: "MyCustomTransformer",
     scopes: [.allDispatchers]
 )
-registry.registerTransformation(newTransformation)
+registrar.registerTransformation(newTransformation)
 
 // Unregister when no longer needed
-registry.unregisterTransformation(newTransformation)
+registrar.unregisterTransformation(newTransformation)
 ```
 
 ## Conclusion

@@ -66,7 +66,7 @@ final class TealiumLifecycleTests: TealiumBaseTests {
         config.appStatusListener = ApplicationStatusListener(notificationCenter: notificationCenter)
         config.addModule(Modules.lifecycle())
         config.addModule(MockDispatcher2.factory())
-        config.addBarrier(Barriers.batching())
+        config.addBarrier(Barriers.batching(defaultScopes: [.all]))
         config.addModule(Modules.deviceData(forcingSettings: { enforcedSettings in
             enforcedSettings.setDeviceNamesUrl("")
         }))

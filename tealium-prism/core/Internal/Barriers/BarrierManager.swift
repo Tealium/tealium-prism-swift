@@ -15,7 +15,7 @@ typealias ScopedBarrier = (barrier: Barrier, scopes: [BarrierScope])
  *
  * It exposes one `Observable` for all of the barriers along with their specific scopes, merging both of the arrays it manages.
  */
-class BarrierManager: BarrierRegistry {
+class BarrierManager: BarrierRegistrar {
     @StateSubject([])
     var nonConfigBarriers: ObservableState<[ScopedBarrier]>
 

@@ -18,7 +18,7 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
     private let logger: LoggerProtocol?
     private let dataStore: (any DataStore)?
     private var resourceRefresher: ResourceRefresher<DataObject>?
-    private var transformerRegistry: TransformerRegistry
+    private var transformerRegistrar: TransformerRegistrar
     private let onModelInfo = ReplaySubject<DataObject?>()
     private let constantData: [String: DataInput]
     private let queue: TealiumQueue
@@ -37,7 +37,7 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
                   configuration: DeviceDataModuleConfiguration(configuration: moduleConfiguration),
                   networkHelper: context.networkHelper,
                   storeProvider: context.moduleStoreProvider,
-                  transformerRegistry: context.transformerRegistry,
+                  transformerRegistrar: context.transformerRegistrar,
                   queue: context.queue,
                   logger: context.logger)
     }
@@ -46,15 +46,15 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
          configuration: DeviceDataModuleConfiguration,
          networkHelper: NetworkHelperProtocol,
          storeProvider: ModuleStoreProvider,
-         transformerRegistry: TransformerRegistry,
+         transformerRegistrar: TransformerRegistrar,
          queue: TealiumQueue,
          logger: LoggerProtocol?) {
         self.deviceDataProvider = deviceDataProvider
         self.configuration = configuration
         self.networkHelper = networkHelper
         self.dataStore = try? storeProvider.getModuleStore(name: Self.moduleType)
-        self.transformerRegistry = transformerRegistry
-        self.transformerRegistry.registerTransformation(TransformationSettings(id: "model-info-and-orientation", transformerId: Self.moduleType, scopes: [.afterCollectors]))
+        self.transformerRegistrar = transformerRegistrar
+        self.transformerRegistrar.registerTransformation(TransformationSettings(id: "model-info-and-orientation", transformerId: Self.moduleType, scopes: [.afterCollectors]))
         self.queue = queue
         self.logger = logger
         self.constantData = deviceDataProvider.getConstantData()
