@@ -113,19 +113,19 @@ public struct Condition: Equatable {
      * Ignored for:
      * isDefined, isNotDefined, isEmpty, isNotEmpty.
      */
-    let filter: ValueContainer?
+    let filter: StringContainer?
 
-    init(variable: ReferenceContainer, operator: Operator, filter: ValueContainer?) {
+    init(variable: ReferenceContainer, operator: Operator, filter: StringContainer?) {
         self.variable = variable
         self.operator = `operator`
         self.filter = filter
     }
 
-    init(variable: JSONObjectPath, operator: Operator, filter: ValueContainer?) {
+    init(variable: JSONObjectPath, operator: Operator, filter: StringContainer?) {
         self.init(variable: ReferenceContainer(path: variable), operator: `operator`, filter: filter)
     }
 
-    init(variable: String, operator: Operator, filter: ValueContainer?) {
+    init(variable: String, operator: Operator, filter: StringContainer?) {
         self.init(variable: ReferenceContainer(key: variable), operator: `operator`, filter: filter)
     }
 }

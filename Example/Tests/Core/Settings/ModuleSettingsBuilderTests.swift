@@ -73,7 +73,7 @@ final class ModuleSettingsBuilderTests: XCTestCase {
     func test_custom_builder_can_use_custom_and_inherited_mappings() {
         let build = CustomSettingsBuilder()
             .setMappings { mappings in
-                mappings.mapConstant("value", to: "constant_key")
+                mappings.mapConstant(42, to: "constant_key")
                 mappings.mapParamItem("item_key")
             }
             .setEnabled(true)
@@ -88,7 +88,7 @@ final class ModuleSettingsBuilderTests: XCTestCase {
                 ],
                 "parameters": [
                     "map_to": [
-                        "value": "value"
+                        "value": 42
                     ]
                 ]
             ], [

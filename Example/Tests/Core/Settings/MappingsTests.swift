@@ -35,13 +35,13 @@ final class MappingsTests: XCTestCase {
 
     func test_constant_creates_mapTo_and_destination() {
         let destinationKey = JSONPath["target"]["destination"]
-        let mapToValue = "mappedValue"
+        let mapToValue: [DataInput] = ["mappedValue"]
         let builder = Mappings()
         builder.mapConstant(mapToValue, to: destinationKey)
         let operation = builder.build()[0]
 
         XCTAssertEqual(operation.destination.path, JSONPath["target"]["destination"])
-        XCTAssertEqual(operation.parameters.mapTo?.value, mapToValue)
+        XCTAssertEqual(operation.parameters.mapTo?.value.getDataArray()?.map({ $0.toDataInput() }), mapToValue)
         XCTAssertNil(operation.parameters.filter)
         XCTAssertNil(operation.parameters.reference)
     }
@@ -50,7 +50,11 @@ final class MappingsTests: XCTestCase {
         let sourceKey = JSONPath["nested"]["source"]
         let destinationKey = JSONPath["target"]["destination"]
         let filterValue = "originalValue"
-        let mapToValue = "mappedValue"
+        let mapToValue: [String: DataInput] = [
+            "a": 42,
+            "b": true,
+            "c": "hello"
+        ]
         let builder = Mappings()
         builder.mapConstant(mapToValue, to: destinationKey)
             .ifValueIn(sourceKey, equals: filterValue)
@@ -59,7 +63,7 @@ final class MappingsTests: XCTestCase {
         XCTAssertEqual(operation.destination.path, JSONPath["target"]["destination"])
         XCTAssertEqual(operation.parameters.reference?.path, JSONPath["nested"]["source"])
         XCTAssertEqual(operation.parameters.filter?.value, filterValue)
-        XCTAssertEqual(operation.parameters.mapTo?.value, mapToValue)
+        XCTAssertEqual(operation.parameters.mapTo?.value.getDataDictionary()?.mapValues({ $0.toDataInput() }), mapToValue)
     }
 
     func test_keep_creates_same_key_and_destination() {
@@ -78,7 +82,7 @@ final class MappingsTests: XCTestCase {
         let operation = builder.build()[0]
 
         XCTAssertEqual(operation.destination.path, JSONPath["command_name"])
-        XCTAssertEqual(operation.parameters.mapTo?.value, commandName)
+        XCTAssertEqual(operation.parameters.mapTo?.value.get(), commandName)
         XCTAssertNil(operation.parameters.reference)
         XCTAssertNil(operation.parameters.filter)
     }
@@ -91,7 +95,7 @@ final class MappingsTests: XCTestCase {
         let operation = builder.build()[0]
 
         XCTAssertEqual(operation.destination.path, JSONPath["command_name"])
-        XCTAssertEqual(operation.parameters.mapTo?.value, commandName)
+        XCTAssertEqual(operation.parameters.mapTo?.value.get(), commandName)
         XCTAssertEqual(operation.parameters.reference?.path, JSONPath["tealium_event_type"])
         XCTAssertEqual(operation.parameters.filter?.value, "event")
     }
@@ -104,7 +108,7 @@ final class MappingsTests: XCTestCase {
         let operation = builder.build()[0]
 
         XCTAssertEqual(operation.destination.path, JSONPath["command_name"])
-        XCTAssertEqual(operation.parameters.mapTo?.value, commandName)
+        XCTAssertEqual(operation.parameters.mapTo?.value.get(), commandName)
         XCTAssertEqual(operation.parameters.reference?.path, JSONPath["tealium_event_type"])
         XCTAssertEqual(operation.parameters.filter?.value, "view")
     }
@@ -119,7 +123,7 @@ final class MappingsTests: XCTestCase {
         let operation = builder.build()[0]
 
         XCTAssertEqual(operation.destination.path, JSONPath["command_name"])
-        XCTAssertEqual(operation.parameters.mapTo?.value, commandName)
+        XCTAssertEqual(operation.parameters.mapTo?.value.get(), commandName)
         XCTAssertEqual(operation.parameters.reference?.path, JSONPath["event_name"])
         XCTAssertEqual(operation.parameters.filter?.value, filterValue)
     }
@@ -134,7 +138,7 @@ final class MappingsTests: XCTestCase {
         let operation = builder.build()[0]
 
         XCTAssertEqual(operation.destination.path, JSONPath["command_name"])
-        XCTAssertEqual(operation.parameters.mapTo?.value, commandName)
+        XCTAssertEqual(operation.parameters.mapTo?.value.get(), commandName)
         XCTAssertEqual(operation.parameters.reference?.path, JSONPath["user"]["type"])
         XCTAssertEqual(operation.parameters.filter?.value, filterValue)
     }

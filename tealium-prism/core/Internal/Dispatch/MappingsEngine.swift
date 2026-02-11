@@ -14,7 +14,7 @@ extension MappingOperation {
     var path: JSONObjectPath? {
         parameters.reference?.path
     }
-    var filter: ValueContainer? {
+    var filter: StringContainer? {
         parameters.filter
     }
     var mapTo: ValueContainer? {
@@ -88,7 +88,7 @@ class MappingsEngine {
         }
         let mapTo = mapping.mapTo?.value
         if let mapTo {
-            return DataItem(value: mapTo)
+            return mapTo
         } else {
             return extracted
         }

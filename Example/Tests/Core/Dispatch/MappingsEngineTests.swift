@@ -10,10 +10,10 @@
 import XCTest
 
 // Just added to make testing easier
-extension ValueContainer: @retroactive ExpressibleByExtendedGraphemeClusterLiteral {}
-extension ValueContainer: @retroactive ExpressibleByUnicodeScalarLiteral {}
-extension ValueContainer: @retroactive ExpressibleByStringLiteral, @retroactive ExpressibleByStringInterpolation {
-    /// Creates a `ValueContainer` from a string literal.
+extension StringContainer: @retroactive ExpressibleByExtendedGraphemeClusterLiteral {}
+extension StringContainer: @retroactive ExpressibleByUnicodeScalarLiteral {}
+extension StringContainer: @retroactive ExpressibleByStringLiteral, @retroactive ExpressibleByStringInterpolation {
+    /// Creates a `StringContainer` from a string literal.
     /// - Parameter value: The string literal to use as the variable name.
     public init(stringLiteral value: StringLiteralType) {
         self.init(value)
@@ -111,7 +111,7 @@ final class MappingsEngineTests: XCTestCase {
             MappingOperation(destination: "dest",
                              parameters: MappingParameters(reference: "missing_key",
                                                            filter: "value",
-                                                           mapTo: "someConstant"))
+                                                           mapTo: ValueContainer("someConstant")))
         ])
         XCTAssertEqual(result.payload, [:])
     }
@@ -131,7 +131,7 @@ final class MappingsEngineTests: XCTestCase {
             MappingOperation(destination: "dest",
                              parameters: MappingParameters(reference: "key",
                                                            filter: "value",
-                                                           mapTo: "otherValue"))
+                                                           mapTo: ValueContainer("otherValue")))
         ])
         XCTAssertEqual(result.payload, ["dest": "otherValue"])
     }
@@ -141,7 +141,7 @@ final class MappingsEngineTests: XCTestCase {
             MappingOperation(destination: "dest",
                              parameters: MappingParameters(reference: "key",
                                                            filter: "non_matching",
-                                                           mapTo: "otherValue"))
+                                                           mapTo: ValueContainer("otherValue")))
         ])
         XCTAssertEqual(result.payload, [:])
     }
@@ -151,7 +151,7 @@ final class MappingsEngineTests: XCTestCase {
             MappingOperation(destination: "dest",
                              parameters: MappingParameters(reference: nil,
                                                            filter: nil,
-                                                           mapTo: "otherValue"))
+                                                           mapTo: ValueContainer("otherValue")))
         ])
         XCTAssertEqual(result.payload, ["dest": "otherValue"])
     }
@@ -188,10 +188,14 @@ final class MappingsEngineTests: XCTestCase {
             MappingOperation(destination: "dest_key",
                              parameters: MappingParameters(reference: "key", filter: nil, mapTo: nil)),
             MappingOperation(destination: "dest_key",
-                             parameters: MappingParameters(reference: nil, filter: nil, mapTo: "someConstant"))
+                             parameters: MappingParameters(reference: nil, filter: nil, mapTo: ValueContainer("someConstant"))),
+            MappingOperation(destination: "dest_key",
+                             parameters: MappingParameters(reference: nil, filter: nil, mapTo: ValueContainer(42))),
+            MappingOperation(destination: "dest_key",
+                             parameters: MappingParameters(reference: nil, filter: nil, mapTo: ValueContainer(true))),
         ])
         XCTAssertEqual(result.payload, [
-            "dest_key": ["value", "someConstant"]
+            "dest_key": DataItem(value: ["value", "someConstant", 42, true])
         ])
     }
 
@@ -200,7 +204,7 @@ final class MappingsEngineTests: XCTestCase {
             MappingOperation(destination: "dest_key",
                              parameters: MappingParameters(reference: "key", filter: nil, mapTo: nil)),
             MappingOperation(destination: "dest_key",
-                             parameters: MappingParameters(reference: nil, filter: nil, mapTo: "someConstant")),
+                             parameters: MappingParameters(reference: nil, filter: nil, mapTo: ValueContainer("someConstant"))),
             MappingOperation(destination: "dest_key",
                              parameters: MappingParameters(reference: "key", filter: nil, mapTo: nil)),
         ])
@@ -214,10 +218,12 @@ final class MappingsEngineTests: XCTestCase {
             MappingOperation(destination: "dest_key",
                              parameters: MappingParameters(reference: "array", filter: nil, mapTo: nil)),
             MappingOperation(destination: "dest_key",
-                             parameters: MappingParameters(reference: nil, filter: nil, mapTo: "someConstant"))
+                             parameters: MappingParameters(reference: nil, filter: nil, mapTo: ValueContainer("someConstant"))),
+            MappingOperation(destination: "dest_key",
+                             parameters: MappingParameters(reference: nil, filter: nil, mapTo: ValueContainer([1, 2, 3]))),
         ])
         XCTAssertEqual(result.payload, [
-            "dest_key": ["1", "2", "3", "someConstant"]
+            "dest_key": DataItem(value: ["1", "2", "3", "someConstant", [1, 2, 3]])
         ])
     }
 }

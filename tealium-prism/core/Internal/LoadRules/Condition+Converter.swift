@@ -26,7 +26,7 @@ extension Condition {
             }
             return Condition(variable: referenceContainer,
                              operator: operatorValue,
-                             filter: dictionary.getConvertible(key: Keys.filter, converter: ValueContainer.converter))
+                             filter: dictionary.getConvertible(key: Keys.filter, converter: StringContainer.converter))
         }
     }
     static let converter = Converter()

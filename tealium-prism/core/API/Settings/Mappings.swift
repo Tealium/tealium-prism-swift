@@ -11,7 +11,7 @@ import Foundation
 public class MappingsBuilder {
     fileprivate var reference: ReferenceContainer?
     fileprivate let destination: ReferenceContainer
-    fileprivate var filter: ValueContainer?
+    fileprivate var filter: StringContainer?
     fileprivate let mapTo: ValueContainer?
 
     fileprivate init(reference: ReferenceContainer, destination: ReferenceContainer) {
@@ -20,7 +20,7 @@ public class MappingsBuilder {
         self.mapTo = nil
     }
 
-    fileprivate init(constant: String, destination: ReferenceContainer) {
+    fileprivate init(constant: DataInput, destination: ReferenceContainer) {
         self.mapTo = ValueContainer(constant)
         self.destination = destination
     }
@@ -113,13 +113,13 @@ open class Mappings {
          *  - Parameter target: The target value that the variable needs to equal.
          */
         public func ifValueEquals(_ target: String) {
-            self.filter = ValueContainer(target)
+            self.filter = StringContainer(target)
         }
     }
 
     /// Some `Mappings` options that are mapping a constant value to a destination in the result payload.
     public class ConstantOptions: MappingsBuilder {
-        override init(constant: String, destination: ReferenceContainer) {
+        override init(constant: DataInput, destination: ReferenceContainer) {
             super.init(constant: constant, destination: destination)
         }
         /**
@@ -133,7 +133,7 @@ open class Mappings {
          */
         public func ifValueIn(_ path: JSONObjectPath, equals target: String) {
             self.reference = ReferenceContainer(path: path)
-            self.filter = ValueContainer(target)
+            self.filter = StringContainer(target)
         }
 
         /**
@@ -146,7 +146,7 @@ open class Mappings {
          */
         public func ifValueIn(_ key: String, equals target: String) {
             self.reference = ReferenceContainer(key: key)
-            self.filter = ValueContainer(target)
+            self.filter = StringContainer(target)
         }
     }
 
@@ -163,7 +163,7 @@ open class Mappings {
          */
         public func forAllEvents() {
             self.reference = ReferenceContainer(key: TealiumDataKey.eventType)
-            self.filter = ValueContainer(DispatchType.event.rawValue)
+            self.filter = StringContainer(DispatchType.event.rawValue)
         }
 
         /**
@@ -172,7 +172,7 @@ open class Mappings {
          */
         public func forAllViews() {
             self.reference = ReferenceContainer(key: TealiumDataKey.eventType)
-            self.filter = ValueContainer(DispatchType.view.rawValue)
+            self.filter = StringContainer(DispatchType.view.rawValue)
         }
     }
 }
@@ -264,7 +264,7 @@ public extension Mappings {
      * - Returns: A `ConstantOptions` mapping operation builder.
      */
     @discardableResult
-    func mapConstant(_ value: String, to destination: JSONObjectPath) -> ConstantOptions {
+    func mapConstant(_ value: DataInput, to destination: JSONObjectPath) -> ConstantOptions {
         mapConstant(value, to: ReferenceContainer(path: destination))
     }
 
@@ -279,7 +279,7 @@ public extension Mappings {
      * - Returns: A `ConstantOptions` mapping operation builder.
      */
     @discardableResult
-    func mapConstant(_ value: String, to destination: String) -> ConstantOptions {
+    func mapConstant(_ value: DataInput, to destination: String) -> ConstantOptions {
         mapConstant(value, to: ReferenceContainer(key: destination))
     }
 
@@ -303,7 +303,7 @@ public extension Mappings {
         return builder
     }
 
-    private func mapConstant(_ value: String, to destination: ReferenceContainer) -> ConstantOptions {
+    private func mapConstant(_ value: DataInput, to destination: ReferenceContainer) -> ConstantOptions {
         let builder = ConstantOptions(constant: value, destination: destination)
         mappingsList.append(builder)
         return builder

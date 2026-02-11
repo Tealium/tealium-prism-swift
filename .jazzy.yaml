@@ -105,6 +105,7 @@ custom_categories:
       - regex: ^JSON
       - regex: Root
       - ReferenceContainer
+      - StringContainer
       - ValueContainer
       - regex: ^Any
   - name: PubSub
