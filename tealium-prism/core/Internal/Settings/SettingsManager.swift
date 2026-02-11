@@ -47,18 +47,16 @@ class SettingsManager {
                      "Applying settings:\n\(mergedSettings)")
         _settings = StateSubject<SDKSettings>(SDKSettings(mergedSettings))
         // MARK: Initialize ResourceRefresher
-        if let urlString = config.settingsUrl {
+
+        self.resourceRefresher = try config.settingsUrl.flatMap { [coreSettings = _settings.value.core] urlString in
             let refreshParameters = RefreshParameters(id: "settings",
                                                       url: try urlString.asUrl(),
-                                                      refreshInterval: _settings.value.core.refreshInterval,
+                                                      refreshInterval: coreSettings.refreshInterval,
                                                       errorCooldownBaseInterval: 20.seconds)
-            let settingsRefresher = ResourceRefresher<DataObject>(networkHelper: networkHelper,
-                                                                  resourceCacher: settingsCacher,
-                                                                  parameters: refreshParameters,
-                                                                  logger: logger)
-            self.resourceRefresher = settingsRefresher
-        } else {
-            self.resourceRefresher = nil
+            return ResourceRefresher<DataObject>(networkHelper: networkHelper,
+                                                 resourceCacher: settingsCacher,
+                                                 parameters: refreshParameters,
+                                                 logger: logger)
         }
     }
 

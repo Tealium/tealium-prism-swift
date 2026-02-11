@@ -29,9 +29,6 @@ extension Data {
 extension String {
     // Not to be used with unbounded strings like large files or similar
     func sha256() -> String? {
-        if let stringData = self.data(using: String.Encoding.utf8) {
-            return stringData.sha256()
-        }
-        return nil
+        data(using: String.Encoding.utf8).flatMap { $0.sha256() }
     }
 }

@@ -29,9 +29,9 @@ extension Rule {
             if let converted = dataItem.getConvertible(converter: ruleItemConverter) {
                 return .just(converted)
             }
-            let dictionary = dataItem.getDataDictionary()
-            guard let children = dictionary?.getDataArray(key: Keys.children),
-                  let operatorString: String = dictionary?.get(key: Keys.operator)
+            guard let dictionary = dataItem.getDataDictionary(),
+                  let children = dictionary.getDataArray(key: Keys.children),
+                  let operatorString: String = dictionary.get(key: Keys.operator)
             else {
                 return nil
             }

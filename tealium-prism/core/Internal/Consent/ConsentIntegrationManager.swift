@@ -101,31 +101,30 @@ class ConsentIntegrationManager: ConsentManager {
     }
 
     private func logConfigurationErrors() {
-        if let logger {
-            onConfigurationSelected
-                .compactMap { [cmpSelector] configuration in
-                    if configuration == nil {
-                        logger.warn(category: LogCategory.consent,
-                                    """
-                                    No ConsentConfiguration selected for CMP: \(cmpSelector.cmpAdapter.id).
-                                    Make sure you provide a configuration for this specific CMP in the ConsentSettings.
-                                    """)
-                    }
-                    return configuration
+        guard let logger else { return }
+        onConfigurationSelected
+            .compactMap { [cmpSelector] configuration in
+                if configuration == nil {
+                    logger.warn(category: LogCategory.consent,
+                                """
+                                No ConsentConfiguration selected for CMP: \(cmpSelector.cmpAdapter.id).
+                                Make sure you provide a configuration for this specific CMP in the ConsentSettings.
+                                """)
                 }
-                .combineLatest(dispatchers.asObservable())
-                .map { configuration, dispatcherIds in
-                    dispatcherIds.filter { dispatcherId in
-                        !configuration.hasAtLeastOneRequiredPurposeForDispatcher(dispatcherId)
-                    }
+                return configuration
+            }
+            .combineLatest(dispatchers.asObservable())
+            .map { configuration, dispatcherIds in
+                dispatcherIds.filter { dispatcherId in
+                    !configuration.hasAtLeastOneRequiredPurposeForDispatcher(dispatcherId)
                 }
-                .filter { !$0.isEmpty }
-                .distinct()
-                .subscribe { misconfiguredDispatchers in
-                    logger.error(category: LogCategory.consent,
-                                 "No purpose defined in ConsentConfiguration for dispatchers: \(misconfiguredDispatchers).\nThese dispatchers will not fire!")
-                }.addTo(automaticDisposer)
-        }
+            }
+            .filter { !$0.isEmpty }
+            .distinct()
+            .subscribe { misconfiguredDispatchers in
+                logger.error(category: LogCategory.consent,
+                             "No purpose defined in ConsentConfiguration for dispatchers: \(misconfiguredDispatchers).\nThese dispatchers will not fire!")
+            }.addTo(automaticDisposer)
     }
 
     func handleConsentInspectorChange(_ consentInspector: ConsentInspector) {
