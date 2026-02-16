@@ -1630,6 +1630,10 @@
 		EC8BD8A52DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BD8A42DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift */; };
 		EC8BD8A62DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BD8A42DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift */; };
 		EC8BD8A72DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8BD8A42DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift */; };
+		EC8CF8EA2F3CCFCB00812410 /* LenientConvertersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8CF8E92F3CCFCB00812410 /* LenientConvertersTests.swift */; };
+		EC8CF8EB2F3CCFCB00812410 /* LenientConvertersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8CF8E92F3CCFCB00812410 /* LenientConvertersTests.swift */; };
+		EC8CF8EC2F3CCFCB00812410 /* LenientConvertersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8CF8E92F3CCFCB00812410 /* LenientConvertersTests.swift */; };
+		EC8CF8ED2F3CCFCB00812410 /* LenientConvertersTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8CF8E92F3CCFCB00812410 /* LenientConvertersTests.swift */; };
 		EC8EF87A2E18104D00DB89C5 /* BatchingBarrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8EF8792E18104D00DB89C5 /* BatchingBarrierTests.swift */; };
 		EC8EF87B2E18104D00DB89C5 /* BatchingBarrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8EF8792E18104D00DB89C5 /* BatchingBarrierTests.swift */; };
 		EC8EF87C2E18104D00DB89C5 /* BatchingBarrierTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8EF8792E18104D00DB89C5 /* BatchingBarrierTests.swift */; };
@@ -2096,6 +2100,7 @@
 		EC7FDD102F115F9F008A4D45 /* Tealium+BarriersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Tealium+BarriersTests.swift"; sourceTree = "<group>"; };
 		EC7FDD172F117BC9008A4D45 /* TealiumConfig+BarriersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TealiumConfig+BarriersTests.swift"; sourceTree = "<group>"; };
 		EC8BD8A42DF32780003DA8C7 /* DeviceDataProviderCommonTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DeviceDataProviderCommonTests.swift; sourceTree = "<group>"; };
+		EC8CF8E92F3CCFCB00812410 /* LenientConvertersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LenientConvertersTests.swift; sourceTree = "<group>"; };
 		EC8EF8792E18104D00DB89C5 /* BatchingBarrierTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchingBarrierTests.swift; sourceTree = "<group>"; };
 		EC8EF87D2E1810A000DB89C5 /* MockQueueMetrics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockQueueMetrics.swift; sourceTree = "<group>"; };
 		EC97BDD82CFDC41800D07B45 /* LifecycleServiceBaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LifecycleServiceBaseTests.swift; sourceTree = "<group>"; };
@@ -2941,6 +2946,7 @@
 		D54BC0072C78C34F003687C7 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				EC8CF8E92F3CCFCB00812410 /* LenientConvertersTests.swift */,
 				486956A42A449A8B0014AC58 /* DataInputTests.swift */,
 				157293242AB06BF50015A08D /* DataItemTests.swift */,
 				87795FD52C6BC52B00FEB0D6 /* DataItem+StringValueTests.swift */,
@@ -5185,6 +5191,7 @@
 				ECBF304F2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift in Sources */,
 				87EF5ACC2CE3A4BD00DB753C /* ModuleProxyTests.swift in Sources */,
 				1532E7D92B1F49A70071327A /* Operators+TakeWhileTests.swift in Sources */,
+				EC8CF8ED2F3CCFCB00812410 /* LenientConvertersTests.swift in Sources */,
 				EC7FDCFC2F115F5F008A4D45 /* ConnectivityBarrierSettingsBuilderTests.swift in Sources */,
 				EC7FDCFD2F115F5F008A4D45 /* BarrierSettingsBuilderTests.swift in Sources */,
 				EC7FDCFE2F115F5F008A4D45 /* BarrierFactoryTests.swift in Sources */,
@@ -5585,6 +5592,7 @@
 				87A4090D2E97F06E005D92CC /* DeepLinkModuleTests.swift in Sources */,
 				87A4090E2E97F06E005D92CC /* TransformerCoordinatorTests.swift in Sources */,
 				87A4090F2E97F06E005D92CC /* SQLQueueRepositoryTests.swift in Sources */,
+				EC8CF8EA2F3CCFCB00812410 /* LenientConvertersTests.swift in Sources */,
 				87A409102E97F06E005D92CC /* TransformationOperationTests.swift in Sources */,
 				87A409112E97F06E005D92CC /* DataObject+DeepMergeTests.swift in Sources */,
 				87A409122E97F06E005D92CC /* BatchingBarrierTests.swift in Sources */,
@@ -6103,6 +6111,7 @@
 				EC0E52D62D887F77002B0FD8 /* DataObject+DeepMergeTests.swift in Sources */,
 				EC8EF87C2E18104D00DB89C5 /* BatchingBarrierTests.swift in Sources */,
 				8765C27E2EA8EAE20022DB59 /* JSONObjectPathParseTests.swift in Sources */,
+				EC8CF8EC2F3CCFCB00812410 /* LenientConvertersTests.swift in Sources */,
 				87BA6D852C6A470C00784784 /* Operators+TakeWhileTests.swift in Sources */,
 				ECAB83612DB0124E00B2CF64 /* DeepLinkModuleConfigurationTests.swift in Sources */,
 				ECDE37EB2E0EF9C5008F89E1 /* XCTAssert+ObservedValue.swift in Sources */,
@@ -6345,6 +6354,7 @@
 				87BA6DFE2C6A47AF00784784 /* Operators+QueuesTests.swift in Sources */,
 				EC8EF87B2E18104D00DB89C5 /* BatchingBarrierTests.swift in Sources */,
 				8765C27B2EA8EAE20022DB59 /* JSONObjectPathParseTests.swift in Sources */,
+				EC8CF8EB2F3CCFCB00812410 /* LenientConvertersTests.swift in Sources */,
 				ECAB835F2DB0124E00B2CF64 /* DeepLinkModuleConfigurationTests.swift in Sources */,
 				ECAB83602DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift in Sources */,
 				ECDE37EA2E0EF9C5008F89E1 /* XCTAssert+ObservedValue.swift in Sources */,
