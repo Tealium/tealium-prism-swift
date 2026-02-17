@@ -8,7 +8,7 @@
 
 import Foundation
 
-//TODO: Change how this expiry works. after(Date) needs to be after(milliseconds: Int64). Change Expiry to rawValue Int64 and use the raw value to store in Settings, while still using the expiryTime() to use the Expiry with the DataStore. the after part of the switch will probably change to Date() + milliseconds or something like that.
+// TODO: Change how this expiry works. after(Date) needs to be after(milliseconds: Int64). Change Expiry to rawValue Int64 and use the raw value to store in Settings, while still using the expiryTime() to use the Expiry with the DataStore. the after part of the switch will probably change to Date() + milliseconds or something like that.
 /// The expiration type of some persisted value.
 public enum Expiry: Equatable {
     /// Expires when the session ends.

@@ -18,8 +18,8 @@ public extension Modules.Types {
 
 public extension Modules {
     static func javaScriptTransformer(forcingSettings block: EnforcingSettings<ModuleSettingsBuilder> = { $0 }) -> some ModuleFactory {
-        DefaultModuleFactory<JavaScriptTransformer>(moduleType: Modules.Types.javaScriptTransformer,
-                                                    enforcedSettings: block(ModuleSettingsBuilder()).build())
+        BasicModuleFactory<JavaScriptTransformer>(moduleType: Modules.Types.javaScriptTransformer,
+                                                  enforcedSettings: block(ModuleSettingsBuilder()).build())
     }
 }
 #endif

@@ -54,7 +54,7 @@ class PersistDataValueTransformer: Transformer, BasicModule {
         case .reference(let reference):
             payload.extractDataItem(path: reference.path)
         case .constant(let value):
-            DataItem(value: value.value)
+            value.value
         }
 
         guard let valueToStore else {
