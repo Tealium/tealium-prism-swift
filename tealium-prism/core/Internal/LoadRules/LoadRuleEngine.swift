@@ -73,14 +73,11 @@ class LoadRuleEngine {
 
     static func expand(rule: Rule<String>, with loadRules: [String: Rule<Matchable>], moduleId: String) -> Rule<Matchable> {
         rule.asMatchable { id in
-            if id.lowercased() == "all" {
+            guard id.lowercased() != "all" else {
                 return .just(AlwaysTrue())
-            } else if let rule = loadRules[id] {
-                return rule
-            } else {
-                // In case of no load rule found we default to the rule throwing for any payload
-                return .just(AlwaysThrowingRuleNotFound(ruleId: id, moduleId: moduleId))
             }
+            // In case of no load rule found we default to the rule throwing for any payload
+            return loadRules[id] ?? .just(AlwaysThrowingRuleNotFound(ruleId: id, moduleId: moduleId))
         }
     }
 }

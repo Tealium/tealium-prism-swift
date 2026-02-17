@@ -41,9 +41,9 @@ final class ModuleSettingsBuilderTests: XCTestCase {
 
     func test_build_returns_mappings_when_passed() {
         let build = builder
-            .setMappings([
-                .from("inputVariable", to: "destinationVariable")
-            ])
+            .setMappings({ mappings in
+                mappings.mapFrom("inputVariable", to: "destinationVariable")
+            })
             .build()
         XCTAssertEqual(build, [
             "configuration": DataObject(),
@@ -69,4 +69,46 @@ final class ModuleSettingsBuilderTests: XCTestCase {
             "module_id": "ModuleID"
         ])
     }
+
+    func test_custom_builder_can_use_custom_and_inherited_mappings() {
+        let build = CustomSettingsBuilder()
+            .setMappings { mappings in
+                mappings.mapConstant(42, to: "constant_key")
+                mappings.mapParamItem("item_key")
+            }
+            .setEnabled(true)
+            .build()
+
+        XCTAssertEqual(build, [
+            "enabled": true,
+            "configuration": DataObject(),
+            "mappings": try DataItem(serializing: [[
+                "destination": [
+                    "key": "constant_key"
+                ],
+                "parameters": [
+                    "map_to": [
+                        "value": 42
+                    ]
+                ]
+            ], [
+                "destination": [
+                    "path": "param.item_key"
+                ],
+                "parameters": [
+                    "reference": [
+                        "key": "source_key"
+                    ]
+                ]
+            ]])
+        ])
+    }
 }
+
+class CustomMappings: Mappings {
+    public func mapParamItem(_ item: String) {
+        mapFrom("source_key", to: JSONPath["param"][item])
+    }
+}
+
+class CustomSettingsBuilder: DispatcherSettingsBuilder<CustomMappings> {}

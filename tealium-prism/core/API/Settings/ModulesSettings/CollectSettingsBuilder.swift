@@ -9,7 +9,7 @@
 import Foundation
 
 /// A builder used to enforce some of the `CollectSettings`.
-public class CollectSettingsBuilder: DispatcherSettingsBuilder,
+public class CollectSettingsBuilder: DispatcherSettingsBuilder<Mappings>,
                                      MultipleInstancesModuleSettingsBuilder {
     typealias Keys = CollectModuleConfiguration.Keys
 

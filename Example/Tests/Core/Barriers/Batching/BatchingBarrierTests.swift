@@ -1,6 +1,6 @@
 //
 //  BatchingBarrierTests.swift
-//  tealium-prism
+//  tealium-prism_Tests
 //
 //  Created by Den Guzov on 04/07/2025.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
@@ -15,7 +15,7 @@ final class BatchingBarrierTests: XCTestCase {
     var dispatchers: ObservableState<[Dispatcher]>
     var testBatchSize: Int = 1
     lazy var barrier: BatchingBarrier = .init(queueMetrics: queueMetrics, dispatchers: dispatchers, configuration: [
-        BatchingSettings.Keys.batchSize: testBatchSize
+        BatchingBarrierConfiguration.Keys.batchSize: testBatchSize
     ])
 
     func test_onState_prefers_configured_batchSize_when_less_than_dispatchLimit() {
@@ -150,7 +150,7 @@ final class BatchingBarrierTests: XCTestCase {
 
     func test_updateConfiguration_sets_batch_size_to_new_value() {
         barrier.updateConfiguration([
-            BatchingSettings.Keys.batchSize: 2
+            BatchingBarrierConfiguration.Keys.batchSize: 2
         ])
         let barrierClosed = expectation(description: "Barrier should be closed")
         barrier.onState(for: MockDispatcher2.moduleType).subscribeOnce { state in
@@ -222,7 +222,34 @@ final class BatchingBarrierTests: XCTestCase {
             return
         }
         barrier.updateConfiguration([
-            BatchingSettings.Keys.batchSize: size
+            BatchingBarrierConfiguration.Keys.batchSize: size
         ])
+    }
+}
+
+// MARK: - Factory Tests
+extension BatchingBarrierTests {
+
+    func test_factory_sets_default_scopes() {
+        let factory = BatchingBarrier.Factory(defaultScopes: [.all])
+        XCTAssertEqual(factory.defaultScopes(), [.all])
+    }
+
+    func test_factory_with_enforced_settings() {
+        let enforcedSettings: DataObject = [
+            BatchingBarrierConfiguration.Keys.batchSize: 5
+        ]
+        let factory = BatchingBarrier.Factory(defaultScopes: [.all], enforcedSettings: enforcedSettings)
+        XCTAssertEqual(factory.getEnforcedSettings(), enforcedSettings)
+    }
+
+    func test_factory_without_enforced_settings() {
+        let factory = BatchingBarrier.Factory(defaultScopes: [.all])
+        XCTAssertEqual(factory.getEnforcedSettings(), [:])
+    }
+
+    func test_factory_id_matches_barrier_id() {
+        let factory = BatchingBarrier.Factory(defaultScopes: [])
+        XCTAssertEqual(factory.id, BatchingBarrier.id)
     }
 }

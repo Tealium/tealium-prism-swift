@@ -48,10 +48,7 @@ class CustomCMP: CMPAdapter, ObservableObject {
 extension UserDefaults {
     var decisionType: ConsentDecision.DecisionType? {
         get {
-            guard let type = string(forKey: "decision_type") else {
-                return nil
-            }
-            return ConsentDecision.DecisionType(rawValue: type)
+            string(forKey: "decision_type").flatMap { ConsentDecision.DecisionType(rawValue: $0) }
         }
         set {
             set(newValue?.rawValue, forKey: "decision_type")
@@ -59,10 +56,7 @@ extension UserDefaults {
     }
     var purposes: [String]? {
         get {
-            guard let purposes = array(forKey: "purposes") as? [String] else {
-                return nil
-            }
-            return purposes
+            array(forKey: "purposes") as? [String]
         }
         set {
             set(newValue, forKey: "purposes")

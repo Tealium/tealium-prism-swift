@@ -11,11 +11,11 @@ import XCTest
 
 final class MappingParametersTests: XCTestCase {
 
-    let basicParameters = MappingParameters(reference: .key("key"),
+    let basicParameters = MappingParameters(reference: ReferenceContainer(key: "key"),
                                             filter: nil,
                                             mapTo: nil)
-    let detailedParameters = MappingParameters(reference: .path(JSONPath["somePath"]["key"]),
-                                               filter: ValueContainer("someFilter"),
+    let detailedParameters = MappingParameters(reference: ReferenceContainer(path: JSONPath["somePath"]["key"]),
+                                               filter: StringContainer("someFilter"),
                                                mapTo: ValueContainer("someMapValue"))
 
     func test_toDataObject_on_detailedParameters_returns_complete_object() throws {
@@ -49,11 +49,11 @@ final class MappingParametersTests: XCTestCase {
     func test_init_from_converter_succeeds() {
         let item = DataItem(value: ["reference": ["path": "somePath.key"],
                                     "filter": ["value": "someFilter"],
-                                    "map_to": ["value": "someMapValue"]])
+                                    "map_to": ["value": true]])
         let result = MappingParameters.converter.convert(dataItem: item)
         XCTAssertEqual(result?.reference?.path, JSONPath["somePath"]["key"])
         XCTAssertEqual(result?.filter?.value, "someFilter")
-        XCTAssertEqual(result?.mapTo?.value, "someMapValue")
+        XCTAssertEqual(result?.mapTo?.value.get(), true)
     }
 
     func test_init_from_converter_fails_if_item_is_not_an_object() {

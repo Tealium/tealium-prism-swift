@@ -45,18 +45,25 @@ public enum TransformationScope: RawRepresentable, Codable, Equatable {
 
 /// Configuration for a data transformation.
 public struct TransformationSettings {
+    /// Unique identifier for this transformation.
     public let id: String
+    /// Identifier of the transformer to use.
     public let transformerId: String
+    /// Scopes where this transformation applies.
     public let scopes: [TransformationScope]
+    /// Configuration data for the transformer.
     public let configuration: DataObject
+    /// Optional conditions for when to apply the transformation.
     public let conditions: Rule<Condition>?
-    /// Creates transformation settings with the specified parameters.
-    /// - Parameters:
-    ///   - id: Unique identifier for this transformation.
-    ///   - transformerId: Identifier of the transformer to use.
-    ///   - scopes: Scopes where this transformation applies.
-    ///   - configuration: Configuration data for the transformer.
-    ///   - conditions: Optional conditions for when to apply the transformation.
+    /**
+     * Creates transformation settings with the specified parameters.
+     * - Parameters:
+     *   - id: Unique identifier for this transformation.
+     *   - transformerId: Identifier of the transformer to use.
+     *   - scopes: Scopes where this transformation applies.
+     *   - configuration: Configuration data for the transformer.
+     *   - conditions: Optional conditions for when to apply the transformation.
+     */
     public init(id: String,
                 transformerId: String,
                 scopes: [TransformationScope],
@@ -69,6 +76,11 @@ public struct TransformationSettings {
         self.conditions = conditions
     }
 
+    /**
+     * Determines if this transformation applies to the given dispatch scope.
+     * - Parameter dispatchScope: The scope to check against.
+     * - Returns: `true` if the transformation applies to the scope, `false` otherwise.
+     */
     func matchesScope(_ dispatchScope: DispatchScope) -> Bool {
         self.scopes.contains { transformationScope in
             switch (transformationScope, dispatchScope) {
@@ -84,6 +96,12 @@ public struct TransformationSettings {
         }
     }
 
+    /**
+     * Determines if this transformation should be applied to the given dispatch.
+     * - Parameter dispatch: The dispatch to check against.
+     * - Returns: `true` if the transformation should be applied, `false` otherwise.
+     * - Throws: An error if condition evaluation fails.
+     */
     func matchesDispatch(_ dispatch: Dispatch) throws -> Bool {
         guard let conditions else {
             return true
@@ -91,10 +109,15 @@ public struct TransformationSettings {
         return try conditions.asMatchable().matches(payload: dispatch.payload)
     }
 
+    /**
+     * Creates a composite key combining the transformer ID and transformation ID.
+     * - Returns: A string key in the format "transformerId-id".
+     */
     func compositeKey() -> String {
         "\(transformerId)-\(id)"
     }
 
+    /// Keys used for data serialization and deserialization.
     enum Keys {
         static let id = "transformation_id"
         static let transformerId = "transformer_id"
@@ -118,6 +141,7 @@ extension TransformationSettings: DataObjectConvertible {
 }
 
 extension TransformationSettings {
+    /// Converter for creating TransformationSettings from DataItem.
     struct Converter: DataItemConverter {
         typealias Convertible = TransformationSettings
         func convert(dataItem: DataItem) -> Convertible? {

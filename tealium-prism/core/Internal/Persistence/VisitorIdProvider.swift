@@ -145,21 +145,23 @@ class VisitorIdProvider {
     }
 
     /**
-     * Returns a new or existing visitor id.
+     * Returns a new or existing visitor ID.
      *
      * It will follow this order of preference:
-     *  1. The existing visitor id from visitor storage.
-     *  2. A visitor id that is able to be migrated from a previous sdk version during an upgrade.
-     *  3. The user configured `TealiumConfig.existingVisitorId`; Only relevant on first launch when
-     *  there isn't any existing visitor id.
-     *  4. A brand new anonymous visitor id.
+     *  1. The existing visitor ID from visitor storage.
+     *  2. A visitor ID that is able to be migrated from a previous sdk version during an upgrade.
+     *  3. The user configured `TealiumConfig.existingVisitorId` if it's neither empty nor blank; Only relevant on first launch
+     *  when there isn't any stored visitor ID yet.
+     *  4. A brand new anonymous visitor ID.
      */
     private static func getOrCreateVisitorId(visitorStorage: VisitorStorage, existingVisitorId: String?) -> String {
         if let storedVisitorId = visitorStorage.visitorId {
             return storedVisitorId
         }
-        let visitorId = existingVisitorId ?? generateVisitorId()
-        return visitorId
+        if let existingVisitorId, !existingVisitorId.isBlank {
+            return existingVisitorId
+        }
+        return generateVisitorId()
     }
 
     private static func generateVisitorId(_ uuid: UUID = UUID()) -> String {

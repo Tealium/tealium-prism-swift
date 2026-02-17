@@ -17,7 +17,7 @@ public protocol NetworkClient {
      *
      * - Parameters:
      *    - request: the `URLRequest` that is sent in the `URLSession.dataTask`
-     *    - completion: the block that is called once the request is completed either with a success or with an unretriable error
+     *    - completion: the block that is called once the request is completed either with a success or with an unretryable error
      *
      * - Returns: the `Disposable` that can be used to dispose the request and cancel the dataTask and future retries.
      */
@@ -77,7 +77,7 @@ public class HTTPClient: NetworkClient {
 
     public func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> Disposable {
         let signposterInterval = TealiumSignpostInterval(signposter: .httpClient, name: "Interceptable Request")
-            .begin("Send Request: \(request)")
+            .begin("\(request)")
         return self.sendRetryableRequest(request) { result in
             signposterInterval.end("\(result)")
             completion(result)
@@ -119,7 +119,7 @@ public class HTTPClient: NetworkClient {
         logger?.trace(category: LogCategory.httpClient,
                       "Sending request \(request)")
         let signposterInterval = TealiumSignpostInterval(signposter: .httpClient, name: "Request")
-            .begin("HTTP Request: \(request)")
+            .begin("\(request)")
         return session.send(request) { [weak self] result in
             signposterInterval.end("\(result)")
             self?.logger?.log(level: result.logLevel(),

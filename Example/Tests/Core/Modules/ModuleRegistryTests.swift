@@ -32,6 +32,7 @@ class ModuleRegistryTests: XCTestCase {
         Modules.Types.connectivityData,
         Modules.Types.timeData,
         Modules.Types.lifecycle,
+        Modules.Types.momentsAPI,
         Modules.Types.setDataValuesTransformer,
         Modules.Types.persistDataValueTransformer,
         Modules.Types.lowerCaseTransformer

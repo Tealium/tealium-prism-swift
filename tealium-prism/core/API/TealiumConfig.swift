@@ -100,13 +100,24 @@ public struct TealiumConfig {
                 return (moduleSettings.get(key: ModuleSettings.Keys.moduleId) ?? factory.moduleType, moduleSettings)
             }
         }
-        // TODO: Add barriers
+        let barriersSettingsKeyValue: [(barrierId: String, barrierSettings: DataObject)] = barriers.compactMap { factory in
+            var barrierSettings = factory.getEnforcedSettings()
+            guard !barrierSettings.keys.isEmpty else {
+                return nil
+            }
+            barrierSettings.set(factory.id, key: BarrierSettings.Keys.barrierId)
+            return (factory.id, barrierSettings)
+        }
         if let coreSettings {
             accumulator.set(converting: coreSettings, key: SDKSettings.Keys.core)
         }
         if !modulesSettingsKeyValue.isEmpty {
             let modulesSettings = [String: DataObject](modulesSettingsKeyValue, prefersFirst: true)
             accumulator.set(converting: modulesSettings, key: SDKSettings.Keys.modules)
+        }
+        if !barriersSettingsKeyValue.isEmpty {
+            let barriersSettings = [String: DataObject](barriersSettingsKeyValue, prefersFirst: true)
+            accumulator.set(converting: barriersSettings, key: SDKSettings.Keys.barriers)
         }
         if !loadRules.keys.isEmpty {
             accumulator.set(converting: loadRules, key: SDKSettings.Keys.loadRules)

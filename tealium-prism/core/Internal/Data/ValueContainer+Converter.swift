@@ -2,8 +2,8 @@
 //  ValueContainer+Converter.swift
 //  tealium-prism
 //
-//  Created by Enrico Zannini on 31/10/25.
-//  Copyright © 2025 Tealium, Inc. All rights reserved.
+//  Created by Den Guzov on 28/01/2026.
+//  Copyright © 2026 Tealium, Inc. All rights reserved.
 //
 
 import Foundation
@@ -13,10 +13,10 @@ extension ValueContainer {
         typealias Convertible = ValueContainer
         func convert(dataItem: DataItem) -> Convertible? {
             guard let object = dataItem.getDataDictionary(),
-                  let value = object.get(key: Keys.value, as: String.self) else {
+                  let value = object.getDataItem(key: Keys.value) else {
                 return nil
             }
-            return ValueContainer(value)
+            return ValueContainer(item: value)
         }
     }
 

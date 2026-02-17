@@ -36,9 +36,9 @@ class TealiumImpl {
                                    queue: queue)
         let client = config.networkClient.newClient(withLogger: logger)
         let networkHelper = NetworkHelper(networkClient: client, logger: logger)
-        let dataStore = try storeProvider.getModuleStore(name: CoreSettings.id)
+        let sharedDataStore = try storeProvider.getSharedDataStore()
         let settingsManager = try SettingsManager(config: config,
-                                                  dataStore: dataStore,
+                                                  dataStore: sharedDataStore,
                                                   networkHelper: networkHelper,
                                                   logger: logger)
         settingsManager.startRefreshing(onActivity: config.appStatusListener
@@ -55,7 +55,7 @@ class TealiumImpl {
         logger.debug(category: LogCategory.tealium, "Purging expired data from the database")
         storeProvider.modulesRepository.deleteExpired(expiry: .restart)
         let sessionManager = SessionManager(debouncer: Debouncer(queue: queue),
-                                            dataStore: dataStore,
+                                            dataStore: sharedDataStore,
                                             moduleRepository: storeProvider.modulesRepository,
                                             sessionTimeout: coreSettings.mapState { $0.sessionTimeout },
                                             logger: logger)
@@ -106,7 +106,7 @@ class TealiumImpl {
         self.tracker = tracker
 
         visitorIdProvider = VisitorIdProvider(config: config,
-                                              visitorDataStore: try storeProvider.getModuleStore(name: "visitor"),
+                                              visitorDataStore: sharedDataStore,
                                               logger: logger)
         let dataLayerStore = try storeProvider.getModuleStore(name: Modules.Types.dataLayer)
         VisitorSwitcher.handleIdentitySwitches(visitorIdProvider: visitorIdProvider,
@@ -118,8 +118,8 @@ class TealiumImpl {
                                       config: config,
                                       coreSettings: coreSettings,
                                       tracker: tracker,
-                                      barrierRegistry: barrierManager,
-                                      transformerRegistry: transformerCoordinator,
+                                      barrierRegistrar: barrierManager,
+                                      transformerRegistrar: transformerCoordinator,
                                       databaseProvider: storeProvider.databaseProvider,
                                       moduleStoreProvider: storeProvider,
                                       logger: logger,

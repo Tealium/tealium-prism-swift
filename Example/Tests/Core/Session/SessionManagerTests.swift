@@ -23,7 +23,7 @@ final class SessionManagerTests: XCTestCase {
     func createSessionManager(debouncer: DebouncerProtocol = Debouncer(queue: .main),
                               timestamp: Int64 = Date().unixTimeMilliseconds) -> SessionManager? {
         do {
-            let store = try storeProvider.getModuleStore(name: "core")
+            let store = try storeProvider.getSharedDataStore()
             return SessionManager(debouncer: debouncer,
                                   dataStore: store,
                                   moduleRepository: moduleRepository,

@@ -29,17 +29,6 @@
                ReferencedContainer = "container:tealium-prism.xcodeproj">
             </BuildableReference>
          </TestableReference>
-         <TestableReference
-            skipped = "NO"
-            parallelizable = "YES">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "8702A2752E266E64001C9743"
-               BuildableName = "EndToEndTests_iOS.xctest"
-               BlueprintName = "EndToEndTests_iOS"
-               ReferencedContainer = "container:tealium-prism.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
       </Testables>
    </TestAction>
    <LaunchAction

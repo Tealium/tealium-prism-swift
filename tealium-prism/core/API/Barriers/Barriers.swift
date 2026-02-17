@@ -14,17 +14,34 @@ import Foundation
  * Some barriers are added to the system by default, but remain accessible here to allow users to
  * override the "scopes" that they apply to.
  */
-public enum Barriers {
+public enum Barriers {}
+
+public extension Barriers {
+    /**
+     * A block with a utility builder that can be used to enforce some of the `BarrierSettings` instead of relying on Local or Remote settings.
+     * Only the settings built with this builder will be enforced and remain constant during the lifecycle of the `Barrier`,
+     * other settings will still be affected by Local and Remote settings and updates.
+     */
+    typealias EnforcingSettings<Builder> = (_ enforcedSettings: Builder) -> Builder
 
     /**
      * Returns the `BarrierFactory` for creating the "ConnectivityBarrier". Use this barrier to only
      * dispatch events when connectivity is required.
      *
-     * - parameter defaultScopes: Set of `BarrierScope`s to use by default in case no other scope was
-     * configured in the settings.
+     * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
+     *
+     * By default, this barrier is active and scoped to Collect module.
+     * You can call the following method to programmatically change the scope (or other barrier settings),
+     * or you can use local/remote settings configuration instead.
+     * ```swift
+     *  config.addBarrier(Barriers.connectivity(forcingSettings: { enforcedSettings in
+     *      enforcedSettings.setScopes([]) // setting empty scopes deactivates the barrier
+     *  }))
+     * ```
      */
-    public static func connectivity(defaultScopes: [BarrierScope] = [.dispatcher(id: Modules.Types.collect)]) -> some BarrierFactory {
-        ConnectivityBarrier.Factory(defaultScopes: defaultScopes)
+    static func connectivity(forcingSettings block: EnforcingSettings<ConnectivityBarrierSettingsBuilder>? = { $0 }) -> some BarrierFactory {
+        ConnectivityBarrier.Factory(defaultScopes: [.dispatcher(id: Modules.Types.collect)],
+                                    enforcedSettings: block?(ConnectivityBarrierSettingsBuilder()).build())
     }
 
     /**
@@ -32,10 +49,23 @@ public enum Barriers {
      * dispatch events when a certain number of queued events has been reached for any of the
      * `Dispatcher` in scope.
      *
-     * - parameter defaultScopes: Set of `BarrierScope`s to use by default in case no other scope was
-     * configured in the settings.
+     * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
+     *
+     * By default, this barrier is not scoped to any module, thus being not active, until you call the following method or provide some scopes with local or remote settings.
+     * ```swift
+     *  config.addBarrier(Barriers.batching())
+     * ```
+     * Without any enforced settings passed BatchingBarrier will be scoped to Collect module automatically.
+     * That default scope can be overwritten using programmatic/remote/local settings configuration.
+     * Example of programmatic approach:
+     * ```swift
+     *  config.addBarrier(Barriers.batching(forcingSettings: { enforcedSettings in
+     *      enforcedSettings.setScopes([.dispatcher(id: "MyDispatcher")])
+     *  }))
+     * ```
      */
-    public static func batching(defaultScopes: [BarrierScope] = [.all]) -> some BarrierFactory {
-        BatchingBarrier.Factory(defaultScopes: defaultScopes)
+    static func batching(forcingSettings block: EnforcingSettings<BatchingBarrierSettingsBuilder>? = { $0 }) -> some BarrierFactory {
+        BatchingBarrier.Factory(defaultScopes: [.dispatcher(id: Modules.Types.collect)],
+                                enforcedSettings: block?(BatchingBarrierSettingsBuilder()).build())
     }
 }

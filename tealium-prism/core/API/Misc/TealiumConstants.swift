@@ -14,7 +14,7 @@ public enum TealiumConstants {
     /// The name of this Tealium library.
     public static let libraryName = "prism-swift"
     /// The version of this Tealium library.
-    public static let libraryVersion = "0.2.0"
+    public static let libraryVersion = "0.3.0"
     /// A constant representing an unknown value as a string.
     public static let unknown = "unknown"
 
@@ -23,6 +23,7 @@ public enum TealiumConstants {
     static let forceEndOfVisitQueryParam = "kill_visitor_session"
     static let leaveTraceQueryParam = "leave_trace"
     static let deepLinkEvent = "deep_link"
+    static let subsystem = "com.tealium.prism"
 }
 
 /// Keys used for data in Tealium tracking events.
@@ -77,6 +78,8 @@ public extension TealiumDataKey {
     /// The trace ID for debugging. The same value will be keyed by `cp.trace_id` (see `cpTraceId` key).
     /// Both keys should be kept and their associated values should be in sync. (see `Trace`)
     static let tealiumTraceId = "tealium_trace_id"
+    /// Mapping destination for commands used by Remote Command Dispatchers.
+    static let commandName = "command_name"
 }
 
 enum ConditionOperators {

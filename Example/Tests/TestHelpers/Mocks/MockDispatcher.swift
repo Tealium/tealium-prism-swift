@@ -146,3 +146,14 @@ class MockDispatcher2: MockDispatcher {
         self.dispatchLimit = dispatchLimit
     }
 }
+
+class MockDispatcher3: MockDispatcher {
+    override var dispatchLimit: Int {
+        get {
+            10
+        }
+        set {
+            // do nothing
+        }
+    }
+}

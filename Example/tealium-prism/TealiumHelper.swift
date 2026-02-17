@@ -27,7 +27,7 @@ class TealiumHelper {
 
     func createTeal() -> Tealium {
         var config = TealiumConfig(account: "tealiummobile",
-                                   profile: "enrico-test",
+                                   profile: "demo",
                                    environment: "dev",
                                    modules: createModuleFactories(),
                                    settingsFile: "TealiumSettings",

@@ -16,10 +16,10 @@ public protocol Transformer: Module {
 }
 
 /**
- * The `TransformerRegistry` is responsible for registering and unregistering additional
+ * The `TransformerRegistrar` is responsible for registering and unregistering additional
  * `TransformationSettings`s outside of those provided by the main SDK settings.
  */
-public protocol TransformerRegistry {
+public protocol TransformerRegistrar {
     /**
      * Registers an additional `TransformationSettings`.
      *

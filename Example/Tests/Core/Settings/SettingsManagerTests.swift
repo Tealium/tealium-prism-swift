@@ -97,10 +97,10 @@ final class SettingsManagerTests: SettingsManagerTestCase {
     func test_onNewSettingsMerged_publishes_merged_settings_on_remote_refresh() throws {
         let settingsRefreshed = expectation(description: "Settings are refreshed")
         addMockDispatcher()
-        networkHelper.codableResult = .success(.successful(object: DataObject(dictionary: [
+        try networkHelper.encodeResult(DataObject(dictionary: [
             "modules": buildModulesSettings(moduleType: "remote",
                                             additionalProperties: ["key": "value"])
-        ])))
+        ]))
         let manager = try setupForLocal(url: "someUrl")
         guard let refresher = manager.resourceRefresher else {
             XCTFail("Refresher unexpectedly found nil")
@@ -151,7 +151,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         let refreshIntervalUpdated = expectation(description: "RefreshInterval is updated")
         refreshIntervalUpdated.expectedFulfillmentCount = 2
         addMockDispatcher()
-        networkHelper.codableResult = .success(.successful(object: DataObject(dictionary: [CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: Double(100)]])))
+        try networkHelper.encodeResult(DataObject(dictionary: [CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: Double(100)]]))
         let manager = try setupForLocal(url: "someUrl")
         var firstInterval = true
         _ = manager.onNewRefreshInterval().subscribe { newInterval in
@@ -174,7 +174,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         let sdkSettings: DataObject = ["modules": [
             CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: CoreSettings.Defaults.refreshInterval.inSeconds()]
         ]]
-        networkHelper.codableResult = .success(.successful(object: sdkSettings))
+        try networkHelper.encodeResult(sdkSettings)
         _ = manager.onNewRefreshInterval().subscribe { newInterval in
             XCTAssertEqual(newInterval, 900.seconds)
             refreshIntervalUpdated.fulfill()
@@ -230,7 +230,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
                 "configuration": [CoreSettings.Keys.refreshIntervalSeconds: Double(0)]
             ]
         ]
-        networkHelper.codableResult = .success(.successful(object: settings))
+        try networkHelper.encodeResult(settings)
         let manager = try getManager(url: "someUrl")
         _ = manager.settings.subscribe { _ in
             settingsUpdatedOnlyOnce.fulfill()
@@ -243,7 +243,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
             ]])
         }
         for count in 0..<3 {
-            networkHelper.codableResult = .success(.successful(object: newSettings(count: count)))
+            try networkHelper.encodeResult(newSettings(count: count))
             manager.startRefreshing(onActivity: Observables.empty())
         }
         waitForDefaultTimeout()

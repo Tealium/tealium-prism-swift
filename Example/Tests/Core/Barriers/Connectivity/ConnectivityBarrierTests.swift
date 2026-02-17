@@ -58,7 +58,7 @@ final class ConnectivityBarrierTests: XCTestCase {
 
     func test_connectivity_barrier_is_closed_when_connection_is_cellular_with_wifiOnly() {
         let isInClosedState = expectation(description: "Barrier is in closed state")
-        configuration.set(true, key: ConnectivityBarrierSettings.Keys.wifiOnly)
+        configuration.set(true, key: ConnectivityBarrierConfiguration.Keys.wifiOnly)
         manager.mockConnectivityMonitor.changeConnection(.connected(.cellular))
         barrier.onState(for: "").subscribeOnce { state in
             XCTAssertEqual(state, .closed)
@@ -70,7 +70,7 @@ final class ConnectivityBarrierTests: XCTestCase {
     func test_connectivity_barrier_closes_when_connection_becomes_cellular_with_wifiOnly() {
         let onStateChanged = expectation(description: "On State changed")
         onStateChanged.expectedFulfillmentCount = 2
-        configuration.set(true, key: ConnectivityBarrierSettings.Keys.wifiOnly)
+        configuration.set(true, key: ConnectivityBarrierConfiguration.Keys.wifiOnly)
         barrier.onState(for: "").subscribeOnce { state in
             XCTAssertEqual(state, .open)
             onStateChanged.fulfill()
@@ -91,7 +91,7 @@ final class ConnectivityBarrierTests: XCTestCase {
             XCTAssertEqual(state, .open)
             onStateChanged.fulfill()
         }
-        configuration.set(true, key: ConnectivityBarrierSettings.Keys.wifiOnly)
+        configuration.set(true, key: ConnectivityBarrierConfiguration.Keys.wifiOnly)
         barrier.updateConfiguration(configuration)
         barrier.onState(for: "").subscribeOnce { state in
             XCTAssertEqual(state, .closed)
@@ -147,5 +147,33 @@ final class ConnectivityBarrierTests: XCTestCase {
             flushable.fulfill()
         }
         waitForDefaultTimeout()
+    }
+}
+
+// MARK: - Factory Tests
+extension ConnectivityBarrierTests {
+
+    func test_factory_sets_default_scopes() {
+        let factory = ConnectivityBarrier.Factory(defaultScopes: [.all])
+        XCTAssertEqual(factory.defaultScopes(), [.all])
+    }
+
+    func test_factory_with_enforced_settings() {
+        let enforcedSettings: DataObject = [
+            ConnectivityBarrierConfiguration.Keys.wifiOnly: true
+        ]
+        let factory = ConnectivityBarrier.Factory(defaultScopes: [.all], enforcedSettings: enforcedSettings)
+
+        XCTAssertEqual(factory.getEnforcedSettings(), enforcedSettings)
+    }
+
+    func test_factory_without_enforced_settings() {
+        let factory = ConnectivityBarrier.Factory(defaultScopes: [.all])
+        XCTAssertEqual(factory.getEnforcedSettings(), [:])
+    }
+
+    func test_factory_id_matches_barrier_id() {
+        let factory = ConnectivityBarrier.Factory(defaultScopes: [])
+        XCTAssertEqual(factory.id, ConnectivityBarrier.id)
     }
 }

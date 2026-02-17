@@ -8,11 +8,34 @@
 
 import Foundation
 
+public class MappingsBuilder {
+    fileprivate var reference: ReferenceContainer?
+    fileprivate let destination: ReferenceContainer
+    fileprivate var filter: StringContainer?
+    fileprivate let mapTo: ValueContainer?
+
+    fileprivate init(reference: ReferenceContainer, destination: ReferenceContainer) {
+        self.reference = reference
+        self.destination = destination
+        self.mapTo = nil
+    }
+
+    fileprivate init(constant: DataInput, destination: ReferenceContainer) {
+        self.mapTo = ValueContainer(constant)
+        self.destination = destination
+    }
+
+    func build() -> MappingOperation {
+        let parameters = MappingParameters(reference: reference, filter: filter, mapTo: mapTo)
+        return MappingOperation(destination: destination, parameters: parameters)
+    }
+}
+
 /**
  * The `Mappings` builder is used to build up key/destination mappings used when optionally
  * translating the full `Dispatch` payload to just the relevant data for any given `Dispatcher`.
  *
- * Use the `from` method to supply the required source "key" and "destination" key, as
+ * Use the `mapFrom` method to supply the required source "key" and "destination" key, as
  * well as any optional "path" entries required to access keys in nested object.
  *
  * Using the following payload `DataObject` as an example (shown as JSON)
@@ -29,85 +52,76 @@ import Foundation
  *
  * Simple usage for keys in the top level `DataObject` would look like so:
  * ```swift
- * .from("source", to: "destination")
+ * mappings.mapFrom("source", to: "destination")
  * ```
  *
  * More complex versions requiring accessing keys that exist in nested objects and arrays would look like so:
  * ```swift
- * .from(JSONPath["path"]["to"][0]["source"],
- *       to: JSONPath["path"]["to"]["destination"])
+ * mappings.mapFrom(JSONPath["path"]["to"][0]["source"],
+ *                  to: JSONPath["path"]["to"]["destination"])
  * ```
  *
- * Use the `keep` utility method to create a `Mappings` that map the source `key` to the same `destination`.
+ * Use the `keep` utility method to create a mapping where the source `key` is the same as the `destination`.
  *
  * Simple usage for keys in the top level `DataObject` would look like so:
  * ```swift
- * .keep("source")
+ * mappings.keep("source")
  * ```
  *
  * More complex versions requiring accessing keys that exist in nested objects would look like so:
  * ```swift
- * .keep(JSONPath["path"]["to"][0]["source"])
+ * mappings.keep(JSONPath["path"]["to"][0]["source"])
  * ```
  *
- * The `from` and `keep` methods return a `VariableOptions` that allows for setting optional properties relevant to a mapping
+ * The `mapFrom` and `keep` methods return a `VariableOptions` that allows for setting optional properties relevant to a mapping
  * like a `ifValueEquals(:)`, to only perform the mapping if the value is equal to some specific string.
  *
  *
- * Use the `constant` method to supply a constant "value" and "destination" key.
+ * Use the `mapConstant` method to supply a constant "value" and "destination" key.
  *
  * ```swift
- * .constant("value", to: "destination")
+ * mappings.mapConstant("value", to: "destination")
  * ```
  *
  * More complex versions requiring accessing keys that exist in nested objects would look like so:
  * ```swift
- * .constant(value, to: JSONPath["path"]["to"]["destination"])
+ * mappings.mapConstant(value, to: JSONPath["path"]["to"]["destination"])
  * ```
  *
- * The `constant` method returns a `ConstantOptions` that allows for setting optional properties relevant to a mapping
+ * The `mapConstant` method returns a `ConstantOptions` that allows for setting optional properties relevant to a mapping
  * like a `ifValueIn(:equals:)`, to only perform the mapping if a value at the given `key` is equal to the given `target`.
  */
-public class Mappings {
-    fileprivate var reference: ReferenceContainer?
-    fileprivate let destination: ReferenceContainer
-    fileprivate var filter: ValueContainer?
-    fileprivate let mapTo: ValueContainer?
+open class Mappings {
+    var mappingsList: [MappingsBuilder] = []
 
-    fileprivate init(reference: ReferenceContainer, destination: ReferenceContainer) {
-        self.reference = reference
-        self.destination = destination
-        self.mapTo = nil
-    }
+    required public init() { }
 
-    fileprivate init(constant: String, destination: ReferenceContainer) {
-        self.mapTo = ValueContainer(constant)
-        self.destination = destination
-    }
-
-    /// Builds and returns a `MappingOperation` instance.
-    /// - Returns: The constructed transformation operation.
-    func build() -> MappingOperation {
-        let parameters = MappingParameters(reference: reference, filter: filter, mapTo: mapTo)
-        return MappingOperation(destination: destination, parameters: parameters)
+    /// Builds and returns an array of `MappingOperation` instances.
+    /// - Returns: The constructed transformation operations.
+    func build() -> [MappingOperation] {
+        mappingsList.map { $0.build() }
     }
 
     /// Some `Mappings` options that are mapping a key from the payload to a destination in the result payload.
-    public class VariableOptions: Mappings {
+    public class VariableOptions: MappingsBuilder {
+        override init(reference: ReferenceContainer, destination: ReferenceContainer) {
+            super.init(reference: reference, destination: destination)
+        }
         /**
          *  Sets a filter condition that the variable must match to be mapped.
          *
          *  - Parameter target: The target value that the variable needs to equal.
-         *  - Returns: The `Mappings` builder.
          */
-        public func ifValueEquals(_ target: String) -> Mappings {
-            self.filter = ValueContainer(target)
-            return self
+        public func ifValueEquals(_ target: String) {
+            self.filter = StringContainer(target)
         }
     }
 
     /// Some `Mappings` options that are mapping a constant value to a destination in the result payload.
-    public class ConstantOptions: Mappings {
+    public class ConstantOptions: MappingsBuilder {
+        override init(constant: DataInput, destination: ReferenceContainer) {
+            super.init(constant: constant, destination: destination)
+        }
         /**
          * Sets an optional basic condition that the value at the given mapping `path` needs to match
          * in order for this mapping to take place, where the variable may be found in a `path` at the root
@@ -116,12 +130,10 @@ public class Mappings {
          * - Parameters:
          *      - path: The `path` to take the value from when comparing against the expected `value`.
          *      - target: The target value that the source key should contain.
-         * - Returns: The `Mappings` builder.
          */
-        public func ifValueIn(_ path: JSONObjectPath, equals target: String) -> Mappings {
-            self.reference = ReferenceContainer.path(path)
-            self.filter = ValueContainer(target)
-            return self
+        public func ifValueIn(_ path: JSONObjectPath, equals target: String) {
+            self.reference = ReferenceContainer(path: path)
+            self.filter = StringContainer(target)
         }
 
         /**
@@ -131,12 +143,36 @@ public class Mappings {
          * - Parameters:
          *      - key: The `key` to take the value from when comparing against the expected `value`.
          *      - target: The target value that the source key should contain.
-         * - Returns: The `Mappings` builder.
          */
-        public func ifValueIn(_ key: String, equals target: String) -> Mappings {
-            self.reference = ReferenceContainer.key(key)
-            self.filter = ValueContainer(target)
-            return self
+        public func ifValueIn(_ key: String, equals target: String) {
+            self.reference = ReferenceContainer(key: key)
+            self.filter = StringContainer(target)
+        }
+    }
+
+    /// A `ConstantOptions` instance that is mapping a command name string to the "command_name" property in the result payload.
+    /// Intended to be used for so called Remote Command Dispatchers.
+    public class CommandOptions: ConstantOptions {
+        init(commandName: String) {
+            super.init(constant: commandName, destination: ReferenceContainer(key: TealiumDataKey.commandName))
+        }
+
+        /**
+         * Configures this command mapping to only apply to event-type dispatches.
+         * This adds a filter condition that checks if the event type equals "event".
+         */
+        public func forAllEvents() {
+            self.reference = ReferenceContainer(key: TealiumDataKey.eventType)
+            self.filter = StringContainer(DispatchType.event.rawValue)
+        }
+
+        /**
+         * Configures this command mapping to only apply to view-type dispatches.
+         * This adds a filter condition that checks if the event type equals "view".
+         */
+        public func forAllViews() {
+            self.reference = ReferenceContainer(key: TealiumDataKey.eventType)
+            self.filter = StringContainer(DispatchType.view.rawValue)
         }
     }
 }
@@ -150,8 +186,9 @@ public extension Mappings {
      *   - destination: The destination path to a variable in the data layer.
      * - Returns: A `VariableOptions` mapping operation builder.
      */
-    static func from(_ key: String, to destination: JSONObjectPath) -> VariableOptions {
-        VariableOptions(reference: .key(key), destination: .path(destination))
+    @discardableResult
+    func mapFrom(_ key: String, to destination: JSONObjectPath) -> VariableOptions {
+        mapFrom(ReferenceContainer(key: key), to: ReferenceContainer(path: destination))
     }
 
     /**
@@ -162,8 +199,9 @@ public extension Mappings {
      *   - destination: The destination path to a variable in the data layer.
      * - Returns: A `VariableOptions` mapping operation builder.
      */
-    static func from(_ path: JSONObjectPath, to destination: JSONObjectPath) -> VariableOptions {
-        VariableOptions(reference: .path(path), destination: .path(destination))
+    @discardableResult
+    func mapFrom(_ path: JSONObjectPath, to destination: JSONObjectPath) -> VariableOptions {
+        mapFrom(ReferenceContainer(path: path), to: ReferenceContainer(path: destination))
     }
 
     /**
@@ -174,8 +212,9 @@ public extension Mappings {
      *   - destination: The destination key to a variable in the data layer.
      * - Returns: A `VariableOptions` mapping operation builder.
      */
-    static func from(_ path: JSONObjectPath, to destination: String) -> VariableOptions {
-        VariableOptions(reference: .path(path), destination: .key(destination))
+    @discardableResult
+    func mapFrom(_ path: JSONObjectPath, to destination: String) -> VariableOptions {
+        mapFrom(ReferenceContainer(path: path), to: ReferenceContainer(key: destination))
     }
 
     /**
@@ -186,8 +225,9 @@ public extension Mappings {
      *   - destination: The destination key to a variable in the data layer.
      * - Returns: A `VariableOptions` mapping operation builder.
      */
-    static func from(_ key: String, to destination: String) -> VariableOptions {
-        VariableOptions(reference: .key(key), destination: .key(destination))
+    @discardableResult
+    func mapFrom(_ key: String, to destination: String) -> VariableOptions {
+        mapFrom(ReferenceContainer(key: key), to: ReferenceContainer(key: destination))
     }
 
     /**
@@ -196,8 +236,9 @@ public extension Mappings {
      * - Parameter key: The key to take the value from and also the destination to place it in the mapped payload.
      * - Returns: A `VariableOptions` mapping operation builder.
      */
-    static func keep(_ key: String) -> VariableOptions {
-        from(key, to: key)
+    @discardableResult
+    func keep(_ key: String) -> VariableOptions {
+        keep(ReferenceContainer(key: key))
     }
 
     /**
@@ -206,8 +247,9 @@ public extension Mappings {
      * - Parameter path: The path to take the value from and also the destination to place it in the mapped payload.
      * - Returns: A `VariableOptions` mapping operation builder.
      */
-    static func keep(_ path: JSONObjectPath) -> VariableOptions {
-        from(path, to: path)
+    @discardableResult
+    func keep(_ path: JSONObjectPath) -> VariableOptions {
+        keep(ReferenceContainer(path: path))
     }
 
     /**
@@ -221,8 +263,9 @@ public extension Mappings {
      *      - parameter destination: The destination path to store the mapped value.
      * - Returns: A `ConstantOptions` mapping operation builder.
      */
-    static func constant(_ value: String, to destination: JSONObjectPath) -> ConstantOptions {
-        ConstantOptions(constant: value, destination: .path(destination))
+    @discardableResult
+    func mapConstant(_ value: DataInput, to destination: JSONObjectPath) -> ConstantOptions {
+        mapConstant(value, to: ReferenceContainer(path: destination))
     }
 
     /**
@@ -235,7 +278,38 @@ public extension Mappings {
      *      - parameter destination: The destination key to store the mapped value.
      * - Returns: A `ConstantOptions` mapping operation builder.
      */
-    static func constant(_ value: String, to destination: String) -> ConstantOptions {
-        ConstantOptions(constant: value, destination: .key(destination))
+    @discardableResult
+    func mapConstant(_ value: DataInput, to destination: String) -> ConstantOptions {
+        mapConstant(value, to: ReferenceContainer(key: destination))
+    }
+
+    /**
+     * Adds a mapping where the value to map is given by the constant `name` and will be mapped to
+     * the "command_name" key located in the root of the data layer.
+     *
+     * - Parameter name: The command name to map to the "command_name" property key.
+     * - Returns: A `CommandOptions` mapping operation builder.
+     */
+    @discardableResult
+    func mapCommand(_ name: String) -> CommandOptions {
+        let builder = CommandOptions(commandName: name)
+        mappingsList.append(builder)
+        return builder
+    }
+
+    private func mapFrom(_ source: ReferenceContainer, to destination: ReferenceContainer) -> VariableOptions {
+        let builder = VariableOptions(reference: source, destination: destination)
+        mappingsList.append(builder)
+        return builder
+    }
+
+    private func mapConstant(_ value: DataInput, to destination: ReferenceContainer) -> ConstantOptions {
+        let builder = ConstantOptions(constant: value, destination: destination)
+        mappingsList.append(builder)
+        return builder
+    }
+
+    private func keep(_ reference: ReferenceContainer) -> VariableOptions {
+        mapFrom(reference, to: reference)
     }
 }

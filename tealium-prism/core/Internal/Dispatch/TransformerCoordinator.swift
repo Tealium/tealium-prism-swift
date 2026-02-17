@@ -16,7 +16,7 @@ import Foundation
  * The `transformations` are used to select the right transformer when we are transforming each event
  * and then are sent to the transformers.
  */
-class TransformerCoordinator: TransformerRegistry {
+class TransformerCoordinator: TransformerRegistrar {
     private var transformers: ObservableState<[Transformer]>
     /// The `TransformationSettings` defined in the `SDKSettings`.
     private let transformations: ObservableState<[TransformationSettings]>

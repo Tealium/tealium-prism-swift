@@ -53,9 +53,12 @@ class MockBarrier2: MockConfigurableBarrier {
 class MockBarrierFactory<SomeBarrier: MockConfigurableBarrier>: BarrierFactory {
     typealias BarrierType = SomeBarrier
     let _defaultScopes: [BarrierScope]
+    let enforcedSettings: DataObject
     let barrier = SomeBarrier()
-    init(defaultScope: [BarrierScope]) {
-        _defaultScopes = defaultScope
+
+    init(defaultScopes: [BarrierScope], enforcedSettings: DataObject? = nil) {
+        _defaultScopes = defaultScopes
+        self.enforcedSettings = enforcedSettings ?? [:]
     }
 
     func create(context: TealiumContext, configuration: DataObject) -> BarrierType {
@@ -65,5 +68,9 @@ class MockBarrierFactory<SomeBarrier: MockConfigurableBarrier>: BarrierFactory {
 
     func defaultScopes() -> [BarrierScope] {
         _defaultScopes
+    }
+
+    func getEnforcedSettings() -> DataObject {
+        enforcedSettings
     }
 }

@@ -10,28 +10,25 @@ import Foundation
 
 /// Utility class to create folders and get the path for a file for each specific account/profile.
 public class TealiumFileManager {
-    /// Returns the file path under application support/Tealium/account.profile/fileName
-    public static func getApplicationFilePath(for account: String, profile: String, fileName: String) -> String? {
-        return getApplicationFileUrl(for: account, profile: profile, fileName: fileName)?.path
-    }
 
-    /// Returns the file url under application support/Tealium/account.profile/fileName
+    /// Returns the file url under application support/tealium-prism/account/profile/fileName
     public static func getApplicationFileUrl(for account: String, profile: String, fileName: String) -> URL? {
         do {
-            let fullDirectory = try getTealiumApplicationFolder().appendingPathComponent("\(account).\(profile)")
-            if !FileManager.default.fileExists(atPath: fullDirectory.absoluteString, isDirectory: nil) {
-                try FileManager.default.createDirectory(at: fullDirectory, withIntermediateDirectories: true)
-            }
+            let fullDirectory = try getTealiumApplicationFolder()
+                .appendingPathComponent(account)
+                .appendingPathComponent(profile)
+            // According to docs there's no need to check for intermediate directories
+            try FileManager.default.createDirectory(at: fullDirectory, withIntermediateDirectories: true)
             return fullDirectory.appendingPathComponent(fileName)
         } catch {
             return nil
         }
     }
 
-    /// Returns the Tealium folder under the application support directory.
+    /// Returns the tealium-prism folder under the application support directory.
     public static func getTealiumApplicationFolder() throws -> URL {
         let appSupportDir = try FileManager.default.url(for: .applicationSupportDirectory, in: .userDomainMask, appropriateFor: nil, create: true)
-        return appSupportDir.appendingPathComponent("Tealium")
+        return appSupportDir.appendingPathComponent("tealium-prism")
     }
 
     /// Deletes the file at the provided path

@@ -155,7 +155,7 @@ The equivalent configuration in JSON format:
 
 ## Settings Builders Reference
 
-The Collect module uses the `CollectSettingsBuilder` for configuration. This is an extension of the `DispatcherSettingsBuilder` which offers common settings like:
+The Collect module uses the `CollectSettingsBuilder` for configuration. This is an extension of the `DispatcherSettingsBuilder<Mappings>` which offers common settings like:
 
 - `ModuleSettingsBuilder.setEnabled(_:)`
 - `ModuleSettingsBuilder.setOrder(_:)`

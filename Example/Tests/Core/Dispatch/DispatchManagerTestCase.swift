@@ -65,8 +65,8 @@ class DispatchManagerTestCase: XCTestCase {
     lazy var context = MockContext(modulesManager: modulesManager,
                                    config: config,
                                    coreSettings: coreSettings,
-                                   barrierRegistry: barrierManager,
-                                   transformerRegistry: transformerCoordinator,
+                                   barrierRegistrar: barrierManager,
+                                   transformerRegistrar: transformerCoordinator,
                                    databaseProvider: databaseProvider,
                                    queue: queue)
     var consentManager: MockConsentManager?

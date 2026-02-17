@@ -33,7 +33,9 @@ extension URLSession {
      *  - Returns: the `URLSessionDataTask` that was just created and resumed
      */
     func send(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> URLSessionDataTask {
+        let interval = TealiumSignpostInterval(signposter: .httpClient, name: "DataTask").begin(request.url?.absoluteString ?? "")
         let task = dataTask(with: request) { data, response, error in
+            interval.end()
             if let error = error {
                 if let urlError = error as? URLError {
                     if urlError.code == .cancelled {
