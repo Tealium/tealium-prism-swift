@@ -33,11 +33,9 @@ class SetDataValuesTransformer: Transformer, BasicModule {
                 guard let item = payload.extractDataItem(path: reference.path) else {
                     continue
                 }
-                payload.buildPath(operation.destination.path,
-                                  andSet: item)
+                payload.buildPath(operation.destination.path, andSet: item)
             case .constant(let value):
-                payload.buildPath(operation.destination.path,
-                                  andSet: DataItem(value: value.value))
+                payload.buildPath(operation.destination.path, andSet: value.value)
             }
         }
         return Dispatch(payload: payload, id: dispatch.id, timestamp: dispatch.timestamp)

@@ -28,11 +28,11 @@ struct MappingParameters {
     }
 
     init(reference: String, filter: StringContainer?, mapTo: ValueContainer?) {
-        self.init(reference: ReferenceContainer(key: reference), filter: filter, mapTo: mapTo)
+        self.init(reference: .key(reference), filter: filter, mapTo: mapTo)
     }
 
     init(reference: JSONObjectPath, filter: StringContainer?, mapTo: ValueContainer?) {
-        self.init(reference: ReferenceContainer(path: reference), filter: filter, mapTo: mapTo)
+        self.init(reference: .path(reference), filter: filter, mapTo: mapTo)
     }
 }
 

@@ -122,10 +122,10 @@ public struct Condition: Equatable {
     }
 
     init(variable: JSONObjectPath, operator: Operator, filter: StringContainer?) {
-        self.init(variable: ReferenceContainer(path: variable), operator: `operator`, filter: filter)
+        self.init(variable: .path(variable), operator: `operator`, filter: filter)
     }
 
     init(variable: String, operator: Operator, filter: StringContainer?) {
-        self.init(variable: ReferenceContainer(key: variable), operator: `operator`, filter: filter)
+        self.init(variable: .key(variable), operator: `operator`, filter: filter)
     }
 }

@@ -19,17 +19,17 @@ public extension Modules.Types {
 
 public extension Modules {
     static func setDataValuesTransformer(forcingSettings block: EnforcingSettings<ModuleSettingsBuilder> = { $0 }) -> some ModuleFactory {
-        DefaultModuleFactory<SetDataValuesTransformer>(moduleType: Modules.Types.setDataValuesTransformer,
-                                                       enforcedSettings: block(ModuleSettingsBuilder()).build())
+        BasicModuleFactory<SetDataValuesTransformer>(moduleType: Modules.Types.setDataValuesTransformer,
+                                                     enforcedSettings: block(ModuleSettingsBuilder()).build())
     }
 
     static func persistDataValueTransformer(forcingSettings block: EnforcingSettings<ModuleSettingsBuilder> = { $0 }) -> some ModuleFactory {
-        DefaultModuleFactory<PersistDataValueTransformer>(moduleType: Modules.Types.persistDataValueTransformer,
-                                                          enforcedSettings: block(DataLayerSettingsBuilder()).build())
+        BasicModuleFactory<PersistDataValueTransformer>(moduleType: Modules.Types.persistDataValueTransformer,
+                                                        enforcedSettings: block(DataLayerSettingsBuilder()).build())
     }
 
     static func lowerCaseTransformer(forcingSettings block: EnforcingSettings<ModuleSettingsBuilder> = { $0 }) -> some ModuleFactory {
-        DefaultModuleFactory<LowerCaseTransformer>(moduleType: Modules.Types.lowerCaseTransformer,
-                                                   enforcedSettings: block(DataLayerSettingsBuilder()).build())
+        BasicModuleFactory<LowerCaseTransformer>(moduleType: Modules.Types.lowerCaseTransformer,
+                                                 enforcedSettings: block(DataLayerSettingsBuilder()).build())
     }
 }
