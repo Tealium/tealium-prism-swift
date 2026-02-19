@@ -36,7 +36,7 @@ public enum LenientConverters {
     /// This converter attempts the following conversions in order:
     /// 1. Direct extraction as `Double`
     /// 2. Extraction as `String` and parsing via `DataItemFormatter` (uses en_US_POSIX locale)
-    public static let double: any DataItemConverter<Double> = DoubleConverter()
+    public static let double: any DataItemConverter<Double> = LenientDoubleConverter()
 
     // MARK: - Int Converter
     /// A lenient converter to `Int` values.
@@ -48,7 +48,7 @@ public enum LenientConverters {
     /// Returns `nil` for values that:
     /// - Cannot be parsed as numbers
     /// - Note: Out-of-bounds Double values are clamped to Int.min/Int.max (NSNumber behavior)
-    public static let int: any DataItemConverter<Int> = IntConverter()
+    public static let int: any DataItemConverter<Int> = LenientIntConverter()
 
     // MARK: - Bool Converter
     /// A lenient converter to `Bool` values.
@@ -65,7 +65,7 @@ public enum LenientConverters {
     /// Returns `nil` for values that:
     /// - Any other strings non-conforming to the rule above
     /// - Any numbers other than 0 or 1
-    public static let bool: any DataItemConverter<Bool> = BoolConverter()
+    public static let bool: any DataItemConverter<Bool> = LenientBoolConverter()
 
     // MARK: - String Converter
     /// A lenient converter to `String` values.
@@ -77,5 +77,5 @@ public enum LenientConverters {
     ///    - Special values: `Double.nan` → `"NaN"`, `Double.infinity` → `"Infinity"`
     ///    - Whole numbers: 1.0 → `"1"` (removes unnecessary ".0" suffix)
     ///    - Disables scientific notation for better readability
-    public static let string: any DataItemConverter<String> = StringConverter()
+    public static let string: any DataItemConverter<String> = LenientStringConverter()
 }

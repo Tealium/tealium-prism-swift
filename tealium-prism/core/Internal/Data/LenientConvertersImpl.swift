@@ -8,10 +8,10 @@
 
 import Foundation
 
-struct DoubleConverter: DataItemConverter {
-    public typealias Convertible = Double
+struct LenientDoubleConverter: DataItemConverter {
+    typealias Convertible = Double
 
-    public func convert(dataItem: DataItem) -> Double? {
+    func convert(dataItem: DataItem) -> Double? {
         // Try direct conversion
         if let value = dataItem.get(as: Double.self) {
             return value
@@ -20,18 +20,17 @@ struct DoubleConverter: DataItemConverter {
         guard let stringValue = dataItem.get(as: String.self) else {
             return nil
         }
+        guard stringValue != "NaN" else {
+            return .nan
+        }
         return DataItemFormatter.number(from: stringValue)?.doubleValue
     }
 }
 
-struct IntConverter: DataItemConverter {
-    public typealias Convertible = Int
+struct LenientIntConverter: DataItemConverter {
+    typealias Convertible = Int
 
-    public func convert(dataItem: DataItem) -> Int? {
-        // Return nil for NaN
-        if let doubleValue = dataItem.get(as: Double.self), doubleValue.isNaN {
-            return nil
-        }
+    func convert(dataItem: DataItem) -> Int? {
         // Direct Int conversion (uses NSNumber.intValue with clamping)
         if let intValue = dataItem.get(as: Int.self) {
             return intValue
@@ -44,10 +43,10 @@ struct IntConverter: DataItemConverter {
     }
 }
 
-struct BoolConverter: DataItemConverter {
-    public typealias Convertible = Bool
+struct LenientBoolConverter: DataItemConverter {
+    typealias Convertible = Bool
 
-    public func convert(dataItem: DataItem) -> Bool? {
+    func convert(dataItem: DataItem) -> Bool? {
         // Try direct conversion
         if let value = dataItem.get(as: Bool.self) {
             return value
@@ -64,7 +63,7 @@ struct BoolConverter: DataItemConverter {
                 return nil
             }
         }
-        // Try numeric conversion, but only for finite whole numbers
+        // Try numeric conversion, but only for 0 and 1
         guard let doubleValue = dataItem.get(as: Double.self) else {
             return nil
         }
@@ -79,10 +78,10 @@ struct BoolConverter: DataItemConverter {
     }
 }
 
-struct StringConverter: DataItemConverter {
-    public typealias Convertible = String
+struct LenientStringConverter: DataItemConverter {
+    typealias Convertible = String
 
-    public func convert(dataItem: DataItem) -> String? {
+    func convert(dataItem: DataItem) -> String? {
         // Try direct conversion
         if let value = dataItem.get(as: String.self) {
             return value
