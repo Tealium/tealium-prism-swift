@@ -1623,6 +1623,10 @@
 		EC0D84EF2D6F6D7A00436087 /* NetworkConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0D84EE2D6F6D7A00436087 /* NetworkConnectionTests.swift */; };
 		EC0D84F02D6F6D7A00436087 /* NetworkConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0D84EE2D6F6D7A00436087 /* NetworkConnectionTests.swift */; };
 		EC0D84F12D6F6D7A00436087 /* NetworkConnectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0D84EE2D6F6D7A00436087 /* NetworkConnectionTests.swift */; };
+		EC0E45D92F48AE6D00A669B3 /* ExpiryPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E45D82F48AE6D00A669B3 /* ExpiryPolicyTests.swift */; };
+		EC0E45DA2F48AE6D00A669B3 /* ExpiryPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E45D82F48AE6D00A669B3 /* ExpiryPolicyTests.swift */; };
+		EC0E45DB2F48AE6D00A669B3 /* ExpiryPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E45D82F48AE6D00A669B3 /* ExpiryPolicyTests.swift */; };
+		EC0E45DC2F48AE6D00A669B3 /* ExpiryPolicyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E45D82F48AE6D00A669B3 /* ExpiryPolicyTests.swift */; };
 		EC0E52D62D887F77002B0FD8 /* DataObject+DeepMergeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0E52D52D887F77002B0FD8 /* DataObject+DeepMergeTests.swift */; };
 		EC1230EC2F2BBD5B00C24060 /* StringContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1230EB2F2BBD5B00C24060 /* StringContainerTests.swift */; };
 		EC1230ED2F2BBD5B00C24060 /* StringContainerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC1230EB2F2BBD5B00C24060 /* StringContainerTests.swift */; };
@@ -1765,6 +1769,14 @@
 		EC9910762F44D9EE00C41C96 /* SetDataValuesConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9910742F44D9EE00C41C96 /* SetDataValuesConfigurationTests.swift */; };
 		EC9910772F44D9EE00C41C96 /* SetDataValuesConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9910742F44D9EE00C41C96 /* SetDataValuesConfigurationTests.swift */; };
 		EC9910782F44D9EE00C41C96 /* SetDataValuesConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9910742F44D9EE00C41C96 /* SetDataValuesConfigurationTests.swift */; };
+		EC99107B2F45D73700C41C96 /* PersistDataValueConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9910792F45D73700C41C96 /* PersistDataValueConfigurationTests.swift */; };
+		EC99107C2F45D73700C41C96 /* PersistDataValueConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9910792F45D73700C41C96 /* PersistDataValueConfigurationTests.swift */; };
+		EC99107D2F45D73700C41C96 /* PersistDataValueConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9910792F45D73700C41C96 /* PersistDataValueConfigurationTests.swift */; };
+		EC99107E2F45D73700C41C96 /* PersistDataValueConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9910792F45D73700C41C96 /* PersistDataValueConfigurationTests.swift */; };
+		EC9910802F45D76100C41C96 /* ExpiryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC99107F2F45D76100C41C96 /* ExpiryTests.swift */; };
+		EC9910812F45D76100C41C96 /* ExpiryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC99107F2F45D76100C41C96 /* ExpiryTests.swift */; };
+		EC9910822F45D76100C41C96 /* ExpiryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC99107F2F45D76100C41C96 /* ExpiryTests.swift */; };
+		EC9910832F45D76100C41C96 /* ExpiryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC99107F2F45D76100C41C96 /* ExpiryTests.swift */; };
 		EC9C453D2DA015940046AB3A /* TraceWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C453C2DA015940046AB3A /* TraceWrapperTests.swift */; };
 		EC9C453E2DA015940046AB3A /* TraceWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C453C2DA015940046AB3A /* TraceWrapperTests.swift */; };
 		EC9C453F2DA015940046AB3A /* TraceWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC9C453C2DA015940046AB3A /* TraceWrapperTests.swift */; };
@@ -2219,6 +2231,7 @@
 		EA426159A769372703C45EB3 /* Pods_MomentsAPITests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MomentsAPITests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EC0D84EA2D6F671D00436087 /* ConnectivityDataModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivityDataModuleTests.swift; sourceTree = "<group>"; };
 		EC0D84EE2D6F6D7A00436087 /* NetworkConnectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkConnectionTests.swift; sourceTree = "<group>"; };
+		EC0E45D82F48AE6D00A669B3 /* ExpiryPolicyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpiryPolicyTests.swift; sourceTree = "<group>"; };
 		EC0E52D52D887F77002B0FD8 /* DataObject+DeepMergeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataObject+DeepMergeTests.swift"; sourceTree = "<group>"; };
 		EC1230EB2F2BBD5B00C24060 /* StringContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StringContainerTests.swift; sourceTree = "<group>"; };
 		EC1230F02F2BD33C00C24060 /* ValueContainerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ValueContainerTests.swift; sourceTree = "<group>"; };
@@ -2267,6 +2280,8 @@
 		EC99106A2F44CB6E00C41C96 /* SetDataValuesParametersTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetDataValuesParametersTests.swift; sourceTree = "<group>"; };
 		EC99106B2F44CB6E00C41C96 /* SetDataValuesSettingsBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetDataValuesSettingsBuilderTests.swift; sourceTree = "<group>"; };
 		EC9910742F44D9EE00C41C96 /* SetDataValuesConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetDataValuesConfigurationTests.swift; sourceTree = "<group>"; };
+		EC9910792F45D73700C41C96 /* PersistDataValueConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PersistDataValueConfigurationTests.swift; sourceTree = "<group>"; };
+		EC99107F2F45D76100C41C96 /* ExpiryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpiryTests.swift; sourceTree = "<group>"; };
 		EC9C453C2DA015940046AB3A /* TraceWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceWrapperTests.swift; sourceTree = "<group>"; };
 		EC9C45402DA015B30046AB3A /* TraceModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TraceModuleTests.swift; sourceTree = "<group>"; };
 		EC9C455D2DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModuleProxy+ExecuteTaskTests.swift"; sourceTree = "<group>"; };
@@ -2492,6 +2507,7 @@
 		150410E42A6EB51500B91F30 /* Persistence */ = {
 			isa = PBXGroup;
 			children = (
+				EC99107F2F45D76100C41C96 /* ExpiryTests.swift */,
 				879CC0B22CB6833F00A51BF2 /* Stores */,
 				D54BC0062C78C316003687C7 /* Repositories */,
 				D54BC0052C78C2AA003687C7 /* Database */,
@@ -2842,6 +2858,7 @@
 		8709E7B42EF1A8B9008025C8 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
+				EC99107A2F45D73700C41C96 /* PersistDataValues */,
 				8709E7BE2EF1AAEE008025C8 /* SetDataValues */,
 			);
 			path = Extensions;
@@ -3387,6 +3404,15 @@
 				EC7FDCF92F115F5F008A4D45 /* BarrierSettingsTests.swift */,
 			);
 			path = Barriers;
+			sourceTree = "<group>";
+		};
+		EC99107A2F45D73700C41C96 /* PersistDataValues */ = {
+			isa = PBXGroup;
+			children = (
+				EC0E45D82F48AE6D00A669B3 /* ExpiryPolicyTests.swift */,
+				EC9910792F45D73700C41C96 /* PersistDataValueConfigurationTests.swift */,
+			);
+			path = PersistDataValues;
 			sourceTree = "<group>";
 		};
 		EC9C453B2DA0155E0046AB3A /* Trace */ = {
@@ -5579,6 +5605,7 @@
 				87EE77002D78791500BB1D77 /* Condition+NotStartsWithTests.swift in Sources */,
 				87AF546F2C7E389C00F1C114 /* TimeFrameTests.swift in Sources */,
 				153A68282AB4A40400EE972E /* SQLModulesRepositoryTests.swift in Sources */,
+				EC9910832F45D76100C41C96 /* ExpiryTests.swift in Sources */,
 				ECAB83632DB0124E00B2CF64 /* DeepLinkModuleConfigurationTests.swift in Sources */,
 				ECAB83642DB0124E00B2CF64 /* DeepLinkSettingsBuilderTests.swift in Sources */,
 				87F8E6C22CAAD00E00F65EA1 /* XCTAssert+NaN.swift in Sources */,
@@ -5875,6 +5902,8 @@
 				8709E6BC2EF1A7A3008025C8 /* MockDatabaseProvider.swift in Sources */,
 				8709E6BD2EF1A7A3008025C8 /* CreateDispatches.swift in Sources */,
 				8709E6BE2EF1A7A3008025C8 /* MockLogHandler.swift in Sources */,
+				EC99107B2F45D73700C41C96 /* PersistDataValueConfigurationTests.swift in Sources */,
+				EC0E45DB2F48AE6D00A669B3 /* ExpiryPolicyTests.swift in Sources */,
 				8709E6BF2EF1A7A3008025C8 /* XCTAssert+EqualDictionaries.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5932,6 +5961,8 @@
 				8709E70A2EF1A7A6008025C8 /* MockDatabaseProvider.swift in Sources */,
 				8709E70B2EF1A7A6008025C8 /* CreateDispatches.swift in Sources */,
 				8709E70C2EF1A7A6008025C8 /* MockLogHandler.swift in Sources */,
+				EC99107C2F45D73700C41C96 /* PersistDataValueConfigurationTests.swift in Sources */,
+				EC0E45DA2F48AE6D00A669B3 /* ExpiryPolicyTests.swift in Sources */,
 				8709E70D2EF1A7A6008025C8 /* XCTAssert+EqualDictionaries.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -5989,6 +6020,8 @@
 				8709E7582EF1A7A8008025C8 /* MockDatabaseProvider.swift in Sources */,
 				8709E7592EF1A7A8008025C8 /* CreateDispatches.swift in Sources */,
 				8709E75A2EF1A7A8008025C8 /* MockLogHandler.swift in Sources */,
+				EC99107E2F45D73700C41C96 /* PersistDataValueConfigurationTests.swift in Sources */,
+				EC0E45D92F48AE6D00A669B3 /* ExpiryPolicyTests.swift in Sources */,
 				8709E75B2EF1A7A8008025C8 /* XCTAssert+EqualDictionaries.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6046,6 +6079,8 @@
 				8709E7A62EF1A7AA008025C8 /* MockDatabaseProvider.swift in Sources */,
 				8709E7A72EF1A7AA008025C8 /* CreateDispatches.swift in Sources */,
 				8709E7A82EF1A7AA008025C8 /* MockLogHandler.swift in Sources */,
+				EC99107D2F45D73700C41C96 /* PersistDataValueConfigurationTests.swift in Sources */,
+				EC0E45DC2F48AE6D00A669B3 /* ExpiryPolicyTests.swift in Sources */,
 				8709E7A92EF1A7AA008025C8 /* XCTAssert+EqualDictionaries.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -6211,6 +6246,7 @@
 				87A4088A2E97F06E005D92CC /* XCTAssert+BoolOptional.swift in Sources */,
 				87A4088B2E97F06E005D92CC /* ResourceCacherTests.swift in Sources */,
 				87A4088C2E97F06E005D92CC /* XCTestCase+JSONFromBundle.swift in Sources */,
+				EC9910802F45D76100C41C96 /* ExpiryTests.swift in Sources */,
 				87A4088D2E97F06E005D92CC /* DataItemTests.swift in Sources */,
 				87A4088F2E97F06E005D92CC /* Condition+NotContainsTests.swift in Sources */,
 				87A408902E97F06E005D92CC /* ConnectivityManagerTests.swift in Sources */,
@@ -6730,6 +6766,7 @@
 				87BA6D392C6A470C00784784 /* XCTAssert+BoolOptional.swift in Sources */,
 				D54BBFD72C78C01A003687C7 /* ResourceCacherTests.swift in Sources */,
 				87EE775E2D81D9B800BB1D77 /* XCTestCase+JSONFromBundle.swift in Sources */,
+				EC9910812F45D76100C41C96 /* ExpiryTests.swift in Sources */,
 				87BA6D3A2C6A470C00784784 /* DataItemTests.swift in Sources */,
 				87EE76FA2D78773000BB1D77 /* Condition+NotContainsTests.swift in Sources */,
 				D54BBFBC2C78C01A003687C7 /* ConnectivityManagerTests.swift in Sources */,
@@ -6973,6 +7010,7 @@
 				87BA6DB52C6A47AF00784784 /* MockBarrier.swift in Sources */,
 				87BA6DB62C6A47AF00784784 /* Operators+CombineLatestTests.swift in Sources */,
 				87BA6DB72C6A47AF00784784 /* XCTAssert+BoolOptional.swift in Sources */,
+				EC9910822F45D76100C41C96 /* ExpiryTests.swift in Sources */,
 				D54BBFD62C78C01A003687C7 /* ResourceCacherTests.swift in Sources */,
 				87BA6DB82C6A47AF00784784 /* DataItemTests.swift in Sources */,
 				87EE775C2D81D9B800BB1D77 /* XCTestCase+JSONFromBundle.swift in Sources */,

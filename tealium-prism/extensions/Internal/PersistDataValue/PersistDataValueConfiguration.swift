@@ -25,28 +25,28 @@ public enum UpdateBehavior: String, Equatable {
 struct PersistDataValueConfiguration: DataObjectConvertible {
     enum Keys {
         static let input = "input"
-        static let expiry = "expiry"
+        static let duration = "duration"
         static let updateBehavior = "update_behavior"
     }
 
     let destination: ReferenceContainer
     let input: ValueSource
-    let expiry: Expiry
+    let expiryPolicy: ExpiryPolicy
     let updateBehavior: UpdateBehavior
 
-    init(destination: ReferenceContainer, input: ValueSource, expiry: Expiry, updateBehavior: UpdateBehavior) {
+    init(destination: ReferenceContainer, input: ValueSource, expiryPolicy: ExpiryPolicy, updateBehavior: UpdateBehavior) {
         self.destination = destination
         self.input = input
-        self.expiry = expiry
+        self.expiryPolicy = expiryPolicy
         self.updateBehavior = updateBehavior
     }
 
     init?(dataObject: DataObject) {
         guard let destination = dataObject.getConvertible(key: OperationKeys.destination, converter: ReferenceContainer.converter),
               let parameters = dataObject.getDataDictionary(key: OperationKeys.parameters),
-              let expiryValue = parameters.get(key: Keys.expiry, as: Int64.self),
               let updateBehaviorString = parameters.get(key: Keys.updateBehavior, as: String.self),
-              let updateBehavior = UpdateBehavior(rawValue: updateBehaviorString) else {
+              let updateBehavior = UpdateBehavior(rawValue: updateBehaviorString),
+              let expiryPolicy = parameters.getConvertible(key: Keys.duration, converter: ExpiryPolicy.converter) else {
             return nil
         }
 
@@ -62,7 +62,7 @@ struct PersistDataValueConfiguration: DataObjectConvertible {
         self.init(
             destination: destination,
             input: input,
-            expiry: Expiry(timestamp: expiryValue),
+            expiryPolicy: expiryPolicy,
             updateBehavior: updateBehavior
         )
     }
@@ -71,9 +71,9 @@ struct PersistDataValueConfiguration: DataObjectConvertible {
         var dataObject: DataObject = [:]
         dataObject.set(converting: destination, key: OperationKeys.destination)
         var parameters: DataObject = [
-            Keys.expiry: expiry.expiryTime(),
             Keys.updateBehavior: updateBehavior.rawValue
         ]
+        parameters.set(converting: expiryPolicy, key: Keys.duration)
         switch input {
         case .reference(let reference):
             parameters.set(converting: reference, key: Keys.input)

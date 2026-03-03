@@ -66,7 +66,7 @@ class PersistDataValueTransformer: Transformer, BasicModule {
             try dataLayer.buildPath(
                 destinationPath,
                 andSet: valueToStore,
-                expiry: config.expiry
+                expiry: config.expiryPolicy.resolve()
             )
         } catch {
             logger?.error(category: LogCategory.transformations, "PersistDataValue failed to persist path '\(destinationPath.render())': \(error)")
