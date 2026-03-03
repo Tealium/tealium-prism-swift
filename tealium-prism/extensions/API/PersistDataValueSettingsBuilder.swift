@@ -14,7 +14,7 @@ import TealiumPrismCore
 public class PersistDataValueSettingsBuilder: TransformationSettingsBuilder {
     var input: ValueSource?
     var destination: ReferenceContainer?
-    var expiry: Expiry = .session
+    var expiryPolicy: ExpiryPolicy = .session
     var updateBehavior: UpdateBehavior = .allowUpdate
 
     public init(id: String) {
@@ -75,14 +75,15 @@ public class PersistDataValueSettingsBuilder: TransformationSettingsBuilder {
      * before it expires and is automatically removed. The expiry policy determines the
      * lifecycle of the stored data.
      *
-     * - Parameter expiry: The `Expiry` policy to apply to the persisted data.
-     *                     Common values include `.session` (expires when the session ends),
-     *                     `.forever` (never expires), or custom time-based expiry.
+     * - Parameter expiryPolicy: The `ExpiryPolicy` to apply to the persisted data.
+     *                           Common values include `.session` (expires when the session ends),
+     *                           `.forever` (never expires), or `.duration(timeFrame)` for
+     *                           custom time-based expiry.
      *
      * - Returns: The builder instance for method chaining.
      */
-    public func setExpiry(_ expiry: Expiry) -> Self {
-        self.expiry = expiry
+    public func setExpiryPolicy(_ expiryPolicy: ExpiryPolicy) -> Self {
+        self.expiryPolicy = expiryPolicy
         return self
     }
 
@@ -110,7 +111,7 @@ public class PersistDataValueSettingsBuilder: TransformationSettingsBuilder {
             let config = PersistDataValueConfiguration(
                 destination: destination,
                 input: input,
-                expiry: expiry,
+                expiryPolicy: expiryPolicy,
                 updateBehavior: updateBehavior
             )
             _ = _setConfiguration(config.toDataObject())

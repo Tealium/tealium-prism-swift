@@ -63,7 +63,7 @@ class TealiumHelper {
 
         config.setTransformation(
             PersistDataValueSettingsBuilder(id: "persist-some value")
-                .setExpiry(.forever)
+                .setExpiryPolicy(.forever)
                 .setUpdateBehavior(.keepFirstValue)
                 .persist(input: "some value", destination: .key("some_key"))
                 .addScope(.allDispatchers)
