@@ -15,13 +15,15 @@ class PersistDataValueTransformer: Transformer, BasicModule {
     let id: String = Modules.Types.persistDataValueTransformer
     let version: String = TealiumConstants.libraryVersion
 
-    private let modulesManager: ModulesManager
     private let logger: LoggerProtocol?
     private let dataLayer: any DataStore
-    required init?(context: TealiumContext, moduleConfiguration: DataObject) {
-        self.modulesManager = context.modulesManager
-        self.logger = context.logger
-        self.dataLayer = context.dataLayer
+    convenience required init?(context: TealiumContext, moduleConfiguration: DataObject) {
+        self.init(logger: context.logger, dataLayer: context.dataLayer)
+    }
+
+    init(logger: LoggerProtocol?, dataLayer: any DataStore) {
+        self.logger = logger
+        self.dataLayer = dataLayer
     }
 
     func applyTransformation(
@@ -43,7 +45,7 @@ class PersistDataValueTransformer: Transformer, BasicModule {
         let payload = dispatch.payload
         let destinationPath = config.destination.path
 
-        if config.updateBehavior == .keepFirstValue {
+        if config.updatePolicy == .keepFirstValue {
             if dataLayer.extractDataItem(path: destinationPath) != nil {
                 completion(dispatch)
                 return
@@ -68,10 +70,13 @@ class PersistDataValueTransformer: Transformer, BasicModule {
                 andSet: valueToStore,
                 expiry: config.expiryPolicy.resolve()
             )
+            var updatedPayload = dispatch.payload
+            updatedPayload.buildPath(destinationPath, andSet: valueToStore)
+            let updatedDispatch = Dispatch(payload: updatedPayload, id: dispatch.id, timestamp: dispatch.timestamp)
+            completion(updatedDispatch)
         } catch {
             logger?.error(category: LogCategory.transformations, "PersistDataValue failed to persist path '\(destinationPath.render())': \(error)")
+            completion(dispatch)
         }
-
-        completion(dispatch)
     }
 }

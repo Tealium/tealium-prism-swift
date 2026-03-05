@@ -14,7 +14,11 @@ class SetDataValuesTransformer: Transformer, BasicModule {
     let id: String = Modules.Types.setDataValuesTransformer
     let version: String = TealiumConstants.libraryVersion
 
-    required init?(context: TealiumContext, moduleConfiguration: DataObject) { }
+    convenience required init?(context: TealiumContext, moduleConfiguration: DataObject) {
+        self.init()
+    }
+
+    init() { }
 
     func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) {
         guard let configuration = SetDataValuesConfiguration(dataObject: transformation.configuration) else {

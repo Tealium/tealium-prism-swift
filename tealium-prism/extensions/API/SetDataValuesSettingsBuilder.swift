@@ -10,7 +10,7 @@
 import TealiumPrismCore
 #endif
 
-/// A builder for creating ``TransformationSettings`` that configure a `SetDataValues` transformer.
+/// A builder for creating `TransformationSettings` that configure a `SetDataValues` transformer.
 ///
 /// This builder lets you define operations that copy values between paths in the dispatch payload
 /// or set constant values at specific destinations.
@@ -52,11 +52,15 @@ public class SetDataValuesSettingsBuilder: TransformationSettingsBuilder {
         return self
     }
 
-    /// Builds the ``TransformationSettings`` with the configured operations, scopes, and conditions.
-    /// - Returns: A ``TransformationSettings`` instance ready to be applied by the transformer.
+    /// Builds the `TransformationSettings` with the configured operations, scopes, and conditions.
+    /// Writes whatever properties have been set to the configuration DataObject.
+    /// - Returns: A `TransformationSettings` instance ready to be applied by the transformer.
     override public func build() -> TransformationSettings {
-        _ = _setConfiguration(SetDataValuesConfiguration(operations: operations)
-            .toDataObject())
+        typealias Keys = SetDataValuesConfiguration.Keys
+        let dataObject: DataObject = [
+            Keys.operations: operations.map { $0.toDataObject() }
+        ]
+        _ = _setConfiguration(dataObject)
         return super.build()
     }
 }

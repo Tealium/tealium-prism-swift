@@ -11,11 +11,34 @@ import Foundation
 import TealiumPrismCore
 #endif
 
+/// Defines how a persisted value should behave when a value already exists at the destination.
+/// Use this to control whether a new value can overwrite an existing one.
+public enum UpdatePolicy: String, Equatable {
+    /// Subsequent persist operations are allowed to overwrite any existing value
+    /// at the destination with the latest value.
+    case allowUpdate = "allow_update"
+    /// The first successfully persisted value is kept; any later attempts to
+    /// persist a new value to the same destination are ignored.
+    case keepFirstValue = "keep_first_value"
+}
+
+/// Builder for creating a `PersistDataValue` transformation that stores a value from the dispatch payload
+/// (or a constant) into the data layer with a configurable expiry and update policy.
+///
+/// Example usage:
+/// ```swift
+/// let settings = PersistDataValueSettingsBuilder(id: "persist-user-id")
+///     .persist(input: .key("user_id"), destination: .key("persisted_user_id"))
+///     .setExpiryPolicy(.forever)
+///     .setUpdatePolicy(.keepFirstValue)
+///     .addScope(.afterCollectors)
+///     .build()
+/// ```
 public class PersistDataValueSettingsBuilder: TransformationSettingsBuilder {
     var input: ValueSource?
     var destination: ReferenceContainer?
-    var expiryPolicy: ExpiryPolicy = .session
-    var updateBehavior: UpdateBehavior = .allowUpdate
+    var expiryPolicy: ExpiryPolicy?
+    var updatePolicy: UpdatePolicy?
 
     public init(id: String) {
         super.init(id: id, transformerId: Modules.Types.persistDataValueTransformer)
@@ -26,7 +49,8 @@ public class PersistDataValueSettingsBuilder: TransformationSettingsBuilder {
      *
      * This method sets up the transformation to store a fixed value
      * at the specified destination path in the data layer. The value will be persisted
-     * according to the configured expiry and update behavior settings.
+     * according to the configured expiry and update policy settings. If not specified,
+     * defaults to `.session` expiry and `.allowUpdate` policy.
      *
      * - Parameters:
      *   - input: The constant value to be persisted.
@@ -49,7 +73,8 @@ public class PersistDataValueSettingsBuilder: TransformationSettingsBuilder {
      *
      * This method sets up the transformation to copy a value from an existing location in the
      * payload (specified by the input `ReferenceContainer`) to the specified destination path in the data layer.
-     * The value will be persisted according to the configured expiry and update behavior settings.
+     * The value will be persisted according to the configured expiry and update policy settings.
+     * If not specified, defaults to `.session` expiry and `.allowUpdate` policy.
      *
      * - Parameters:
      *   - input: A `ReferenceContainer` specifying the source location in the 'Dispatch' payload
@@ -75,6 +100,8 @@ public class PersistDataValueSettingsBuilder: TransformationSettingsBuilder {
      * before it expires and is automatically removed. The expiry policy determines the
      * lifecycle of the stored data.
      *
+     * If not called, the default expiry policy of `.session` will be used.
+     *
      * - Parameter expiryPolicy: The `ExpiryPolicy` to apply to the persisted data.
      *                           Common values include `.session` (expires when the session ends),
      *                           `.forever` (never expires), or `.duration(timeFrame)` for
@@ -88,34 +115,51 @@ public class PersistDataValueSettingsBuilder: TransformationSettingsBuilder {
     }
 
     /**
-     * Sets the update behavior for the persisted data.
+     * Sets the update policy for the persisted data.
      *
      * This method configures how the transformation should behave when attempting to persist
-     * data to a destination that already contains a value. The update behavior determines
+     * data to a destination that already contains a value. The update policy determines
      * whether existing values can be overwritten or should be preserved.
      *
-     * - Parameter updateBehavior: The `UpdateBehavior` policy to apply when the destination
+     * If not called, the default update policy of `.allowUpdate` will be used.
+     *
+     * - Parameter updatePolicy: The `UpdatePolicy` policy to apply when the destination
      *                             already contains data. Use `.allowUpdate` to overwrite
      *                             existing values, or `.keepFirstValue` to preserve existing
      *                             values and skip the persistence operation.
      *
      * - Returns: The builder instance for method chaining.
      */
-    public func setUpdateBehavior(_ updateBehavior: UpdateBehavior) -> Self {
-        self.updateBehavior = updateBehavior
+    public func setUpdatePolicy(_ updatePolicy: UpdatePolicy) -> Self {
+        self.updatePolicy = updatePolicy
         return self
     }
 
+    /// Builds the `TransformationSettings` from the current builder state.
+    /// Writes whatever properties have been set to the configuration DataObject.
     override public func build() -> TransformationSettings {
-        if let input = self.input, let destination = self.destination {
-            let config = PersistDataValueConfiguration(
-                destination: destination,
-                input: input,
-                expiryPolicy: expiryPolicy,
-                updateBehavior: updateBehavior
-            )
-            _ = _setConfiguration(config.toDataObject())
+        typealias Keys = PersistDataValueConfiguration.Keys
+        var dataObject: DataObject = [:]
+        if let destination {
+            dataObject.set(converting: destination, key: OperationKeys.destination)
         }
+        var parameters: DataObject = [:]
+        if let input {
+            switch input {
+            case .reference(let reference):
+                parameters.set(converting: reference, key: Keys.input)
+            case .constant(let value):
+                parameters.set(converting: value, key: Keys.input)
+            }
+        }
+        if let expiryPolicy {
+            parameters.set(converting: expiryPolicy, key: Keys.duration)
+        }
+        if let updatePolicy {
+            parameters.set(updatePolicy.rawValue, key: Keys.updatePolicy)
+        }
+        dataObject.set(converting: parameters, key: OperationKeys.parameters)
+        _ = _setConfiguration(dataObject)
         return super.build()
     }
 }
