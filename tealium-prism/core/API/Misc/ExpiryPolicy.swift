@@ -7,9 +7,6 @@
 //
 
 import Foundation
-#if extensions
-import TealiumPrismCore
-#endif
 
 /// Defines the expiry policy for persisted data values.
 /// Unlike `Expiry`, which may hold an absolute date, `ExpiryPolicy` always

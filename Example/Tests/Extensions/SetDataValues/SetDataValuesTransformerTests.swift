@@ -11,12 +11,7 @@ import XCTest
 
 final class SetDataValuesTransformerTests: XCTestCase {
 
-    var transformer: SetDataValuesTransformer!
-
-    override func setUp() {
-        super.setUp()
-        transformer = SetDataValuesTransformer(context: mockContext, moduleConfiguration: [:])
-    }
+    let transformer = SetDataValuesTransformer()
 
     func test_id_returnsCorrectValue() {
         XCTAssertEqual(transformer.id, Modules.Types.setDataValuesTransformer)

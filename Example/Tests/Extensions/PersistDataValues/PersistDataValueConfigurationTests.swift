@@ -19,10 +19,10 @@ final class PersistDataValueConfigurationTests: XCTestCase {
     func test_init_with_all_params_is_successful() {
         let config: DataObject = [
             "parameters": [
-                "update_behavior": DataItem(value: "allow_update"),
-                "duration": DataItem(value: Int64(-2)),
-                "input": DataItem(value: ["key": "test_source"])
-            ],
+                "update_policy": "allow_update",
+                "duration": Int64(-2),
+                "input": ["key": "test_source"]
+            ] as DataObject,
             "destination": [
                 "key": "test_dest"
             ]
@@ -31,47 +31,55 @@ final class PersistDataValueConfigurationTests: XCTestCase {
             XCTFail("Configuration should be created")
             return
         }
-        XCTAssertEqual(result.updateBehavior, .allowUpdate)
+        XCTAssertEqual(result.updatePolicy, .allowUpdate)
         XCTAssertEqual(result.expiryPolicy, .session)
         XCTAssertEqual(result.destination, .key("test_dest"))
         XCTAssertEqual(result.input.toDataInput() as? [String: String], ["key": "test_source"])
     }
 
-    func test_init_with_missing_update_behavior_returns_nil() {
+    func test_init_with_missing_update_policy_uses_default() {
         let config: DataObject = [
             "parameters": [
-                // "update_behavior" is missing
-                "duration": DataItem(value: Int64(-2)),
-                "input": DataItem(value: ["key": "test_source"])
-            ],
+                // "update_policy" is missing
+                "duration": Int64(-2),
+                "input": ["key": "test_source"]
+            ] as DataObject,
             "destination": [
                 "key": "test_dest"
             ]
         ]
-        XCTAssertNil(PersistDataValueConfiguration(dataObject: config))
+        guard let result = PersistDataValueConfiguration(dataObject: config) else {
+            XCTFail("Configuration should be created with default update policy")
+            return
+        }
+        XCTAssertEqual(result.updatePolicy, .allowUpdate)
     }
 
-    func test_init_with_missing_duration_returns_nil() {
+    func test_init_with_missing_duration_uses_default() {
         let config: DataObject = [
             "parameters": [
-                "update_behavior": DataItem(value: "allow_update"),
+                "update_policy": "allow_update",
                 // "duration" is missing
-                "input": DataItem(value: ["key": "test_source"])
-            ],
+                "input": ["key": "test_source"]
+            ] as DataObject,
             "destination": [
                 "key": "test_dest"
             ]
         ]
-        XCTAssertNil(PersistDataValueConfiguration(dataObject: config))
+        guard let result = PersistDataValueConfiguration(dataObject: config) else {
+            XCTFail("Configuration should be created with default expiry policy")
+            return
+        }
+        XCTAssertEqual(result.expiryPolicy, .session)
     }
 
     func test_init_with_missing_input_returns_nil() {
         let config: DataObject = [
             "parameters": [
-                "update_behavior": DataItem(value: "allow_update"),
-                "duration": DataItem(value: Int64(-2)),
+                "update_policy": "allow_update",
+                "duration": Int64(-2),
                 // "input" is missing
-            ],
+            ] as DataObject,
             "destination": [
                 "key": "test_dest"
             ]
@@ -115,7 +123,7 @@ final class PersistDataValueConfigurationTests: XCTestCase {
             destination: .key("dest"),
             input: .reference(.key("source")),
             expiryPolicy: .session,
-            updateBehavior: .allowUpdate
+            updatePolicy: .allowUpdate
         )
         let restored = PersistDataValueConfiguration(dataObject: config.toDataObject())
         guard case .reference(let ref) = restored?.input else {
@@ -130,7 +138,7 @@ final class PersistDataValueConfigurationTests: XCTestCase {
             destination: .key("dest"),
             input: .constant(ValueContainer("constant_value")),
             expiryPolicy: .session,
-            updateBehavior: .allowUpdate
+            updatePolicy: .allowUpdate
         )
         let restored = PersistDataValueConfiguration(dataObject: config.toDataObject())
         guard case .constant(let value) = restored?.input else {
@@ -140,35 +148,57 @@ final class PersistDataValueConfigurationTests: XCTestCase {
         XCTAssertEqual(value.value.get(), "constant_value")
     }
 
-    func test_roundTrip_with_keepFirstValue_preserves_updateBehavior() {
-        let config = makeConfiguration(expiryPolicy: .session, updateBehavior: .keepFirstValue)
+    func test_roundTrip_with_keepFirstValue_preserves_updatePolicy() {
+        let config = makeConfiguration(expiryPolicy: .session, updatePolicy: .keepFirstValue)
         let restored = PersistDataValueConfiguration(dataObject: config.toDataObject())
-        XCTAssertEqual(restored?.updateBehavior, .keepFirstValue)
+        XCTAssertEqual(restored?.updatePolicy, .keepFirstValue)
     }
 
-    func test_init_with_invalid_duration_returns_nil() {
+    func test_init_with_invalid_duration_uses_default() {
         let config: DataObject = [
             "parameters": [
-                "update_behavior": DataItem(value: "allow_update"),
-                "duration": DataItem(value: Int64(-99)),
-                "input": DataItem(value: ["key": "test_source"])
-            ],
+                "update_policy": "allow_update",
+                "duration": Int64(-99),
+                "input": ["key": "test_source"]
+            ] as DataObject,
             "destination": [
                 "key": "test_dest"
             ]
         ]
-        XCTAssertNil(PersistDataValueConfiguration(dataObject: config))
+        guard let result = PersistDataValueConfiguration(dataObject: config) else {
+            XCTFail("Configuration should be created with default expiry policy when duration is invalid")
+            return
+        }
+        XCTAssertEqual(result.expiryPolicy, .session)
+    }
+
+    func test_init_with_invalid_update_policy_uses_default() {
+        let config: DataObject = [
+            "parameters": [
+                "update_policy": "invalid_policy",
+                "duration": Int64(-2),
+                "input": ["key": "test_source"]
+            ] as DataObject,
+            "destination": [
+                "key": "test_dest"
+            ]
+        ]
+        guard let result = PersistDataValueConfiguration(dataObject: config) else {
+            XCTFail("Configuration should be created with default update policy when update_policy is invalid")
+            return
+        }
+        XCTAssertEqual(result.updatePolicy, .allowUpdate)
     }
 
     private func makeConfiguration(
         expiryPolicy: ExpiryPolicy,
-        updateBehavior: UpdateBehavior = .allowUpdate
+        updatePolicy: UpdatePolicy = .allowUpdate
     ) -> PersistDataValueConfiguration {
         PersistDataValueConfiguration(
             destination: .key("test_dest"),
             input: .reference(.key("test_source")),
             expiryPolicy: expiryPolicy,
-            updateBehavior: updateBehavior
+            updatePolicy: updatePolicy
         )
     }
 }
