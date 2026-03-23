@@ -27,9 +27,9 @@ extension String: URLConvertible {
     /// Converts this string to a URL.
     /// - Returns: The URL representation.
     /// - Throws: An error if the conversion fails.
-    public func asUrl() throws -> URL {
+    public func asUrl() throws(ConversionError) -> URL {
         guard let url = URL(string: self) else {
-            throw ParsingError.invalidUrl(self)
+            throw ConversionError.invalidUrl(self)
         }
         return url
     }
@@ -39,9 +39,9 @@ extension URLComponents: URLConvertible {
     /// Converts these URL components to a URL.
     /// - Returns: The URL representation.
     /// - Throws: An error if the conversion fails.
-    public func asUrl() throws -> URL {
+    public func asUrl() throws(ConversionError) -> URL {
         guard let url = url else {
-            throw ParsingError.invalidUrl(self)
+            throw ConversionError.invalidUrl(self)
         }
         return url
     }

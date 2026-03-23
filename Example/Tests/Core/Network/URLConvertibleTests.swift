@@ -18,13 +18,11 @@ final class URLConvertibleTests: XCTestCase {
         XCTAssertEqual(url?.absoluteString, urlString)
     }
 
-    func test_empty_string_throws_an_error() {
+    func test_empty_string_throws_a_conversion_error() {
         let emptyString = ""
-        XCTAssertThrowsError(try emptyString.asUrl()) { error in
-            let parsingError = error as? ParsingError
-            XCTAssertNotNil(parsingError, "Error should be a parsing error")
-            guard case let .invalidUrl(url) = parsingError else {
-                XCTFail("ParsingError should be invalid URL")
+        XCTAssertThrows(try emptyString.asUrl()) { (error: ConversionError) in
+            guard case let .invalidUrl(url) = error else {
+                XCTFail("ConversionError should be invalid URL")
                 return
             }
             XCTAssertEqual(emptyString, url as? String)
@@ -40,14 +38,12 @@ final class URLConvertibleTests: XCTestCase {
         XCTAssertEqual(URLComponents(url: url, resolvingAgainstBaseURL: true), urlComponents)
     }
 
-    func test_malformed_URLComponents_throws_an_error() {
+    func test_malformed_URLComponents_throws_a_conversion_error() {
         var urlComponents = URLComponents()
         urlComponents.path = "//someWrongPath"
-        XCTAssertThrowsError(try urlComponents.asUrl()) { error in
-            let parsingError = error as? ParsingError
-            XCTAssertNotNil(parsingError, "Error should be a parsing error")
-            guard case let .invalidUrl(url) = parsingError else {
-                XCTFail("ParsingError should be invalid URL")
+        XCTAssertThrows(try urlComponents.asUrl()) { (error: ConversionError) in
+            guard case let .invalidUrl(url) = error else {
+                XCTFail("ConversionError should be invalid URL")
                 return
             }
             XCTAssertEqual(urlComponents, url as? URLComponents)

@@ -42,6 +42,8 @@ class SetDataValuesTransformer: Transformer, BasicModule {
                 payload.buildPath(operation.destination.path, andSet: value.value)
             }
         }
-        return Dispatch(payload: payload, id: dispatch.id, timestamp: dispatch.timestamp)
+        var updatedDispatch = dispatch
+        updatedDispatch.replace(payload: payload)
+        return updatedDispatch
     }
 }

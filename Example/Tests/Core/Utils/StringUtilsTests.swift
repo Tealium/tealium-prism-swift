@@ -1,5 +1,5 @@
 //
-//  StringTests.swift
+//  StringUtilsTests.swift
 //  tealium-prism
 //
 //  Created by Enrico Zannini on 07/01/26.
@@ -9,25 +9,25 @@
 @testable import TealiumPrism
 import XCTest
 
-final class StringTests: XCTestCase {
+final class StringUtilsTests: XCTestCase {
 
     func test_string_with_only_whitespaces_is_blank() {
-        XCTAssertTrue(" ".isBlank)
+        XCTAssertTrue(StringUtils.isBlank(" "))
     }
 
     func test_string_with_only_new_lines_is_blank() {
-        XCTAssertTrue("\n".isBlank)
+        XCTAssertTrue(StringUtils.isBlank("\n"))
     }
 
     func test_string_with_only_new_lines_and_whitespaces_is_blank() {
-        XCTAssertTrue("\n \n ".isBlank)
+        XCTAssertTrue(StringUtils.isBlank("\n \n "))
     }
 
     func test_empty_string_is_blank() {
-        XCTAssertTrue("".isBlank)
+        XCTAssertTrue(StringUtils.isBlank(""))
     }
 
     func test_string_with_characters_is_not_blank() {
-        XCTAssertFalse("Some string".isBlank)
+        XCTAssertFalse(StringUtils.isBlank("Some string"))
     }
 }

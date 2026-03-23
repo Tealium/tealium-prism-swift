@@ -11,7 +11,7 @@ import Foundation
 import TealiumPrismCore
 #endif
 
-/// A class used to automatically load the `JavascriptTransformer` in this package in the default modules created by all `Tealium` instances.
+/// A class used to automatically load the `JavaScriptTransformer` in this package in the default modules created by all `Tealium` instances.
 public class JavaScriptTransformerAutomaticLoader: NSObject {
 
     /// Call this method at the start of the application to affect all `Tealium` instances.

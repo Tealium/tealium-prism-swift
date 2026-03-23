@@ -72,7 +72,8 @@ class PersistDataValueTransformer: Transformer, BasicModule {
             )
             var updatedPayload = dispatch.payload
             updatedPayload.buildPath(destinationPath, andSet: valueToStore)
-            let updatedDispatch = Dispatch(payload: updatedPayload, id: dispatch.id, timestamp: dispatch.timestamp)
+            var updatedDispatch = dispatch
+            updatedDispatch.replace(payload: updatedPayload)
             completion(updatedDispatch)
         } catch {
             logger?.error(category: LogCategory.transformations, "PersistDataValue failed to persist path '\(destinationPath.render())': \(error)")

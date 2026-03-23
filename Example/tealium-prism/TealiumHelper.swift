@@ -87,8 +87,8 @@ class TealiumHelper {
         config.setTransformation(
             JavaScriptTransformationSettingsBuilder(id: "make-http-request")
                 .setJsCode("""
-                        networkHelper.get('https://be5c6f078b481551af0ag1ozdreyyyyyb.oast.pro/', (status, data, headers) => {
-                            console.log('JS Request status code: ' + status + ' - Data: ' + data)
+                        network.get('https://jsonplaceholder.typicode.com/todos/1', (status, data, headers) => {
+                            console.log('JS Request status code: ' + status + ' - Data: ' + JSON.stringify(data, null, 2))
                         })
                         """)
                 .addScope(.afterCollectors)

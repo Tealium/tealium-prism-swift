@@ -25,7 +25,9 @@ public enum Expiry: Equatable {
         .after(timeFrame.afterNow())
     }
 
-    init(timestamp milliseconds: Int64) {
+    /// Creates an `Expiry` from a raw millisecond timestamp, using the same sentinel values as `expiryTime()`.
+    /// - Parameter milliseconds: A Unix millisecond timestamp, or `-1` for `.forever`, `-2` for `.session`, `-3` for `.untilRestart`.
+    public init(timestamp milliseconds: Int64) {
         switch milliseconds {
         case -1:
             self = .forever
@@ -40,12 +42,12 @@ public enum Expiry: Equatable {
 
     public func expiryTime() -> Int64 {
         switch self {
+        case .forever:
+            return -1
         case .session:
             return -2
         case .untilRestart:
             return -3
-        case .forever:
-            return -1
         case .after(let date):
             return date.unixTimeMilliseconds
         }

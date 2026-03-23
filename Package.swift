@@ -18,9 +18,9 @@ let package = Package(
         // .library(
         //     name: "TealiumPrismExtensions",
         //     targets: ["TealiumPrismExtensions", "TealiumPrismExtensionsObjC"]),
-        // .library(
-        //     name: "TealiumPrismJavascriptTransformer",
-        //     targets: ["TealiumPrismJavascriptTransformer", "TealiumPrismJavascriptTransformerObjC"]),
+        .library(
+            name: "TealiumPrismJavaScriptTransformer",
+            targets: ["TealiumPrismJavaScriptTransformer", "TealiumPrismJavaScriptTransformerObjC"]),
     ],
     dependencies: [
         .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.15.4")
@@ -63,28 +63,28 @@ let package = Package(
             dependencies: ["TealiumPrismMomentsAPI"],
             path: "tealium-prism/momentsapi/Internal/ObjC/"
         ),
+        // .target(
+        //     name: "TealiumPrismExtensions",
+        //     dependencies: ["TealiumPrismCore"],
+        //     path: "tealium-prism/extensions/",
+        //     exclude: ["Internal/ObjC/"],
+        //     swiftSettings: [.define("extensions")]
+        // ),
+        // .target(
+        //     name: "TealiumPrismExtensionsObjC",
+        //     dependencies: ["TealiumPrismExtensions"],
+        //     path: "tealium-prism/extensions/Internal/ObjC/"
+        // ),
         .target(
-            name: "TealiumPrismExtensions",
-            dependencies: ["TealiumPrismCore"],
-            path: "tealium-prism/extensions/",
-            exclude: ["Internal/ObjC/"],
-            swiftSettings: [.define("extensions")]
-        ),
-        .target(
-            name: "TealiumPrismExtensionsObjC",
-            dependencies: ["TealiumPrismExtensions"],
-            path: "tealium-prism/extensions/Internal/ObjC/"
-        ),
-        .target(
-            name: "TealiumPrismJavascriptTransformer",
+            name: "TealiumPrismJavaScriptTransformer",
             dependencies: ["TealiumPrismCore"],
             path: "tealium-prism/jstransformer/",
             exclude: ["Internal/ObjC/"],
             swiftSettings: [.define("jstransformer")]
         ),
         .target(
-            name: "TealiumPrismJavascriptTransformerObjC",
-            dependencies: ["TealiumPrismJavascriptTransformer"],
+            name: "TealiumPrismJavaScriptTransformerObjC",
+            dependencies: ["TealiumPrismJavaScriptTransformer"],
             path: "tealium-prism/jstransformer/Internal/ObjC/"
         ),
     ]

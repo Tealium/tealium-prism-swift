@@ -41,7 +41,9 @@ open class TransformationSettingsBuilder {
         return self
     }
 
-    public func build() -> TransformationSettings {
+    /// Builds and returns a `TransformationSettings` from the current builder state.
+    /// - Returns: A configured `TransformationSettings` instance.
+    open func build() -> TransformationSettings {
         TransformationSettings(id: id,
                                transformerId: transformerId,
                                scopes: scopes,

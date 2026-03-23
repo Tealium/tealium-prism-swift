@@ -1,5 +1,5 @@
 //
-//  SetDataValuesTransformer.swift
+//  JavaScriptTransformer.swift
 //  tealium-prism
 //
 //  Created by Enrico Zannini on 16/12/2025.
@@ -25,17 +25,27 @@ class JavaScriptTransformer: Transformer, BasicModule {
     let dataLayer: any DataStore
     let logger: LoggerProtocol?
     let networkHelper: any NetworkHelperProtocol
-    let automaticDisposer = AutomaticDisposer()
+    let automaticDisposer: CompositeDisposable = Disposables.automaticComposite()
 
-    required init?(context: TealiumContext, moduleConfiguration: DataObject) {
+    convenience required init?(context: TealiumContext, moduleConfiguration: DataObject) {
+        self.init(tracker: context.tracker,
+                  dataLayer: context.dataLayer,
+                  logger: context.logger,
+                  networkHelper: context.networkHelper)
+    }
+
+    init?(tracker: Tracker,
+          dataLayer: any DataStore,
+          logger: LoggerProtocol?,
+          networkHelper: any NetworkHelperProtocol) {
         guard let jsContext = JSContext() else {
             return nil
         }
         self.jsContext = jsContext
-        self.tracker = context.tracker
-        self.dataLayer = context.dataLayer
-        self.logger = context.logger
-        self.networkHelper = context.networkHelper
+        self.tracker = tracker
+        self.dataLayer = dataLayer
+        self.logger = logger
+        self.networkHelper = networkHelper
         setupConsole()
         setupTrack()
         setupDataLayer()
@@ -46,6 +56,7 @@ class JavaScriptTransformer: Transformer, BasicModule {
     func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) {
         let completion = SelfDestructingCompletion(completion: completion)
         guard let code = transformation.configuration.get(key: "js_code", as: String.self),
+              !StringUtils.isBlank(code),
               let serializedPayload = try? dispatch.payload.serialize() else {
             completion.complete(result: dispatch)
             return
@@ -63,11 +74,12 @@ class JavaScriptTransformer: Transformer, BasicModule {
         let dispatchWasTrackedByJS = dispatch.payload.get(key: "js_tracking", as: Bool.self) ?? false
         let eventualOverrideTrack = dispatchWasTrackedByJS ? """
                     let _track = function(event, type, payload) {
-                        console.info("Track " + event + " suppressed to avoid recursion")
+                        console.warn("Track " + event + " suppressed to avoid recursion")
                     }
                     let track = _track
                     """ : ""
         let dropFunction = "let drop = function() { payload = undefined }"
+        jsContext.setObject(scope.rawValue, forKeyedSubscript: "scope" as NSString)
         let jsPayload = jsContext.evaluateScript("""
             ((payload, scope) => {
                 \(eventualOverrideTrack)
@@ -76,27 +88,17 @@ class JavaScriptTransformer: Transformer, BasicModule {
                     \(code)
                 })()
                 return JSON.stringify(payload)
-            })(\(serializedPayload), "\(scope.rawValue)")
+            })(\(serializedPayload), scope)
             """
         )
-        guard let jsPayload, let dictionary = DataItem(stringValue: jsPayload.toString()).getDataDictionary() else {
+        guard let jsPayload,
+              let dataObject = try? DataObject(jsonString: jsPayload.toString()) else {
             completion.complete(result: nil)
             return
         }
-        completion.complete(result: Dispatch(payload: DataObject(dictionary: dictionary),
-                                             id: dispatch.id,
-                                             timestamp: dispatch.timestamp))
-    }
-
-    func convert(_ dataObject: DataObject) -> JSValue? {
-        guard let jsValue = JSValue(newObjectIn: jsContext) else {
-            return nil
-        }
-        dataObject.asDictionary()
-            .forEach { key, value in
-                jsValue.setObject(value, forKeyedSubscript: NSString(string: key))
-            }
-        return jsValue
+        var updatedDispatch = dispatch
+        updatedDispatch.replace(payload: dataObject)
+        completion.complete(result: updatedDispatch)
     }
 }
 

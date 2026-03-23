@@ -14,12 +14,6 @@ extension DataInput {
     }
 }
 
-extension DataObject {
-    func serialize() throws -> String {
-        try asDictionary().serialize()
-    }
-}
-
 extension AnyEncodable {
     func serialize() throws -> String {
         let jsonEncoder = Tealium.jsonEncoder
