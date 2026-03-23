@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
-   LastUpgradeVersion = "1620"
+   LastUpgradeVersion = "1640"
    version = "1.7">
    <BuildAction
       parallelizeBuildables = "YES"
@@ -14,7 +14,7 @@
       shouldUseLaunchSchemeArgsEnv = "YES">
       <TestPlans>
          <TestPlanReference
-            reference = "container:Tests/TestPlans/ExtensionsTests_watchOS.xctestplan"
+            reference = "container:Tests/TestPlans/JavaScriptTransformerTests_iOS.xctestplan"
             default = "YES">
          </TestPlanReference>
       </TestPlans>
@@ -23,9 +23,9 @@
             skipped = "NO">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "8709E7662EF1A7AA008025C8"
-               BuildableName = "ExtensionsTests_watchOS.xctest"
-               BlueprintName = "ExtensionsTests_watchOS"
+               BlueprintIdentifier = "EC0F59682F59A44E00B70783"
+               BuildableName = "JavaScriptTransformerTests_iOS.xctest"
+               BlueprintName = "JavaScriptTransformerTests_iOS"
                ReferencedContainer = "container:tealium-prism.xcodeproj">
             </BuildableReference>
          </TestableReference>

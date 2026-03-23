@@ -191,6 +191,30 @@ final class DataObjectTests: XCTestCase {
         XCTAssertEqual(dataObject.asDictionary(), ["key": "otherValue"])
     }
 
+    func test_init_with_jsonString_parses_dictionary() throws {
+        let dataObject = try DataObject(jsonString: "{\"key1\": \"value1\", \"key2\": 2}")
+        XCTAssertEqual(dataObject.get(key: "key1"), "value1")
+        XCTAssertEqual(dataObject.get(key: "key2"), 2)
+    }
+
+    func test_init_with_jsonString_throws_jsonIsNotADictionary_when_json_is_not_a_dictionary() {
+        XCTAssertThrows(try DataObject(jsonString: "[\"value1\", \"value2\"]")) { (error: JSONParsingError) in
+            guard case .jsonIsNotADictionary = error else {
+                XCTFail("Expected ParsingError.jsonIsNotADictionary, got \(error)")
+                return
+            }
+        }
+    }
+
+    func test_init_with_jsonString_throws_invalidJSON_when_string_is_not_valid_json() {
+        XCTAssertThrows(try DataObject(jsonString: "not json")) { (error: JSONParsingError) in
+            guard case .invalidJSON = error else {
+                XCTFail("Expected ParsingError.invalidJSON, got \(error)")
+                return
+            }
+        }
+    }
+
     func test_buildPath_creates_missing_components() {
         var dataObject: DataObject = [:]
         dataObject.buildPath(JSONPath["container"][0]["property"], andSet: DataItem(value: "value"))

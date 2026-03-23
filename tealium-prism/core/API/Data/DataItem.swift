@@ -269,3 +269,25 @@ extension DataItem: Decodable {
         self.init(safeValue: anyCodable.value)
     }
 }
+
+public extension DataObject {
+    /**
+     * Creates a `DataObject` by deserializing a JSON `String` representation of a dictionary.
+     *
+     * - parameter jsonString: A JSON-encoded string whose top-level value must be an object (e.g. `"{\"key\": \"value\"}"`).
+     * - throws: A [`JSONParsingError.jsonIsNotADictionary`](doc:JSONParsingError/jsonIsNotADictionary(_:)) if the top-level JSON value is not a dictionary,
+     *   or a [`JSONParsingError.invalidJSON`](doc:JSONParsingError/invalidJSON(_:)) if `jsonString` is not valid JSON.
+     */
+    init(jsonString: String) throws(JSONParsingError) {
+        let deserialized: Any
+        do {
+            deserialized = try jsonString.deserialize()
+        } catch {
+            throw JSONParsingError.invalidJSON(error)
+        }
+        guard let dictionary = deserialized as? [String: Any] else {
+            throw JSONParsingError.jsonIsNotADictionary(jsonString)
+        }
+        self.init(compacting: dictionary.mapValues { DataItem(safeValue: $0) })
+    }
+}

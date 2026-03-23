@@ -23,6 +23,9 @@ declare -a SCHEMES=(
     "ExtensionsTests_tvOS"
     "ExtensionsTests_macOS"
     "ExtensionsTests_watchOS"
+    "JavaScriptTransformerTests_iOS"
+    "JavaScriptTransformerTests_tvOS"
+    "JavaScriptTransformerTests_macOS"
 )
 IOS_DESTINATION='platform=iOS Simulator,name=iPhone 16 Pro'
 TVOS_DESTINATION='platform=tvOS Simulator,name=Apple TV'

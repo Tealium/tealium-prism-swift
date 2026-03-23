@@ -35,22 +35,31 @@ import Foundation
  * ```
  * Main usecase is for completing immediately something that is cancelled, without the need to add more logic to avoid duplicate call of the completion.
  */
-class SelfDestructingResultCompletion<Success, Failure: Error>: SelfDestructingCompletion<Result<Success, Failure>> {
-    func fail(error: Failure) {
+public class SelfDestructingResultCompletion<Success, Failure: Error>: SelfDestructingCompletion<Result<Success, Failure>> {
+    /// Completes with a failure result.
+    public func fail(error: Failure) {
         complete(result: .failure(error))
     }
-    func success(response: Success) {
+    /// Completes with a success result.
+    public func success(response: Success) {
         complete(result: .success(response))
     }
 }
 
-class SelfDestructingCompletion<Param> {
-    typealias Completion = (Param) -> Void
+/**
+ * A class that wraps a completion block and makes sure it can only be completed once.
+ *
+ * To be sure that the completion block is not called by someone else, you should name the variable holding the instance of this class with the same name of the completion block that was passed as a parameters.
+ *
+ * Main usecase is for completing immediately something that is cancelled, without the need to add more logic to avoid duplicate call of the completion.
+ */
+public class SelfDestructingCompletion<Param> {
+    public typealias Completion = (Param) -> Void
     private var completion: Completion?
-    init(completion: @escaping Completion) {
+    public init(completion: @escaping Completion) {
         self.completion = completion
     }
-    func complete(result: Param) {
+    public func complete(result: Param) {
         if let completion = self.completion {
             self.completion = nil
             completion(result)

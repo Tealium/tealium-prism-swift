@@ -44,6 +44,8 @@ jobs:
             - TealiumPrismCore
             - TealiumPrismLifecycle
             - TealiumPrismMomentsAPI
+#            - TealiumPrismExtensions
+            - TealiumPrismJavaScriptTransformer
         destination:
             - "generic/platform=iOS"
             - "generic/platform=iOS Simulator"
@@ -69,6 +71,7 @@ jobs:
             - DelegateProxyTests_iOS
             - LifecycleTests_iOS
             - ExtensionsTests_iOS
+            - JavaScriptTransformerTests_iOS
             - EndToEndTests_iOS
             - MomentsAPITests_iOS
         destination:
@@ -91,6 +94,7 @@ jobs:
             - LifecycleTests_tvOS
             - MomentsAPITests_tvOS
             - ExtensionsTests_tvOS
+            - JavaScriptTransformerTests_tvOS
         destination:
             - "platform=tvOS Simulator,OS=18.5,name=Apple TV"
     steps:
@@ -111,6 +115,7 @@ jobs:
             - LifecycleTests_macOS
             - MomentsAPITests_macOS
             - ExtensionsTests_macOS
+            - JavaScriptTransformerTests_macOS
         destination:
             - "platform=macOS"
     steps:

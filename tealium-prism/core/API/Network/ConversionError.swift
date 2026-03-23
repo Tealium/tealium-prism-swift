@@ -1,5 +1,5 @@
 //
-//  ParsingError.swift
+//  ConversionError.swift
 //  tealium-prism
 //
 //  Created by Enrico Zannini on 18/07/23.
@@ -8,7 +8,7 @@
 
 import Foundation
 
-enum ParsingError: Error {
+public enum ConversionError: ErrorEnum {
+    /// The provided URL could not be converted to a valid `URL`.
     case invalidUrl(_ url: URLConvertible)
-    case jsonIsNotADictionary(_ object: Any)
 }

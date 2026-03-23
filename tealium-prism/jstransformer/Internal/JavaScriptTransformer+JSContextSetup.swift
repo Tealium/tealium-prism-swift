@@ -1,5 +1,5 @@
 //
-//  JavascriptTransformer+JSContextSetup.swift
+//  JavaScriptTransformer+JSContextSetup.swift
 //  tealium-prism
 //
 //  Created by Enrico Zannini on 18/12/25.
@@ -37,7 +37,7 @@ extension JavaScriptTransformer {
             _ eventType: String,
             _ stringifiedPayload: String
         ) -> Void = { [tracker] event, type, payload in
-            var dataObject = DataObject(dictionary: DataItem(stringValue: payload).getDataDictionary() ?? [:])
+            var dataObject = (try? DataObject(jsonString: payload)) ?? [:]
             dataObject.set(true, key: "js_tracking")
             tracker.track(Dispatch(name: event,
                                    type: DispatchType(rawValue: type) ?? .event,
@@ -48,7 +48,12 @@ extension JavaScriptTransformer {
         jsContext.evaluateScript(
             """
             let track = function(event, type, payload) {
-                _track(event, type, JSON.stringify(payload))
+                if (typeof type == "object" && type !== null && !Array.isArray(type)) {
+                    // type is actually a payload -> track(event, payload)
+                    _track(event, null, JSON.stringify(type))
+                } else {
+                    _track(event, type, JSON.stringify(payload))
+                }
             }
             """
         )
@@ -92,15 +97,15 @@ extension JavaScriptTransformer {
             _ completion: JSValue
         ) -> Void = { [weak self, networkHelper] url, payload, completion in
             guard let self else { return }
-            let body = DataObject(dictionary: DataItem(stringValue: payload).getDataDictionary() ?? [:])
+            let body = (try? DataObject(jsonString: payload)) ?? [:]
             networkHelper.post(url: url, body: body) { result in
                 complete(result: result, completion: completion)
             }.addTo(self.automaticDisposer)
         }
         jsNetwork["_post"] = _post
-        jsContext["networkHelper"] = jsNetwork
+        jsContext["network"] = jsNetwork
         jsContext.evaluateScript("""
-        networkHelper.post = function(url, payload, completion) {
+        network.post = function(url, payload, completion) {
             this._post(url, JSON.stringify(payload), completion)
         }
         """)
