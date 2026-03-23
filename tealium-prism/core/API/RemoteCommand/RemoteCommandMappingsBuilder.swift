@@ -1,0 +1,52 @@
+//
+//  RemoteCommandMappingsBuilder.swift
+//  tealium-prism
+//
+//  Created by Sebastian Krajna on 18/03/2026.
+//  Copyright © 2026 Tealium. All rights reserved.
+//
+
+import Foundation
+
+/// Generic reusable base class for building vendor-specific mappings.
+///
+/// Subclasses `Mappings` and adds overloaded methods that accept type-safe
+/// `Command` and `Destination` enums instead of raw strings.
+///
+/// Base `Mappings` methods (accepting `String` and `JSONObjectPath`) remain
+/// available for cases not covered by the enums.
+open class RemoteCommandMappingsBuilder<
+    Command: RawRepresentable,
+    Destination: ReferenceContainerConvertible
+>: Mappings where Command.RawValue == String {
+
+    /// Maps a command enum case to the command name destination.
+    @discardableResult
+    public func mapCommand(_ command: Command) -> CommandOptions {
+        mapCommand(command.rawValue)
+    }
+
+    /// Maps a source key to a typed destination.
+    @discardableResult
+    public func mapFrom(_ key: String, to destination: Destination) -> VariableOptions {
+        mapFrom(key, to: destination.asReferenceContainer().path)
+    }
+
+    /// Maps a source path to a typed destination.
+    @discardableResult
+    public func mapFrom(_ path: JSONObjectPath, to destination: Destination) -> VariableOptions {
+        mapFrom(path, to: destination.asReferenceContainer().path)
+    }
+
+    /// Maps a constant value to a typed destination.
+    @discardableResult
+    public func mapConstant(_ value: DataInput, to destination: Destination) -> ConstantOptions {
+        mapConstant(value, to: destination.asReferenceContainer().path)
+    }
+
+    /// Keeps a typed destination (source and destination are the same).
+    @discardableResult
+    public func keep(_ destination: Destination) -> VariableOptions {
+        keep(destination.asReferenceContainer().path)
+    }
+}
