@@ -30,7 +30,7 @@ final class BarrierSettingsTests: XCTestCase {
             BarrierSettings.Keys.barrierId: "test",
             BarrierSettings.Keys.configuration: [:]
         ])
-        let converter = BarrierSettings.Converter()
+        let converter = BarrierSettings.converter
         let settings = converter.convert(dataItem: dataItem)
         XCTAssertNotNil(settings)
         XCTAssertEqual(settings?.barrierId, "test")
@@ -43,7 +43,7 @@ final class BarrierSettingsTests: XCTestCase {
             BarrierSettings.Keys.scopes: ["all", "test-dispatcher"],
             BarrierSettings.Keys.configuration: [:]
         ])
-        let converter = BarrierSettings.Converter()
+        let converter = BarrierSettings.converter
         let settings = converter.convert(dataItem: dataItem)
         XCTAssertNotNil(settings)
         XCTAssertEqual(settings?.barrierId, "test")
@@ -56,7 +56,7 @@ final class BarrierSettingsTests: XCTestCase {
             BarrierSettings.Keys.configuration: [:]
             // Missing barrierId
         ])
-        let converter = BarrierSettings.Converter()
+        let converter = BarrierSettings.converter
         let settings = converter.convert(dataItem: dataItem)
         XCTAssertNil(settings)
     }
@@ -67,7 +67,7 @@ final class BarrierSettingsTests: XCTestCase {
             BarrierSettings.Keys.scopes: [],
             BarrierSettings.Keys.configuration: [:]
         ])
-        let converter = BarrierSettings.Converter()
+        let converter = BarrierSettings.converter
         let settings = converter.convert(dataItem: dataItem)
         XCTAssertEqual(settings?.barrierId, "test")
         XCTAssertEqual(settings?.scopes, [])

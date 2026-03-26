@@ -6,13 +6,13 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-public enum OperationKeys {
+enum OperationKeys {
     static let destination = "destination"
     static let parameters = "parameters"
 }
 
 /// An object representing an operation to be performed during a transformation.
-public struct TransformationOperation<Parameters: DataInputConvertible> {
+struct TransformationOperation<Parameters: DataInputConvertible> {
     /// The variable onto which this transformation will put the result to.
     let destination: ReferenceContainer
     /// The parameters necessary for this operation to be performed.
@@ -37,7 +37,7 @@ public struct TransformationOperation<Parameters: DataInputConvertible> {
      *   - destination: The key name where the result will be stored.
      *   - parameters: The parameters needed for the operation.
      */
-    public init(destination: String, parameters: Parameters) {
+    init(destination: String, parameters: Parameters) {
         self.init(destination: .key(destination), parameters: parameters)
     }
 
@@ -48,13 +48,13 @@ public struct TransformationOperation<Parameters: DataInputConvertible> {
      *   - destination: The JSON path where the result will be stored.
      *   - parameters: The parameters needed for the operation.
      */
-    public init(destination: JSONObjectPath, parameters: Parameters) {
+    init(destination: JSONObjectPath, parameters: Parameters) {
         self.init(destination: .path(destination), parameters: parameters)
     }
 }
 
 extension TransformationOperation: DataObjectConvertible {
-    public func toDataObject() -> DataObject {
+    func toDataObject() -> DataObject {
         [
             OperationKeys.destination: destination,
             OperationKeys.parameters: parameters

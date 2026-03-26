@@ -32,7 +32,7 @@ class SetDataValuesTransformer: Transformer, BasicModule {
                                      to dispatch: Dispatch) -> Dispatch {
         var payload = dispatch.payload
         for operation in config.operations {
-            switch operation.parameters.input {
+            switch operation.input {
             case .reference(let reference):
                 guard let item = payload.extractDataItem(path: reference.path) else {
                     continue

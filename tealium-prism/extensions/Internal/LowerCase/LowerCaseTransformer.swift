@@ -9,14 +9,18 @@
 import Foundation
 
 #if extensions
-    import TealiumPrismCore
+import TealiumPrismCore
 #endif
 
 class LowerCaseTransformer: Transformer, BasicModule {
     let id: String = Modules.Types.lowerCaseTransformer
     let version: String = TealiumConstants.libraryVersion
 
-    required init?(context: TealiumContext, moduleConfiguration: DataObject) {}
+    convenience required init?(context: TealiumContext, moduleConfiguration: DataObject) {
+        self.init()
+    }
+
+    init() {}
 
     func applyTransformation(
         _ transformation: TransformationSettings,
@@ -34,38 +38,35 @@ class LowerCaseTransformer: Transformer, BasicModule {
     ) -> Dispatch {
         var payload = dispatch.payload
 
-        if config.allVariables == true {
+        if config.allVariables {
             // Lowercase all string values in the payload
             payload = lowercaseAllStrings(in: payload)
         } else {
-            // Only lowercase specific operations
-            for operation in config.operations {
+            // Only lowercase specific inputs
+            for input in config.inputs {
                 if let item = payload.extractDataItem(
-                    path: operation.parameters.input.path
+                    path: input.path
                 ),
                     let stringValue = item.get(as: String.self) {
                         let lowercased = stringValue.lowercased()
                         payload.buildPath(
-                            operation.destination.path,
+                            input.path,
                             andSet: DataItem(value: lowercased)
                         )
                     }
             }
         }
 
-        return Dispatch(
-            payload: payload,
-            id: dispatch.id,
-            timestamp: dispatch.timestamp
-        )
+        var result = dispatch
+        result.replace(payload: payload)
+        return result
     }
 
     private func lowercaseAllStrings(in dataObject: DataObject) -> DataObject {
         var result = DataObject()
-        for key in dataObject.keys where key != TealiumDataKey.visitorId {
-            if let item = dataObject.getDataItem(key: key) {
-                result.set(converting: lowercaseDataItem(item), key: key)
-            }
+        for key in dataObject.keys {
+            guard let item = dataObject.getDataItem(key: key) else { continue }
+            result.set(converting: key == TealiumDataKey.visitorId ? item : lowercaseDataItem(item), key: key)
         }
         return result
     }

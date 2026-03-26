@@ -81,7 +81,8 @@ final class TransformationSettingsTests: XCTestCase {
         XCTAssertEqual(TransformationScope(rawValue: "AFTERCOLLECTORS"), .afterCollectors) // Case insensitive
         XCTAssertEqual(TransformationScope(rawValue: "alldispatchers"), .allDispatchers)
         XCTAssertEqual(TransformationScope(rawValue: "ALLDISPATCHERS"), .allDispatchers) // Case insensitive
-        XCTAssertEqual(TransformationScope(rawValue: "test_dispatcher"), .dispatcher(id: "test_dispatcher"))
+        XCTAssertEqual(TransformationScope(rawValue: "TestDispatcher"), .dispatcher(id: "TestDispatcher"))
+        XCTAssertNotEqual(TransformationScope(rawValue: "COLLECT"), .dispatcher(id: "collect")) // Case-sensitive
     }
 
     func test_transformation_matches_equal_scopes() {

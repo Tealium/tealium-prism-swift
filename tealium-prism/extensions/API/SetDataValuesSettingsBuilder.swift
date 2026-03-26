@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
+import Foundation
 #if extensions
 import TealiumPrismCore
 #endif
@@ -24,7 +25,7 @@ import TealiumPrismCore
 ///     .build()
 /// ```
 public class SetDataValuesSettingsBuilder: TransformationSettingsBuilder {
-    var operations: [TransformationOperation<SetDataValuesParameters>] = []
+    var operations: [SetDataValuesOperation] = []
 
     /// Creates a new builder for a SetDataValues transformation.
     /// - Parameter id: A unique identifier for this transformation.
@@ -38,7 +39,7 @@ public class SetDataValuesSettingsBuilder: TransformationSettingsBuilder {
     ///   - destination: A reference to the destination location in the payload.
     /// - Returns: This builder instance for chaining.
     public func addOperation(input: ReferenceContainer, destination: ReferenceContainer) -> Self {
-        operations.append(.init(destination: destination, parameters: .init(input: .reference(input))))
+        operations.append(.init(input: .reference(input), destination: destination))
         return self
     }
 
@@ -48,7 +49,7 @@ public class SetDataValuesSettingsBuilder: TransformationSettingsBuilder {
     ///   - destination: A reference to the destination location in the payload.
     /// - Returns: This builder instance for chaining.
     public func addOperation(input: ValueContainer, destination: ReferenceContainer) -> Self {
-        operations.append(.init(destination: destination, parameters: .init(input: .constant(input))))
+        operations.append(.init(input: .constant(input), destination: destination))
         return self
     }
 

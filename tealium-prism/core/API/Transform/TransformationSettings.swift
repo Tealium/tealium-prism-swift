@@ -38,7 +38,7 @@ public enum TransformationScope: RawRepresentable, Codable, Equatable {
         case "alldispatchers":
             self = .allDispatchers
         default:
-            self = .dispatcher(id: lowercasedScope)
+            self = .dispatcher(id: rawValue)
         }
     }
 }

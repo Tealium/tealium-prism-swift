@@ -11,6 +11,10 @@ import Foundation
 import TealiumPrismCore
 #endif
 
+extension LogCategory {
+    static let persistDataValue = "PersistDataValue"
+}
+
 class PersistDataValueTransformer: Transformer, BasicModule {
     let id: String = Modules.Types.persistDataValueTransformer
     let version: String = TealiumConstants.libraryVersion
@@ -76,7 +80,7 @@ class PersistDataValueTransformer: Transformer, BasicModule {
             updatedDispatch.replace(payload: updatedPayload)
             completion(updatedDispatch)
         } catch {
-            logger?.error(category: LogCategory.transformations, "PersistDataValue failed to persist path '\(destinationPath.render())': \(error)")
+            logger?.error(category: LogCategory.persistDataValue, "PersistDataValue failed to persist path '\(destinationPath.render())': \(error)")
             completion(dispatch)
         }
     }

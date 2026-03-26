@@ -29,9 +29,9 @@ final class SetDataValuesConfigurationTests: XCTestCase {
     }
 
     func test_init_withSingleOperation_returnsConfiguration() {
-        let operation = TransformationOperation(
-            destination: .key("dest_key"),
-            parameters: SetDataValuesParameters(input: .reference(.key("source_key")))
+        let operation = SetDataValuesOperation(
+            input: .reference(.key("source_key")),
+            destination: .key("dest_key")
         )
         let dataObject: DataObject = [
             SetDataValuesConfiguration.Keys.operations: [operation.toDataObject()]
@@ -39,7 +39,7 @@ final class SetDataValuesConfigurationTests: XCTestCase {
         let configuration = SetDataValuesConfiguration(dataObject: dataObject)
         XCTAssertEqual(configuration?.operations.count, 1)
         XCTAssertEqual(configuration?.operations.first?.destination, .key("dest_key"))
-        guard case .reference(let ref) = configuration?.operations.first?.parameters.input else {
+        guard case .reference(let ref) = configuration?.operations.first?.input else {
             XCTFail("Expected reference input")
             return
         }
@@ -47,13 +47,13 @@ final class SetDataValuesConfigurationTests: XCTestCase {
     }
 
     func test_init_withMultipleOperations_returnsConfiguration() {
-        let operation1 = TransformationOperation(
-            destination: .key("dest1"),
-            parameters: SetDataValuesParameters(input: .reference(.key("source1")))
+        let operation1 = SetDataValuesOperation(
+            input: .reference(.key("source1")),
+            destination: .key("dest1")
         )
-        let operation2 = TransformationOperation(
-            destination: .key("dest2"),
-            parameters: SetDataValuesParameters(input: .constant(ValueContainer("constant")))
+        let operation2 = SetDataValuesOperation(
+            input: .constant(ValueContainer("constant")),
+            destination: .key("dest2")
         )
         let dataObject: DataObject = [
             SetDataValuesConfiguration.Keys.operations: [
@@ -72,9 +72,9 @@ final class SetDataValuesConfigurationTests: XCTestCase {
     }
 
     func test_toDataObject_withOperations_returnsValidDataObject() {
-        let operation = TransformationOperation(
-            destination: .key("dest_key"),
-            parameters: SetDataValuesParameters(input: .reference(.key("source_key")))
+        let operation = SetDataValuesOperation(
+            input: .reference(.key("source_key")),
+            destination: .key("dest_key")
         )
         let configuration = SetDataValuesConfiguration(operations: [operation])
         let dataObject = configuration.toDataObject()
@@ -83,13 +83,13 @@ final class SetDataValuesConfigurationTests: XCTestCase {
     }
 
     func test_roundTrip_withMultipleOperations_preservesData() {
-        let operation1 = TransformationOperation(
-            destination: .key("dest1"),
-            parameters: SetDataValuesParameters(input: .reference(.key("source1")))
+        let operation1 = SetDataValuesOperation(
+            input: .reference(.key("source1")),
+            destination: .key("dest1")
         )
-        let operation2 = TransformationOperation(
-            destination: .key("dest2"),
-            parameters: SetDataValuesParameters(input: .constant(ValueContainer("constant")))
+        let operation2 = SetDataValuesOperation(
+            input: .constant(ValueContainer("constant")),
+            destination: .key("dest2")
         )
         let original = SetDataValuesConfiguration(operations: [operation1, operation2])
         let dataObject = original.toDataObject()
@@ -100,9 +100,9 @@ final class SetDataValuesConfigurationTests: XCTestCase {
     }
 
     func test_init_withInvalidOperationData_filtersOutInvalidOperations() {
-        let validOperation = TransformationOperation(
-            destination: .key("dest_key"),
-            parameters: SetDataValuesParameters(input: .reference(.key("source_key")))
+        let validOperation = SetDataValuesOperation(
+            input: .reference(.key("source_key")),
+            destination: .key("dest_key")
         )
         let dataObject: DataObject = [
             SetDataValuesConfiguration.Keys.operations: [
