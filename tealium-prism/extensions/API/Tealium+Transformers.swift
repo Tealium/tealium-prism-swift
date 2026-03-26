@@ -53,6 +53,6 @@ public extension Modules {
 
     static func lowerCaseTransformer(forcingSettings block: EnforcingSettings<ModuleSettingsBuilder> = { $0 }) -> some ModuleFactory {
         BasicModuleFactory<LowerCaseTransformer>(moduleType: Modules.Types.lowerCaseTransformer,
-                                                 enforcedSettings: block(DataLayerSettingsBuilder()).build())
+                                                 enforcedSettings: block(ModuleSettingsBuilder()).build())
     }
 }

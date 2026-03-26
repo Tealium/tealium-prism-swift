@@ -9,48 +9,49 @@
 import Foundation
 
 #if extensions
-    import TealiumPrismCore
+import TealiumPrismCore
 #endif
 
 struct LowerCaseConfiguration: DataObjectConvertible {
     enum Keys {
         static let allVariables = "all_variables"
-        static let operations = "operations"
+        static let inputs = "inputs"
     }
 
-    let allVariables: Bool?
-    let operations: [TransformationOperation<LowerCaseInput>]
+    enum Defaults {
+        static let allVariables: Bool = true
+    }
+
+    let allVariables: Bool
+    let inputs: [ReferenceContainer]
 
     init(
-        allVariables: Bool?,
-        operations: [TransformationOperation<LowerCaseInput>]
+        allVariables: Bool = Defaults.allVariables,
+        inputs: [ReferenceContainer] = []
     ) {
         self.allVariables = allVariables
-        self.operations = operations
+        self.inputs = inputs
     }
 
     init(dataObject: DataObject) {
-        let allVariables = dataObject.get(key: Keys.allVariables, as: Bool.self)
+        let allVariables = dataObject.get(key: Keys.allVariables, as: Bool.self) ?? Defaults.allVariables
 
-        let operations: [TransformationOperation<LowerCaseInput>]
-        if let opsArray = dataObject.getDataArray(key: Keys.operations) {
-            let converter = TransformationOperation.converter(
-                parametersConverter: LowerCaseInput.converter
-            )
-            operations = opsArray.compactMap {
-                $0.getConvertible(converter: converter)
+        let inputs: [ReferenceContainer]
+        if let inputsArray = dataObject.getDataArray(key: Keys.inputs) {
+            inputs = inputsArray.compactMap {
+                $0.getConvertible(converter: ReferenceContainer.converter)
             }
         } else {
-            operations = []
+            inputs = []
         }
 
-        self.init(allVariables: allVariables, operations: operations)
+        self.init(allVariables: allVariables, inputs: inputs)
     }
 
     func toDataObject() -> DataObject {
         [
             Keys.allVariables: allVariables,
-            Keys.operations: operations.map { $0.toDataObject() },
+            Keys.inputs: inputs.map { $0.toDataObject() },
         ]
     }
 }

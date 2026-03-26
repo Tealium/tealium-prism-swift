@@ -25,5 +25,5 @@ extension ReferenceContainer {
         }
     }
 
-    static let converter = Converter()
+    public static let converter: any DataItemConverter<ReferenceContainer> = Converter()
 }

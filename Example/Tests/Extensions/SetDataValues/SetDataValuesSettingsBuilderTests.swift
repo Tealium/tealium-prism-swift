@@ -12,7 +12,6 @@ import XCTest
 final class SetDataValuesSettingsBuilderTests: XCTestCase {
 
     let transformationId = "test-transformation"
-    let converter = TransformationOperation.converter(parametersConverter: SetDataValuesParameters.converter)
 
     func test_constructor_setsCorrectIds() {
         let settings = SetDataValuesSettingsBuilder(id: transformationId).build()
@@ -45,7 +44,7 @@ final class SetDataValuesSettingsBuilderTests: XCTestCase {
         let operations = convertedOperations(from: settings)
         XCTAssertEqual(operations.count, 1)
         XCTAssertEqual(operations.first?.destination, .key("destination_key"))
-        guard case .reference(let ref) = operations.first?.parameters.input else {
+        guard case .reference(let ref) = operations.first?.input else {
             XCTFail("Expected reference input")
             return
         }
@@ -59,7 +58,7 @@ final class SetDataValuesSettingsBuilderTests: XCTestCase {
         let operations = convertedOperations(from: settings)
         XCTAssertEqual(operations.count, 1)
         XCTAssertEqual(operations.first?.destination, .key("destination_key"))
-        guard case .constant(let value) = operations.first?.parameters.input else {
+        guard case .constant(let value) = operations.first?.input else {
             XCTFail("Expected constant input")
             return
         }
@@ -73,12 +72,12 @@ final class SetDataValuesSettingsBuilderTests: XCTestCase {
             .build()
         let operations = convertedOperations(from: settings)
         XCTAssertEqual(operations.count, 2)
-        guard case .reference(let ref) = operations[0].parameters.input else {
+        guard case .reference(let ref) = operations[0].input else {
             XCTFail("Expected reference input for first operation")
             return
         }
         XCTAssertEqual(ref, .key("input1_key"))
-        guard case .constant(let value) = operations[1].parameters.input else {
+        guard case .constant(let value) = operations[1].input else {
             XCTFail("Expected constant input for second operation")
             return
         }
@@ -125,10 +124,12 @@ final class SetDataValuesSettingsBuilderTests: XCTestCase {
         XCTAssertTrue(result === builder)
     }
 
-    private func convertedOperations(from settings: TransformationSettings) -> [TransformationOperation<SetDataValuesParameters>] {
+    private func convertedOperations(from settings: TransformationSettings) -> [SetDataValuesOperation] {
         guard let items = settings.configuration.getDataArray(key: "operations") else {
             return []
         }
-        return items.compactMap { $0.getConvertible(converter: converter) }
+        return items.compactMap {
+            SetDataValuesOperation(dataObject: $0.getDataDictionary()?.toDataObject() ?? [:])
+        }
     }
 }

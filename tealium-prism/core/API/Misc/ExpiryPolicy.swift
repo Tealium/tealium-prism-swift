@@ -21,7 +21,8 @@ public enum ExpiryPolicy: Equatable {
     /// Expires after the specified duration from the moment of persistence.
     case duration(TimeFrame)
 
-    func resolve() -> Expiry {
+    /// Converts this policy into a concrete `Expiry` value at the current point in time.
+    public func resolve() -> Expiry {
         switch self {
         case .session: return .session
         case .untilRestart: return .untilRestart
@@ -57,5 +58,5 @@ extension ExpiryPolicy: DataInputConvertible {
         }
     }
 
-    static let converter = Converter()
+    public static let converter: any DataItemConverter<ExpiryPolicy> = Converter()
 }

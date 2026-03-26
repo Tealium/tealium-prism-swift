@@ -15,9 +15,9 @@ let package = Package(
         .library(
             name: "TealiumPrismMomentsAPI",
             targets: ["TealiumPrismMomentsAPI", "TealiumPrismMomentsAPIObjC"]),
-        // .library(
-        //     name: "TealiumPrismExtensions",
-        //     targets: ["TealiumPrismExtensions", "TealiumPrismExtensionsObjC"]),
+        .library(
+            name: "TealiumPrismExtensions",
+            targets: ["TealiumPrismExtensions", "TealiumPrismExtensionsObjC"]),
         .library(
             name: "TealiumPrismJavaScriptTransformer",
             targets: ["TealiumPrismJavaScriptTransformer", "TealiumPrismJavaScriptTransformerObjC"]),
@@ -63,18 +63,18 @@ let package = Package(
             dependencies: ["TealiumPrismMomentsAPI"],
             path: "tealium-prism/momentsapi/Internal/ObjC/"
         ),
-        // .target(
-        //     name: "TealiumPrismExtensions",
-        //     dependencies: ["TealiumPrismCore"],
-        //     path: "tealium-prism/extensions/",
-        //     exclude: ["Internal/ObjC/"],
-        //     swiftSettings: [.define("extensions")]
-        // ),
-        // .target(
-        //     name: "TealiumPrismExtensionsObjC",
-        //     dependencies: ["TealiumPrismExtensions"],
-        //     path: "tealium-prism/extensions/Internal/ObjC/"
-        // ),
+        .target(
+            name: "TealiumPrismExtensions",
+            dependencies: ["TealiumPrismCore"],
+            path: "tealium-prism/extensions/",
+            exclude: ["Internal/ObjC/"],
+            swiftSettings: [.define("extensions")]
+        ),
+        .target(
+            name: "TealiumPrismExtensionsObjC",
+            dependencies: ["TealiumPrismExtensions"],
+            path: "tealium-prism/extensions/Internal/ObjC/"
+        ),
         .target(
             name: "TealiumPrismJavaScriptTransformer",
             dependencies: ["TealiumPrismCore"],

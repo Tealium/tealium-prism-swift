@@ -14,6 +14,7 @@ import TealiumPrismCore
 struct PersistDataValueConfiguration: DataObjectConvertible {
     enum Keys {
         static let input = "input"
+        static let destination = "destination"
         static let duration = "duration"
         static let updatePolicy = "update_policy"
     }
@@ -23,52 +24,43 @@ struct PersistDataValueConfiguration: DataObjectConvertible {
         static let updatePolicy: UpdatePolicy = .allowUpdate
     }
 
-    let destination: ReferenceContainer
     let input: ValueSource
+    let destination: ReferenceContainer
     let expiryPolicy: ExpiryPolicy
     let updatePolicy: UpdatePolicy
 
-    init(destination: ReferenceContainer, input: ValueSource, expiryPolicy: ExpiryPolicy? = nil, updatePolicy: UpdatePolicy? = nil) {
-        self.destination = destination
+    init(
+        destination: ReferenceContainer,
+        input: ValueSource,
+        expiryPolicy: ExpiryPolicy? = nil,
+        updatePolicy: UpdatePolicy? = nil
+    ) {
         self.input = input
+        self.destination = destination
         self.expiryPolicy = expiryPolicy ?? Defaults.expiryPolicy
         self.updatePolicy = updatePolicy ?? Defaults.updatePolicy
     }
 
     init?(dataObject: DataObject) {
-        guard let destination = dataObject.getConvertible(key: OperationKeys.destination, converter: ReferenceContainer.converter),
-              let parameters = dataObject.getDataDictionary(key: OperationKeys.parameters) else {
+        let dict = DataItem(converting: dataObject).getDataDictionary()
+        guard let input = dict?.getConvertible(key: Keys.input, converter: ValueSource.converter),
+              let destination = dict?.getConvertible(key: Keys.destination, converter: ReferenceContainer.converter) else {
             return nil
         }
-
-        let updatePolicy = UpdatePolicy(rawValue: parameters.get(key: Keys.updatePolicy, as: String.self) ?? "") ?? Defaults.updatePolicy
-        let expiryPolicy = parameters.getConvertible(key: Keys.duration, converter: ExpiryPolicy.converter) ?? Defaults.expiryPolicy
-
-        let input: ValueSource
-        if let reference = parameters.getConvertible(key: Keys.input, converter: ReferenceContainer.converter) {
-            input = .reference(reference)
-        } else if let value = parameters.getConvertible(key: Keys.input, converter: ValueContainer.converter) {
-            input = .constant(value)
-        } else {
-            return nil
-        }
-
         self.init(
             destination: destination,
             input: input,
-            expiryPolicy: expiryPolicy,
-            updatePolicy: updatePolicy
+            expiryPolicy: dict?.getConvertible(key: Keys.duration, converter: ExpiryPolicy.converter),
+            updatePolicy: dict?.get(key: Keys.updatePolicy, as: String.self).flatMap({ UpdatePolicy(rawValue: $0) })
         )
     }
 
     func toDataObject() -> DataObject {
         [
-            OperationKeys.destination: destination,
-            OperationKeys.parameters: [
-                Keys.updatePolicy: updatePolicy.rawValue,
-                Keys.duration: expiryPolicy,
-                Keys.input: input
-            ] as DataObject
+            Keys.input: input,
+            Keys.destination: destination,
+            Keys.duration: expiryPolicy,
+            Keys.updatePolicy: updatePolicy.rawValue
         ]
     }
 }
