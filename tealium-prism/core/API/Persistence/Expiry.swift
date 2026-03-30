@@ -40,6 +40,10 @@ public enum Expiry: Equatable {
         }
     }
 
+    /// Returns the expiry encoded as a Unix millisecond timestamp, or a sentinel value for special cases.
+    ///
+    /// Sentinel values: `-1` = `.forever`, `-2` = `.session`, `-3` = `.untilRestart`.
+    /// All other values are a Unix millisecond timestamp corresponding to the expiry date.
     public func expiryTime() -> Int64 {
         switch self {
         case .forever:

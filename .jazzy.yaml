@@ -1,5 +1,6 @@
 modules:
   - TealiumPrismCore
+  - TealiumPrismExtensions
   - TealiumPrismLifecycle
   - TealiumPrismMomentsAPI
 title: TealiumPrism
@@ -88,6 +89,12 @@ custom_categories:
   - name: Transformations
     children:
       - regex: Transformation
+  - name: Extensions
+    children:
+      - SetDataValuesSettingsBuilder
+      - PersistDataValueSettingsBuilder
+      - LowerCaseSettingsBuilder
+      - UpdatePolicy
   - name: Module
     children:
       - Module
@@ -100,7 +107,7 @@ custom_categories:
   - name: Data
     children:
       - regex: ^Data
-      - Expiry
+      - regex: ^Expiry
       - regex: ^Dispatch
       - regex: ^JSON
       - regex: Root

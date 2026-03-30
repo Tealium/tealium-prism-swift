@@ -51,6 +51,8 @@ public class PersistDataValueSettingsBuilder: TransformationSettingsBuilder {
     var expiryPolicy: ExpiryPolicy?
     var updatePolicy: UpdatePolicy?
 
+    /// Creates a new builder for a `PersistDataValue` transformation with the given unique `id`.
+    /// - Parameter id: A unique identifier for this transformation instance.
     public init(id: String) {
         super.init(id: id, transformerId: Modules.Types.persistDataValueTransformer)
     }

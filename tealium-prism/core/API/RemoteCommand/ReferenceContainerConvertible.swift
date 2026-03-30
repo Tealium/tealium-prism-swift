@@ -13,6 +13,7 @@ import Foundation
 /// Used by `RemoteCommandMappingsBuilder` to allow vendor-specific enums
 /// as mapping destinations.
 public protocol ReferenceContainerConvertible {
+    /// Returns a `ReferenceContainer` representation of this value.
     func asReferenceContainer() -> ReferenceContainer
 }
 
