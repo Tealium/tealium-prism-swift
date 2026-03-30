@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Errors thrown when parsing a JSON payload fails.
 public enum JSONParsingError: ErrorEnum {
     /// The parsed JSON value is not a dictionary.
     case jsonIsNotADictionary(_ object: Any)

@@ -54,11 +54,15 @@ public class SelfDestructingResultCompletion<Success, Failure: Error>: SelfDestr
  * Main usecase is for completing immediately something that is cancelled, without the need to add more logic to avoid duplicate call of the completion.
  */
 public class SelfDestructingCompletion<Param> {
+    /// The underlying completion block type.
     public typealias Completion = (Param) -> Void
     private var completion: Completion?
+    /// Creates a new instance wrapping the given completion block.
+    /// - Parameter completion: The block to invoke once when ``complete(result:)`` is called.
     public init(completion: @escaping Completion) {
         self.completion = completion
     }
+    /// Invokes the wrapped completion block with `result` and clears it so it cannot be called again.
     public func complete(result: Param) {
         if let completion = self.completion {
             self.completion = nil

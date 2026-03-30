@@ -58,5 +58,6 @@ extension ExpiryPolicy: DataInputConvertible {
         }
     }
 
+    /// Converts a `DataItem` containing an encoded `Int64` value back into an `ExpiryPolicy`.
     public static let converter: any DataItemConverter<ExpiryPolicy> = Converter()
 }

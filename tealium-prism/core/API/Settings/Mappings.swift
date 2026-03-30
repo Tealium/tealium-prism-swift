@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Base builder class for a single mapping operation. Use ``Mappings`` factory methods to create instances.
 public class MappingsBuilder {
     fileprivate var reference: ReferenceContainer?
     fileprivate let destination: ReferenceContainer
@@ -94,6 +95,7 @@ public class MappingsBuilder {
 open class Mappings {
     var mappingsList: [MappingsBuilder] = []
 
+    /// Creates an empty `Mappings` instance. Add operations with `mapFrom`, `keep`, or `mapConstant`.
     required public init() { }
 
     /// Builds and returns an array of `MappingOperation` instances.

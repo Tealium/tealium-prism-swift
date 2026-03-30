@@ -51,6 +51,14 @@ public extension Modules {
                                                         enforcedSettings: block(DataLayerSettingsBuilder()).build())
     }
 
+    /// Creates a factory for the LowerCase transformer module.
+    ///
+    /// The LowerCase transformer converts string values in the dispatch payload to lowercase.
+    /// By default it applies to all strings in the payload. Use `LowerCaseSettingsBuilder` to
+    /// configure the transformation settings.
+    ///
+    /// - Parameter block: An optional closure to enforce specific module settings.
+    /// - Returns: A `ModuleFactory` that creates `LowerCaseTransformer` instances.
     static func lowerCaseTransformer(forcingSettings block: EnforcingSettings<ModuleSettingsBuilder> = { $0 }) -> some ModuleFactory {
         BasicModuleFactory<LowerCaseTransformer>(moduleType: Modules.Types.lowerCaseTransformer,
                                                  enforcedSettings: block(ModuleSettingsBuilder()).build())
