@@ -93,6 +93,28 @@ final class DataItemTests: XCTestCase {
         XCTAssertNil(falseOutput.getDataDictionary())
     }
 
+    func test_nan_is_read_as_nan_only_for_supported_types() {
+        let doubleNaN = DataItem(value: Double.nan)
+        let floatNaN = DataItem(value: Float.nan)
+        let decimalNaN = DataItem(value: Decimal.nan)
+
+        XCTAssertNaN(doubleNaN.get(as: Double.self))
+        XCTAssertNaN(doubleNaN.get(as: Float.self))
+        XCTAssertNaN(doubleNaN.get(as: Decimal.self))
+        XCTAssertNaN(floatNaN.get(as: Double.self))
+        XCTAssertNaN(floatNaN.get(as: Float.self))
+        XCTAssertNaN(floatNaN.get(as: Decimal.self))
+        XCTAssertNaN(decimalNaN.get(as: Double.self))
+        XCTAssertNaN(decimalNaN.get(as: Float.self))
+        XCTAssertNaN(decimalNaN.get(as: Decimal.self))
+        XCTAssertNil(doubleNaN.get(as: Int.self))
+        XCTAssertNil(floatNaN.get(as: Int.self))
+        XCTAssertNil(decimalNaN.get(as: Int.self))
+        XCTAssertNil(doubleNaN.get(as: Int64.self))
+        XCTAssertNil(floatNaN.get(as: Int64.self))
+        XCTAssertNil(decimalNaN.get(as: Int64.self))
+    }
+
     func test_string_is_read_as_string() {
         let output = DataItem(value: "test")
         XCTAssertNil(output.get(as: Double.self))

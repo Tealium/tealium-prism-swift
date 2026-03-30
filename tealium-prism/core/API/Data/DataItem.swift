@@ -91,9 +91,9 @@ final public class DataItem {
             return nil
         }
         let element: DataInput? = switch T.self {
-        case is Int.Type:
+        case is Int.Type where !number.isEqual(to: NSDecimalNumber.notANumber):
             number.intValue
-        case is Int64.Type:
+        case is Int64.Type where !number.isEqual(to: NSDecimalNumber.notANumber):
             number.int64Value
         case is Float.Type:
             number.floatValue
