@@ -1991,6 +1991,10 @@
 		ECBF30552DC244A4007A1A42 /* MockBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF30522DC244A4007A1A42 /* MockBundle.swift */; };
 		ECBF30562DC244A4007A1A42 /* MockBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF30522DC244A4007A1A42 /* MockBundle.swift */; };
 		ECBF30572DC246BA007A1A42 /* MockBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF30522DC244A4007A1A42 /* MockBundle.swift */; };
+		ECC00CA22F7C20680085FD5E /* SetDataValuesOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC00CA12F7C20680085FD5E /* SetDataValuesOperationTests.swift */; };
+		ECC00CA32F7C20680085FD5E /* SetDataValuesOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC00CA12F7C20680085FD5E /* SetDataValuesOperationTests.swift */; };
+		ECC00CA42F7C20680085FD5E /* SetDataValuesOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC00CA12F7C20680085FD5E /* SetDataValuesOperationTests.swift */; };
+		ECC00CA52F7C20680085FD5E /* SetDataValuesOperationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC00CA12F7C20680085FD5E /* SetDataValuesOperationTests.swift */; };
 		ECC2B4722CE3B61C0066B022 /* LaunchSleepWakeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECC2B4712CE3B61C0066B022 /* LaunchSleepWakeTests.swift */; };
 		ECDE37E52E0EEB73008F89E1 /* QueueManager+QueueMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDE37E42E0EEB73008F89E1 /* QueueManager+QueueMetricsTests.swift */; };
 		ECDE37E62E0EEB73008F89E1 /* QueueManager+QueueMetricsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECDE37E42E0EEB73008F89E1 /* QueueManager+QueueMetricsTests.swift */; };
@@ -2509,6 +2513,7 @@
 		ECBF304A2DC0EFA8007A1A42 /* TransformationSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransformationSettingsTests.swift; sourceTree = "<group>"; };
 		ECBF304E2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "TransformationSettings+ConverterTests.swift"; sourceTree = "<group>"; };
 		ECBF30522DC244A4007A1A42 /* MockBundle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBundle.swift; sourceTree = "<group>"; };
+		ECC00CA12F7C20680085FD5E /* SetDataValuesOperationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SetDataValuesOperationTests.swift; sourceTree = "<group>"; };
 		ECC2B4712CE3B61C0066B022 /* LaunchSleepWakeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LaunchSleepWakeTests.swift; sourceTree = "<group>"; };
 		ECDE37E42E0EEB73008F89E1 /* QueueManager+QueueMetricsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "QueueManager+QueueMetricsTests.swift"; sourceTree = "<group>"; };
 		ECDE37E82E0EF9C5008F89E1 /* XCTAssert+ObservedValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTAssert+ObservedValue.swift"; sourceTree = "<group>"; };
@@ -3123,6 +3128,7 @@
 		8709E7BE2EF1AAEE008025C8 /* SetDataValues */ = {
 			isa = PBXGroup;
 			children = (
+				ECC00CA12F7C20680085FD5E /* SetDataValuesOperationTests.swift */,
 				EC9910742F44D9EE00C41C96 /* SetDataValuesConfigurationTests.swift */,
 				EC99106B2F44CB6E00C41C96 /* SetDataValuesSettingsBuilderTests.swift */,
 				8709E7B52EF1A95F008025C8 /* SetDataValuesTransformerTests.swift */,
@@ -6474,6 +6480,7 @@
 				8709E6B62EF1A7A3008025C8 /* XCTAssert+Result.swift in Sources */,
 				8709E6B72EF1A7A3008025C8 /* MockBackoff.swift in Sources */,
 				8709E6B92EF1A7A3008025C8 /* MockConnectivity.swift in Sources */,
+				ECC00CA22F7C20680085FD5E /* SetDataValuesOperationTests.swift in Sources */,
 				8709E6BC2EF1A7A3008025C8 /* MockDatabaseProvider.swift in Sources */,
 				8709E6BD2EF1A7A3008025C8 /* CreateDispatches.swift in Sources */,
 				8709E6BE2EF1A7A3008025C8 /* MockLogHandler.swift in Sources */,
@@ -6536,6 +6543,7 @@
 				8709E7042EF1A7A6008025C8 /* XCTAssert+Result.swift in Sources */,
 				8709E7052EF1A7A6008025C8 /* MockBackoff.swift in Sources */,
 				8709E7072EF1A7A6008025C8 /* MockConnectivity.swift in Sources */,
+				ECC00CA52F7C20680085FD5E /* SetDataValuesOperationTests.swift in Sources */,
 				8709E70A2EF1A7A6008025C8 /* MockDatabaseProvider.swift in Sources */,
 				8709E70B2EF1A7A6008025C8 /* CreateDispatches.swift in Sources */,
 				8709E70C2EF1A7A6008025C8 /* MockLogHandler.swift in Sources */,
@@ -6598,6 +6606,7 @@
 				8709E7522EF1A7A8008025C8 /* XCTAssert+Result.swift in Sources */,
 				8709E7532EF1A7A8008025C8 /* MockBackoff.swift in Sources */,
 				8709E7552EF1A7A8008025C8 /* MockConnectivity.swift in Sources */,
+				ECC00CA42F7C20680085FD5E /* SetDataValuesOperationTests.swift in Sources */,
 				8709E7582EF1A7A8008025C8 /* MockDatabaseProvider.swift in Sources */,
 				8709E7592EF1A7A8008025C8 /* CreateDispatches.swift in Sources */,
 				8709E75A2EF1A7A8008025C8 /* MockLogHandler.swift in Sources */,
@@ -6660,6 +6669,7 @@
 				8709E7A02EF1A7AA008025C8 /* XCTAssert+Result.swift in Sources */,
 				8709E7A12EF1A7AA008025C8 /* MockBackoff.swift in Sources */,
 				8709E7A32EF1A7AA008025C8 /* MockConnectivity.swift in Sources */,
+				ECC00CA32F7C20680085FD5E /* SetDataValuesOperationTests.swift in Sources */,
 				8709E7A62EF1A7AA008025C8 /* MockDatabaseProvider.swift in Sources */,
 				8709E7A72EF1A7AA008025C8 /* CreateDispatches.swift in Sources */,
 				8709E7A82EF1A7AA008025C8 /* MockLogHandler.swift in Sources */,

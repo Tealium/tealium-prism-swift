@@ -19,9 +19,9 @@ final class PersistDataValueSettingsBuilderTests: XCTestCase {
         XCTAssertEqual(settings.transformerId, Modules.Types.persistDataValueTransformer)
     }
 
-    func test_persist_with_constant_input_sets_configuration() {
+    func test_persistConstant_sets_configuration() {
         let settings = PersistDataValueSettingsBuilder(id: transformationId)
-            .persist(input: "constant_value", destination: .key("dest_key"))
+            .persistConstant("constant_value", to: .key("dest_key"))
             .build()
         guard let config = PersistDataValueConfiguration(dataObject: settings.configuration) else {
             XCTFail("Expected valid configuration")
@@ -35,9 +35,9 @@ final class PersistDataValueSettingsBuilderTests: XCTestCase {
         XCTAssertEqual(config.destination, .key("dest_key"))
     }
 
-    func test_persist_with_reference_input_sets_configuration() {
+    func test_persistFrom_sets_configuration() {
         let settings = PersistDataValueSettingsBuilder(id: transformationId)
-            .persist(input: .key("source_key"), destination: .key("dest_key"))
+            .persistFrom(.key("source_key"), to: .key("dest_key"))
             .build()
         guard let config = PersistDataValueConfiguration(dataObject: settings.configuration) else {
             XCTFail("Expected valid configuration")
@@ -53,7 +53,7 @@ final class PersistDataValueSettingsBuilderTests: XCTestCase {
 
     func test_setExpiryPolicy_sets_configuration() {
         let settings = PersistDataValueSettingsBuilder(id: transformationId)
-            .persist(input: "value", destination: .key("dest"))
+            .persistConstant("value", to: .key("dest"))
             .setExpiryPolicy(.forever)
             .build()
         guard let config = PersistDataValueConfiguration(dataObject: settings.configuration) else {
@@ -65,7 +65,7 @@ final class PersistDataValueSettingsBuilderTests: XCTestCase {
 
     func test_setUpdatePolicy_sets_configuration() {
         let settings = PersistDataValueSettingsBuilder(id: transformationId)
-            .persist(input: "value", destination: .key("dest"))
+            .persistConstant("value", to: .key("dest"))
             .setUpdatePolicy(.keepFirstValue)
             .build()
         guard let config = PersistDataValueConfiguration(dataObject: settings.configuration) else {
@@ -77,7 +77,7 @@ final class PersistDataValueSettingsBuilderTests: XCTestCase {
 
     func test_default_values() {
         let settings = PersistDataValueSettingsBuilder(id: transformationId)
-            .persist(input: "value", destination: .key("dest"))
+            .persistConstant("value", to: .key("dest"))
             .build()
         guard let config = PersistDataValueConfiguration(dataObject: settings.configuration) else {
             XCTFail("Expected valid configuration")
@@ -96,7 +96,7 @@ final class PersistDataValueSettingsBuilderTests: XCTestCase {
     func test_build_with_all_properties_produces_complete_configuration() {
         let condition = Rule<Condition>.just(Condition.equals(ignoreCase: false, variable: "tealium_event", target: "test"))
         let settings = PersistDataValueSettingsBuilder(id: transformationId)
-            .persist(input: .key("source"), destination: .key("dest"))
+            .persistFrom(.key("source"), to: .key("dest"))
             .setExpiryPolicy(.forever)
             .setUpdatePolicy(.keepFirstValue)
             .addScope(.afterCollectors)
@@ -122,15 +122,15 @@ final class PersistDataValueSettingsBuilderTests: XCTestCase {
         XCTAssertEqual(config.updatePolicy, .keepFirstValue)
     }
 
-    func test_persist_with_constant_input_returns_builder() {
+    func test_persistConstant_returns_builder() {
         let builder = PersistDataValueSettingsBuilder(id: transformationId)
-        let result = builder.persist(input: "value", destination: .key("dest"))
+        let result = builder.persistConstant("value", to: .key("dest"))
         XCTAssertTrue(result === builder)
     }
 
-    func test_persist_with_reference_input_returns_builder() {
+    func test_persistFrom_returns_builder() {
         let builder = PersistDataValueSettingsBuilder(id: transformationId)
-        let result = builder.persist(input: .key("source"), destination: .key("dest"))
+        let result = builder.persistFrom(.key("source"), to: .key("dest"))
         XCTAssertTrue(result === builder)
     }
 

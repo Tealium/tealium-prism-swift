@@ -37,7 +37,7 @@ Use `SetDataValuesSettingsBuilder` to define one or more operations:
 ```swift
 // Copy a value from one key to another
 let copyOperation = SetDataValuesSettingsBuilder(id: "copy-user-id")
-    .addOperation(input: .key("user_id"), destination: .key("visitor_id"))
+    .setFrom(.key("user_id"), to: .key("visitor_id"))
     .addScope(.afterCollectors)
 
 config.setTransformation(copyOperation)
@@ -46,7 +46,7 @@ config.setTransformation(copyOperation)
 ```swift
 // Set a constant value at a given key
 let setConstant = SetDataValuesSettingsBuilder(id: "set-platform")
-    .addOperation(input: ValueContainer("ios"), destination: .key("platform"))
+    .setConstant("ios", to: .key("platform"))
     .addScope(.afterCollectors)
 
 config.setTransformation(setConstant)
@@ -55,8 +55,8 @@ config.setTransformation(setConstant)
 ```swift
 // Mix reference and constant operations in one transformation
 let combined = SetDataValuesSettingsBuilder(id: "enrich-payload")
-    .addOperation(input: .key("raw_email"), destination: .key("email"))
-    .addOperation(input: ValueContainer("mobile"), destination: .key("channel"))
+    .setFrom(.key("raw_email"), to: .key("email"))
+    .setConstant("mobile", to: .key("channel"))
     .addScope(.afterCollectors)
 
 config.setTransformation(combined)
@@ -66,20 +66,20 @@ config.setTransformation(combined)
 
 ```swift
 let nested = SetDataValuesSettingsBuilder(id: "map-nested")
-    .addOperation(
-        input: .path(JSONPath["user"]["profile"]["name"]),
-        destination: .key("user_name")
+    .setFrom(
+        .path(JSONPath["user"]["profile"]["name"]),
+        to: .key("user_name")
     )
     .addScope(.afterCollectors)
 config.setTransformation(nested)
 ```
 
-**`addOperation` overloads:**
+**Builder methods:**
 
-| Overload | Description |
+| Method | Description |
 |---|---|
-| `addOperation(input: ReferenceContainer, destination: ReferenceContainer)` | Copies the value at `input` to `destination` |
-| `addOperation(input: ValueContainer, destination: ReferenceContainer)` | Sets a constant `input` value at `destination` |
+| `setFrom(_ input: ReferenceContainer, to destination: ReferenceContainer)` | Copies the value at `input` to `destination` |
+| `setConstant(_ constant: DataInput, to destination: ReferenceContainer)` | Sets a constant value at `destination` |
 
 If the source key is not present in the payload, the operation is silently skipped.
 
@@ -128,7 +128,7 @@ The `PersistDataValue` transformer stores a value from the dispatch payload (or 
 ```swift
 // Persist a payload value to the data layer (session-scoped by default)
 let persistUserId = PersistDataValueSettingsBuilder(id: "persist-user-id")
-    .persist(input: .key("user_id"), destination: .key("persisted_user_id"))
+    .persistFrom(.key("user_id"), to: .key("persisted_user_id"))
     .addScope(.afterCollectors)
 
 config.setTransformation(persistUserId)
@@ -137,7 +137,7 @@ config.setTransformation(persistUserId)
 ```swift
 // Persist a constant value, never expire it, and never overwrite once set
 let persistAppVersion = PersistDataValueSettingsBuilder(id: "persist-app-version")
-    .persist(input: "2.4.0", destination: .key("first_seen_version"))
+    .persistConstant("2.4.0", to: .key("first_seen_version"))
     .setExpiryPolicy(.forever)
     .setUpdatePolicy(.keepFirstValue)
     .addScope(.afterCollectors)
@@ -148,7 +148,7 @@ config.setTransformation(persistAppVersion)
 ```swift
 // Persist for a custom duration
 let persistCampaign = PersistDataValueSettingsBuilder(id: "persist-campaign")
-    .persist(input: .key("utm_campaign"), destination: .key("last_campaign"))
+    .persistFrom(.key("utm_campaign"), to: .key("last_campaign"))
     .setExpiryPolicy(.duration(30.days))
     .addScope(.afterCollectors)
 
@@ -159,8 +159,8 @@ config.setTransformation(persistCampaign)
 
 | Method | Description |
 |---|---|
-| `persist(input: String, destination:)` | Persist a constant string value |
-| `persist(input: ReferenceContainer, destination:)` | Persist the value found at `input` in the dispatch payload |
+| `persistConstant(_:to:)` | Persist a constant value |
+| `persistFrom(_:to:)` | Persist the value found at `input` in the dispatch payload |
 | `setExpiryPolicy(_:)` | How long the data layer value lives. Default: `.session` |
 | `setUpdatePolicy(_:)` | Whether subsequent writes can overwrite the stored value. Default: `.allowUpdate` |
 
@@ -296,14 +296,14 @@ The built-in transformers compose naturally. A common pattern is to persist an i
 ```swift
 // 1. Persist the raw campaign tag for 30 days
 let persistCampaign = PersistDataValueSettingsBuilder(id: "persist-campaign")
-    .persist(input: .key("utm_campaign"), destination: .key("last_campaign"))
+    .persistFrom(.key("utm_campaign"), to: .key("last_campaign"))
     .setExpiryPolicy(.duration(30.days))
     .setUpdatePolicy(.allowUpdate)
     .addScope(.afterCollectors)
 
 // 2. Copy the persisted value to a canonical key expected by the backend
 let copyToCanonical = SetDataValuesSettingsBuilder(id: "map-campaign")
-    .addOperation(input: .key("last_campaign"), destination: .key("campaign_name"))
+    .setFrom(.key("last_campaign"), to: .key("campaign_name"))
     .addScope(.afterCollectors)
 
 // 3. Lowercase the canonical key to ensure consistent casing

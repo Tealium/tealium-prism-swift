@@ -51,7 +51,7 @@ final class SetDataValuesTransformerTests: XCTestCase {
     func test_applyTransformation_withReferenceOperation_copiesValue() {
         let dispatch = Dispatch(name: "test", data: ["source_key": "source_value"])
         let settings = SetDataValuesSettingsBuilder(id: "test")
-            .addOperation(input: .key("source_key"), destination: .key("destination_key"))
+            .setFrom(.key("source_key"), to: .key("destination_key"))
             .build()
         let expectation = expectation(description: "Value is copied from source to destination")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
@@ -64,7 +64,7 @@ final class SetDataValuesTransformerTests: XCTestCase {
     func test_applyTransformation_withConstantOperation_setsValue() {
         let dispatch = Dispatch(name: "test", data: ["existing_key": "existing_value"])
         let settings = SetDataValuesSettingsBuilder(id: "test")
-            .addOperation(input: ValueContainer("constant_value"), destination: .key("destination_key"))
+            .setConstant("constant_value", to: .key("destination_key"))
             .build()
         let expectation = expectation(description: "Constant value is set to destination")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
@@ -80,8 +80,8 @@ final class SetDataValuesTransformerTests: XCTestCase {
             "source2": "value2"
         ])
         let settings = SetDataValuesSettingsBuilder(id: "test")
-            .addOperation(input: .key("source1"), destination: .key("dest1"))
-            .addOperation(input: ValueContainer("constant"), destination: .key("dest2"))
+            .setFrom(.key("source1"), to: .key("dest1"))
+            .setConstant("constant", to: .key("dest2"))
             .build()
         let expectation = expectation(description: "All operations are applied")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
@@ -97,7 +97,7 @@ final class SetDataValuesTransformerTests: XCTestCase {
     func test_applyTransformation_withMissingSourceReference_skipsOperation() {
         let dispatch = Dispatch(name: "test", data: ["existing_key": "existing_value"])
         let settings = SetDataValuesSettingsBuilder(id: "test")
-            .addOperation(input: .key("missing_key"), destination: .key("destination_key"))
+            .setFrom(.key("missing_key"), to: .key("destination_key"))
             .build()
 
         let expectation = expectation(description: "Operation is skipped for missing source")
