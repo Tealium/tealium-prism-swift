@@ -2035,6 +2035,10 @@
 		ECF92FBB2F72F15E00A5AE06 /* DispatchScopeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF92FB82F72F15E00A5AE06 /* DispatchScopeTests.swift */; };
 		ECF92FBC2F72F15E00A5AE06 /* DispatchScopeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECF92FB82F72F15E00A5AE06 /* DispatchScopeTests.swift */; };
 		F3B4EC50CF85A76D14702DCC /* Pods_ExtensionsTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 3023E202E629A2DF431B14D8 /* Pods_ExtensionsTests_macOS.framework */; };
+		F575554B2F7EDA490066BAED /* LazyConstantTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F575554A2F7EDA490066BAED /* LazyConstantTests.swift */; };
+		F575554C2F7EDA490066BAED /* LazyConstantTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F575554A2F7EDA490066BAED /* LazyConstantTests.swift */; };
+		F575554D2F7EDA490066BAED /* LazyConstantTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F575554A2F7EDA490066BAED /* LazyConstantTests.swift */; };
+		F575554E2F7EDA490066BAED /* LazyConstantTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F575554A2F7EDA490066BAED /* LazyConstantTests.swift */; };
 		F93FDEE8886CD5CEEF841725 /* Pods_ExtensionsTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E176CE58B150E719A80BC8D4 /* Pods_ExtensionsTests_iOS.framework */; };
 		FF06A54FD2D8EA315E27FF22 /* Pods_EndToEndTests_watchOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6F027FAC4CC1C4A5D8B28008 /* Pods_EndToEndTests_watchOS.framework */; };
 /* End PBXBuildFile section */
@@ -2528,6 +2532,7 @@
 		F231A0BB92C6A1EFC1FFD279 /* Pods-ExtensionsTests_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ExtensionsTests_macOS.release.xcconfig"; path = "Target Support Files/Pods-ExtensionsTests_macOS/Pods-ExtensionsTests_macOS.release.xcconfig"; sourceTree = "<group>"; };
 		F2811E883A47A6722BF3D4E2 /* Pods-EndToEndTests_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EndToEndTests_tvOS.debug.xcconfig"; path = "Target Support Files/Pods-EndToEndTests_tvOS/Pods-EndToEndTests_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		F386AEACFA32C0448DB6FF23 /* Pods_EndToEndTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EndToEndTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		F575554A2F7EDA490066BAED /* LazyConstantTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyConstantTests.swift; sourceTree = "<group>"; };
 		F61B8EB1042140D9BE3D6214 /* LifecycleTests_watchOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LifecycleTests_watchOS-Info.plist"; sourceTree = "<group>"; };
 		F6F88855524B085D1A499E24 /* Pods_MomentsAPITests_watchOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MomentsAPITests_watchOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F7D7D4FF07D6DB970EEC8C8F /* Pods-EndToEndTests_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EndToEndTests_tvOS.debug.xcconfig"; path = "Target Support Files/Pods-EndToEndTests_tvOS/Pods-EndToEndTests_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -3245,6 +3250,7 @@
 				870F9BB32E13E8F500E28AF4 /* DateFormatterTests.swift */,
 				875371082E2E4C2B00CDED6D /* URLTests.swift */,
 				87AC5FD52ED9EE9C00F189DC /* DataItemFormatterTests.swift */,
+				F575554A2F7EDA490066BAED /* LazyConstantTests.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -6162,6 +6168,7 @@
 				87FC08772D944BEA00E1041D /* TrackerImplTests.swift in Sources */,
 				875371032E2E49C400CDED6D /* AnyCodable+Equatable.swift in Sources */,
 				87ED26EA2CE504C80086FFA4 /* DataLayerWrapperTests.swift in Sources */,
+				F575554D2F7EDA490066BAED /* LazyConstantTests.swift in Sources */,
 				877C5F6E2CBD6C99008D4B78 /* Sha256Tests.swift in Sources */,
 				D54BBFC32C78C01A003687C7 /* ErrorCooldownTests.swift in Sources */,
 				87AA174C2CEE429C003E99A8 /* DataLayerTests.swift in Sources */,
@@ -7032,6 +7039,7 @@
 				87A409322E97F06E005D92CC /* Operators+MergeTests.swift in Sources */,
 				87A409332E97F06E005D92CC /* DispatchManager+DispatchersListTests.swift in Sources */,
 				87A409342E97F06E005D92CC /* ResourceRefresherTests.swift in Sources */,
+				F575554B2F7EDA490066BAED /* LazyConstantTests.swift in Sources */,
 				87A409352E97F06E005D92CC /* Condition+NotEqualsTests.swift in Sources */,
 				87A409362E97F06E005D92CC /* SDKSettings+copy.swift in Sources */,
 				87A409372E97F06E005D92CC /* MappingParametersTests.swift in Sources */,
@@ -7559,6 +7567,7 @@
 				D54BBFF52C78C01A003687C7 /* DispatchManager+DispatchersListTests.swift in Sources */,
 				D54BBFDA2C78C01A003687C7 /* ResourceRefresherTests.swift in Sources */,
 				87EE76D62D7865D300BB1D77 /* Condition+NotEqualsTests.swift in Sources */,
+				F575554C2F7EDA490066BAED /* LazyConstantTests.swift in Sources */,
 				876F25042DDF2EAC00C55FFE /* SDKSettings+copy.swift in Sources */,
 				873B78362DA7DB530026A356 /* MappingParametersTests.swift in Sources */,
 				87FC086E2D94133500E1041D /* SDKSettingsTests.swift in Sources */,
@@ -7810,6 +7819,7 @@
 				87AF54702C7E389C00F1C114 /* TimeFrameTests.swift in Sources */,
 				876F25032DDF2EAC00C55FFE /* SDKSettings+copy.swift in Sources */,
 				873B78342DA7DB530026A356 /* MappingParametersTests.swift in Sources */,
+				F575554E2F7EDA490066BAED /* LazyConstantTests.swift in Sources */,
 				87FC086F2D94133500E1041D /* SDKSettingsTests.swift in Sources */,
 				ECAB835A2DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift in Sources */,
 				87BA6E0D2C6A47AF00784784 /* MockNetworkClient.swift in Sources */,

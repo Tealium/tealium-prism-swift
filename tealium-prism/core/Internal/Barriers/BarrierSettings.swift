@@ -32,11 +32,11 @@ struct BarrierSettings {
 
 extension BarrierSettings: DataObjectConvertible {
     func toDataObject() -> DataObject {
-        [
+        DataObject(compacting: [
             Keys.barrierId: barrierId,
             Keys.scopes: scopes,
             Keys.configuration: configuration
-        ]
+        ])
     }
 }
 

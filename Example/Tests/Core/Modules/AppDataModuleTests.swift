@@ -45,10 +45,10 @@ final class AppDataModuleTests: XCTestCase {
         let dataStore2 = try dataStoreProvider.getModuleStore(name: AppDataModule.moduleType)
         let newAppDataModule = AppDataModule(dataStore: dataStore2, bundle: mockBundle, logger: mockLogger)
         let appData = newAppDataModule.collect(dispatchContext)
-        XCTAssertEqual(appData.get(key: TealiumDataKey.appBuild), NSNull())
+        XCTAssertNil(appData.getDataItem(key: TealiumDataKey.appBuild))
         XCTAssertEqual(appData.get(key: TealiumDataKey.appName), "TestApp")
         XCTAssertEqual(appData.get(key: TealiumDataKey.appRDNS), "com.example.testapp")
-        XCTAssertEqual(appData.get(key: TealiumDataKey.appVersion), NSNull())
+        XCTAssertNil(appData.getDataItem(key: TealiumDataKey.appVersion))
         XCTAssertNotNil(appData.get(key: TealiumDataKey.appUUID, as: String.self))
     }
 

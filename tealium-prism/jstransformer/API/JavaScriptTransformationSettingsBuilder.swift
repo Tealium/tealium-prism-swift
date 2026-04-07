@@ -48,7 +48,7 @@ public class JavaScriptTransformationSettingsBuilder: TransformationSettingsBuil
     }
 
     override public func build() -> TransformationSettings {
-        _ = _setConfiguration([Keys.code: code])
+        _ = _setConfiguration(DataObject(compacting: [Keys.code: code]))
         return super.build()
     }
 }

@@ -75,7 +75,7 @@ final class BarrierSettingsTests: XCTestCase {
 
     func test_toDataObject_with_nil_scope() {
         let settings = BarrierSettings(barrierId: "test", scopes: nil, configuration: [:])
-        let expected: DataObject = ["barrier_id": "test", "scopes": NSNull(), "configuration": DataItem(value: [:])]
+        let expected: DataObject = ["barrier_id": "test", "configuration": DataItem(value: [:])]
         XCTAssertEqual(settings.toDataObject(), expected)
     }
 

@@ -66,10 +66,10 @@ public class LowerCaseSettingsBuilder: TransformationSettingsBuilder {
     /// - Returns: A `TransformationSettings` instance ready to be applied by the transformer.
     override public func build() -> TransformationSettings {
         typealias Keys = LowerCaseConfiguration.Keys
-        _ = _setConfiguration([
+        _ = _setConfiguration(DataObject(compacting: [
             Keys.inputs: inputs.map { $0.toDataObject() },
             Keys.allVariables: allVariables
-        ])
+        ]))
         return super.build()
     }
 }
