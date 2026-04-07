@@ -37,9 +37,9 @@ final class SetDataValuesSettingsBuilderTests: XCTestCase {
         XCTAssertEqual(settings.scopes.count, 2)
     }
 
-    func test_addOperation_withReference() {
+    func test_setFrom() {
         let settings = SetDataValuesSettingsBuilder(id: transformationId)
-            .addOperation(input: .key("input_key"), destination: .key("destination_key"))
+            .setFrom(.key("input_key"), to: .key("destination_key"))
             .build()
         let operations = convertedOperations(from: settings)
         XCTAssertEqual(operations.count, 1)
@@ -51,9 +51,9 @@ final class SetDataValuesSettingsBuilderTests: XCTestCase {
         XCTAssertEqual(ref, .key("input_key"))
     }
 
-    func test_addOperation_withConstant() {
+    func test_setConstant() {
         let settings = SetDataValuesSettingsBuilder(id: transformationId)
-            .addOperation(input: ValueContainer(["key": "value"]), destination: .key("destination_key"))
+            .setConstant(["key": "value"], to: .key("destination_key"))
             .build()
         let operations = convertedOperations(from: settings)
         XCTAssertEqual(operations.count, 1)
@@ -65,10 +65,10 @@ final class SetDataValuesSettingsBuilderTests: XCTestCase {
         XCTAssertEqual(value.value.getDictionary(of: String.self), ["key": "value"])
     }
 
-    func test_addOperation_multiple() {
+    func test_setFrom_and_setConstant_multiple() {
         let settings = SetDataValuesSettingsBuilder(id: transformationId)
-            .addOperation(input: .key("input1_key"), destination: .key("destination1_key"))
-            .addOperation(input: ValueContainer("constant-value"), destination: .key("destination2_key"))
+            .setFrom(.key("input1_key"), to: .key("destination1_key"))
+            .setConstant("constant-value", to: .key("destination2_key"))
             .build()
         let operations = convertedOperations(from: settings)
         XCTAssertEqual(operations.count, 2)
@@ -95,7 +95,7 @@ final class SetDataValuesSettingsBuilderTests: XCTestCase {
         let settings = SetDataValuesSettingsBuilder(id: transformationId)
             .addScope(.afterCollectors)
             .setConditions(condition)
-            .addOperation(input: .key("input_key"), destination: .key("destination_key"))
+            .setFrom(.key("input_key"), to: .key("destination_key"))
             .build()
         XCTAssertEqual(settings.id, transformationId)
         XCTAssertEqual(settings.transformerId, Modules.Types.setDataValuesTransformer)
@@ -105,9 +105,15 @@ final class SetDataValuesSettingsBuilderTests: XCTestCase {
         XCTAssertEqual(operations.count, 1)
     }
 
-    func test_addOperation_returnsBuilder() {
+    func test_setFrom_returnsBuilder() {
         let builder = SetDataValuesSettingsBuilder(id: transformationId)
-        let result = builder.addOperation(input: .key("key"), destination: .key("dest"))
+        let result = builder.setFrom(.key("key"), to: .key("dest"))
+        XCTAssertTrue(result === builder)
+    }
+
+    func test_setConstant_returnsBuilder() {
+        let builder = SetDataValuesSettingsBuilder(id: transformationId)
+        let result = builder.setConstant("constant", to: .key("dest"))
         XCTAssertTrue(result === builder)
     }
 

@@ -39,7 +39,7 @@ public enum UpdatePolicy: String, Equatable {
 /// Example usage:
 /// ```swift
 /// let settings = PersistDataValueSettingsBuilder(id: "persist-user-id")
-///     .persist(input: .key("user_id"), destination: .key("persisted_user_id"))
+///     .persistFrom(.key("user_id"), to: .key("persisted_user_id"))
 ///     .setExpiryPolicy(.forever)
 ///     .setUpdatePolicy(.keepFirstValue)
 ///     .addScope(.afterCollectors)
@@ -65,15 +65,12 @@ public class PersistDataValueSettingsBuilder: TransformationSettingsBuilder {
     /// defaults to `.session` expiry and `.allowUpdate` policy.
     ///
     /// - Parameters:
-    ///   - input: The constant value to be persisted.
+    ///   - constant: The constant value to be persisted.
     ///   - destination: A `ReferenceContainer` specifying where in the data layer to store the value.
     ///                  Can be a simple key or a nested path.
     /// - Returns: The builder instance for method chaining.
-    public func persist(
-        input: String,
-        destination: ReferenceContainer
-    ) -> Self {
-        self.input = .constant(ValueContainer(input))
+    public func persistConstant(_ constant: DataInput, to destination: ReferenceContainer) -> Self {
+        self.input = .constant(ValueContainer(constant))
         self.destination = destination
         return self
     }
@@ -91,10 +88,7 @@ public class PersistDataValueSettingsBuilder: TransformationSettingsBuilder {
     ///   - destination: A `ReferenceContainer` specifying where in the data layer to store the value.
     ///                  Can be a simple key or a nested path.
     /// - Returns: The builder instance for method chaining.
-    public func persist(
-        input: ReferenceContainer,
-        destination: ReferenceContainer
-    ) -> Self {
+    public func persistFrom(_ input: ReferenceContainer, to destination: ReferenceContainer) -> Self {
         self.input = .reference(input)
         self.destination = destination
         return self

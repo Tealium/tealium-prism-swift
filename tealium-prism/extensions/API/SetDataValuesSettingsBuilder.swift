@@ -19,8 +19,8 @@ import TealiumPrismCore
 /// Example:
 /// ```swift
 /// let settings = SetDataValuesSettingsBuilder(id: "my-transform")
-///     .addOperation(input: .key("source"), destination: .key("dest"))
-///     .addOperation(input: ValueContainer("hello"), destination: .key("greeting"))
+///     .setFrom(.key("source"), to: .key("dest"))
+///     .setConstant("hello", to: .key("greeting"))
 ///     .addScope(.afterCollectors)
 ///     .build()
 /// ```
@@ -38,18 +38,18 @@ public class SetDataValuesSettingsBuilder: TransformationSettingsBuilder {
     ///   - input: A reference to the source location in the payload.
     ///   - destination: A reference to the destination location in the payload.
     /// - Returns: This builder instance for chaining.
-    public func addOperation(input: ReferenceContainer, destination: ReferenceContainer) -> Self {
+    public func setFrom(_ input: ReferenceContainer, to destination: ReferenceContainer) -> Self {
         operations.append(.init(input: .reference(input), destination: destination))
         return self
     }
 
     /// Adds an operation that sets a constant value at a location in the dispatch payload.
     /// - Parameters:
-    ///   - input: The constant value to set.
+    ///   - constant: The constant value to set.
     ///   - destination: A reference to the destination location in the payload.
     /// - Returns: This builder instance for chaining.
-    public func addOperation(input: ValueContainer, destination: ReferenceContainer) -> Self {
-        operations.append(.init(input: .constant(input), destination: destination))
+    public func setConstant(_ constant: DataInput, to destination: ReferenceContainer) -> Self {
+        operations.append(.init(input: .constant(ValueContainer(constant)), destination: destination))
         return self
     }
 

@@ -48,8 +48,7 @@ class TealiumHelper {
         config.setTransformation(
             SetDataValuesSettingsBuilder(id: "duplicate-tealium_event-to-some_destination")
                 .addScope(.allDispatchers)
-                .addOperation(input: .key("tealium_event"),
-                              destination: .key("some_destination"))
+                .setFrom(.key("tealium_event"), to: .key("some_destination"))
         )
 
         config.setTransformation(
@@ -65,7 +64,7 @@ class TealiumHelper {
             PersistDataValueSettingsBuilder(id: "persist-some value")
                 .setExpiryPolicy(.forever)
                 .setUpdatePolicy(.keepFirstValue)
-                .persist(input: "some value", destination: .key("some_key"))
+                .persistConstant("some value", to: .key("some_key"))
                 .addScope(.allDispatchers)
         )
 
