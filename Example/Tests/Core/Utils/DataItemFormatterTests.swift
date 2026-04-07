@@ -29,7 +29,7 @@ final class DataItemFormatterTests: XCTestCase {
     }
 
     func test_format_null_returns_nil() {
-        XCTAssertNil(formatter.format(dataItem: DataItem(value: NSNull())))
+        XCTAssertNil(formatter.format(dataItem: .null))
     }
 
     func test_format_json_objects_returns_json_serialization_with_scientific_notation() {
@@ -54,7 +54,7 @@ final class DataItemFormatterTests: XCTestCase {
         let array = DataItem(converting: [
             DataItem(value: "value"),
             DataItem(value: 100_000_000_000_000_000.0),
-            DataItem(value: NSNull())
+            DataItem.null
         ])
         XCTAssertEqual(formatter.format(dataItem: array),
                        "[\"value\",1e+17,null]")

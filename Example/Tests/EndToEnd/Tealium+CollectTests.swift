@@ -163,13 +163,13 @@ final class TealiumCollectTests: TealiumBaseTests {
     func test_collect_sends_transformed_event() {
         config.addModule(Modules.collect())
         config.addModule(StubModuleFactory(module: MockTransformer(transformation: { _, dispatch, _ in
-            Dispatch(payload: [
+            Dispatch(payload: DataObject(compacting: [
                 "tealium_account": dispatch.payload.getDataItem(key: "tealium_account"),
                 "tealium_profile": dispatch.payload.getDataItem(key: "tealium_profile"),
                 "tealium_visitor_id": dispatch.payload.getDataItem(key: "tealium_visitor_id"),
                 "tealium_event": dispatch.payload.getDataItem(key: "tealium_event"),
                 "transformed_key": "transformed_value"
-            ], id: dispatch.id, timestamp: 0)
+            ]), id: dispatch.id, timestamp: 0)
         })))
         config.setTransformation(TransformationSettingsBuilder(id: "transformation", transformerId: MockTransformer.moduleType)
             .addScope(.allDispatchers))

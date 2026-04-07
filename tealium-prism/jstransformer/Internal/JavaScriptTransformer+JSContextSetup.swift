@@ -116,7 +116,7 @@ extension JavaScriptTransformer {
             return
         }
         let get: @convention(block) (_ key: String) -> Any = { [dataLayer] key in
-            dataLayer.getDataItem(key: key).toDataInput()
+            dataLayer.getDataItem(key: key)?.toDataInput() ?? NSNull()
         }
         jsDataLayer["get"] = get
         let getAll: @convention(block) () -> Any = { [dataLayer] in

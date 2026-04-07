@@ -9,13 +9,13 @@
 import Foundation
 
 /**
- * A wrapper class that contains a generic JSON value.
+ * A wrapper struct that contains a generic JSON value.
  *
  * You can use the utility getters to obtain the value in the correct type:
- * - You can read any number as Int/Float/Double/NSNumber intercheangebly since it's backed by an NSNumber on disk.
+ * - You can read any number as Int/Float/Double/NSNumber interchangeably since it's backed by an NSNumber on disk.
  * - Arrays and Dictionaries will always contain `DataItem` as values and you can use specific getter to get the correct types from them too.
  *
- * - Warning: Do NOT cast this wrapper class to anything else as it will fail. Use the appropriate conversion methods instead.
+ * - Warning: Do NOT cast this wrapper struct to anything else as it will fail. Use the appropriate conversion methods instead.
  *
  * Mistake example:
  * ```
@@ -25,8 +25,13 @@ import Foundation
  *  let numbers: [Int]? = DataItem(value: [1, 2, 3]).getArray().compactMap { $0 } // This will also succeed and remove potentially nil values from the array
  * ```
  */
-final public class DataItem {
+public struct DataItem {
 
+    // Can be shared despite the internal `value` is effectively a variable,
+    // because it won't ever be changed when initialized with an actual value.
+    // The internal value only changes when initialized with a string.
+    /// A `DataItem` representing `null`.
+    public static let null = DataItem(value: NSNull())
     /**
      * Initialize this wrapper from a JSON `String` representation of the value.
      *
@@ -39,23 +44,22 @@ final public class DataItem {
      * - a `Dictionary` will be represented like this: "{\"key\": \"value\"}"
      */
     init(stringValue: String) {
-        self.stringValue = stringValue
+        self._value = LazyConstant(wrappedValue: try? stringValue.deserialize())
     }
 
     /// Initialize a `DataItem` with a specific value that is a valid `DataInput`.
-    convenience public init(value: DataInput) {
+    public init(value: DataInput) {
         self.init(safeValue: value)
     }
 
     /// - Warning: Only use this method internally to initialize from any other value that was previously parsed by another `DataItem` initializer
     /// as an example in a `DataItem` containing an `Array` or a `Dictionary`, or from a previously encoded value decoded with `AnyDecodable`.
     fileprivate init(safeValue: Any) {
-        self.stringValue = nil
-        self.value = safeValue
+        self._value = LazyConstant(resolved: safeValue)
     }
 
     /// Initialize a `DataItem` with a generic value that can be converted to a valid `Input`.
-    convenience public init(converting value: DataInputConvertible) {
+    public init(converting value: DataInputConvertible) {
         self.init(value: value.toDataInput())
     }
 
@@ -73,14 +77,20 @@ final public class DataItem {
      *
      * - throws: An `EncodingError` if any other type of values are passed in the parameter or in eventual nested values.
      */
-    public convenience init(serializing value: Any) throws {
+    public init(serializing value: Any) throws {
         // swiftlint:disable:next optional_data_string_conversion
         self.init(stringValue: String(decoding: try Tealium.jsonEncoder.encode(AnyCodable(value)), as: UTF8.self)) // Safe as we just used encode that returns UTF8 formatted data
     }
 
-    let stringValue: String?
-
-    lazy private(set) var value: Any? = try? stringValue?.deserialize()
+    /// Do not change the LazyConstant wrapper. It must be set only once at init time.
+    ///
+    /// `LazyConstant` is a class, so this `value` is shared among copies of this `DataItem`.
+    /// All eventual copies of this `DataItem` will always compute the value at most once,
+    /// provided that eventual multiple access happens in a synchronized way (e.g. from the same thread).
+    ///
+    /// It's not thread safe to compute this value from multiple threads at the same time.
+    /// Doing so could lead to multiple computations or even crashes.
+    @LazyConstant var value: Any?
 
     private var isBool: Bool {
         value is Bool
@@ -115,7 +125,7 @@ final public class DataItem {
     /**
      * Returns the data in the requested type if the conversion is possible.
      *
-     * Supported types are: 
+     * Supported types are:
      * - `Double`
      * - `Float`
      * - `Int`
@@ -205,7 +215,7 @@ final public class DataItem {
      * let nsNumber = NSNumber(1.5)
      * let dataItem = DataItem(value: [nsNumber])
      * let aDoubleArray = dataItem.getArray(of: Double.self) // [Double(1.5)]
-     * let anIntArrat = dataItem.getArray(of: Int.self) // [Int(1)]
+     * let anIntArray = dataItem.getArray(of: Int.self) // [Int(1)]
      *  ```
      */
     public func getArray<T: DataInput>(of type: T.Type = T.self) -> [T?]? {
@@ -263,7 +273,7 @@ extension DataItem: DataInputConvertible {
 }
 
 extension DataItem: Decodable {
-    convenience public init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.singleValueContainer()
         let anyCodable = try container.decode(AnyCodable.self)
         self.init(safeValue: anyCodable.value)

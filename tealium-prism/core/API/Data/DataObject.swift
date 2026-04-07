@@ -65,7 +65,7 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
      * The Convertible elements will be converted immediately before being stored.
      * `nil`s in root object will be removed.
      */
-    init(compacting dictionary: [String: DataInputConvertible?] = [:]) {
+    public init(compacting dictionary: [String: DataInputConvertible?] = [:]) {
         self.init(dictionary: dictionary.compactMapValues { $0 })
     }
 
