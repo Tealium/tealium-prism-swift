@@ -129,4 +129,18 @@ final class StateSubjectTests: XCTestCase {
         }
         waitForDefaultTimeout()
     }
+
+    func test_disposed_subscription_does_not_call_observer() {
+        let subject = StateSubject<Int>(1)
+        let container = Disposables.composite()
+        subject.subscribe { number in
+            if number == 2 {
+                container.dispose()
+            }
+        }.addTo(container)
+        subject.subscribe { number in
+            XCTAssertEqual(number, 1, "Number 2 should never reach this observer because it's disposed by a previously subscribed observer")
+        }.addTo(container)
+        subject.publish(2)
+    }
 }

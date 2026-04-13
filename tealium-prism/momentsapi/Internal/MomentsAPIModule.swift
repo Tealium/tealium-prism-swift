@@ -24,7 +24,7 @@ class MomentsAPIModule: BasicModule {
     private let visitorId: ObservableState<String>
     private let logger: LoggerProtocol?
     private var configuration: MomentsAPIConfiguration
-    private let disposables: CompositeDisposable = Disposables.automaticComposite()
+    private let disposables = Disposables.automatic()
 
     required convenience init?(context: TealiumContext, moduleConfiguration: DataObject) {
         guard let configuration = MomentsAPIConfiguration(configuration: moduleConfiguration) else {

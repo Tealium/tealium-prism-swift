@@ -25,19 +25,12 @@ class BackgroundTaskStarterTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_startBackgroundTask_emits_false_on_dispose() {
-        let emitsTwice = expectation(description: "Start emits twice")
-        emitsTwice.expectedFulfillmentCount = 2
-        var count = 0
+    func test_startBackgroundTask_does_not_emit_false_on_dispose() {
+        let emitsOnce = expectation(description: "Start emits only on start")
         let disposable = starter.startBackgroundTask()
             .subscribe { value in
-                if count == 0 {
-                    XCTAssertTrue(value)
-                } else {
-                    XCTAssertFalse(value)
-                }
-                count += 1
-                emitsTwice.fulfill()
+                XCTAssertTrue(value)
+                emitsOnce.fulfill()
             }
         disposable.dispose()
         waitForDefaultTimeout()
@@ -95,17 +88,5 @@ class BackgroundTaskStarterTests: XCTestCase {
             emitsTwice.fulfill()
         }
         waitForLongTimeout()
-    }
-
-    func test_startBackgroundTask_emits_from_caller_queue_when_disposed() {
-        let emitsTwice = expectation(description: "Start emits twice")
-        emitsTwice.expectedFulfillmentCount = 2
-        queue = .worker
-        let disposable = starter.startBackgroundTask().subscribe { _ in
-            dispatchPrecondition(condition: .onQueue(.main))
-            emitsTwice.fulfill()
-        }
-        disposable.dispose()
-        waitOnQueue(queue: queue)
     }
 }

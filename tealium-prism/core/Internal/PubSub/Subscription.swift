@@ -9,25 +9,15 @@
 import Foundation
 
 /// A concrete implementation of the `Disposable` protocol that takes a block as an input and calls that block on dispose.
-class Subscription: Disposable {
-    /**
-     * A constant `Disposable` which can be used when when no work is actually required to execute upon disposing.
-     *
-     * `isDisposed` is always `true` and `dispose` is a no-op.
-     */
-    static let completed: Disposable = {
-        let subscription = Subscription { }
-        subscription.dispose()
-        return subscription
-    }()
-    fileprivate var unsubscribe: (() -> Void)?
-    var isDisposed: Bool { unsubscribe == nil }
-    init(unsubscribe: @escaping () -> Void) {
-        self.unsubscribe = unsubscribe
+class Subscription: DisposableContainer {
+    private var onDispose: (() -> Void)?
+    init(onDispose: @escaping () -> Void) {
+        self.onDispose = onDispose
     }
 
-    func dispose() {
-        unsubscribe?()
-        unsubscribe = nil
+    override func dispose() {
+        onDispose?()
+        onDispose = nil
+        super.dispose()
     }
 }

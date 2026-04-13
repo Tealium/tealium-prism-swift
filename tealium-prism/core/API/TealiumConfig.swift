@@ -51,6 +51,8 @@ public struct TealiumConfig {
     /// A visitor ID to be used instead of our anonymous visitor ID.
     public var existingVisitorId: String?
 
+    var backgroundTaskStarter: BackgroundTaskStarter?
+
     /// An adapter that can convert CMP specific data to a `ConsentDecision` that the `Tealium` consent integration system can handle.
     public var cmpAdapter: CMPAdapter?
     /// Replace with nil in tests to use in memory DB

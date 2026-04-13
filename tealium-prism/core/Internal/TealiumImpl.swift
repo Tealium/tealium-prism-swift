@@ -51,7 +51,7 @@ class TealiumImpl {
         settingsManager.settings
             .mapState { $0.core.minLogLevel }
             .distinct()
-            .subscribe(onLogLevel).addTo(automaticDisposer)
+            .subscribe(subject: onLogLevel).addTo(automaticDisposer)
         logger.debug(category: LogCategory.tealium, "Purging expired data from the database")
         storeProvider.modulesRepository.deleteExpired(expiry: .restart)
         let sessionManager = SessionManager(debouncer: Debouncer(queue: queue),
@@ -78,7 +78,7 @@ class TealiumImpl {
         barrierCoordinator = BarrierCoordinator(onScopedBarriers: barrierManager.onScopedBarriers,
                                                 onApplicationStatus: config.appStatusListener.onApplicationStatus,
                                                 queueMetrics: queueManager,
-                                                debouncer: Debouncer(queue: queue),
+                                                backgroundTaskStarter: config.backgroundTaskStarter,
                                                 queue: queue)
         let mappings = settingsManager.settings.mapState { $0.modules.compactMapValues { $0.mappings } }
         let mappingsEngine = MappingsEngine(mappings: mappings)
@@ -112,7 +112,6 @@ class TealiumImpl {
         VisitorSwitcher.handleIdentitySwitches(visitorIdProvider: visitorIdProvider,
                                                onCoreSettings: coreSettings,
                                                dataLayerStore: dataLayerStore).addTo(automaticDisposer)
-
         self.context = TealiumContext(modulesManager: modulesManager,
                                       sessionRegistry: sessionManager,
                                       config: config,
@@ -127,7 +126,8 @@ class TealiumImpl {
                                       activityListener: config.appStatusListener,
                                       queue: modulesManager.queue,
                                       visitorId: visitorIdProvider.visitorId,
-                                      queueMetrics: queueManager)
+                                      queueMetrics: queueManager,
+                                      connectivityManager: ConnectivityManager.shared.publishingOn(queue: queue))
         self.instanceName = "\(config.account)-\(config.profile)"
         barrierManager.initializeBarriers(factories: config.barriers, context: context)
         logger.info(category: LogCategory.tealium, "Instance \(self.instanceName) initialized.")

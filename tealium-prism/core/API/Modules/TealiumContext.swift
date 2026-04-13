@@ -46,6 +46,8 @@ public class TealiumContext {
     public let visitorId: ObservableState<String>
     /// Metrics for queue status monitoring.
     public let queueMetrics: QueueMetrics
+    /// Monitor for connectivity.
+    public let connectivityManager: ConnectivityManagerProtocol
 
     init(modulesManager: ModulesManager,
          sessionRegistry: SessionRegistry,
@@ -61,7 +63,8 @@ public class TealiumContext {
          activityListener: ApplicationStatusListener,
          queue: TealiumQueue,
          visitorId: ObservableState<String>,
-         queueMetrics: QueueMetrics) {
+         queueMetrics: QueueMetrics,
+         connectivityManager: ConnectivityManagerProtocol) {
         self.modulesManager = modulesManager
         self.sessionRegistry = sessionRegistry
         self.config = config
@@ -77,5 +80,6 @@ public class TealiumContext {
         self.queue = queue
         self.visitorId = visitorId
         self.queueMetrics = queueMetrics
+        self.connectivityManager = connectivityManager
     }
 }

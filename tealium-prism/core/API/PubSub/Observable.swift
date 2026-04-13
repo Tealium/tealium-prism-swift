@@ -19,7 +19,15 @@ public class Observable<Element>: Subscribable {
     }
 
     public func subscribe(_ observer: @escaping Observer) -> Disposable {
-        subscriptionHandler(observer)
+        var isDisposed = false
+        let observer = { element in
+            guard !isDisposed else { return }
+            observer(element)
+        }
+        return subscriptionHandler(observer)
+            .onDispose {
+                isDisposed = true
+            }
     }
 }
 

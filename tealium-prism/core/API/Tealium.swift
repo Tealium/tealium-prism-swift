@@ -179,6 +179,19 @@ public class Tealium {
         ModuleProxy(queue: queue, onModulesManager: onModulesManager)
     }
 
+    /**
+     * Creates a `Disposable` which can be used to store multiple `Disposable` instances for bulk disposal.
+     * All methods are executed using the internal `Tealium` queue to ensure operation is thread-safe when containing
+     * `Tealium` returned subscriptions.
+     *
+     * Additional `Disposable` instances can be added via `Disposable.add`.
+     *
+     * - returns: A `Disposable` to dispose some operations, whilst ensuring that all operations happen on its queue.
+     */
+    public func createDisposable() -> Disposable {
+        Disposables.composite(queue: queue)
+    }
+
     deinit {
         asyncDisposer.dispose()
         queue.ensureOnQueue { [proxy = self.proxy] in // Avoid capturing self in deinit

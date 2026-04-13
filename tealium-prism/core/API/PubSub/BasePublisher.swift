@@ -24,7 +24,7 @@ private class ObserverListObservable<Element>: Observable<Element> {
 
     /// A  function that only a Publisher is allowed to call.
     fileprivate func publish(_ element: Element) {
-        observerList.ordered().forEach { observer in
+        for observer in observerList {
             observer(element)
         }
     }

@@ -104,4 +104,184 @@ final class OperatorsFlatMapTests: XCTestCase {
         subject.publish(nil)
         waitForDefaultTimeout()
     }
+
+    func test_flatMap_does_not_dispose_subscription_when_upstream_is_disposed_but_downstream_is_not() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        let other = StateSubject<Int>(5)
+        let observable = subject.asObservable()
+            .first()
+            .flatMap { _ in other.asObservable() }
+
+        let disposable = observable.subscribe { res in
+            eventEmitted.fulfill()
+            XCTAssertEqual(res, 5)
+        }
+        subject.publish(1)
+        subject.publish(2)
+
+        XCTAssertFalse(disposable.isDisposed)
+        waitForDefaultTimeout()
+    }
+
+    func test_flatMap_does_not_dispose_subscription_when_downstream_is_disposed_but_upstream_is_not() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        eventEmitted.expectedFulfillmentCount = 2
+        let observable = subject.asObservable()
+            .flatMap { Observables.just($0 + $0) }
+
+        let disposable = observable.subscribe { res in
+            eventEmitted.fulfill()
+            XCTAssertEqual(res, 2)
+        }
+        subject.publish(1)
+        subject.publish(1)
+
+        XCTAssertFalse(disposable.isDisposed)
+        waitForDefaultTimeout()
+    }
+
+    func test_flatMap_disposes_after_upstream_and_all_of_downstreams_have_disposed() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        eventEmitted.expectedFulfillmentCount = 2
+        let observable0 = subject.asObservable()
+        let observable1 = subject.asObservable().first(where: { $0 == 3 })
+        let observable2 = subject.asObservable().first()
+
+        let observable = observable0
+            .takeWhile({ $0 < 3 }, inclusive: false)
+            .flatMap {
+                if $0 == 1 {
+                    observable1
+                } else {
+                    observable2
+                }
+            }
+
+        let disposable = observable.subscribe { res in
+            eventEmitted.fulfill()
+            XCTAssertEqual(res, 3)
+        }
+        subject.publish(1)
+        subject.publish(2)
+        XCTAssertFalse(disposable.isDisposed)
+
+        subject.publish(3)
+        XCTAssertTrue(disposable.isDisposed)
+        waitForDefaultTimeout()
+    }
+
+    func test_flatMap_disposes_subscription_when_upstream_and_downstream_are_disposed() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        let observable = subject.asObservable()
+            .first()
+            .flatMap { Observables.just($0 + $0) }
+
+        let disposable = observable.subscribe { res in
+            eventEmitted.fulfill()
+            XCTAssertEqual(res, 2)
+        }
+        subject.publish(1)
+        subject.publish(5)
+
+        XCTAssertTrue(disposable.isDisposed)
+        waitForDefaultTimeout()
+    }
+
+    func test_flatMapLatest_does_not_dispose_subscription_when_upstream_is_disposed_but_downstream_is_not() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        let other = StateSubject<Int>(5)
+        let observable = subject.asObservable()
+            .first()
+            .flatMapLatest { _ in other.asObservable() }
+
+        let disposable = observable.subscribe { res in
+            eventEmitted.fulfill()
+            XCTAssertEqual(res, 5)
+        }
+        subject.publish(1)
+        subject.publish(2)
+
+        XCTAssertFalse(disposable.isDisposed)
+        waitForDefaultTimeout()
+    }
+
+    func test_flatMapLatest_does_not_dispose_subscription_when_downstream_is_disposed_but_upstream_is_not() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        eventEmitted.expectedFulfillmentCount = 2
+        let observable = subject.asObservable()
+            .flatMapLatest { Observables.just($0 + $0) }
+
+        let disposable = observable.subscribe { res in
+            eventEmitted.fulfill()
+            XCTAssertEqual(res, 2)
+        }
+        subject.publish(1)
+        subject.publish(1)
+
+        XCTAssertFalse(disposable.isDisposed)
+        waitForDefaultTimeout()
+    }
+
+    func test_flatMapLatest_disposes_after_upstream_and_all_of_downstreams_have_disposed() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        let observable0 = subject.asObservable()
+        let observable1 = subject.asObservable().first(where: { $0 == 3 })
+        let observable2 = subject.asObservable().first()
+
+        let observable = observable0
+            .takeWhile({ $0 < 3 }, inclusive: false)
+            .flatMapLatest {
+                if $0 == 1 {
+                    observable1
+                } else {
+                    observable2
+                }
+            }
+
+        let disposable = observable.subscribe { res in
+            eventEmitted.fulfill()
+            XCTAssertEqual(res, 3)
+        }
+        subject.publish(1)
+        subject.publish(2)
+        XCTAssertFalse(disposable.isDisposed)
+
+        subject.publish(3)
+        XCTAssertTrue(disposable.isDisposed)
+        waitForDefaultTimeout()
+    }
+
+    func test_flatMapLatest_disposes_subscription_when_upstream_and_downstream_are_disposed() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        let observable = subject.asObservable()
+            .first()
+            .flatMapLatest { Observables.just($0 + $0) }
+
+        let disposable = observable.subscribe { res in
+            eventEmitted.fulfill()
+            XCTAssertEqual(res, 2)
+        }
+        subject.publish(1)
+        subject.publish(2)
+
+        XCTAssertTrue(disposable.isDisposed)
+        waitForDefaultTimeout()
+    }
+
+    func test_flatMap_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        assertNoEmissionAfterSideEffectDisposal { $0.flatMap { Observables.just($0) } }
+    }
+
+    func test_flatMapLatest_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        assertNoEmissionAfterSideEffectDisposal { $0.flatMapLatest { Observables.just($0) } }
+    }
+
 }

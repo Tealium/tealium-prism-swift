@@ -9,7 +9,7 @@
 import Foundation
 
 /// Protocol for managing network connectivity state and monitoring.
-public protocol ConnectivityManagerProtocol: RequestInterceptor {
+public protocol ConnectivityManagerProtocol {
     /// Observable state indicating whether connection is assumed to be available.
     var connectionAssumedAvailable: ObservableState<Bool> { get }
     /// Observable state of the current network connection.
@@ -21,17 +21,23 @@ public protocol ConnectivityManagerProtocol: RequestInterceptor {
  *
  * The default behavior would be to always assume that connectivity is available until system monitor or empirical connectivity result unavailable or unknown.
  */
-public class ConnectivityManager: ConnectivityManagerProtocol {
+public class ConnectivityManager: ConnectivityManagerProtocol, RequestInterceptor {
+    static let defaultQueue = TealiumQueue.worker
     let connectivityMonitor: ConnectivityMonitorProtocol
     let empiricalConnectivity: EmpiricalConnectivityProtocol
     private let automaticDisposer = AutomaticDisposer()
 
     /// The shared instance of the `ConnectivityManager`
     public static let shared = ConnectivityManager()
+    let queue: TealiumQueue
 
-    init(connectivityMonitor: ConnectivityMonitorProtocol = ConnectivityMonitor.shared,
-         empiricalConnectivity: EmpiricalConnectivityProtocol = EmpiricalConnectivity(debouncer: Debouncer(queue: TealiumQueue.worker))) {
+    init(queue: TealiumQueue = ConnectivityManager.defaultQueue,
+         connectivityMonitor: ConnectivityMonitorProtocol? = nil,
+         empiricalConnectivity: EmpiricalConnectivityProtocol? = nil) {
+        self.queue = queue
+        let connectivityMonitor = connectivityMonitor ?? ConnectivityMonitor.shared
         self.connectivityMonitor = connectivityMonitor
+        let empiricalConnectivity = empiricalConnectivity ?? EmpiricalConnectivity(debouncer: Debouncer(queue: queue))
         self.empiricalConnectivity = empiricalConnectivity
         connectivityMonitor.connection.asObservable()
             .flatMapLatest { monitoredConnection in
@@ -45,7 +51,8 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
                     empiricalConnectivity.onEmpiricalConnectionAvailable
                 }
             }.distinct()
-            .subscribe(_connectionAssumedAvailable)
+            .subscribeOn(queue)
+            .subscribe(subject: _connectionAssumedAvailable)
             .addTo(automaticDisposer)
     }
 
@@ -95,5 +102,9 @@ public class ConnectivityManager: ConnectivityManagerProtocol {
         default:
             return .doNotRetry
         }
+    }
+
+    func publishingOn(queue: TealiumQueue) -> ConnectivityManagerProtocol {
+        ConnectivityManagerWrapper(connectivityManager: self, queue: queue)
     }
 }

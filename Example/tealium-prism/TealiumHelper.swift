@@ -11,9 +11,9 @@ import TealiumPrism
 
 class TealiumHelper {
     private(set) var teal: Tealium?
-    var automaticDisposer = Disposables.composite()
     static let shared = TealiumHelper()
     let cmp = CustomCMP()
+    var disposable: Disposable = Disposables.disposed()
     func createModuleFactories() -> [any ModuleFactory] {
         [
             CustomCollector.Factory(),
@@ -44,8 +44,10 @@ class TealiumHelper {
         }
         return Tealium.create(config: config)
     }
+
     func startTealium() {
         let teal = createTeal()
+        disposable = teal.createDisposable()
         self.teal = teal
         teal.dataLayer.transactionally { apply, getDataItem, commit in
             apply(.put(key: "key", value: "value", expiry: .forever))
@@ -61,14 +63,17 @@ class TealiumHelper {
             }
         }.onFailure { error in
             print("Transaction update failed with \(error)")
-        }
+        }.addTo(disposable)
     }
 
     func stopTealium() {
+        disposable.dispose()
         self.teal = nil
     }
 
     func flush() {
         teal?.flushEventQueue()
+            .subscribe { _ in }
+            .addTo(disposable)
     }
 }

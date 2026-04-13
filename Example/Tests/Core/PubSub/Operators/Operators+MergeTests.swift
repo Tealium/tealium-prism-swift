@@ -47,4 +47,72 @@ final class OperatorsMergeTests: XCTestCase {
         helper = nil
         waitForDefaultTimeout()
     }
+
+    func test_merge_disposes_subscription_when_all_upstreams_are_disposed() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        eventEmitted.expectedFulfillmentCount = 2
+        let observable = subject.asObservable()
+            .first()
+            .merge(Observables.just(1))
+
+        let disposable = observable.subscribe { res in
+            eventEmitted.fulfill()
+            XCTAssertEqual(res, 1)
+        }
+        subject.publish(1)
+        subject.publish(2)
+
+        waitForDefaultTimeout()
+        XCTAssertTrue(disposable.isDisposed)
+    }
+
+    func test_merge_does_not_dispose_subscription_if_upstream_is_not_disposed() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        eventEmitted.expectedFulfillmentCount = 3
+        let observable = subject.asObservable().filter { $0 == 1 }
+            .merge(subject.asObservable()
+                .takeWhile({ $0 < 2 }, inclusive: true)
+                .map { 1 + $0 })
+        var count = 1
+        let disposable = observable.subscribe { res in
+            eventEmitted.fulfill()
+            XCTAssertEqual(res, count)
+            count += 1
+        }
+        subject.publish(1)
+        subject.publish(2)
+
+        waitForDefaultTimeout()
+        XCTAssertFalse(disposable.isDisposed)
+    }
+
+    func test_merge_does_not_dispose_subscription_if_merged_upstream_is_not_disposed() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        eventEmitted.expectedFulfillmentCount = 3
+        let observable = subject.asObservable()
+            .first()
+            .merge(subject.asObservable().map { 1 + $0 })
+        var count = 1
+        let disposable = observable.subscribe { res in
+            eventEmitted.fulfill()
+            XCTAssertEqual(res, count)
+            count += 1
+        }
+        subject.publish(1)
+        subject.publish(2)
+
+        waitForDefaultTimeout()
+        XCTAssertFalse(disposable.isDisposed)
+    }
+
+    func test_merge_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        assertNoEmissionAfterSideEffectDisposal {
+            StateSubject(0).asObservable().merge($0)
+        } assertions: {
+            XCTAssertEqual($0, 0)
+        }
+    }
 }

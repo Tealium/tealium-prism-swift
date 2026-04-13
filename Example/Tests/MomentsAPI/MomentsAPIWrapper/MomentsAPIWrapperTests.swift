@@ -64,7 +64,7 @@ final class MomentsAPIWrapperTests: XCTestCase {
                 expectation.fulfill()
             }
         }
-        waitForLongTimeout()
+        waitOnQueue(queue: queue)
     }
 
     func test_fetchEngineResponse_handles_error() {
@@ -81,7 +81,7 @@ final class MomentsAPIWrapperTests: XCTestCase {
                 expectation.fulfill()
             }
         }
-        waitForLongTimeout()
+        waitOnQueue(queue: queue)
     }
 
     func test_fetchEngineResponse_reports_moduleNotEnabled_when_module_not_present() {
@@ -108,7 +108,7 @@ final class MomentsAPIWrapperTests: XCTestCase {
             }
         }
 
-        waitForExpectations(timeout: Self.longTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_fetchEngineResponse_reports_moduleNotEnabled_when_module_disabled() {
@@ -134,7 +134,7 @@ final class MomentsAPIWrapperTests: XCTestCase {
             }
         }
 
-        waitForExpectations(timeout: Self.longTimeout)
+        waitOnQueue(queue: queue)
     }
 
     func test_fetchEngineResponse_handles_http_error() {
@@ -153,7 +153,7 @@ final class MomentsAPIWrapperTests: XCTestCase {
                 expectation.fulfill()
             }
         }
-        waitForLongTimeout()
+        waitOnQueue(queue: queue)
     }
 
     func test_fetchEngineResponse_handles_json_parsing_error() {
@@ -177,6 +177,6 @@ final class MomentsAPIWrapperTests: XCTestCase {
                 expectation.fulfill()
             }
         }
-        waitForLongTimeout()
+        waitOnQueue(queue: queue)
     }
 }

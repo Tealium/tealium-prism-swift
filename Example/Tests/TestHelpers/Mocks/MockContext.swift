@@ -10,7 +10,7 @@
 
 private let mockDbProvider = MockDatabaseProvider()
 private let queue = TealiumQueue.worker
-private let mockVisitorId = ObservableState(valueProvider: "visitorId", subscriptionHandler: { _ in Subscription(unsubscribe: {}) })
+private let mockVisitorId = ObservableState(valueProvider: "visitorId", subscriptionHandler: { _ in Subscription {} })
 let mockContext = MockContext(modulesManager: ModulesManager(queue: queue), config: mockConfig)
 
 class MockContext: TealiumContext {
@@ -58,6 +58,7 @@ class MockContext: TealiumContext {
                    activityListener: activityListener,
                    queue: queue,
                    visitorId: visitorId,
-                   queueMetrics: queueManager)
+                   queueMetrics: queueManager,
+                   connectivityManager: MockConnectivityManager(queue: queue))
     }
 }

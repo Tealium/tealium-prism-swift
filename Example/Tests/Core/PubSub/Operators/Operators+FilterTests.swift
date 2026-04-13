@@ -47,4 +47,7 @@ final class OperatorsFilterTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
+    func test_filter_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        assertNoEmissionAfterSideEffectDisposal { $0.filter { _ in true } }
+    }
 }
