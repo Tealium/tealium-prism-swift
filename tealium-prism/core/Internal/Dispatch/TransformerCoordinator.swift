@@ -71,13 +71,15 @@ class TransformerCoordinator: TransformerRegistrar {
     /**
      * Transforms an array of  `Dispatch`, intended to be used when one or more events are dequeued and are about to be sent to a single dispatcher.
      */
-    func transform(dispatches: [Dispatch], for scope: DispatchScope, completion: @escaping DispatchesTransformationCompletion) {
-        TealiumDispatchGroup(queue: queue)
+    @discardableResult
+    func transform(dispatches: [Dispatch], for scope: DispatchScope, completion: @escaping DispatchesTransformationCompletion) -> Disposable {
+        return TealiumDispatchGroup(queue: queue)
             .parallelExecution(dispatches.map { dispatch in
                 return { completion in
                     self.transform(dispatch: dispatch, for: scope) { dispatch in
                         completion(dispatch)
                     }
+                    return Disposables.disposed() // TODO: Return disposable returned from transformation once we make it disposable. 
                 }
             }) { results in
                 completion(results.compactMap { $0 })

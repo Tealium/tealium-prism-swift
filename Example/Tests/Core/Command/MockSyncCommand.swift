@@ -1,5 +1,5 @@
 //
-//  MockRemoteCommand.swift
+//  MockSyncCommand.swift
 //  TealiumPrismCoreTests
 //
 //  Created by Sebastian Krajna on 18/03/2026.
@@ -9,23 +9,22 @@
 import Foundation
 @testable import TealiumPrism
 
-/// Mock implementation of RemoteCommandProtocol for testing command execution.
+/// Mock implementation of `SyncCommand` for testing command execution.
 /// Tracks execution calls and can be configured to succeed or throw an error.
-class MockRemoteCommand: RemoteCommandProtocol {
+class MockSyncCommand: SyncCommand {
 
-    let name: String
-    let errorToThrow: RemoteCommandError?
+    let errorToThrow: CommandError?
 
     var executeCalled = false
     var lastPayload: DataObject?
     var executeCallCount = 0
 
-    init(name: String, errorToThrow: RemoteCommandError? = nil) {
-        self.name = name
+    init(name: String, errorToThrow: CommandError? = nil) {
         self.errorToThrow = errorToThrow
+        super.init(name: name)
     }
 
-    func execute(payload: DataObject) throws(RemoteCommandError) {
+    override func execute(payload: DataObject) throws(CommandError) {
         executeCalled = true
         lastPayload = payload
         executeCallCount += 1

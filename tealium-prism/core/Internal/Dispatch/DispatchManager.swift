@@ -207,7 +207,7 @@ class DispatchManager: DispatchManagerProtocol {
                 guard !container.isDisposed else { return }
                 onProcessedDispatches(processedDispatches)
             }.addTo(container)
-        }
+        }.addTo(container)
         return container
     }
 }

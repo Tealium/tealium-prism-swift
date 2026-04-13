@@ -28,7 +28,7 @@ Multi-platform Swift SDK (iOS 13+, tvOS 13+, watchOS 7+, macOS 10.15+) — modul
 
 **Untracked subscriptions = leak** — every `subscribe()` must `.addTo(compositeDisposable)` or call `dispose()`. Check `[weak self]` in closures to prevent retain cycles.
 
-**Normalization symmetry** — `RemoteCommandRegistry` trims whitespace and lowercases on register (`trimmingCharacters(in: .whitespaces).lowercased()`). Lookups must normalize the same way. Flag asymmetric register/lookup normalization.
+**Normalization symmetry** — `CommandRegistry` trims whitespace and lowercases on init (`trimmingCharacters(in: .whitespaces).lowercased()`). Lookups must normalize the same way. Flag asymmetric init/lookup normalization.
 
 ## Existing Utilities — Flag Duplication
 Before approving, check if an existing utility covers the use case:
