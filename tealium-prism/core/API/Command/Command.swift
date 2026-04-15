@@ -1,5 +1,5 @@
 //
-//  CommandProtocol.swift
+//  Command.swift
 //  tealium-prism
 //
 //  Created by Sebastian Krajna on 18/03/2026.
@@ -10,7 +10,7 @@ import Foundation
 
 /// Protocol for remote commands executed via command pattern.
 /// Registered in `CommandRegistry` with O(1) lookup by name.
-public protocol CommandProtocol {
+public protocol Command {
     /// Command name used for routing by `CommandRegistry`.
     /// The registry normalizes names by trimming whitespace and lowercasing before lookup,
     /// so implementations should provide a logical, case-insensitive name without leading/trailing whitespace.

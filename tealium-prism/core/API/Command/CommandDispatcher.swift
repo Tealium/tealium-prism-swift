@@ -8,7 +8,7 @@
 
 import Foundation
 
-/// Base class for command-based dispatchers that route dispatches through a `CommandRegistry`.
+/// Base class for command-based dispatchers that route dispatches through an internal command registry.
 ///
 /// Provides a concrete implementation for `dispatch()` that supports async commands
 /// with cancellation via `Disposable`, calling completion once per `Dispatch` as it finishes.
@@ -52,7 +52,7 @@ open class CommandDispatcher: Dispatcher {
     /// Designated initializer for subclasses.
     public init(id: String,
                 version: String,
-                commands: [CommandProtocol],
+                commands: [Command],
                 logCategory: String,
                 queue: TealiumQueue,
                 logger: LoggerProtocol?) {

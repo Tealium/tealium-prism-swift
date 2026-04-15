@@ -9,9 +9,9 @@
 import Foundation
 @testable import TealiumPrism
 
-/// Mock implementation of `CommandProtocol` for testing async command execution.
+/// Mock implementation of `Command` for testing async command execution.
 /// Defaults to completing immediately but can be controlled via `delayBlock` to simulate async work.
-class MockAsyncCommand: CommandProtocol {
+class MockAsyncCommand: Command {
 
     let name: String
     var executeCalled = false

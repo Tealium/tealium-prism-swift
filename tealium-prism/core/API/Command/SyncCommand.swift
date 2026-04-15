@@ -15,7 +15,7 @@ import Foundation
 ///
 /// The protocol requirement is handled by a `final` wrapper — subclasses cannot
 /// accidentally override the wrong overload.
-open class SyncCommand: CommandProtocol {
+open class SyncCommand: Command {
 
     public let name: String
 

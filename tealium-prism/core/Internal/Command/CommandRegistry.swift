@@ -13,12 +13,12 @@ import Foundation
 /// Implements the command pattern to register and execute vendor-specific commands.
 /// Commands are registered by name and routed to their respective implementations
 /// when executed with payload data.
-public class CommandRegistry {
+class CommandRegistry {
 
-    private var commands: [String: CommandProtocol]
+    private var commands: [String: Command]
 
-    public init(commands: [CommandProtocol]) {
-        var dict: [String: CommandProtocol] = [:]
+    init(commands: [Command]) {
+        var dict: [String: Command] = [:]
         for command in commands {
             dict[Self.normalize(command.name)] = command
         }
@@ -32,7 +32,7 @@ public class CommandRegistry {
     ///   - payload: The data to pass to the command.
     ///   - completion: Called with `nil` on success or a `CommandError` on failure.
     /// - Returns: A `Disposable` that cancels the command's in-progress work when disposed.
-    public func execute(commandName: String, payload: DataObject, completion: @escaping (CommandError?) -> Void) -> Disposable {
+    func execute(commandName: String, payload: DataObject, completion: @escaping (CommandError?) -> Void) -> Disposable {
         let normalizedName = Self.normalize(commandName)
 
         guard let command = commands[normalizedName] else {
