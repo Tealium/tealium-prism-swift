@@ -56,4 +56,8 @@ final class OperatorsDistinctTests: XCTestCase {
         publisher.publish(1)
         waitForDefaultTimeout()
     }
+
+    func test_distinct_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        assertNoEmissionAfterSideEffectDisposal { $0.distinct() }
+    }
 }

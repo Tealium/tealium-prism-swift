@@ -10,19 +10,19 @@ import Foundation
 
 class ConnectivityDataModule: BasicModule, Collector {
     let version: String = TealiumConstants.libraryVersion
-    let monitor: ConnectivityMonitorProtocol
+    let manager: ConnectivityManagerProtocol
     let id = Modules.Types.connectivityData
 
     required convenience init?(context: TealiumContext, moduleConfiguration: DataObject) {
-        self.init()
+        self.init(manager: context.connectivityManager)
     }
 
-    init(monitor: ConnectivityMonitorProtocol = ConnectivityMonitor.shared) {
-        self.monitor = monitor
+    init(manager: ConnectivityManagerProtocol) {
+        self.manager = manager
     }
 
     func collect(_ dispatchContext: DispatchContext) -> DataObject {
-        [TealiumDataKey.connectionType: monitor.connection.value.toString()]
+        [TealiumDataKey.connectionType: manager.connection.value.toString()]
     }
 }
 

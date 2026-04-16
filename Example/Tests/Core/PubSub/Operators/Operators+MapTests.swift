@@ -84,4 +84,20 @@ final class OperatorsMapTests: XCTestCase {
         helper = nil
         waitForDefaultTimeout()
     }
+
+    func test_map_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        assertNoEmissionAfterSideEffectDisposal {
+            $0.map { $0 * 10 }
+        } assertions: {
+            XCTAssertEqual($0, 10)
+        }
+    }
+
+    func test_compactMap_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        assertNoEmissionAfterSideEffectDisposal {
+            $0.compactMap { $0 * 10 }
+        } assertions: {
+            XCTAssertEqual($0, 10)
+        }
+    }
 }

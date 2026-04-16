@@ -25,7 +25,7 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
     lazy var coordinator = BarrierCoordinator(onScopedBarriers: barriers,
                                               onApplicationStatus: onApplicationStatus,
                                               queueMetrics: queueMetrics,
-                                              debouncer: MockInstantDebouncer(),
+                                              flushDebounceMilliseconds: 0,
                                               queue: queue)
     let disposer = AutomaticDisposer()
 
@@ -263,5 +263,57 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
         publishStatus(ApplicationStatus(type: .initialized))
 
         wait(for: [barriersClosed, barriersOpen], timeout: Self.longTimeout, enforceOrder: false)
+    }
+
+    func test_closes_after_flush_ends() {
+        // In case of observers non disposing properly, an array of just [ConnectivityBarrier]
+        // is erroneously used by the coordinator to determine the coordinator state,
+        // even if that array is already stale and should be disposed, as it was replaced by an empty array []
+        // due to the ConnectivityBarrier becoming flushable at the same time of it opening as well.
+        queueMetrics.setQueueSize(2)
+        let dispatcher = MockDispatcher2()
+        let batchingBarrier = BatchingBarrier(queueMetrics: queueMetrics,
+                                              dispatchers: .constant([dispatcher]), configuration: BatchingBarrierSettingsBuilder().setBatchSize(10)._configurationObject)
+        let connectivityBarrier = MockConnectivityBarrier()
+
+        _barriers.value = [
+            ScopedBarrier(barrier: batchingBarrier, scopes: [.all]),
+            ScopedBarrier(barrier: connectivityBarrier, scopes: [.all])
+        ]
+
+        let batchingCloses = expectation(description: "BatchingBarrier closed")
+
+        let coordinatorCloses = expectation(description: "BarrierCoordinator closed")
+        coordinatorCloses.expectedFulfillmentCount = 2
+        let coordinatorOpens = expectation(description: "BarrierCoordinator opens when connectivity opens and we are flushing, but not again after flushing is over.")
+
+        _ = batchingBarrier.onState(for: dispatcher.id).subscribe { state in
+            XCTAssertEqual(state, .closed)
+            batchingCloses.fulfill()
+        }
+
+        _ = coordinator.onBarriersState(for: dispatcher.id).subscribe { state in
+            switch state {
+            case .closed:
+                coordinatorCloses.fulfill()
+            case .open:
+                coordinatorOpens.fulfill()
+                // End the flush
+                self.queueMetrics.setQueueSize(0)
+            }
+        }
+
+        // Start the flush
+        coordinator.flush()
+        // ConnectivityBarrier: Allow flushing and open at the same time.
+        connectivityBarrier.setConnection(.connected(.wifi))
+
+        let expectations = [
+            batchingCloses,
+            coordinatorOpens,
+            coordinatorCloses
+            // Coordinator does not open again
+        ]
+        wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: false)
     }
 }

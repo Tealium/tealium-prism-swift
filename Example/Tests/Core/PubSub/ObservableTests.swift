@@ -57,4 +57,28 @@ final class ObservableTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
+    func test_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        let disposable = Disposables.composite()
+        let observerCalled = expectation(description: "Observer is called once")
+        let observable = Observable<Int> { observer in
+            let disposable = Disposables.composite()
+            DispatchQueue.main.async {
+                observer(1)
+                // The following is a synchronous observer call,
+                // done without checking if disposable is already disposed.
+                observer(2)
+            }
+            return disposable
+        }
+
+        observable.subscribe { number in
+            if number == 1 {
+                // The disposal that would be caused by a side effect
+                disposable.dispose()
+            }
+            observerCalled.fulfill()
+        }.addTo(disposable)
+        waitForDefaultTimeout()
+    }
+
 }

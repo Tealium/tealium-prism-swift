@@ -39,4 +39,12 @@ final class OperatorsStartsWithTests: XCTestCase {
         helper = nil
         waitForDefaultTimeout()
     }
+
+    func test_startWith_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        assertNoEmissionAfterSideEffectDisposal {
+            $0.startWith(0)
+        } assertions: {
+            XCTAssertEqual($0, 0)
+        }
+    }
 }

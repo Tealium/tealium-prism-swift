@@ -1,5 +1,5 @@
 //
-//  RemoteCommandMappingsBuilder.swift
+//  CommandMappingsBuilder.swift
 //  tealium-prism
 //
 //  Created by Sebastian Krajna on 18/03/2026.
@@ -15,38 +15,38 @@ import Foundation
 ///
 /// Base `Mappings` methods (accepting `String` and `JSONObjectPath`) remain
 /// available for cases not covered by the enums.
-open class RemoteCommandMappingsBuilder<
-    Command: RawRepresentable,
-    Destination: ReferenceContainerConvertible
->: Mappings where Command.RawValue == String {
+open class CommandMappingsBuilder<
+    Command: CommandNamed,
+    Destination: JSONObjectPathConvertible
+>: Mappings {
 
-    /// Maps a command enum case to the command name destination.
+    /// Maps a command to the command name destination.
     @discardableResult
     public func mapCommand(_ command: Command) -> CommandOptions {
-        mapCommand(command.rawValue)
+        mapCommand(command.commandName)
     }
 
     /// Maps a source key to a typed destination.
     @discardableResult
     public func mapFrom(_ key: String, to destination: Destination) -> VariableOptions {
-        mapFrom(key, to: destination.asReferenceContainer().path)
+        mapFrom(key, to: destination.path)
     }
 
     /// Maps a source path to a typed destination.
     @discardableResult
     public func mapFrom(_ path: JSONObjectPath, to destination: Destination) -> VariableOptions {
-        mapFrom(path, to: destination.asReferenceContainer().path)
+        mapFrom(path, to: destination.path)
     }
 
     /// Maps a constant value to a typed destination.
     @discardableResult
     public func mapConstant(_ value: DataInput, to destination: Destination) -> ConstantOptions {
-        mapConstant(value, to: destination.asReferenceContainer().path)
+        mapConstant(value, to: destination.path)
     }
 
     /// Keeps a typed destination (source and destination are the same).
     @discardableResult
     public func keep(_ destination: Destination) -> VariableOptions {
-        keep(destination.asReferenceContainer().path)
+        keep(destination.path)
     }
 }

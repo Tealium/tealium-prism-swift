@@ -18,7 +18,7 @@ class LifecycleModule: BasicModule {
 
     private let tracker: Tracker
     private let logger: LoggerProtocol?
-    private let automaticDisposer = Disposables.automaticComposite()
+    private let automaticDisposer = Disposables.automatic()
 
     private var lastBackground: Int64?
     private var hasLaunched = false

@@ -25,7 +25,7 @@ class JavaScriptTransformer: Transformer, BasicModule {
     let dataLayer: any DataStore
     let logger: LoggerProtocol?
     let networkHelper: any NetworkHelperProtocol
-    let automaticDisposer: CompositeDisposable = Disposables.automaticComposite()
+    let automaticDisposer: any Disposable = Disposables.automatic()
 
     convenience required init?(context: TealiumContext, moduleConfiguration: DataObject) {
         self.init(tracker: context.tracker,

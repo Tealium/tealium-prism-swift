@@ -34,7 +34,7 @@ class TealiumBaseTests: XCTestCase {
         return config
     }
 
-    let disposer = DisposableContainer()
+    lazy private(set) var disposer = AsyncDisposableContainer(queue: queue)
 
     func createTealium(completion: ((InitializationResult<Tealium>) -> Void)? = nil) -> Tealium {
         instanceManager.create(config: config, completion: completion)
@@ -331,17 +331,21 @@ final class TealiumTests: TealiumBaseTests {
     }
 
 #if os(iOS) || os(tvOS)
-    func test_backgrounding_the_app_starts_background_task() {
+    func test_backgrounding_the_app_starts_background_task_if_queue_not_empty() {
         let notificationCenter = NotificationCenter()
         config.appStatusListener = ApplicationStatusListener(notificationCenter: notificationCenter)
         config.addModule(Modules.collect())
+        config.addBarrier(Barriers.batching())
+        let starter = MockBackgroundTaskStarter(queue: queue, backgroundTaskTimeout: .seconds(5))
+        config.backgroundTaskStarter = starter
         let tealiumInitialized = expectation(description: "Tealium is initialized")
         let backgroundTaskStarted = expectation(description: "Background task is started")
         let teal = createTealium()
-        let disposable = DisposableContainer()
+        let disposable = AsyncDisposableContainer(queue: queue)
         var count = 0
-        _ = teal.proxy.executeTask { impl in
-            impl.barrierCoordinator.ongoingBackgroundTask.subscribe { ongoing in
+        teal.track("Some Event")
+        _ = teal.proxy.executeTask { _ in
+            starter.onBackgroundTaskStarted.subscribe { ongoing in
                 if count == 0 {
                     XCTAssertFalse(ongoing)
                 } else {

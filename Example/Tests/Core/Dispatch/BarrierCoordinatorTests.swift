@@ -12,10 +12,14 @@ import XCTest
 final class BarrierCoordinatorTests: XCTestCase {
     @StateSubject([])
     var barriers: ObservableState<[ScopedBarrier]>
+    let starter = MockBackgroundTaskStarter(queue: .main, backgroundTaskTimeout: .seconds(5))
+    let applicationStatus = StateSubject(ApplicationStatus(type: .initialized))
+    let queueMetrics = MockQueueMetrics(queueSize: 0)
     lazy var coordinator = BarrierCoordinator(onScopedBarriers: barriers,
-                                              onApplicationStatus: ApplicationStatusListener.shared.onApplicationStatus,
-                                              queueMetrics: MockQueueMetrics(queueSize: 0),
-                                              debouncer: MockInstantDebouncer(),
+                                              onApplicationStatus: applicationStatus.asObservable(),
+                                              queueMetrics: queueMetrics,
+                                              flushDebounceMilliseconds: 0,
+                                              backgroundTaskStarter: starter,
                                               queue: .main)
 
     func test_onBarriers_for_dispatcher_filters_barriers_by_scope() {
@@ -184,15 +188,41 @@ final class BarrierCoordinatorTests: XCTestCase {
         disposable.dispose()
     }
 
-    func test_applicationStatus_backgrounded_starts_background_task() {
-        let status = StateSubject(ApplicationStatus(type: .initialized))
-        coordinator = BarrierCoordinator(onScopedBarriers: barriers,
-                                         onApplicationStatus: status.asObservableState(),
-                                         queueMetrics: MockQueueMetrics(queueSize: 0),
-                                         debouncer: MockInstantDebouncer(),
-                                         queue: .main)
-        XCTAssertFalse(coordinator.ongoingBackgroundTask.value)
-        status.publish(ApplicationStatus(type: .backgrounded))
-        XCTAssertTrue(coordinator.ongoingBackgroundTask.value)
+    func test_applicationStatus_backgrounded_does_not_start_background_task_if_queue_is_empty() {
+        _barriers.value = [
+            ScopedBarrier(barrier: MockBarrier(), scopes: [.all])
+        ]
+        queueMetrics.setQueueSize(0)
+
+        _ = coordinator.onBarriersState(for: "dispatcher").subscribe { _ in }
+        XCTAssertFalse(starter.backgroundTaskOngoing)
+        applicationStatus.publish(ApplicationStatus(type: .backgrounded))
+        XCTAssertFalse(starter.backgroundTaskOngoing)
+    }
+
+    func test_applicationStatus_backgrounded_starts_background_task_if_queue_is_not_empty() {
+        _barriers.value = [
+            ScopedBarrier(barrier: MockBarrier(), scopes: [.all])
+        ]
+        queueMetrics.setQueueSize(1)
+
+        _ = coordinator.onBarriersState(for: "dispatcher").subscribe { _ in }
+        XCTAssertFalse(starter.backgroundTaskOngoing)
+        applicationStatus.publish(ApplicationStatus(type: .backgrounded))
+        XCTAssertTrue(starter.backgroundTaskOngoing)
+    }
+
+    func test_background_stops_immediately_upon_emptying_the_queue() {
+        _barriers.value = [
+            ScopedBarrier(barrier: MockBarrier(), scopes: [.all])
+        ]
+        queueMetrics.setQueueSize(1)
+
+        _ = coordinator.onBarriersState(for: "dispatcher").subscribe { _ in }
+        XCTAssertFalse(starter.backgroundTaskOngoing)
+        applicationStatus.publish(ApplicationStatus(type: .backgrounded))
+        XCTAssertTrue(starter.backgroundTaskOngoing)
+        queueMetrics.setQueueSize(0)
+        XCTAssertFalse(starter.backgroundTaskOngoing)
     }
 }

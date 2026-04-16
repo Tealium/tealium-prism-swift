@@ -49,4 +49,13 @@ final class OperatorCallbackTests: XCTestCase {
         disposable.dispose()
         waitForDefaultTimeout()
     }
+
+    func test_callback_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        assertNoEmissionAfterSideEffectDisposal {
+            $0.callback(fromDisposable: { number, observer in
+                observer(number)
+                return Disposables.composite()
+            })
+        }
+    }
 }

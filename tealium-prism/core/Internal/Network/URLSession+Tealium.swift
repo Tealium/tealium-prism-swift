@@ -8,16 +8,6 @@
 
 import Foundation
 
-extension URLSessionDataTask: Disposable {
-    public var isDisposed: Bool {
-        self.state == .canceling
-    }
-
-    public func dispose() {
-        cancel()
-    }
-}
-
 extension URLSession {
 
     /**

@@ -37,7 +37,7 @@ public extension Subscribable {
     }
 
     /// Subscribe a `Subject` to this `Subscribable`.
-    func subscribe(_ subject: Subject<Element>) -> any Disposable {
+    func subscribe(subject: Subject<Element>) -> any Disposable {
         subscribe { element in
             subject.publish(element)
         }

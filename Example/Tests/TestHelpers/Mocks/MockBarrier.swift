@@ -7,7 +7,7 @@
 //
 
 import Foundation
-import TealiumPrism
+@testable import TealiumPrism
 
 class MockBarrier: Barrier {
     @ReplaySubject<Bool>(true)
@@ -72,5 +72,26 @@ class MockBarrierFactory<SomeBarrier: MockConfigurableBarrier>: BarrierFactory {
 
     func getEnforcedSettings() -> DataObject {
         enforcedSettings
+    }
+}
+
+class MockConnectivityBarrier: Barrier {
+    @StateSubject(NetworkConnection.unknown)
+    var connection: ObservableState<NetworkConnection>
+
+    var isFlushable: Observable<Bool> {
+        connection.asObservable().map {
+            $0.isConnected
+        }
+    }
+
+    func onState(for dispatcherId: String) -> Observable<BarrierState> {
+        connection.map {
+            $0.isConnected ? .open : .closed
+        }
+    }
+
+    func setConnection(_ connection: NetworkConnection) {
+        _connection.value = connection
     }
 }

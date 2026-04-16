@@ -14,12 +14,12 @@ class ModuleStore: DataStore {
 
     @Subject<DataObject> public var onDataUpdated
     @Subject<[String]> public var onDataRemoved
-    let disposer = Disposables.automaticComposite()
+    let disposer = Disposables.automatic()
 
     init(repository: KeyValueRepository, onDataExpired: Observable<[String: DataItem]>) {
         self.repository = repository
         onDataExpired.map { expiredData in expiredData.keys.map { String($0) } }
-            .subscribe(_onDataRemoved)
+            .subscribe(subject: _onDataRemoved)
             .addTo(disposer)
     }
 

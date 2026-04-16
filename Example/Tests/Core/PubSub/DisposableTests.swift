@@ -49,9 +49,9 @@ final class DisposableTests: XCTestCase {
         let subscriptionDisposed = expectation(description: "Subscription is disposed immediately")
         let container = DisposableContainer()
         container.dispose()
-        container.add(Subscription(unsubscribe: {
+        container.add(Subscription {
             subscriptionDisposed.fulfill()
-        }))
+        })
         waitForDefaultTimeout()
     }
 
@@ -70,10 +70,10 @@ final class DisposableTests: XCTestCase {
         let queue = TealiumQueue.worker
         let disposer = AsyncDisposableContainer(queue: queue)
         let disposed = expectation(description: "Subscription is disposed")
-        disposer.add(Subscription {
+        disposer.onDispose {
             dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
             disposed.fulfill()
-        })
+        }
         disposer.dispose()
         waitOnQueue(queue: queue)
     }

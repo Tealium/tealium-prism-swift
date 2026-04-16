@@ -61,7 +61,7 @@ class DispatchManagerTestCase: XCTestCase {
     lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: onBarriers,
                                                      onApplicationStatus: config.appStatusListener.onApplicationStatus,
                                                      queueMetrics: queueManager,
-                                                     debouncer: MockInstantDebouncer(),
+                                                     flushDebounceMilliseconds: 0,
                                                      queue: .main)
     lazy var transformerCoordinator = TransformerCoordinator(transformers: transformers.asObservableState(),
                                                              transformations: transformations,

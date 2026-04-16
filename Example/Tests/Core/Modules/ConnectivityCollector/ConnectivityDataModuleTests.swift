@@ -10,8 +10,8 @@
 import XCTest
 
 final class ConnectivityDataModuleTests: XCTestCase {
-    let monitor = MockConnectivityMonitor()
-    lazy var connectivityCollector: ConnectivityDataModule! = ConnectivityDataModule(monitor: monitor)
+    let manager = MockConnectivityManager(queue: .main)
+    lazy var connectivityCollector: ConnectivityDataModule! = ConnectivityDataModule(manager: manager)
     let dispatchContext = DispatchContext(source: .application, initialData: Dispatch(name: "connectivity").payload)
 
     // MARK: - Initialization Tests
@@ -24,6 +24,6 @@ final class ConnectivityDataModuleTests: XCTestCase {
     // MARK: - Data Collection Tests
     func test_connection_type_collected_corresponds_to_monitor_connection() {
         let data = connectivityCollector.collect(dispatchContext)
-        XCTAssertEqual(data.get(key: TealiumDataKey.connectionType), monitor.connection.value.toString())
+        XCTAssertEqual(data.get(key: TealiumDataKey.connectionType), manager.connection.value.toString())
     }
 }

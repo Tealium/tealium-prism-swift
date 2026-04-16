@@ -1,5 +1,5 @@
 //
-//  RemoteCommandError.swift
+//  CommandError.swift
 //  tealium-prism
 //
 //  Created by Sebastian Krajna on 18/03/2026.
@@ -12,7 +12,7 @@ import Foundation
 ///
 /// These errors represent validation failures and missing required parameters.
 /// All errors provide descriptive messages for centralized logging in dispatchers.
-public enum RemoteCommandError: ErrorEnum, ErrorWrapping {
+public enum CommandError: ErrorEnum, ErrorWrapping {
 
     // MARK: - Missing Parameters
 

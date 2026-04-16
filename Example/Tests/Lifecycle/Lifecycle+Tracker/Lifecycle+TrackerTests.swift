@@ -44,7 +44,6 @@ final class LifecycleTrackerTests: XCTestCase {
     lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: Observables.just([]),
                                                      onApplicationStatus: config.appStatusListener.onApplicationStatus,
                                                      queueMetrics: queueManager,
-                                                     debouncer: MockInstantDebouncer(),
                                                      queue: queue)
     lazy var transformerCoordinator = TransformerCoordinator(transformers: .constant([]),
                                                              transformations: transformations,
