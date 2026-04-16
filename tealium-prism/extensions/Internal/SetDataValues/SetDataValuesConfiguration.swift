@@ -55,11 +55,15 @@ struct SetDataValuesConfiguration: DataObjectConvertible {
         guard let operations = dataObject.getDataArray(key: Keys.operations) else {
             return nil
         }
-        self.init(operations: operations.compactMap { item in
+        let parsedOperations = operations.compactMap { item in
             item.getDataDictionary().flatMap({
                 SetDataValuesOperation(dataObject: $0.toDataObject())
             })
-        })
+        }
+        guard !parsedOperations.isEmpty else {
+            return nil
+        }
+        self.init(operations: parsedOperations)
     }
 
     func toDataObject() -> DataObject {

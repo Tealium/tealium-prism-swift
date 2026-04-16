@@ -94,23 +94,21 @@ class TealiumConfigTests: TealiumConfigBaseTests {
 
     func test_getEnforcedSDKSettings_returns_settings_with_transformations() throws {
         config.setTransformation(TransformationSettingsBuilder(id: "transformationId1", transformerId: "transformerId")
-            .setScopes([.allDispatchers]))
+            .setScope(.allDispatchers))
         config.setTransformation(TransformationSettingsBuilder(id: "transformationId2", transformerId: "transformerId")
-            .setScopes([.dispatcher(id: "123")]))
+            .setScope(.dispatchers(["123"])))
         let settings = config.getEnforcedSDKSettings()
         XCTAssertEqual(settings, [
             "transformations": try DataItem(serializing: [
                 "transformerId-transformationId1": [
                     "transformation_id": "transformationId1",
                     "transformer_id": "transformerId",
-                    "scopes": ["alldispatchers"],
-                    "configuration": [:]
+                    "scope": "alldispatchers"
                 ],
                 "transformerId-transformationId2": [
                     "transformation_id": "transformationId2",
                     "transformer_id": "transformerId",
-                    "scopes": ["123"],
-                    "configuration": [:]
+                    "scope": ["123"]
                 ]
             ])
         ])

@@ -28,7 +28,10 @@ class LowerCaseTransformer: Transformer, BasicModule {
         scope: DispatchScope,
         completion: @escaping (Dispatch?) -> Void
     ) {
-        let configuration = LowerCaseConfiguration(dataObject: transformation.configuration)
+        guard let configuration = LowerCaseConfiguration(dataObject: transformation.configuration) else {
+            completion(dispatch)
+            return
+        }
         completion(applyTransformation(configuration, to: dispatch))
     }
 

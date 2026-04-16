@@ -13,7 +13,7 @@ final class LifecycleTrackerTests: XCTestCase {
 
     @StateSubject([TransformationSettings(id: "transformation1",
                                           transformerId: "transformer1",
-                                          scopes: [.afterCollectors, .allDispatchers])])
+                                          scope: .allDispatchers)])
     var transformations
     let config = TealiumConfig(account: "test",
                                profile: "test",

@@ -8,7 +8,7 @@ The Extensions module includes three transformers:
 - **`PersistDataValue`** — Writes a value from the payload (or a constant) to the data layer with a configurable expiry and update policy, then injects the persisted value back into the current dispatch.
 - **`LowerCase`** — Lowercases all string values in the dispatch payload, or targets specific keys.
 
-Each transformer is configured through its dedicated settings builder, which produces a `TransformationSettings` value that you attach to your `TealiumConfig` like any other transformation. See the [Transformations](Transformations.html) documentation for a full explanation of scopes, conditions, and how transformations fit into the dispatch pipeline.
+Each transformer is configured through its dedicated settings builder, which you attach to your `TealiumConfig` via `config.setTransformation(_:)` like any other transformation. See the [Transformations](Transformations.html) documentation for a full explanation of scope, conditions, and how transformations fit into the dispatch pipeline.
 
 ## Registration
 
@@ -26,6 +26,41 @@ config.addModule(Modules.lowerCaseTransformer())
 
 Transformations themselves (the actual rules for each transformer) are configured separately and added to the SDK configuration with `config.setTransformation(_:)`.
 
+## Scopes
+
+All transformations share a `setScope(_:)` method inherited from `TransformationSettingsBuilder`. Three scopes are available:
+
+| Scope | When it runs |
+|---|---|
+| `.afterCollectors` | After all collectors have run, before the consent check and dispatch queues |
+| `.allDispatchers` | Just before a dispatch is sent to every registered dispatcher |
+| `.dispatchers(["id1", "id2", ...])` | Just before a dispatch is sent to the listed dispatchers only |
+
+```swift
+// Run only before the Collect dispatcher sends its batch
+let transformation = SetDataValuesSettingsBuilder(id: "pre-collect")
+    .setConstant("batch", destination: .key("send_mode"))
+    .setScope(.dispatchers([Modules.Types.collect]))
+
+config.setTransformation(transformation)
+```
+
+```swift
+// Run before every dispatcher
+let transformation = LowerCaseSettingsBuilder(id: "lowercase-all-dispatchers")
+    .setScope(.allDispatchers)
+
+config.setTransformation(transformation)
+```
+
+**JSON representation:**
+
+| Scope | JSON value |
+|---|---|
+| `.afterCollectors` | `"scope": "aftercollectors"` |
+| `.allDispatchers` | `"scope": "alldispatchers"` |
+| `.dispatchers([...])` | `"scope": ["Collect", "Trace"]` (array of dispatcher IDs) |
+
 ## SetDataValues
 
 The `SetDataValues` transformer copies values between locations in the dispatch payload or injects constant values. It applies all configured operations in sequence on every dispatch that matches the transformation's conditions and scope.
@@ -38,7 +73,7 @@ Use `SetDataValuesSettingsBuilder` to define one or more operations:
 // Copy a value from one key to another
 let copyOperation = SetDataValuesSettingsBuilder(id: "copy-user-id")
     .setFrom(.key("user_id"), to: .key("visitor_id"))
-    .addScope(.afterCollectors)
+    .setScope(.afterCollectors)
 
 config.setTransformation(copyOperation)
 ```
@@ -47,7 +82,7 @@ config.setTransformation(copyOperation)
 // Set a constant value at a given key
 let setConstant = SetDataValuesSettingsBuilder(id: "set-platform")
     .setConstant("ios", to: .key("platform"))
-    .addScope(.afterCollectors)
+    .setScope(.afterCollectors)
 
 config.setTransformation(setConstant)
 ```
@@ -57,7 +92,7 @@ config.setTransformation(setConstant)
 let combined = SetDataValuesSettingsBuilder(id: "enrich-payload")
     .setFrom(.key("raw_email"), to: .key("email"))
     .setConstant("mobile", to: .key("channel"))
-    .addScope(.afterCollectors)
+    .setScope(.afterCollectors)
 
 config.setTransformation(combined)
 ```
@@ -70,7 +105,7 @@ let nested = SetDataValuesSettingsBuilder(id: "map-nested")
         .path(JSONPath["user"]["profile"]["name"]),
         to: .key("user_name")
     )
-    .addScope(.afterCollectors)
+    .setScope(.afterCollectors)
 config.setTransformation(nested)
 ```
 
@@ -81,7 +116,7 @@ config.setTransformation(nested)
 | `setFrom(_ input: ReferenceContainer, to destination: ReferenceContainer)` | Copies the value at `input` to `destination` |
 | `setConstant(_ constant: DataInput, to destination: ReferenceContainer)` | Sets a constant value at `destination` |
 
-If the source key is not present in the payload, the operation is silently skipped.
+If the source key is not present in the payload, the operation is silently skipped. A transformation with no operations configured is a no-op — the dispatch passes through unchanged.
 
 ### JSON Configuration
 
@@ -89,7 +124,7 @@ If the source key is not present in the payload, the operation is silently skipp
 {
   "transformation_id": "enrich-payload",
   "transformer_id": "SetDataValues",
-  "scopes": ["aftercollectors"],
+  "scope": "aftercollectors",
   "configuration": {
     "operations": [
       {
@@ -129,7 +164,7 @@ The `PersistDataValue` transformer stores a value from the dispatch payload (or 
 // Persist a payload value to the data layer (session-scoped by default)
 let persistUserId = PersistDataValueSettingsBuilder(id: "persist-user-id")
     .persistFrom(.key("user_id"), to: .key("persisted_user_id"))
-    .addScope(.afterCollectors)
+    .setScope(.dispatchers(["Analytics", "Collect"]))
 
 config.setTransformation(persistUserId)
 ```
@@ -140,7 +175,7 @@ let persistAppVersion = PersistDataValueSettingsBuilder(id: "persist-app-version
     .persistConstant("2.4.0", to: .key("first_seen_version"))
     .setExpiryPolicy(.forever)
     .setUpdatePolicy(.keepFirstValue)
-    .addScope(.afterCollectors)
+    .setScope(.afterCollectors)
 
 config.setTransformation(persistAppVersion)
 ```
@@ -150,7 +185,7 @@ config.setTransformation(persistAppVersion)
 let persistCampaign = PersistDataValueSettingsBuilder(id: "persist-campaign")
     .persistFrom(.key("utm_campaign"), to: .key("last_campaign"))
     .setExpiryPolicy(.duration(30.days))
-    .addScope(.afterCollectors)
+    .setScope(.afterCollectors)
 
 config.setTransformation(persistCampaign)
 ```
@@ -186,7 +221,7 @@ config.setTransformation(persistCampaign)
 {
   "transformation_id": "persist-user-id",
   "transformer_id": "PersistDataValue",
-  "scopes": ["aftercollectors"],
+  "scope": ["Analytics", "Collect"],
   "configuration": {
     "input": { "key": "user_id" },
     "destination": { "key": "persisted_user_id" },
@@ -239,7 +274,7 @@ let lowerSelected = LowerCaseSettingsBuilder(id: "lowercase-email-name")
     .setAllVariables(false)
     .addVariable(.key("email"))
     .addVariable(.key("user_name"))
-    .addScope(.afterCollectors)
+    .setScope(.allDispatchers)
 
 config.setTransformation(lowerSelected)
 ```
@@ -259,7 +294,7 @@ config.setTransformation(lowerSelected)
 {
   "transformation_id": "lowercase-all",
   "transformer_id": "LowerCase",
-  "scopes": ["aftercollectors"],
+  "scope": "aftercollectors",
   "configuration": {
     "all_variables": true,
     "inputs": []
@@ -271,7 +306,7 @@ config.setTransformation(lowerSelected)
 {
   "transformation_id": "lowercase-email-name",
   "transformer_id": "LowerCase",
-  "scopes": ["aftercollectors"],
+  "scope": "alldispatchers",
   "configuration": {
     "all_variables": false,
     "inputs": [
@@ -289,6 +324,8 @@ config.setTransformation(lowerSelected)
 | `all_variables` | `Bool` | Lowercase all strings when `true` (default: `true`) |
 | `inputs` | `Array<ReferenceContainer>` | Variables to target when `all_variables` is `false` |
 
+> **Note:** Setting `all_variables` to `false` with an empty `inputs` array is invalid — the transformation is treated as a no-op and the dispatch passes through unchanged.
+
 ## Combining Multiple Transformers
 
 The built-in transformers compose naturally. A common pattern is to persist an incoming value, normalize it, and copy it to a standardized key, all within the `afterCollectors` scope:
@@ -299,18 +336,18 @@ let persistCampaign = PersistDataValueSettingsBuilder(id: "persist-campaign")
     .persistFrom(.key("utm_campaign"), to: .key("last_campaign"))
     .setExpiryPolicy(.duration(30.days))
     .setUpdatePolicy(.allowUpdate)
-    .addScope(.afterCollectors)
+    .setScope(.afterCollectors)
 
 // 2. Copy the persisted value to a canonical key expected by the backend
 let copyToCanonical = SetDataValuesSettingsBuilder(id: "map-campaign")
     .setFrom(.key("last_campaign"), to: .key("campaign_name"))
-    .addScope(.afterCollectors)
+    .setScope(.afterCollectors)
 
 // 3. Lowercase the canonical key to ensure consistent casing
 let normalizeCase = LowerCaseSettingsBuilder(id: "lowercase-campaign")
     .setAllVariables(false)
     .addVariable(.key("campaign_name"))
-    .addScope(.afterCollectors)
+    .setScope(.afterCollectors)
 
 config.setTransformation(persistCampaign)
 config.setTransformation(copyToCanonical)

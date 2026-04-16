@@ -9,7 +9,7 @@
 @testable import TealiumPrism
 import XCTest
 
-final class PersistDataValueTransformerTests: XCTestCase {
+final class PersistDataValueTransformerTests: ExtensionsBaseTests {
     let databaseProvider = MockDatabaseProvider()
     lazy var storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
                                                  modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
@@ -35,7 +35,7 @@ final class PersistDataValueTransformerTests: XCTestCase {
         let settings = TransformationSettings(
             id: "test",
             transformerId: Modules.Types.persistDataValueTransformer,
-            scopes: [.afterCollectors],
+            scope: .afterCollectors,
             configuration: [:] // invalid - missing required fields
         )
         let expectation = expectation(description: "Completes with original dispatch")
@@ -46,13 +46,12 @@ final class PersistDataValueTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_with_reference_input_persists_value_to_data_layer() {
+    func test_applyTransformation_with_reference_input_persists_value_to_data_layer() throws {
         let dispatch = Dispatch(name: "test", data: ["source_key": "source_value"])
-        let settings = PersistDataValueSettingsBuilder(id: "test")
+        let settings = try makeSettings(PersistDataValueSettingsBuilder(id: "test")
             .persistFrom(.key("source_key"), to: .key("dest_key"))
             .setExpiryPolicy(.session)
-            .setUpdatePolicy(.allowUpdate)
-            .build()
+            .setUpdatePolicy(.allowUpdate))
 
         let expectation = expectation(description: "Value persisted to data layer")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { [weak self] _ in
@@ -63,13 +62,12 @@ final class PersistDataValueTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_with_reference_input_adds_value_to_dispatch_payload() {
+    func test_applyTransformation_with_reference_input_adds_value_to_dispatch_payload() throws {
         let dispatch = Dispatch(name: "test", data: ["source_key": "source_value"])
-        let settings = PersistDataValueSettingsBuilder(id: "test")
+        let settings = try makeSettings(PersistDataValueSettingsBuilder(id: "test")
             .persistFrom(.key("source_key"), to: .key("dest_key"))
             .setExpiryPolicy(.session)
-            .setUpdatePolicy(.allowUpdate)
-            .build()
+            .setUpdatePolicy(.allowUpdate))
 
         let expectation = expectation(description: "Value added to dispatch payload")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
@@ -80,13 +78,12 @@ final class PersistDataValueTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_with_constant_input_persists_value_to_data_layer() {
+    func test_applyTransformation_with_constant_input_persists_value_to_data_layer() throws {
         let dispatch = Dispatch(name: "test")
-        let settings = PersistDataValueSettingsBuilder(id: "test")
+        let settings = try makeSettings(PersistDataValueSettingsBuilder(id: "test")
             .persistConstant("constant_value", to: .key("dest_key"))
             .setExpiryPolicy(.session)
-            .setUpdatePolicy(.allowUpdate)
-            .build()
+            .setUpdatePolicy(.allowUpdate))
 
         let expectation = expectation(description: "Constant value persisted to data layer")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { [weak self] _ in
@@ -97,13 +94,12 @@ final class PersistDataValueTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_with_constant_input_adds_value_to_dispatch_payload() {
+    func test_applyTransformation_with_constant_input_adds_value_to_dispatch_payload() throws {
         let dispatch = Dispatch(name: "test")
-        let settings = PersistDataValueSettingsBuilder(id: "test")
+        let settings = try makeSettings(PersistDataValueSettingsBuilder(id: "test")
             .persistConstant("constant_value", to: .key("dest_key"))
             .setExpiryPolicy(.session)
-            .setUpdatePolicy(.allowUpdate)
-            .build()
+            .setUpdatePolicy(.allowUpdate))
 
         let expectation = expectation(description: "Constant value added to dispatch payload")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
@@ -114,13 +110,12 @@ final class PersistDataValueTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_with_missing_source_reference_completes_with_original_dispatch() {
+    func test_applyTransformation_with_missing_source_reference_completes_with_original_dispatch() throws {
         let dispatch = Dispatch(name: "test", data: ["existing_key": "existing_value"])
-        let settings = PersistDataValueSettingsBuilder(id: "test")
+        let settings = try makeSettings(PersistDataValueSettingsBuilder(id: "test")
             .persistFrom(.key("missing_key"), to: .key("dest_key"))
             .setExpiryPolicy(.session)
-            .setUpdatePolicy(.allowUpdate)
-            .build()
+            .setUpdatePolicy(.allowUpdate))
 
         let expectation = expectation(description: "Completes with original dispatch for missing source")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { [weak self] result in
@@ -131,7 +126,7 @@ final class PersistDataValueTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_keepFirstValue_with_existing_value_skips_update() {
+    func test_applyTransformation_keepFirstValue_with_existing_value_skips_update() throws {
         // Pre-populate data layer
         try? dataLayer.buildPath(
             JSONPath["dest_key"],
@@ -139,11 +134,10 @@ final class PersistDataValueTransformerTests: XCTestCase {
             expiry: .session
         )
         let dispatch = Dispatch(name: "test", data: ["source_key": "new_value"])
-        let settings = PersistDataValueSettingsBuilder(id: "test")
+        let settings = try makeSettings(PersistDataValueSettingsBuilder(id: "test")
             .persistFrom(.key("source_key"), to: .key("dest_key"))
             .setExpiryPolicy(.session)
-            .setUpdatePolicy(.keepFirstValue)
-            .build()
+            .setUpdatePolicy(.keepFirstValue))
 
         let expectation = expectation(description: "Existing value is not overwritten")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { [weak self] result in
@@ -155,13 +149,12 @@ final class PersistDataValueTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_keepFirstValue_with_no_existing_value_persists_value() {
+    func test_applyTransformation_keepFirstValue_with_no_existing_value_persists_value() throws {
         let dispatch = Dispatch(name: "test", data: ["source_key": "source_value"])
-        let settings = PersistDataValueSettingsBuilder(id: "test")
+        let settings = try makeSettings(PersistDataValueSettingsBuilder(id: "test")
             .persistFrom(.key("source_key"), to: .key("dest_key"))
             .setExpiryPolicy(.session)
-            .setUpdatePolicy(.keepFirstValue)
-            .build()
+            .setUpdatePolicy(.keepFirstValue))
 
         let expectation = expectation(description: "Value persisted when no existing value")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { [weak self] _ in
@@ -172,7 +165,7 @@ final class PersistDataValueTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_allowUpdate_with_existing_value_overwrites_value() {
+    func test_applyTransformation_allowUpdate_with_existing_value_overwrites_value() throws {
         // Pre-populate data layer
         try? dataLayer.buildPath(
             JSONPath["dest_key"],
@@ -180,11 +173,10 @@ final class PersistDataValueTransformerTests: XCTestCase {
             expiry: .session
         )
         let dispatch = Dispatch(name: "test", data: ["source_key": "new_value"])
-        let settings = PersistDataValueSettingsBuilder(id: "test")
+        let settings = try makeSettings(PersistDataValueSettingsBuilder(id: "test")
             .persistFrom(.key("source_key"), to: .key("dest_key"))
             .setExpiryPolicy(.session)
-            .setUpdatePolicy(.allowUpdate)
-            .build()
+            .setUpdatePolicy(.allowUpdate))
 
         let expectation = expectation(description: "Existing value is overwritten")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { [weak self] _ in
@@ -195,15 +187,14 @@ final class PersistDataValueTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_when_buildPath_fails_completes_with_original_dispatch() {
+    func test_applyTransformation_when_buildPath_fails_completes_with_original_dispatch() throws {
         let mockDataLayer = FailingMockDataStore()
         let transformer = PersistDataValueTransformer(logger: nil, dataLayer: mockDataLayer)
         let dispatch = Dispatch(name: "test", data: ["source_key": "source_value"])
-        let settings = PersistDataValueSettingsBuilder(id: "test")
+        let settings = try makeSettings(PersistDataValueSettingsBuilder(id: "test")
             .persistFrom(.key("source_key"), to: .key("dest_key"))
             .setExpiryPolicy(.session)
-            .setUpdatePolicy(.allowUpdate)
-            .build()
+            .setUpdatePolicy(.allowUpdate))
 
         let expectation = expectation(description: "Completes with original dispatch on buildPath failure")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in

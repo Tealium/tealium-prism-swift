@@ -21,11 +21,11 @@ import TealiumPrismCore
 /// let settings = SetDataValuesSettingsBuilder(id: "my-transform")
 ///     .setFrom(.key("source"), to: .key("dest"))
 ///     .setConstant("hello", to: .key("greeting"))
-///     .addScope(.afterCollectors)
+///     .setScope(.afterCollectors)
 ///     .build()
 /// ```
 public class SetDataValuesSettingsBuilder: TransformationSettingsBuilder {
-    var operations: [SetDataValuesOperation] = []
+    var operations: [SetDataValuesOperation]?
 
     /// Creates a new builder for a SetDataValues transformation.
     /// - Parameter id: A unique identifier for this transformation.
@@ -39,7 +39,9 @@ public class SetDataValuesSettingsBuilder: TransformationSettingsBuilder {
     ///   - destination: A reference to the destination location in the payload.
     /// - Returns: This builder instance for chaining.
     public func setFrom(_ input: ReferenceContainer, to destination: ReferenceContainer) -> Self {
-        operations.append(.init(input: .reference(input), destination: destination))
+        var ops = operations ?? []
+        ops.append(.init(input: .reference(input), destination: destination))
+        operations = ops
         return self
     }
 
@@ -49,19 +51,18 @@ public class SetDataValuesSettingsBuilder: TransformationSettingsBuilder {
     ///   - destination: A reference to the destination location in the payload.
     /// - Returns: This builder instance for chaining.
     public func setConstant(_ constant: DataInput, to destination: ReferenceContainer) -> Self {
-        operations.append(.init(input: .constant(ValueContainer(constant)), destination: destination))
+        var ops = operations ?? []
+        ops.append(.init(input: .constant(ValueContainer(constant)), destination: destination))
+        operations = ops
         return self
     }
 
-    /// Builds the `TransformationSettings` with the configured operations, scopes, and conditions.
+    /// Builds a `DataObject` with the configured operations, scope, and conditions.
     /// Writes whatever properties have been set to the configuration DataObject.
-    /// - Returns: A `TransformationSettings` instance ready to be applied by the transformer.
-    override public func build() -> TransformationSettings {
+    /// - Returns: A `DataObject` containing only the explicitly configured transformation settings.
+    override public func build() -> DataObject {
         typealias Keys = SetDataValuesConfiguration.Keys
-        let dataObject: DataObject = [
-            Keys.operations: operations.map { $0.toDataObject() }
-        ]
-        _ = _setConfiguration(dataObject)
+        _setConfiguration(DataObject(compacting: [Keys.operations: operations?.map { $0.toDataObject() }]))
         return super.build()
     }
 }

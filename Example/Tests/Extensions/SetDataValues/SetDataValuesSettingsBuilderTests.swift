@@ -9,133 +9,125 @@
 @testable import TealiumPrism
 import XCTest
 
-final class SetDataValuesSettingsBuilderTests: XCTestCase {
+final class SetDataValuesSettingsBuilderTests: ExtensionsBaseTests {
 
     let transformationId = "test-transformation"
 
-    func test_constructor_setsCorrectIds() {
+    func test_constructor_sets_correct_ids() {
         let settings = SetDataValuesSettingsBuilder(id: transformationId).build()
-        XCTAssertEqual(settings.id, transformationId)
-        XCTAssertEqual(settings.transformerId, Modules.Types.setDataValuesTransformer)
+        XCTAssertEqual(settings.get(key: TransformationSettings.Keys.id), transformationId)
+        XCTAssertEqual(settings.get(key: TransformationSettings.Keys.transformerId), Modules.Types.setDataValuesTransformer)
     }
 
-    func test_addScope_single() {
-        let settings = SetDataValuesSettingsBuilder(id: transformationId)
-            .addScope(.afterCollectors)
-            .build()
-        XCTAssertTrue(settings.scopes.contains(.afterCollectors))
-        XCTAssertEqual(settings.scopes.count, 1)
-    }
-
-    func test_addScope_multiple() {
-        let settings = SetDataValuesSettingsBuilder(id: transformationId)
-            .addScope(.afterCollectors)
-            .addScope(.allDispatchers)
-            .build()
-        XCTAssertTrue(settings.scopes.contains(.afterCollectors))
-        XCTAssertTrue(settings.scopes.contains(.allDispatchers))
-        XCTAssertEqual(settings.scopes.count, 2)
-    }
-
-    func test_setFrom() {
+    func test_setFrom_sets_reference_input() {
         let settings = SetDataValuesSettingsBuilder(id: transformationId)
             .setFrom(.key("input_key"), to: .key("destination_key"))
             .build()
-        let operations = convertedOperations(from: settings)
-        XCTAssertEqual(operations.count, 1)
-        XCTAssertEqual(operations.first?.destination, .key("destination_key"))
-        guard case .reference(let ref) = operations.first?.input else {
+        let ops = operationDataObjects(from: settings)
+        XCTAssertEqual(ops.count, 1)
+        guard case .reference(let ref) = extractInput(from: ops[0]) else {
             XCTFail("Expected reference input")
             return
         }
         XCTAssertEqual(ref, .key("input_key"))
     }
 
-    func test_setConstant() {
+    func test_setFrom_sets_destination() {
+        let settings = SetDataValuesSettingsBuilder(id: transformationId)
+            .setFrom(.key("input_key"), to: .key("destination_key"))
+            .build()
+        let ops = operationDataObjects(from: settings)
+        XCTAssertEqual(ops.count, 1)
+        XCTAssertEqual(extractDestination(from: ops[0]), .key("destination_key"))
+    }
+
+    func test_setConstant_sets_constant_input() {
         let settings = SetDataValuesSettingsBuilder(id: transformationId)
             .setConstant(["key": "value"], to: .key("destination_key"))
             .build()
-        let operations = convertedOperations(from: settings)
-        XCTAssertEqual(operations.count, 1)
-        XCTAssertEqual(operations.first?.destination, .key("destination_key"))
-        guard case .constant(let value) = operations.first?.input else {
+        let ops = operationDataObjects(from: settings)
+        XCTAssertEqual(ops.count, 1)
+        guard case .constant(let value) = extractInput(from: ops[0]) else {
             XCTFail("Expected constant input")
             return
         }
         XCTAssertEqual(value.value.getDictionary(of: String.self), ["key": "value"])
     }
 
-    func test_setFrom_and_setConstant_multiple() {
+    func test_setConstant_sets_destination() {
+        let settings = SetDataValuesSettingsBuilder(id: transformationId)
+            .setConstant(["key": "value"], to: .key("destination_key"))
+            .build()
+        let ops = operationDataObjects(from: settings)
+        XCTAssertEqual(ops.count, 1)
+        XCTAssertEqual(extractDestination(from: ops[0]), .key("destination_key"))
+    }
+
+    func test_setFrom_and_setConstant_multiple_produces_two_operations() {
         let settings = SetDataValuesSettingsBuilder(id: transformationId)
             .setFrom(.key("input1_key"), to: .key("destination1_key"))
             .setConstant("constant-value", to: .key("destination2_key"))
             .build()
-        let operations = convertedOperations(from: settings)
-        XCTAssertEqual(operations.count, 2)
-        guard case .reference(let ref) = operations[0].input else {
+        let ops = operationDataObjects(from: settings)
+        XCTAssertEqual(ops.count, 2)
+        guard case .reference(let ref) = extractInput(from: ops[0]) else {
             XCTFail("Expected reference input for first operation")
             return
         }
         XCTAssertEqual(ref, .key("input1_key"))
-        guard case .constant(let value) = operations[1].input else {
+        guard case .constant(let value) = extractInput(from: ops[1]) else {
             XCTFail("Expected constant input for second operation")
             return
         }
         XCTAssertEqual(value.value.get(), "constant-value")
     }
 
-    func test_build_withNoOperations() {
+    func test_build_with_no_operations_omits_operations_key() {
         let settings = SetDataValuesSettingsBuilder(id: transformationId).build()
-        let operations = convertedOperations(from: settings)
-        XCTAssertEqual(operations.count, 0)
+        XCTAssertFalse(configDataObject(from: settings).keys.contains(SetDataValuesConfiguration.Keys.operations))
     }
 
-    func test_build_withAllProperties() {
+    func test_build_with_all_properties() {
         let condition = Rule<Condition>.just(Condition.equals(ignoreCase: false, variable: "tealium_event", target: "test"))
         let settings = SetDataValuesSettingsBuilder(id: transformationId)
-            .addScope(.afterCollectors)
+            .setScope(.afterCollectors)
             .setConditions(condition)
             .setFrom(.key("input_key"), to: .key("destination_key"))
             .build()
-        XCTAssertEqual(settings.id, transformationId)
-        XCTAssertEqual(settings.transformerId, Modules.Types.setDataValuesTransformer)
-        XCTAssertTrue(settings.scopes.contains(.afterCollectors))
-        XCTAssertNotNil(settings.conditions)
-        let operations = convertedOperations(from: settings)
-        XCTAssertEqual(operations.count, 1)
+        XCTAssertEqual(settings.get(key: TransformationSettings.Keys.id), transformationId)
+        XCTAssertEqual(settings.get(key: TransformationSettings.Keys.transformerId), Modules.Types.setDataValuesTransformer)
+        XCTAssertEqual(settings.get(key: TransformationSettings.Keys.scope), "aftercollectors")
+        XCTAssertNotNil(settings.getDataDictionary(key: TransformationSettings.Keys.conditions))
+        XCTAssertEqual(operationDataObjects(from: settings).count, 1)
     }
 
-    func test_setFrom_returnsBuilder() {
+    func test_setFrom_returns_builder() {
         let builder = SetDataValuesSettingsBuilder(id: transformationId)
         let result = builder.setFrom(.key("key"), to: .key("dest"))
         XCTAssertTrue(result === builder)
     }
 
-    func test_setConstant_returnsBuilder() {
+    func test_setConstant_returns_builder() {
         let builder = SetDataValuesSettingsBuilder(id: transformationId)
         let result = builder.setConstant("constant", to: .key("dest"))
         XCTAssertTrue(result === builder)
     }
 
-    func test_addScope_returnsBuilder() {
-        let builder = SetDataValuesSettingsBuilder(id: transformationId)
-        let result = builder.addScope(.afterCollectors)
-        XCTAssertTrue(result === builder)
-    }
-
-    func test_setConditions_returnsBuilder() {
-        let builder = SetDataValuesSettingsBuilder(id: transformationId)
-        let condition = Rule<Condition>.just(Condition.equals(ignoreCase: false, variable: "tealium_event", target: "test"))
-        let result = builder.setConditions(condition)
-        XCTAssertTrue(result === builder)
-    }
-
-    private func convertedOperations(from settings: TransformationSettings) -> [SetDataValuesOperation] {
-        guard let items = settings.configuration.getDataArray(key: "operations") else {
+    private func operationDataObjects(from settings: DataObject) -> [DataObject] {
+        guard let items = configDataObject(from: settings)
+            .getDataArray(key: SetDataValuesConfiguration.Keys.operations) else {
             return []
         }
-        return items.compactMap {
-            SetDataValuesOperation(dataObject: $0.getDataDictionary()?.toDataObject() ?? [:])
-        }
+        return items.compactMap { $0.getDataDictionary()?.toDataObject() }
+    }
+
+    private func extractInput(from operation: DataObject) -> ValueSource? {
+        operation
+            .getConvertible(key: SetDataValuesOperation.Keys.input, converter: ValueSource.converter)
+    }
+
+    private func extractDestination(from operation: DataObject) -> ReferenceContainer? {
+        operation
+            .getConvertible(key: SetDataValuesOperation.Keys.destination, converter: ReferenceContainer.converter)
     }
 }

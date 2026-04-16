@@ -42,9 +42,9 @@ extension Dictionary: DataInputConvertible where Key == String, Value: DataInput
 
 // MARK: - Optional DataInput helpers
 
-extension Optional where Wrapped: DataInput {
+public extension Optional where Wrapped: DataInput {
     /// Returns a `DataItem` that contains the wrapped value or `NSNull`, if the wrapped value was `nil`.
-    public func asDataItem() -> DataItem {
+    func asDataItem() -> DataItem {
         flatMap { DataItem(value: $0) } ?? .null
     }
 }
@@ -115,7 +115,6 @@ public extension Dictionary where Key == String {
         mapValues { $0.asDataItem() }
     }
 }
-
 
 public extension Dictionary where Key == String, Value == DataInput? {
     /// Converts a `[String: DataInput?]` (existential optional) dictionary to `[String: DataItem]`,

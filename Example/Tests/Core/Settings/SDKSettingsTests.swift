@@ -99,7 +99,7 @@ final class SDKSettingsTests: XCTestCase {
                 "transformerId-transformationId": [
                     "transformation_id": "transformationId",
                     "transformer_id": "transformerId",
-                    "scopes": ["afterCollectors"],
+                    "scope": "aftercollectors",
                     "configuration": [
                         "key": "value"
                     ]
@@ -113,7 +113,7 @@ final class SDKSettingsTests: XCTestCase {
         }
         XCTAssertEqual(transformation.id, "transformationId")
         XCTAssertEqual(transformation.transformerId, "transformerId")
-        XCTAssertEqual(transformation.scopes, [.afterCollectors])
+        XCTAssertEqual(transformation.scope, .afterCollectors)
         XCTAssertEqual(transformation.configuration, ["key": "value"])
     }
 

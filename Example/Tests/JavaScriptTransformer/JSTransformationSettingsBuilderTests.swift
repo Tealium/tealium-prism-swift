@@ -14,8 +14,8 @@ final class JSTransformationSettingsBuilderTests: XCTestCase {
 
     func test_build_sets_transformer_id() {
         let settings = JavaScriptTransformationSettingsBuilder(id: transformationId).build()
-        XCTAssertEqual(settings.id, transformationId)
-        XCTAssertEqual(settings.transformerId, Modules.Types.javaScriptTransformer)
+        XCTAssertEqual(settings.get(key: TransformationSettings.Keys.id), transformationId)
+        XCTAssertEqual(settings.get(key: TransformationSettings.Keys.transformerId), Modules.Types.javaScriptTransformer)
     }
 
     func test_setJsCode_stores_code_in_configuration() {
@@ -23,14 +23,16 @@ final class JSTransformationSettingsBuilderTests: XCTestCase {
         let settings = JavaScriptTransformationSettingsBuilder(id: transformationId)
             .setJsCode(code)
             .build()
-        XCTAssertEqual(settings.configuration.get(key: "js_code"), code)
+        let jsCode: String? = configDataObject(from: settings).get(key: JavaScriptTransformationSettingsBuilder.Keys.code)
+        XCTAssertEqual(jsCode, code)
     }
 
     func test_setJsCode_empty_string_is_stored_in_configuration() {
         let settings = JavaScriptTransformationSettingsBuilder(id: transformationId)
             .setJsCode("")
             .build()
-        XCTAssertEqual(settings.configuration.get(key: "js_code"), "")
+        let jsCode: String? = configDataObject(from: settings).get(key: JavaScriptTransformationSettingsBuilder.Keys.code)
+        XCTAssertEqual(jsCode, "")
     }
 
     func test_setJsCode_called_twice_keeps_last_value() {
@@ -38,20 +40,22 @@ final class JSTransformationSettingsBuilderTests: XCTestCase {
             .setJsCode("first")
             .setJsCode("second")
             .build()
-        XCTAssertEqual(settings.configuration.get(key: "js_code"), "second")
+        let jsCode: String? = configDataObject(from: settings).get(key: JavaScriptTransformationSettingsBuilder.Keys.code)
+        XCTAssertEqual(jsCode, "second")
     }
 
-    func test_addScope_is_included_in_build() {
-        let settings = JavaScriptTransformationSettingsBuilder(id: transformationId)
-            .addScope(.afterCollectors)
-            .build()
-        XCTAssertTrue(settings.scopes.contains(.afterCollectors))
-        XCTAssertEqual(settings.scopes.count, 1)
-    }
-
-    func test_build_with_no_code_has_nil_js_code_in_configuration() {
+    func test_build_without_setJsCode_omits_js_code_key() {
         let settings = JavaScriptTransformationSettingsBuilder(id: transformationId).build()
-        let code: String? = settings.configuration.get(key: "js_code")
-        XCTAssertNil(code)
+        XCTAssertFalse(configDataObject(from: settings).keys.contains(JavaScriptTransformationSettingsBuilder.Keys.code))
+    }
+
+    func test_setJsCode_returns_builder() {
+        let builder = JavaScriptTransformationSettingsBuilder(id: transformationId)
+        let result = builder.setJsCode("let a = 42")
+        XCTAssertTrue(result === builder)
+    }
+
+    private func configDataObject(from settings: DataObject) -> DataObject {
+        settings.getDataDictionary(key: TransformationSettings.Keys.configuration)?.toDataObject() ?? [:]
     }
 }

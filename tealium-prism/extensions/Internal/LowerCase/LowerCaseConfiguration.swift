@@ -33,7 +33,7 @@ struct LowerCaseConfiguration: DataObjectConvertible {
         self.inputs = inputs
     }
 
-    init(dataObject: DataObject) {
+    init?(dataObject: DataObject) {
         let allVariables = dataObject.get(key: Keys.allVariables, as: Bool.self) ?? Defaults.allVariables
 
         let inputs: [ReferenceContainer]
@@ -43,6 +43,10 @@ struct LowerCaseConfiguration: DataObjectConvertible {
             }
         } else {
             inputs = []
+        }
+
+        guard allVariables || !inputs.isEmpty else {
+            return nil
         }
 
         self.init(allVariables: allVariables, inputs: inputs)

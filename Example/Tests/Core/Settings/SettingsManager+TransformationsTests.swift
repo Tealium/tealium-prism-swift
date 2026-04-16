@@ -16,7 +16,7 @@ final class SettingsManagerTransformationsTests: SettingsManagerTestCase {
         let condition = Condition.equals(ignoreCase: false, variable: "tealium_event", target: "test_event")
         config.setTransformation(TransformationSettingsBuilder(id: "programmaticTransformation",
                                                                transformerId: "someTransformer")
-            .addScope(.allDispatchers)
+            .setScope(.allDispatchers)
             .setConditions(.just(condition))
             ._setConfiguration(["someKey": "someValue"])
         )
@@ -28,7 +28,7 @@ final class SettingsManagerTransformationsTests: SettingsManagerTestCase {
         }
         XCTAssertEqual(programmaticTransformation.id, "programmaticTransformation")
         XCTAssertEqual(programmaticTransformation.transformerId, "someTransformer")
-        XCTAssertEqual(programmaticTransformation.scopes, [.allDispatchers])
+        XCTAssertEqual(programmaticTransformation.scope, .allDispatchers)
         XCTAssertEqual(programmaticTransformation.configuration, ["someKey": "someValue"])
         XCTAssertNotNil(programmaticTransformation.conditions)
         guard let conditions = programmaticTransformation.conditions,
@@ -43,7 +43,7 @@ final class SettingsManagerTransformationsTests: SettingsManagerTestCase {
         }
         XCTAssertEqual(localTransformation.id, "transformationId")
         XCTAssertEqual(localTransformation.transformerId, "transformerId")
-        XCTAssertEqual(localTransformation.scopes, [.afterCollectors])
+        XCTAssertEqual(localTransformation.scope, .afterCollectors)
         XCTAssertEqual(localTransformation.configuration, ["key": "value"])
         XCTAssertNotNil(localTransformation.conditions)
         guard let conditions = localTransformation.conditions,
@@ -60,7 +60,7 @@ final class SettingsManagerTransformationsTests: SettingsManagerTestCase {
         config.bundle = Bundle(for: type(of: self))
         config.setTransformation(TransformationSettingsBuilder(id: "transformationId",
                                                                transformerId: "transformerId")
-            .addScope(.allDispatchers)
+            .setScope(.allDispatchers)
             ._setConfiguration(["someKey": "someValue"]))
         let manager = try getManager()
         let sdkSettings = manager.settings.value
