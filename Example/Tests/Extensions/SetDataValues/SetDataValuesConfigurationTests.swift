@@ -21,11 +21,11 @@ final class SetDataValuesConfigurationTests: XCTestCase {
         XCTAssertNil(configuration)
     }
 
-    func test_init_withEmptyOperations_returnsConfiguration() {
+    func test_init_withEmptyOperations_returnsNil() {
         let configuration = SetDataValuesConfiguration(dataObject: [
             SetDataValuesConfiguration.Keys.operations: DataItem(value: [])
         ])
-        XCTAssertEqual(configuration?.operations.count, 0)
+        XCTAssertNil(configuration)
     }
 
     func test_init_withSingleOperation_returnsConfiguration() {

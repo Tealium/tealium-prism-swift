@@ -103,14 +103,12 @@ class TealiumConfigTests: TealiumConfigBaseTests {
                 "transformerId-transformationId1": [
                     "transformation_id": "transformationId1",
                     "transformer_id": "transformerId",
-                    "scopes": ["alldispatchers"],
-                    "configuration": [:]
+                    "scopes": ["alldispatchers"]
                 ],
                 "transformerId-transformationId2": [
                     "transformation_id": "transformationId2",
                     "transformer_id": "transformerId",
-                    "scopes": ["123"],
-                    "configuration": [:]
+                    "scopes": ["123"]
                 ]
             ])
         ])

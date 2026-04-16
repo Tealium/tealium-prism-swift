@@ -9,7 +9,7 @@
 @testable import TealiumPrism
 import XCTest
 
-final class SetDataValuesTransformerTests: XCTestCase {
+final class SetDataValuesTransformerTests: ExtensionsBaseTests {
 
     let transformer = SetDataValuesTransformer()
 
@@ -37,9 +37,9 @@ final class SetDataValuesTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_withEmptyOperations_completesWithOriginalDispatch() {
+    func test_applyTransformation_withEmptyOperations_completesWithOriginalDispatch() throws {
         let dispatch = Dispatch(name: "test", data: ["key": "value"])
-        let settings = SetDataValuesSettingsBuilder(id: "test").build()
+        let settings = try makeSettings(SetDataValuesSettingsBuilder(id: "test"))
         let expectation = expectation(description: "Transformation completes with original dispatch")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload, dispatch.payload)
@@ -48,11 +48,10 @@ final class SetDataValuesTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_withReferenceOperation_copiesValue() {
+    func test_applyTransformation_withReferenceOperation_copiesValue() throws {
         let dispatch = Dispatch(name: "test", data: ["source_key": "source_value"])
-        let settings = SetDataValuesSettingsBuilder(id: "test")
-            .setFrom(.key("source_key"), to: .key("destination_key"))
-            .build()
+        let settings = try makeSettings(SetDataValuesSettingsBuilder(id: "test")
+            .setFrom(.key("source_key"), to: .key("destination_key")))
         let expectation = expectation(description: "Value is copied from source to destination")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload.get(key: "destination_key"), "source_value")
@@ -61,11 +60,10 @@ final class SetDataValuesTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_withConstantOperation_setsValue() {
+    func test_applyTransformation_withConstantOperation_setsValue() throws {
         let dispatch = Dispatch(name: "test", data: ["existing_key": "existing_value"])
-        let settings = SetDataValuesSettingsBuilder(id: "test")
-            .setConstant("constant_value", to: .key("destination_key"))
-            .build()
+        let settings = try makeSettings(SetDataValuesSettingsBuilder(id: "test")
+            .setConstant("constant_value", to: .key("destination_key")))
         let expectation = expectation(description: "Constant value is set to destination")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload.get(key: "destination_key"), "constant_value")
@@ -74,15 +72,14 @@ final class SetDataValuesTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_withMultipleOperations_appliesAll() {
+    func test_applyTransformation_withMultipleOperations_appliesAll() throws {
         let dispatch = Dispatch(name: "test", data: [
             "source1": "value1",
             "source2": "value2"
         ])
-        let settings = SetDataValuesSettingsBuilder(id: "test")
+        let settings = try makeSettings(SetDataValuesSettingsBuilder(id: "test")
             .setFrom(.key("source1"), to: .key("dest1"))
-            .setConstant("constant", to: .key("dest2"))
-            .build()
+            .setConstant("constant", to: .key("dest2")))
         let expectation = expectation(description: "All operations are applied")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             let dest1Value: String? = result?.payload.get(key: "dest1")
@@ -94,12 +91,10 @@ final class SetDataValuesTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_withMissingSourceReference_skipsOperation() {
+    func test_applyTransformation_withMissingSourceReference_skipsOperation() throws {
         let dispatch = Dispatch(name: "test", data: ["existing_key": "existing_value"])
-        let settings = SetDataValuesSettingsBuilder(id: "test")
-            .setFrom(.key("missing_key"), to: .key("destination_key"))
-            .build()
-
+        let settings = try makeSettings(SetDataValuesSettingsBuilder(id: "test")
+            .setFrom(.key("missing_key"), to: .key("destination_key")))
         let expectation = expectation(description: "Operation is skipped for missing source")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertNil(result?.payload.getDataItem(key: "destination_key"))

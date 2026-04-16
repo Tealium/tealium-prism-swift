@@ -60,10 +60,22 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
     }
 
     /**
-     * Creates a `DataObject` from a `[String: DataInputConvertible?]` dictionary.
+     * Creates a `DataObject` from a `[String: DataInputConvertible?]` dictionary, omitting any keys whose value is `nil`.
      *
-     * The Convertible elements will be converted immediately before being stored.
-     * `nil`s in root object will be removed.
+     * Use this initializer whenever one or more root values may be optional.
+     * The dictionary literal syntax requires non-optional `DataInputConvertible` values and will not
+     * compile when optional values are present; this initializer accepts optionals and strips `nil`
+     * entries so only explicitly set values appear in the result.
+     *
+     * ```swift
+     * // ✅ Compiles and omits keys whose value is nil
+     * DataObject(compacting: ["key": optionalValue])
+     *
+     * // ❌ Does not compile when optionalValue is optional
+     * ["key": optionalValue] as DataObject
+     * ```
+     *
+     * The remaining (non-nil) convertible elements are converted immediately before being stored.
      */
     public init(compacting dictionary: [String: DataInputConvertible?] = [:]) {
         self.init(dictionary: dictionary.compactMapValues { $0 })

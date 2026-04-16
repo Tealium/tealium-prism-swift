@@ -38,7 +38,7 @@ import TealiumPrismCore
 /// ```
 public class LowerCaseSettingsBuilder: TransformationSettingsBuilder {
     var allVariables: Bool?
-    var inputs: [ReferenceContainer] = []
+    var inputs: [ReferenceContainer]?
 
     /// Creates a new builder for a LowerCase transformation.
     /// - Parameter id: A unique identifier for this transformation.
@@ -58,17 +58,19 @@ public class LowerCaseSettingsBuilder: TransformationSettingsBuilder {
     /// - Parameter reference: A reference to the key in the payload to lowercase.
     /// - Returns: This builder instance for chaining.
     public func addVariable(_ reference: ReferenceContainer) -> Self {
-        inputs.append(reference)
+        var refs = inputs ?? []
+        refs.append(reference)
+        inputs = refs
         return self
     }
 
-    /// Builds the `TransformationSettings` with the configured operations, scopes, and conditions.
-    /// - Returns: A `TransformationSettings` instance ready to be applied by the transformer.
-    override public func build() -> TransformationSettings {
+    /// Builds a `DataObject` with the configured operations, scopes, and conditions.
+    /// - Returns: A `DataObject` containing only the explicitly configured transformation settings.
+    override public func build() -> DataObject {
         typealias Keys = LowerCaseConfiguration.Keys
-        _ = _setConfiguration(DataObject(compacting: [
-            Keys.inputs: inputs.map { $0.toDataObject() },
-            Keys.allVariables: allVariables
+        _setConfiguration(DataObject(compacting: [
+            Keys.allVariables: allVariables,
+            Keys.inputs: inputs?.map { $0.toDataObject() }
         ]))
         return super.build()
     }

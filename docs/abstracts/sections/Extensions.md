@@ -8,7 +8,7 @@ The Extensions module includes three transformers:
 - **`PersistDataValue`** — Writes a value from the payload (or a constant) to the data layer with a configurable expiry and update policy, then injects the persisted value back into the current dispatch.
 - **`LowerCase`** — Lowercases all string values in the dispatch payload, or targets specific keys.
 
-Each transformer is configured through its dedicated settings builder, which produces a `TransformationSettings` value that you attach to your `TealiumConfig` like any other transformation. See the [Transformations](Transformations.html) documentation for a full explanation of scopes, conditions, and how transformations fit into the dispatch pipeline.
+Each transformer is configured through its dedicated settings builder, which you attach to your `TealiumConfig` via `config.setTransformation(_:)` like any other transformation. See the [Transformations](Transformations.html) documentation for a full explanation of scopes, conditions, and how transformations fit into the dispatch pipeline.
 
 ## Registration
 
@@ -81,7 +81,7 @@ config.setTransformation(nested)
 | `setFrom(_ input: ReferenceContainer, to destination: ReferenceContainer)` | Copies the value at `input` to `destination` |
 | `setConstant(_ constant: DataInput, to destination: ReferenceContainer)` | Sets a constant value at `destination` |
 
-If the source key is not present in the payload, the operation is silently skipped.
+If the source key is not present in the payload, the operation is silently skipped. A transformation with no operations configured is a no-op — the dispatch passes through unchanged.
 
 ### JSON Configuration
 
@@ -288,6 +288,8 @@ config.setTransformation(lowerSelected)
 |---|---|---|
 | `all_variables` | `Bool` | Lowercase all strings when `true` (default: `true`) |
 | `inputs` | `Array<ReferenceContainer>` | Variables to target when `all_variables` is `false` |
+
+> **Note:** Setting `all_variables` to `false` with an empty `inputs` array is invalid — the transformation is treated as a no-op and the dispatch passes through unchanged.
 
 ## Combining Multiple Transformers
 

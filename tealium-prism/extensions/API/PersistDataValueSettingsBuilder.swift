@@ -130,11 +130,11 @@ public class PersistDataValueSettingsBuilder: TransformationSettingsBuilder {
         return self
     }
 
-    /// Builds the `TransformationSettings` from the current builder state.
+    /// Builds a `DataObject` from the current builder state.
     /// Writes whatever properties have been set to the configuration DataObject.
-    override public func build() -> TransformationSettings {
+    override public func build() -> DataObject {
         typealias ConfigKeys = PersistDataValueConfiguration.Keys
-        _ = _setConfiguration(DataObject(compacting: [
+        _setConfiguration(DataObject(compacting: [
             ConfigKeys.input: input,
             ConfigKeys.destination: destination,
             ConfigKeys.duration: expiryPolicy,

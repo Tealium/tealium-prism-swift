@@ -8,20 +8,25 @@
 
 import Foundation
 
-/// Base class for building `TransformationSettings`.
+/// Base class for building transformation settings as a `DataObject`.
 ///
 /// Concrete subclasses (e.g. `SetDataValuesSettingsBuilder`, `PersistDataValueSettingsBuilder`,
 /// `LowerCaseSettingsBuilder`) override ``build()`` to populate transformer-specific configuration
 /// and then delegate to `super.build()`.
 ///
+/// Only values that are explicitly set via the builder's methods will appear in the resulting
+/// `DataObject`, so programmatic settings won't override remote/local settings for values
+/// the caller didn't intend to change.
+///
 /// Pass the finished builder directly to [`TealiumConfig.setTransformation(_:)`](doc:TealiumConfig/setTransformation(_:))
 /// — there is no need to call ``build()`` yourself.
 open class TransformationSettingsBuilder {
+    typealias Keys = TransformationSettings.Keys
     let id: String
     let transformerId: String
-    var conditions: Rule<Condition>?
     var scopes: [TransformationScope] = []
-    var configuration: DataObject = [:]
+    var conditions: Rule<Condition>?
+    var configuration: DataObject?
 
     /// Creates a new builder for a transformation with the given unique `id` and `transformerId`.
     /// - Parameters:
@@ -57,19 +62,26 @@ open class TransformationSettingsBuilder {
     }
 
     // Do not use
+    @discardableResult
     public func _setConfiguration(_ configuration: DataObject) -> Self {
-        self.configuration = configuration
+        if !configuration.keys.isEmpty {
+            self.configuration = configuration
+        }
         return self
     }
 
-    /// Builds and returns a `TransformationSettings` from the current builder state.
-    /// - Returns: A configured `TransformationSettings` instance.
-    open func build() -> TransformationSettings {
-        TransformationSettings(id: id,
-                               transformerId: transformerId,
-                               scopes: scopes,
-                               configuration: configuration,
-                               conditions: conditions)
+    /// Builds and returns a `DataObject` representing the transformation settings.
+    ///
+    /// Only explicitly set values are included, so unset properties won't override
+    /// other settings sources during merging.
+    /// - Returns: A `DataObject` containing only the explicitly configured transformation settings.
+    open func build() -> DataObject {
+        DataObject(compacting: [
+            Keys.id: id,
+            Keys.transformerId: transformerId,
+            Keys.scopes: scopes.isEmpty ? nil : scopes.map { $0.rawValue },
+            Keys.conditions: conditions,
+            Keys.configuration: configuration
+        ])
     }
-
 }

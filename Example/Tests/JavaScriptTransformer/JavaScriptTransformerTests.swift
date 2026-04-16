@@ -57,10 +57,7 @@ final class JavaScriptTransformerTests: XCTestCase {
 
     func test_applyTransformation_with_blank_js_code_completes_with_original_dispatch() {
         let dispatch = Dispatch(name: "test", data: ["key": "value"])
-        let settings = JavaScriptTransformationSettingsBuilder(id: "test")
-            .setJsCode(" ")
-            .addScope(.afterCollectors)
-            .build()
+        let settings = buildSettings(jsCode: " ")
         let expectation = expectation(description: "Completes with original dispatch")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload.get(key: "key"), "value")
@@ -449,9 +446,13 @@ final class JavaScriptTransformerTests: XCTestCase {
     // MARK: - Helpers
 
     private func buildSettings(jsCode: String) -> TransformationSettings {
-        JavaScriptTransformationSettingsBuilder(id: "test")
+        let settings = JavaScriptTransformationSettingsBuilder(id: "test")
             .setJsCode(jsCode)
-            .addScope(.afterCollectors)
             .build()
+        let config = settings.getDataDictionary(key: TransformationSettings.Keys.configuration)?.toDataObject() ?? [:]
+        return TransformationSettings(id: "test",
+                                      transformerId: Modules.Types.javaScriptTransformer,
+                                      scopes: [.afterCollectors],
+                                      configuration: config)
     }
 }

@@ -9,7 +9,7 @@
 @testable import TealiumPrism
 import XCTest
 
-final class LowerCaseTransformerTests: XCTestCase {
+final class LowerCaseTransformerTests: ExtensionsBaseTests {
 
     let transformer = LowerCaseTransformer()
 
@@ -21,9 +21,9 @@ final class LowerCaseTransformerTests: XCTestCase {
         XCTAssertEqual(transformer.version, TealiumConstants.libraryVersion)
     }
 
-    func test_applyTransformation_with_all_variables_lowercases_string_values() {
+    func test_applyTransformation_with_all_variables_lowercases_string_values() throws {
         let dispatch = Dispatch(name: "test", data: ["key1": "HELLO", "key2": "WORLD"])
-        let settings = LowerCaseSettingsBuilder(id: "test").build()
+        let settings = try makeSettings(LowerCaseSettingsBuilder(id: "test"))
         let expectation = expectation(description: "String values are lowercased")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload.get(key: "key1"), "hello")
@@ -33,9 +33,9 @@ final class LowerCaseTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_with_all_variables_preserves_non_string_values() {
+    func test_applyTransformation_with_all_variables_preserves_non_string_values() throws {
         let dispatch = Dispatch(name: "test", data: ["count": 42, "flag": true])
-        let settings = LowerCaseSettingsBuilder(id: "test").build()
+        let settings = try makeSettings(LowerCaseSettingsBuilder(id: "test"))
         let expectation = expectation(description: "Non-string values are preserved")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload.get(key: "count"), 42)
@@ -45,9 +45,9 @@ final class LowerCaseTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_with_all_variables_lowercases_nested_array_strings() {
+    func test_applyTransformation_with_all_variables_lowercases_nested_array_strings() throws {
         let dispatch = Dispatch(name: "test", data: ["tags": ["FOO", "BAR"]])
-        let settings = LowerCaseSettingsBuilder(id: "test").build()
+        let settings = try makeSettings(LowerCaseSettingsBuilder(id: "test"))
         let expectation = expectation(description: "Nested array strings are lowercased")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload.getArray(key: "tags"), ["foo", "bar"])
@@ -56,9 +56,9 @@ final class LowerCaseTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_with_all_variables_lowercases_nested_dict_strings() {
+    func test_applyTransformation_with_all_variables_lowercases_nested_dict_strings() throws {
         let dispatch = Dispatch(name: "test", data: ["nested": ["inner_key": "UPPER_VALUE"]])
-        let settings = LowerCaseSettingsBuilder(id: "test").build()
+        let settings = try makeSettings(LowerCaseSettingsBuilder(id: "test"))
         let expectation = expectation(description: "Nested dict strings are lowercased")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             let nested = result?.payload.getDataDictionary(key: "nested")
@@ -68,10 +68,10 @@ final class LowerCaseTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_with_all_variables_preserves_visitor_id() {
+    func test_applyTransformation_with_all_variables_preserves_visitor_id() throws {
         let visitorId = "ABC-123-UUID"
         let dispatch = Dispatch(name: "test", data: [TealiumDataKey.visitorId: visitorId, "other": "UPPERCASE"])
-        let settings = LowerCaseSettingsBuilder(id: "test").build()
+        let settings = try makeSettings(LowerCaseSettingsBuilder(id: "test"))
         let expectation = expectation(description: "Visitor ID is preserved unchanged")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload.get(key: TealiumDataKey.visitorId), visitorId)
@@ -81,13 +81,12 @@ final class LowerCaseTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_with_specific_operations_lowercases_visitor_id_when_explicitly_targeted() {
+    func test_applyTransformation_with_specific_operations_lowercases_visitor_id_when_explicitly_targeted() throws {
         let visitorId = "ABC-123-UUID"
         let dispatch = Dispatch(name: "test", data: [TealiumDataKey.visitorId: visitorId])
-        let settings = LowerCaseSettingsBuilder(id: "test")
+        let settings = try makeSettings(LowerCaseSettingsBuilder(id: "test")
             .setAllVariables(false)
-            .addVariable(.key(TealiumDataKey.visitorId))
-            .build()
+            .addVariable(.key(TealiumDataKey.visitorId)))
         let expectation = expectation(description: "Visitor ID is lowercased")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload.get(key: TealiumDataKey.visitorId), visitorId.lowercased())
@@ -112,12 +111,11 @@ final class LowerCaseTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_with_specific_operations_lowercases_targeted_key() {
+    func test_applyTransformation_with_specific_operations_lowercases_targeted_key() throws {
         let dispatch = Dispatch(name: "test", data: ["email": "User@Example.COM", "name": "ALICE"])
-        let settings = LowerCaseSettingsBuilder(id: "test")
+        let settings = try makeSettings(LowerCaseSettingsBuilder(id: "test")
             .setAllVariables(false)
-            .addVariable(.key("email"))
-            .build()
+            .addVariable(.key("email")))
         let expectation = expectation(description: "Only targeted key is lowercased")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload.get(key: "email"), "user@example.com")
@@ -127,12 +125,11 @@ final class LowerCaseTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_with_specific_operations_skips_missing_source_key() {
+    func test_applyTransformation_with_specific_operations_skips_missing_source_key() throws {
         let dispatch = Dispatch(name: "test", data: ["existing": "VALUE"])
-        let settings = LowerCaseSettingsBuilder(id: "test")
+        let settings = try makeSettings(LowerCaseSettingsBuilder(id: "test")
             .setAllVariables(false)
-            .addVariable(.key("missing_key"))
-            .build()
+            .addVariable(.key("missing_key")))
         let expectation = expectation(description: "Missing source key is silently skipped")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertNil(result?.payload.getDataItem(key: "missing_key"))
@@ -142,12 +139,11 @@ final class LowerCaseTransformerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_with_specific_operations_skips_non_string_source() {
+    func test_applyTransformation_with_specific_operations_skips_non_string_source() throws {
         let dispatch = Dispatch(name: "test", data: ["count": 99])
-        let settings = LowerCaseSettingsBuilder(id: "test")
+        let settings = try makeSettings(LowerCaseSettingsBuilder(id: "test")
             .setAllVariables(false)
-            .addVariable(.key("count"))
-            .build()
+            .addVariable(.key("count")))
         let expectation = expectation(description: "Non-string source is silently skipped")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload, dispatch.payload)
