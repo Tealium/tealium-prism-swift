@@ -16,37 +16,6 @@ final class TransformationSettingsConverterTests: XCTestCase {
         "filter": ["value": "test_event"]
     ]
 
-    func test_transformation_to_data_object() {
-        // Test DataObjectConvertible implementation
-        let condition = Condition.equals(ignoreCase: false, variable: "tealium_event", target: "test_event")
-        let configuration: DataObject = ["key1": "value1", "key2": 123]
-        let transformation = TransformationSettings(id: "test_id",
-                                                    transformerId: "test_transformer",
-                                                    scope: .afterCollectors,
-                                                    configuration: configuration,
-                                                    conditions: .just(condition))
-
-        let dataObject = transformation.toDataObject()
-
-        XCTAssertEqual(dataObject.get(key: TransformationSettings.Keys.id), "test_id")
-        XCTAssertEqual(dataObject.get(key: TransformationSettings.Keys.transformerId), "test_transformer")
-        XCTAssertEqual(dataObject.get(key: TransformationSettings.Keys.scope), "aftercollectors")
-
-        let configObject = dataObject.getDataDictionary(key: TransformationSettings.Keys.configuration)
-        XCTAssertEqual(configObject?.get(key: "key1"), "value1")
-        XCTAssertEqual(configObject?.get(key: "key2"), 123)
-
-        XCTAssertEqual(dataObject.getDataDictionary(key: TransformationSettings.Keys.conditions)?.toDataObject(), testCondition)
-    }
-
-    func test_transformation_to_data_object_with_dispatchers_scope() {
-        let transformation = TransformationSettings(id: "test_id",
-                                                    transformerId: "test_transformer",
-                                                    scope: .dispatchers(["Collect", "Facebook"]))
-        let dataObject = transformation.toDataObject()
-        XCTAssertEqual(dataObject.getArray(key: TransformationSettings.Keys.scope), ["Collect", "Facebook"])
-    }
-
     func test_transformation_converter_with_configuration_returns_transformation_with_configuration() {
         let id = "test_id"
         let transformerId = "test_transformer"
@@ -68,6 +37,38 @@ final class TransformationSettingsConverterTests: XCTestCase {
         XCTAssertEqual(transformation?.configuration.get(key: "key1"), "value1")
         XCTAssertEqual(transformation?.configuration.get(key: "key2"), 123)
         XCTAssertNil(transformation?.conditions)
+    }
+
+    func test_transformation_converter_deserializes_order() {
+        let settings: DataObject = [
+            TransformationSettings.Keys.id: "test_id",
+            TransformationSettings.Keys.transformerId: "test_transformer",
+            TransformationSettings.Keys.scope: "aftercollectors",
+            TransformationSettings.Keys.order: 7
+        ]
+        let transformation = TransformationSettings.converter.convert(dataItem: settings.toDataItem())
+        XCTAssertEqual(transformation?.order, 7)
+    }
+
+    func test_transformation_converter_sets_maxInt_order_when_absent() {
+        let settings: DataObject = [
+            TransformationSettings.Keys.id: "test_id",
+            TransformationSettings.Keys.transformerId: "test_transformer",
+            TransformationSettings.Keys.scope: "aftercollectors"
+        ]
+        let transformation = TransformationSettings.converter.convert(dataItem: settings.toDataItem())
+        XCTAssertEqual(transformation?.order, Int.max)
+    }
+
+    func test_transformation_converter_with_wrong_order_type_defaults_to_maxInt() {
+        let settings: DataObject = [
+            TransformationSettings.Keys.id: "test_id",
+            TransformationSettings.Keys.transformerId: "test_transformer",
+            TransformationSettings.Keys.scope: "aftercollectors",
+            TransformationSettings.Keys.order: "not_a_number"
+        ]
+        let transformation = TransformationSettings.converter.convert(dataItem: settings.toDataItem())
+        XCTAssertEqual(transformation?.order, Int.max)
     }
 
     func test_transformation_converter_with_multiple_dispatcher_ids_returns_dispatchers_scope() {

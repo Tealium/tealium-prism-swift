@@ -29,7 +29,7 @@ class DispatchManagerTestCase: XCTestCase {
 
     let transformer = MockTransformer1 { transformation, dispatch, scope in
         var dispatch = dispatch
-        dispatch.enrich(data: ["transformation-\(scope.rawValue)": transformation])
+        dispatch.enrich(data: ["transformation-\(scope.rawValue)": transformation.id])
         return dispatch
     }
     lazy var transformers = StateSubject<[Transformer]>([transformer])

@@ -30,18 +30,32 @@ TransformationScope.dispatchers(["my_dispatcher"])
 
 ### Transformation Settings
 
-A `TransformationSettings` defines when and how a transformation should be applied:
+`TransformationSettings` defines when and how a transformation should be applied. There are two ways to create one depending on context:
+
+- **`TealiumConfig.setTransformation(_:)`** — pass a `TransformationSettingsBuilder`. Only the values you explicitly set on the builder are written, so programmatic settings won't silently override remote/local config for fields the caller didn't intend to change.
+- **`TransformerRegistrar.registerTransformation(_:)`** — pass a `TransformationSettings` directly (typically used by module implementations at runtime).
 
 ```swift
+// For TealiumConfig — use the builder
+config.setTransformation(
+    TransformationSettingsBuilder(id: "my_transformation", transformerId: "MyTransformer")
+        .setScope(.allDispatchers)
+        .setOrder(1)
+        .setConditions(.just(Condition.equals(ignoreCase: false,
+                                             variable: "event_type",
+                                             target: "purchase")))
+)
+
+// For runtime registration via a module — use TransformationSettings directly
 let transformation = TransformationSettings(
     id: "my_transformation",
-    transformerId: "my_transformer", 
+    transformerId: "MyTransformer",
     scope: .allDispatchers,
-    configuration: ["key": "value"],
-    conditions: .just(Condition.equals(ignoreCase: false, 
-                                      variable: "event_type", 
+    conditions: .just(Condition.equals(ignoreCase: false,
+                                      variable: "event_type",
                                       target: "purchase"))
 )
+context.transformerRegistrar.registerTransformation(transformation)
 ```
 
 ## Creating Custom Transformers
@@ -112,22 +126,31 @@ config.addModule(MyCustomTransformerFactory())
 
 ### Programmatic Configuration
 
-```swift
-// Create transformation settings
-let enrichmentTransformation = TransformationSettings(
-    id: "user_enrichment",
-    transformerId: "DataEnrichmentTransformer",
-    scope: .afterCollectors,
-    configuration: [
-        "enable_enrichment": true,
-        "enrichment_type": "user_data",
-        "source": "user_profile"
-    ],
-    conditions: .just(Condition.isDefined(variable: "user_id"))
-)
+Use `TransformationSettingsBuilder` to add transformations to `TealiumConfig`. For custom transformers, subclass it and expose typed setters that populate the configuration — the same pattern used by the built-in extension builders:
 
-// Add to configuration
-config.setTransformation(enrichmentTransformation)
+```swift
+class DataEnrichmentSettingsBuilder: TransformationSettingsBuilder {
+    init(id: String) {
+        super.init(id: id, transformerId: "DataEnrichmentTransformer")
+    }
+
+    func setEnrichmentType(_ type: String, source: String) -> Self {
+        _setConfiguration([
+            "enable_enrichment": true,
+            "enrichment_type": type,
+            "source": source
+        ])
+        return self
+    }
+}
+
+config.setTransformation(
+    DataEnrichmentSettingsBuilder(id: "user_enrichment")
+        .setScope(.afterCollectors)
+        .setOrder(10)
+        .setEnrichmentType("user_data", source: "user_profile")
+        .setConditions(.just(Condition.isDefined(variable: "user_id")))
+)
 ```
 
 ### JSON Configuration
@@ -139,6 +162,7 @@ Transformations can also be defined in JSON format for remote configuration:
   "transformation_id": "user_enrichment",
   "transformer_id": "MyCustomTransformer", 
   "scope": "aftercollectors",
+  "order": 10,
   "configuration": {
     "enable_enrichment": true,
     "enrichment_type": "user_data",
@@ -471,14 +495,28 @@ If transformation conditions fail to evaluate, the transformation is skipped and
 
 ### Transformation Order
 
-Transformations are applied in the order they are defined. Consider the performance impact of your transformation order:
+Transformations are sorted by their `order` value before execution. Lower values run first; transformations without an explicit order run last (they default to `Int.max`). Use `setOrder(_:)` on the builder to control execution sequence:
 
 ```swift
-// Put lightweight transformations first
-let transformations = [
-    quickFilterTransformation,
-    expensiveEnrichmentTransformation
-]
+// Runs first — lightweight filter (order: 1)
+config.setTransformation(
+    TransformationSettingsBuilder(id: "quick_filter", transformerId: "DataFilterTransformer")
+        .setScope(.allDispatchers)
+        .setOrder(1)
+)
+
+// Runs second — expensive enrichment (order: 100)
+config.setTransformation(
+    TransformationSettingsBuilder(id: "expensive_enrichment", transformerId: "DataEnrichmentTransformer")
+        .setScope(.allDispatchers)
+        .setOrder(100)
+)
+
+// Runs last — no order specified (defaults to Int.max)
+config.setTransformation(
+    TransformationSettingsBuilder(id: "fallback", transformerId: "DataEnrichmentTransformer")
+        .setScope(.allDispatchers)
+)
 ```
 
 ### Asynchronous Operations

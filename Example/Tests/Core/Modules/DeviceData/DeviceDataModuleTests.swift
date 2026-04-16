@@ -189,8 +189,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
 
     func test_module_registers_transformation_on_init() {
         _ = deviceDataCollector
-        let dispatch = Dispatch(name: "test_event", data: [:])
-        let transformerId = transformerCoordinator.getTransformations(for: dispatch, .afterCollectors)[0].transformerId
+        let transformerId = transformerCoordinator.getTransformations(for: .afterCollectors)[0].transformerId
         XCTAssertEqual(transformerId, DeviceDataModule.moduleType)
     }
 

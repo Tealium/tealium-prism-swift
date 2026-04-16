@@ -155,27 +155,27 @@ final class PersistDataValueSettingsBuilderTests: ExtensionsBaseTests {
     }
 
     func test_persistFrom_after_persistConstant_overwrites_input() {
-        let dataObject = PersistDataValueSettingsBuilder(id: transformationId)
+        let settings = PersistDataValueSettingsBuilder(id: transformationId)
             .persistConstant("constant", to: .key("dest1"))
             .persistFrom(.key("source"), to: .key("dest2"))
             .build()
-        guard case .reference(let ref) = extractInput(from: dataObject) else {
+        guard case .reference(let ref) = extractInput(from: settings) else {
             XCTFail("Expected reference input"); return
         }
         XCTAssertEqual(ref, .key("source"))
-        XCTAssertEqual(extractDestination(from: dataObject), .key("dest2"))
+        XCTAssertEqual(extractDestination(from: settings), .key("dest2"))
     }
 
     func test_persistConstant_after_persistFrom_overwrites_input() {
-        let dataObject = PersistDataValueSettingsBuilder(id: transformationId)
+        let settings = PersistDataValueSettingsBuilder(id: transformationId)
             .persistFrom(.key("source"), to: .key("dest1"))
             .persistConstant("constant", to: .key("dest2"))
             .build()
-        guard case .constant(let value) = extractInput(from: dataObject) else {
+        guard case .constant(let value) = extractInput(from: settings) else {
             XCTFail("Expected constant input"); return
         }
         XCTAssertEqual(value.value.get(), "constant")
-        XCTAssertEqual(extractDestination(from: dataObject), .key("dest2"))
+        XCTAssertEqual(extractDestination(from: settings), .key("dest2"))
     }
 
     private func extractInput(from settings: DataObject) -> ValueSource? {

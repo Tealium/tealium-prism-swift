@@ -25,6 +25,7 @@ open class TransformationSettingsBuilder {
     let id: String
     let transformerId: String
     var scope: TransformationScope?
+    var order: Int?
     var conditions: Rule<Condition>?
     var configuration: DataObject?
 
@@ -42,6 +43,16 @@ open class TransformationSettingsBuilder {
     /// - Returns: The builder instance for method chaining.
     public func setScope(_ scope: TransformationScope) -> Self {
         self.scope = scope
+        return self
+    }
+
+    /// Sets the execution order for this transformation.
+    ///
+    /// Lower values run first. Transformations without an explicit order run last.
+    /// - Parameter order: The order value.
+    /// - Returns: The builder instance for method chaining.
+    public func setOrder(_ order: Int) -> Self {
+        self.order = order
         return self
     }
 
@@ -72,6 +83,7 @@ open class TransformationSettingsBuilder {
             Keys.id: id,
             Keys.transformerId: transformerId,
             Keys.scope: scope,
+            Keys.order: order,
             Keys.conditions: conditions,
             Keys.configuration: configuration
         ])

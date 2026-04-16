@@ -49,6 +49,7 @@ class TealiumHelper {
             SetDataValuesSettingsBuilder(id: "duplicate-tealium_event-to-some_destination")
                 .setScope(.allDispatchers)
                 .setFrom(.key("tealium_event"), to: .key("some_destination"))
+                .setOrder(0)
         )
 
         config.setTransformation(
@@ -72,6 +73,7 @@ class TealiumHelper {
             JavaScriptTransformationSettingsBuilder(id: "set-js_key")
                 .setJsCode("payload.js_key = payload.tealium_event + '-JS'")
                 .setScope(.afterCollectors)
+                .setOrder(3)
         )
 
         config.setTransformation(
@@ -81,6 +83,7 @@ class TealiumHelper {
                     console.log('TealiumRandom: ' + dataLayer.get('js_put'))
                     """)
                 .setScope(.afterCollectors)
+                .setOrder(2)
         )
 
         config.setTransformation(
@@ -91,6 +94,7 @@ class TealiumHelper {
                         })
                         """)
                 .setScope(.afterCollectors)
+                .setOrder(1)
         )
 
         config.setTransformation(

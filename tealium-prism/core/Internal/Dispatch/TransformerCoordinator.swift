@@ -22,9 +22,9 @@ class TransformerCoordinator: TransformerRegistrar {
     private let transformations: ObservableState<[TransformationSettings]>
     /// The `TransformationSettings` added internally by other modules.
     private let additionalTransformations = StateSubject<[TransformationSettings]>([])
-    private var allTransformations: [TransformationSettings] {
-        transformations.value + additionalTransformations.value
-    }
+    /// Pre-sorted cache of all transformations, rebuilt whenever either source changes.
+    private var sortedAllTransformations: [TransformationSettings] = []
+    private let disposeBag = AutomaticDisposer()
     private let queue: TealiumQueue
     private let logger: LoggerProtocol?
     typealias TransformationCompletion = (Dispatch?) -> Void
@@ -37,12 +37,16 @@ class TransformerCoordinator: TransformerRegistrar {
         self.transformations = transformations
         self.queue = queue
         self.logger = logger
+        transformations.asObservable()
+            .combineLatest(additionalTransformations.asObservable())
+            .subscribe { [weak self] configuredTransformations, additionalTransformations in
+                self?.sortedAllTransformations = (configuredTransformations + additionalTransformations)
+                    .sorted { $0.order < $1.order }
+            }.addTo(disposeBag)
     }
 
-    func getTransformations(for dispatch: Dispatch, _ scope: DispatchScope) -> [TransformationSettings] {
-        allTransformations.filter {
-            $0.matchesScope(scope) && match(transformation: $0, dispatch: dispatch)
-        }
+    func getTransformations(for scope: DispatchScope) -> [TransformationSettings] {
+        sortedAllTransformations.filter { $0.matchesScope(scope) }
     }
 
     private func match(transformation: TransformationSettings, dispatch: Dispatch) -> Bool {
@@ -62,7 +66,7 @@ class TransformerCoordinator: TransformerRegistrar {
      * Transforms a single `Dispatch`, intended to be mainly used on a dispatch after it's been enriched by the collectors.
      */
     func transform(dispatch: Dispatch, for scope: DispatchScope, completion: @escaping TransformationCompletion) {
-        recursiveSerialApply(transformations: getTransformations(for: dispatch, scope),
+        recursiveSerialApply(transformations: getTransformations(for: scope),
                              to: dispatch,
                              scope: scope,
                              completion: completion)
@@ -90,7 +94,12 @@ class TransformerCoordinator: TransformerRegistrar {
             return
         }
         var transformations = transformations
-        apply(singleTransformation: transformations.removeFirst(), to: dispatch, scope: scope) { [weak self] newDispatch in
+        let transformation = transformations.removeFirst()
+        guard match(transformation: transformation, dispatch: dispatch) else {
+            recursiveSerialApply(transformations: transformations, to: dispatch, scope: scope, completion: completion)
+            return
+        }
+        apply(singleTransformation: transformation, to: dispatch, scope: scope) { [weak self] newDispatch in
             self?.recursiveSerialApply(transformations: transformations, to: newDispatch, scope: scope, completion: completion)
         }
     }

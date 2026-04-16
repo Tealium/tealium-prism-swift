@@ -56,6 +56,8 @@ public struct TransformationSettings {
     public let configuration: DataObject
     /// Optional conditions for when to apply the transformation.
     public let conditions: Rule<Condition>?
+    /// Execution order. Lower values run first; defaults to `Int.max` when unspecified.
+    public let order: Int
     /**
      * Creates transformation settings with the specified parameters.
      * - Parameters:
@@ -64,17 +66,20 @@ public struct TransformationSettings {
      *   - scope: Scope where this transformation applies.
      *   - configuration: Configuration data for the transformer.
      *   - conditions: Optional conditions for when to apply the transformation.
+     *   - order: Execution order. Lower values run first; defaults to `Int.max` when unspecified.
      */
     public init(id: String,
                 transformerId: String,
                 scope: TransformationScope,
                 configuration: DataObject = [:],
-                conditions: Rule<Condition>? = nil) {
+                conditions: Rule<Condition>? = nil,
+                order: Int? = nil) {
         self.id = id
         self.transformerId = transformerId
         self.scope = scope
         self.configuration = configuration
         self.conditions = conditions
+        self.order = order ?? Int.max
     }
 
     /**
@@ -123,27 +128,7 @@ public struct TransformationSettings {
         static let scope = "scope"
         static let configuration = "configuration"
         static let conditions = "conditions"
-    }
-}
-
-/// Makes TransformationSettings convertible to DataObject.
-extension TransformationSettings: DataObjectConvertible {
-    public func toDataObject() -> DataObject {
-        var result = DataObject(compacting: [
-            Keys.id: id,
-            Keys.transformerId: transformerId,
-            Keys.configuration: configuration,
-            Keys.conditions: conditions,
-        ])
-        switch scope {
-        case .afterCollectors:
-            result.set("aftercollectors", key: Keys.scope)
-        case .allDispatchers:
-            result.set("alldispatchers", key: Keys.scope)
-        case .dispatchers(let ids):
-            result.set(converting: ids, key: Keys.scope)
-        }
-        return result
+        static let order = "order"
     }
 }
 
@@ -171,11 +156,13 @@ extension TransformationSettings {
                 .toDataObject() ?? [:]
             let conditions = dictionary.getConvertible(key: Keys.conditions,
                                                        converter: Rule.converter(ruleItemConverter: Condition.converter))
+            let order: Int? = dictionary.get(key: Keys.order)
             return TransformationSettings(id: id,
                                           transformerId: transformerId,
                                           scope: scope,
                                           configuration: configuration,
-                                          conditions: conditions)
+                                          conditions: conditions,
+                                          order: order)
         }
     }
     static let converter = Converter()

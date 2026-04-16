@@ -25,6 +25,14 @@ final class TransformationSettingsBuilderTests: XCTestCase {
         XCTAssertFalse(settings.keys.contains(TransformationSettings.Keys.scope))
         XCTAssertFalse(settings.keys.contains(TransformationSettings.Keys.conditions))
         XCTAssertFalse(settings.keys.contains(TransformationSettings.Keys.configuration))
+        XCTAssertFalse(settings.keys.contains(TransformationSettings.Keys.order))
+    }
+
+    func test_setOrder_sets_order_value() {
+        let settings = TransformationSettingsBuilder(id: id, transformerId: transformerId)
+            .setOrder(42)
+            .build()
+        XCTAssertEqual(settings.get(key: TransformationSettings.Keys.order), 42)
     }
 
     func test_setConfiguration_sets_configuration_value() {
