@@ -1,4 +1,4 @@
-Transformations provide a powerful way to modify, enrich, or filter dispatches in the Tealium SDK before they are sent to dispatchers. They allow you to implement custom business logic that transforms your data based on specific conditions and scopes.
+Transformations provide a powerful way to modify, enrich, or filter dispatches in the Tealium SDK before they are sent to dispatchers. They allow you to implement custom business logic that transforms your data based on specific conditions and scope.
 
 ## Overview
 
@@ -24,8 +24,8 @@ TransformationScope.afterCollectors
 // Apply to all dispatchers
 TransformationScope.allDispatchers  
 
-// Apply only to a specific dispatcher
-TransformationScope.dispatcher(id: "my_dispatcher")
+// Apply only to specific dispatchers
+TransformationScope.dispatchers(["my_dispatcher"])
 ```
 
 ### Transformation Settings
@@ -36,7 +36,7 @@ A `TransformationSettings` defines when and how a transformation should be appli
 let transformation = TransformationSettings(
     id: "my_transformation",
     transformerId: "my_transformer", 
-    scopes: [.allDispatchers],
+    scope: .allDispatchers,
     configuration: ["key": "value"],
     conditions: .just(Condition.equals(ignoreCase: false, 
                                       variable: "event_type", 
@@ -117,7 +117,7 @@ config.addModule(MyCustomTransformerFactory())
 let enrichmentTransformation = TransformationSettings(
     id: "user_enrichment",
     transformerId: "DataEnrichmentTransformer",
-    scopes: [.afterCollectors],
+    scope: .afterCollectors,
     configuration: [
         "enable_enrichment": true,
         "enrichment_type": "user_data",
@@ -138,7 +138,7 @@ Transformations can also be defined in JSON format for remote configuration:
 {
   "transformation_id": "user_enrichment",
   "transformer_id": "MyCustomTransformer", 
-  "scopes": ["aftercollectors"],
+  "scope": "aftercollectors",
   "configuration": {
     "enable_enrichment": true,
     "enrichment_type": "user_data",
@@ -265,7 +265,7 @@ let conditions = Rule.and([
 let transformation = TransformationSettings(
     id: "premium_purchase_enrichment",
     transformerId: "DataEnrichmentTransformer",
-    scopes: [.allDispatchers],
+    scope: .allDispatchers,
     conditions: conditions
 )
 ```
@@ -279,14 +279,14 @@ Apply different transformations at different pipeline stages:
 let enrichmentTransformation = TransformationSettings(
     id: "data_enrichment",
     transformerId: "DataEnrichmentTransformer",
-    scopes: [.afterCollectors]
+    scope: .afterCollectors
 )
 
 // Filter data for specific dispatcher
 let filterTransformation = TransformationSettings(
     id: "sensitive_data_filter", 
     transformerId: "DataFilterTransformer",
-    scopes: [.dispatcher(id: "external_analytics")]
+    scope: .dispatchers(["ExternalAnalytics"])
 )
 ```
 
@@ -364,25 +364,25 @@ You can configure multiple transformations that use the same transformer but per
 let userEnrichment = TransformationSettings(
     id: "user_enrichment",                    // Unique ID
     transformerId: "MultiPurposeTransformer", // Same transformer
-    scopes: [.afterCollectors]
+    scope: .afterCollectors
 )
 
 let dataValidation = TransformationSettings(
     id: "data_validation",                    // Different unique ID
     transformerId: "MultiPurposeTransformer", // Same transformer
-    scopes: [.allDispatchers]
+    scope: .allDispatchers
 )
 
 let privacyFilter = TransformationSettings(
     id: "privacy_filter",                     // Another unique ID
     transformerId: "MultiPurposeTransformer", // Same transformer
-    scopes: [.dispatcher(id: "ExternalAnalytics")]
+    scope: .dispatchers(["ExternalAnalytics"])
 )
 ```
 
 This design allows for:
 - **Code reuse**: One transformer can handle related transformation logic
-- **Flexible configuration**: Each transformation can have different scopes, conditions, and configurations
+- **Flexible configuration**: Each transformation can have different scope, conditions, and configurations
 - **Clear separation**: Each transformation has a unique identity and purpose
 - **Maintainability**: Related transformation functions are grouped in a single transformer class
 
@@ -562,7 +562,7 @@ let registrar = context.transformerRegistrar
 let newTransformation = TransformationSettings(
     id: "runtime_transformation",
     transformerId: "MyCustomTransformer",
-    scopes: [.allDispatchers]
+    scope: .allDispatchers
 )
 registrar.registerTransformation(newTransformation)
 

@@ -25,7 +25,7 @@
         "transformerId-transformationId": {
             "transformation_id": "transformationId",
             "transformer_id": "transformerId",
-            "scopes": ["afterCollectors"],
+            "scope": "aftercollectors",
             "configuration": {
                 "key": "value"
             },

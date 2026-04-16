@@ -42,7 +42,7 @@ public enum UpdatePolicy: String, Equatable {
 ///     .persistFrom(.key("user_id"), to: .key("persisted_user_id"))
 ///     .setExpiryPolicy(.forever)
 ///     .setUpdatePolicy(.keepFirstValue)
-///     .addScope(.afterCollectors)
+///     .setScope(.afterCollectors)
 ///     .build()
 /// ```
 public class PersistDataValueSettingsBuilder: TransformationSettingsBuilder {

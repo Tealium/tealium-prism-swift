@@ -44,16 +44,15 @@ final class JSTransformationSettingsBuilderTests: XCTestCase {
         XCTAssertEqual(jsCode, "second")
     }
 
-    func test_addScope_is_included_in_build() {
-        let settings = JavaScriptTransformationSettingsBuilder(id: transformationId)
-            .addScope(.afterCollectors)
-            .build()
-        XCTAssertEqual(settings.getArray(key: TransformationSettings.Keys.scopes), ["aftercollectors"])
-    }
-
     func test_build_without_setJsCode_omits_js_code_key() {
         let settings = JavaScriptTransformationSettingsBuilder(id: transformationId).build()
         XCTAssertFalse(configDataObject(from: settings).keys.contains(JavaScriptTransformationSettingsBuilder.Keys.code))
+    }
+
+    func test_setJsCode_returns_builder() {
+        let builder = JavaScriptTransformationSettingsBuilder(id: transformationId)
+        let result = builder.setJsCode("let a = 42")
+        XCTAssertTrue(result === builder)
     }
 
     private func configDataObject(from settings: DataObject) -> DataObject {

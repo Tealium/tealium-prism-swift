@@ -20,7 +20,7 @@ final class TealiumJavaScriptTransformerTests: TealiumBaseTests {
         config.setTransformation(
             JavaScriptTransformationSettingsBuilder(id: "test-transform")
                 .setJsCode(jsCode)
-                .addScope(.afterCollectors)
+                .setScope(.afterCollectors)
         )
     }
 

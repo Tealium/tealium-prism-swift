@@ -172,7 +172,7 @@ final class TealiumCollectTests: TealiumBaseTests {
             ]), id: dispatch.id, timestamp: 0)
         })))
         config.setTransformation(TransformationSettingsBuilder(id: "transformation", transformerId: MockTransformer.moduleType)
-            .addScope(.allDispatchers))
+            .setScope(.allDispatchers))
         let httpRequestSent = expectation(description: "Http Request is sent")
         client.requestDidSend = { request in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))

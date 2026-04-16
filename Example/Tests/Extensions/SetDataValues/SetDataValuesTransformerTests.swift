@@ -26,7 +26,7 @@ final class SetDataValuesTransformerTests: ExtensionsBaseTests {
         let settings = TransformationSettings(
             id: "test",
             transformerId: Modules.Types.setDataValuesTransformer,
-            scopes: [.afterCollectors],
+            scope: .afterCollectors,
             configuration: [:] // invalid - no operations inside
         )
         let expectation = expectation(description: "Transformation completes with original dispatch when configuration is invalid")

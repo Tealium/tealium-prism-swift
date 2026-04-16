@@ -100,7 +100,7 @@ final class LowerCaseTransformerTests: ExtensionsBaseTests {
         let settings = TransformationSettings(
             id: "test",
             transformerId: Modules.Types.lowerCaseTransformer,
-            scopes: [.afterCollectors],
+            scope: .afterCollectors,
             configuration: [:]
         )
         let expectation = expectation(description: "Lowercases all variables when configuration is empty")
@@ -145,6 +145,18 @@ final class LowerCaseTransformerTests: ExtensionsBaseTests {
             .setAllVariables(false)
             .addVariable(.key("count")))
         let expectation = expectation(description: "Non-string source is silently skipped")
+        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+            XCTAssertEqual(result?.payload, dispatch.payload)
+            expectation.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_applyTransformation_with_allVariables_false_and_no_inputs_returns_original_dispatch() throws {
+        let dispatch = Dispatch(name: "test", data: ["key": "VALUE"])
+        let settings = try makeSettings(LowerCaseSettingsBuilder(id: "test")
+            .setAllVariables(false))
+        let expectation = expectation(description: "...")
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload, dispatch.payload)
             expectation.fulfill()

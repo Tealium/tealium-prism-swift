@@ -24,7 +24,7 @@ open class TransformationSettingsBuilder {
     typealias Keys = TransformationSettings.Keys
     let id: String
     let transformerId: String
-    var scopes: [TransformationScope] = []
+    var scope: TransformationScope?
     var conditions: Rule<Condition>?
     var configuration: DataObject?
 
@@ -37,19 +37,11 @@ open class TransformationSettingsBuilder {
         self.transformerId = transformerId
     }
 
-    /// Replaces the current scope list with the given scopes.
-    /// - Parameter scopes: The scopes in which this transformation should run.
+    /// Sets the scope in which this transformation should run.
+    /// - Parameter scope: The scope to apply.
     /// - Returns: The builder instance for method chaining.
-    public func setScopes(_ scopes: [TransformationScope]) -> Self {
-        self.scopes = scopes
-        return self
-    }
-
-    /// Appends a single scope to the current scope list.
-    /// - Parameter scope: The scope to add.
-    /// - Returns: The builder instance for method chaining.
-    public func addScope(_ scope: TransformationScope) -> Self {
-        scopes.append(scope)
+    public func setScope(_ scope: TransformationScope) -> Self {
+        self.scope = scope
         return self
     }
 
@@ -79,7 +71,7 @@ open class TransformationSettingsBuilder {
         DataObject(compacting: [
             Keys.id: id,
             Keys.transformerId: transformerId,
-            Keys.scopes: scopes.isEmpty ? nil : scopes.map { $0.rawValue },
+            Keys.scope: scope,
             Keys.conditions: conditions,
             Keys.configuration: configuration
         ])

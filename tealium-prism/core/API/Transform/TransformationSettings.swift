@@ -9,36 +9,37 @@
 import Foundation
 
 /// Defines the scope where a transformation should be applied.
-public enum TransformationScope: RawRepresentable, Codable, Equatable {
-    public typealias RawValue = String
-
+public enum TransformationScope: Equatable, DataInputConvertible {
     /// Apply transformation after data collection.
     case afterCollectors
     /// Apply transformation to all dispatchers.
     case allDispatchers
-    /// Apply transformation to the dispatcher with the given ID.
-    case dispatcher(id: String)
+    /// Apply transformation to the dispatchers with the given IDs.
+    case dispatchers([String])
 
-    public var rawValue: String {
+    public func toDataInput() -> any DataInput {
         switch self {
         case .afterCollectors:
-            return "aftercollectors"
+            "aftercollectors"
         case .allDispatchers:
-            return "alldispatchers"
-        case .dispatcher(let dispatcher):
-            return dispatcher
+            "alldispatchers"
+        case .dispatchers(let ids):
+            ids as [DataInput]
         }
     }
+}
 
-    public init(rawValue: String) {
-        let lowercasedScope = rawValue.lowercased()
-        switch lowercasedScope {
+extension TransformationScope {
+    /// Creates a scope from its JSON string representation.
+    /// Returns `nil` for unrecognized strings — use `.dispatchers` for specific dispatcher IDs.
+    static func fromString(_ string: String) -> TransformationScope? {
+        switch string.lowercased() {
         case "aftercollectors":
-            self = .afterCollectors
+            return .afterCollectors
         case "alldispatchers":
-            self = .allDispatchers
+            return .allDispatchers
         default:
-            self = .dispatcher(id: rawValue)
+            return nil
         }
     }
 }
@@ -49,8 +50,8 @@ public struct TransformationSettings {
     public let id: String
     /// Identifier of the transformer to use.
     public let transformerId: String
-    /// Scopes where this transformation applies.
-    public let scopes: [TransformationScope]
+    /// Scope where this transformation applies.
+    public let scope: TransformationScope
     /// Configuration data for the transformer.
     public let configuration: DataObject
     /// Optional conditions for when to apply the transformation.
@@ -60,18 +61,18 @@ public struct TransformationSettings {
      * - Parameters:
      *   - id: Unique identifier for this transformation.
      *   - transformerId: Identifier of the transformer to use.
-     *   - scopes: Scopes where this transformation applies.
+     *   - scope: Scope where this transformation applies.
      *   - configuration: Configuration data for the transformer.
      *   - conditions: Optional conditions for when to apply the transformation.
      */
     public init(id: String,
                 transformerId: String,
-                scopes: [TransformationScope],
+                scope: TransformationScope,
                 configuration: DataObject = [:],
                 conditions: Rule<Condition>? = nil) {
         self.id = id
         self.transformerId = transformerId
-        self.scopes = scopes
+        self.scope = scope
         self.configuration = configuration
         self.conditions = conditions
     }
@@ -82,17 +83,15 @@ public struct TransformationSettings {
      * - Returns: `true` if the transformation applies to the scope, `false` otherwise.
      */
     func matchesScope(_ dispatchScope: DispatchScope) -> Bool {
-        self.scopes.contains { transformationScope in
-            switch (transformationScope, dispatchScope) {
-            case (.afterCollectors, .afterCollectors):
-                return true
-            case (.allDispatchers, .dispatcher):
-                return true
-            case let (.dispatcher(id: requiredDispatcher), .dispatcher(id: selectedDispatcher)):
-                return requiredDispatcher == selectedDispatcher
-            default:
-                return false
-            }
+        switch (scope, dispatchScope) {
+        case (.afterCollectors, .afterCollectors):
+            return true
+        case (.allDispatchers, .dispatcher):
+            return true
+        case let (.dispatchers(ids), .dispatcher(id: selectedDispatcher)):
+            return ids.contains(selectedDispatcher)
+        default:
+            return false
         }
     }
 
@@ -121,7 +120,7 @@ public struct TransformationSettings {
     enum Keys {
         static let id = "transformation_id"
         static let transformerId = "transformer_id"
-        static let scopes = "scopes"
+        static let scope = "scope"
         static let configuration = "configuration"
         static let conditions = "conditions"
     }
@@ -130,13 +129,21 @@ public struct TransformationSettings {
 /// Makes TransformationSettings convertible to DataObject.
 extension TransformationSettings: DataObjectConvertible {
     public func toDataObject() -> DataObject {
-        DataObject(compacting: [
+        var result = DataObject(compacting: [
             Keys.id: id,
             Keys.transformerId: transformerId,
-            Keys.scopes: scopes.map { $0.rawValue },
             Keys.configuration: configuration,
             Keys.conditions: conditions,
         ])
+        switch scope {
+        case .afterCollectors:
+            result.set("aftercollectors", key: Keys.scope)
+        case .allDispatchers:
+            result.set("alldispatchers", key: Keys.scope)
+        case .dispatchers(let ids):
+            result.set(converting: ids, key: Keys.scope)
+        }
+        return result
     }
 }
 
@@ -146,9 +153,18 @@ extension TransformationSettings {
         typealias Convertible = TransformationSettings
         func convert(dataItem: DataItem) -> Convertible? {
             guard let dictionary = dataItem.getDataDictionary(),
-                  let id = dictionary.get(key: Keys.id, as: String.self),
-                  let transformerId = dictionary.get(key: Keys.transformerId, as: String.self),
-                  let scopes = dictionary.getArray(key: Keys.scopes, of: String.self)?.compactMap({ $0 }) else {
+                  let id: String = dictionary.get(key: Keys.id),
+                  let transformerId: String = dictionary.get(key: Keys.transformerId) else {
+                return nil
+            }
+            let scope: TransformationScope
+            if let scopeString: String = dictionary.get(key: Keys.scope) {
+                guard let parsed = TransformationScope.fromString(scopeString) else { return nil }
+                scope = parsed
+            } else if let ids = dictionary.getArray(key: Keys.scope, of: String.self)?.compactMap({ $0 }),
+                      !ids.isEmpty {
+                scope = .dispatchers(ids)
+            } else {
                 return nil
             }
             let configuration = dictionary.getDataDictionary(key: Keys.configuration)?
@@ -157,7 +173,7 @@ extension TransformationSettings {
                                                        converter: Rule.converter(ruleItemConverter: Condition.converter))
             return TransformationSettings(id: id,
                                           transformerId: transformerId,
-                                          scopes: scopes.map { TransformationScope(rawValue: $0) },
+                                          scope: scope,
                                           configuration: configuration,
                                           conditions: conditions)
         }

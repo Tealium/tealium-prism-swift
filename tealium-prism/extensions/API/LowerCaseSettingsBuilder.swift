@@ -64,7 +64,7 @@ public class LowerCaseSettingsBuilder: TransformationSettingsBuilder {
         return self
     }
 
-    /// Builds a `DataObject` with the configured operations, scopes, and conditions.
+    /// Builds a `DataObject` with the configured operations, scope, and conditions.
     /// - Returns: A `DataObject` containing only the explicitly configured transformation settings.
     override public func build() -> DataObject {
         typealias Keys = LowerCaseConfiguration.Keys

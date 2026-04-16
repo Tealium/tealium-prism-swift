@@ -11,16 +11,16 @@ import XCTest
 
 final class TransformerCoordinatorTests: XCTestCase {
     @StateSubject([
-        TransformationSettings(id: "transformation1", transformerId: "transformer1", scopes: [.afterCollectors]),
-        TransformationSettings(id: "transformation2", transformerId: "transformer2", scopes: [.allDispatchers]),
-        TransformationSettings(id: "transformation3", transformerId: "transformer3", scopes: [.dispatcher(id: "someDispatcher")]),
-        TransformationSettings(id: "transformation4", transformerId: "transformer1", scopes: [.allDispatchers]),
-        TransformationSettings(id: "transformation5", transformerId: "transformer2", scopes: [.dispatcher(id: "someOtherDispatcher")]),
-        TransformationSettings(id: "transformation6", transformerId: "transformer3", scopes: [.afterCollectors]),
-        TransformationSettings(id: "transformation7", transformerId: "transformer1", scopes: [.dispatcher(id: "someDispatcher"), .dispatcher(id: "someOtherDispatcher")]),
+        TransformationSettings(id: "transformation1", transformerId: "transformer1", scope: .afterCollectors),
+        TransformationSettings(id: "transformation2", transformerId: "transformer2", scope: .allDispatchers),
+        TransformationSettings(id: "transformation3", transformerId: "transformer3", scope: .dispatchers(["someDispatcher"])),
+        TransformationSettings(id: "transformation4", transformerId: "transformer1", scope: .allDispatchers),
+        TransformationSettings(id: "transformation5", transformerId: "transformer2", scope: .dispatchers(["someOtherDispatcher"])),
+        TransformationSettings(id: "transformation6", transformerId: "transformer3", scope: .afterCollectors),
+        TransformationSettings(id: "transformation7", transformerId: "transformer1", scope: .dispatchers(["someDispatcher", "someOtherDispatcher"])),
         TransformationSettings(id: "transformation8",
                                transformerId: "transformer1",
-                               scopes: [.allDispatchers],
+                               scope: .allDispatchers,
                                conditions: .just(Condition.equals(ignoreCase: false, variable: "tealium_event", target: "test_event")))
     ])
     var transformations: ObservableState<[TransformationSettings]>
@@ -211,7 +211,7 @@ final class TransformerCoordinatorTests: XCTestCase {
         })
         let newTransformation = TransformationSettings(id: "new",
                                                        transformerId: "new",
-                                                       scopes: [.allDispatchers],
+                                                       scope: .allDispatchers,
                                                        conditions: .just(Condition.equals(ignoreCase: false,
                                                                                           variable: "missing",
                                                                                           target: "test")))
@@ -224,7 +224,7 @@ final class TransformerCoordinatorTests: XCTestCase {
     }
 
     func test_registerTransformation_Adds_Transformation_When_Not_Already_Registered() {
-        let newTransformation = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers])
+        let newTransformation = TransformationSettings(id: "new", transformerId: "new", scope: .allDispatchers)
         XCTAssertFalse(coordinator.getTransformations(for: testEvent, .dispatcher(id: "new"))
             .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
         coordinator.registerTransformation(newTransformation)
@@ -233,8 +233,8 @@ final class TransformerCoordinatorTests: XCTestCase {
     }
 
     func test_registerTransformation_Does_Not_Add_Transformation_When_Another_Already_Registered_With_Same_Ids() {
-        let newTransformation = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers])
-        let differentTransformation = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers], configuration: ["some": "value"])
+        let newTransformation = TransformationSettings(id: "new", transformerId: "new", scope: .allDispatchers)
+        let differentTransformation = TransformationSettings(id: "new", transformerId: "new", scope: .allDispatchers, configuration: ["some": "value"])
         coordinator.registerTransformation(newTransformation)
         coordinator.registerTransformation(differentTransformation)
         XCTAssertTrue(coordinator.getTransformations(for: testEvent, .dispatcher(id: "new"))
@@ -244,7 +244,7 @@ final class TransformerCoordinatorTests: XCTestCase {
     }
 
     func test_unregisterTransformation_Removes_Transformation_When_Already_Registered() {
-        let newTransformation = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers])
+        let newTransformation = TransformationSettings(id: "new", transformerId: "new", scope: .allDispatchers)
         coordinator.registerTransformation(newTransformation)
         XCTAssertTrue(coordinator.getTransformations(for: testEvent, .dispatcher(id: "new"))
             .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
@@ -254,8 +254,8 @@ final class TransformerCoordinatorTests: XCTestCase {
     }
 
     func test_unregisterTransformation_Removes_Transformation_When_Another_Already_Registered_With_Same_Ids() {
-        let newTransformation = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers])
-        let duplicated = TransformationSettings(id: "new", transformerId: "new", scopes: [.allDispatchers], configuration: ["something": "different"])
+        let newTransformation = TransformationSettings(id: "new", transformerId: "new", scope: .allDispatchers)
+        let duplicated = TransformationSettings(id: "new", transformerId: "new", scope: .allDispatchers, configuration: ["something": "different"])
         coordinator.registerTransformation(newTransformation)
         XCTAssertTrue(coordinator.getTransformations(for: testEvent, .dispatcher(id: "new"))
             .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))

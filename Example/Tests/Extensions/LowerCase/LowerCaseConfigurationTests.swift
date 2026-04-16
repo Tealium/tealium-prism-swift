@@ -46,6 +46,11 @@ final class LowerCaseConfigurationTests: XCTestCase {
         XCTAssertNil(LowerCaseConfiguration(dataObject: dataObject))
     }
 
+    func test_init_with_all_variables_false_and_empty_inputs_array_returns_nil() {
+        let dataObject: DataObject = ["all_variables": false, "inputs": [DataObject]()]
+        XCTAssertNil(LowerCaseConfiguration(dataObject: dataObject))
+    }
+
     func test_init_with_missing_all_variables_uses_default() {
         guard let config = LowerCaseConfiguration(dataObject: ["inputs": [DataObject]()]) else {
             XCTFail("Configuration should not be nil when allVariables defaults to true")

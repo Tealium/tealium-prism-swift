@@ -13,8 +13,8 @@ class ExtensionsBaseTests: XCTestCase {
     func makeSettings(
         _ builder: TransformationSettingsBuilder
     ) throws -> TransformationSettings {
-        if builder.scopes.isEmpty {
-            _ = builder.addScope(.afterCollectors)
+        if builder.scope == nil {
+            _ = builder.setScope(.afterCollectors)
         }
         guard let settings = builder.build().getConvertible(converter: TransformationSettings.converter) else {
             throw NSError(domain: "Transformation Settings malformed", code: 1)

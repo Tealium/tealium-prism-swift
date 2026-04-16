@@ -35,7 +35,7 @@ final class PersistDataValueTransformerTests: ExtensionsBaseTests {
         let settings = TransformationSettings(
             id: "test",
             transformerId: Modules.Types.persistDataValueTransformer,
-            scopes: [.afterCollectors],
+            scope: .afterCollectors,
             configuration: [:] // invalid - missing required fields
         )
         let expectation = expectation(description: "Completes with original dispatch")

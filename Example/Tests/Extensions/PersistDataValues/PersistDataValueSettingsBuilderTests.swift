@@ -105,13 +105,13 @@ final class PersistDataValueSettingsBuilderTests: ExtensionsBaseTests {
             .persistFrom(.key("source"), to: .key("dest"))
             .setExpiryPolicy(.forever)
             .setUpdatePolicy(.keepFirstValue)
-            .addScope(.afterCollectors)
+            .setScope(.afterCollectors)
             .setConditions(condition)
             .build()
 
         XCTAssertEqual(settings.get(key: TransformationSettings.Keys.id), transformationId)
         XCTAssertEqual(settings.get(key: TransformationSettings.Keys.transformerId), Modules.Types.persistDataValueTransformer)
-        XCTAssertEqual(settings.getArray(key: TransformationSettings.Keys.scopes), ["aftercollectors"])
+        XCTAssertEqual(settings.get(key: TransformationSettings.Keys.scope), "aftercollectors")
         XCTAssertNotNil(settings.getDataDictionary(key: TransformationSettings.Keys.conditions))
 
         guard case .reference(let ref) = extractInput(from: settings) else {
@@ -152,6 +152,30 @@ final class PersistDataValueSettingsBuilderTests: ExtensionsBaseTests {
         let builder = PersistDataValueSettingsBuilder(id: transformationId)
         let result = builder.setUpdatePolicy(.allowUpdate)
         XCTAssertTrue(result === builder)
+    }
+
+    func test_persistFrom_after_persistConstant_overwrites_input() {
+        let dataObject = PersistDataValueSettingsBuilder(id: transformationId)
+            .persistConstant("constant", to: .key("dest1"))
+            .persistFrom(.key("source"), to: .key("dest2"))
+            .build()
+        guard case .reference(let ref) = extractInput(from: dataObject) else {
+            XCTFail("Expected reference input"); return
+        }
+        XCTAssertEqual(ref, .key("source"))
+        XCTAssertEqual(extractDestination(from: dataObject), .key("dest2"))
+    }
+
+    func test_persistConstant_after_persistFrom_overwrites_input() {
+        let dataObject = PersistDataValueSettingsBuilder(id: transformationId)
+            .persistFrom(.key("source"), to: .key("dest1"))
+            .persistConstant("constant", to: .key("dest2"))
+            .build()
+        guard case .constant(let value) = extractInput(from: dataObject) else {
+            XCTFail("Expected constant input"); return
+        }
+        XCTAssertEqual(value.value.get(), "constant")
+        XCTAssertEqual(extractDestination(from: dataObject), .key("dest2"))
     }
 
     private func extractInput(from settings: DataObject) -> ValueSource? {

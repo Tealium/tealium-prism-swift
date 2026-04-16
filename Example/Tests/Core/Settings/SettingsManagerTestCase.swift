@@ -59,7 +59,7 @@ class SettingsManagerTestCase: XCTestCase {
         try DataItem(serializing: [
             "transformation_id": "transformationId",
             "transformer_id": "transformerId",
-            "scopes": ["afterCollectors"],
+            "scope": "aftercollectors",
             "configuration": [
                 "key": "value"
             ],

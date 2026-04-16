@@ -47,13 +47,13 @@ class TealiumHelper {
         }
         config.setTransformation(
             SetDataValuesSettingsBuilder(id: "duplicate-tealium_event-to-some_destination")
-                .addScope(.allDispatchers)
+                .setScope(.allDispatchers)
                 .setFrom(.key("tealium_event"), to: .key("some_destination"))
         )
 
         config.setTransformation(
             LowerCaseSettingsBuilder(id: "lowercase-specific")
-                .addScope(.allDispatchers)
+                .setScope(.allDispatchers)
                 .setAllVariables(false)
                 .addVariable(.key("event_category"))
                 .addVariable(.key("event_label"))
@@ -65,13 +65,13 @@ class TealiumHelper {
                 .setExpiryPolicy(.forever)
                 .setUpdatePolicy(.keepFirstValue)
                 .persistConstant("some value", to: .key("some_key"))
-                .addScope(.allDispatchers)
+                .setScope(.allDispatchers)
         )
 
         config.setTransformation(
             JavaScriptTransformationSettingsBuilder(id: "set-js_key")
                 .setJsCode("payload.js_key = payload.tealium_event + '-JS'")
-                .addScope(.afterCollectors)
+                .setScope(.afterCollectors)
         )
 
         config.setTransformation(
@@ -80,7 +80,7 @@ class TealiumHelper {
                     dataLayer.put('js_put', payload.tealium_random, Expiry.forever); 
                     console.log('TealiumRandom: ' + dataLayer.get('js_put'))
                     """)
-                .addScope(.afterCollectors)
+                .setScope(.afterCollectors)
         )
 
         config.setTransformation(
@@ -90,7 +90,7 @@ class TealiumHelper {
                             console.log('JS Request status code: ' + status + ' - Data: ' + JSON.stringify(data, null, 2))
                         })
                         """)
-                .addScope(.afterCollectors)
+                .setScope(.afterCollectors)
         )
 
         config.setTransformation(
@@ -100,7 +100,7 @@ class TealiumHelper {
                             drop()
                         }
                         """)
-                .addScope(.afterCollectors)
+                .setScope(.afterCollectors)
         )
 
         config.setTransformation(
@@ -108,7 +108,7 @@ class TealiumHelper {
                 .setJsCode("""
                         track('some-new-event')
                         """)
-                .addScope(.afterCollectors)
+                .setScope(.afterCollectors)
         )
 
         return Tealium.create(config: config)

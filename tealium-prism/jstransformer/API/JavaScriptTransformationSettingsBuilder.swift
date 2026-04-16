@@ -19,7 +19,7 @@ import TealiumPrismCore
 /// ```swift
 /// let settings = JavaScriptTransformationSettingsBuilder(id: "my-transform")
 ///     .setJsCode("payload.custom_key = 'value'")
-///     .addScope(.afterCollectors)
+///     .setScope(.afterCollectors)
 ///     .build()
 /// ```
 public class JavaScriptTransformationSettingsBuilder: TransformationSettingsBuilder {

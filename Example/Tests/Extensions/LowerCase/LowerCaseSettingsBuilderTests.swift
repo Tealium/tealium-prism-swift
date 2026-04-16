@@ -72,18 +72,19 @@ final class LowerCaseSettingsBuilderTests: ExtensionsBaseTests {
         let settings = LowerCaseSettingsBuilder(id: transformationId)
             .setAllVariables(false)
             .addVariable(.key("email"))
-            .addScope(.afterCollectors)
+            .setScope(.afterCollectors)
             .setConditions(condition)
             .build()
         XCTAssertEqual(settings.get(key: TransformationSettings.Keys.id), transformationId)
         XCTAssertEqual(settings.get(key: TransformationSettings.Keys.transformerId), Modules.Types.lowerCaseTransformer)
-        XCTAssertEqual(settings.getArray(key: TransformationSettings.Keys.scopes), ["aftercollectors"])
+        XCTAssertEqual(settings.get(key: TransformationSettings.Keys.scope), "aftercollectors")
         XCTAssertNotNil(settings.getDataDictionary(key: TransformationSettings.Keys.conditions))
         let allVariables = configDataObject(from: settings)
             .get(key: LowerCaseConfiguration.Keys.allVariables, as: Bool.self)
         XCTAssertEqual(allVariables, false)
         let inputs = convertedInputs(from: settings)
         XCTAssertEqual(inputs.count, 1)
+        XCTAssertEqual(inputs.first, .key("email"))
     }
 
     func test_addVariable_returns_builder() {

@@ -21,7 +21,7 @@ import TealiumPrismCore
 /// let settings = SetDataValuesSettingsBuilder(id: "my-transform")
 ///     .setFrom(.key("source"), to: .key("dest"))
 ///     .setConstant("hello", to: .key("greeting"))
-///     .addScope(.afterCollectors)
+///     .setScope(.afterCollectors)
 ///     .build()
 /// ```
 public class SetDataValuesSettingsBuilder: TransformationSettingsBuilder {
@@ -57,7 +57,7 @@ public class SetDataValuesSettingsBuilder: TransformationSettingsBuilder {
         return self
     }
 
-    /// Builds a `DataObject` with the configured operations, scopes, and conditions.
+    /// Builds a `DataObject` with the configured operations, scope, and conditions.
     /// Writes whatever properties have been set to the configuration DataObject.
     /// - Returns: A `DataObject` containing only the explicitly configured transformation settings.
     override public func build() -> DataObject {

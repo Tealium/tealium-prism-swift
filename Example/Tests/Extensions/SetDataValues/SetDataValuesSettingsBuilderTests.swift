@@ -13,25 +13,10 @@ final class SetDataValuesSettingsBuilderTests: ExtensionsBaseTests {
 
     let transformationId = "test-transformation"
 
-    func test_constructor_setsCorrectIds() {
+    func test_constructor_sets_correct_ids() {
         let settings = SetDataValuesSettingsBuilder(id: transformationId).build()
         XCTAssertEqual(settings.get(key: TransformationSettings.Keys.id), transformationId)
         XCTAssertEqual(settings.get(key: TransformationSettings.Keys.transformerId), Modules.Types.setDataValuesTransformer)
-    }
-
-    func test_addScope_single() {
-        let settings = SetDataValuesSettingsBuilder(id: transformationId)
-            .addScope(.afterCollectors)
-            .build()
-        XCTAssertEqual(settings.getArray(key: TransformationSettings.Keys.scopes), ["aftercollectors"])
-    }
-
-    func test_addScope_multiple() {
-        let settings = SetDataValuesSettingsBuilder(id: transformationId)
-            .addScope(.afterCollectors)
-            .addScope(.allDispatchers)
-            .build()
-        XCTAssertEqual(settings.getArray(key: TransformationSettings.Keys.scopes), ["aftercollectors", "alldispatchers"])
     }
 
     func test_setFrom_sets_reference_input() {
@@ -97,47 +82,34 @@ final class SetDataValuesSettingsBuilderTests: ExtensionsBaseTests {
         XCTAssertEqual(value.value.get(), "constant-value")
     }
 
-    func test_build_withNoOperations_omits_operations_key() {
+    func test_build_with_no_operations_omits_operations_key() {
         let settings = SetDataValuesSettingsBuilder(id: transformationId).build()
         XCTAssertFalse(configDataObject(from: settings).keys.contains(SetDataValuesConfiguration.Keys.operations))
     }
 
-    func test_build_withAllProperties() {
+    func test_build_with_all_properties() {
         let condition = Rule<Condition>.just(Condition.equals(ignoreCase: false, variable: "tealium_event", target: "test"))
         let settings = SetDataValuesSettingsBuilder(id: transformationId)
-            .addScope(.afterCollectors)
+            .setScope(.afterCollectors)
             .setConditions(condition)
             .setFrom(.key("input_key"), to: .key("destination_key"))
             .build()
         XCTAssertEqual(settings.get(key: TransformationSettings.Keys.id), transformationId)
         XCTAssertEqual(settings.get(key: TransformationSettings.Keys.transformerId), Modules.Types.setDataValuesTransformer)
-        XCTAssertEqual(settings.getArray(key: TransformationSettings.Keys.scopes), ["aftercollectors"])
+        XCTAssertEqual(settings.get(key: TransformationSettings.Keys.scope), "aftercollectors")
         XCTAssertNotNil(settings.getDataDictionary(key: TransformationSettings.Keys.conditions))
         XCTAssertEqual(operationDataObjects(from: settings).count, 1)
     }
 
-    func test_setFrom_returnsBuilder() {
+    func test_setFrom_returns_builder() {
         let builder = SetDataValuesSettingsBuilder(id: transformationId)
         let result = builder.setFrom(.key("key"), to: .key("dest"))
         XCTAssertTrue(result === builder)
     }
 
-    func test_setConstant_returnsBuilder() {
+    func test_setConstant_returns_builder() {
         let builder = SetDataValuesSettingsBuilder(id: transformationId)
         let result = builder.setConstant("constant", to: .key("dest"))
-        XCTAssertTrue(result === builder)
-    }
-
-    func test_addScope_returnsBuilder() {
-        let builder = SetDataValuesSettingsBuilder(id: transformationId)
-        let result = builder.addScope(.afterCollectors)
-        XCTAssertTrue(result === builder)
-    }
-
-    func test_setConditions_returnsBuilder() {
-        let builder = SetDataValuesSettingsBuilder(id: transformationId)
-        let condition = Rule<Condition>.just(Condition.equals(ignoreCase: false, variable: "tealium_event", target: "test"))
-        let result = builder.setConditions(condition)
         XCTAssertTrue(result === builder)
     }
 

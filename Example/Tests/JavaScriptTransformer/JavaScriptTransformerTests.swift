@@ -44,7 +44,7 @@ final class JavaScriptTransformerTests: XCTestCase {
         let settings = TransformationSettings(
             id: "test",
             transformerId: Modules.Types.javaScriptTransformer,
-            scopes: [.afterCollectors],
+            scope: .afterCollectors,
             configuration: [:]
         )
         let expectation = expectation(description: "Completes with original dispatch")
@@ -448,11 +448,12 @@ final class JavaScriptTransformerTests: XCTestCase {
     private func buildSettings(jsCode: String) -> TransformationSettings {
         let settings = JavaScriptTransformationSettingsBuilder(id: "test")
             .setJsCode(jsCode)
+            .setScope(.afterCollectors)
             .build()
         let config = settings.getDataDictionary(key: TransformationSettings.Keys.configuration)?.toDataObject() ?? [:]
         return TransformationSettings(id: "test",
                                       transformerId: Modules.Types.javaScriptTransformer,
-                                      scopes: [.afterCollectors],
+                                      scope: .afterCollectors,
                                       configuration: config)
     }
 }
