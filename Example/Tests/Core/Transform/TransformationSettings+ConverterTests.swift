@@ -84,6 +84,28 @@ final class TransformationSettingsConverterTests: XCTestCase {
         XCTAssertEqual(transformation?.scope, .dispatchers(["Collect", "Facebook"]))
     }
 
+    func test_transformation_converter_with_empty_dispatcher_ids_array_returns_dispatchers_scope() {
+        let settings: DataObject = [
+            TransformationSettings.Keys.id: "test_id",
+            TransformationSettings.Keys.transformerId: "test_transformer",
+            TransformationSettings.Keys.scope: DataItem(value: [])
+        ]
+
+        let transformation = TransformationSettings.converter.convert(dataItem: settings.toDataItem())
+
+        XCTAssertNotNil(transformation)
+        XCTAssertEqual(transformation?.scope, .dispatchers([]))
+    }
+
+    func test_transformation_converter_with_unknown_scope_string_returns_nil() {
+        let settings: DataObject = [
+            TransformationSettings.Keys.id: "test_id",
+            TransformationSettings.Keys.transformerId: "test_transformer",
+            TransformationSettings.Keys.scope: "unknown_scope"
+        ]
+        XCTAssertNil(TransformationSettings.converter.convert(dataItem: settings.toDataItem()))
+    }
+
     func test_transformation_converter_with_conditions_returns_transformation_with_condition() {
         let settings: DataObject = [
             TransformationSettings.Keys.id: "test_id",
@@ -101,34 +123,36 @@ final class TransformationSettingsConverterTests: XCTestCase {
         XCTAssertTrueOptional(transformation?.conditions?.equals(expectedRule))
     }
 
-    func test_transformation_converter_with_invalid_data_returns_nil() {
-        let missingIdSettings: DataObject = [
+    func test_transformation_converter_with_missing_id_returns_nil() {
+        let settings: DataObject = [
             TransformationSettings.Keys.transformerId: "test_transformer",
             TransformationSettings.Keys.scope: "aftercollectors"
         ]
-        let missingIdItem = missingIdSettings.toDataItem()
-        XCTAssertNil(TransformationSettings.converter.convert(dataItem: missingIdItem))
+        XCTAssertNil(TransformationSettings.converter.convert(dataItem: settings.toDataItem()))
+    }
 
-        let missingTransformerIdSettings: DataObject = [
+    func test_transformation_converter_with_missing_transformerId_returns_nil() {
+        let settings: DataObject = [
             TransformationSettings.Keys.id: "test_id",
             TransformationSettings.Keys.scope: "aftercollectors"
         ]
-        let missingTransformerIdItem = missingTransformerIdSettings.toDataItem()
-        XCTAssertNil(TransformationSettings.converter.convert(dataItem: missingTransformerIdItem))
+        XCTAssertNil(TransformationSettings.converter.convert(dataItem: settings.toDataItem()))
+    }
 
-        let missingScopeSettings: DataObject = [
+    func test_transformation_converter_with_missing_scope_returns_nil() {
+        let settings: DataObject = [
             TransformationSettings.Keys.id: "test_id",
             TransformationSettings.Keys.transformerId: "test_transformer"
         ]
-        let missingScopeItem = missingScopeSettings.toDataItem()
-        XCTAssertNil(TransformationSettings.converter.convert(dataItem: missingScopeItem))
+        XCTAssertNil(TransformationSettings.converter.convert(dataItem: settings.toDataItem()))
+    }
 
-        let wrongTypesSettings: DataObject = [
+    func test_transformation_converter_with_wrong_id_type_returns_nil() {
+        let settings: DataObject = [
             TransformationSettings.Keys.id: 123, // Should be String
             TransformationSettings.Keys.transformerId: "test_transformer",
             TransformationSettings.Keys.scope: "aftercollectors"
         ]
-        let wrongTypesItem = wrongTypesSettings.toDataItem()
-        XCTAssertNil(TransformationSettings.converter.convert(dataItem: wrongTypesItem))
+        XCTAssertNil(TransformationSettings.converter.convert(dataItem: settings.toDataItem()))
     }
 }

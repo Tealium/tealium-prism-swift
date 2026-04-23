@@ -16,7 +16,7 @@ final class ConsentConfigurationBuilderTests: XCTestCase {
                 .setTealiumPurposeId("tealium")
                 .addPurpose("purpose1", dispatcherIds: ["dispatcherId1"])
                 .addPurpose("purpose2", dispatcherIds: ["dispatcherId2"])
-                .setRefireDispatchersIds(["refireDispatcher"])
+                .setRefireDispatcherIds(["refireDispatcher"])
                 .build()
         XCTAssertEqual(configuration, [
             "tealium_purpose_id": "tealium",

@@ -11,7 +11,7 @@ import Foundation
 /// Base class for building transformation settings as a `DataObject`.
 ///
 /// Concrete subclasses (e.g. `SetDataValuesSettingsBuilder`, `PersistDataValueSettingsBuilder`,
-/// `LowerCaseSettingsBuilder`) override ``build()`` to populate transformer-specific configuration
+/// `LowercaseSettingsBuilder`) override ``build()`` to populate transformer-specific configuration
 /// and then delegate to `super.build()`.
 ///
 /// Only values that are explicitly set via the builder's methods will appear in the resulting

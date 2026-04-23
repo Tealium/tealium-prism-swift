@@ -8,42 +8,6 @@
 
 import Foundation
 
-/// Defines the scope where a transformation should be applied.
-public enum TransformationScope: Equatable, DataInputConvertible {
-    /// Apply transformation after data collection.
-    case afterCollectors
-    /// Apply transformation to all dispatchers.
-    case allDispatchers
-    /// Apply transformation to the dispatchers with the given IDs.
-    case dispatchers([String])
-
-    public func toDataInput() -> any DataInput {
-        switch self {
-        case .afterCollectors:
-            "aftercollectors"
-        case .allDispatchers:
-            "alldispatchers"
-        case .dispatchers(let ids):
-            ids as [DataInput]
-        }
-    }
-}
-
-extension TransformationScope {
-    /// Creates a scope from its JSON string representation.
-    /// Returns `nil` for unrecognized strings — use `.dispatchers` for specific dispatcher IDs.
-    static func fromString(_ string: String) -> TransformationScope? {
-        switch string.lowercased() {
-        case "aftercollectors":
-            return .afterCollectors
-        case "alldispatchers":
-            return .allDispatchers
-        default:
-            return nil
-        }
-    }
-}
-
 /// Configuration for a data transformation.
 public struct TransformationSettings {
     /// Unique identifier for this transformation.
@@ -139,17 +103,8 @@ extension TransformationSettings {
         func convert(dataItem: DataItem) -> Convertible? {
             guard let dictionary = dataItem.getDataDictionary(),
                   let id: String = dictionary.get(key: Keys.id),
-                  let transformerId: String = dictionary.get(key: Keys.transformerId) else {
-                return nil
-            }
-            let scope: TransformationScope
-            if let scopeString: String = dictionary.get(key: Keys.scope) {
-                guard let parsed = TransformationScope.fromString(scopeString) else { return nil }
-                scope = parsed
-            } else if let ids = dictionary.getArray(key: Keys.scope, of: String.self)?.compactMap({ $0 }),
-                      !ids.isEmpty {
-                scope = .dispatchers(ids)
-            } else {
+                  let transformerId: String = dictionary.get(key: Keys.transformerId),
+                  let scope = dictionary.getConvertible(key: Keys.scope, converter: TransformationScope.converter) else {
                 return nil
             }
             let configuration = dictionary.getDataDictionary(key: Keys.configuration)?
@@ -165,5 +120,5 @@ extension TransformationSettings {
                                           order: order)
         }
     }
-    static let converter = Converter()
+    static let converter: any DataItemConverter<TransformationSettings> = Converter()
 }

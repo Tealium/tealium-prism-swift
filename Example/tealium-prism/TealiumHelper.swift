@@ -39,7 +39,7 @@ class TealiumHelper {
 //        config.addBarrier(Barriers.batching())
         config.enableConsentIntegration(with: cmp) { enforcedConfiguration in
             enforcedConfiguration.setTealiumPurposeId(CustomCMP.Purposes.tealium.rawValue)
-                .setRefireDispatchersIds([Modules.Types.collect])
+                .setRefireDispatcherIds([Modules.Types.collect])
                 .addPurpose(CustomCMP.Purposes.tracking.rawValue, dispatcherIds: [
                     Modules.Types.collect,
                     CustomDispatcher.Factory.moduleType
@@ -53,12 +53,10 @@ class TealiumHelper {
         )
 
         config.setTransformation(
-            LowerCaseSettingsBuilder(id: "lowercase-specific")
+            LowercaseSettingsBuilder(id: "lowercase-specific")
                 .setScope(.allDispatchers)
-                .setAllVariables(false)
-                .addVariable(.key("event_category"))
-                .addVariable(.key("event_label"))
-                .addVariable(.key("user_id"))
+                .setOrder(1)
+                .lowercaseVariables([.key("event_category"), .key("event_label"), .key("user_id")])
         )
 
         config.setTransformation(
@@ -67,6 +65,7 @@ class TealiumHelper {
                 .setUpdatePolicy(.keepFirstValue)
                 .persistConstant("some value", to: .key("some_key"))
                 .setScope(.allDispatchers)
+                .setOrder(2)
         )
 
         config.setTransformation(
@@ -105,6 +104,7 @@ class TealiumHelper {
                         }
                         """)
                 .setScope(.afterCollectors)
+                .setOrder(4)
         )
 
         config.setTransformation(
@@ -113,6 +113,7 @@ class TealiumHelper {
                         track('some-new-event')
                         """)
                 .setScope(.afterCollectors)
+                .setOrder(5)
         )
 
         return Tealium.create(config: config)

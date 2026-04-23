@@ -13,5 +13,5 @@ extension String {
             dataItem.get()
         }
     }
-    static let converter = Converter()
+    static let converter: any DataItemConverter<String> = Converter()
 }

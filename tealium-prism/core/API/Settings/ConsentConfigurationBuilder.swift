@@ -35,7 +35,7 @@ public class ConsentConfigurationBuilder {
     }
 
     /// Sets the list of dispatcher IDs that are allowed to refire events after an explicit consent decision is made by the user.
-    public func setRefireDispatchersIds(_ refireDispatchersIds: [String]) -> Self {
+    public func setRefireDispatcherIds(_ refireDispatchersIds: [String]) -> Self {
         _dataObject.set(converting: refireDispatchersIds, key: Keys.refireDispatchersIds)
         return self
     }

@@ -1,5 +1,5 @@
 //
-//  LowerCaseTransformer.swift
+//  LowercaseTransformer.swift
 //  tealium-prism
 //
 //  Created by Sebastian Krajna on 17/12/25.
@@ -12,8 +12,8 @@ import Foundation
 import TealiumPrismCore
 #endif
 
-class LowerCaseTransformer: Transformer, BasicModule {
-    let id: String = Modules.Types.lowerCaseTransformer
+class LowercaseTransformer: Transformer, BasicModule {
+    let id: String = Modules.Types.lowercaseTransformer
     let version: String = TealiumConstants.libraryVersion
 
     convenience required init?(context: TealiumContext, moduleConfiguration: DataObject) {
@@ -28,7 +28,7 @@ class LowerCaseTransformer: Transformer, BasicModule {
         scope: DispatchScope,
         completion: @escaping (Dispatch?) -> Void
     ) {
-        guard let configuration = LowerCaseConfiguration(dataObject: transformation.configuration) else {
+        guard let configuration = LowercaseConfiguration(dataObject: transformation.configuration) else {
             completion(dispatch)
             return
         }
@@ -36,27 +36,18 @@ class LowerCaseTransformer: Transformer, BasicModule {
     }
 
     private func applyTransformation(
-        _ config: LowerCaseConfiguration,
+        _ config: LowercaseConfiguration,
         to dispatch: Dispatch
     ) -> Dispatch {
         var payload = dispatch.payload
 
-        if config.allVariables {
-            // Lowercase all string values in the payload
+        switch config.policy {
+        case .allVariables:
             payload = lowercaseAllStrings(in: payload)
-        } else {
-            // Only lowercase specific inputs
-            for input in config.inputs {
-                if let item = payload.extractDataItem(
-                    path: input.path
-                ),
-                    let stringValue = item.get(as: String.self) {
-                        let lowercased = stringValue.lowercased()
-                        payload.buildPath(
-                            input.path,
-                            andSet: DataItem(value: lowercased)
-                        )
-                    }
+        case .variables(let variables):
+            for variable in variables {
+                guard let item = payload.extractDataItem(path: variable.path) else { continue }
+                payload.buildPath(variable.path, andSet: lowercaseDataItem(item))
             }
         }
 
@@ -69,9 +60,17 @@ class LowerCaseTransformer: Transformer, BasicModule {
         var result = DataObject()
         for key in dataObject.keys {
             guard let item = dataObject.getDataItem(key: key) else { continue }
-            result.set(converting: key == TealiumDataKey.visitorId ? item : lowercaseDataItem(item), key: key)
+            result.set(converting: shouldExclude(key) ? item : lowercaseDataItem(item), key: key)
         }
         return result
+    }
+
+    private static let excludedKeys: Set<String> = [
+        TealiumDataKey.visitorId, TealiumDataKey.cpTraceId, TealiumDataKey.tealiumTraceId
+    ]
+
+    private func shouldExclude(_ key: String) -> Bool {
+        LowercaseTransformer.excludedKeys.contains(key)
     }
 
     private func lowercaseDataItem(_ item: DataItem) -> DataItem {
