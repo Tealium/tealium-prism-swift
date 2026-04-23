@@ -32,5 +32,5 @@ extension ConsentSettings {
             return ConsentSettings(settings: dataObject)
         }
     }
-    static let converter = Converter()
+    static let converter: any DataItemConverter<ConsentSettings> = Converter()
 }

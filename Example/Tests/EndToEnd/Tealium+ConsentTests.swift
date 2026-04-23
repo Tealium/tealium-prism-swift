@@ -22,7 +22,7 @@ final class TealiumConsentTests: TealiumBaseTests {
             enforcedConfiguration.addPurpose("1", dispatcherIds: [MockDispatcher1.moduleType])
                 .addPurpose("2", dispatcherIds: [MockDispatcher2.moduleType])
                 .setTealiumPurposeId("3")
-                .setRefireDispatchersIds([MockDispatcher1.moduleType])
+                .setRefireDispatcherIds([MockDispatcher1.moduleType])
         }
     }
 

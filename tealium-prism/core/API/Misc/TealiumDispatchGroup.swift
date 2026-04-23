@@ -33,7 +33,7 @@ public class TealiumDispatchGroup {
             completion([])
             return Disposables.disposed()
         }
-        let container = DisposableContainer()
+        let container = AsyncDisposableContainer(queue: queue)
         let dispatchGroup = DispatchGroup()
         dispatchGroup.enter()
         var results = [Int: Result]()

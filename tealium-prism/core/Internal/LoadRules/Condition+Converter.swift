@@ -29,5 +29,5 @@ extension Condition {
                              filter: dictionary.getConvertible(key: Keys.filter, converter: StringContainer.converter))
         }
     }
-    static let converter = Converter()
+    static let converter: any DataItemConverter<Condition> = Converter()
 }

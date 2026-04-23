@@ -26,6 +26,6 @@ public class ExtensionsAutomaticLoader: NSObject {
     private static let runOnce: () = {
         Modules.addDefaultModule(Modules.setDataValuesTransformer())
         Modules.addDefaultModule(Modules.persistDataValueTransformer())
-        Modules.addDefaultModule(Modules.lowerCaseTransformer())
+        Modules.addDefaultModule(Modules.lowercaseTransformer())
     }()
 }

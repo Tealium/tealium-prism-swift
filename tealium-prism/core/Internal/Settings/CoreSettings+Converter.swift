@@ -23,5 +23,5 @@ extension CoreSettings {
             )
         }
     }
-    static let converter = Converter()
+    static let converter: any DataItemConverter<CoreSettings> = Converter()
 }

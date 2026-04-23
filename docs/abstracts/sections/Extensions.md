@@ -6,7 +6,7 @@ The Extensions module includes three transformers:
 
 - **`SetDataValues`** — Copies values between keys or sets constant values in the dispatch payload.
 - **`PersistDataValue`** — Writes a value from the payload (or a constant) to the data layer with a configurable expiry and update policy, then injects the persisted value back into the current dispatch.
-- **`LowerCase`** — Lowercases all string values in the dispatch payload, or targets specific keys.
+- **`Lowercase`** — Lowercases all string values in the dispatch payload, or targets specific keys.
 
 Each transformer is configured through its dedicated settings builder, which you attach to your `TealiumConfig` via `config.setTransformation(_:)` like any other transformation. See the [Transformations](Transformations.html) documentation for a full explanation of scope, conditions, and how transformations fit into the dispatch pipeline.
 
@@ -21,7 +21,7 @@ The Extensions module registers its transformers automatically when linked to yo
 // Explicit — use this only when you need to enforce module-level settings
 config.addModule(Modules.setDataValuesTransformer())
 config.addModule(Modules.persistDataValueTransformer())
-config.addModule(Modules.lowerCaseTransformer())
+config.addModule(Modules.lowercaseTransformer())
 ```
 
 Transformations themselves (the actual rules for each transformer) are configured separately and added to the SDK configuration with `config.setTransformation(_:)`.
@@ -41,14 +41,16 @@ All transformations share a `setScope(_:)` method inherited from `Transformation
 let transformation = SetDataValuesSettingsBuilder(id: "pre-collect")
     .setConstant("batch", destination: .key("send_mode"))
     .setScope(.dispatchers([Modules.Types.collect]))
+    .setOrder(1)
 
 config.setTransformation(transformation)
 ```
 
 ```swift
 // Run before every dispatcher
-let transformation = LowerCaseSettingsBuilder(id: "lowercase-all-dispatchers")
+let transformation = LowercaseSettingsBuilder(id: "lowercase-all-dispatchers")
     .setScope(.allDispatchers)
+    .setOrder(1)
 
 config.setTransformation(transformation)
 ```
@@ -74,6 +76,7 @@ Use `SetDataValuesSettingsBuilder` to define one or more operations:
 let copyOperation = SetDataValuesSettingsBuilder(id: "copy-user-id")
     .setFrom(.key("user_id"), to: .key("visitor_id"))
     .setScope(.afterCollectors)
+    .setOrder(1)
 
 config.setTransformation(copyOperation)
 ```
@@ -83,6 +86,7 @@ config.setTransformation(copyOperation)
 let setConstant = SetDataValuesSettingsBuilder(id: "set-platform")
     .setConstant("ios", to: .key("platform"))
     .setScope(.afterCollectors)
+    .setOrder(1)
 
 config.setTransformation(setConstant)
 ```
@@ -93,6 +97,7 @@ let combined = SetDataValuesSettingsBuilder(id: "enrich-payload")
     .setFrom(.key("raw_email"), to: .key("email"))
     .setConstant("mobile", to: .key("channel"))
     .setScope(.afterCollectors)
+    .setOrder(1)
 
 config.setTransformation(combined)
 ```
@@ -106,6 +111,7 @@ let nested = SetDataValuesSettingsBuilder(id: "map-nested")
         to: .key("user_name")
     )
     .setScope(.afterCollectors)
+    .setOrder(1)
 config.setTransformation(nested)
 ```
 
@@ -125,6 +131,7 @@ If the source key is not present in the payload, the operation is silently skipp
   "transformation_id": "enrich-payload",
   "transformer_id": "SetDataValues",
   "scope": "aftercollectors",
+  "order": 1,
   "configuration": {
     "operations": [
       {
@@ -165,6 +172,7 @@ The `PersistDataValue` transformer stores a value from the dispatch payload (or 
 let persistUserId = PersistDataValueSettingsBuilder(id: "persist-user-id")
     .persistFrom(.key("user_id"), to: .key("persisted_user_id"))
     .setScope(.dispatchers(["Analytics", "Collect"]))
+    .setOrder(1)
 
 config.setTransformation(persistUserId)
 ```
@@ -176,6 +184,7 @@ let persistAppVersion = PersistDataValueSettingsBuilder(id: "persist-app-version
     .setExpiryPolicy(.forever)
     .setUpdatePolicy(.keepFirstValue)
     .setScope(.afterCollectors)
+    .setOrder(1)
 
 config.setTransformation(persistAppVersion)
 ```
@@ -186,6 +195,7 @@ let persistCampaign = PersistDataValueSettingsBuilder(id: "persist-campaign")
     .persistFrom(.key("utm_campaign"), to: .key("last_campaign"))
     .setExpiryPolicy(.duration(30.days))
     .setScope(.afterCollectors)
+    .setOrder(1)
 
 config.setTransformation(persistCampaign)
 ```
@@ -222,6 +232,7 @@ config.setTransformation(persistCampaign)
   "transformation_id": "persist-user-id",
   "transformer_id": "PersistDataValue",
   "scope": ["Analytics", "Collect"],
+  "order": 1,
   "configuration": {
     "input": { "key": "user_id" },
     "destination": { "key": "persisted_user_id" },
@@ -255,26 +266,26 @@ config.setTransformation(persistCampaign)
 }
 ```
 
-## LowerCase
+## Lowercase
 
-The `LowerCase` transformer converts string values in the dispatch payload to lowercase. By default it lowercases every string in the payload, including strings nested inside arrays and dictionaries. Non-string values (numbers, booleans, etc.) are left unchanged. The `tealium_visitor_id` key is always preserved as-is, unless it is explicitly listed in the targeted variables.
+The `Lowercase` transformer converts string values in the dispatch payload to lowercase. By default it lowercases every string in the payload, including strings nested inside arrays and dictionaries. Non-string values (numbers, booleans, etc.) are left unchanged. The values at `tealium_visitor_id`, `cp.trace_id`, and `tealium_trace_id` are always left unchanged, unless those keys are explicitly listed in the targeted variables.
 
 ### Programmatic Configuration
 
 ```swift
-// Lowercase all strings (default behavior — omitting setAllVariables is equivalent)
-let lowerAll = LowerCaseSettingsBuilder(id: "lowercase-all")
+// Lowercase all strings
+let lowerAll = LowercaseSettingsBuilder(id: "lowercase-all")
+    .lowercaseAllVariables()
 
 config.setTransformation(lowerAll)
 ```
 
 ```swift
 // Lowercase only specific keys
-let lowerSelected = LowerCaseSettingsBuilder(id: "lowercase-email-name")
-    .setAllVariables(false)
-    .addVariable(.key("email"))
-    .addVariable(.key("user_name"))
+let lowerSelected = LowercaseSettingsBuilder(id: "lowercase-email-name")
+    .lowercaseVariables([.key("email"), .key("user_name")])
     .setScope(.allDispatchers)
+    .setOrder(1)
 
 config.setTransformation(lowerSelected)
 ```
@@ -283,21 +294,21 @@ config.setTransformation(lowerSelected)
 
 | Method | Description |
 |---|---|
-| `setAllVariables(_ all: Bool)` | `true` to lowercase everything (default), `false` to target only the added variables |
-| `addVariable(_ reference: ReferenceContainer)` | Adds a key to the list of targeted variables (used when `allVariables` is `false`) |
+| `lowercaseAllVariables()` | Lowercase all string values in the payload |
+| `lowercaseVariables(_ variables: [ReferenceContainer])` | Lowercase only the specified keys |
 
-**Recursive behaviour:** When lowercasing all variables, the transformer descends into array elements and nested dictionaries. When targeting specific keys, only the value at that exact key is lowercased (recursion is not applied to targeted paths).
+**Recursive behaviour:** Both modes descend into array elements and nested dictionaries recursively. Non-string scalar values (numbers, booleans) are left unchanged in both modes.
 
 ### JSON Configuration
 
 ```json
 {
   "transformation_id": "lowercase-all",
-  "transformer_id": "LowerCase",
+  "transformer_id": "Lowercase",
   "scope": "aftercollectors",
+  "order": 1,
   "configuration": {
-    "all_variables": true,
-    "inputs": []
+    "variables": "allvariables"
   }
 }
 ```
@@ -305,11 +316,11 @@ config.setTransformation(lowerSelected)
 ```json
 {
   "transformation_id": "lowercase-email-name",
-  "transformer_id": "LowerCase",
+  "transformer_id": "Lowercase",
   "scope": "alldispatchers",
+  "order": 1,
   "configuration": {
-    "all_variables": false,
-    "inputs": [
+    "variables": [
       { "key": "email" },
       { "key": "user_name" }
     ]
@@ -321,10 +332,9 @@ config.setTransformation(lowerSelected)
 
 | Key | Type | Description |
 |---|---|---|
-| `all_variables` | `Bool` | Lowercase all strings when `true` (default: `true`) |
-| `inputs` | `Array<ReferenceContainer>` | Variables to target when `all_variables` is `false` |
+| `variables` | `"allvariables"` or `Array<ReferenceContainer>` | `"allvariables"` (case-insensitive) to lowercase all strings; an array of references to target specific keys |
 
-> **Note:** Setting `all_variables` to `false` with an empty `inputs` array is invalid — the transformation is treated as a no-op and the dispatch passes through unchanged.
+> **Note:** A missing `variables` key is invalid — the transformation is treated as a no-op and the dispatch passes through unchanged. An empty array is valid and also results in a no-op.
 
 ## Combining Multiple Transformers
 
@@ -337,24 +347,26 @@ let persistCampaign = PersistDataValueSettingsBuilder(id: "persist-campaign")
     .setExpiryPolicy(.duration(30.days))
     .setUpdatePolicy(.allowUpdate)
     .setScope(.afterCollectors)
+    .setOrder(1)
 
 // 2. Copy the persisted value to a canonical key expected by the backend
 let copyToCanonical = SetDataValuesSettingsBuilder(id: "map-campaign")
     .setFrom(.key("last_campaign"), to: .key("campaign_name"))
     .setScope(.afterCollectors)
+    .setOrder(2)
 
 // 3. Lowercase the canonical key to ensure consistent casing
-let normalizeCase = LowerCaseSettingsBuilder(id: "lowercase-campaign")
-    .setAllVariables(false)
-    .addVariable(.key("campaign_name"))
+let normalizeCase = LowercaseSettingsBuilder(id: "lowercase-campaign")
+    .lowercaseVariables([.key("campaign_name")])
     .setScope(.afterCollectors)
+    .setOrder(3)
 
 config.setTransformation(persistCampaign)
 config.setTransformation(copyToCanonical)
 config.setTransformation(normalizeCase)
 ```
 
-Transformations within the same scope are applied in the order they are defined, so register them in the order you want them to execute.
+Use `setOrder(_:)` to explicitly control execution sequence within a scope — lower values run first. Transformations without an explicit order run last.
 
 ## Conclusion
 

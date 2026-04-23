@@ -16,8 +16,8 @@ public extension Modules.Types {
     static let setDataValuesTransformer = "SetDataValues"
     /// The module type identifier for the PersistDataValue transformer.
     static let persistDataValueTransformer = "PersistDataValue"
-    /// The module type identifier for the LowerCase transformer.
-    static let lowerCaseTransformer = "LowerCase"
+    /// The module type identifier for the Lowercase transformer.
+    static let lowercaseTransformer = "Lowercase"
 }
 
 public extension Modules {
@@ -51,16 +51,16 @@ public extension Modules {
                                                         enforcedSettings: block(DataLayerSettingsBuilder()).build())
     }
 
-    /// Creates a factory for the LowerCase transformer module.
+    /// Creates a factory for the Lowercase transformer module.
     ///
-    /// The LowerCase transformer converts string values in the dispatch payload to lowercase.
-    /// By default it applies to all strings in the payload. Use `LowerCaseSettingsBuilder` to
+    /// The Lowercase transformer converts string values in the dispatch payload to lowercase.
+    /// By default it applies to all strings in the payload. Use `LowercaseSettingsBuilder` to
     /// configure the transformation settings.
     ///
     /// - Parameter block: An optional closure to enforce specific module settings.
-    /// - Returns: A `ModuleFactory` that creates `LowerCaseTransformer` instances.
-    static func lowerCaseTransformer(forcingSettings block: EnforcingSettings<ModuleSettingsBuilder> = { $0 }) -> some ModuleFactory {
-        BasicModuleFactory<LowerCaseTransformer>(moduleType: Modules.Types.lowerCaseTransformer,
+    /// - Returns: A `ModuleFactory` that creates `LowercaseTransformer` instances.
+    static func lowercaseTransformer(forcingSettings block: EnforcingSettings<ModuleSettingsBuilder> = { $0 }) -> some ModuleFactory {
+        BasicModuleFactory<LowercaseTransformer>(moduleType: Modules.Types.lowercaseTransformer,
                                                  enforcedSettings: block(ModuleSettingsBuilder()).build())
     }
 }

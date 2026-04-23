@@ -30,5 +30,5 @@ extension LoadRule {
             return LoadRule(id: id, conditions: rules.asMatchable())
         }
     }
-    static let converter = Converter()
+    static let converter: any DataItemConverter<LoadRule> = Converter()
 }

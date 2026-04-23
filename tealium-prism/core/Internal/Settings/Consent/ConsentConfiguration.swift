@@ -49,5 +49,5 @@ extension ConsentConfiguration {
             )
         }
     }
-    static let converter = Converter()
+    static let converter: any DataItemConverter<ConsentConfiguration> = Converter()
 }

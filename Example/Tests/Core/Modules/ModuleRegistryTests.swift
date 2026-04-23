@@ -35,7 +35,7 @@ class ModuleRegistryTests: XCTestCase {
         Modules.Types.momentsAPI,
         Modules.Types.setDataValuesTransformer,
         Modules.Types.persistDataValueTransformer,
-        Modules.Types.lowerCaseTransformer
+        Modules.Types.lowercaseTransformer
     ] + ModuleRegistryTests.nonWatchModules
 
     // When making a mandatory module, make sure to add them here as well
@@ -44,7 +44,7 @@ class ModuleRegistryTests: XCTestCase {
         Modules.Types.tealiumData,
         Modules.Types.setDataValuesTransformer,
         Modules.Types.persistDataValueTransformer,
-        Modules.Types.lowerCaseTransformer
+        Modules.Types.lowercaseTransformer
     ] + ModuleRegistryTests.nonWatchModules
 
     func test_defaultModules_contain_all_installed_modules() {
