@@ -10,16 +10,14 @@
 
 /// A subclass that skips the check for disposed observers.
 class NonDisposalCheckingObservable<Element>: Observable<Element> {
-    /// Another handler that can be used here instead
-    private let nonCheckingSubscriptionHandler: SubscriptionHandler
+    private let handler: SubscriptionHandler
 
-    override init(_ subscribe: @escaping SubscriptionHandler) {
-        nonCheckingSubscriptionHandler = subscribe
-        super.init(subscribe)
+    init(_ subscribe: @escaping SubscriptionHandler) {
+        handler = subscribe
     }
 
     /// Subscribes the observer to be called without checking if it was disposed already.
-    override func subscribe(_ observer: @escaping Observer) -> Disposable {
-        nonCheckingSubscriptionHandler(observer)
+    override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+        handler(observer)
     }
 }

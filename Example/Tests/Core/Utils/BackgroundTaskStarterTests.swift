@@ -54,16 +54,18 @@ class BackgroundTaskStarterTests: XCTestCase {
         waitForLongTimeout()
     }
 
-    func test_startBackgroundTask_subscription_disposes_automatically_upon_expiration() {
+    func test_startBackgroundTask_completes_automatically_upon_expiration() {
         timeout = .microseconds(1)
         let emitsTwice = expectation(description: "Start emits twice")
         emitsTwice.expectedFulfillmentCount = 2
-        let disposable = starter.startBackgroundTask()
+        let completed = expectation(description: "Observable completed")
+        _ = starter.startBackgroundTask()
             .subscribe { _ in
                 emitsTwice.fulfill()
+            } onComplete: {
+                completed.fulfill()
             }
         waitForLongTimeout()
-        XCTAssertTrue(disposable.isDisposed, "Subscription is automatically disposed on expiration")
     }
 
     func test_startBackgroundTask_emits_from_caller_queue_when_started() {

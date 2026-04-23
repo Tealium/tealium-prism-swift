@@ -100,7 +100,7 @@ private extension TealiumDelegateProxy {
     static var gOriginalDelegate: NSObjectProtocol?
     static var gDelegateSubClass: AnyClass?
 
-    class var sharedApplication: UIApplication? {
+    static var sharedApplication: UIApplication? {
         let selector = NSSelectorFromString("sharedApplication")
         return UIApplication.perform(selector)?.takeUnretainedValue() as? UIApplication
     }

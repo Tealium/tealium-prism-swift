@@ -26,9 +26,8 @@ final class ObservablesTests: XCTestCase {
 
     func test_callback_transforms_a_function_with_callback_into_an_observable() {
         let expectation = expectation(description: "Event is published")
-        let dispatchQueue = DispatchQueue(label: "ObservableTestQueue")
         func anAsyncFunctionWithACallback(callback: @escaping (Int) -> Void) {
-            dispatchQueue.async {
+            DispatchQueue.main.async {
                 callback(1)
             }
         }
@@ -38,9 +37,7 @@ final class ObservablesTests: XCTestCase {
             expectation.fulfill()
         }
 
-        dispatchQueue.sync {
-            waitForDefaultTimeout()
-        }
+        waitForDefaultTimeout()
     }
 
     func test_combineLatest_is_notified_immediately_on_sync_observables() {
@@ -95,32 +92,32 @@ final class ObservablesTests: XCTestCase {
 
     func test_combineLatest_is_notified_immediately_with_an_empty_array_when_provided_with_an_empty_array() {
         let combineLatestIsNotified = expectation(description: "Combine latest event is notified")
-        let sub = Observables.combineLatest([])
+        _ = Observables.combineLatest([])
             .subscribe { result in
                 XCTAssertEqual(result, [])
                 combineLatestIsNotified.fulfill()
             }
         waitForDefaultTimeout()
-        XCTAssertTrue(sub.isDisposed)
     }
 
-    func test_combineLatest_disposes_subscription_when_all_upstreams_are_disposed() {
+    func test_combineLatest_completes_when_all_upstreams_are_completed() {
         let subject = Subject<Int>()
         let eventEmitted = expectation(description: "Event is emitted")
+        let completed = expectation(description: "Observable completed")
         let observable = Observables.combineLatest([
             subject.asObservable().first(),
             Observables.just(3)
         ])
 
-        let disposable = observable.subscribe { res in
+        _ = observable.subscribe { res in
             eventEmitted.fulfill()
             XCTAssertEqual(res[0], 1)
             XCTAssertEqual(res[1], 3)
+        } onComplete: {
+            completed.fulfill()
         }
         subject.publish(1)
         subject.publish(2)
-
-        XCTAssertTrue(disposable.isDisposed)
         waitForDefaultTimeout()
     }
 

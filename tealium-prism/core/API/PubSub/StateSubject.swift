@@ -44,7 +44,7 @@ public class StateSubject<Element>: Subject<Element> {
     /// Converts this `StateSubject` to an `ObservableState` that is readonly and can only receive new values.
     public func asObservableState() -> ObservableState<Element> {
         ObservableState<Element>(valueProvider: self.value) { observer in
-            defer { observer(self.value) }
+            observer(self.value)
             return super.asObservable().subscribe(observer)
         }
     }

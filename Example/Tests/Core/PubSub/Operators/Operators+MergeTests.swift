@@ -48,23 +48,26 @@ final class OperatorsMergeTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_merge_disposes_subscription_when_all_upstreams_are_disposed() {
+    func test_merge_completes_when_all_upstreams_are_completed() {
         let subject = Subject<Int>()
         let eventEmitted = expectation(description: "Event is emitted")
         eventEmitted.expectedFulfillmentCount = 2
+        let completed = expectation(description: "Observable completed")
         let observable = subject.asObservable()
             .first()
             .merge(Observables.just(1))
 
-        let disposable = observable.subscribe { res in
+        _ = observable.subscribe { res in
             eventEmitted.fulfill()
             XCTAssertEqual(res, 1)
+        } onComplete: {
+            completed.fulfill()
         }
         subject.publish(1)
         subject.publish(2)
 
-        waitForDefaultTimeout()
-        XCTAssertTrue(disposable.isDisposed)
+        wait(for: [eventEmitted, completed], timeout: Self.defaultTimeout, enforceOrder: true)
+
     }
 
     func test_merge_does_not_dispose_subscription_if_upstream_is_not_disposed() {

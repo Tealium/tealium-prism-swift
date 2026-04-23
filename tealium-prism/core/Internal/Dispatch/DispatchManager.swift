@@ -167,7 +167,6 @@ class DispatchManager: DispatchManagerProtocol {
                     .map { _ in queueManager.dequeueDispatches(for: dispatcher.id,
                                                                limit: min(dispatcher.dispatchLimit, Self.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER))
                     }
-                    .filter { !$0.isEmpty }
                     .resubscribingWhile { $0.count >= dispatcher.dispatchLimit } // Loops the `dequeueDispatches` as long as we pull `dispatchLimit` items from the queue
             }
     }

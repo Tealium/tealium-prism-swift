@@ -19,7 +19,7 @@ class BackgroundTaskStarter {
     private let backgroundTaskTimeout: DispatchTimeInterval
 
 #if os(iOS)
-    class var sharedApplication: UIApplication? {
+    static var sharedApplication: UIApplication? {
         let selector = NSSelectorFromString("sharedApplication")
         return UIApplication.perform(selector)?.takeUnretainedValue() as? UIApplication
     }
@@ -33,11 +33,14 @@ class BackgroundTaskStarter {
     /// Returns an observable that emits true upon subscription, starts a background task on iOS or WatchOS,
     /// and emits false when the background task ended or expired.
     func startBackgroundTask(withName name: String? = nil) -> Observable<Bool> {
-        Observable { [queue, backgroundTaskTimeout] observer in
+        Observables.create { [queue, backgroundTaskTimeout] observer in
             observer(true)
             let disposable = AsyncDisposableContainer(queue: queue)
             let completion = SelfDestructingCompletion {
-                observer(false)
+                if !disposable.isDisposed {
+                    observer(false)
+                    observer.onComplete()
+                }
                 disposable.dispose()
             }
 #if os(iOS)
@@ -66,14 +69,14 @@ class BackgroundTaskStarter {
                 }
             }
 #elseif os(watchOS)
-            let pInfo = ProcessInfo()
-            pInfo.performExpiringActivity(withReason: "Tealium Swift: Dispatch Queued Events") { expired in
-                if expired {
-                    queue.ensureOnQueue {
-                        completion.complete(result: ())
+            ProcessInfo.processInfo
+                .performExpiringActivity(withReason: name ?? "Tealium Background Task") { expired in
+                    if expired {
+                        queue.ensureOnQueue {
+                            completion.complete(result: ())
+                        }
                     }
                 }
-            }
 #endif
             queue.dispatchQueue.asyncAfter(deadline: .now() + backgroundTaskTimeout) {
                 completion.complete(result: ())

@@ -51,7 +51,7 @@ class TealiumImpl {
         settingsManager.settings
             .mapState { $0.core.minLogLevel }
             .distinct()
-            .subscribe(subject: onLogLevel).addTo(automaticDisposer)
+            .subscribe(onLogLevel).addTo(automaticDisposer)
         logger.debug(category: LogCategory.tealium, "Purging expired data from the database")
         storeProvider.modulesRepository.deleteExpired(expiry: .restart)
         let sessionManager = SessionManager(debouncer: Debouncer(queue: queue),

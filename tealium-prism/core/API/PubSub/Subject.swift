@@ -15,13 +15,21 @@ import Foundation
  * to the other classes.
  */
 @propertyWrapper
-public class Subject<Element>: BasePublisher<Element>, Subscribable {
+public class Subject<Element>: BasePublisher<Element>, Subscribable, Observer {
     /// The wrapped observable value for property wrapper usage.
     public var wrappedValue: Observable<Element> {
         asObservable()
     }
 
-    public func subscribe(_ observer: @escaping Observer) -> Disposable {
+    public func onNext(_ element: Element) {
+        publish(element)
+    }
+
+    public func onComplete() {
+        complete()
+    }
+
+    public func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
         asObservable().subscribe(observer)
     }
 
@@ -34,7 +42,7 @@ public class Subject<Element>: BasePublisher<Element>, Subscribable {
      * - returns: a `Disposable` that can be used to dispose this observer before the first event is sent to the observer, in case it's not needed any longer.
      */
     @discardableResult
-    public func subscribeOnce(_ observer: @escaping Observer) -> Disposable {
+    public func subscribeOnce(_ observer: @escaping (Element) -> Void) -> Disposable {
         asObservable().subscribeOnce(observer)
     }
 }

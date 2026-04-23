@@ -89,7 +89,7 @@ class DeviceDataProvider {
 
         return String(cString: modelIdentifier)
         #else
-        if ProcessInfo().environment["SIMULATOR_MODEL_IDENTIFIER"] != nil {
+        if ProcessInfo.processInfo.environment["SIMULATOR_MODEL_IDENTIFIER"] != nil {
             return "x86_64"
         }
         var sysinfo = utsname()

@@ -14,18 +14,34 @@ import Foundation
  * You never create an instance of this class. You always create a `Publisher` and extract an observable with the `asObservable()`.
  * With the publisher you can publish new events that will be received by whoever subscribed to the corresponding observable.
  */
-private class ObserverListObservable<Element>: Observable<Element> {
-    private let observerList = DisposableItemList<Observer>()
-    init() {
-        super.init { [observerList] observer in
-            observerList.insert(observer)
+class ObserverListObservable<Element>: Observable<Element> {
+    private let observerList = DisposableItemList<AnyObserver<Element>>()
+    private var done = false
+
+    override init() {}
+
+    override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+        guard !done else {
+            observer.onComplete()
+            return CompletedDisposable.shared
+        }
+        return observerList.append(AnyObserver(observer))
+    }
+
+    fileprivate func onNext(_ element: Element) {
+        guard !done else { return }
+        for observer in observerList.toArray() {
+            observer.onNext(element)
         }
     }
 
-    /// A  function that only a Publisher is allowed to call.
-    fileprivate func publish(_ element: Element) {
-        for observer in observerList {
-            observer(element)
+    fileprivate func complete() {
+        guard !done else { return }
+        done = true
+        let observers = observerList.toArray()
+        observerList.removeAll()
+        for observer in observers {
+            observer.onComplete()
         }
     }
 
@@ -48,7 +64,13 @@ public class BasePublisher<Element>: Publisher {
     /// Publishes an element to all subscribers.
     /// - Parameter element: The element to publish.
     public func publish(_ element: Element) {
-        observable.publish(element)
+        observable.onNext(element)
+    }
+
+    /// Completes this publisher, calling `onComplete` on all current subscribers.
+    /// After completion, new subscribers immediately receive `onComplete`.
+    public func complete() {
+        observable.complete()
     }
 
     public func asObservable() -> Observable<Element> {

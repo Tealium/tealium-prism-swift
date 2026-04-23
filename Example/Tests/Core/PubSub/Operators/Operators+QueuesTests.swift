@@ -11,7 +11,7 @@ import XCTest
 
 private extension Observable {
     func onSubscription(block: @escaping () -> Void) -> Observable<Element> {
-        Observable { observer in
+        Observables.create { observer in
             block()
             return self.subscribe(observer)
         }
@@ -24,7 +24,7 @@ final class OperatorsQueuesTests: XCTestCase {
 
     func test_subscribeOn_subscribes_on_provided_queue() {
         let expectation = expectation(description: "Subscribe handler is called")
-        let observable = Observable<Void> { [queue] _ in
+        let observable: Observable<Void> = Observables.create { [queue] _ in
             dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
             expectation.fulfill()
             return Disposables.disposed()
@@ -93,42 +93,45 @@ final class OperatorsQueuesTests: XCTestCase {
         }
     }
 
-    func test_observeOn_disposes_subscription_when_upstream_is_disposed() {
+    func test_observeOn_completes_when_upstream_is_completed() {
         let subject = Subject<Int>()
         let eventEmitted = expectation(description: "Event is emitted")
+        let completed = expectation(description: "Observable completed")
 
         let observable = subject.asObservable()
             .first()
             .observeOn(.main)
 
-        let disposable = observable.subscribe { res in
+        _ = observable.subscribe { res in
             eventEmitted.fulfill()
             XCTAssertEqual(res, 1)
+        } onComplete: {
+            completed.fulfill()
         }
         subject.publish(1)
         subject.publish(2)
 
         waitForDefaultTimeout()
-        XCTAssertTrue(disposable.isDisposed, "ObserveOn should dispose downstream if upstream disposes")
     }
 
-    func test_subscribeOn_disposes_subscription_when_upstream_is_disposed() {
+    func test_subscribeOn_completes_subscription_when_upstream_is_completed() {
         let subject = Subject<Int>()
         let eventEmitted = expectation(description: "Event is emitted")
-
+        let completed = expectation(description: "Observable completed")
         let observable = subject.asObservable()
             .first()
             .subscribeOn(.main)
 
-        let disposable = observable.subscribe { res in
+        _ = observable.subscribe { res in
             eventEmitted.fulfill()
             XCTAssertEqual(res, 1)
+        } onComplete: {
+            completed.fulfill()
         }
         subject.publish(1)
         subject.publish(2)
 
         waitForDefaultTimeout()
-        XCTAssertTrue(disposable.isDisposed, "SubscribeOn should dispose downstream if upstream disposes")
     }
 
     func test_delay_notifies_on_provided_queue() {
@@ -161,21 +164,22 @@ final class OperatorsQueuesTests: XCTestCase {
         }
     }
 
-    func test_delay_disposes_subscription_when_upstream_is_disposed() {
+    func test_delay_completes_subscription_when_upstream_is_completed() {
         let eventEmitted = expectation(description: "Event is emitted")
         eventEmitted.expectedFulfillmentCount = 3
+        let completed = expectation(description: "Observable completed")
         let observable = observable123
             .delay(0, on: .main)
         var count = 1
-        let disposable = observable.subscribe { res in
-            print("res", res)
+        _ = observable.subscribe { res in
+            print(res)
             eventEmitted.fulfill()
             XCTAssertEqual(res, count)
             count += 1
+        } onComplete: {
+            completed.fulfill()
         }
-
-        waitForDefaultTimeout()
-        XCTAssertTrue(disposable.isDisposed, "Delay should dispose downstream if upstream disposes")
+        waitForLongTimeout()
     }
 
     func test_delay_does_not_dispose_subscription_when_upstream_is_not_disposed() {
@@ -192,6 +196,17 @@ final class OperatorsQueuesTests: XCTestCase {
 
         waitForDefaultTimeout()
         XCTAssertFalse(disposable.isDisposed, "Delay should NOT dispose downstream if upstream does NOT dispose")
+    }
+
+    func test_debounce_emits_only_last_element_of_a_quick_sequence_when_there_is_a_delay() {
+        let expectation = expectation(description: "Observer is called")
+        _ = observable123.debounce(10, on: queue)
+            .subscribeOn(queue) // For thread safety
+            .subscribe { element in
+                XCTAssertEqual(element, 3)
+                expectation.fulfill()
+            }
+        waitForLongTimeout()
     }
 
     func test_debounce_observes_on_provided_queue() {
@@ -224,20 +239,22 @@ final class OperatorsQueuesTests: XCTestCase {
         }
     }
 
-    func test_debounce_disposes_subscription_when_upstream_is_disposed() {
+    func test_debounce_completes_when_upstream_has_completed() {
         let eventEmitted = expectation(description: "Event is emitted")
+        let completed = expectation(description: "Observable completed")
         eventEmitted.expectedFulfillmentCount = 3
         let observable = observable123
             .debounce(0, on: .main)
         var count = 1
-        let disposable = observable.subscribe { res in
+        _ = observable.subscribe { res in
             eventEmitted.fulfill()
             XCTAssertEqual(res, count)
             count += 1
+        } onComplete: {
+            completed.fulfill()
         }
 
         waitForDefaultTimeout()
-        XCTAssertTrue(disposable.isDisposed, "Delay should dispose downstream if upstream disposes")
     }
 
     func test_debounce_does_not_dispose_subscription_when_upstream_is_not_disposed() {

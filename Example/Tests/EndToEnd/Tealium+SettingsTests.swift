@@ -190,6 +190,10 @@ final class TealiumSettingsTests: TealiumBaseTests {
         let moduleSettings = DispatcherSettingsBuilder()
             .setRules(.not("event_contains_blocked"))
         config.addModule(MockDispatcher2.factory(enforcedSettings: moduleSettings))
+        // disable batching
+        config.addBarrier(Barriers.batching(forcingSettings: { enforcedSettings in
+            enforcedSettings.setScopes([])
+        }))
         MockDispatcher.onDispatch.subscribe { dispatches in
             XCTAssertEqual(dispatches.map { $0.name }, ["event_dispatched"])
             eventDispatched.fulfill()

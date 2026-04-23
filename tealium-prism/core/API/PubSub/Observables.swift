@@ -15,8 +15,6 @@ public enum Observables {
 }
 
 public extension Observables {
-    /// The block called when an `Observable` of `Element` emits an event.
-    typealias Observer<Element> = Observable<Element>.Observer
 
     /**
      * Creates a custom observable that can call `Observer` callbacks with values of type `Element`.
@@ -29,7 +27,7 @@ public extension Observables {
      * Every time someone subscribes to this `Observable` the `subscriptionHandler` will be invoked.
      */
     static func create<Element>(subscriptionHandler: @escaping Observable<Element>.SubscriptionHandler) -> Observable<Element> {
-        Observable(subscriptionHandler)
+        AnonymousObservable(subscriptionHandler)
     }
     /**
      * Returns an observable that will send only one event once the asyncFunction has completed.
@@ -39,17 +37,25 @@ public extension Observables {
      *
      * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and publish a new event to the subscribers when the function completes.
      */
-    static func callback<Element>(from asyncFunction: @escaping (@escaping Observer<Element>) -> Void) -> Observable<Element> {
-        Self.create { observer in
-            var cancelled = false
-            asyncFunction { res in
-                if !cancelled {
-                    observer(res)
-                }
-            }
-            return Subscription {
-                cancelled = true
-            }
+    static func callback<Element>(from asyncFunction: @escaping (@escaping (Element) -> Void) -> Void) -> Observable<Element> {
+        CallbackObservable { observer in
+            asyncFunction(observer.onNext(_:))
+            return Disposables.disposed()
+        }
+    }
+
+    /**
+     * Returns an observable that will send only one event once the asyncFunction has completed.
+     *
+     * - Parameter asyncFunction: is the function that needs to be called and needs to report the completion to the provided observer.
+     *  This function will only be called when an observer subscribes to the returned Observable. Every subscription will cause the asyncFunction to be called again.
+     *  The `Disposable` returned by this function will be disposed if the subscription is disposed before the event is emitted, allowing to cancel the ongoing work.
+     *
+     * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and publish a new event to the subscribers when the function completes.
+     */
+    static func callback<Element>(from asyncFunction: @escaping (@escaping (Element) -> Void) -> Disposable) -> Observable<Element> {
+        CallbackObservable { observer in
+            asyncFunction(observer.onNext(_:))
         }
     }
 
@@ -64,6 +70,7 @@ public extension Observables {
             for element in elements {
                 observer(element)
             }
+            observer.onComplete()
             return Disposables.disposed()
         }
     }
@@ -80,46 +87,6 @@ public extension Observables {
      * All subsequent changes to any observable will be emitted one by one.
      */
     static func combineLatest<Element>(_ observables: [Observable<Element>]) -> Observable<[Element]> {
-        // Internal function added to make compilation easier
-        func subscriptionHandler(_ observer: @escaping ([Element]) -> Void) -> Disposable {
-            let count = observables.count
-            guard count > 0 else {
-                observer([])
-                return Disposables.disposed()
-            }
-            let downstream = DisposableContainer()
-            var temporaryArray: [Element?]? = [Element?](repeating: nil, count: observables.count)
-            var resultArray = [Element]()
-            func notify(element: Element, index: Int) {
-                if temporaryArray != nil {
-                    temporaryArray?[index] = element
-                    if let unwrappedArray = temporaryArray?.compactMap({ $0 }),
-                        unwrappedArray.count == count { // true when temporary array is full of non-nil value
-                        resultArray = unwrappedArray
-                        temporaryArray = nil
-                    }
-                }
-                if resultArray.count == count {
-                    resultArray[index] = element
-                    observer(resultArray)
-                }
-            }
-            var subscriptionsCount = count
-            for index in 0 ..< count {
-                observables[index]
-                    .subscribe { element in
-                        notify(element: element, index: index)
-                    }
-                    .addTo(downstream)
-                    .onDispose {
-                        subscriptionsCount -= 1
-                        if subscriptionsCount == 0 {
-                            downstream.dispose()
-                        }
-                    }
-            }
-            return downstream
-        }
-        return Self.create(subscriptionHandler: subscriptionHandler)
+        IterableCombineLatestObservable(observables: observables)
     }
 }

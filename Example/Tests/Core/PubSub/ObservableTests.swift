@@ -49,7 +49,7 @@ final class ObservableTests: XCTestCase {
 
     func test_create_custom_observable_calls_subscription_handler_on_subscription() {
         let expectation = expectation(description: "Subscription handler is called")
-        let observable: Observable<Int> = Observable<Int> { _ in
+        let observable: Observable<Int> = Observables.create { _ in
             expectation.fulfill()
             return Disposables.disposed()
         }
@@ -60,7 +60,7 @@ final class ObservableTests: XCTestCase {
     func test_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
         let disposable = Disposables.composite()
         let observerCalled = expectation(description: "Observer is called once")
-        let observable = Observable<Int> { observer in
+        let observable: Observable<Int> = Observables.create { observer in
             let disposable = Disposables.composite()
             DispatchQueue.main.async {
                 observer(1)

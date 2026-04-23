@@ -46,13 +46,15 @@ final class OperatorsFirstTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_first_disposes_subscription_after_the_event_is_reported() {
-        let expectation = expectation(description: "Only first event is reported")
-        let subscription = observable123.first()
+    func test_first_completes_after_the_event_is_reported() {
+        let emitted = expectation(description: "Only first event is reported")
+        let completed = expectation(description: "Completed")
+        _ = observable123.first()
             .subscribe { _ in
-                expectation.fulfill()
+                emitted.fulfill()
+            } onComplete: {
+                completed.fulfill()
             }
-        XCTAssertTrue(subscription.isDisposed)
         waitForDefaultTimeout()
     }
 
@@ -81,29 +83,32 @@ final class OperatorsFirstTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_first_disposes_subscription_when_upstream_is_disposed() {
+    func test_first_completes_when_upstream_has_completed() {
+        let completed = expectation(description: "Observable completed")
         let observable = Observables.just(1, 2, 3)
             .first { $0 > 10 }
 
-        let disposable = observable.subscribe { _ in }
-
-        XCTAssertTrue(disposable.isDisposed)
+        _ = observable.subscribe { _ in
+        } onComplete: {
+            completed.fulfill()
+        }
+        waitForDefaultTimeout()
     }
 
-    func test_first_disposes_subscription_after_emitting_the_event() {
+    func test_first_completes_after_emitting_the_event() {
         let emitted = expectation(description: "Events emitted until the end")
-        let disposed = expectation(description: "Subscription id disposed")
+        let completed = expectation(description: "Observable completed")
         let subject = Subject<Int>()
         let observable = subject.asObservable()
             .first()
-        observable.subscribe { res in
+        _ = observable.subscribe { res in
             XCTAssertEqual(res, 1)
             emitted.fulfill()
-        }.onDispose {
-            disposed.fulfill()
+        } onComplete: {
+            completed.fulfill()
         }
         subject.publish(1)
-        wait(for: [emitted, disposed], timeout: Self.defaultTimeout, enforceOrder: true)
+        waitForDefaultTimeout()
     }
 
     func test_first_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {

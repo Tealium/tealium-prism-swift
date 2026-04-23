@@ -159,36 +159,38 @@ final class OperatorsTakeWhileTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_subscription_is_disposed_immediately_when_condition_is_not_met() {
+    func test_subscription_completes_immediately_when_condition_is_not_met() {
         let expectations = [
             expectation(description: "Event 1 is emitted only once"),
+            expectation(description: "Observable completed"),
             expectation(description: "Event 2 is not emitted"),
         ]
-        expectations[1].isInverted = true
+        expectations[2].isInverted = true
         let pub = BasePublisher<Int>()
-        let subscription = pub.asObservable()
+        _ = pub.asObservable()
             .takeWhile { $0 < 2 }
             .subscribe { event in
                 if event == 1 {
                     expectations[0].fulfill()
                 } else if event == 2 {
-                    expectations[1].fulfill()
+                    expectations[2].fulfill()
                 }
+            } onComplete: {
+                expectations[1].fulfill()
             }
         pub.publish(1)
-        XCTAssertFalse(subscription.isDisposed)
         pub.publish(2)
-        XCTAssertTrue(subscription.isDisposed)
         waitForDefaultTimeout()
     }
 
-    func test_subscription_is_disposed_immediately_when_condition_is_not_met_inclusive() {
+    func test_subscription_is_completed_immediately_when_condition_is_not_met_inclusive() {
         let expectations = [
             expectation(description: "Event 1 is emitted only once"),
             expectation(description: "Event 2 is emitted"),
+            expectation(description: "Observable completed"),
         ]
         let pub = BasePublisher<Int>()
-        let subscription = pub.asObservable()
+        _ = pub.asObservable()
             .takeWhile({ $0 < 2 }, inclusive: true)
             .subscribe { event in
                 if event == 1 {
@@ -196,37 +198,40 @@ final class OperatorsTakeWhileTests: XCTestCase {
                 } else if event == 2 {
                     expectations[1].fulfill()
                 }
+            } onComplete: {
+                expectations[2].fulfill()
             }
         pub.publish(1)
-        XCTAssertFalse(subscription.isDisposed)
         pub.publish(2)
-        XCTAssertTrue(subscription.isDisposed)
         waitForDefaultTimeout()
     }
 
-    func test_takeWhile_disposes_subscription_when_upstream_is_disposed() {
+    func test_takeWhile_completes_when_upstream_is_completed() {
+        let completed = expectation(description: "Observable completed")
         let observable = Observables.just(1, 2, 3)
             .takeWhile { $0 < 10 }
 
-        let disposable = observable.subscribe { _ in }
-
-        XCTAssertTrue(disposable.isDisposed)
+        _ = observable.subscribe { _ in
+        } onComplete: {
+            completed.fulfill()
+        }
+        waitForDefaultTimeout()
     }
 
-    func test_takeWhile_disposes_subscription_after_emitting_last_value() {
+    func test_takeWhile_completes_after_emitting_last_value() {
         let emitted = expectation(description: "Events emitted until the end")
-        let disposed = expectation(description: "Disposable disposed")
+        let completed = expectation(description: "Observable completed")
         let subject = Subject<Int>()
         let observable = subject.asObservable()
             .takeWhile({ _ in false }, inclusive: true)
         observable.subscribe { res in
             XCTAssertEqual(res, 1)
             emitted.fulfill()
-        }.onDispose {
-            disposed.fulfill()
+        } onComplete: {
+            completed.fulfill()
         }
         subject.publish(1)
-        wait(for: [emitted, disposed], timeout: Self.defaultTimeout, enforceOrder: true)
+        wait(for: [emitted, completed], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_takeWhile_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {

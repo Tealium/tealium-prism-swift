@@ -41,15 +41,16 @@ public class ReplaySubject<Element>: Subject<Element> {
 
     /// Returns an observable that replays cached elements to new subscribers.
     public override func asObservable() -> Observable<Element> {
-        Observable { observer in
-            let cache = self.cache
-            defer {
-                for element in cache {
-                    observer(element)
-                }
+        Observables.create { observer in
+            for element in self.cache {
+                observer.onNext(element)
             }
             return super.asObservable().subscribe(observer)
         }
+    }
+
+    public override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+        asObservable().subscribe(observer)
     }
 
     /// Publishes an element and adds it to the cache.

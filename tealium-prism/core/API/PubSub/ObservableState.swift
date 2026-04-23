@@ -16,6 +16,7 @@ import Foundation
 public class ObservableState<Element>: Observable<Element> {
     typealias Element = Element
     private let valueProvider: () -> Element
+    private let subscriptionHandler: SubscriptionHandler
     /// The current state of this `Observable`
     public var value: Element {
         valueProvider()
@@ -23,13 +24,18 @@ public class ObservableState<Element>: Observable<Element> {
 
     init(valueProvider: @autoclosure @escaping () -> Element, subscriptionHandler: @escaping SubscriptionHandler) {
         self.valueProvider = valueProvider
-        super.init(subscriptionHandler)
+        self.subscriptionHandler = subscriptionHandler
+    }
+
+    public override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+        subscriptionHandler(observer)
     }
 
     /// Creates an `ObservableState` which can not emit other events, therefore keeping it's value constant.
     public class func constant(_ value: Element) -> ObservableState<Element> {
         ObservableState<Element>(valueProvider: value) { observer in
             observer(value)
+            observer.onComplete()
             return Disposables.disposed()
         }
     }

@@ -5,7 +5,7 @@
 //  Copyright © 2026 Tealium, Inc. All rights reserved.
 //
 
-import TealiumPrism
+@testable import TealiumPrism
 import XCTest
 
 extension XCTestCase {

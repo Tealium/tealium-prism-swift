@@ -10,8 +10,6 @@ import Foundation
 
 /// A `Subscribable` implementation whereby only a single result is expected to be emitted to the subscriber.
 public protocol Single<Element>: Subscribable {
-    @discardableResult
-    func subscribe(_ observer: @escaping Observer) -> any Disposable
 }
 
 extension Result: ErrorExtractor {

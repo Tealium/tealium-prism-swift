@@ -19,7 +19,7 @@ class MockBackgroundTaskStarter: BackgroundTaskStarter {
     }
 
     override func startBackgroundTask(withName name: String? = nil) -> Observable<Bool> {
-        Observable<Bool> { [_onBackgroundTaskStarted] observer in
+        Observables.create { [_onBackgroundTaskStarted] observer in
             _onBackgroundTaskStarted.publishIfChanged(false)
             return super.startBackgroundTask(withName: name)
                 .subscribe { ongoing in

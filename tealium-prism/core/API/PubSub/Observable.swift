@@ -8,26 +8,21 @@
 
 import Foundation
 
-/// A class that allows to subscribe for events until the returned subscription is disposed.
+/// An abstract class that allows to subscribe for events until the returned subscription is disposed.
+///
+/// Subclasses must override `subscribe(_:)` to provide the subscription behavior.
+/// For a callback-style observable, use `Observables.create` and provide a `SubscriptionHandler`.
 public class Observable<Element>: Subscribable {
-    /// A handler called upon subscription to an observable with the observer.
-    public typealias SubscriptionHandler = (@escaping Observer) -> Disposable
-    private let subscriptionHandler: SubscriptionHandler
+    /// A handler called upon subscription to an observable with the given observer.
+    public typealias SubscriptionHandler = (any Observer<Element>) -> Disposable
 
-    init(_ subscribe: @escaping SubscriptionHandler) {
-        self.subscriptionHandler = subscribe
-    }
+    init() {}
 
-    public func subscribe(_ observer: @escaping Observer) -> Disposable {
-        var isDisposed = false
-        let observer = { element in
-            guard !isDisposed else { return }
-            observer(element)
-        }
-        return subscriptionHandler(observer)
-            .onDispose {
-                isDisposed = true
-            }
+    /// Subscribes an `Observer` to receive elements and completion.
+    /// Must be overridden by subclasses.
+    @discardableResult
+    public func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+        fatalError("Observable.subscribe(_:) must be overridden by subclasses")
     }
 }
 
@@ -41,7 +36,7 @@ public extension Observable {
      * - returns: a `Disposable` that can be used to dispose this observer before the first event is sent to the observer, in case it's not needed any longer.
      */
     @discardableResult
-    func subscribeOnce(_ observer: @escaping Observer) -> Disposable {
+    func subscribeOnce(_ observer: @escaping (Element) -> Void) -> Disposable {
         first().subscribe(observer)
     }
 }

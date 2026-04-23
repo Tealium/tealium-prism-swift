@@ -29,7 +29,7 @@ class CMPConfigurationSelector {
             return ConsentInspector(configuration: configuration,
                                     decision: decision,
                                     allPurposes: cmpAdapter.allPurposes)
-        }.subscribe(subject: inspectorState)
+        }.subscribe(inspectorState)
             .addTo(disposer)
         self.consentInspector = inspectorState.asObservableState()
     }

@@ -19,7 +19,7 @@ class ModuleStore: DataStore {
     init(repository: KeyValueRepository, onDataExpired: Observable<[String: DataItem]>) {
         self.repository = repository
         onDataExpired.map { expiredData in expiredData.keys.map { String($0) } }
-            .subscribe(subject: _onDataRemoved)
+            .subscribe(_onDataRemoved)
             .addTo(disposer)
     }
 

@@ -82,7 +82,7 @@ class SettingsManager {
                                    "Applying settings:\n\(settings)")
                 return SDKSettings(settings)
             }
-            .subscribe(subject: _settings)
+            .subscribe(_settings)
             .addTo(automaticDisposer)
         onNewRefreshInterval()
             .subscribe { interval in

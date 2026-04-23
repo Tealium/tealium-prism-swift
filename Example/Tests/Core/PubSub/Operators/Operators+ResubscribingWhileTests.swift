@@ -37,7 +37,7 @@ final class OperatorsResubscribingTests: XCTestCase {
         let eventsPublished = expectation(description: "Events are published")
         eventsPublished.expectedFulfillmentCount = 2
         var eventCount = 0
-        _ = Observable { observer in
+        _ = Observables.create { observer in
             let subscription = Disposables.composite()
             if eventCount < 2 {
                 DispatchQueue.main.async {
@@ -62,7 +62,7 @@ final class OperatorsResubscribingTests: XCTestCase {
         let subscribeCalled = expectation(description: "Subscribe block is called")
         subscribeCalled.expectedFulfillmentCount = 2
         var eventCount = 0
-        _ = Observable { observer in
+        _ = Observables.create { observer in
             subscribeCalled.fulfill()
             let subscription = Disposables.composite()
             if eventCount < 2 {
@@ -85,7 +85,7 @@ final class OperatorsResubscribingTests: XCTestCase {
         let disposeCalled = expectation(description: "Dispose subscription is called on every event")
         disposeCalled.expectedFulfillmentCount = 2
         var eventCount = 0
-        _ = Observable { observer in
+        _ = Observables.create { observer in
             if eventCount < 2 {
                 DispatchQueue.main.async {
                     eventCount += 1
@@ -101,12 +101,16 @@ final class OperatorsResubscribingTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_resubscribingWhile_disposes_subscription_when_upstream_is_disposed() {
+    func test_resubscribingWhile_completes_subscription_when_upstream_is_completed() {
+        let completed = expectation(description: "Observable completed")
         let observable: Observable<Void> = Observables.empty().resubscribingWhile { _ in true }
 
-        let disposable = observable.subscribe { _ in }
+        _ = observable.subscribe { _ in }
+        onComplete: {
+            completed.fulfill()
+        }
 
-        XCTAssertTrue(disposable.isDisposed)
+        waitForDefaultTimeout()
     }
 
     func test_resubscribingWhile_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {

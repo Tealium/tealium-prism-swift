@@ -17,7 +17,7 @@ class SingleImpl<Element>: Single {
     }
 
     @discardableResult
-    func subscribe(_ observer: @escaping Observer) -> any Disposable {
+    func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
         subscribable.subscribe(observer)
     }
 }

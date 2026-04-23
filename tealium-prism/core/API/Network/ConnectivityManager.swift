@@ -52,7 +52,7 @@ public class ConnectivityManager: ConnectivityManagerProtocol, RequestIntercepto
                 }
             }.distinct()
             .subscribeOn(queue)
-            .subscribe(subject: _connectionAssumedAvailable)
+            .subscribe(_connectionAssumedAvailable)
             .addTo(automaticDisposer)
     }
 

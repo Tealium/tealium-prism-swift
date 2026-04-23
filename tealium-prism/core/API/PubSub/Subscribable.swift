@@ -19,27 +19,31 @@ public protocol ObservableConvertible<Element> {
 
 /// A protocol to provide all observable-like classes some utilities like subscribeOnce or the operators.
 public protocol Subscribable<Element>: ObservableConvertible {
-    /// A callback to receive the values you subscribed to.
-    typealias Observer = (Element) -> Void
+    /// Subscribes an `Observer` to receive elements and completion.
+    @discardableResult
+    func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable
+}
+
+public extension Subscribable {
 
     /**
      * Subscribe a callback to receive the `Element`.
      *
-     * - parameter observer: The callback called with the `Element`,
+     * - parameter onNext: The callback called with the `Element`.
+     * - parameter onComplete: The callback called once when the upstream source completes. Not invoked on external disposal.
      * - returns: A `Disposable` that can be disposed to stop the observer from being called.
      */
-    func subscribe(_ observer: @escaping Observer) -> any Disposable
-}
-
-public extension Subscribable {
-    func asObservable() -> Observable<Element> {
-        Observable<Element> { observer in self.subscribe(observer) }
+    @discardableResult
+    func subscribe(_ onNext: @escaping (Element) -> Void, onComplete: @escaping () -> Void = { }) -> any Disposable {
+        let observer = AnonymousObserver(onNext: onNext, onComplete: onComplete)
+        let upstream = self.subscribe(observer)
+        return Disposables.composite(onDispose: {
+            observer.stop()
+            upstream.dispose()
+        })
     }
 
-    /// Subscribe a `Subject` to this `Subscribable`.
-    func subscribe(subject: Subject<Element>) -> any Disposable {
-        subscribe { element in
-            subject.publish(element)
-        }
+    func asObservable() -> Observable<Element> {
+        Observables.create { observer in self.subscribe(observer) }
     }
 }

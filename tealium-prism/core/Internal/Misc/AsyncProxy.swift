@@ -61,7 +61,7 @@ class AsyncProxy<Object: AnyObject, Failure: Error> {
             }
         })
         SingleImpl(observable: observable, queue: queue)
-            .subscribe(subject: replay)
+            .subscribe(replay)
             .addTo(disposer)
         return replay.asObservable().asSingle(queue: queue)
     }

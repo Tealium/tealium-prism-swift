@@ -95,23 +95,24 @@ final class OperatorsCombineLatestTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_combineLatest_disposes_subscription_when_both_upstreams_are_disposed() {
+    func test_combineLatest_completes_when_both_upstreams_are_completed() {
         let subject = Subject<Int>()
         let eventEmitted = expectation(description: "Event is emitted")
+        let observableCompleted = expectation(description: "Observable completed")
         let observable = subject.asObservable()
             .first()
             .combineLatest(Observables.just(1))
 
-        let disposable = observable.subscribe { res in
+        _ = observable.subscribe { res in
             eventEmitted.fulfill()
             XCTAssertEqual(res.0, 1)
             XCTAssertEqual(res.1, 1)
+        } onComplete: {
+            observableCompleted.fulfill()
         }
         subject.publish(1)
         subject.publish(2)
-
-        XCTAssertTrue(disposable.isDisposed)
-        waitForDefaultTimeout()
+        wait(for: [eventEmitted, observableCompleted], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_combineLatest_does_not_dispose_subscription_if_upstream_is_not_disposed() {

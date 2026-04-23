@@ -46,4 +46,49 @@ class SubjectTests: XCTestCase {
         publisher.publish(2)
         waitForDefaultTimeout()
     }
+
+    func test_complete_notifies_existing_subscribers() {
+        let completed = expectation(description: "onComplete is received")
+        let subject = Subject<Int>()
+        _ = subject.subscribe { _ in } onComplete: {
+            completed.fulfill()
+        }
+        subject.complete()
+        waitForDefaultTimeout()
+    }
+
+    func test_publish_after_complete_is_ignored() {
+        let eventReceived = expectation(description: "Event is NOT received after complete")
+        eventReceived.isInverted = true
+        let subject = Subject<Int>()
+        _ = subject.subscribe { _ in
+            eventReceived.fulfill()
+        }
+        subject.complete()
+        subject.publish(1)
+        waitForDefaultTimeout()
+    }
+
+    func test_subscribing_to_completed_subject_immediately_receives_onComplete() {
+        let completed = expectation(description: "onComplete is received immediately")
+        let subject = Subject<Int>()
+        subject.complete()
+        _ = subject.subscribe { _ in } onComplete: {
+            completed.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_complete_is_idempotent() {
+        let completed = expectation(description: "onComplete is received once")
+        completed.expectedFulfillmentCount = 1
+        completed.assertForOverFulfill = true
+        let subject = Subject<Int>()
+        _ = subject.subscribe { _ in } onComplete: {
+            completed.fulfill()
+        }
+        subject.complete()
+        subject.complete()
+        waitForDefaultTimeout()
+    }
 }

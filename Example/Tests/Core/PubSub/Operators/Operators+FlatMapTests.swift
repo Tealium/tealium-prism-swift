@@ -142,10 +142,11 @@ final class OperatorsFlatMapTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_flatMap_disposes_after_upstream_and_all_of_downstreams_have_disposed() {
+    func test_flatMap_completes_after_upstream_and_all_of_downstreams_have_completed() {
         let subject = Subject<Int>()
         let eventEmitted = expectation(description: "Event is emitted")
         eventEmitted.expectedFulfillmentCount = 2
+        let completed = expectation(description: "FlatMap completed")
         let observable0 = subject.asObservable()
         let observable1 = subject.asObservable().first(where: { $0 == 3 })
         let observable2 = subject.asObservable().first()
@@ -160,34 +161,35 @@ final class OperatorsFlatMapTests: XCTestCase {
                 }
             }
 
-        let disposable = observable.subscribe { res in
+        _ = observable.subscribe { res in
             eventEmitted.fulfill()
             XCTAssertEqual(res, 3)
+        } onComplete: {
+            completed.fulfill()
         }
         subject.publish(1)
         subject.publish(2)
-        XCTAssertFalse(disposable.isDisposed)
-
         subject.publish(3)
-        XCTAssertTrue(disposable.isDisposed)
         waitForDefaultTimeout()
     }
 
-    func test_flatMap_disposes_subscription_when_upstream_and_downstream_are_disposed() {
+    func test_flatMap_completes_when_upstream_and_downstream_have_completed() {
         let subject = Subject<Int>()
         let eventEmitted = expectation(description: "Event is emitted")
+        let completed = expectation(description: "Observable completed")
         let observable = subject.asObservable()
             .first()
             .flatMap { Observables.just($0 + $0) }
 
-        let disposable = observable.subscribe { res in
+        _ = observable.subscribe { res in
             eventEmitted.fulfill()
             XCTAssertEqual(res, 2)
+        } onComplete: {
+            completed.fulfill()
         }
         subject.publish(1)
         subject.publish(5)
 
-        XCTAssertTrue(disposable.isDisposed)
         waitForDefaultTimeout()
     }
 
@@ -228,9 +230,10 @@ final class OperatorsFlatMapTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_flatMapLatest_disposes_after_upstream_and_all_of_downstreams_have_disposed() {
+    func test_flatMapLatest_completes_after_upstream_and_all_of_downstreams_have_completed() {
         let subject = Subject<Int>()
         let eventEmitted = expectation(description: "Event is emitted")
+        let completed = expectation(description: "Observable completed")
         let observable0 = subject.asObservable()
         let observable1 = subject.asObservable().first(where: { $0 == 3 })
         let observable2 = subject.asObservable().first()
@@ -245,34 +248,34 @@ final class OperatorsFlatMapTests: XCTestCase {
                 }
             }
 
-        let disposable = observable.subscribe { res in
+        _ = observable.subscribe { res in
             eventEmitted.fulfill()
             XCTAssertEqual(res, 3)
+        } onComplete: {
+            completed.fulfill()
         }
         subject.publish(1)
         subject.publish(2)
-        XCTAssertFalse(disposable.isDisposed)
-
         subject.publish(3)
-        XCTAssertTrue(disposable.isDisposed)
         waitForDefaultTimeout()
     }
 
-    func test_flatMapLatest_disposes_subscription_when_upstream_and_downstream_are_disposed() {
+    func test_flatMapLatest_completes_when_upstream_and_downstream_have_completed() {
         let subject = Subject<Int>()
         let eventEmitted = expectation(description: "Event is emitted")
+        let completed = expectation(description: "Observable completed")
         let observable = subject.asObservable()
             .first()
             .flatMapLatest { Observables.just($0 + $0) }
 
-        let disposable = observable.subscribe { res in
+        _ = observable.subscribe { res in
             eventEmitted.fulfill()
             XCTAssertEqual(res, 2)
+        } onComplete: {
+            completed.fulfill()
         }
         subject.publish(1)
         subject.publish(2)
-
-        XCTAssertTrue(disposable.isDisposed)
         waitForDefaultTimeout()
     }
 
@@ -282,6 +285,37 @@ final class OperatorsFlatMapTests: XCTestCase {
 
     func test_flatMapLatest_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
         assertNoEmissionAfterSideEffectDisposal { $0.flatMapLatest { Observables.just($0) } }
+    }
+
+    /// Exercises the while-loop in `FlatMapLatestObserver.onNext`: each inner observable,
+    /// on subscribe, synchronously republishes upstream before emitting. The loop must
+    /// drain `latestElement` across every re-entry so all three inner subscriptions run
+    /// in sequence without the operator losing or duplicating events.
+    func test_flatMapLatest_handles_reentrant_synchronous_republish_from_inner_subscription() {
+        let emitted = expectation(description: "Each inner subscription emits once")
+        emitted.expectedFulfillmentCount = 3
+        let completed = expectation(description: "Observable completed")
+        let subject = Subject<Int>()
+        var received = [Int]()
+        _ = subject.asObservable().flatMapLatest { value -> Observable<Int> in
+            Observables.create { observer in
+                if value < 3 {
+                    subject.publish(value + 1)
+                }
+                observer.onNext(value * 10)
+                observer.onComplete()
+                return Disposables.disposed()
+            }
+        }.subscribe { value in
+            received.append(value)
+            emitted.fulfill()
+        } onComplete: {
+            completed.fulfill()
+        }
+        subject.publish(1)
+        subject.onComplete()
+        waitForDefaultTimeout()
+        XCTAssertEqual(received, [10, 20, 30])
     }
 
 }
