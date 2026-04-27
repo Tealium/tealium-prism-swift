@@ -37,7 +37,7 @@ public class JavaScriptTransformationSettingsBuilder: TransformationSettingsBuil
     /// Sets the JavaScript code to execute against each dispatch payload.
     ///
     /// Beyond `payload`, the JS environment exposes additional globals: `scope`, `track(...)`, `drop()`,
-    /// `dataLayer`, `network`, `console`, and `Expiry`. See [`Modules.javaScriptTransformer(forcingSettings:)`](doc:Modules/javaScriptTransformer(forcingSettings:))
+    /// `dataLayer`, `console`, and `Expiry`. See [`Modules.javaScriptTransformer(forcingSettings:)`](doc:Modules/javaScriptTransformer(forcingSettings:))
     /// for the full list and description of each global.
     ///
     /// - Parameter code: A JavaScript code string.

@@ -15,7 +15,6 @@ final class JavaScriptTransformerTests: XCTestCase {
                                                  modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
     let mockTracker = MockTracker()
     let mockLogger = MockLogger()
-    let mockNetwork = MockNetworkHelper()
     var dataLayer: (any DataStore)!
     var transformer: JavaScriptTransformer!
 
@@ -23,8 +22,7 @@ final class JavaScriptTransformerTests: XCTestCase {
         dataLayer = try storeProvider.getModuleStore(name: "testJSTransformer")
         transformer = JavaScriptTransformer(tracker: mockTracker,
                                             dataLayer: dataLayer,
-                                            logger: mockLogger,
-                                            networkHelper: mockNetwork)
+                                            logger: mockLogger)
     }
 
     // MARK: - Identity
@@ -289,71 +287,6 @@ final class JavaScriptTransformerTests: XCTestCase {
         transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertNotNil(result)
             completionExpectation.fulfill()
-        }
-        waitForDefaultTimeout()
-    }
-
-    // MARK: - Network
-
-    func test_applyTransformation_network_get_sends_request_with_correct_url() {
-        let dispatch = Dispatch(name: "test", data: [:])
-        let settings = buildSettings(jsCode: "network.get('https://example.com', function() {})")
-        let networkExpectation = expectation(description: "GET request sent")
-        mockNetwork.requests.subscribeOnce { request in
-            guard case .get(let url, _, _) = request else {
-                XCTFail("Expected GET request")
-                return
-            }
-            XCTAssertEqual(url as? String, "https://example.com")
-            networkExpectation.fulfill()
-        }
-        let completionExpectation = expectation(description: "Transformation completes")
-        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { _ in
-            completionExpectation.fulfill()
-        }
-        waitForDefaultTimeout()
-    }
-
-    func test_applyTransformation_network_get_callback_is_invoked() {
-        let dispatch = Dispatch(name: "test", data: [:])
-        let settings = buildSettings(jsCode: "network.get('https://example.com', function(status) { payload.called = true })")
-        let expectation = expectation(description: "Network GET callback mutates payload")
-        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
-            let called: Bool? = result?.payload.get(key: "called")
-            XCTAssertEqual(called, true)
-            expectation.fulfill()
-        }
-        waitForDefaultTimeout()
-    }
-
-    func test_applyTransformation_network_post_sends_request_with_correct_url_and_body() {
-        let dispatch = Dispatch(name: "test", data: [:])
-        let settings = buildSettings(jsCode: "network.post('https://example.com', {foo: 'bar'}, function() {})")
-        let networkExpectation = expectation(description: "POST request sent")
-        mockNetwork.requests.subscribeOnce { request in
-            guard case .post(let url, let body, _) = request else {
-                XCTFail("Expected POST request")
-                return
-            }
-            XCTAssertEqual(url as? String, "https://example.com")
-            XCTAssertEqual(body.get(key: "foo"), "bar")
-            networkExpectation.fulfill()
-        }
-        let completionExpectation = expectation(description: "Transformation completes")
-        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { _ in
-            completionExpectation.fulfill()
-        }
-        waitForDefaultTimeout()
-    }
-
-    func test_applyTransformation_network_post_callback_is_invoked() {
-        let dispatch = Dispatch(name: "test", data: [:])
-        let settings = buildSettings(jsCode: "network.post('https://example.com', {}, function(status) { payload.called = true })")
-        let expectation = expectation(description: "Network POST callback mutates payload")
-        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
-            let called: Bool? = result?.payload.get(key: "called")
-            XCTAssertEqual(called, true)
-            expectation.fulfill()
         }
         waitForDefaultTimeout()
     }

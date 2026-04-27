@@ -85,16 +85,16 @@ class TealiumHelper {
                 .setOrder(2)
         )
 
-        config.setTransformation(
-            JavaScriptTransformationSettingsBuilder(id: "make-http-request")
-                .setJsCode("""
-                        network.get('https://jsonplaceholder.typicode.com/todos/1', (status, data, headers) => {
-                            console.log('JS Request status code: ' + status + ' - Data: ' + JSON.stringify(data, null, 2))
-                        })
-                        """)
-                .setScope(.afterCollectors)
-                .setOrder(1)
-        )
+//        config.setTransformation(
+//            JavaScriptTransformationSettingsBuilder(id: "make-http-request")
+//                .setJsCode("""
+//                        network.get('https://jsonplaceholder.typicode.com/todos/1', (status, data, headers) => {
+//                            console.log('JS Request status code: ' + status + ' - Data: ' + JSON.stringify(data, null, 2))
+//                        })
+//                        """)
+//                .setScope(.afterCollectors)
+//                .setOrder(1)
+//        )
 
         config.setTransformation(
             JavaScriptTransformationSettingsBuilder(id: "js-drop")
