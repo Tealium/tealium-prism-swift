@@ -1,5 +1,5 @@
 //
-//  CommandNamed.swift
+//  CommandName.swift
 //  tealium-prism
 //
 //  Created by Sebastian Krajna on 23/03/2026.
@@ -12,10 +12,10 @@ import Foundation
 ///
 /// Used as the `Command` generic constraint in `CommandMappingsBuilder`
 /// to allow type-safe command mapping without requiring `RawRepresentable`.
-public protocol CommandNamed {
+public protocol CommandName {
     var commandName: String { get }
 }
 
-public extension CommandNamed where Self: RawRepresentable, RawValue == String {
+public extension CommandName where Self: RawRepresentable, RawValue == String {
     var commandName: String { rawValue }
 }
