@@ -51,6 +51,17 @@ final class DataLayerWrapperTests: BaseDataLayerWrapperTests {
         waitOnQueue(queue: queue)
     }
 
+    func test_put_and_dispose_disposes_callback() {
+        let notCompleted = expectation(description: "Not completed")
+        notCompleted.isInverted = true
+        let disposable = wrapper.put(key: "key", value: "value").onSuccess {
+            notCompleted.fulfill()
+        }
+        disposable.dispose()
+        waitOnQueue(queue: queue)
+        XCTAssertTrue(disposable.isDisposed)
+    }
+
     func test_put_and_remove_multiple_values() {
         let completionCalled = expectation(description: "Completion is called")
         completionCalled.expectedFulfillmentCount = 2

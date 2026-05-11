@@ -9,6 +9,15 @@
 import Foundation
 @testable import TealiumPrism
 
+/// Duplicated extension to provide asObservable utility to tests.
+extension Subscribable {
+    /// Not thread safe to chain operators on the `Observable` returned by this method, when it's used on Single or the object returned from `subscribeOn`.
+    /// Use only when the `queue` passed to `Single` or `subscribeOn` is the same as the one in which we are actually subscribing.
+    func asObservable() -> Observable<Element> {
+        Observables.create { observer in self.subscribe(observer) }
+    }
+}
+
 class SubscriptionRetainCycleHelper<P: Subscribable>: DeinitTester {
 
     let anyPublisher: P

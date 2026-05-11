@@ -21,7 +21,8 @@ protocol LinkableObserver<Element>: UpstreamLinkable, Observer {}
 
 class UpstreamLinkableImpl: UpstreamLinkable {
     private var upstream: (any Disposable)?
-    private(set) var isDisposed = false
+
+    private(set) var isDisposed: Bool = false
 
     func setUpstream(_ disposable: any Disposable) {
         if isDisposed {

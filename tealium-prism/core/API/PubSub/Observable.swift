@@ -12,7 +12,7 @@ import Foundation
 ///
 /// Subclasses must override `subscribe(_:)` to provide the subscription behavior.
 /// For a callback-style observable, use `Observables.create` and provide a `SubscriptionHandler`.
-public class Observable<Element>: Subscribable {
+public class Observable<Element>: Subscribable, ObservableConvertible {
     /// A handler called upon subscription to an observable with the given observer.
     public typealias SubscriptionHandler = (any Observer<Element>) -> Disposable
 

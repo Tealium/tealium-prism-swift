@@ -13,12 +13,13 @@ public protocol ObservableConvertible<Element> {
     /// The type of element emitted by this subscribable.
     associatedtype Element
 
-    /// Convert the current object to an `Observable`
+    /// Convert the current object to an `Observable`.
     func asObservable() -> Observable<Element>
 }
 
 /// A protocol to provide all observable-like classes some utilities like subscribeOnce or the operators.
-public protocol Subscribable<Element>: ObservableConvertible {
+public protocol Subscribable<Element> {
+    associatedtype Element
     /// Subscribes an `Observer` to receive elements and completion.
     @discardableResult
     func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable
@@ -37,12 +38,12 @@ public extension Subscribable {
     func subscribe(_ onNext: @escaping (Element) -> Void, onComplete: @escaping () -> Void = { }) -> any Disposable {
         let observer = AnonymousObserver(onNext: onNext, onComplete: onComplete)
         let upstream = self.subscribe(observer)
-        return Disposables.composite(onDispose: {
-            observer.stop()
-            upstream.dispose()
-        })
+        observer.setUpstream(upstream)
+        return observer
     }
+}
 
+public extension ObservableConvertible where Self: Subscribable {
     func asObservable() -> Observable<Element> {
         Observables.create { observer in self.subscribe(observer) }
     }

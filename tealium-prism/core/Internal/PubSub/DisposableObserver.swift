@@ -14,7 +14,7 @@ class DisposableObserver<O: Observer<Element>, Element>: LinkableObserver {
     private var downstream: O?
     private let linkable = UpstreamLinkableImpl()
 
-    private(set) var isStopped = false
+    private(set) var isCompleted = false
 
     var isDisposed: Bool { linkable.isDisposed }
 
@@ -23,13 +23,13 @@ class DisposableObserver<O: Observer<Element>, Element>: LinkableObserver {
     }
 
     func onNext(_ element: Element) {
-        guard !isStopped else { return }
+        guard !isCompleted && !isDisposed  else { return }
         downstream?.onNext(element)
     }
 
     func onComplete() {
-        guard !isStopped else { return }
-        isStopped = true
+        guard !isCompleted && !isDisposed else { return }
+        isCompleted = true
         downstream?.onComplete()
         dispose()
     }
@@ -44,9 +44,9 @@ class DisposableObserver<O: Observer<Element>, Element>: LinkableObserver {
     func add(_ disposable: any Disposable) -> Self { self }
 
     func dispose() {
-        isStopped = true
-        downstream = nil
+        guard !isDisposed else { return }
         linkable.dispose()
+        downstream = nil
     }
 }
 

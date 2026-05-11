@@ -121,9 +121,12 @@ class SettingsManager {
     }
 
     static func onShouldRequestRefresh(_ onActivity: any Subscribable<ApplicationStatus>) -> Observable<Void> {
-        onActivity
-            .asObservable()
-            .filter { $0.type == .foregrounded }
+        Observables.create { observer in
+            // `Observables.create` instead of `asObservable` because of Subscribable input.
+            // This is safe because the underlying `Observable` is adding `subscribeOn` only for tests.
+            // In production it will subscribeOn the same thread it already is, so no races are possible.
+            onActivity.subscribe(observer)
+        }.filter { $0.type == .foregrounded }
             .map { _ in () }
             .startWith(())
     }
