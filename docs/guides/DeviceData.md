@@ -30,7 +30,6 @@ The DeviceData module collects the following information:
 | Resolution | `device_resolution` | Physical screen resolution | Screen info |
 | Logical Resolution | `device_logical_resolution` | Logical screen resolution | Screen info |
 | **Memory Data (Optional)** | | | |
-| App Memory Usage | `app_memory_usage` | Current app memory usage | System info |
 | Memory Active | `memory_active` | Active memory | System info |
 | Memory Free | `memory_free` | Free memory | System info |
 | Memory Inactive | `memory_inactive` | Inactive memory | System info |

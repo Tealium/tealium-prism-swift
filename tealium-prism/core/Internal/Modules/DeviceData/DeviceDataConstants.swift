@@ -26,7 +26,6 @@ enum DeviceDataKey {
     static let batteryPercent = "device_battery_percent"
     static let isCharging = "device_ischarging"
     static let language = "device_language"
-    static let appMemoryUsage = "app_memory_usage"
     static let memoryActive = "memory_active"
     static let memoryFree = "memory_free"
     static let memoryInactive = "memory_inactive"

@@ -53,8 +53,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
     func test_collect_returns_data_with_memory_usage_when_enabled() {
         _configuration.value = [Keys.memoryReportingEnabled: true]
         let collected = deviceDataCollector.collect(dispatchContext).asDictionary()
-        XCTAssertEqual(collected.count, 16)
-        XCTAssertNotNil(collected[DeviceDataKey.appMemoryUsage])
+        XCTAssertEqual(collected.count, 15)
         XCTAssertNotNil(collected[DeviceDataKey.memoryActive])
         XCTAssertNotNil(collected[DeviceDataKey.memoryCompressed])
         XCTAssertNotNil(collected[DeviceDataKey.memoryFree])

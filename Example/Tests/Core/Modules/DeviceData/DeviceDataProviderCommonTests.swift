@@ -42,8 +42,7 @@ final class DeviceDataProviderCommonTests: XCTestCase {
 
     func test_memoryUsage() {
         let memoryUsage = deviceDataProvider.memoryUsage
-        XCTAssertEqual(memoryUsage.count, 7)
-        XCTAssertNotNil(memoryUsage[DeviceDataKey.appMemoryUsage])
+        XCTAssertEqual(memoryUsage.count, 6)
         XCTAssertNotNil(memoryUsage[DeviceDataKey.memoryActive])
         XCTAssertNotNil(memoryUsage[DeviceDataKey.memoryCompressed])
         XCTAssertNotNil(memoryUsage[DeviceDataKey.memoryFree])
