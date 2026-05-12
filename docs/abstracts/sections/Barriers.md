@@ -31,8 +31,8 @@ Barriers can be applied to different scopes within the dispatch pipeline:
 
 ```swift
 public enum BarrierScope {
-    case all                    // Apply to all dispatchers
-    case dispatcher(id: String) // Apply only to specific dispatcher
+    case all                       // Apply to all dispatchers
+    case dispatchers([String])     // Apply only to the dispatchers with the given IDs
 }
 ```
 
@@ -64,7 +64,7 @@ You can add Batching Barrier with no enforced settings - it will be scoped to Co
 ```swift
 config.addBarrier(Barriers.batching())
 ```
-The scopes and other settings can be customized as usual with Programmatic > Remote > Local configuration options.
+The scope and other settings can be customized as usual with Programmatic > Remote > Local configuration options.
 
 ### Connectivity Barrier
 
@@ -73,12 +73,12 @@ The connectivity barrier blocks dispatches when network connectivity is unavaila
 ```swift
 // Add connectivity barrier that applies to collect dispatcher only (this is default behavior)
 config.addBarrier(
-    Barriers.connectivity(defaultScopes: [.dispatcher(id: Modules.Types.collect)])
+    Barriers.connectivity()
 )
 
 // Add connectivity barrier that applies to all dispatchers
 config.addBarrier(
-    Barriers.connectivity(defaultScopes: [.all])
+    Barriers.connectivity(forcingSettings: { $0.setScope(.all) })
 )
 ```
 
@@ -98,12 +98,12 @@ The batching barrier blocks dispatches until a specified number of events have b
 ```swift
 // Add batching barrier that applies to all dispatchers
 config.addBarrier(
-    Barriers.batching(defaultScopes: [.all])
+    Barriers.batching(forcingSettings: { $0.setScope(.all) })
 )
 
 // Add batching barrier that applies to specific dispatchers
 config.addBarrier(
-    Barriers.batching(defaultScopes: [.dispatcher(id: "analytics_dispatcher")])
+    Barriers.batching(forcingSettings: { $0.setScope(.dispatchers(["analytics_dispatcher"])) })
 )
 ```
 
@@ -124,7 +124,7 @@ This example shows a simple time-based barrier that periodically opens for a bri
 
 **Important**: Barriers are used from the Tealium worker queue internally by the SDK. Always use `TealiumQueue.worker` when creating timers or performing operations that change barrier state, as using other queues might lead to crashes.
 
-**Note**: This non-configurable barrier can only be added by a custom module created by the user using the `BarrierRegistrar.registerScopedBarrier(_:scopes:)` method (see the **Runtime Barrier Management** section below). If you need to add barriers through the TealiumConfig, you should create a configurable barrier with its factory instead (see the **Configurable Barrier Implementation** section below).
+**Note**: This non-configurable barrier can only be added by a custom module created by the user using the `BarrierRegistrar.registerScopedBarrier(_:scope:)` method (see the **Runtime Barrier Management** section below). If you need to add barriers through the TealiumConfig, you should create a configurable barrier with its factory instead (see the **Configurable Barrier Implementation** section below).
 
 ```swift
 class CustomTimerBarrier: Barrier {
@@ -216,18 +216,18 @@ struct BusinessLogicSettings {
 ```swift
 extension CustomBusinessLogicBarrier {
     class Factory: BarrierFactory {
-        private let _defaultScopes: [BarrierScope]
+        private let _defaultScope: BarrierScope
         
-        init(defaultScopes: [BarrierScope]) {
-            self._defaultScopes = defaultScopes
+        init(defaultScope: BarrierScope) {
+            self._defaultScope = defaultScope
         }
         
         func create(context: TealiumContext, configuration: DataObject) -> CustomBusinessLogicBarrier {
             CustomBusinessLogicBarrier(configuration: configuration)
         }
         
-        func defaultScopes() -> [BarrierScope] {
-            _defaultScopes
+        func defaultScope() -> BarrierScope {
+            _defaultScope
         }
     }
 }
@@ -239,9 +239,9 @@ extension CustomBusinessLogicBarrier {
 
 ```swift
 // Register barrier factory during SDK initialization
-// Only scopes can be set programmatically; other settings are handled via remote/local configuration
+// Only the scope can be set programmatically; other settings are handled via remote/local configuration
 config.addBarrier(
-    CustomBusinessLogicBarrier.Factory(defaultScopes: [.all])
+    CustomBusinessLogicBarrier.Factory(defaultScope: .all)
 )
 ```
 
@@ -255,14 +255,14 @@ The barrier will receive its configuration when created by the factory.
   "barriers": {
     "ConnectivityBarrier": {
       "barrier_id": "ConnectivityBarrier",
-      "scopes": ["all"],
+      "scope": "all",
       "configuration": {
         "wifi_only": true
       }
     },
     "BatchingBarrier": {
       "barrier_id": "BatchingBarrier", 
-      "scopes": ["analytics_dispatcher", "collect_dispatcher"],
+      "scope": ["analytics_dispatcher", "collect_dispatcher"],
       "configuration": {
         "batch_size": 10
       }
@@ -270,6 +270,9 @@ The barrier will receive its configuration when created by the factory.
   }
 }
 ```
+
+**Note**: `scope` is optional in the JSON. If omitted, the barrier's factory default scope is used (see `BarrierFactory.defaultScope()`). This means you can update only `configuration` from remote/local settings without touching the scope that was set programmatically via the factory.
+
 The barriers will automatically receive `updateConfiguration()` calls when settings change.
 
 ## Runtime Barrier Management
@@ -286,7 +289,7 @@ let barrierRegistrar = context.barrierRegistrar
 let customBarrier = CustomTimerBarrier(interval: 30.0)
 barrierRegistrar.registerScopedBarrier(
     customBarrier, 
-    scopes: [.dispatcher(id: "my_dispatcher")]
+    scope: .dispatchers(["my_dispatcher"])
 )
 
 // Unregister when no longer needed
@@ -497,10 +500,10 @@ class RobustBarrier: ConfigurableBarrier {
 
 ```swift
 // Good: Connectivity barrier only for network-dependent dispatchers
-config.addBarrier(Barriers.connectivity(defaultScopes: [.dispatcher(id: "collect")]))
+config.addBarrier(Barriers.connectivity(forcingSettings: { $0.setScope(.dispatchers(["collect"])) }))
 
 // Avoid: Applying connectivity barrier to local-only dispatchers unnecessarily
-config.addBarrier(Barriers.connectivity(defaultScopes: [.all])) // if you have local-only dispatchers
+config.addBarrier(Barriers.connectivity(forcingSettings: { $0.setScope(.all) })) // if you have local-only dispatchers
 ```
 
 #### 2. Handle Configuration Gracefully
@@ -609,7 +612,7 @@ config.setLoadRule(
 
 // Barriers determine WHEN dispatches should be sent
 config.addBarrier(
-    Barriers.connectivity(defaultScopes: [.all])
+    Barriers.connectivity(forcingSettings: { $0.setScope(.all) })
 )
 ```
 
@@ -618,21 +621,21 @@ config.addBarrier(
 Barriers control dispatch timing while transformations modify dispatch content. The order of execution depends on the transformation scope:
 
 - **`.afterCollectors` scope**: Transformations happen **before** barriers are checked
-- **`.allDispatchers` and `.dispatcher(id)` scopes**: Transformations happen **after** a successful barrier check
+- **`.allDispatchers` and `.dispatchers` scopes**: Transformations happen **after** a successful barrier check
 
 ```swift
 // This transformation runs BEFORE barrier checks
 let preBarrierTransformation = TransformationSettings(
     id: "user_enrichment",
     transformerId: "enrichment_transformer",
-    scopes: [.afterCollectors]  // Runs before barriers
+    scope: .afterCollectors  // Runs before barriers
 )
 
 // This transformation runs AFTER barrier checks pass
 let postBarrierTransformation = TransformationSettings(
     id: "data_formatting",
-    transformerId: "format_transformer", 
-    scopes: [.dispatcher(id: "AnalyticsDispatcher")]  // Runs after barriers
+    transformerId: "format_transformer",
+    scope: .dispatchers(["AnalyticsDispatcher"])  // Runs after barriers
 )
 ```
 

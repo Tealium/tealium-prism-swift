@@ -33,7 +33,7 @@ class DispatchManagerTestCase: XCTestCase {
         return dispatch
     }
     lazy var transformers = StateSubject<[Transformer]>([transformer])
-    lazy var onBarriers: Observable<[ScopedBarrier]> = Observables.just([(barrier, [BarrierScope.all])])
+    lazy var onBarriers: Observable<[ScopedBarrier]> = Observables.just([(barrier, BarrierScope.all)])
     let barrier = MockBarrier()
     lazy var config = TealiumConfig(account: "test",
                                     profile: "test",

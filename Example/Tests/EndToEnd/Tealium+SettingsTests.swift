@@ -132,7 +132,7 @@ final class TealiumSettingsTests: TealiumBaseTests {
 
     func test_remote_settings_can_setup_batching_barrier() {
         config.addModule(MockDispatcher2.factory())
-        config.addBarrier(Barriers.batching(defaultScopes: []))
+        config.addBarrier(Barriers.batching(defaultScope: .dispatchers([])))
         let eventsAreDispatchedInSingleBatch = expectation(description: "Events dispatched in single batch")
         let teal = createTealium()
         MockDispatcher.onDispatch.subscribe { dispatches in
@@ -167,7 +167,7 @@ final class TealiumSettingsTests: TealiumBaseTests {
         config.addModule(MockDispatcher2.factory())
         // disable batching
         config.addBarrier(Barriers.batching(forcingSettings: { enforcedSettings in
-            enforcedSettings.setScopes([])
+            enforcedSettings.setScope(.dispatchers([]))
         }))
         MockDispatcher.onDispatch.subscribe { dispatches in
             for dispatch in dispatches {

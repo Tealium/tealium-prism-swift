@@ -122,7 +122,7 @@ final class SDKSettingsTests: XCTestCase {
             "barriers": try DataItem(serializing: [
                 "barrierId": [
                     "barrier_id": "barrierId",
-                    "scopes": ["all"],
+                    "scope": "all",
                     "configuration": [
                         "key": "value"
                     ]
@@ -135,7 +135,7 @@ final class SDKSettingsTests: XCTestCase {
             return
         }
         XCTAssertEqual(barrier.barrierId, "barrierId")
-        XCTAssertEqual(barrier.scopes, [.all])
+        XCTAssertEqual(barrier.scope, .all)
         XCTAssertEqual(barrier.configuration, ["key": "value"])
     }
 }

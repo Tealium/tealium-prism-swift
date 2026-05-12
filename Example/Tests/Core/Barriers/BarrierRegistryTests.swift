@@ -29,16 +29,16 @@ final class BarrierRegistryTests: XCTestCase {
         XCTAssertTrue(Set(installedBarriers).isSubset(of: defaultBarriersIds))
     }
 
-    func test_default_scopes_of_installed_barriers() {
+    func test_default_scope_of_installed_barriers() {
         let defaultBarriers = registry.defaultBarriers
         let connectivityFactory = defaultBarriers.first { $0.id == installedBarriers[0] }
         let batchingFactory = defaultBarriers.first { $0.id == installedBarriers[1] }
-        XCTAssertEqual(connectivityFactory?.defaultScopes(), [.dispatcher(id: Modules.Types.collect)])
-        XCTAssertEqual(batchingFactory?.defaultScopes(), [])
+        XCTAssertEqual(connectivityFactory?.defaultScope(), .dispatchers([Modules.Types.collect]))
+        XCTAssertEqual(batchingFactory?.defaultScope(), .dispatchers([]))
     }
 
     func test_addDefaultBarrier_adds_barrier_to_additional_barriers() {
-        let mockBarrier = MockBarrierFactory<MockConfigurableBarrier>(defaultScopes: [.all])
+        let mockBarrier = MockBarrierFactory<MockConfigurableBarrier>(defaultScope: .all)
         XCTAssertEqual(registry.additionalBarriers.count, 0)
         registry.addDefaultBarrier(mockBarrier)
         XCTAssertEqual(registry.additionalBarriers.count, 1)
@@ -46,14 +46,24 @@ final class BarrierRegistryTests: XCTestCase {
     }
 
     func test_addDefaultBarrier_increases_defaultBarriers_count() {
-        let mockBarrier = MockBarrierFactory<MockConfigurableBarrier>(defaultScopes: [.all])
+        let mockBarrier = MockBarrierFactory<MockConfigurableBarrier>(defaultScope: .all)
         registry.addDefaultBarrier(mockBarrier)
         XCTAssertEqual(registry.defaultBarriers.count, installedBarriers.count + 1)
         XCTAssertTrue(registry.defaultBarriers.contains { $0.id == mockBarrier.id })
     }
 
+    func test_clearAdditionalBarriers_removes_additional_barriers() {
+        let mockBarrier = MockBarrierFactory<MockConfigurableBarrier>(defaultScope: .all)
+        registry.addDefaultBarrier(mockBarrier)
+        XCTAssertEqual(registry.additionalBarriers.count, 1)
+
+        registry.clearAdditionalBarriers()
+        XCTAssertTrue(registry.additionalBarriers.isEmpty)
+        XCTAssertEqual(registry.defaultBarriers.count, installedBarriers.count)
+    }
+
     func test_defaultBarriers_includes_both_core_and_additional_barriers() {
-        let mockBarrier = MockBarrierFactory<MockConfigurableBarrier>(defaultScopes: [.all])
+        let mockBarrier = MockBarrierFactory<MockConfigurableBarrier>(defaultScope: .all)
         registry.addDefaultBarrier(mockBarrier)
         let defaultBarriers = registry.defaultBarriers
         let coreBarrierIds = Set(installedBarriers)

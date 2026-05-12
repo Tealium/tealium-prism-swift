@@ -65,11 +65,11 @@ class ConnectivityBarrier: ConfigurableBarrier {
 
 extension ConnectivityBarrier {
     class Factory: BarrierFactory {
-        let _defaultScopes: [BarrierScope]
+        let _defaultScope: BarrierScope
         let enforcedSettings: DataObject
 
-        init(defaultScopes: [BarrierScope], enforcedSettings: DataObject? = nil) {
-            _defaultScopes = defaultScopes
+        init(defaultScope: BarrierScope, enforcedSettings: DataObject? = nil) {
+            _defaultScope = defaultScope
             self.enforcedSettings = enforcedSettings ?? [:]
         }
 
@@ -78,8 +78,8 @@ extension ConnectivityBarrier {
                                 configuration: configuration)
         }
 
-        func defaultScopes() -> [BarrierScope] {
-            _defaultScopes
+        func defaultScope() -> BarrierScope {
+            _defaultScope
         }
 
         func getEnforcedSettings() -> DataObject {

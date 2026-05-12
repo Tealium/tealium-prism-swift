@@ -12,7 +12,7 @@ import Foundation
  * Utility object for getting built-in `BarrierFactory` objects when configuring the Tealium instance.
  *
  * Some barriers are added to the system by default, but remain accessible here to allow users to
- * override the "scopes" that they apply to.
+ * override the "scope" that they apply to.
  */
 public enum Barriers {}
 
@@ -35,12 +35,12 @@ public extension Barriers {
      * or you can use local/remote settings configuration instead.
      * ```swift
      *  config.addBarrier(Barriers.connectivity(forcingSettings: { enforcedSettings in
-     *      enforcedSettings.setScopes([]) // setting empty scopes deactivates the barrier
+     *      enforcedSettings.setScope(.dispatchers([])) // setting empty dispatcherIds deactivates the barrier
      *  }))
      * ```
      */
     static func connectivity(forcingSettings block: EnforcingSettings<ConnectivityBarrierSettingsBuilder>? = { $0 }) -> some BarrierFactory {
-        ConnectivityBarrier.Factory(defaultScopes: [.dispatcher(id: Modules.Types.collect)],
+        ConnectivityBarrier.Factory(defaultScope: .dispatchers([Modules.Types.collect]),
                                     enforcedSettings: block?(ConnectivityBarrierSettingsBuilder()).build())
     }
 
@@ -51,7 +51,7 @@ public extension Barriers {
      *
      * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
      *
-     * By default, this barrier is not scoped to any module, thus being not active, until you call the following method or provide some scopes with local or remote settings.
+     * By default, this barrier is not scoped to any module, thus being not active, until you call the following method or provide some scope with local or remote settings.
      * ```swift
      *  config.addBarrier(Barriers.batching())
      * ```
@@ -60,12 +60,12 @@ public extension Barriers {
      * Example of programmatic approach:
      * ```swift
      *  config.addBarrier(Barriers.batching(forcingSettings: { enforcedSettings in
-     *      enforcedSettings.setScopes([.dispatcher(id: "MyDispatcher")])
+     *      enforcedSettings.setScope(.dispatchers(["MyDispatcher"]))
      *  }))
      * ```
      */
     static func batching(forcingSettings block: EnforcingSettings<BatchingBarrierSettingsBuilder>? = { $0 }) -> some BarrierFactory {
-        BatchingBarrier.Factory(defaultScopes: [.dispatcher(id: Modules.Types.collect)],
+        BatchingBarrier.Factory(defaultScope: .dispatchers([Modules.Types.collect]),
                                 enforcedSettings: block?(BatchingBarrierSettingsBuilder()).build())
     }
 }

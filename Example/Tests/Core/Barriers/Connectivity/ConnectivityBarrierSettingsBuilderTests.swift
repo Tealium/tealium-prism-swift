@@ -12,8 +12,7 @@ import XCTest
 final class ConnectivityBarrierSettingsBuilderTests: XCTestCase {
 
     func test_setWifiOnly_sets_wifi_only() {
-        let builder = ConnectivityBarrierSettingsBuilder()
-        let result = builder.setWifiOnly(true).build()
+        let result = ConnectivityBarrierSettingsBuilder().setWifiOnly(true).build()
 
         let configuration = result.getDataDictionary(key: BarrierSettings.Keys.configuration)
         XCTAssertEqual(configuration?.get(key: ConnectivityBarrierConfiguration.Keys.wifiOnly), true)
@@ -21,11 +20,11 @@ final class ConnectivityBarrierSettingsBuilderTests: XCTestCase {
 
     func test_inheritance_from_base_builder_works() {
         let result = ConnectivityBarrierSettingsBuilder()
-            .setScopes([.all])
+            .setScope(.all)
             .setWifiOnly(true)
             .build()
 
-        XCTAssertEqual(result.getArray(key: BarrierSettings.Keys.scopes), ["all"])
+        XCTAssertEqual(result.get(key: BarrierSettings.Keys.scope), "all")
         let configuration = result.getDataDictionary(key: BarrierSettings.Keys.configuration)
         XCTAssertEqual(configuration?.get(key: ConnectivityBarrierConfiguration.Keys.wifiOnly), true)
     }
