@@ -37,6 +37,7 @@ final class AppDataModuleTests: XCTestCase {
         XCTAssertEqual(appData.get(key: TealiumDataKey.appRDNS), "com.example.testapp")
         XCTAssertEqual(appData.get(key: TealiumDataKey.appVersion), "1.2.3")
         XCTAssertNotNil(appData.get(key: TealiumDataKey.appUUID, as: String.self))
+        XCTAssertNotNil(appData.get(key: TealiumDataKey.appMemoryUsage, as: String.self))
     }
 
     func test_collect_returns_expected_data_when_some_values_are_absent() throws {
@@ -94,5 +95,17 @@ final class AppDataModuleTests: XCTestCase {
 
     func test_the_module_id_is_correct() {
         XCTAssertNotNil(dataStoreProvider.modulesRepository.getModules()[AppDataModule.moduleType])
+    }
+
+    func test_collect_returns_app_memory_usage() {
+        let appData = appDataModule.collect(dispatchContext)
+        guard let memoryUsage: String = appData.get(key: TealiumDataKey.appMemoryUsage) else {
+            XCTFail("app_memory_usage should be present")
+            return
+        }
+        XCTAssertTrue(
+            memoryUsage.hasSuffix("MB") || memoryUsage == TealiumConstants.unknown,
+            "Expected memory usage to end with MB or be unknown, got: \(memoryUsage)"
+        )
     }
 }
