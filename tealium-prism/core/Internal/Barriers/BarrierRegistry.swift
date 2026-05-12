@@ -14,8 +14,8 @@ import Foundation
 class BarrierRegistry {
     /// The barriers created within the Core library.
     private var _defaultBarriers: [any BarrierFactory] = [
-        ConnectivityBarrier.Factory(defaultScopes: [.dispatcher(id: Modules.Types.collect)]),
-        BatchingBarrier.Factory(defaultScopes: [])
+        ConnectivityBarrier.Factory(defaultScope: .dispatchers([Modules.Types.collect])),
+        BatchingBarrier.Factory(defaultScope: .dispatchers([]))
     ]
 
     /// The optional barriers that need to be installed alongside the Core library.

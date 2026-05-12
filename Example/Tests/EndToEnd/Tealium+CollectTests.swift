@@ -93,7 +93,7 @@ final class TealiumCollectTests: TealiumBaseTests {
 
     func test_collect_sends_multiple_events_in_a_batch() {
         config.addModule(Modules.collect())
-        let barrierFactory = MockBarrierFactory(defaultScopes: [.all])
+        let barrierFactory = MockBarrierFactory(defaultScope: .all)
         config.addBarrier(barrierFactory)
         let httpRequestSent = expectation(description: "Http Request is sent")
         client.requestDidSend = { request in

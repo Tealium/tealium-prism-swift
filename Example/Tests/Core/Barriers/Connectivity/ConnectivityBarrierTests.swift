@@ -153,27 +153,49 @@ final class ConnectivityBarrierTests: XCTestCase {
 // MARK: - Factory Tests
 extension ConnectivityBarrierTests {
 
-    func test_factory_sets_default_scopes() {
-        let factory = ConnectivityBarrier.Factory(defaultScopes: [.all])
-        XCTAssertEqual(factory.defaultScopes(), [.all])
+    func test_factory_sets_default_scope() {
+        let factory = ConnectivityBarrier.Factory(defaultScope: .all)
+        XCTAssertEqual(factory.defaultScope(), .all)
     }
 
     func test_factory_with_enforced_settings() {
         let enforcedSettings: DataObject = [
             ConnectivityBarrierConfiguration.Keys.wifiOnly: true
         ]
-        let factory = ConnectivityBarrier.Factory(defaultScopes: [.all], enforcedSettings: enforcedSettings)
+        let factory = ConnectivityBarrier.Factory(defaultScope: .all, enforcedSettings: enforcedSettings)
 
         XCTAssertEqual(factory.getEnforcedSettings(), enforcedSettings)
     }
 
     func test_factory_without_enforced_settings() {
-        let factory = ConnectivityBarrier.Factory(defaultScopes: [.all])
+        let factory = ConnectivityBarrier.Factory(defaultScope: .all)
         XCTAssertEqual(factory.getEnforcedSettings(), [:])
     }
 
     func test_factory_id_matches_barrier_id() {
-        let factory = ConnectivityBarrier.Factory(defaultScopes: [])
+        let factory = ConnectivityBarrier.Factory(defaultScope: .dispatchers([]))
         XCTAssertEqual(factory.id, ConnectivityBarrier.id)
+    }
+
+    func test_barriers_connectivity_default_scope_is_collect_dispatcher() {
+        let factory = Barriers.connectivity()
+        XCTAssertEqual(factory.defaultScope(), .dispatchers([Modules.Types.collect]))
+    }
+
+    func test_barriers_connectivity_default_call_enforces_empty_configuration() {
+        let factory = Barriers.connectivity()
+        let configuration = factory.getEnforcedSettings().getDataDictionary(key: BarrierSettings.Keys.configuration)
+        XCTAssertEqual(configuration, [:])
+    }
+
+    func test_barriers_connectivity_nil_block_enforces_empty_settings() {
+        let factory = Barriers.connectivity(forcingSettings: nil)
+        XCTAssertEqual(factory.getEnforcedSettings(), [:])
+    }
+
+    func test_barriers_connectivity_forcingSettings_enforces_provided_settings() {
+        let factory = Barriers.connectivity(forcingSettings: { $0.setWifiOnly(true) })
+        let configuration = factory.getEnforcedSettings().getDataDictionary(key: BarrierSettings.Keys.configuration)
+        XCTAssertEqual(configuration?.get(key: ConnectivityBarrierConfiguration.Keys.wifiOnly), true)
     }
 }
