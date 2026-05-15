@@ -8,7 +8,7 @@
 
 import Foundation
 
- class CallbackObserver<Element>: LinkableObserver {
+ private class CallbackObserver<Element>: LinkableObserver {
     private var downstream: (any Observer<Element>)?
     private(set) var isStopped = false
     private let linkable = UpstreamLinkableImpl()

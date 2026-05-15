@@ -111,6 +111,22 @@ final class OperatorsMergeTests: XCTestCase {
         XCTAssertFalse(disposable.isDisposed)
     }
 
+    func test_merge_completes_when_upstream_completes_without_emitting() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is not emitted")
+        eventEmitted.isInverted = true
+        let completed = expectation(description: "Observable completed")
+        _ = subject.asObservable()
+            .merge(subject.asObservable())
+            .subscribe { _ in
+                eventEmitted.fulfill()
+            } onComplete: {
+                completed.fulfill()
+            }
+        subject.onComplete()
+        waitForDefaultTimeout()
+    }
+
     func test_merge_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
         assertNoEmissionAfterSideEffectDisposal {
             StateSubject(0).asObservable().merge($0)

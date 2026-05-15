@@ -48,8 +48,12 @@ private class CombineLatestCoordinator<First, Other>: Disposable {
         }
     }
 
+    var isCompleted: Bool {
+        firstCompleted && otherCompleted || first == nil && firstCompleted || other == nil && otherCompleted
+    }
+
     private func completeIfBothDone() {
-        guard !isDisposed, firstCompleted && otherCompleted else { return }
+        guard !isDisposed, isCompleted else { return }
         downstream?.onComplete()
         dispose()
     }

@@ -23,7 +23,7 @@ private class IterableCombineLatestCoordinator<Element>: Disposable {
         self.count = observables.count
         self.latestValues = [Element?](repeating: nil, count: observables.count)
         self.completedFlags = [Bool](repeating: false, count: observables.count)
-        for index in 0 ..< observables.count {
+        for index in 0 ..< count {
             observables[index].subscribe { element in
                 self.onNext(element: element, index: index)
             } onComplete: {
@@ -49,16 +49,22 @@ private class IterableCombineLatestCoordinator<Element>: Disposable {
         }
     }
 
+    private func isCompleted(afterCompleting index: Int) -> Bool {
+        completedFlags.allSatisfy({ $0 }) || resultArray.isEmpty && latestValues[index] == nil
+    }
+
     private func onComplete(index: Int) {
         guard !completedFlags[index] else { return }
         completedFlags[index] = true
-        if completedFlags.allSatisfy({ $0 }) {
+        if isCompleted(afterCompleting: index) {
             downstream?.onComplete()
             dispose()
         }
     }
 
+    // TODO: Remove after we separate `Disposable` and `CompositeDisposable`
     @discardableResult
+    @available(*, deprecated)
     func add(_ disposable: any Disposable) -> Self {
         container.add(disposable)
         return self

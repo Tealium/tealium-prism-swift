@@ -193,6 +193,23 @@ final class OperatorsFlatMapTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
+    func test_flatMap_completes_when_upstream_completes_without_emitting() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is not emitted")
+        eventEmitted.isInverted = true
+        let completed = expectation(description: "Observable completed")
+        let observable = subject.asObservable()
+            .flatMap { _ in subject.asObservable() }
+        _ = observable.subscribe { _ in
+            eventEmitted.fulfill()
+        } onComplete: {
+            completed.fulfill()
+        }
+        subject.onComplete()
+
+        waitForDefaultTimeout()
+    }
+
     func test_flatMapLatest_does_not_dispose_subscription_when_upstream_is_disposed_but_downstream_is_not() {
         let subject = Subject<Int>()
         let eventEmitted = expectation(description: "Event is emitted")
@@ -285,6 +302,23 @@ final class OperatorsFlatMapTests: XCTestCase {
 
     func test_flatMapLatest_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
         assertNoEmissionAfterSideEffectDisposal { $0.flatMapLatest { Observables.just($0) } }
+    }
+
+    func test_flatMapLatest_completes_when_upstream_completes_without_emitting() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is not emitted")
+        eventEmitted.isInverted = true
+        let completed = expectation(description: "Observable completed")
+        let observable = subject.asObservable()
+            .flatMapLatest { _ in subject.asObservable() }
+        _ = observable.subscribe { _ in
+            eventEmitted.fulfill()
+        } onComplete: {
+            completed.fulfill()
+        }
+        subject.onComplete()
+
+        waitForDefaultTimeout()
     }
 
     /// Exercises the while-loop in `FlatMapLatestObserver.onNext`: each inner observable,

@@ -158,6 +158,40 @@ final class OperatorsCombineLatestTests: XCTestCase {
         XCTAssertFalse(disposable.isDisposed)
     }
 
+    func test_combineLatest_completes_when_upstream_completes_without_emitting() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is not emitted")
+        eventEmitted.isInverted = true
+        let completed = expectation(description: "Observable completed")
+        _ = subject.asObservable()
+            .combineLatest(subject.asObservable())
+            .subscribe { _ in
+                eventEmitted.fulfill()
+            } onComplete: {
+                completed.fulfill()
+            }
+        subject.onComplete()
+        waitForDefaultTimeout()
+    }
+
+    func test_combineLatest_completes_when_one_side_completes_without_ever_emitting() {
+        let emitting = Subject<Int>()
+        let silent = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is not emitted")
+        eventEmitted.isInverted = true
+        let completed = expectation(description: "Observable completed")
+        _ = emitting.asObservable()
+            .combineLatest(silent.asObservable())
+            .subscribe { _ in
+                eventEmitted.fulfill()
+            } onComplete: {
+                completed.fulfill()
+            }
+        emitting.publish(1)
+        silent.onComplete()
+        waitForDefaultTimeout()
+    }
+
     func test_combineLatest_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
         assertNoEmissionAfterSideEffectDisposal {
             StateSubject(0).asObservable().combineLatest($0)
