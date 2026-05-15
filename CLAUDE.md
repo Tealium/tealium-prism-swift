@@ -134,10 +134,10 @@ SQLite via SQLite.swift (0.15.4+). Repositories: `QueueRepository`, `KeyValueRep
 `tealium-prism/core/API/Command/` — infrastructure for command-based dispatchers:
 - `Command` — protocol: `name: String` + `execute(payload:completion:) -> Disposable`
 - `SyncCommand` — convenience wrapper for synchronous commands
-- `CommandNamed` — protocol for enum-backed command names (provides default `name` from `rawValue`)
+- `CommandName` — protocol for enum-backed command names (provides default `name` from `rawValue`)
 - `CommandRegistry` — O(1) name-based routing (normalizes to lowercase, trimmed)
 - `CommandDispatcher` — base class for dispatchers that route via a `CommandRegistry`; subclasses pass `commands: [Command]` to `super.init` and get `dispatch()` for free
-- `CommandMappingsBuilder` — builder for mapping `CommandNamed` values to `Command` instances
+- `CommandMappingsBuilder` — builder for mapping `CommandName` values to `Command` instances
 
 ### Barriers
 `BarrierCoordinator` computes per-dispatcher open/closed state. Debounce 0.2s, flush timeout 5s. Built-in: `BatchingBarrier`, `ConnectivityBarrier`. Custom barriers extend `ConfigurableBarrier`.

@@ -8,20 +8,18 @@
 
 import Foundation
 
-/**
- * A basic factory that can be reused to create modules that have no extra dependencies and can only be initialized once.
- *
- * `BasicModuleFactory` is a generic implementation of `ModuleFactory` that simplifies the creation of modules
- * conforming to the `BasicModule` protocol.
- *
- * For detailed guidance on creating custom modules, see [Creating Custom Modules](../../custommodules.html).
- *
- * ## Important Notes
- * - The generic `Module` type must conform to `BasicModule`
- * - Modules created by this factory cannot be instantiated multiple times (`allowsMultipleInstances` is always `false`)
- * - Use `ModuleSettingsBuilder` subclasses for type-safe configuration
- * - Module type constants should be defined in `Modules.Types` for consistency
- */
+/// A basic factory that can be reused to create modules that have no extra dependencies and can only be initialized once.
+///
+/// `BasicModuleFactory` is a generic implementation of `ModuleFactory` that simplifies the creation of modules
+/// conforming to the `BasicModule` protocol.
+///
+/// For detailed guidance on creating custom modules, see [Creating Custom Modules](../../custommodules.html).
+///
+/// ## Important Notes
+/// - The generic `Module` type must conform to `BasicModule`
+/// - Modules created by this factory cannot be instantiated multiple times (`allowsMultipleInstances` is always `false`)
+/// - Use `ModuleSettingsBuilder` subclasses for type-safe configuration
+/// - Module type constants should be defined in `Modules.Types` for consistency
 public class BasicModuleFactory<Module: BasicModule>: ModuleFactory {
     let enforcedSettings: [DataObject]
     /// The unique identifier for the type of module this factory creates.

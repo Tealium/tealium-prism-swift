@@ -52,15 +52,8 @@ extension BarrierSettings {
             else {
                 return nil
             }
-            let scope: BarrierScope?
-            if let scopeItem = dictionary[Keys.scope] {
-                guard let parsed = BarrierScope.converter.convert(dataItem: scopeItem) else {
-                    return nil
-                }
-                scope = parsed
-            } else {
-                scope = nil // default scope fallback will be used in BarrierManager.scopedConfigBarriers()
-            }
+            // if scope is nil, default scope fallback will be used in BarrierManager.scopedConfigBarriers()
+            let scope = dictionary[Keys.scope].flatMap(BarrierScope.converter.convert)
             let configuration = dictionary.getDataDictionary(key: Keys.configuration)?.toDataObject() ?? [:]
             return BarrierSettings(barrierId: barrierId, scope: scope, configuration: configuration)
         }
