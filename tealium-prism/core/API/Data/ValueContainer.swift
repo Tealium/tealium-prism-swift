@@ -9,6 +9,22 @@
 import Foundation
 
 /// A container for a value that is stored as a `DataItem`.
+///
+/// ## JSON Representation
+///
+/// The value can be any valid JSON type:
+///
+/// ```json
+/// { "value": "hello" }
+/// ```
+///
+/// ```json
+/// { "value": 42 }
+/// ```
+///
+/// ```json
+/// { "value": ["red", "green", "blue"] }
+/// ```
 public struct ValueContainer {
     enum Keys {
         static let value = "value"

@@ -212,6 +212,37 @@ final class TransformerCoordinatorTests: XCTestCase {
         XCTAssertEqual(coordinator.getTransformations(for: .afterCollectors).map { $0.id }, ["additional", "fromSettings"])
     }
 
+    func test_getTransformations_places_configured_before_registered_when_order_clashes() {
+        _transformations.value = [
+            TransformationSettings(id: "fromSettings", transformerId: "transformer1", scope: .afterCollectors, order: 1)
+        ]
+        let additional = TransformationSettings(id: "additional", transformerId: "transformer1", scope: .afterCollectors, order: 1)
+        coordinator.registerTransformation(additional)
+        XCTAssertEqual(coordinator.getTransformations(for: .afterCollectors).map { $0.id }, ["fromSettings", "additional"])
+    }
+
+    func test_getTransformations_places_configured_unordered_before_registered_unordered() {
+        _transformations.value = [
+            TransformationSettings(id: "fromSettings", transformerId: "transformer1", scope: .afterCollectors)
+        ]
+        let additional1 = TransformationSettings(id: "additional1", transformerId: "transformer1", scope: .afterCollectors)
+        let additional2 = TransformationSettings(id: "additional2", transformerId: "transformer1", scope: .afterCollectors)
+        coordinator.registerTransformation(additional1)
+        coordinator.registerTransformation(additional2)
+        XCTAssertEqual(coordinator.getTransformations(for: .afterCollectors).map { $0.id }, ["fromSettings", "additional1", "additional2"])
+    }
+
+    func test_getTransformations_falls_back_to_insertion_order_when_order_not_set() {
+        _transformations.value = []
+        let first = TransformationSettings(id: "first", transformerId: "transformer1", scope: .afterCollectors)
+        let second = TransformationSettings(id: "second", transformerId: "transformer1", scope: .afterCollectors)
+        let third = TransformationSettings(id: "third", transformerId: "transformer1", scope: .afterCollectors)
+        coordinator.registerTransformation(first)
+        coordinator.registerTransformation(second)
+        coordinator.registerTransformation(third)
+        XCTAssertEqual(coordinator.getTransformations(for: .afterCollectors).map { $0.id }, ["first", "second", "third"])
+    }
+
     func test_transform_evaluates_conditions_after_each_transformation_mutates_dispatch() {
         // transformation1 (transformer1, afterCollectors) runs first and adds "custom_key"
         // conditionalTransformation (transformer3, afterCollectors) has condition custom_key == "custom_value"

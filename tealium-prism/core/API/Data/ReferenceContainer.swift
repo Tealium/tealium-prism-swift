@@ -8,9 +8,28 @@
 
 import Foundation
 
-/**
- * A container for a reference to a variable in the data layer.
- */
+/// A container for a reference to a variable in the data layer.
+///
+/// ## JSON Representation
+///
+/// **Flat key** (created via ``key(_:)``):
+///
+/// ```json
+/// {
+///   "key": "email"
+/// }
+/// ```
+///
+/// **Nested path** (created via ``path(_:)``):
+///
+/// ```json
+/// {
+///   "path": "user.address.city"
+/// }
+/// ```
+///
+/// The `"path"` value uses dot notation for object keys and bracket notation
+/// for array indices (e.g. `"items[0].name"`).
 public struct ReferenceContainer: Equatable {
     enum Keys {
         static let key = "key"

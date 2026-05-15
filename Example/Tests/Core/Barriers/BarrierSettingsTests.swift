@@ -78,13 +78,30 @@ final class BarrierSettingsTests: XCTestCase {
         XCTAssertNil(settings.scope)
     }
 
-    func test_converter_unknown_scope_string_returns_nil() {
+    func test_converter_unknown_scope_string_returns_settings_with_nil_scope() {
         let dataItem = DataItem(value: [
             BarrierSettings.Keys.barrierId: "test",
             BarrierSettings.Keys.scope: "unknown_scope",
             BarrierSettings.Keys.configuration: [:]
         ])
-        XCTAssertNil(converter.convert(dataItem: dataItem))
+        guard let settings = converter.convert(dataItem: dataItem) else {
+            XCTFail("Expected settings"); return
+        }
+        XCTAssertEqual(settings.barrierId, "test")
+        XCTAssertNil(settings.scope)
+    }
+
+    func test_converter_nsnull_scope_returns_settings_with_nil_scope() {
+        let dataItem = DataItem(value: [
+            BarrierSettings.Keys.barrierId: "test",
+            BarrierSettings.Keys.scope: NSNull(),
+            BarrierSettings.Keys.configuration: [:]
+        ])
+        guard let settings = converter.convert(dataItem: dataItem) else {
+            XCTFail("Expected settings"); return
+        }
+        XCTAssertEqual(settings.barrierId, "test")
+        XCTAssertNil(settings.scope)
     }
 
     func test_converter_empty_dispatchers_array_returns_settings() {

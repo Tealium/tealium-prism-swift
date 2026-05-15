@@ -271,7 +271,7 @@ The barrier will receive its configuration when created by the factory.
 }
 ```
 
-**Note**: `scope` is optional in the JSON. If omitted, the barrier's factory default scope is used (see `BarrierFactory.defaultScope()`). This means you can update only `configuration` from remote/local settings without touching the scope that was set programmatically via the factory.
+**Note**: `scope` is optional in the JSON. If omitted or unrecognized, the barrier's factory default scope is used (see `BarrierFactory.defaultScope()`). This means you can update only `configuration` from remote/local settings without touching the scope that was set programmatically via the factory.
 
 The barriers will automatically receive `updateConfiguration()` calls when settings change.
 
