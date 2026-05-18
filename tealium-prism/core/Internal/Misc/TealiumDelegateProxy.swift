@@ -129,15 +129,21 @@ private extension TealiumDelegateProxy {
     // This is required otherwise if AppDelegate/SceneDelegate don't implement those methods it won't work!
     // Setting the delegate again probably causes the system to check again for the presence of those methods that were missing before.
     static func reassignDelegate() {
+        guard let application = TealiumDelegateProxy.sharedApplication else {
+            return
+        }
         if sceneEnabled {
-            weak var sceneDelegate = TealiumDelegateProxy.sharedApplication?.connectedScenes.first?.delegate
-            TealiumDelegateProxy.sharedApplication?.connectedScenes.first?.delegate = nil
-            TealiumDelegateProxy.sharedApplication?.connectedScenes.first?.delegate = sceneDelegate
+            guard let scene = application.connectedScenes.first else {
+                return
+            }
+            let sceneDelegate = scene.delegate
+            scene.delegate = nil
+            scene.delegate = sceneDelegate
             gOriginalDelegate = sceneDelegate
         } else {
-            weak var appDelegate = TealiumDelegateProxy.sharedApplication?.delegate
-            TealiumDelegateProxy.sharedApplication?.delegate = nil
-            TealiumDelegateProxy.sharedApplication?.delegate = appDelegate
+            let appDelegate = application.delegate
+            application.delegate = nil
+            application.delegate = appDelegate
             gOriginalDelegate = appDelegate
         }
     }
@@ -414,7 +420,7 @@ private extension TealiumDelegateProxy {
     /// - Parameter url: `URL` of the deep link to be handled
     static func handleDeepLink(_ url: URL, referrer: Referrer? = nil) {
         TealiumQueue.worker.ensureOnQueue {
-            _onOpenUrl.publish((url, referrer))
+            _onOpenUrl.onNext((url, referrer))
         }
     }
 }

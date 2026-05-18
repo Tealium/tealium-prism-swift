@@ -77,4 +77,45 @@ final class DisposableTests: XCTestCase {
         disposer.dispose()
         waitOnQueue(queue: queue)
     }
+
+    func test_remove_removes_disposable_from_container() {
+        let container = DisposableContainer()
+        let subscription = Subscription { }
+        container.add(subscription)
+        XCTAssertEqual(container.count, 1)
+        container.remove(subscription)
+        XCTAssertEqual(container.count, 0)
+    }
+
+    func test_remove_does_not_dispose_removed_disposable() {
+        let container = DisposableContainer()
+        let subscription = Subscription { }
+        container.add(subscription)
+        container.remove(subscription)
+        XCTAssertFalse(subscription.isDisposed)
+    }
+
+    func test_unsubscribing_observer_removes_itself_from_container_on_completion() {
+        let container = DisposableContainer()
+        let subject = Subject<Int>()
+        subject.asObservable().subscribe(composite: container, observer: AnonymousObserver(
+            onNext: { _ in },
+            onComplete: { }
+        ))
+        XCTAssertEqual(container.count, 1)
+        subject.onComplete()
+        XCTAssertEqual(container.count, 0)
+    }
+
+    func test_unsubscribing_observer_removes_itself_from_container_on_disposal() {
+        let container = DisposableContainer()
+        let subject = Subject<Int>()
+        let observer = subject.asObservable().subscribe(composite: container, observer: AnonymousObserver(
+            onNext: { _ in },
+            onComplete: { }
+        ))
+        XCTAssertEqual(container.count, 1)
+        observer.dispose()
+        XCTAssertEqual(container.count, 0)
+    }
 }

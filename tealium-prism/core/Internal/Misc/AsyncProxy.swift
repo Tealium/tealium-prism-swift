@@ -52,12 +52,12 @@ class AsyncProxy<Object: AnyObject, Failure: Error> {
         // Use the replay subject to make the returned Single a HOT observable.
         // A HOT observable doesn't require a subscription to start emitting events.
         let replay = ReplaySubject<Result<Output, Failure>>()
-        let observable = onObject.callback(from: { result, observer in
+        let observable = onObject.callback(from: { result, completion in
             do throws(Failure) {
                 let object = try result.get()
-                try asyncTask(object, observer)
+                try asyncTask(object, completion)
             } catch {
-                observer(.failure(error))
+                completion(.failure(error))
             }
         })
         SingleImpl(observable: observable, queue: queue)

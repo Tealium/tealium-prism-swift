@@ -34,13 +34,13 @@ final class OperatorsMapTests: XCTestCase {
 
     func test_map_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable: Observable<Int> = observable.map { $0 * 10 }
-        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
+        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(subscribable: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
-        pub.publish(1)
+        subject.onNext(1)
         helper?.subscription?.dispose()
         helper = nil
         waitForDefaultTimeout()
@@ -73,13 +73,13 @@ final class OperatorsMapTests: XCTestCase {
 
     func test_compactMap_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable: Observable<Int> = observable.compactMap { $0 * 10 }
-        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
+        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(subscribable: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
-        pub.publish(1)
+        subject.onNext(1)
         helper?.subscription?.dispose()
         helper = nil
         waitForDefaultTimeout()

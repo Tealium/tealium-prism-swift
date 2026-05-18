@@ -9,9 +9,9 @@
 import Foundation
 
 /**
- * A `Subject` that, in addition to normal publish and subscribe behavior, holds a cache of items and sends it, in order, to each new observer that is subscribed.
+ * A `Subject` that, in addition to normal emission and subscribe behavior, holds a cache of items and sends it, in order, to each new observer that is subscribed.
  *
- * You can use it as a property wrapper to make the publishing private in the class where it's contained, but still expose an `Observable`
+ * You can use it as a property wrapper to make the emitting private in the class where it's contained, but still expose an `Observable`
  * to the other classes.
  */
 @propertyWrapper
@@ -32,11 +32,11 @@ public class ReplaySubject<Element>: Subject<Element> {
 
     /// Creates a replay subject with an initial value and cache size.
     /// - Parameters:
-    ///   - initialValue: The initial value to publish.
+    ///   - initialValue: The initial value to emit.
     ///   - cacheSize: The maximum number of elements to cache. If `nil` is provided, there will be no maximum.
     convenience public init(_ initialValue: Element, cacheSize: Int? = 1) {
         self.init(cacheSize: cacheSize)
-        self.publish(initialValue)
+        self.onNext(initialValue)
     }
 
     /// Returns an observable that replays cached elements to new subscribers.
@@ -53,28 +53,28 @@ public class ReplaySubject<Element>: Subject<Element> {
         asObservable().subscribe(observer)
     }
 
-    /// Publishes an element and adds it to the cache.
-    public override func publish(_ element: Element) {
+    /// Emits an element to all subscribers and adds it to the cache.
+    public override func onNext(_ element: Element) {
         while let size = cacheSize, cache.count >= size && cache.count > 0 {
             cache.remove(at: 0)
         }
         if cacheSize == nil || cacheSize > 0 {
             cache.append(element)
         }
-        super.publish(element)
+        super.onNext(element)
     }
 
-    /// Removes all events from the cache
+    /// Removes all events from the cache.
     public func clear() {
         cache.removeAll()
     }
 
-    /// Returns the last item that was published
+    /// Returns the last item that was emitted.
     public func last() -> Element? {
         return cache.last
     }
 
-    /// Changes the cache size removing oldest elements not fitting in
+    /// Changes the cache size removing oldest elements not fitting in.
     public func resize(_ size: Int) {
         let newSize = size >= 0 ? size : Int.max
         cache = Array(cache.suffix(newSize))
@@ -88,10 +88,10 @@ public class ReplaySubject<Element>: Subject<Element> {
 }
 
 public extension ReplaySubject where Element: Equatable {
-    /// Publishes the new event only if the new one is different from the last one
-    func publishIfChanged(_ element: Element) {
+    /// Emits the element only if it differs from the last cached value.
+    func onNextIfChanged(_ element: Element) {
         if element != last() {
-            publish(element)
+            onNext(element)
         }
     }
 }

@@ -33,21 +33,21 @@ final class ModuleProxyTests: XCTestCase {
                                                                               enabled: moduleEnabled)])
     }
 
-    func test_getModule_waits_for_first_manager_to_be_published_to_report_the_completion() {
+    func test_getModule_waits_for_first_manager_to_be_emitted_to_report_the_completion() {
         let completed = expectation(description: "GetModule completes")
         proxy.getModule { _ in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             completed.fulfill()
         }
         queue.dispatchQueue.sync {
-            _onModulesManager.publish(manager)
+            _onModulesManager.onNext(manager)
             waitForDefaultTimeout()
         }
     }
 
     func test_getModule_returns_nil_when_module_is_not_present() {
         let completed = expectation(description: "GetModule completes")
-        _onModulesManager.publish(manager)
+        _onModulesManager.onNext(manager)
         proxy.getModule { module in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertNil(module)
@@ -61,7 +61,7 @@ final class ModuleProxyTests: XCTestCase {
         config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: SDKSettings(config.getEnforcedSDKSettings()))
-        _onModulesManager.publish(manager)
+        _onModulesManager.onNext(manager)
         proxy.getModule { module in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertNotNil(module)
@@ -75,7 +75,7 @@ final class ModuleProxyTests: XCTestCase {
         config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: SDKSettings(config.getEnforcedSDKSettings()))
-        _onModulesManager.publish(manager)
+        _onModulesManager.onNext(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule { module in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             return module.someObservable
@@ -92,7 +92,7 @@ final class ModuleProxyTests: XCTestCase {
         config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: SDKSettings(config.getEnforcedSDKSettings()))
-        _onModulesManager.publish(manager)
+        _onModulesManager.onNext(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule(\.someObservable)
         _ = subscribable.subscribe { _ in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -107,7 +107,7 @@ final class ModuleProxyTests: XCTestCase {
         config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: settings(moduleEnabled: false))
-        _onModulesManager.publish(manager)
+        _onModulesManager.onNext(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule { module in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             return module.someObservable
@@ -125,7 +125,7 @@ final class ModuleProxyTests: XCTestCase {
         config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: settings(moduleEnabled: false))
-        _onModulesManager.publish(manager)
+        _onModulesManager.onNext(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule(\.someObservable)
         _ = subscribable.subscribe { _ in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -139,7 +139,7 @@ final class ModuleProxyTests: XCTestCase {
         config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: settings(moduleEnabled: false))
-        _onModulesManager.publish(manager)
+        _onModulesManager.onNext(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule { module in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             return module.someObservable
@@ -160,7 +160,7 @@ final class ModuleProxyTests: XCTestCase {
         config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: settings(moduleEnabled: false))
-        _onModulesManager.publish(manager)
+        _onModulesManager.onNext(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule(\.someObservable)
         _ = subscribable.subscribe { _ in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
@@ -179,7 +179,7 @@ final class ModuleProxyTests: XCTestCase {
         config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: settings(moduleEnabled: false))
-        _onModulesManager.publish(manager)
+        _onModulesManager.onNext(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule { module in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             return module.someObservable
@@ -205,7 +205,7 @@ final class ModuleProxyTests: XCTestCase {
         config.modules = [ModuleWithObservable.factory()]
         manager.updateSettings(context: context(),
                                settings: settings(moduleEnabled: false))
-        _onModulesManager.publish(manager)
+        _onModulesManager.onNext(manager)
         let subscribable: any Subscribable<Int> = proxy.observeModule(\.someObservable)
         _ = subscribable.subscribe { _ in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))

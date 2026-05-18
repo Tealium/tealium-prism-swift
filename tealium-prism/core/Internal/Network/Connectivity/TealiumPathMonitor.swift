@@ -25,7 +25,7 @@ class TealiumNWPathMonitor: ConnectivityMonitorProtocol {
 
     init(queue: TealiumQueue) {
         monitor.pathUpdateHandler = { [weak self] path in
-            self?._connection.publishIfChanged(path.connection)
+            self?._connection.onNextIfChanged(path.connection)
         }
         monitor.start(queue: queue.dispatchQueue)
     }

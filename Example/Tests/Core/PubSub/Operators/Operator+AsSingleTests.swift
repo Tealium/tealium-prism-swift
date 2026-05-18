@@ -25,11 +25,11 @@ final class OperatorAsSingleTests: XCTestCase {
 
     func test_asSingle_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable = observable.asSingle(queue: .main)
         var helper: SubscriptionRetainCycleHelper<Observable<Int>>?
-        helper = SubscriptionRetainCycleHelper(publisher: generatedObservable.asObservable(),
+        helper = SubscriptionRetainCycleHelper(subscribable: generatedObservable.asObservable(),
                                                onDeinit: { expectation.fulfill() })
         helper?.subscription?.dispose()
         helper = nil
@@ -38,13 +38,13 @@ final class OperatorAsSingleTests: XCTestCase {
 
     func test_asSingle_cleans_retain_cycles_after_first_event() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable: Observable<Int> = observable.asSingle(queue: .main).asObservable()
-        _ = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
+        _ = SubscriptionRetainCycleHelper(subscribable: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
-        pub.publish(1)
+        subject.onNext(1)
         waitForDefaultTimeout()
     }
 

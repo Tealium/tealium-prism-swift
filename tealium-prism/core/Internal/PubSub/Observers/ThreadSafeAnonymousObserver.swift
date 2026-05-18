@@ -8,15 +8,18 @@
 
 import Foundation
 
-/// A callback-based observer used at the public subscription boundary (`Subscribable.subscribe(onNext:onComplete:)`).
+/// A thread-safe callback-based observer used at the public subscription boundary
+/// (`Subscribable.subscribe(onNext:onComplete:)`). Returned directly as the `Disposable`.
+///
 /// Thread-safe because `subscribe` is typically called from an unknown thread while
 /// upstream emissions and completion arrive on a different queue (e.g. via `subscribeOn`),
 /// creating a race between `setUpstream` and `onComplete`/`dispose`.
 ///
-/// Also used internally by operators (e.g. `Observables.combineLatest`) where thread safety is not required
-/// since the operator chain is serialized on a single queue. The overhead is acceptable for now
-/// and avoids maintaining a separate non-locking variant.
-class AnonymousObserver<Element>: LinkableObserver {
+/// Unlike `AnonymousObserver`, this class:
+/// - Guards all paths with `isDisposed` under a lock, since it has no external wrapper protecting it.
+/// - Manages the upstream `Disposable` via `setUpstream`/`dispose`, handling the assign-after-complete race.
+/// - Nils callbacks on both completion and disposal to release user-captured references (view controllers, etc.).
+class ThreadSafeAnonymousObserver<Element>: LinkableObserver {
     private var upstream: (any Disposable)?
     private(set) var isDisposed = false
     private let lock = SynchronizeLock()
@@ -76,10 +79,4 @@ class AnonymousObserver<Element>: LinkableObserver {
             disposable.dispose()
         }
     }
-
-    // TODO: Remove after we separate `Disposable` and `CompositeDisposable`
-    @discardableResult
-    @available(*, deprecated)
-    func add(_ disposable: any Disposable) -> Self { self }
-
 }

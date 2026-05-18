@@ -104,7 +104,7 @@ public class ConnectivityManager: ConnectivityManagerProtocol, RequestIntercepto
         }
     }
 
-    func publishingOn(queue: TealiumQueue) -> ConnectivityManagerProtocol {
+    func emittingOn(queue: TealiumQueue) -> ConnectivityManagerProtocol {
         ConnectivityManagerWrapper(connectivityManager: self, queue: queue)
     }
 }

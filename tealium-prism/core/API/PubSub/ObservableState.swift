@@ -34,7 +34,7 @@ public class ObservableState<Element>: Observable<Element> {
     /// Creates an `ObservableState` which can not emit other events, therefore keeping it's value constant.
     public class func constant(_ value: Element) -> ObservableState<Element> {
         ObservableState<Element>(valueProvider: value) { observer in
-            observer(value)
+            observer.onNext(value)
             observer.onComplete()
             return Disposables.disposed()
         }
@@ -50,7 +50,7 @@ extension ObservableState {
     func mapState<NewElement>(transform: @escaping (Element) -> NewElement) -> ObservableState<NewElement> {
         ObservableState<NewElement>(valueProvider: transform(self.value)) { observer in
             self.subscribe { element in
-                observer(transform(element))
+                observer.onNext(transform(element))
             }
         }
     }

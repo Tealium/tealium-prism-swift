@@ -19,22 +19,22 @@ class SubjectTests: XCTestCase {
             XCTAssertEqual(val, value)
             eventNotified.fulfill()
         }
-        subject.publish(value)
+        subject.onNext(value)
         waitForDefaultTimeout()
     }
 
     func test_subscribeOnce_Subject_calls_the_observer_only_once() {
-        let publisher = BasePublisher<Int>()
-        subscribeOnce_calls_the_observer_only_once(publisher)
+        let subject = Subject<Int>()
+        subscribeOnce_calls_the_observer_only_once(subject)
     }
 
-    func subscribeOnce_calls_the_observer_only_once(_ publisher: BasePublisher<Int>) {
+    func subscribeOnce_calls_the_observer_only_once(_ subject: Subject<Int>) {
         let eventNotified = expectation(description: "Event is notified")
         let eventNotNotified = expectation(description: "Event is NOT notified")
         eventNotNotified.isInverted = true
-        publisher.publish(1)
-        publisher.publish(1)
-        publisher.asObservable().subscribeOnce { val in
+        subject.onNext(1)
+        subject.onNext(1)
+        subject.asObservable().subscribeOnce { val in
             if val == 1 {
                 eventNotified.fulfill()
             }
@@ -42,8 +42,8 @@ class SubjectTests: XCTestCase {
                 eventNotNotified.fulfill()
             }
         }
-        publisher.publish(1)
-        publisher.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
         waitForDefaultTimeout()
     }
 
@@ -53,26 +53,26 @@ class SubjectTests: XCTestCase {
         _ = subject.subscribe { _ in } onComplete: {
             completed.fulfill()
         }
-        subject.complete()
+        subject.onComplete()
         waitForDefaultTimeout()
     }
 
-    func test_publish_after_complete_is_ignored() {
+    func test_onNext_after_complete_is_ignored() {
         let eventReceived = expectation(description: "Event is NOT received after complete")
         eventReceived.isInverted = true
         let subject = Subject<Int>()
         _ = subject.subscribe { _ in
             eventReceived.fulfill()
         }
-        subject.complete()
-        subject.publish(1)
+        subject.onComplete()
+        subject.onNext(1)
         waitForDefaultTimeout()
     }
 
     func test_subscribing_to_completed_subject_immediately_receives_onComplete() {
         let completed = expectation(description: "onComplete is received immediately")
         let subject = Subject<Int>()
-        subject.complete()
+        subject.onComplete()
         _ = subject.subscribe { _ in } onComplete: {
             completed.fulfill()
         }
@@ -87,8 +87,8 @@ class SubjectTests: XCTestCase {
         _ = subject.subscribe { _ in } onComplete: {
             completed.fulfill()
         }
-        subject.complete()
-        subject.complete()
+        subject.onComplete()
+        subject.onComplete()
         waitForDefaultTimeout()
     }
 }

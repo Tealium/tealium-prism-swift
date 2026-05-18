@@ -55,7 +55,7 @@ class MockNetworkHelper: NetworkHelperProtocol {
                 completion(.failure(.cancelled))
                 return
             }
-            self._requests.publish(.get(url, etag, additionalHeaders))
+            self._requests.onNext(.get(url, etag, additionalHeaders))
             completion(self.result)
         }
         return sub
@@ -71,7 +71,7 @@ class MockNetworkHelper: NetworkHelperProtocol {
                 completion(.failure(.cancelled))
                 return
             }
-            self._requests.publish(.post(url, body, additionalHeaders))
+            self._requests.onNext(.post(url, body, additionalHeaders))
             completion(self.result)
         }
         return sub

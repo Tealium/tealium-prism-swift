@@ -22,6 +22,6 @@ class MockCMPAdapter: CMPAdapter {
     }
 
     func applyDecision(_ consentDecision: ConsentDecision?) {
-        self._consentDecision.publish(consentDecision)
+        self._consentDecision.onNext(consentDecision)
     }
 }

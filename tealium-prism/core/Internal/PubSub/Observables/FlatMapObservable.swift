@@ -24,15 +24,15 @@ private class FlatMapObserver<Element, Result>: Observer {
     }
 
     func onNext(_ element: Element) {
-        // TODO: Phase 5 — inner subscriptions should self-remove from container on complete (UnsubscribingObserver)
         guard !upstreamCompleted else { return }
         activeInnerCount += 1
-        transform(element).subscribe { [downstream] value in
-            downstream.onNext(value)
-        } onComplete: {
-            self.activeInnerCount -= 1
-            self.maybeComplete()
-        }.addTo(container)
+        transform(element).subscribe(composite: container, observer: AnonymousObserver(
+            onNext: downstream.onNext,
+            onComplete: {
+                self.activeInnerCount -= 1
+                self.maybeComplete()
+            }
+        ))
     }
 
     func onComplete() {

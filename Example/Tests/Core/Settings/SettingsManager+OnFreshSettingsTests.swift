@@ -77,8 +77,8 @@ final class SettingsManagerOnFreshSettingsTests: SettingsManagerTestCase {
             settingsEmitted.fulfill()
         }
         try networkHelper.encodeResult(DataObject(dictionary: [CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: Double(10)]]))
-        onActivity.publish(ApplicationStatus(type: .backgrounded))
-        onActivity.publish(ApplicationStatus(type: .foregrounded))
+        onActivity.onNext(ApplicationStatus(type: .backgrounded))
+        onActivity.onNext(ApplicationStatus(type: .foregrounded))
         manager.onFreshSettings.subscribeOnce { settings in
             XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
             XCTAssertEqual(settings.core.refreshInterval.inSeconds(), 10)
@@ -104,8 +104,8 @@ final class SettingsManagerOnFreshSettingsTests: SettingsManagerTestCase {
             settingsEmitted.fulfill()
         }
         try networkHelper.encodeResult(DataObject(dictionary: [CoreSettings.id: [CoreSettings.Keys.refreshIntervalSeconds: Double(10)]]))
-        onActivity.publish(ApplicationStatus(type: .backgrounded))
-        onActivity.publish(ApplicationStatus(type: .foregrounded))
+        onActivity.onNext(ApplicationStatus(type: .backgrounded))
+        onActivity.onNext(ApplicationStatus(type: .foregrounded))
         waitForDefaultTimeout()
     }
 }

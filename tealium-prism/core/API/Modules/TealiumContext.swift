@@ -30,7 +30,7 @@ public class TealiumContext {
     public let sessionRegistry: SessionRegistry
     /// Logger for SDK messages, if configured.
     /// 
-    /// The default implementation automatically publishes error-level log messages as error events
+    /// The default implementation automatically emits error-level log messages as error events
     /// that can be tracked by `Trace` (if error tracking is enabled) during trace sessions.
     /// To prevent infinite loops of error events, always use a limited set of non-dynamic categories when logging.
     /// Categories should be static strings that identify the component (e.g., "NetworkModule", "TraceModule")

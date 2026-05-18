@@ -33,19 +33,18 @@ private class FlatMapLatestObserver<Element, Result>: Observer {
         while let element = latestElement {
             latestElement = nil
             subscription?.dispose()
-            // TODO: Phase 5 — container.remove(old subscription) before replacing
             innerCompleted = false
-            subscription = transform(element).subscribe { [downstream] value in
-                downstream.onNext(value)
-            } onComplete: {
-                self.innerCompleted = true
-                if self.upstreamCompleted {
-                    self.downstream.onComplete()
-                    self.container.dispose()
+            subscription = transform(element).subscribe(composite: container, observer: AnonymousObserver(
+                onNext: downstream.onNext,
+                onComplete: {
+                    self.innerCompleted = true
+                    if self.upstreamCompleted {
+                        self.downstream.onComplete()
+                        self.container.dispose()
+                    }
                 }
-            }
+            ))
         }
-        subscription?.addTo(container)
         isSubscribing = false
     }
 

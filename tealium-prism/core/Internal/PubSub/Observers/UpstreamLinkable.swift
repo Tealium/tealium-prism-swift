@@ -11,7 +11,6 @@ import Foundation
 /// A `Disposable` that can be linked to an upstream subscription.
 /// When disposed, it also disposes the linked upstream.
 /// If already disposed when `setUpstream` is called, the upstream is disposed immediately.
-/// If the upstream is already disposed when `setUpstream` is called, `self` is disposed immediately.
 protocol UpstreamLinkable: Disposable {
     func setUpstream(_ disposable: any Disposable)
 }
@@ -31,11 +30,6 @@ class UpstreamLinkableImpl: UpstreamLinkable {
         }
         upstream = disposable
     }
-
-    // TODO: Remove after we separate `Disposable` and `CompositeDisposable`
-    @discardableResult
-    @available(*, deprecated)
-    func add(_ disposable: any Disposable) -> Self { self }
 
     func dispose() {
         guard !isDisposed else { return }

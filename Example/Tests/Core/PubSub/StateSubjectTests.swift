@@ -60,10 +60,10 @@ final class StateSubjectTests: XCTestCase {
             count += 1
             stateChanged.fulfill()
         }
-        variableSubject.publishIfChanged(1)
-        variableSubject.publishIfChanged(1)
-        variableSubject.publishIfChanged(1)
-        variableSubject.publishIfChanged(2)
+        variableSubject.onNextIfChanged(1)
+        variableSubject.onNextIfChanged(1)
+        variableSubject.onNextIfChanged(1)
+        variableSubject.onNextIfChanged(2)
         waitForDefaultTimeout()
     }
 
@@ -141,6 +141,6 @@ final class StateSubjectTests: XCTestCase {
         subject.subscribe { number in
             XCTAssertEqual(number, 1, "Number 2 should never reach this observer because it's disposed by a previously subscribed observer")
         }.addTo(container)
-        subject.publish(2)
+        subject.onNext(2)
     }
 }

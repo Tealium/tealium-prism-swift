@@ -11,20 +11,20 @@ import Foundation
 /**
  * A `Subject` that must always have a value.
  *
- * You can use it as a property wrapper to make the publishing private in the class where it's contained, but still expose an `ObservableState`
+ * You can use it as a property wrapper to make the emitting private in the class where it's contained, but still expose an `ObservableState`
  * to the other classes.
  */
 @propertyWrapper
 public class StateSubject<Element>: Subject<Element> {
 
     private var _value: Element
-    /// The current state. Set a new value to publish an event to all `Observer`s
+    /// The current state. Set a new value to emit an event to all `Observer`s.
     public var value: Element {
         get {
             _value
         }
         set {
-            self.publish(newValue)
+            self.onNext(newValue)
         }
     }
 
@@ -34,17 +34,17 @@ public class StateSubject<Element>: Subject<Element> {
         self._value = initialValue
     }
 
-    /// Publishes a new state value.
+    /// Emits a new state value to all subscribers and updates the stored state.
     /// - Parameter element: The new state value.
-    public override func publish(_ element: Element) {
+    public override func onNext(_ element: Element) {
         self._value = element
-        super.publish(element)
+        super.onNext(element)
     }
 
     /// Converts this `StateSubject` to an `ObservableState` that is readonly and can only receive new values.
     public func asObservableState() -> ObservableState<Element> {
         ObservableState<Element>(valueProvider: self.value) { observer in
-            observer(self.value)
+            observer.onNext(self.value)
             return super.asObservable().subscribe(observer)
         }
     }
@@ -66,10 +66,10 @@ public class StateSubject<Element>: Subject<Element> {
 }
 
 public extension StateSubject where Element: Equatable {
-    /// Publishes the new event only if the new one is different from the last one
-    func publishIfChanged(_ element: Element) {
+    /// Emits the element only if it differs from the current value.
+    func onNextIfChanged(_ element: Element) {
         if element != value {
-            publish(element)
+            onNext(element)
         }
     }
 }

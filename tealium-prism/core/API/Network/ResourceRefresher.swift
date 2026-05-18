@@ -113,14 +113,14 @@ public class ResourceRefresher<Resource: Codable> {
         disposableRequest = networkHelper
             .getJsonAsObject(url: parameters.url, etag: lastEtag, additionalHeaders: nil) { [weak self] (result: ObjectResult<Resource>) in
                 guard let self else { return }
-                defer { self._onLoadCompleted.publish() }
+                defer { self._onLoadCompleted.onNext() }
                 switch result {
                 case .success(let response):
                     if validatingResource(response.object) {
                         self.logger?.debug(category: LogCategory.resourceRefresher,
                                            "Refreshed resource \(id)")
                         self.saveResource(response.object, etag: response.urlResponse.etag)
-                        self._onResourceLoaded.publish(response.object)
+                        self._onResourceLoaded.onNext(response.object)
                     } else {
                         self.logger?.debug(category: LogCategory.resourceRefresher,
                                            "Downloaded resource \(id) but discarded as not valid")
@@ -134,7 +134,7 @@ public class ResourceRefresher<Resource: Codable> {
                     } else {
                         self.logger?.error(category: LogCategory.resourceRefresher,
                                            "Failed to refresh resource \(id).\nError: \(error)")
-                        self._onRefreshError.publish(error)
+                        self._onRefreshError.onNext(error)
                         self.errorCooldown?.newCooldownEvent(error: error)
                     }
                 }
@@ -164,7 +164,7 @@ public class ResourceRefresher<Resource: Codable> {
         } catch {
             logger?.error(category: LogCategory.resourceRefresher,
                           "Failed to save downloaded resource \(id).\nError: \(error)")
-            _onRefreshError.publish(error)
+            _onRefreshError.onNext(error)
         }
     }
 

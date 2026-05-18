@@ -17,14 +17,17 @@ public enum Observables {
 public extension Observables {
 
     /**
-     * Creates a custom observable that can call `Observer` callbacks with values of type `Element`.
+     * Creates a custom observable from a subscription handler.
      *
-     * Use this method to create different behaviors upon `Observable` subscription.
+     * The handler is invoked every time the returned `Observable` is subscribed to.
+     * Within the handler, call `observer.onNext(_:)` to emit elements and `observer.onComplete()` to signal termination.
      *
-     * - parameter subscriptionHandler: The code run every time the returned `Observable` is subscribed upon.
-     * Within this block you can call the `Observer` block with values of type `Element`.
-     * - returns: An `Observable` that can be subscribed upon.
-     * Every time someone subscribes to this `Observable` the `subscriptionHandler` will be invoked.
+     * The `Disposable` returned from the handler is disposed when the subscription is externally disposed,
+     * allowing the handler to cancel any ongoing work.
+     *
+     * - parameter subscriptionHandler: A block invoked on each subscription. Receives an `Observer` and must return
+     *   a `Disposable` that will be disposed when the subscription is cancelled.
+     * - returns: An `Observable` that invokes `subscriptionHandler` on each subscription.
      */
     static func create<Element>(subscriptionHandler: @escaping Observable<Element>.SubscriptionHandler) -> Observable<Element> {
         AnonymousObservable(subscriptionHandler)
@@ -35,7 +38,7 @@ public extension Observables {
      * - Parameter asyncFunction: is the function that needs to be called and needs to report the completion to the provided observer.
      *  This function will only be called when an observer subscribes to the returned Observable. Every subscription will cause the asyncFunction to be called again.
      *
-     * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and publish a new event to the subscribers when the function completes.
+     * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and emit a new event to the subscribers when the function completes.
      */
     static func callback<Element>(from asyncFunction: @escaping (@escaping (Element) -> Void) -> Void) -> Observable<Element> {
         CallbackObservable { observer in
@@ -51,7 +54,7 @@ public extension Observables {
      *  This function will only be called when an observer subscribes to the returned Observable. Every subscription will cause the asyncFunction to be called again.
      *  The `Disposable` returned by this function will be disposed if the subscription is disposed before the event is emitted, allowing to cancel the ongoing work.
      *
-     * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and publish a new event to the subscribers when the function completes.
+     * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and emit a new event to the subscribers when the function completes.
      */
     static func callback<Element>(from asyncFunction: @escaping (@escaping (Element) -> Void) -> Disposable) -> Observable<Element> {
         CallbackObservable { observer in
@@ -68,23 +71,26 @@ public extension Observables {
     static func from<Element>(_ elements: [Element]) -> Observable<Element> {
         self.create { observer in
             for element in elements {
-                observer(element)
+                observer.onNext(element)
             }
             observer.onComplete()
             return Disposables.disposed()
         }
     }
 
-    /// Returns an empty observable that never reports anything
+    /// Returns an observable that completes immediately without emitting any elements.
     static func empty<Element>() -> Observable<Element> {
         Self.from([])
     }
 
     /**
-     * Returns a single observable with an array of Elements from the provided array of elements
+     * Combines the latest values from all provided observables into an array.
      *
-     * The first element published from the returned observable will be published when all the observables provided emit at list one element.
-     * All subsequent changes to any observable will be emitted one by one.
+     * The first emission occurs once every source observable has emitted at least one element.
+     * After that, a new array is emitted each time any source emits a new value.
+     *
+     * **Completion:** Completes when all sources complete, or early if any source completes
+     * without ever having emitted a value (since a full combination can never be formed).
      */
     static func combineLatest<Element>(_ observables: [Observable<Element>]) -> Observable<[Element]> {
         IterableCombineLatestObservable(observables: observables)

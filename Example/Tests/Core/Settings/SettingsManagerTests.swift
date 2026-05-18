@@ -78,7 +78,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
     }
 
-    func test_onNewSettingsMerged_doesnt_publish_merged_settings_without_remote_refresh() throws {
+    func test_onNewSettingsMerged_doesnt_emit_merged_settings_without_remote_refresh() throws {
         let settingsRefreshed = expectation(description: "Settings should not be refreshed")
         settingsRefreshed.isInverted = true
         addMockDispatcher()
@@ -94,7 +94,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_onNewSettingsMerged_publishes_merged_settings_on_remote_refresh() throws {
+    func test_onNewSettingsMerged_emits_merged_settings_on_remote_refresh() throws {
         let settingsRefreshed = expectation(description: "Settings are refreshed")
         addMockDispatcher()
         try networkHelper.encodeResult(DataObject(dictionary: [
@@ -131,7 +131,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_onNewSettingsMerged_doesnt_publish_merged_settings_on_failed_remote_refresh() throws {
+    func test_onNewSettingsMerged_doesnt_emit_merged_settings_on_failed_remote_refresh() throws {
         let settingsRefreshed = expectation(description: "Settings should not be refreshed")
         settingsRefreshed.isInverted = true
         addMockDispatcher()
@@ -147,7 +147,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_onNewRefreshInterval_publishes_new_interval_when_it_changes() throws {
+    func test_onNewRefreshInterval_emits_new_interval_when_it_changes() throws {
         let refreshIntervalUpdated = expectation(description: "RefreshInterval is updated")
         refreshIntervalUpdated.expectedFulfillmentCount = 2
         addMockDispatcher()
@@ -167,7 +167,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_onNewRefreshInterval_doesnt_publish_new_interval_when_it_doesnt_change() throws {
+    func test_onNewRefreshInterval_doesnt_emit_new_interval_when_it_doesnt_change() throws {
         let refreshIntervalUpdated = expectation(description: "RefreshInterval is updated only once")
         addMockDispatcher()
         let manager = try setupForLocal(url: "someUrl")
@@ -186,23 +186,23 @@ final class SettingsManagerTests: SettingsManagerTestCase {
     func test_onShouldRequestRefresh_requests_refreshes_on_launch_and_foreground() {
         let refreshShouldBeRequested = expectation(description: "Refresh should be requested")
         refreshShouldBeRequested.expectedFulfillmentCount = 2
-        let publisher = BasePublisher<ApplicationStatus>()
-        _ = SettingsManager.onShouldRequestRefresh(publisher.asObservable())
+        let subject = Subject<ApplicationStatus>()
+        _ = SettingsManager.onShouldRequestRefresh(subject.asObservable())
             .subscribe {
                 refreshShouldBeRequested.fulfill()
             }
-        publisher.publish(ApplicationStatus(type: .foregrounded))
+        subject.onNext(ApplicationStatus(type: .foregrounded))
         waitForDefaultTimeout()
     }
 
     func test_onShouldRequestRefresh_doesnt_request_refreshes_on_background() {
         let refreshShouldNotBeRequestedOnBackground = expectation(description: "Refresh should be requested on launch but not on background")
-        let publisher = BasePublisher<ApplicationStatus>()
-        _ = SettingsManager.onShouldRequestRefresh(publisher.asObservable())
+        let subject = Subject<ApplicationStatus>()
+        _ = SettingsManager.onShouldRequestRefresh(subject.asObservable())
             .subscribe {
                 refreshShouldNotBeRequestedOnBackground.fulfill()
             }
-        publisher.publish(ApplicationStatus(type: .backgrounded))
+        subject.onNext(ApplicationStatus(type: .backgrounded))
         waitForDefaultTimeout()
     }
 

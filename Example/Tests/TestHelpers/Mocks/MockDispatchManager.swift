@@ -12,7 +12,7 @@ class MockDispatchManager: DispatchManagerProtocol {
     @Subject<Dispatch> var onDispatch
     var tealiumPurposeExplicitlyBlocked: Bool = false
     func track(_ dispatch: Dispatch, onTrackResult: TrackResultCompletion?) {
-        _onDispatch.publish(dispatch)
+        _onDispatch.onNext(dispatch)
         onTrackResult?(.accepted(dispatch, info: "Mock Accepted"))
     }
 }

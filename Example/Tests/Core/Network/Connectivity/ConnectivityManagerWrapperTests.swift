@@ -13,7 +13,7 @@ final class ConnectivityManagerWrapperTests: XCTestCase {
 
     let mockConnectivityManager = MockConnectivityManager(queue: .main)
     let queue = TealiumQueue(dispatchQueue: DispatchQueue(label: "Other Queue", target: .main))
-    lazy var wrapper = mockConnectivityManager.publishingOn(queue: queue)
+    lazy var wrapper = mockConnectivityManager.emittingOn(queue: queue)
 
     func test_connection_updates_happen_on_the_provided_queue() {
         let connectionChanged = expectation(description: "Connection changed")

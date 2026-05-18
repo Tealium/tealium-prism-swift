@@ -21,7 +21,7 @@ class ConnectivityManagerWrapper: ConnectivityManagerProtocol {
     @StateSubject(NetworkConnection.unknown)
     var connection: ObservableState<NetworkConnection>
 
-    let disposable: Disposable
+    let disposable: any CompositeDisposable
 
     init(connectivityManager: ConnectivityManager, queue: TealiumQueue) {
         disposable = Disposables.composite(queue: connectivityManager.queue)
@@ -31,14 +31,14 @@ class ConnectivityManagerWrapper: ConnectivityManagerProtocol {
             .subscribeOn(connectivityManager.queue)
             .subscribe { [weak self] element in
                 queue.ensureOnQueue {
-                    self?._connectionAssumedAvailable.publishIfChanged(element)
+                    self?._connectionAssumedAvailable.onNextIfChanged(element)
                 }
             }.addTo(disposable)
         connectivityManager.connection
             .subscribeOn(connectivityManager.queue)
             .subscribe { [weak self] element in
                 queue.ensureOnQueue {
-                    self?._connection.publishIfChanged(element)
+                    self?._connection.onNextIfChanged(element)
                 }
             }.addTo(disposable)
     }

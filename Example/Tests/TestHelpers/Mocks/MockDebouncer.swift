@@ -26,7 +26,7 @@ class MockInstantDebouncer: DebouncerProtocol {
     init() {
     }
     func debounce(time: TimeInterval, completion: @escaping () -> Void) {
-        self._onDebounce.publish(time)
+        self._onDebounce.onNext(time)
         completion()
     }
     func cancel() {}

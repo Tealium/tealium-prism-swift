@@ -32,14 +32,14 @@ public class TealiumInstanceManager {
                 instance.context
                     .logger?.warn(category: LogCategory.tealium,
                                   "Duplicate Tealium instance requested for \(config.key). Returning existing one.")
-                subject.publish(.success(instance))
+                subject.onNext(.success(instance))
             } else {
                 do {
                     let instance = try TealiumImpl(config, queue: queue)
                     instances[config.key] = Weak(value: instance)
-                    subject.publish(.success(instance))
+                    subject.onNext(.success(instance))
                 } catch {
-                    subject.publish(.failure(error))
+                    subject.onNext(.failure(error))
                 }
             }
         }

@@ -35,11 +35,11 @@ class MockEmpiricalConnectivity: EmpiricalConnectivityProtocol {
     var onEmpiricalConnectionAvailable
 
     func connectionSuccess() {
-        _onConnectionSuccess.publish()
+        _onConnectionSuccess.onNext()
     }
 
     func connectionFail() {
-        _onConnectionFail.publish()
+        _onConnectionFail.onNext()
     }
 
     // MARK: Testing Utilities
@@ -49,7 +49,7 @@ class MockEmpiricalConnectivity: EmpiricalConnectivityProtocol {
     @Subject<Void> var onConnectionFail
 
     func changeConnectionAvailable(_ available: Bool) {
-        _onEmpiricalConnectionAvailable.publishIfChanged(available)
+        _onEmpiricalConnectionAvailable.onNextIfChanged(available)
     }
 
     func reset() {

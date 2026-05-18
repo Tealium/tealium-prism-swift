@@ -27,15 +27,15 @@ final class OperatorsDistinctTests: XCTestCase {
 
     func test_distinct_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable: Observable<Int> = observable.distinct()
-        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
+        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(subscribable: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
-        pub.publish(1)
-        pub.publish(1)
-        pub.publish(2)
+        subject.onNext(1)
+        subject.onNext(1)
+        subject.onNext(2)
         helper?.subscription?.dispose()
         helper = nil
         waitForDefaultTimeout()
@@ -43,17 +43,17 @@ final class OperatorsDistinctTests: XCTestCase {
 
     func test_distinct_detects_equal_elements_for_synchronous_refire_in_the_chain() {
         let eventProvided = expectation(description: "Event is provided")
-        let publisher = BasePublisher<Int>()
-        _ = publisher.asObservable()
+        let subject = Subject<Int>()
+        _ = subject.asObservable()
             .distinct()
             .map { element in
-                publisher.publish(element)
+                subject.onNext(element)
                 return element
             }
             .subscribe { _ in
                 eventProvided.fulfill()
             }
-        publisher.publish(1)
+        subject.onNext(1)
         waitForDefaultTimeout()
     }
 

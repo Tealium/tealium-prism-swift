@@ -20,9 +20,9 @@ final class OperatorsIgnoreTests: XCTestCase {
                     expectation.fulfill()
                 }
             }
-        sub.publish(1)
-        sub.publish(2)
-        sub.publish(3)
+        sub.onNext(1)
+        sub.onNext(2)
+        sub.onNext(3)
         waitForDefaultTimeout()
     }
 

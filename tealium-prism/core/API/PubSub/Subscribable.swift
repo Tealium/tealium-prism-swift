@@ -8,19 +8,20 @@
 
 import Foundation
 
-/// A protocol to provide all publisher-like classes access to a corresponding observable.
+/// A type that can be converted to an `Observable`.
 public protocol ObservableConvertible<Element> {
-    /// The type of element emitted by this subscribable.
+    /// The type of element emitted by this observable source.
     associatedtype Element
 
     /// Convert the current object to an `Observable`.
     func asObservable() -> Observable<Element>
 }
 
-/// A protocol to provide all observable-like classes some utilities like subscribeOnce or the operators.
+/// A type that can be subscribed to by an `Observer` to receive elements and completion.
 public protocol Subscribable<Element> {
     associatedtype Element
     /// Subscribes an `Observer` to receive elements and completion.
+    /// - Returns: A `Disposable` representing the subscription. Disposing it stops event delivery.
     @discardableResult
     func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable
 }
@@ -36,7 +37,7 @@ public extension Subscribable {
      */
     @discardableResult
     func subscribe(_ onNext: @escaping (Element) -> Void, onComplete: @escaping () -> Void = { }) -> any Disposable {
-        let observer = AnonymousObserver(onNext: onNext, onComplete: onComplete)
+        let observer = ThreadSafeAnonymousObserver(onNext: onNext, onComplete: onComplete)
         let upstream = self.subscribe(observer)
         observer.setUpstream(upstream)
         return observer

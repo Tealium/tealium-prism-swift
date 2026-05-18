@@ -12,7 +12,7 @@ struct MockMatchable: Matchable {
     let result: Bool
     @Subject<DataObject> var onMatchRequest
     func matches(payload: DataObject) -> Bool {
-        _onMatchRequest.publish(payload)
+        _onMatchRequest.onNext(payload)
         return result
     }
 }

@@ -42,7 +42,7 @@ final class RetryPolicyTests: XCTestCase {
             defer { expect.fulfill() }
             dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
             otherQueue.async {
-                observer(())
+                observer.onNext(())
             }
             return Disposables.disposed()
         })
@@ -57,7 +57,7 @@ final class RetryPolicyTests: XCTestCase {
         let policy = RetryPolicy.afterEvent(Observables.create { observer in
             dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
             otherQueue.async {
-                observer(())
+                observer.onNext(())
             }
             return Disposables.composite()
         })

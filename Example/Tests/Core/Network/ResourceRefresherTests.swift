@@ -114,7 +114,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         XCTAssertTrue(refresher.shouldRefresh)
     }
 
-    func test_onLatestResource_publishes_an_event_when_a_resource_is_cached() throws {
+    func test_onLatestResource_emits_an_event_when_a_resource_is_cached() throws {
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
         try networkHelper.encodeResult(inputResource)
         let resourceLoaded = expectation(description: "Resource is loaded")
@@ -127,7 +127,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         waitForDefaultTimeout()
     }
 
-    func test_onResourceLoaded_doesnt_publish_an_event_when_a_resource_is_cached() throws {
+    func test_onResourceLoaded_doesnt_emit_an_event_when_a_resource_is_cached() throws {
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
         try networkHelper.encodeResult(inputResource)
         let resourceLoaded = expectation(description: "Resource is not loaded")
@@ -140,7 +140,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
         waitForDefaultTimeout()
       }
 
-    func test_onLatestResource_doesnt_publish_an_event_when_a_resource_is_not_cached_and_not_refreshed() throws {
+    func test_onLatestResource_doesnt_emit_an_event_when_a_resource_is_not_cached_and_not_refreshed() throws {
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
         try networkHelper.encodeResult(inputResource)
         let resourceLoaded = expectation(description: "Resource should not be loaded")

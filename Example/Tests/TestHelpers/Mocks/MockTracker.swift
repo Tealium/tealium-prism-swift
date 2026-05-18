@@ -20,7 +20,7 @@ class MockTracker: Tracker {
         }
     }
     func track(_ trackable: Dispatch, source: DispatchContext.Source, onTrackResult: TrackResultCompletion?) {
-        _onTrack.publish(trackable)
+        _onTrack.onNext(trackable)
         onTrackResult?(trackResultBuilder(dispatch: trackable))
     }
 }

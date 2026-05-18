@@ -12,8 +12,8 @@ import XCTest
 final class OperatorsResubscribingTests: XCTestCase {
     let observable123 = Observables.just(1, 2, 3)
 
-    func test_resubscribing_on_a_synchronous_observable_only_publishes_the_first_event() {
-        let onlyFirstEventIsPublished = expectation(description: "Only the first event is published on a synchronous observable")
+    func test_resubscribing_on_a_synchronous_observable_only_emits_the_first_event() {
+        let onlyFirstEventIsPublished = expectation(description: "Only the first event is emitted on a synchronous observable")
         onlyFirstEventIsPublished.expectedFulfillmentCount = 5
         var subscription: Disposable?
         let queue = DispatchQueue(label: "test.queue")
@@ -33,8 +33,8 @@ final class OperatorsResubscribingTests: XCTestCase {
         }
     }
 
-    func test_resubscribing_on_an_asynchronous_observable_will_publish_all_events() {
-        let eventsPublished = expectation(description: "Events are published")
+    func test_resubscribing_on_an_asynchronous_observable_will_emit_all_events() {
+        let eventsPublished = expectation(description: "Events are emitted")
         eventsPublished.expectedFulfillmentCount = 2
         var eventCount = 0
         _ = Observables.create { observer in
@@ -45,7 +45,7 @@ final class OperatorsResubscribingTests: XCTestCase {
                     guard !subscription.isDisposed else {
                         return
                     }
-                    observer(eventCount)
+                    observer.onNext(eventCount)
                 }
             }
             return subscription
@@ -71,7 +71,7 @@ final class OperatorsResubscribingTests: XCTestCase {
                     guard !subscription.isDisposed else {
                         return
                     }
-                    observer(eventCount)
+                    observer.onNext(eventCount)
                 }
             }
             return subscription
@@ -89,7 +89,7 @@ final class OperatorsResubscribingTests: XCTestCase {
             if eventCount < 2 {
                 DispatchQueue.main.async {
                     eventCount += 1
-                    observer(eventCount)
+                    observer.onNext(eventCount)
                 }
             }
             return Subscription {

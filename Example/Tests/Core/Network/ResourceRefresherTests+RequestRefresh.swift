@@ -37,7 +37,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
         XCTAssertEqual(refresher.resourceCacher.readResource(), inputResource)
     }
 
-    func test_requestRefresh_when_cache_is_empty_causes_onResourceLoaded_to_publish_the_resource_as_an_event() throws {
+    func test_requestRefresh_when_cache_is_empty_causes_onResourceLoaded_to_emit_the_resource_as_an_event() throws {
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
         try networkHelper.encodeResult(inputResource)
         let resourceLoaded = expectation(description: "Resource is loaded")
@@ -51,7 +51,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
         waitForDefaultTimeout()
     }
 
-    func test_requestRefresh_when_cache_is_full_causes_onResourceLoaded_to_publish_two_subsequent_resources() throws {
+    func test_requestRefresh_when_cache_is_full_causes_onResourceLoaded_to_emit_two_subsequent_resources() throws {
         let inputResource1 = TestResourceObject(propertyString: "abc", propertyInt: 123)
         let inputResource2 = TestResourceObject(propertyString: "def", propertyInt: 456)
         try networkHelper.encodeResult(inputResource2)

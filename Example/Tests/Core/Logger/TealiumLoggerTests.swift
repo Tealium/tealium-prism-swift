@@ -71,17 +71,17 @@ final class TealiumLoggerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_minimum_log_level_changes_when_observable_publishes_new_level() {
+    func test_minimum_log_level_changes_when_observable_emits_new_level() {
         XCTAssertNil(logger.minimumLevel)
-        onLogLevel.publish(.trace)
+        onLogLevel.onNext(.trace)
         XCTAssertEqual(logger.minimumLevel, .trace)
-        onLogLevel.publish(.debug)
+        onLogLevel.onNext(.debug)
         XCTAssertEqual(logger.minimumLevel, .debug)
-        onLogLevel.publish(.info)
+        onLogLevel.onNext(.info)
         XCTAssertEqual(logger.minimumLevel, .info)
-        onLogLevel.publish(.warn)
+        onLogLevel.onNext(.warn)
         XCTAssertEqual(logger.minimumLevel, .warn)
-        onLogLevel.publish(.error)
+        onLogLevel.onNext(.error)
         XCTAssertEqual(logger.minimumLevel, .error)
     }
 
@@ -115,7 +115,7 @@ final class TealiumLoggerTests: XCTestCase {
             errorLevelIsLogged.fulfill()
             XCTAssertEqual(logEvent.level, .error)
         }
-        onLogLevel.publish(.info)
+        onLogLevel.onNext(.info)
         waitForDefaultTimeout()
     }
 
@@ -131,28 +131,28 @@ final class TealiumLoggerTests: XCTestCase {
         let messageIsCreated = expectation(description: "Message is created")
         messageIsCreated.assertForOverFulfill = false
         logger.error(category: "category", createMessage(expectation: messageIsCreated))
-        onLogLevel.publish(.info)
+        onLogLevel.onNext(.info)
         waitForLongTimeout()
     }
 
-    func test_error_events_are_published_even_when_minimumLevel_is_silent() {
-        let errorEventPublished = expectation(description: "Error event should be published")
+    func test_error_events_are_emitted_even_when_minimumLevel_is_silent() {
+        let errorEventemitted = expectation(description: "Error event should be emitted")
         forceLevel = .silent
         _ = logger.onError.subscribe { errorEvent in
             XCTAssertEqual(errorEvent.category, "TestCategory")
             XCTAssertEqual(errorEvent.descriptionProvider(), "Test error message")
-            errorEventPublished.fulfill()
+            errorEventemitted.fulfill()
         }
         logger.error(category: "TestCategory", "Test error message")
         waitForDefaultTimeout()
     }
 
-    func test_error_events_are_not_published_for_non_error_levels() {
-        let errorEventNotPublished = expectation(description: "Error event should not be published")
-        errorEventNotPublished.isInverted = true
+    func test_error_events_are_not_emitted_for_non_error_levels() {
+        let errorEventNotemitted = expectation(description: "Error event should not be emitted")
+        errorEventNotemitted.isInverted = true
         forceLevel = .trace
         _ = logger.onError.subscribe { _ in
-            errorEventNotPublished.fulfill()
+            errorEventNotemitted.fulfill()
         }
         logger.trace(category: "TestCategory", "Trace message")
         logger.debug(category: "TestCategory", "Debug message")

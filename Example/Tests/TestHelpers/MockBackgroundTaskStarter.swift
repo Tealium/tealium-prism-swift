@@ -20,14 +20,14 @@ class MockBackgroundTaskStarter: BackgroundTaskStarter {
 
     override func startBackgroundTask(withName name: String? = nil) -> Observable<Bool> {
         Observables.create { [_onBackgroundTaskStarted] observer in
-            _onBackgroundTaskStarted.publishIfChanged(false)
-            let composite = Disposables.composite {
-                _onBackgroundTaskStarted.publishIfChanged(false)
+            _onBackgroundTaskStarted.onNextIfChanged(false)
+            let composite = Disposables.composite().onDispose {
+                _onBackgroundTaskStarted.onNextIfChanged(false)
             }
             super.startBackgroundTask(withName: name)
                 .subscribe { ongoing in
-                    _onBackgroundTaskStarted.publishIfChanged(ongoing)
-                    observer(ongoing)
+                    _onBackgroundTaskStarted.onNextIfChanged(ongoing)
+                    observer.onNext(ongoing)
                 }.addTo(composite)
             return composite
         }

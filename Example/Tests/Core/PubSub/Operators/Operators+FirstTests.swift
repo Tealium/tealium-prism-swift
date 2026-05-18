@@ -28,11 +28,11 @@ final class OperatorsFirstTests: XCTestCase {
         _ = subject.asObservable()
             .first()
             .subscribe { res in
-                subject.publish(2 * res) // Crashes in case of reentrancy (if first was not safely handling the disposal of the observer)
+                subject.onNext(2 * res) // Crashes in case of reentrancy (if first was not safely handling the disposal of the observer)
                 XCTAssertEqual(res, 1)
                 expectation.fulfill()
             }
-        subject.publish(1)
+        subject.onNext(1)
         waitForDefaultTimeout()
     }
 
@@ -60,10 +60,10 @@ final class OperatorsFirstTests: XCTestCase {
 
     func test_first_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable: Observable<Int> = observable.first()
-        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
+        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(subscribable: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
         helper?.subscription?.dispose()
@@ -73,13 +73,13 @@ final class OperatorsFirstTests: XCTestCase {
 
     func test_first_cleans_retain_cycles_after_first_event() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable: Observable<Int> = observable.first()
-        _ = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
+        _ = SubscriptionRetainCycleHelper(subscribable: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
-        pub.publish(1)
+        subject.onNext(1)
         waitForDefaultTimeout()
     }
 
@@ -107,7 +107,7 @@ final class OperatorsFirstTests: XCTestCase {
         } onComplete: {
             completed.fulfill()
         }
-        subject.publish(1)
+        subject.onNext(1)
         waitForDefaultTimeout()
     }
 

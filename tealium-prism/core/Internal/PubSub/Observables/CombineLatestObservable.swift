@@ -58,12 +58,6 @@ private class CombineLatestCoordinator<First, Other>: Disposable {
         dispose()
     }
 
-    @discardableResult
-    func add(_ disposable: any Disposable) -> Self {
-        container.add(disposable)
-        return self
-    }
-
     func dispose() {
         downstream = nil
         container.dispose()

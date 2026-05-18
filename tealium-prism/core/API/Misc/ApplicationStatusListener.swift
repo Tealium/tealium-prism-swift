@@ -43,11 +43,11 @@ public struct ApplicationStatus {
     }
 }
 
-/// Listens for application lifecycle events and publishes status changes.
+/// Listens for application lifecycle events and emits status changes.
 public class ApplicationStatusListener: NSObject {
     static let shared = ApplicationStatusListener()
 
-    /// Observable that emits application status changes. By default, all published changes will be re-emitted to every new subscriber for 10 seconds after start.
+    /// Observable that emits application status changes. By default, all emitted changes will be re-emitted to every new subscriber for 10 seconds after start.
     /// After that grace period only the last change is re-emitted to every new subscriber.
     @ReplaySubject(ApplicationStatus(type: .initialized), cacheSize: Int.max)
     public var onApplicationStatus
@@ -93,14 +93,14 @@ public class ApplicationStatusListener: NSObject {
         sleepNotificationObserver = notificationCenter.addObserver(forName: notificationApplicationWillResignActive,
                                                                    object: nil,
                                                                    queue: operationQueue) { [weak self] _ in
-            self?._onApplicationStatus.publish(ApplicationStatus(type: .backgrounded))
+            self?._onApplicationStatus.onNext(ApplicationStatus(type: .backgrounded))
         }
 
         /// Notifies listeners of a wake event.
         wakeNotificationObserver = notificationCenter.addObserver(forName: notificationApplicationDidBecomeActive,
                                                                   object: nil,
                                                                   queue: operationQueue) { [weak self] _ in
-            self?._onApplicationStatus.publish(ApplicationStatus(type: .foregrounded))
+            self?._onApplicationStatus.onNext(ApplicationStatus(type: .foregrounded))
         }
     }
 

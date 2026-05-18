@@ -129,7 +129,11 @@ final class TealiumInstanceManagerTests: XCTestCase {
         var teal: Tealium? = manager.create(config: config, completion: { _ in
             creationCompleted.fulfill()
         })
+        #if compiler(>=6.2.3)
+        weak let weakTeal = teal
+        #else
         weak var weakTeal = teal
+        #endif
         waitForDefaultTimeout()
         XCTAssertNotNil(manager.proxies[config.key]?.value)
         XCTAssertNotNil(weakTeal)

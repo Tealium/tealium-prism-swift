@@ -37,10 +37,10 @@ class ModuleStore: DataStore {
                 }
             }
             if !removedKeys.isEmpty {
-                self._onDataRemoved.publish(removedKeys)
+                self._onDataRemoved.onNext(removedKeys)
             }
             if updatedData.count > 0 {
-                self._onDataUpdated.publish(updatedData)
+                self._onDataUpdated.onNext(updatedData)
             }
         }
     }

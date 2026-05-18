@@ -28,14 +28,17 @@ private class ResubscribingWhileCoordinator<Element>: Disposable {
     private func subscribeOnce() {
         // Per-call flag: first() fires onNext+onComplete on match; emitted=false means upstream ended without matching.
         var emitted = false
-        source.first().subscribe { element in
-            emitted = true
-            self.handleElement(element)
-        } onComplete: {
-            if !emitted {
-                self.handleUpstreamCompleted()
+        source.first().subscribe(composite: container, observer: AnonymousObserver(
+            onNext: { element in
+                emitted = true
+                self.handleElement(element)
+            },
+            onComplete: {
+                if !emitted {
+                    self.handleUpstreamCompleted()
+                }
             }
-        }.addTo(container)
+        ))
     }
 
     private func handleElement(_ element: Element) {
@@ -53,14 +56,6 @@ private class ResubscribingWhileCoordinator<Element>: Disposable {
         guard !isDisposed else { return }
         downstream?.onComplete()
         dispose()
-    }
-
-    // TODO: Remove after we separate `Disposable` and `CompositeDisposable`
-    @discardableResult
-    @available(*, deprecated)
-    func add(_ disposable: any Disposable) -> Self {
-        container.add(disposable)
-        return self
     }
 
     func dispose() {

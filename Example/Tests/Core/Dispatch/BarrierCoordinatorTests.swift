@@ -196,7 +196,7 @@ final class BarrierCoordinatorTests: XCTestCase {
 
         _ = coordinator.onBarriersState(for: "dispatcher").subscribe { _ in }
         XCTAssertFalse(starter.backgroundTaskOngoing)
-        applicationStatus.publish(ApplicationStatus(type: .backgrounded))
+        applicationStatus.onNext(ApplicationStatus(type: .backgrounded))
         XCTAssertFalse(starter.backgroundTaskOngoing)
     }
 
@@ -208,7 +208,7 @@ final class BarrierCoordinatorTests: XCTestCase {
 
         _ = coordinator.onBarriersState(for: "dispatcher").subscribe { _ in }
         XCTAssertFalse(starter.backgroundTaskOngoing)
-        applicationStatus.publish(ApplicationStatus(type: .backgrounded))
+        applicationStatus.onNext(ApplicationStatus(type: .backgrounded))
         XCTAssertTrue(starter.backgroundTaskOngoing)
     }
 
@@ -220,7 +220,7 @@ final class BarrierCoordinatorTests: XCTestCase {
 
         _ = coordinator.onBarriersState(for: "dispatcher").subscribe { _ in }
         XCTAssertFalse(starter.backgroundTaskOngoing)
-        applicationStatus.publish(ApplicationStatus(type: .backgrounded))
+        applicationStatus.onNext(ApplicationStatus(type: .backgrounded))
         XCTAssertTrue(starter.backgroundTaskOngoing)
         queueMetrics.setQueueSize(0)
         XCTAssertFalse(starter.backgroundTaskOngoing)

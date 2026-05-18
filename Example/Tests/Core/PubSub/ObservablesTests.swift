@@ -11,11 +11,11 @@ import XCTest
 
 final class ObservablesTests: XCTestCase {
 
-    func test_just_publishes_parameters_as_events() {
+    func test_just_emits_parameters_as_events() {
         let expectations = [
-            expectation(description: "Event 0 is published"),
-            expectation(description: "Event 1 is published"),
-            expectation(description: "Event 2 is published"),
+            expectation(description: "Event 0 is emitted"),
+            expectation(description: "Event 1 is emitted"),
+            expectation(description: "Event 2 is emitted"),
         ]
         let observable = Observables.just(0, 1, 2)
         _ = observable.subscribe { number in
@@ -25,7 +25,7 @@ final class ObservablesTests: XCTestCase {
     }
 
     func test_callback_transforms_a_function_with_callback_into_an_observable() {
-        let expectation = expectation(description: "Event is published")
+        let expectation = expectation(description: "Event is emitted")
         func anAsyncFunctionWithACallback(callback: @escaping (Int) -> Void) {
             DispatchQueue.main.async {
                 callback(1)
@@ -53,19 +53,19 @@ final class ObservablesTests: XCTestCase {
 
     func test_combineLatest_is_notified_after_all_observables_have_pushed_at_least_one_event() {
         let combineLatestIsNotified = expectation(description: "Combine latest event is notified")
-        let pubA = BasePublisher<String>()
-        let pubB = BasePublisher<String>()
-        let pubC = BasePublisher<String>()
-        let sub = Observables.combineLatest([pubA.asObservable(), pubB.asObservable(), pubC.asObservable()])
+        let subjectA = Subject<String>()
+        let subjectB = Subject<String>()
+        let subjectC = Subject<String>()
+        let sub = Observables.combineLatest([subjectA.asObservable(), subjectB.asObservable(), subjectC.asObservable()])
             .subscribe { result in
                 XCTAssertEqual(result, ["a3", "b1", "c1"])
                 combineLatestIsNotified.fulfill()
             }
-        pubA.publish("a1")
-        pubA.publish("a2")
-        pubA.publish("a3")
-        pubC.publish("c1")
-        pubB.publish("b1")
+        subjectA.onNext("a1")
+        subjectA.onNext("a2")
+        subjectA.onNext("a3")
+        subjectC.onNext("c1")
+        subjectB.onNext("b1")
         waitForDefaultTimeout()
         sub.dispose()
     }
@@ -73,19 +73,19 @@ final class ObservablesTests: XCTestCase {
     func test_combineLatest_is_notified_after_each_event_after_every_observable_notified_at_least_one() {
         let combineLatestIsNotified = expectation(description: "Combine latest event is notified 3 times")
         combineLatestIsNotified.expectedFulfillmentCount = 3
-        let pubA = BasePublisher<String>()
-        let pubB = BasePublisher<String>()
-        let pubC = BasePublisher<String>()
-        let sub = Observables.combineLatest([pubA.asObservable(), pubB.asObservable(), pubC.asObservable()])
+        let subjectA = Subject<String>()
+        let subjectB = Subject<String>()
+        let subjectC = Subject<String>()
+        let sub = Observables.combineLatest([subjectA.asObservable(), subjectB.asObservable(), subjectC.asObservable()])
             .subscribe { result in
                 XCTAssertEqual(result, ["a", "b1", "c1"])
                 combineLatestIsNotified.fulfill()
             }
-        pubA.publish("a")
-        pubC.publish("c1")
-        pubB.publish("b1")
-        pubA.publish("a")
-        pubA.publish("a")
+        subjectA.onNext("a")
+        subjectC.onNext("c1")
+        subjectB.onNext("b1")
+        subjectA.onNext("a")
+        subjectA.onNext("a")
         waitForDefaultTimeout()
         sub.dispose()
     }
@@ -116,8 +116,8 @@ final class ObservablesTests: XCTestCase {
         } onComplete: {
             completed.fulfill()
         }
-        subject.publish(1)
-        subject.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
         waitForDefaultTimeout()
     }
 
@@ -136,8 +136,8 @@ final class ObservablesTests: XCTestCase {
             XCTAssertEqual(res[1], count)
             count += 1
         }
-        subject.publish(1)
-        subject.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
 
         waitForDefaultTimeout()
         XCTAssertFalse(disposable.isDisposed)
@@ -155,7 +155,7 @@ final class ObservablesTests: XCTestCase {
             } onComplete: {
                 completed.fulfill()
             }
-        emitting.publish(1)
+        emitting.onNext(1)
         silent.onComplete()
         waitForDefaultTimeout()
     }

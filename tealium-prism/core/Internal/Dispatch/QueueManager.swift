@@ -146,7 +146,7 @@ class QueueManager: QueueManagerProtocol {
             try queueRepository.storeDispatches(dispatches, enqueueingFor: processors)
             logger?.debug(category: LogCategory.queueManager,
                           "Enqueued dispatches for processors \(processors): \(dispatches.map { $0.logDescription() })")
-            _onEnqueuedDispatchesForProcessors.publish(Set(processors))
+            _onEnqueuedDispatchesForProcessors.onNext(Set(processors))
         } catch {
             logger?.error(category: LogCategory.queueManager,
                           "Failed to enqueue dispatches for processors \(processors): \(dispatches.map { $0.logDescription() })\nError: \(error)")
@@ -167,7 +167,7 @@ class QueueManager: QueueManagerProtocol {
 
     private func onDispatchesDeleted(processor: String, dispatchUUIDs: [String]) {
         guard !dispatchUUIDs.isEmpty else { return }
-        _onDeletedDispatchesForProcessors.publish([processor])
+        _onDeletedDispatchesForProcessors.onNext([processor])
         var eventsInflight = inflightEvents.value
         let remaining = (eventsInflight[processor] ?? Set<String>()).subtracting(dispatchUUIDs)
         eventsInflight[processor] = remaining
@@ -190,7 +190,7 @@ class QueueManager: QueueManagerProtocol {
         guard !processors.isEmpty else {
             return
         }
-        _onDeletedDispatchesForProcessors.publish(processors)
+        _onDeletedDispatchesForProcessors.onNext(processors)
         let eventsInflight = inflightEvents.value.filter { !processors.contains($0.key) }
         _inflightEvents.value = eventsInflight
     }

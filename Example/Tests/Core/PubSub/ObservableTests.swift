@@ -11,16 +11,16 @@ import XCTest
 
 final class ObservableTests: XCTestCase {
 
-    let pub = BasePublisher<Int>()
+    let subject = Subject<Int>()
 
     func test_as_observable_receives_events() {
-        let expectation = expectation(description: "Event is published to the observable")
-        let obs = pub.asObservable()
+        let expectation = expectation(description: "Event is emitted to the observer")
+        let obs = subject.asObservable()
         _ = obs.subscribe { number in
             expectation.fulfill()
             XCTAssertEqual(number, 1)
         }
-        pub.publish(1)
+        subject.onNext(1)
         waitForDefaultTimeout()
     }
 
@@ -30,7 +30,7 @@ final class ObservableTests: XCTestCase {
             expectation(description: "Second event is called"),
             expectation(description: "Third event is called"),
         ]
-        let obs = pub.asObservable()
+        let obs = subject.asObservable()
         _ = obs.subscribe { number in
             expectations[0].fulfill()
             XCTAssertEqual(number, 1)
@@ -43,7 +43,7 @@ final class ObservableTests: XCTestCase {
             expectations[2].fulfill()
             XCTAssertEqual(number, 1)
         }
-        pub.publish(1)
+        subject.onNext(1)
         wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
@@ -63,10 +63,10 @@ final class ObservableTests: XCTestCase {
         let observable: Observable<Int> = Observables.create { observer in
             let disposable = Disposables.composite()
             DispatchQueue.main.async {
-                observer(1)
+                observer.onNext(1)
                 // The following is a synchronous observer call,
                 // done without checking if disposable is already disposed.
-                observer(2)
+                observer.onNext(2)
             }
             return disposable
         }

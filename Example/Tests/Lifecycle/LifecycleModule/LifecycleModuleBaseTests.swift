@@ -31,7 +31,7 @@ class LifecycleModuleBaseTests: XCTestCase {
     }
 
     func publishApplicationStatus(_ applicationStatus: ApplicationStatus) {
-        _applicationStatus.publish(applicationStatus)
+        _applicationStatus.onNext(applicationStatus)
     }
 
     func updateSettings(_ builder: LifecycleSettingsBuilder) {

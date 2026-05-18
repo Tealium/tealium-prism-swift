@@ -13,7 +13,7 @@ class TealiumHelper {
     private(set) var teal: Tealium?
     static let shared = TealiumHelper()
     let cmp = CustomCMP()
-    var disposable: Disposable = Disposables.disposed()
+    var disposable: CompositeDisposable = Disposables.composite()
     func createModuleFactories() -> [any ModuleFactory] {
         [
             CustomCollector.Factory(),

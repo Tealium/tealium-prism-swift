@@ -6,8 +6,14 @@
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
-import TealiumPrism
+@testable import TealiumPrism
 import XCTest
+
+struct EmptyObserver<Element>: Observer {
+    func onNext(_ element: Element) { }
+
+    func onComplete() { }
+}
 
 final class OperatorsFlatMapTests: XCTestCase {
     let observable123 = Observables.just(1, 2, 3)
@@ -28,9 +34,9 @@ final class OperatorsFlatMapTests: XCTestCase {
         let flatMappedEventIsCalled = expectation(description: "FlatMapped event is called 3 times")
         flatMappedEventIsCalled.expectedFulfillmentCount = 3
         _ = observable123.flatMap { element in
-            Observables.callback { observer in
+            Observables.callback { completion in
                 DispatchQueue.main.async {
-                    observer(element)
+                    completion(element)
                 }
             }
         }.subscribe { _ in
@@ -56,13 +62,13 @@ final class OperatorsFlatMapTests: XCTestCase {
 
     func test_flatMap_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable: Observable<Int> = observable.flatMap { _ in Observables.just(2) }
-        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
+        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(subscribable: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
-        pub.publish(1)
+        subject.onNext(1)
         helper?.subscription?.dispose()
         helper = nil
         waitForDefaultTimeout()
@@ -75,9 +81,9 @@ final class OperatorsFlatMapTests: XCTestCase {
         let innerSubject2 = Subject<Int>()
         _ = subject.asObservable().flatMapLatest { value in
             if value == 1 {
-                subject.publish(2)
-                subject.publish(3)
-                subject.publish(4)
+                subject.onNext(2)
+                subject.onNext(3)
+                subject.onNext(4)
                 return innerSubject1.asObservable()
             } else {
                 return innerSubject2.asObservable()
@@ -86,9 +92,9 @@ final class OperatorsFlatMapTests: XCTestCase {
             XCTAssertEqual(value, 200)
             observerCalled.fulfill()
         }
-        subject.publish(1)
-        innerSubject1.publish(100)
-        innerSubject2.publish(200)
+        subject.onNext(1)
+        innerSubject1.onNext(100)
+        innerSubject2.onNext(200)
         waitForDefaultTimeout()
     }
 
@@ -101,7 +107,7 @@ final class OperatorsFlatMapTests: XCTestCase {
             XCTAssertEqual(value, 200)
             observerCalled.fulfill()
         }
-        subject.publish(nil)
+        subject.onNext(nil)
         waitForDefaultTimeout()
     }
 
@@ -117,8 +123,8 @@ final class OperatorsFlatMapTests: XCTestCase {
             eventEmitted.fulfill()
             XCTAssertEqual(res, 5)
         }
-        subject.publish(1)
-        subject.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
 
         XCTAssertFalse(disposable.isDisposed)
         waitForDefaultTimeout()
@@ -135,8 +141,8 @@ final class OperatorsFlatMapTests: XCTestCase {
             eventEmitted.fulfill()
             XCTAssertEqual(res, 2)
         }
-        subject.publish(1)
-        subject.publish(1)
+        subject.onNext(1)
+        subject.onNext(1)
 
         XCTAssertFalse(disposable.isDisposed)
         waitForDefaultTimeout()
@@ -167,9 +173,9 @@ final class OperatorsFlatMapTests: XCTestCase {
         } onComplete: {
             completed.fulfill()
         }
-        subject.publish(1)
-        subject.publish(2)
-        subject.publish(3)
+        subject.onNext(1)
+        subject.onNext(2)
+        subject.onNext(3)
         waitForDefaultTimeout()
     }
 
@@ -187,8 +193,8 @@ final class OperatorsFlatMapTests: XCTestCase {
         } onComplete: {
             completed.fulfill()
         }
-        subject.publish(1)
-        subject.publish(5)
+        subject.onNext(1)
+        subject.onNext(5)
 
         waitForDefaultTimeout()
     }
@@ -210,6 +216,24 @@ final class OperatorsFlatMapTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
+    func test_flatMap_inner_subscription_is_removed_from_container_on_completion() {
+        let outer = Subject<Int>()
+        let inner = Subject<Int>()
+        let observable = outer.asObservable().flatMap { _ in inner.asObservable() }
+        guard let container = observable.subscribe(EmptyObserver()) as? DisposableContainer else {
+            XCTFail("flatMap is expected to return a DisposableContainer as its subscription Disposable")
+            return
+        }
+        // 1 entry: the upstream subscription (FlatMapObserver)
+        XCTAssertEqual(container.count, 1)
+        outer.onNext(1)
+        // 2 entries: upstream + inner UnsubscribingObserver
+        XCTAssertEqual(container.count, 2)
+        inner.onComplete()
+        // Back to 1: inner removed itself
+        XCTAssertEqual(container.count, 1)
+    }
+
     func test_flatMapLatest_does_not_dispose_subscription_when_upstream_is_disposed_but_downstream_is_not() {
         let subject = Subject<Int>()
         let eventEmitted = expectation(description: "Event is emitted")
@@ -222,8 +246,8 @@ final class OperatorsFlatMapTests: XCTestCase {
             eventEmitted.fulfill()
             XCTAssertEqual(res, 5)
         }
-        subject.publish(1)
-        subject.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
 
         XCTAssertFalse(disposable.isDisposed)
         waitForDefaultTimeout()
@@ -240,8 +264,8 @@ final class OperatorsFlatMapTests: XCTestCase {
             eventEmitted.fulfill()
             XCTAssertEqual(res, 2)
         }
-        subject.publish(1)
-        subject.publish(1)
+        subject.onNext(1)
+        subject.onNext(1)
 
         XCTAssertFalse(disposable.isDisposed)
         waitForDefaultTimeout()
@@ -271,9 +295,9 @@ final class OperatorsFlatMapTests: XCTestCase {
         } onComplete: {
             completed.fulfill()
         }
-        subject.publish(1)
-        subject.publish(2)
-        subject.publish(3)
+        subject.onNext(1)
+        subject.onNext(2)
+        subject.onNext(3)
         waitForDefaultTimeout()
     }
 
@@ -291,8 +315,8 @@ final class OperatorsFlatMapTests: XCTestCase {
         } onComplete: {
             completed.fulfill()
         }
-        subject.publish(1)
-        subject.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
         waitForDefaultTimeout()
     }
 
@@ -322,10 +346,10 @@ final class OperatorsFlatMapTests: XCTestCase {
     }
 
     /// Exercises the while-loop in `FlatMapLatestObserver.onNext`: each inner observable,
-    /// on subscribe, synchronously republishes upstream before emitting. The loop must
+    /// on subscribe, synchronously re-emits upstream before emitting. The loop must
     /// drain `latestElement` across every re-entry so all three inner subscriptions run
     /// in sequence without the operator losing or duplicating events.
-    func test_flatMapLatest_handles_reentrant_synchronous_republish_from_inner_subscription() {
+    func test_flatMapLatest_handles_reentrant_synchronous_reemits_from_inner_subscription() {
         let emitted = expectation(description: "Each inner subscription emits once")
         emitted.expectedFulfillmentCount = 3
         let completed = expectation(description: "Observable completed")
@@ -334,7 +358,7 @@ final class OperatorsFlatMapTests: XCTestCase {
         _ = subject.asObservable().flatMapLatest { value -> Observable<Int> in
             Observables.create { observer in
                 if value < 3 {
-                    subject.publish(value + 1)
+                    subject.onNext(value + 1)
                 }
                 observer.onNext(value * 10)
                 observer.onComplete()
@@ -346,10 +370,52 @@ final class OperatorsFlatMapTests: XCTestCase {
         } onComplete: {
             completed.fulfill()
         }
-        subject.publish(1)
+        subject.onNext(1)
         subject.onComplete()
         waitForDefaultTimeout()
         XCTAssertEqual(received, [10, 20, 30])
     }
 
+    /// Verifies that the container never accumulates more than one inner entry during reentrant
+    /// synchronous re-emission: each inner observable completes synchronously before the next
+    /// `subscribe(composite:observer:)` call registers it, so the container stays at count 1.
+    func test_flatMapLatest_container_count_stays_at_one_during_reentrant_synchronous_reemit() {
+        let subject = Subject<Int>()
+        let observable = subject.asObservable().flatMapLatest { value -> Observable<Int> in
+            Observables.create { observer in
+                if value < 3 {
+                    subject.onNext(value + 1)
+                }
+                observer.onNext(value * 10)
+                observer.onComplete()
+                return Disposables.disposed()
+            }
+        }
+        guard let container = observable.subscribe(EmptyObserver()) as? DisposableContainer else {
+            XCTFail("flatMapLatest is expected to return a DisposableContainer as its subscription Disposable")
+            return
+        }
+        // 1 entry: upstream FlatMapLatestObserver
+        XCTAssertEqual(container.count, 1)
+        subject.onNext(1)
+        // All three inner observables completed synchronously and self-removed; back to 1
+        XCTAssertEqual(container.count, 1)
+    }
+
+    func test_flatMapLatest_inner_subscription_is_removed_from_container_on_completion() {
+        let outer = Subject<Int>()
+        let inner = Subject<Int>()
+        let observable = outer.asObservable().flatMapLatest { _ in inner.asObservable() }
+        guard let container = observable.subscribe(EmptyObserver()) as? DisposableContainer else {
+            XCTFail("flatMapLatest is expected to return a DisposableContainer as its subscription Disposable")
+            return
+        }
+        XCTAssertEqual(container.count, 1)
+        outer.onNext(1)
+        // 2 entries: upstream + inner UnsubscribingObserver
+        XCTAssertEqual(container.count, 2)
+        inner.onComplete()
+        // Back to 1: inner removed itself
+        XCTAssertEqual(container.count, 1)
+    }
 }

@@ -34,14 +34,14 @@ final class OperatorsFilterTests: XCTestCase {
 
     func test_filter_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable: Observable<Int> = observable.filter { $0 != 2 }
-        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
+        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(subscribable: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
-        pub.publish(1)
-        pub.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
         helper?.subscription?.dispose()
         helper = nil
         waitForDefaultTimeout()

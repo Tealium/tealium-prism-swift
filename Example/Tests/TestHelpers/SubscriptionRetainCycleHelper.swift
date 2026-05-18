@@ -18,15 +18,15 @@ extension Subscribable {
     }
 }
 
-class SubscriptionRetainCycleHelper<P: Subscribable>: DeinitTester {
+class SubscriptionRetainCycleHelper<S: Subscribable>: DeinitTester {
 
-    let anyPublisher: P
+    let anySubscribable: S
     var subscription: Disposable?
 
-    init(publisher: P, onDeinit: @escaping () -> Void) {
-        self.anyPublisher = publisher
+    init(subscribable: S, onDeinit: @escaping () -> Void) {
+        self.anySubscribable = subscribable
         super.init(onDeinit: onDeinit)
-        self.subscription = publisher.subscribe { _ in
+        self.subscription = subscribable.subscribe { _ in
             print(self)
         }
     }

@@ -37,11 +37,6 @@ import Foundation
 
     func setUpstream(_ disposable: any Disposable) { linkable.setUpstream(disposable) }
 
-    // TODO: Remove after we separate `Disposable` and `CompositeDisposable`
-    @discardableResult
-    @available(*, deprecated)
-    func add(_ disposable: any Disposable) -> Self { self }
-
     func dispose() {
         isStopped = true
         downstream = nil

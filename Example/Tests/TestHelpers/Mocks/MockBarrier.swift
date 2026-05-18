@@ -22,11 +22,11 @@ class MockBarrier: Barrier {
     }
 
     func setState(_ newState: BarrierState) {
-        _state.publish(newState)
+        _state.onNext(newState)
     }
 
     func setFlushable(_ flushable: Bool) {
-        _isFlushable.publish(flushable)
+        _isFlushable.onNext(flushable)
     }
 }
 

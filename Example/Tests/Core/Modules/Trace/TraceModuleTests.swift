@@ -14,7 +14,7 @@ final class TraceModuleTests: XCTestCase {
     lazy var dataStoreProvider = ModuleStoreProvider(databaseProvider: dbProvider, modulesRepository: SQLModulesRepository(dbProvider: dbProvider))
     let tracker: MockTracker = MockTracker()
     var traceModule: TraceModule!
-    let errorSubject = BasePublisher<ErrorEvent>()
+    let errorSubject = Subject<ErrorEvent>()
     func createTrace(trackErrors: Bool = false, onErrorEvent: Observable<ErrorEvent>? = nil) throws -> TraceModule {
         let dataStore = try dataStoreProvider.getModuleStore(name: TraceModule.moduleType)
         return TraceModule(dataStore: dataStore,
@@ -37,7 +37,7 @@ final class TraceModuleTests: XCTestCase {
             }
         }
         try traceModule.join(id: "test-trace")
-        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Test error" }))
+        errorSubject.onNext(ErrorEvent(category: "TestCategory", descriptionProvider: { "Test error" }))
         waitForDefaultTimeout()
     }
 
@@ -51,7 +51,7 @@ final class TraceModuleTests: XCTestCase {
             }
         }
         try traceModule.join(id: "test-trace")
-        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Test error" }))
+        errorSubject.onNext(ErrorEvent(category: "TestCategory", descriptionProvider: { "Test error" }))
         waitForDefaultTimeout()
     }
 
@@ -65,7 +65,7 @@ final class TraceModuleTests: XCTestCase {
             }
         }
         // Note: NOT calling join() here - this is the key difference
-        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Test error" }))
+        errorSubject.onNext(ErrorEvent(category: "TestCategory", descriptionProvider: { "Test error" }))
         waitForDefaultTimeout()
     }
 
@@ -80,7 +80,7 @@ final class TraceModuleTests: XCTestCase {
                 errorDispatchNotTracked.fulfill()
             }
         }
-        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Test error" }))
+        errorSubject.onNext(ErrorEvent(category: "TestCategory", descriptionProvider: { "Test error" }))
         waitForDefaultTimeout()
     }
 
@@ -196,7 +196,7 @@ final class TraceModuleTests: XCTestCase {
                 errorTracked.fulfill()
             }
         }
-        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 1" }))
+        errorSubject.onNext(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 1" }))
         waitForDefaultTimeout()
         XCTAssertTrue(traceModule.errorCategoryCache.contains("TestCategory"))
     }
@@ -210,9 +210,9 @@ final class TraceModuleTests: XCTestCase {
                 errorTracked.fulfill()
             }
         }
-        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 1" }))
-        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 2" }))
-        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 3" }))
+        errorSubject.onNext(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 1" }))
+        errorSubject.onNext(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 2" }))
+        errorSubject.onNext(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 3" }))
         waitForDefaultTimeout()
         XCTAssertTrue(traceModule.errorCategoryCache.contains("TestCategory"))
         XCTAssertEqual(traceModule.errorCategoryCache.count, 1)
@@ -228,8 +228,8 @@ final class TraceModuleTests: XCTestCase {
                 errorsTracked.fulfill()
             }
         }
-        errorSubject.publish(ErrorEvent(category: "Category1", descriptionProvider: { "Error 1" }))
-        errorSubject.publish(ErrorEvent(category: "Category2", descriptionProvider: { "Error 1" }))
+        errorSubject.onNext(ErrorEvent(category: "Category1", descriptionProvider: { "Error 1" }))
+        errorSubject.onNext(ErrorEvent(category: "Category2", descriptionProvider: { "Error 1" }))
         waitForDefaultTimeout()
         XCTAssertTrue(traceModule.errorCategoryCache.contains("Category1"))
         XCTAssertTrue(traceModule.errorCategoryCache.contains("Category2"))
@@ -243,7 +243,7 @@ final class TraceModuleTests: XCTestCase {
     func test_errorCategoryCache_is_cleared_when_leaving_trace() throws {
         traceModule = try createTrace(trackErrors: true, onErrorEvent: errorSubject.asObservable())
         try traceModule.join(id: "test-trace")
-        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 1" }))
+        errorSubject.onNext(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 1" }))
         XCTAssertTrue(traceModule.errorCategoryCache.contains("TestCategory"))
         try traceModule.leave()
         XCTAssertTrue(traceModule.errorCategoryCache.isEmpty)
@@ -258,7 +258,7 @@ final class TraceModuleTests: XCTestCase {
                 errorTracked.fulfill()
             }
         }
-        errorSubject.publish(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 1" }))
+        errorSubject.onNext(ErrorEvent(category: "TestCategory", descriptionProvider: { "Error 1" }))
         waitForDefaultTimeout()
         XCTAssertTrue(traceModule.errorCategoryCache.contains("TestCategory"))
         try traceModule.join(id: "test-trace-2")

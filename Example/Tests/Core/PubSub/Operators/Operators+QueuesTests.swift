@@ -52,14 +52,14 @@ final class OperatorsQueuesTests: XCTestCase {
 
     func test_subscribeOn_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable: any Subscribable<Int> = observable.subscribeOn(queue)
-        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable.asObservable(), onDeinit: {
+        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(subscribable: generatedObservable.asObservable(), onDeinit: {
             expectation.fulfill()
         })
         queue.dispatchQueue.sync {
-            pub.publish(1)
+            subject.onNext(1)
         }
         helper?.subscription?.dispose()
         helper = nil
@@ -79,13 +79,13 @@ final class OperatorsQueuesTests: XCTestCase {
 
     func test_observeOn_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable: Observable<Int> = observable.observeOn(queue)
-        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
+        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(subscribable: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
-        pub.publish(1)
+        subject.onNext(1)
         queue.dispatchQueue.sync {
             helper?.subscription?.dispose()
             helper = nil
@@ -108,8 +108,8 @@ final class OperatorsQueuesTests: XCTestCase {
         } onComplete: {
             completed.fulfill()
         }
-        subject.publish(1)
-        subject.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
 
         waitForDefaultTimeout()
     }
@@ -128,8 +128,8 @@ final class OperatorsQueuesTests: XCTestCase {
         } onComplete: {
             completed.fulfill()
         }
-        subject.publish(1)
-        subject.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
 
         waitForDefaultTimeout()
     }
@@ -148,14 +148,14 @@ final class OperatorsQueuesTests: XCTestCase {
 
     func test_delay_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable: Observable<Int> = observable.delay(0, on: queue)
-        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
+        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(subscribable: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
         queue.ensureOnQueue {
-            pub.publish(1)
+            subject.onNext(1)
         }
         queue.dispatchQueue.sync {
             helper?.subscription?.dispose()
@@ -192,7 +192,7 @@ final class OperatorsQueuesTests: XCTestCase {
             eventEmitted.fulfill()
             XCTAssertEqual(res, 1)
         }
-        subject.publish(1)
+        subject.onNext(1)
 
         waitForDefaultTimeout()
         XCTAssertFalse(disposable.isDisposed, "Delay should NOT dispose downstream if upstream does NOT dispose")
@@ -223,14 +223,14 @@ final class OperatorsQueuesTests: XCTestCase {
 
     func test_debounce_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable: Observable<Int> = observable.debounce(0, on: queue)
-        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
+        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(subscribable: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
         queue.ensureOnQueue {
-            pub.publish(1)
+            subject.onNext(1)
         }
         queue.dispatchQueue.sync {
             helper?.subscription?.dispose()
@@ -267,7 +267,7 @@ final class OperatorsQueuesTests: XCTestCase {
             eventEmitted.fulfill()
             XCTAssertEqual(res, 1)
         }
-        subject.publish(1)
+        subject.onNext(1)
 
         waitOnQueue(queue: queue)
         XCTAssertFalse(disposable.isDisposed, "Delay should NOT dispose downstream if upstream does NOT dispose")
@@ -282,10 +282,10 @@ final class OperatorsQueuesTests: XCTestCase {
         let observerCalled = expectation(description: "Observer is called once")
         let observable = NonDisposalCheckingObservable<Int> { observer in
             DispatchQueue.main.async {
-                observer(1)
+                observer.onNext(1)
                 // The following is a synchronous observer call,
                 // done without checking if disposable is already disposed.
-                observer(2)
+                observer.onNext(2)
             }
             return Disposables.composite()
         }

@@ -13,25 +13,25 @@ final class SingleTests: XCTestCase {
 
     func test_emits_only_first_event_of_underlying_observable() {
         let observerCalled = expectation(description: "Observer called")
-        let publisher = BasePublisher<Int>()
-        let single = SingleImpl<Int>(observable: publisher.asObservable(),
+        let subject = Subject<Int>()
+        let single = SingleImpl<Int>(observable: subject.asObservable(),
                                      queue: .main)
         _ = single.subscribe { number in
             dispatchPrecondition(condition: .onQueue(.main))
             XCTAssertEqual(number, 1)
             observerCalled.fulfill()
         }
-        publisher.publish(1)
-        publisher.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
 
         waitForDefaultTimeout()
     }
 
     func test_emits_events_on_given_queue() {
         let observerCalled = expectation(description: "Observer called")
-        let publisher = BasePublisher<Int>()
+        let subject = Subject<Int>()
         let queue = TealiumQueue.worker
-        let single = SingleImpl<Int>(observable: publisher.asObservable(),
+        let single = SingleImpl<Int>(observable: subject.asObservable(),
                                      queue: queue)
         _ = single.subscribe { _ in
             dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
@@ -39,7 +39,7 @@ final class SingleTests: XCTestCase {
         }
 
         queue.dispatchQueue.sync {
-            publisher.publish(1)
+            subject.onNext(1)
             waitForDefaultTimeout()
         }
     }

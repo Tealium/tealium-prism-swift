@@ -25,11 +25,11 @@ class MockInterceptorManager: NSObject, InterceptorManagerProtocol {
     }
 
     func interceptResult(request: URLRequest, retryCount: Int, result: NetworkResult, shouldRetry: @escaping (Bool) -> Void) {
-        _onInterceptResponse.publish(result)
+        _onInterceptResponse.onNext(result)
         interceptResponseBlock(retryCount, result, shouldRetry)
     }
 
     func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
-        _onWaitingForConnectivity.publish(())
+        _onWaitingForConnectivity.onNext(())
     }
 }

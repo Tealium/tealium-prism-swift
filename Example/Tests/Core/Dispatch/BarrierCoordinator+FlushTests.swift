@@ -19,7 +19,7 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
 
     func publishStatus(_ status: ApplicationStatus) {
         queue.ensureOnQueue {
-            self._onApplicationStatus.publish(status)
+            self._onApplicationStatus.onNext(status)
         }
     }
     lazy var coordinator = BarrierCoordinator(onScopedBarriers: barriers,

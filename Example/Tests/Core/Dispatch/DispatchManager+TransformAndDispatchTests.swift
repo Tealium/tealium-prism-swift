@@ -100,7 +100,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         let consentConfiguration = ConsentConfiguration(tealiumPurposeId: "",
                                                         refireDispatchersIds: [],
                                                         purposes: [:])
-        consentManager?._onConfigurationSelected.publish(consentConfiguration)
+        consentManager?._onConfigurationSelected.onNext(consentConfiguration)
         disableModule(module: module1)
         let dispatches = [
             Dispatch(name: "event_to_be_dropped"),
@@ -123,9 +123,9 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         let eventsAreDeleted = expectation(description: "Events are deleted")
         let eventDispatched = expectation(description: "Events should be dispatched")
         consentManager = MockConsentManager()
-        consentManager?._onConfigurationSelected.publish(ConsentConfiguration(tealiumPurposeId: "",
-                                                                              refireDispatchersIds: [],
-                                                                              purposes: ["purpose1": ConsentPurpose(purposeId: "purpose1", dispatcherIds: [MockDispatcher2.moduleType])]))
+        consentManager?._onConfigurationSelected.onNext(ConsentConfiguration(tealiumPurposeId: "",
+                                                                             refireDispatchersIds: [],
+                                                                             purposes: ["purpose1": ConsentPurpose(purposeId: "purpose1", dispatcherIds: [MockDispatcher2.moduleType])]))
         disableModule(module: module1)
         let dispatches = [
             Dispatch(name: "event_to_be_sent", data: [TealiumDataKey.allConsentedPurposes: ["purpose1"]]),

@@ -35,7 +35,7 @@ class MockConsentManager: ConsentManager {
     @Subject<Dispatch> var onApplyConsent
 
     func applyConsent(to dispatch: Dispatch) -> TrackResult {
-        _onApplyConsent.publish(dispatch)
+        _onApplyConsent.onNext(dispatch)
         return trackResultBuilder(dispatch: dispatch)
     }
 

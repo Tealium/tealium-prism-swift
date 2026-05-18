@@ -13,39 +13,39 @@ final class OperatorsCombineLatestTests: XCTestCase {
     func test_combineLatest_doesnt_send_event_if_first_has_provided_no_events() {
         let expectation = expectation(description: "CombineLatest doesn't provide event")
         expectation.isInverted = true
-        let pub1 = BasePublisher<Int>()
-        let pub2 = BasePublisher<String>()
+        let subject1 = Subject<Int>()
+        let subject2 = Subject<String>()
 
-        _ = pub1.asObservable()
-            .combineLatest(pub2.asObservable())
+        _ = subject1.asObservable()
+            .combineLatest(subject2.asObservable())
             .subscribe { _, _ in expectation.fulfill() }
-        pub1.publish(1)
+        subject1.onNext(1)
         waitForDefaultTimeout()
     }
 
     func test_combineLatest_doesnt_send_event_if_second_has_provided_no_events() {
         let expectation = expectation(description: "CombineLatest doesn't provide event")
         expectation.isInverted = true
-        let pub1 = BasePublisher<Int>()
-        let pub2 = BasePublisher<String>()
+        let subject1 = Subject<Int>()
+        let subject2 = Subject<String>()
 
-        _ = pub1.asObservable()
-            .combineLatest(pub2.asObservable())
+        _ = subject1.asObservable()
+            .combineLatest(subject2.asObservable())
             .subscribe { _, _ in expectation.fulfill() }
-        pub2.publish("a")
+        subject2.onNext("a")
         waitForDefaultTimeout()
     }
 
     func test_combineLatest_sends_event_if_both_provided_an_event() {
         let expectation = expectation(description: "CombineLatest provides an event")
-        let pub1 = BasePublisher<Int>()
-        let pub2 = BasePublisher<String>()
+        let subject1 = Subject<Int>()
+        let subject2 = Subject<String>()
 
-        _ = pub1.asObservable()
-            .combineLatest(pub2.asObservable())
+        _ = subject1.asObservable()
+            .combineLatest(subject2.asObservable())
             .subscribe { _, _ in expectation.fulfill() }
-        pub1.publish(1)
-        pub2.publish("a")
+        subject1.onNext(1)
+        subject2.onNext("a")
         waitForDefaultTimeout()
     }
 
@@ -57,11 +57,11 @@ final class OperatorsCombineLatestTests: XCTestCase {
             expectation(description: "CombineLatest provides no other events")
         ]
         expectations[3].isInverted = true
-        let pub1 = BasePublisher<Int>()
-        let pub2 = BasePublisher<String>()
+        let subject1 = Subject<Int>()
+        let subject2 = Subject<String>()
 
-        _ = pub1.asObservable()
-            .combineLatest(pub2.asObservable())
+        _ = subject1.asObservable()
+            .combineLatest(subject2.asObservable())
             .subscribe { number, string in
                 switch (number, string) {
                 case (1, "a"):
@@ -74,22 +74,22 @@ final class OperatorsCombineLatestTests: XCTestCase {
                     expectations[3].fulfill()
                 }
             }
-        pub1.publish(1)
-        pub2.publish("a")
-        pub1.publish(2)
-        pub2.publish("b")
+        subject1.onNext(1)
+        subject2.onNext("a")
+        subject1.onNext(2)
+        subject2.onNext("b")
         wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_combineLatest_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable: Observable<(Int, String)> = observable.combineLatest(Observables.just("a"))
-        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
+        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(subscribable: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
-        pub.publish(1)
+        subject.onNext(1)
         helper?.subscription?.dispose()
         helper = nil
         waitForDefaultTimeout()
@@ -110,8 +110,8 @@ final class OperatorsCombineLatestTests: XCTestCase {
         } onComplete: {
             observableCompleted.fulfill()
         }
-        subject.publish(1)
-        subject.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
         wait(for: [eventEmitted, observableCompleted], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
@@ -129,8 +129,8 @@ final class OperatorsCombineLatestTests: XCTestCase {
             XCTAssertEqual(res.1, count)
             count += 1
         }
-        subject.publish(1)
-        subject.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
 
         waitForDefaultTimeout()
         XCTAssertFalse(disposable.isDisposed)
@@ -151,8 +151,8 @@ final class OperatorsCombineLatestTests: XCTestCase {
             XCTAssertEqual(res.1, count)
             count += 1
         }
-        subject.publish(1)
-        subject.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
 
         waitForDefaultTimeout()
         XCTAssertFalse(disposable.isDisposed)
@@ -187,7 +187,7 @@ final class OperatorsCombineLatestTests: XCTestCase {
             } onComplete: {
                 completed.fulfill()
             }
-        emitting.publish(1)
+        emitting.onNext(1)
         silent.onComplete()
         waitForDefaultTimeout()
     }

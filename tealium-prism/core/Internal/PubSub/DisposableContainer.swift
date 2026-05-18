@@ -8,9 +8,9 @@
 
 import Foundation
 
-/// A concrete implementation of the `Disposable` protocol that handles disposal of all disposable contained.
-class DisposableContainer: Disposable {
-    private(set) var disposables = [Disposable]()
+/// A concrete implementation of the `CompositeDisposable` protocol that handles disposal of all disposable contained.
+class DisposableContainer: CompositeDisposable {
+    private(set) var disposables = [any Disposable]()
     private(set) var isDisposed: Bool = false
 
     var count: Int {
@@ -27,7 +27,7 @@ class DisposableContainer: Disposable {
      * - parameter disposable: the `Disposable` that will be disposed with this container
      */
     @discardableResult
-    func add(_ disposable: Disposable) -> Self {
+    func add(_ disposable: any Disposable) -> Self {
         guard !isDisposed else {
             disposable.dispose()
             return self
@@ -39,25 +39,8 @@ class DisposableContainer: Disposable {
         return self
     }
 
-    /**
-     * Adds a `Disposable` to this `Disposable` and vice versa.
-     *
-     * This will create a retain cycle between the two `Disposable`s.
-     * To clear the cycle you need to dispose either one of the `Disposable`s.
-     *
-     *- Parameter disposable: The disposable to add to self and in which self is added to.
-     */
-    func crossAdd(_ disposable: Disposable) {
-        guard !isDisposed else {
-            disposable.dispose()
-            return
-        }
-        guard !disposable.isDisposed else {
-            self.dispose()
-            return
-        }
-        disposables.append(disposable)
-        disposable.add(self)
+    func remove(_ disposable: any Disposable) {
+        disposables.removeAll { $0 === disposable }
     }
 
     func dispose() {
@@ -90,9 +73,9 @@ class AsyncDisposableContainer: DisposableContainer {
         return self
     }
 
-    override func crossAdd(_ disposable: Disposable) {
+    override func remove(_ disposable: any Disposable) {
         queue.ensureOnQueue {
-            super.crossAdd(disposable)
+            super.remove(disposable)
         }
     }
 }
@@ -109,17 +92,11 @@ class AutomaticDisposer: DisposableContainer {
  *
  * `isDisposed` is always `true` and `dispose` is a no-op.
  */
-struct CompletedDisposable: Disposable {
+final class CompletedDisposable: Disposable {
     static let shared = CompletedDisposable()
     let isDisposed = true
 
     private init() {}
 
     func dispose() {}
-
-    @discardableResult
-    func add(_ disposable: Disposable) -> Self {
-        disposable.dispose()
-        return self
-    }
 }

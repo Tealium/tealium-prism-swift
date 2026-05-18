@@ -45,10 +45,10 @@ final class OperatorsTakeWhileTests: XCTestCase {
             .subscribe { res in
                 XCTAssertEqual(res, count)
                 count += 1
-                subject.publish(2 * res) // Crashes in case of reentrancy (if takeWhile was not safely handling the disposal of the observer)
+                subject.onNext(2 * res) // Crashes in case of reentrancy (if takeWhile was not safely handling the disposal of the observer)
                 expectation.fulfill()
             }
-        subject.publish(1)
+        subject.onNext(1)
         waitForDefaultTimeout()
     }
 
@@ -122,8 +122,8 @@ final class OperatorsTakeWhileTests: XCTestCase {
             expectation(description: "Event 2 is not emitted"),
         ]
         expectations[1].isInverted = true
-        let pub = BasePublisher<Int>()
-        _ = pub.asObservable()
+        let subject = Subject<Int>()
+        _ = subject.asObservable()
             .takeWhile { $0 < 2 }
             .subscribe { event in
                 if event == 1 {
@@ -132,9 +132,9 @@ final class OperatorsTakeWhileTests: XCTestCase {
                     expectations[1].fulfill()
                 }
             }
-        pub.publish(1)
-        pub.publish(2)
-        pub.publish(1)
+        subject.onNext(1)
+        subject.onNext(2)
+        subject.onNext(1)
         waitForDefaultTimeout()
     }
 
@@ -143,8 +143,8 @@ final class OperatorsTakeWhileTests: XCTestCase {
             expectation(description: "Event 1 is emitted only once"),
             expectation(description: "Event 2 is emitted"),
         ]
-        let pub = BasePublisher<Int>()
-        _ = pub.asObservable()
+        let subject = Subject<Int>()
+        _ = subject.asObservable()
             .takeWhile({ $0 < 2 }, inclusive: true)
             .subscribe { event in
                 if event == 1 {
@@ -153,9 +153,9 @@ final class OperatorsTakeWhileTests: XCTestCase {
                     expectations[1].fulfill()
                 }
             }
-        pub.publish(1)
-        pub.publish(2)
-        pub.publish(1)
+        subject.onNext(1)
+        subject.onNext(2)
+        subject.onNext(1)
         waitForDefaultTimeout()
     }
 
@@ -166,8 +166,8 @@ final class OperatorsTakeWhileTests: XCTestCase {
             expectation(description: "Event 2 is not emitted"),
         ]
         expectations[2].isInverted = true
-        let pub = BasePublisher<Int>()
-        _ = pub.asObservable()
+        let subject = Subject<Int>()
+        _ = subject.asObservable()
             .takeWhile { $0 < 2 }
             .subscribe { event in
                 if event == 1 {
@@ -178,8 +178,8 @@ final class OperatorsTakeWhileTests: XCTestCase {
             } onComplete: {
                 expectations[1].fulfill()
             }
-        pub.publish(1)
-        pub.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
         waitForDefaultTimeout()
     }
 
@@ -189,8 +189,8 @@ final class OperatorsTakeWhileTests: XCTestCase {
             expectation(description: "Event 2 is emitted"),
             expectation(description: "Observable completed"),
         ]
-        let pub = BasePublisher<Int>()
-        _ = pub.asObservable()
+        let subject = Subject<Int>()
+        _ = subject.asObservable()
             .takeWhile({ $0 < 2 }, inclusive: true)
             .subscribe { event in
                 if event == 1 {
@@ -201,8 +201,8 @@ final class OperatorsTakeWhileTests: XCTestCase {
             } onComplete: {
                 expectations[2].fulfill()
             }
-        pub.publish(1)
-        pub.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
         waitForDefaultTimeout()
     }
 
@@ -230,7 +230,7 @@ final class OperatorsTakeWhileTests: XCTestCase {
         } onComplete: {
             completed.fulfill()
         }
-        subject.publish(1)
+        subject.onNext(1)
         wait(for: [emitted, completed], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 

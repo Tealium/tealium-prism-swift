@@ -182,7 +182,7 @@ final class QueueManagerTests: XCTestCase {
         _ = queueManager
         XCTAssertEqual(queueRepository.expiration, 1.days)
         let expiration = 500.seconds
-        _coreSettings.publish(CoreSettings(queueExpiration: expiration))
+        _coreSettings.onNext(CoreSettings(queueExpiration: expiration))
         XCTAssertEqual(queueRepository.expiration, expiration)
     }
 
@@ -190,7 +190,7 @@ final class QueueManagerTests: XCTestCase {
         _ = queueManager
         XCTAssertEqual(queueRepository.maxQueueSize, 100)
         let queueSize = 20
-        _coreSettings.publish(CoreSettings(maxQueueSize: queueSize))
+        _coreSettings.onNext(CoreSettings(maxQueueSize: queueSize))
         XCTAssertEqual(queueRepository.maxQueueSize, queueSize)
     }
 
@@ -202,7 +202,7 @@ final class QueueManagerTests: XCTestCase {
         queueManager.onDeletedDispatchesForProcessors.subscribeOnce { _ in
             deletedExpectation.fulfill()
         }
-        _coreSettings.publish(CoreSettings(maxQueueSize: 2))
+        _coreSettings.onNext(CoreSettings(maxQueueSize: 2))
         waitForDefaultTimeout()
     }
 

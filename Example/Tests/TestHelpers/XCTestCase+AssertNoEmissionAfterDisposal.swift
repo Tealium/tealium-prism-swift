@@ -21,7 +21,7 @@ extension XCTestCase {
         let observable = NonDisposalCheckingObservable<Int> { observer in
             DispatchQueue.main.async {
                 for value in upstreamValues {
-                    observer(value)
+                    observer.onNext(value)
                 }
             }
             return Disposables.composite()

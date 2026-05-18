@@ -34,11 +34,11 @@ class BackgroundTaskStarter {
     /// and emits false when the background task ended or expired.
     func startBackgroundTask(withName name: String? = nil) -> Observable<Bool> {
         Observables.create { [queue, backgroundTaskTimeout] observer in
-            observer(true)
+            observer.onNext(true)
             let disposable = AsyncDisposableContainer(queue: queue)
             let completion = SelfDestructingCompletion {
                 if !disposable.isDisposed {
-                    observer(false)
+                    observer.onNext(false)
                     observer.onComplete()
                 }
                 disposable.dispose()

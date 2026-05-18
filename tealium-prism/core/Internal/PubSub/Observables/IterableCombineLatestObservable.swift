@@ -62,14 +62,6 @@ private class IterableCombineLatestCoordinator<Element>: Disposable {
         }
     }
 
-    // TODO: Remove after we separate `Disposable` and `CompositeDisposable`
-    @discardableResult
-    @available(*, deprecated)
-    func add(_ disposable: any Disposable) -> Self {
-        container.add(disposable)
-        return self
-    }
-
     func dispose() {
         downstream = nil
         container.dispose()

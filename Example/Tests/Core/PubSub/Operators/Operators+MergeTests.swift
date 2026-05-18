@@ -10,39 +10,39 @@ import TealiumPrism
 import XCTest
 
 final class OperatorsMergeTests: XCTestCase {
-    func test_merge_publishes_events_of_both_observables() {
+    func test_merge_emits_events_of_both_observables() {
         let expectations = [
-            expectation(description: "Event 0 is published"),
-            expectation(description: "Event 1 is published"),
-            expectation(description: "Event 2 is published"),
-            expectation(description: "Event 3 is published"),
-            expectation(description: "Event 4 is published")
+            expectation(description: "Event 0 is emitted"),
+            expectation(description: "Event 1 is emitted"),
+            expectation(description: "Event 2 is emitted"),
+            expectation(description: "Event 3 is emitted"),
+            expectation(description: "Event 4 is emitted")
         ]
-        let pub1 = BasePublisher<Int>()
-        let pub2 = BasePublisher<Int>()
+        let subject1 = Subject<Int>()
+        let subject2 = Subject<Int>()
 
-        _ = pub1.asObservable()
-            .merge(pub2.asObservable())
+        _ = subject1.asObservable()
+            .merge(subject2.asObservable())
             .subscribe { number in
                 expectations[number].fulfill()
             }
-        pub1.publish(0)
-        pub2.publish(1)
-        pub2.publish(2)
-        pub1.publish(3)
-        pub2.publish(4)
+        subject1.onNext(0)
+        subject2.onNext(1)
+        subject2.onNext(2)
+        subject1.onNext(3)
+        subject2.onNext(4)
         wait(for: expectations, timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
     func test_merge_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
-        let pub = BasePublisher<Int>()
-        let observable = pub.asObservable()
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
         let generatedObservable: Observable<Int> = observable.merge(Observables.just(2))
-        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(publisher: generatedObservable, onDeinit: {
+        var helper: SubscriptionRetainCycleHelper? = SubscriptionRetainCycleHelper(subscribable: generatedObservable, onDeinit: {
             expectation.fulfill()
         })
-        pub.publish(1)
+        subject.onNext(1)
         helper?.subscription?.dispose()
         helper = nil
         waitForDefaultTimeout()
@@ -63,8 +63,8 @@ final class OperatorsMergeTests: XCTestCase {
         } onComplete: {
             completed.fulfill()
         }
-        subject.publish(1)
-        subject.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
 
         wait(for: [eventEmitted, completed], timeout: Self.defaultTimeout, enforceOrder: true)
 
@@ -84,8 +84,8 @@ final class OperatorsMergeTests: XCTestCase {
             XCTAssertEqual(res, count)
             count += 1
         }
-        subject.publish(1)
-        subject.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
 
         waitForDefaultTimeout()
         XCTAssertFalse(disposable.isDisposed)
@@ -104,8 +104,8 @@ final class OperatorsMergeTests: XCTestCase {
             XCTAssertEqual(res, count)
             count += 1
         }
-        subject.publish(1)
-        subject.publish(2)
+        subject.onNext(1)
+        subject.onNext(2)
 
         waitForDefaultTimeout()
         XCTAssertFalse(disposable.isDisposed)

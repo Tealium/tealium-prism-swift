@@ -37,7 +37,7 @@ class MockSessionManager: SessionManager {
     }
 
     override func registerDispatch(_ dispatch: inout Dispatch) {
-        _onRegisterDispatch.publish(dispatch)
+        _onRegisterDispatch.onNext(dispatch)
         super.registerDispatch(&dispatch)
     }
 }

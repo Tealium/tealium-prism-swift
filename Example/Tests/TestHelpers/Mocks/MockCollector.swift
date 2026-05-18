@@ -25,7 +25,7 @@ class MockCollector: MockModule, Collector {
     }
 
     func collect(_ dispatchContext: DispatchContext) -> DataObject {
-        _onCollect.publish(dispatchContext.initialData)
+        _onCollect.onNext(dispatchContext.initialData)
         return dispatchContext.initialData + dataToAdd
     }
 }

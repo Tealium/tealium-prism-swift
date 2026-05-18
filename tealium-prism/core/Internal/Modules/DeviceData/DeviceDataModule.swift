@@ -95,20 +95,20 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
         guard self.onModelInfo.last() == nil else {
             return nil
         }
-        // without datastore publish nil
+        // without datastore emit nil
         guard let dataStore else {
-            self.onModelInfo.publish(nil)
+            self.onModelInfo.onNext(nil)
             return nil
         }
-        // if we have model info in store, publish that info
+        // if we have model info in store, emit that info
         if let cachedModelInfo = readModelInfo(dataStore: dataStore) {
-            self.onModelInfo.publish(cachedModelInfo)
+            self.onModelInfo.onNext(cachedModelInfo)
             return nil
         }
-        // otherwise try build URL for device-names file, on error publish nil
+        // otherwise try build URL for device-names file, on error emit nil
         guard !configuration.deviceNamesUrl.isEmpty,
               let url = try? configuration.deviceNamesUrl.asUrl() else {
-            self.onModelInfo.publish(nil)
+            self.onModelInfo.onNext(nil)
             return nil
         }
         // init refresher (subscribe observers, start refreshing) and return it
@@ -128,10 +128,10 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
             if let modelData {
                 self?.saveModelInfo(modelData, dataStore: dataStore)
             }
-            self?.onModelInfo.publish(modelData)
+            self?.onModelInfo.onNext(modelData)
         }
         refresher.onRefreshError.subscribeOnce { [weak self] _ in
-            self?.onModelInfo.publish(nil)
+            self?.onModelInfo.onNext(nil)
         }
         refresher.requestRefresh()
         return refresher
@@ -143,7 +143,7 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
     }
 
     private func onMainThreadData() -> Observable<DataObject> {
-        Observables.callback(from: { [deviceDataProvider, configuration] observer in
+        Observables.callback(from: { [deviceDataProvider, configuration] completion in
             TealiumQueue.main.ensureOnQueue {
                 var result: DataObject = [:]
                 if configuration.batteryReportingEnabled == true {
@@ -155,7 +155,7 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
                     result.set(deviceDataProvider.resolution, key: DeviceDataKey.resolution)
                     result.set(deviceDataProvider.logicalResolution, key: DeviceDataKey.logicalResolution)
                 }
-                observer(result)
+                completion(result)
             }
         }).observeOn(queue)
     }

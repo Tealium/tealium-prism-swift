@@ -66,7 +66,7 @@ class SessionManager: SessionRegistry {
         } else {
             Session.Status.resumed
         }
-        _session.publish(Session(status: sessionStatus, sessionInfo: info))
+        _session.onNext(Session(status: sessionStatus, sessionInfo: info))
     }
 
     func restartExpirationTimer(timestamp: Int64) {
@@ -80,7 +80,7 @@ class SessionManager: SessionRegistry {
                 return
             }
             let expiredSession = Session(status: .ended, sessionInfo: currentSession.info)
-            session.publish(expiredSession)
+            session.onNext(expiredSession)
         }
     }
 
@@ -95,7 +95,7 @@ class SessionManager: SessionRegistry {
             sessionData.set(true, key: TealiumDataKey.isNewSession)
         }
         dispatch.enrich(data: sessionData)
-        _session.publish(newSession)
+        _session.onNext(newSession)
     }
 
     func storeSession(_ session: Session) {

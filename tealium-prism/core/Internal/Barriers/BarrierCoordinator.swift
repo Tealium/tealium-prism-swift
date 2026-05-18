@@ -52,7 +52,7 @@ class BarrierCoordinator {
      * until the flush is completed.
      */
     func flush() {
-        _flushTrigger.publish(())
+        _flushTrigger.onNext(())
     }
 
     /**

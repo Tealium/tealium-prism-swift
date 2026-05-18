@@ -15,12 +15,12 @@ class MockQueueManager: QueueManager {
     @Subject<String> var onDeleteAllRequest
     @Subject<([Dispatch], [String])> var onStoreRequest
     override func dequeueDispatches(for processor: String, limit: Int?) -> [Dispatch] {
-        _onDequeueRequest.publish()
+        _onDequeueRequest.onNext()
         return super.dequeueDispatches(for: processor, limit: limit)
     }
 
     override func deleteDispatches(_ dispatchUUIDs: [String], for processor: String) {
-        _onDeleteRequest.publish((dispatchUUIDs, processor))
+        _onDeleteRequest.onNext((dispatchUUIDs, processor))
         return super.deleteDispatches(dispatchUUIDs, for: processor)
     }
 
@@ -28,12 +28,12 @@ class MockQueueManager: QueueManager {
         _ dispatches: [Dispatch],
         enqueueingFor processors: [String]
     ) {
-        _onStoreRequest.publish((dispatches, processors))
+        _onStoreRequest.onNext((dispatches, processors))
         super.storeDispatches(dispatches, enqueueingFor: processors)
     }
 
     override func deleteAllDispatches(for processor: String) {
-        _onDeleteAllRequest.publish(processor)
+        _onDeleteAllRequest.onNext(processor)
         super.deleteAllDispatches(for: processor)
     }
 }

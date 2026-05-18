@@ -44,7 +44,7 @@ class VisitorIdProvider {
     func resetVisitorId() throws -> String {
         logger?.debug(category: visitorCategory, "Resetting current visitor id.")
         let newId = Self.generateVisitorId()
-        defer { _visitorId.publish(newId) }
+        defer { _visitorId.onNext(newId) }
         try visitorStorage.changeVisitor(newId)
         return newId
     }
@@ -58,7 +58,7 @@ class VisitorIdProvider {
     func clearStoredVisitorIds() throws -> String {
         logger?.debug(category: visitorCategory, "Clearing stored visitor ids.")
         let newId = Self.generateVisitorId()
-        defer { _visitorId.publish(newId) }
+        defer { _visitorId.onNext(newId) }
         try visitorStorage.clear(settingNewVisitorId: newId)
         return newId
     }
@@ -131,7 +131,7 @@ class VisitorIdProvider {
     }
 
     private func changeVisitor(_ visitorId: String, withIdentity identity: String? = nil) {
-        defer { _visitorId.publishIfChanged(visitorId) }
+        defer { _visitorId.onNextIfChanged(visitorId) }
         do {
             if let identity {
                 try visitorStorage.changeVisitor(visitorId, withIdentity: identity)

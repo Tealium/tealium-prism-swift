@@ -50,7 +50,7 @@ class TealiumLogger: LoggerProtocol {
     func log(level: LogLevel, category: String, _ messageProvider: @autoclosure @escaping () -> String) {
         queue.ensureOnQueue { [weak self] in
             if level == .error {
-                self?._onError.publish(ErrorEvent(category: category, descriptionProvider: messageProvider))
+                self?._onError.onNext(ErrorEvent(category: category, descriptionProvider: messageProvider))
             }
             self?.logOrQueue(level: level, category: category, messageProvider)
         }

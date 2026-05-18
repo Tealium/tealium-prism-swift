@@ -111,7 +111,7 @@ class DispatchManager: DispatchManagerProtocol {
                     } else {
                         return Observables.empty()
                     }
-                }.callback(fromDisposable: { [weak self] dispatchSplit, observer in
+                }.callback(fromDisposable: { [weak self] dispatchSplit, completion in
                     let subscription = Subscription { }
                     guard let self else {
                         return subscription
@@ -123,7 +123,7 @@ class DispatchManager: DispatchManagerProtocol {
                     return self.transformAndDispatch(dispatchSplit: dispatchSplit, for: dispatcher) { processedDispatches in
                         defer { interval.end(processedDispatches.shortDescription()) }
                         guard !subscription.isDisposed else { return }
-                        observer((dispatcher, processedDispatches))
+                        completion((dispatcher, processedDispatches))
                     }
                 })
         }

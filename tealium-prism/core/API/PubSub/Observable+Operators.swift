@@ -10,14 +10,20 @@ import Foundation
 
 public extension Observable {
 
-    /// Ensures that Observers to the returned observable are always subscribed on the provided queue.
-    /// - Warning: Must be called as a last item in the observable chain. Failing to do so will result in subsequent operators to be subscribed on the calling Thread.
+    /// Ensures that the subscription to the source observable happens on the provided queue.
+    ///
+    /// - Warning: Returns a `Subscribable`, not an `Observable`. Do not chain operators after this —
+    ///   operators use non-thread-safe `Observer`s that would race if the upstream emits
+    ///   on the specified queue while disposal happens from the caller's thread.
+    ///   Use `subscribe(onNext:onComplete:)` as the final step after `subscribeOn`.
     func subscribeOn(_ queue: TealiumQueue) -> any Subscribable<Element> {
         SubscribeOnObservable(source: self, queue: queue)
     }
 
-    /// Ensures that Observers to the returned observable are always called on the provided queue.
-    /// - Warning: This can only be used when the Observable is also subscribed from that queue.
+    /// Ensures that downstream observers receive events on the provided queue.
+    ///
+    /// - Warning: The subscription (and therefore disposal) must happen from the same queue.
+    ///   Disposing from a different thread races with event delivery on the specified queue.
     func observeOn(_ queue: TealiumQueue) -> Observable<Element> {
         ObserveOnObservable(source: self, queue: queue)
     }
@@ -42,12 +48,12 @@ public extension Observable {
         DistinctObservable(source: self, isEqual: isEqual)
     }
 
-    /// Returns an observable that ignores the first N published events.
+    /// Returns an observable that ignores the first N emitted events.
     func ignore(_ count: Int) -> Observable<Element> {
         IgnoreObservable(source: self, count: count)
     }
 
-    /// Returns an observable that ignores the first published event.
+    /// Returns an observable that ignores the first emitted event.
     func ignoreFirst() -> Observable<Element> {
         ignore(1)
     }
@@ -58,9 +64,11 @@ public extension Observable {
     }
 
     /**
-     * Transforms an event by providing a new observable that is flattened in the observable that is returned by this method.
+     * Transforms each event into a new observable, subscribing to all of them and flattening their emissions.
      *
-     * - Parameter selector: the function that will return a new observable when an event is published by the original observable.
+     * **Completion:** Completes only when the upstream AND all inner observables have completed.
+     *
+     * - Parameter selector: the function that will return a new observable when an event is emitted by the original observable.
      *
      * - Returns: an observable that flattens the observables returned by the selector and emits all of their events.
      */
@@ -72,7 +80,7 @@ public extension Observable {
      * Transforms an event by providing a new observable that is flattened in the observable that is returned by this method.
      * Every new observable returned will cancel the old observable subscriptions, therefore only emitting events for the latest returned observable.
      *
-     * - Warning: If the observable returned from `selector`, on subscription, synchronously publishes a new element upstream,
+     * - Warning: If the observable returned from `selector`, on subscription, synchronously emits a new element upstream,
      * then the selector will be triggered again. This can cause a endless loop in which we endlessly resubscribe to the returned observable.
      * If this is the case, make sure to have an exit condition, from which the subscription doesn't publish elements upstream anymore,
      * to avoid blocking the thread in which this operator is being called.
@@ -84,12 +92,12 @@ public extension Observable {
      * _ = subject.asObservable().flatMapLatest { value in
      *     Observable<Int> { observer in
      *         // This is the block that is called on each `subscribe` call
-     *         subject.publish(value + 1)
-     *         observer(value)
+     *         subject.onNext(value + 1)
+     *         observer.onNext(value)
      *         return Subscription(onDispose: {})
      *     }
      * }.subscribe { _ in }
-     * subject.publish(0)
+     * subject.onNext(0)
      * ```
      *
      * The following, instead, has an exit condition, so it's safe to use:
@@ -100,18 +108,18 @@ public extension Observable {
      *     Observable<Int> { observer in
      *         // This is the block that is called on each `subscribe` call
      *         if value < 10 {
-     *             subject.publish(value + 1)
+     *             subject.onNext(value + 1)
      *         }
-     *         observer(value)
+     *         observer.onNext(value)
      *         return Subscription(onDispose: {})
      *     }
      * }.subscribe { _ in }
-     * subject.publish(0)
+     * subject.onNext(0)
      * ```
      *
-     * - Note: more complex examples can be created where the upstream publish is less clear, so use this with caution.
+     * - Note: more complex examples can be created where the upstream emit is less clear, so use this with caution.
      *
-     * - Parameter selector: the function that will return a new observable when an event is published by the original observable.
+     * - Parameter selector: the function that will return a new observable when an event is emitted by the original observable.
      *
      * - Returns: an observable that flattens the observable returned by the selector and emits all of the events from the latest returned observable.
      */
@@ -119,26 +127,33 @@ public extension Observable {
         FlatMapLatestObservable(source: self, transform: selector)
     }
 
-    /// Returns a new observable that emits the events of the original observable and the otherObservable passed as parameter.
+    /// Returns a new observable that emits the events of the original observable and all other observables passed as parameters.
+    ///
+    /// **Completion:** Completes only when all merged sources have completed.
     func merge(_ otherObservables: Observable<Element>...) -> Observable<Element> {
         Observables.from([self] + otherObservables).flatMap { $0 }
     }
 
     /**
-     * Returns an observable that emits only the first event that is included by the provided filter.
+     * Returns an observable that emits only the first event matching the filter, then completes.
      *
      * If you don't provide a block then the first event will always be taken.
-     * After the first event is published it automatically disposes the observer.
+     *
+     * **Completion:** Completes immediately after the first matching element is emitted.
+     * Also completes (without emitting) if the upstream completes before a match is found.
      */
     func first(where isIncluded: @escaping (Element) -> Bool = { _ in true }) -> Observable<Element> {
         FirstObservable(source: self, predicate: isIncluded)
     }
 
     /**
-     * Returns a new observable that will emit events with a tuple containing the last event of the original and the provided observable.
+     * Combines the latest values from this observable and the provided observable into a tuple.
      *
-     * The first event will be fired when both observable have emitted at least one event.
-     * Then a new event with the tuple will be emitted every time one of the two emits a new event.
+     * The first emission occurs once both observables have emitted at least one event.
+     * After that, a new tuple is emitted each time either source emits a new value.
+     *
+     * **Completion:** Completes when both sources complete, or early if either source
+     * completes without ever having emitted a value.
      */
     func combineLatest<Other>(_ otherObservable: Observable<Other>) -> Observable<(Element, Other)> {
         CombineLatestObservable(source: self, other: otherObservable)
@@ -149,6 +164,9 @@ public extension Observable {
      *
      * This is mainly used for cold observables that, when subscribed, start a new stream from zero. Use when you want to trigger the underlying observable to restart every time.
      *
+     * **Completion:** Completes when the upstream completes without emitting a matching element,
+     * or when the predicate returns `false`.
+     *
      * - Warning: If the underlying observable always emits a new event and the condition is always met, this will end up calling endlessly until, eventually, the app will crash for stack overflow or out of memory exceptions.
      * You need to treat the underlying observable as a recursive function and make sure there is an exit condition.
      */
@@ -156,8 +174,10 @@ public extension Observable {
         ResubscribingWhileObservable(source: self, predicate: isIncluded)
     }
 
-    /// Returns an observable that automatically unsubscribes when the provided condition is no longer met.
-    /// If inclusive is `true` the last element will also be published.
+    /// Returns an observable that emits elements while the condition is met, then completes.
+    /// If `inclusive` is `true`, the first element failing the condition is also emitted before completion.
+    ///
+    /// **Completion:** Completes when the predicate returns `false`, or when the upstream completes.
     func takeWhile(_ isIncluded: @escaping (Element) -> Bool, inclusive: Bool = false) -> Observable<Element> {
         TakeWhileObservable(source: self, predicate: isIncluded, inclusive: inclusive)
     }

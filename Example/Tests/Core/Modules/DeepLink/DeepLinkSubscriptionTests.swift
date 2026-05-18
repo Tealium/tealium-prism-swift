@@ -12,7 +12,7 @@ import XCTest
 final class DeepLinkSubscriptionTests: DeepLinkBaseTests {
     @ReplaySubject<(URL, Referrer?)> var onOpenUrl
 
-    func test_deep_link_is_handled_by_module_when_url_is_published() throws {
+    func test_deep_link_is_handled_by_module_when_url_is_emitted() throws {
         let context = context()
         let deeplinkDataStore = try context.moduleStoreProvider.getModuleStore(name: DeepLinkModule.moduleType)
         deepLink = DeepLinkModule(dataStore: deeplinkDataStore,
@@ -23,7 +23,7 @@ final class DeepLinkSubscriptionTests: DeepLinkBaseTests {
         let urlString = "https://tealium.com"
         let referrer = "https://google.com"
         let link = try urlString.asUrl()
-        _onOpenUrl.publish((link, .fromUrl(URL(string: referrer))))
+        _onOpenUrl.onNext((link, .fromUrl(URL(string: referrer))))
         XCTAssertEqual(deepLink.collect(dispatchContext).get(key: TealiumDataKey.deepLinkURL), urlString)
         XCTAssertEqual(deepLink.collect(dispatchContext).get(key: TealiumDataKey.deepLinkReferrerUrl), referrer)
     }
@@ -51,7 +51,7 @@ final class DeepLinkSubscriptionTests: DeepLinkBaseTests {
             }
             errorLogged.fulfill()
         }
-        _onOpenUrl.publish((link, .fromUrl(URL(string: referrer))))
+        _onOpenUrl.onNext((link, .fromUrl(URL(string: referrer))))
         waitForDefaultTimeout()
     }
 }

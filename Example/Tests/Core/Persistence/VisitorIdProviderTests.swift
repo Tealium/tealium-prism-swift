@@ -28,17 +28,17 @@ final class VisitorIdProviderTests: XCTestCase {
         dataStorage = VisitorStorage(storage: dataStore)
     }
 
-    func test_init_with_existingVisitorId_publishes_it_in_visitorId() {
+    func test_init_with_existingVisitorId_emits_it_in_visitorId() {
         existingVisitorId = "existing"
         XCTAssertEqual(provider.visitorId.value, "existing")
     }
 
-    func test_init_with_empty_existingVisitorId_publishes_different_id_in_visitorId() {
+    func test_init_with_empty_existingVisitorId_emits_different_id_in_visitorId() {
         existingVisitorId = ""
         XCTAssertNotEqual(provider.visitorId.value, "")
     }
 
-    func test_init_with_blank_existingVisitorId_publishes_different_id_in_visitorId() {
+    func test_init_with_blank_existingVisitorId_emits_different_id_in_visitorId() {
         existingVisitorId = " "
         XCTAssertNotEqual(provider.visitorId.value, " ")
     }

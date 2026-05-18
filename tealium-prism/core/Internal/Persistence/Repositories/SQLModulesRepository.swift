@@ -54,7 +54,7 @@ class SQLModulesRepository: ModulesRepository {
         }
         if !dataExpired.isEmpty {
             _ = try? database.run(ModuleStorageSchema.deleteExpired(request: expiry, date: date))
-            _onDataExpired.publish(dataExpired)
+            _onDataExpired.onNext(dataExpired)
         }
     }
 }

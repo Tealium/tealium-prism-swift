@@ -21,13 +21,13 @@ final class ApplicationStatusListenerTests: XCTestCase {
                                                                       qos: .userInteractive),
                                                   notificationCenter: notificationCenter)
 
-    func test_initialized_status_is_published_on_launch() {
-        let published = expectation(description: "Initialized status published")
+    func test_initialized_status_is_emitted_on_launch() {
+        let emitted = expectation(description: "Initialized status emitted")
         graceTimeInterval = 1.0
         listener.onApplicationStatus.subscribeOnce { status in
             switch status.type {
             case .initialized:
-                published.fulfill()
+                emitted.fulfill()
             default:
                 return
             }
@@ -51,16 +51,16 @@ final class ApplicationStatusListenerTests: XCTestCase {
         waitForExpectations(timeout: 1)
     }
 
-    func test_backgrounded_status_is_published() {
-        let published = expectation(description: "Backgrounded status published")
-        published.assertForOverFulfill = false
-        published.expectedFulfillmentCount = 2
+    func test_backgrounded_status_is_emitted() {
+        let emitted = expectation(description: "Backgrounded status emitted")
+        emitted.assertForOverFulfill = false
+        emitted.expectedFulfillmentCount = 2
         graceTimeInterval = 1.0
         let automaticDisposer = AutomaticDisposer()
         listener.onApplicationStatus.subscribe { status in
             switch status.type {
             case .backgrounded, .initialized:
-                published.fulfill()
+                emitted.fulfill()
             default:
                 return
             }
@@ -69,16 +69,16 @@ final class ApplicationStatusListenerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_foregrounded_status_is_published() {
-        let published = expectation(description: "Foregrounded status published")
-        published.assertForOverFulfill = false
-        published.expectedFulfillmentCount = 2
+    func test_foregrounded_status_is_emitted() {
+        let emitted = expectation(description: "Foregrounded status emitted")
+        emitted.assertForOverFulfill = false
+        emitted.expectedFulfillmentCount = 2
         graceTimeInterval = 1.0
         let automaticDisposer = AutomaticDisposer()
         listener.onApplicationStatus.subscribe { status in
             switch status.type {
             case .foregrounded, .initialized:
-                published.fulfill()
+                emitted.fulfill()
             default:
                 return
             }

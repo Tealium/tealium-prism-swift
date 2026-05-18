@@ -18,7 +18,7 @@ class MockLogHandler: LogHandler {
     @ReplaySubject<LogEvent> var onLogged
 
     func log(category: String, message: String, level: LogLevel) {
-        _onLogged.publish(LogEvent(category: category, message: message, level: level))
+        _onLogged.onNext(LogEvent(category: category, message: message, level: level))
     }
 }
 

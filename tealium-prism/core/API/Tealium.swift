@@ -188,7 +188,7 @@ public class Tealium {
      *
      * - returns: A `Disposable` to dispose some operations, whilst ensuring that all operations happen on its queue.
      */
-    public func createDisposable() -> Disposable {
+    public func createDisposable() -> any CompositeDisposable {
         Disposables.composite(queue: queue)
     }
 

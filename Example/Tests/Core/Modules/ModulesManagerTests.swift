@@ -193,9 +193,14 @@ final class ModulesManagerTests: XCTestCase {
         // Could use RetainCycleHelper here but it makes the code harder to read actually
         config.addModule(LeakingModule.factory())
         modulesManager.updateSettings(context: context, settings: SDKSettings(config.getEnforcedSDKSettings()))
+        #if compiler(>=6.2.3)
+        weak let leakingModule = modulesManager.getModule(LeakingModule.self)
+        weak let weakManager = modulesManager
+        #else
         weak var leakingModule = modulesManager.getModule(LeakingModule.self)
-        XCTAssertNotNil(leakingModule)
         weak var weakManager = modulesManager
+        #endif
+        XCTAssertNotNil(leakingModule)
         modulesManager.shutdown()
         // Clear all properties with references to modulesManager
         modulesManager = ModulesManager(queue: queue)

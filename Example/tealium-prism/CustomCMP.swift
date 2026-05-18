@@ -29,7 +29,7 @@ class CustomCMP: CMPAdapter, ObservableObject {
 
     func applyConsent(_ consentDecision: ConsentDecision) {
         Self.saveDecision(consentDecision)
-        _consentDecision.publish(consentDecision)
+        _consentDecision.onNext(consentDecision)
         self.objectWillChange.send()
     }
 

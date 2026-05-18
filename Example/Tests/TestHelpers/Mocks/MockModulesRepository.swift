@@ -25,6 +25,6 @@ class MockModulesRepository: ModulesRepository {
     }
 
     func expire(_ event: ExpiredDataEvent) {
-        _onDataExpired.publish(event)
+        _onDataExpired.onNext(event)
     }
 }

@@ -35,13 +35,13 @@ class MockModule: Module {
     let disposer = AutomaticDisposer()
     required init(moduleId: String = MockModule.factory().moduleType) {
         self.id = moduleId
-        onShutdown.subscribe { Self._onShutdown.publish() }
+        onShutdown.subscribe { Self._onShutdown.onNext() }
             .addTo(disposer)
     }
     required init?(moduleId: String, context: TealiumContext, moduleConfiguration: DataObject) {
         _moduleConfiguration.value = moduleConfiguration
         self.id = moduleId
-        onShutdown.subscribe { Self._onShutdown.publish() }
+        onShutdown.subscribe { Self._onShutdown.onNext() }
             .addTo(disposer)
     }
 
@@ -51,7 +51,7 @@ class MockModule: Module {
     }
 
     func shutdown() {
-        _onShutdown.publish()
+        _onShutdown.onNext()
     }
 
     class Factory<SpecificModule: MockModule>: ModuleFactory {
@@ -82,14 +82,14 @@ class MockDispatcher: MockModule, Dispatcher {
     required init(moduleId: String = MockDispatcher.moduleType) {
         super.init(moduleId: moduleId)
         self.onDispatch.subscribe { dispatches in
-            Self._onDispatch.publish(dispatches)
+            Self._onDispatch.onNext(dispatches)
         }.addTo(disposer)
     }
 
     required init?(moduleId: String, context: TealiumContext, moduleConfiguration: DataObject) {
         super.init(moduleId: moduleId, context: context, moduleConfiguration: moduleConfiguration)
         self.onDispatch.subscribe { dispatches in
-            Self._onDispatch.publish(dispatches)
+            Self._onDispatch.onNext(dispatches)
         }.addTo(disposer)
     }
 
@@ -101,7 +101,7 @@ class MockDispatcher: MockModule, Dispatcher {
         let subscription = Subscription { }
         let completion: ([Dispatch]) -> Void = { data in
             guard !subscription.isDisposed, !data.isEmpty else { return }
-            self._onDispatch.publish(data)
+            self._onDispatch.onNext(data)
             completion(data)
         }
         if let delay = delay {

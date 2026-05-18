@@ -9,15 +9,18 @@
 import Foundation
 
 /// A concrete implementation of the `Disposable` protocol that takes a block as an input and calls that block on dispose.
-class Subscription: DisposableContainer {
+class Subscription: Disposable {
     private var onDispose: (() -> Void)?
+    private(set) var isDisposed = false
+
     init(onDispose: @escaping () -> Void) {
         self.onDispose = onDispose
     }
 
-    override func dispose() {
+    func dispose() {
+        guard !isDisposed else { return }
+        isDisposed = true
         onDispose?()
         onDispose = nil
-        super.dispose()
     }
 }

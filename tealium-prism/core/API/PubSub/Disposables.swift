@@ -37,75 +37,73 @@ public enum Disposables {
 public extension Disposables {
 
     /**
-     * Creates a NON Thread Safe `Disposable` which can be used to store multiple `Disposable` instances for bulk disposal.
+     * Creates a NON Thread Safe `CompositeDisposable` which can be used to store multiple `Disposable` instances for bulk disposal.
      *
-     * Additional `Disposable` instances can be added via `Disposable.add`.
+     * Additional `Disposable` instances can be added via `CompositeDisposable.add`.
      *
      * The returned implementation is not considered to be thread-safe, so interaction is expected
      * to be constrained to an appropriate thread by the user.
      *
-     * - returns: A `Disposable` to dispose of multiple `Disposable` at once.
+     * - returns: A `CompositeDisposable` to dispose of multiple `Disposable` at once.
      */
-    static func composite() -> Disposable {
+    static func composite() -> any CompositeDisposable {
         DisposableContainer()
     }
 
     /**
      * Creates a NON Thread Safe `Disposable` which calls the given `onDispose` block when disposed.
      *
-     * Additional `Disposable` instances can be added via `Disposable.add`.
-     *
      * The returned implementation is not considered to be thread-safe, so interaction is expected
      * to be constrained to an appropriate thread by the user.
      *
      * - parameter onDispose: Callback to execute when this `Disposable` is disposed.
      *
-     * - returns: A `Disposable` to dispose of the subscription.
+     * - returns: A `Disposable` that calls the `onDispose` block upon disposal.
      */
-    static func composite(onDispose: @escaping () -> Void) -> Disposable {
+    static func subscription(onDispose: @escaping () -> Void) -> any Disposable {
         Subscription(onDispose: onDispose)
     }
 
     /**
-     * Creates a `Disposable` which can be used to store multiple `Disposable` instances for bulk disposal.
+     * Creates a `CompositeDisposable` which can be used to store multiple `Disposable` instances for bulk disposal.
      * All methods are executed using the given `queue` to ensure operation is thread-safe.
      *
-     * Additional `Disposable` instances can be added via `Disposable.add`.
+     * Additional `Disposable` instances can be added via `CompositeDisposable.add`.
      *
-     * - parameter queue: The `TealiumQueue` instance to use for all operations of this `Disposable`. Must be the same
-     * one used from the operations that can be disposed by this `Disposable`.
+     * - parameter queue: The `TealiumQueue` instance to use for all operations of this `CompositeDisposable`. Must be the same
+     * one used from the operations that can be disposed by this `CompositeDisposable`.
      *
-     * - returns: A `Disposable` to dispose some operations, whilst ensuring that all operations happen on the given `queue`.
+     * - returns: A `CompositeDisposable` to dispose some operations, whilst ensuring that all operations happen on the given `queue`.
      */
-    static func composite(queue: TealiumQueue) -> Disposable {
+    static func composite(queue: TealiumQueue) -> any CompositeDisposable {
         AsyncDisposableContainer(queue: queue)
     }
 
     /**
-     * Creates a `Disposable` which can be used to store multiple `Disposable` instances for bulk disposal.
+     * Creates a `CompositeDisposable` which can be used to store multiple `Disposable` instances for bulk disposal.
      * All methods are executed using the internal `Tealium` queue to ensure operation is thread-safe when containing
      * `Tealium` returned subscriptions.
      *
-     * Additional `Disposable` instances can be added via `Disposable.add`.
+     * Additional `Disposable` instances can be added via `CompositeDisposable.add`.
      *
-     * - returns: A `Disposable` to dispose some operations, whilst ensuring that all operations happen on the `Tealium` internal queue.
+     * - returns: A `CompositeDisposable` to dispose some operations, whilst ensuring that all operations happen on the `Tealium` internal queue.
      */
-    static func composite(for tealium: Tealium) -> Disposable {
+    static func composite(for tealium: Tealium) -> any CompositeDisposable {
         tealium.createDisposable()
     }
 
     /**
-     * Creates a NON Thread Safe `Disposable` which can be used to store multiple `Disposable` instances for bulk disposal.
-     * This `Disposable` will automatically dispose upon deinitialization.
+     * Creates a NON Thread Safe `CompositeDisposable` which can be used to store multiple `Disposable` instances for bulk disposal.
+     * This `CompositeDisposable` will automatically dispose upon deinitialization.
      *
-     * Additional `Disposable` instances can be added via `Disposable.add`.
+     * Additional `Disposable` instances can be added via `CompositeDisposable.add`.
      *
      * The returned implementation is not considered to be thread-safe, so interaction is expected
      * to be constrained to an appropriate thread by the user.
      *
-     * - returns: A `Disposable` to dispose of multiple `Disposable` at once.
+     * - returns: A `CompositeDisposable` to dispose of multiple `Disposable` at once.
      */
-    static func automatic() -> Disposable {
+    static func automatic() -> any CompositeDisposable {
         AutomaticDisposer()
     }
 
@@ -113,11 +111,10 @@ public extension Disposables {
      * Returns a `Disposable` implementation that:
      *  - always returns `true` for `Disposable.isDisposed`
      *  - does nothing for `Disposable.dispose`
-     *  - immediately disposes additional `Disposable` added to it.
      *
      *  - returns A disposed `Disposable`
      */
-    static func disposed() -> Disposable {
+    static func disposed() -> any Disposable {
         CompletedDisposable.shared
     }
 }

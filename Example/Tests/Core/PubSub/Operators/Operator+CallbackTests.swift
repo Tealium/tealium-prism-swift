@@ -17,8 +17,8 @@ final class OperatorCallbackTests: XCTestCase {
         let emissionsReceived = expectation(description: "Emissions received")
         emissionsReceived.expectedFulfillmentCount = 3
         var count = 1
-        _ = observable123.callback { number, observer in
-            observer(number)
+        _ = observable123.callback { number, completion in
+            completion(number)
         }.subscribe { number in
             XCTAssertEqual(number, count)
             count += 1
@@ -32,11 +32,11 @@ final class OperatorCallbackTests: XCTestCase {
         subscriptionDisposed.expectedFulfillmentCount = 3
         let emissionsNotReceived = expectation(description: "Emissions received")
         emissionsNotReceived.isInverted = true
-        let disposable = observable123.callback { number, observer in
+        let disposable = observable123.callback { number, completion in
             var cancelled = false
             DispatchQueue.main.async {
                 if !cancelled {
-                    observer(number)
+                    completion(number)
                 }
             }
             return Subscription {
@@ -52,8 +52,8 @@ final class OperatorCallbackTests: XCTestCase {
 
     func test_callback_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
         assertNoEmissionAfterSideEffectDisposal {
-            $0.callback(fromDisposable: { number, observer in
-                observer(number)
+            $0.callback(fromDisposable: { number, completion in
+                completion(number)
                 return Disposables.composite()
             })
         }
@@ -68,9 +68,9 @@ final class OperatorCallbackTests: XCTestCase {
         emissionsNotReceived.isInverted = true
         let callbackFired = expectation(description: "Async callback still fires")
         callbackFired.expectedFulfillmentCount = 3
-        let disposable = observable123.callback { number, observer in
+        let disposable = observable123.callback { number, completion in
             DispatchQueue.main.async {
-                observer(number)
+                completion(number)
                 callbackFired.fulfill()
             }
         }.subscribe { _ in
@@ -86,8 +86,8 @@ final class OperatorCallbackTests: XCTestCase {
     func test_callback_completes_downstream_after_emitting_value() {
         let emitted = expectation(description: "Value emitted")
         let completed = expectation(description: "Downstream receives onComplete")
-        _ = Observables.just(1).callback { number, observer in
-            observer(number)
+        _ = Observables.just(1).callback { number, completion in
+            completion(number)
         }.subscribe { _ in
             emitted.fulfill()
         } onComplete: {
