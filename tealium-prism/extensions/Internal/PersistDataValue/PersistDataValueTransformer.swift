@@ -16,7 +16,9 @@ extension LogCategory {
 }
 
 class PersistDataValueTransformer: Transformer, BasicModule {
-    let id: String = Modules.Types.persistDataValueTransformer
+    static let moduleType: String = Modules.Types.persistDataValueTransformer
+
+    var id: String { Self.moduleType }
     let version: String = TealiumConstants.libraryVersion
 
     private let logger: LoggerProtocol?

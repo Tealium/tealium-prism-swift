@@ -24,8 +24,8 @@ public class ExtensionsAutomaticLoader: NSObject {
     /// Using Swift's lazy evaluation of a static property we get the same
     /// thread-safety and called-once guarantees as dispatch_once provided.
     private static let runOnce: () = {
-        Modules.addDefaultModule(Modules.setDataValuesTransformer())
-        Modules.addDefaultModule(Modules.persistDataValueTransformer())
-        Modules.addDefaultModule(Modules.lowercaseTransformer())
+        Modules.addDefaultModule(SetDataValuesTransformer.factory)
+        Modules.addDefaultModule(PersistDataValueTransformer.factory)
+        Modules.addDefaultModule(LowercaseTransformer.factory)
     }()
 }

@@ -15,6 +15,21 @@ import TealiumPrismCore
 
 /// Builder for creating `TransformationSettings` that configure a JavaScript transformation.
 ///
+/// The JavaScript Transformer executes user-provided JavaScript code against each dispatch payload
+/// using Apple's JavaScriptCore engine. The following globals are available inside the JS code:
+///
+/// - `payload` – mutable object representing the dispatch data; modifications are reflected in the result.
+/// - `scope` – string indicating the current `DispatchScope` (e.g. `"aftercollectors"`).
+/// - `track(...)` – triggers a new SDK track call from within JS. Supported signatures:
+///   - `track(event)` – tracks an event with the given name.
+///   - `track(event, payload)` – tracks an event with additional data (2nd arg must be an object).
+///   - `track(event, type)` – tracks an event with a specific type string (e.g. `"view"`).
+///   - `track(event, type, payload)` – tracks an event with type and additional data.
+/// - `drop()` – sets `payload` to `undefined`, causing the dispatch to be dropped.
+/// - `dataLayer` – read/write access to the persistent data layer (`get`, `getAll`, `put`, `remove`, `clear`).
+/// - `console` – logging bridge (`debug`, `log`, `info`, `warn`, `error`).
+/// - `Expiry` – constants for data expiry (`forever`, `session`, `untilRestart`).
+///
 /// Usage:
 /// ```swift
 /// let settings = JavaScriptTransformationSettingsBuilder(id: "my-transform")
@@ -36,9 +51,7 @@ public class JavaScriptTransformationSettingsBuilder: TransformationSettingsBuil
 
     /// Sets the JavaScript code to execute against each dispatch payload.
     ///
-    /// Beyond `payload`, the JS environment exposes additional globals: `scope`, `track(...)`, `drop()`,
-    /// `dataLayer`, `console`, and `Expiry`. See [`Modules.javaScriptTransformer(forcingSettings:)`](doc:Modules/javaScriptTransformer(forcingSettings:))
-    /// for the full list and description of each global.
+    /// See the class-level documentation for the full list of available globals.
     ///
     /// - Parameter code: A JavaScript code string.
     /// - Returns: `self` for chaining.

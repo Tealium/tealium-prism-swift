@@ -8,12 +8,7 @@ The `JavaScript` transformation executes user-provided JavaScript code against e
 
 ## Registration
 
-The JavaScript transformer is registered automatically when the `TealiumPrismJavaScriptTransformer` library is linked to your app (via the Objective-C `+load` mechanism). No additional setup is required. You only need to call `config.addModule()` explicitly if you want to enforce specific module-level settings:
-
-```swift
-// Explicit — use only when enforcing module-level settings
-config.addModule(Modules.javaScriptTransformer())
-```
+The JavaScript transformer is registered automatically when the `TealiumPrismJavaScriptTransformer` library is linked to your app (via the Objective-C `+load` mechanism). No additional setup is required.
 
 ## Programmatic Configuration
 

@@ -24,7 +24,7 @@ public class JavaScriptTransformerAutomaticLoader: NSObject {
     /// Using Swift's lazy evaluation of a static property we get the same
     /// thread-safety and called-once guarantees as dispatch_once provided.
     private static let runOnce: () = {
-        Modules.addDefaultModule(Modules.javaScriptTransformer())
+        Modules.addDefaultModule(JavaScriptTransformer.factory)
     }()
 }
 #endif
