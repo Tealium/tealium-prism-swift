@@ -13,7 +13,9 @@ import TealiumPrismCore
 #endif
 
 class LowercaseTransformer: Transformer, BasicModule {
-    let id: String = Modules.Types.lowercaseTransformer
+    static let moduleType: String = Modules.Types.lowercaseTransformer
+
+    var id: String { Self.moduleType }
     let version: String = TealiumConstants.libraryVersion
 
     convenience required init?(context: TealiumContext, moduleConfiguration: DataObject) {

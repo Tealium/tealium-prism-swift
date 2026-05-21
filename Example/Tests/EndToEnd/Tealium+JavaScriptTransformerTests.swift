@@ -12,7 +12,6 @@ final class TealiumJavaScriptTransformerTests: TealiumBaseTests {
 
     override func setUp() {
         super.setUp()
-        config.addModule(Modules.javaScriptTransformer())
         config.addModule(MockDispatcher.factory())
     }
 

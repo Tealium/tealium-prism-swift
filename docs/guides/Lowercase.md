@@ -6,12 +6,7 @@ The `Lowercase` transformation converts string values in the dispatch payload to
 
 ## Registration
 
-The `Lowercase` transformer is registered automatically when the `TealiumPrismExtensions` library is linked to your app (via the Objective-C `+load` mechanism). No additional setup is required. You only need to call `config.addModule()` explicitly if you want to enforce specific module-level settings:
-
-```swift
-// Explicit — use only when enforcing module-level settings
-config.addModule(Modules.lowercaseTransformer())
-```
+The `Lowercase` transformer is registered automatically when the `TealiumPrismExtensions` library is linked to your app (via the Objective-C `+load` mechanism). No additional setup is required.
 
 ## Programmatic Configuration
 

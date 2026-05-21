@@ -11,7 +11,9 @@ import TealiumPrismCore
 #endif
 
 class SetDataValuesTransformer: Transformer, BasicModule {
-    let id: String = Modules.Types.setDataValuesTransformer
+    static let moduleType: String = Modules.Types.setDataValuesTransformer
+
+    var id: String { Self.moduleType }
     let version: String = TealiumConstants.libraryVersion
 
     convenience required init?(context: TealiumContext, moduleConfiguration: DataObject) {

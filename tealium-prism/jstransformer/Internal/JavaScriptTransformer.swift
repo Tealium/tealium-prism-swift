@@ -18,7 +18,9 @@ extension LogCategory {
 }
 
 class JavaScriptTransformer: Transformer, BasicModule {
-    let id: String = Modules.Types.javaScriptTransformer
+    static let moduleType: String = Modules.Types.javaScriptTransformer
+
+    var id: String { Self.moduleType }
     let version: String = TealiumConstants.libraryVersion
     let jsContext: JSContext
     let tracker: Tracker

@@ -53,7 +53,7 @@ extension BarrierSettings {
                 return nil
             }
             // if scope is nil, default scope fallback will be used in BarrierManager.scopedConfigBarriers()
-            let scope = dictionary[Keys.scope].flatMap(BarrierScope.converter.convert)
+            let scope = dictionary.getConvertible(key: Keys.scope, converter: BarrierScope.converter)
             let configuration = dictionary.getDataDictionary(key: Keys.configuration)?.toDataObject() ?? [:]
             return BarrierSettings(barrierId: barrierId, scope: scope, configuration: configuration)
         }
