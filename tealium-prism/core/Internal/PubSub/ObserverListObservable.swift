@@ -17,7 +17,7 @@ class ObserverListObservable<Element>: Observable<Element> {
 
     override init() {}
 
-    override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         guard !isCompleted else {
             observer.onComplete()
             return CompletedDisposable.shared

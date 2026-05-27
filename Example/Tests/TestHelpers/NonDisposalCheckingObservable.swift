@@ -17,7 +17,7 @@ class NonDisposalCheckingObservable<Element>: Observable<Element> {
     }
 
     /// Subscribes the observer to be called without checking if it was disposed already.
-    override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         handler(observer)
     }
 }

@@ -16,7 +16,7 @@ class AnonymousObservable<Element>: Observable<Element> {
         self.handler = handler
     }
 
-    override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         handler(observer)
     }
 }

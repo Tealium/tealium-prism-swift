@@ -56,7 +56,7 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
      * - parameter transform: The transformation that maps the `Module` to one of it's `Observable`s.
      * - returns: A `Subscribable` for the inner `Observable`.
      */
-    public func observeModule<Other>(transform: @escaping (SpecificModule) -> Observable<Other>) -> any Subscribable<Other> {
+    public func observeModule<Other>(transform: @escaping (SpecificModule) -> Observable<Other>) -> some Subscribable<Other> {
         onModulesManager.flatMapLatest { $0?.modules.asObservable() ?? Observables.empty() }
             .map { $0.compactMap { $0 as? SpecificModule }.first }
             .distinct { $0 === $1 }
@@ -75,7 +75,7 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
      * - parameter keyPath: The `KeyPath` to the `Observable` inside of the `Module`.
      * - returns: A `Subscribable` for the inner `Observable`.
      */
-    public func observeModule<Other>(_ keyPath: KeyPath<SpecificModule, Observable<Other>>) -> any Subscribable<Other> {
+    public func observeModule<Other>(_ keyPath: KeyPath<SpecificModule, Observable<Other>>) -> some Subscribable<Other> {
         observeModule { module in
             module[keyPath: keyPath]
         }

@@ -171,7 +171,7 @@ class DispatchManager: DispatchManagerProtocol {
             }
     }
 
-    private func transformAndDispatch(dispatchSplit: DispatchSplit, for dispatcher: Dispatcher, onProcessedDispatches: @escaping ([Dispatch]) -> Void) -> Disposable {
+    private func transformAndDispatch(dispatchSplit: DispatchSplit, for dispatcher: Dispatcher, onProcessedDispatches: @escaping ([Dispatch]) -> Void) -> any Disposable {
         if !dispatchSplit.unsuccessful.isEmpty {
             logger?.debug(category: LogCategory.dispatchManager,
                           "Dispatches discarded due to consent \(dispatchSplit.unsuccessful.shortDescription())")

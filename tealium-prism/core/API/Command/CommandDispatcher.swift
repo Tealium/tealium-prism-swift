@@ -66,7 +66,7 @@ open class CommandDispatcher: Dispatcher {
 
     // MARK: - Dispatcher
 
-    open func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> Disposable {
+    open func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> any Disposable {
         let container = DisposableContainer()
 
         for dispatch in data {
@@ -80,7 +80,7 @@ open class CommandDispatcher: Dispatcher {
 
     // MARK: - Private
 
-    private func processDispatch(_ dispatch: Dispatch, completion: @escaping () -> Void) -> Disposable {
+    private func processDispatch(_ dispatch: Dispatch, completion: @escaping () -> Void) -> any Disposable {
         let commands = dispatch.getCommands()
         guard !commands.isEmpty else {
             logger?.debug(category: logCategory,

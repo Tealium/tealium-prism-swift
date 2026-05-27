@@ -45,7 +45,7 @@ class ObserveOnObservable<Element>: Observable<Element> {
         self.queue = queue
     }
 
-    override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         let container = AsyncDisposableContainer(queue: queue)
         let observer = ObserveOnObserver(downstream: observer, queue: queue, container: container)
         source.subscribe(observer).addTo(container)

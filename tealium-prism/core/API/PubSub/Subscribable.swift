@@ -23,7 +23,7 @@ public protocol Subscribable<Element> {
     /// Subscribes an `Observer` to receive elements and completion.
     /// - Returns: A `Disposable` representing the subscription. Disposing it stops event delivery.
     @discardableResult
-    func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable
+    func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable
 }
 
 public extension Subscribable {

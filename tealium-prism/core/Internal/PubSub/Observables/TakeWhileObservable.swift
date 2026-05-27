@@ -62,7 +62,7 @@ class TakeWhileObservable<Element>: Observable<Element> {
         self.inclusive = inclusive
     }
 
-    override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         source.subscribeAndLink {
             TakeWhileObserver(downstream: observer, predicate: predicate, inclusive: inclusive)
         }

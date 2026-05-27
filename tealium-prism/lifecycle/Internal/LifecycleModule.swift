@@ -146,7 +146,7 @@ class LifecycleModule: BasicModule {
         return configuration.trackedLifecycleEvents.contains(event)
     }
 
-    private func subscribeToApplicationStatus(_ onApplicationStatus: Observable<ApplicationStatus>) -> Disposable {
+    private func subscribeToApplicationStatus(_ onApplicationStatus: Observable<ApplicationStatus>) -> any Disposable {
         onApplicationStatus.filter { [weak self] _ in
             self?.configuration.autoTrackingEnabled ?? false
         }

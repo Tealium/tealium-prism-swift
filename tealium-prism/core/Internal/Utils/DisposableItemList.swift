@@ -25,7 +25,7 @@ class DisposableItemList<Element> {
      * - Parameter item: The generic `Element` to be added
      * - Returns: the `Disposable` to eventually dispose the `Element`
      */
-    func append(_ item: Element) -> Disposable {
+    func append(_ item: Element) -> any Disposable {
         let key = self.key
         self.key += 1
         pairs.append(DisposableElement(key: key, item: item))

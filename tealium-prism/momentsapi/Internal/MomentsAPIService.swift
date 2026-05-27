@@ -43,7 +43,7 @@ class MomentsAPIService {
      * - Returns: A `Disposable` that can be used to cancel the request
      */
     @discardableResult
-    func fetchEngineResponse(engineID: String, visitorID: String, completion: @escaping (Result<EngineResponse, MomentsAPIError>) -> Void) -> Disposable {
+    func fetchEngineResponse(engineID: String, visitorID: String, completion: @escaping (Result<EngineResponse, MomentsAPIError>) -> Void) -> any Disposable {
         guard !engineID.isEmpty else {
             completion(.failure(MomentsAPIError.invalidEngineID))
             return Disposables.disposed()

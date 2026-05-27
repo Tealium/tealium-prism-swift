@@ -35,7 +35,7 @@ class MapObservable<Source, Element>: Observable<Element> {
         self.transform = transform
     }
 
-    override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         source.subscribeAndLink {
             MapObserver(downstream: observer, transform: transform)
                 .asLinkableObserver()

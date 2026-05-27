@@ -67,7 +67,7 @@ class FlatMapLatestObservable<Element, Result>: Observable<Result> {
         self.transform = transform
     }
 
-    override func subscribe<O: Observer>(_ observer: O) -> Disposable where O.Element == Result {
+    override func subscribe<O: Observer>(_ observer: O) -> any Disposable where O.Element == Result {
         let container = DisposableContainer()
         let observer = FlatMapLatestObserver(downstream: observer, transform: transform, container: container)
         source.subscribe(observer).addTo(container)

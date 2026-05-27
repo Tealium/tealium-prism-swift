@@ -27,7 +27,7 @@ public class ObservableState<Element>: Observable<Element> {
         self.subscriptionHandler = subscriptionHandler
     }
 
-    public override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    public override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         subscriptionHandler(observer)
     }
 

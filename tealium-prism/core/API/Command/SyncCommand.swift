@@ -24,7 +24,7 @@ open class SyncCommand: Command {
     }
 
     /// Protocol requirement — delegates to the synchronous overload. Do not override.
-    public final func execute(payload: DataObject, completion: @escaping (CommandError?) -> Void) -> Disposable {
+    public final func execute(payload: DataObject, completion: @escaping (CommandError?) -> Void) -> any Disposable {
         do {
             try execute(payload: payload)
             completion(nil)

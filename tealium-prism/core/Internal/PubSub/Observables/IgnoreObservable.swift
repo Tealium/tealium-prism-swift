@@ -37,7 +37,7 @@ class IgnoreObservable<Element>: Observable<Element> {
         self.count = count
     }
 
-    override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         source.subscribeAndLink {
             IgnoreObserver(downstream: observer, count: count)
                 .asLinkableObserver()

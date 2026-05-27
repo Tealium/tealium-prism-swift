@@ -38,7 +38,7 @@ class DistinctObservable<Element>: Observable<Element> {
         self.isEqual = isEqual
     }
 
-    override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         source.subscribeAndLink {
             DistinctObserver(downstream: observer, isEqual: isEqual)
                 .asLinkableObserver()

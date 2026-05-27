@@ -12,7 +12,7 @@ import TealiumPrism
 class CustomDispatcher: Dispatcher {
     let id: String = Factory.moduleType
     let version: String = "1.0.0"
-    func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> Disposable {
+    func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> any Disposable {
         print("CustomDispatcher dispatch: \(data.compactMap { $0.name })")
         completion(data)
         return Disposables.disposed()

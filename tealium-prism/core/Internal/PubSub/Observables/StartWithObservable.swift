@@ -34,7 +34,7 @@ class StartWithObservable<Element>: Observable<Element> {
         self.elements = elements
     }
 
-    override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         source.subscribeAndLink {
             StartWithObserver(downstream: observer, elements: elements)
                 .asLinkableObserver()

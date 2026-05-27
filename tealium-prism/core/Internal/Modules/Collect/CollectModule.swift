@@ -60,7 +60,7 @@ class CollectModule: Dispatcher {
      * In case of multiple events with different `visitorId`s this method will automatically group them by `visitorId` and send them separately.
      * The completion block can, therefore, be called more than once with the list of dispatches that are actually completed every time.
      */
-    func dispatch(_ events: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> Disposable {
+    func dispatch(_ events: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> any Disposable {
         if events.count == 1 {
             return sendSingleDispatch(events[0], completion: completion)
         } else {
@@ -87,7 +87,7 @@ class CollectModule: Dispatcher {
      * This method will create the JSON, eventually apply the `overrideProfile`,
      * and then send the gzipped payload with a POST request to the batch endpoint.
      */
-    func sendSingleDispatch(_ event: Dispatch, completion: @escaping ([Dispatch]) -> Void) -> Disposable {
+    func sendSingleDispatch(_ event: Dispatch, completion: @escaping ([Dispatch]) -> Void) -> any Disposable {
         var data = event.payload
         batcher.applyProfileOverride(configuration.overrideProfile, to: &data)
         let urlWithTrace = urlWithTraceId(baseUrl: configuration.url, dispatches: [event])
@@ -108,7 +108,7 @@ class CollectModule: Dispatcher {
      * This method will create the JSON by compressing those batches, eventually apply the `overrideProfile`,
      * and then send the payload with a gzipped POST request to the batch endpoint.
      */
-    func sendBatchDispatches(_ events: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> Disposable {
+    func sendBatchDispatches(_ events: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> any Disposable {
         guard let batchData = batcher.compressDispatches(events, profileOverride: configuration.overrideProfile) else {
             return Disposables.disposed()
         }

@@ -35,7 +35,7 @@ public protocol NetworkHelperProtocol {
     func get(url: URLConvertible,
              etag: String?,
              additionalHeaders: [String: String]?,
-             completion: @escaping (NetworkResult) -> Void) -> Disposable
+             completion: @escaping (NetworkResult) -> Void) -> any Disposable
 
     /**
      * Sends a GET request to the `NetworkClient` and tries to convert the result into a Codable model.
@@ -51,7 +51,7 @@ public protocol NetworkHelperProtocol {
     func getJsonAsObject<T: Codable>(url: URLConvertible,
                                      etag: String?,
                                      additionalHeaders: [String: String]?,
-                                     completion: @escaping (ObjectResult<T>) -> Void) -> Disposable
+                                     completion: @escaping (ObjectResult<T>) -> Void) -> any Disposable
 
     /**
      * Sends a POST request to the `NetworkClient`with a gzipped JSON body.
@@ -67,7 +67,7 @@ public protocol NetworkHelperProtocol {
     func post(url: URLConvertible,
               body: DataObject,
               additionalHeaders: [String: String]?,
-              completion: @escaping (NetworkResult) -> Void) -> Disposable
+              completion: @escaping (NetworkResult) -> Void) -> any Disposable
 }
 
 /// Default implementations for NetworkHelperProtocol methods.
@@ -84,7 +84,7 @@ public extension NetworkHelperProtocol {
      */
     func get(url: URLConvertible,
              additionalHeaders: [String: String]? = nil,
-             completion: @escaping (NetworkResult) -> Void) -> Disposable {
+             completion: @escaping (NetworkResult) -> Void) -> any Disposable {
         get(url: url, etag: nil, additionalHeaders: additionalHeaders, completion: completion)
     }
 
@@ -102,7 +102,7 @@ public extension NetworkHelperProtocol {
     func getJsonAsDataObject(url: URLConvertible,
                              etag: String? = nil,
                              additionalHeaders: [String: String]? = nil,
-                             completion: @escaping (ObjectResult<DataObject>) -> Void) -> Disposable {
+                             completion: @escaping (ObjectResult<DataObject>) -> Void) -> any Disposable {
         getJsonAsObject(url: url,
                         etag: etag,
                         additionalHeaders: additionalHeaders,
@@ -123,7 +123,7 @@ public extension NetworkHelperProtocol {
     func getJsonAsObject<T: Codable>(url: URLConvertible,
                                      etag: String? = nil,
                                      additionalHeaders: [String: String]? = nil,
-                                     completion: @escaping (ObjectResult<T>) -> Void) -> Disposable {
+                                     completion: @escaping (ObjectResult<T>) -> Void) -> any Disposable {
         get(url: url, etag: etag, additionalHeaders: additionalHeaders) { result in
             completion(result.flatMap { response in
                 do {
@@ -148,7 +148,7 @@ public extension NetworkHelperProtocol {
      */
     func post(url: URLConvertible,
               body: DataObject,
-              completion: @escaping (NetworkResult) -> Void) -> Disposable {
+              completion: @escaping (NetworkResult) -> Void) -> any Disposable {
         post(url: url, body: body, additionalHeaders: nil, completion: completion)
     }
 }

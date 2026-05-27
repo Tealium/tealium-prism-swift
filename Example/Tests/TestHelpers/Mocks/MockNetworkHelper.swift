@@ -48,7 +48,7 @@ class MockNetworkHelper: NetworkHelperProtocol {
     func get(url: URLConvertible,
              etag: String?,
              additionalHeaders: [String: String]?,
-             completion: @escaping (NetworkResult) -> Void) -> Disposable {
+             completion: @escaping (NetworkResult) -> Void) -> any Disposable {
         let sub = Subscription { }
         delayBlock {
             guard !sub.isDisposed else {
@@ -64,7 +64,7 @@ class MockNetworkHelper: NetworkHelperProtocol {
     func post(url: URLConvertible,
               body: DataObject,
               additionalHeaders: [String: String]?,
-              completion: @escaping (NetworkResult) -> Void) -> Disposable {
+              completion: @escaping (NetworkResult) -> Void) -> any Disposable {
         let sub = Subscription { }
         delayBlock {
             guard !sub.isDisposed else {

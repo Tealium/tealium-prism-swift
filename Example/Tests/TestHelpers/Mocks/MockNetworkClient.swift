@@ -19,7 +19,7 @@ class MockNetworkClient: NetworkClient {
         self.result = result
     }
 
-    func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> Disposable {
+    func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> any Disposable {
         requestDidSend?(request)
         let subscription = Subscription { }
         delayBlock {

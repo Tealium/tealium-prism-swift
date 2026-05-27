@@ -54,7 +54,7 @@ class FirstObservable<Element>: Observable<Element> {
         self.predicate = predicate
     }
 
-    override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         source.subscribeAndLink {
             FirstObserver(downstream: observer, predicate: predicate)
         }

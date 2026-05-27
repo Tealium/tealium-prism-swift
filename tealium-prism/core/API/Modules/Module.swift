@@ -61,7 +61,7 @@ public protocol Dispatcher: Module {
      *
      * - Returns: A `Disposable` that can be used to cancel the dispatch process if still in progress.
      */
-    func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> Disposable
+    func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> any Disposable
 }
 
 public extension Dispatcher {

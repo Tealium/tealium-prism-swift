@@ -21,7 +21,7 @@ public protocol NetworkClient {
      *
      * - Returns: the `Disposable` that can be used to dispose the request and cancel the dataTask and future retries.
      */
-    func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> Disposable
+    func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> any Disposable
 
     /**
      * Creates a new `NetworkClient` from this instance which will use a specific logger.
@@ -75,7 +75,7 @@ public class HTTPClient: NetworkClient {
         self.logger = logger
     }
 
-    public func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> Disposable {
+    public func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> any Disposable {
         let signposterInterval = TealiumSignpostInterval(signposter: .httpClient, name: "Interceptable Request")
             .begin("\(request)")
         return self.sendRetryableRequest(request) { result in
@@ -84,7 +84,7 @@ public class HTTPClient: NetworkClient {
         }
     }
 
-    private func sendRetryableRequest(_ request: URLRequest, retryCount: Int = 0, completion: @escaping (NetworkResult) -> Void) -> Disposable {
+    private func sendRetryableRequest(_ request: URLRequest, retryCount: Int = 0, completion: @escaping (NetworkResult) -> Void) -> any Disposable {
         let completion = SelfDestructingResultCompletion(completion: completion)
         let disposeContainer = DisposableContainer()
         let task = self.sendBasicRequest(request) { result in

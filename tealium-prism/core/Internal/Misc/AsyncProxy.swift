@@ -60,7 +60,7 @@ class AsyncProxy<Object: AnyObject, Failure: Error> {
                 completion(.failure(error))
             }
         })
-        SingleImpl(observable: observable, queue: queue)
+        Single(observable: observable, queue: queue)
             .subscribe(replay)
             .addTo(disposer)
         return replay.asObservable().asSingle(queue: queue)

@@ -22,5 +22,5 @@ public protocol Command {
     ///   - payload: The data to process.
     ///   - completion: Called exactly once with `nil` on success or a `CommandError` on failure.
     /// - Returns: A `Disposable` that cancels in-progress async work when disposed.
-    func execute(payload: DataObject, completion: @escaping (CommandError?) -> Void) -> Disposable
+    func execute(payload: DataObject, completion: @escaping (CommandError?) -> Void) -> any Disposable
 }

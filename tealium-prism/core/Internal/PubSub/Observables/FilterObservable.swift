@@ -36,7 +36,7 @@ class FilterObservable<Element>: Observable<Element> {
         self.predicate = predicate
     }
 
-    override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         source.subscribeAndLink {
             FilterObserver(downstream: observer, predicate: predicate)
                 .asLinkableObserver()

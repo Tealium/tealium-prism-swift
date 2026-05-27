@@ -16,7 +16,7 @@ public extension Observable {
     ///   operators use non-thread-safe `Observer`s that would race if the upstream emits
     ///   on the specified queue while disposal happens from the caller's thread.
     ///   Use `subscribe(onNext:onComplete:)` as the final step after `subscribeOn`.
-    func subscribeOn(_ queue: TealiumQueue) -> any Subscribable<Element> {
+    func subscribeOn(_ queue: TealiumQueue) -> some Subscribable<Element> {
         SubscribeOnObservable(source: self, queue: queue)
     }
 
@@ -183,8 +183,8 @@ public extension Observable {
     }
 
     /// Returns a `Single` that only emits the first value from the underlying observable, on the given `TealiumQueue`.
-    func asSingle(queue: TealiumQueue) -> any Single<Element> {
-        SingleImpl(observable: self, queue: queue)
+    func asSingle(queue: TealiumQueue) -> Single<Element> {
+        Single(observable: self, queue: queue)
     }
 
     /**
@@ -209,7 +209,7 @@ public extension Observable {
      * - parameter block: a block of code, to be executed with the next value from the source, along with
      * the observer with which to emit downstream, disposable by the returned `Disposable` object.
      */
-    func callback<Result>(fromDisposable block: @escaping (_ element: Element, _ completion: @escaping (Result) -> Void) -> Disposable) -> Observable<Result> {
+    func callback<Result>(fromDisposable block: @escaping (_ element: Element, _ completion: @escaping (Result) -> Void) -> any Disposable) -> Observable<Result> {
         flatMap { value in
             Observables.callback { completion in
                 block(value, completion)

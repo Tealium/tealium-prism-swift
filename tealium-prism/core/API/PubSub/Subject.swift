@@ -44,7 +44,7 @@ public class Subject<Element>: Subscribable, Observer, ObservableConvertible {
         observable
     }
 
-    public func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    public func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         asObservable().subscribe(observer)
     }
 
@@ -67,7 +67,7 @@ public extension Subject {
      * - returns: a `Disposable` that can be used to dispose this observer before the first event is sent to the observer, in case it's not needed any longer.
      */
     @discardableResult
-    func subscribeOnce(_ observer: @escaping (Element) -> Void) -> Disposable {
+    func subscribeOnce(_ observer: @escaping (Element) -> Void) -> any Disposable {
         asObservable().subscribeOnce(observer)
     }
 }

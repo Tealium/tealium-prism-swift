@@ -9,7 +9,18 @@
 import Foundation
 
 /// A `Subscribable` implementation whereby only a single result is expected to be emitted to the subscriber.
-public protocol Single<Element>: Subscribable {
+public class Single<Element>: Subscribable {
+    private let subscribable: any Subscribable<Element>
+    init(observable: Observable<Element>, queue: TealiumQueue) {
+        self.subscribable = observable
+            .first()
+            .subscribeOn(queue)
+    }
+
+    @discardableResult
+    public func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
+        subscribable.subscribe(observer)
+    }
 }
 
 extension Result: ErrorExtractor {
@@ -76,7 +87,7 @@ public protocol ValueExtractor<ValueType> {
  *   // Handle failure
  * }
  */
-public typealias SingleResult<T, E: Error> = any Single<Result<T, E>>
+public typealias SingleResult<T, E: Error> = Single<Result<T, E>>
 
 public extension Single {
     /**
@@ -88,7 +99,7 @@ public extension Single {
      * - Returns: A `Disposable` that can be disposed if the handler is no longer necessary.
      */
     @discardableResult
-    func onSuccess<Value>(handler: @escaping (_ output: Value) -> Void) -> Disposable where Element: ValueExtractor<Value> {
+    func onSuccess<Value>(handler: @escaping (_ output: Value) -> Void) -> any Disposable where Element: ValueExtractor<Value> {
         subscribe { result in
             if let value = result.getValue() {
                 handler(value)
@@ -105,7 +116,7 @@ public extension Single {
      * - Returns: A `Disposable` that can be disposed if the handler is no longer necessary.
      */
     @discardableResult
-    func onFailure<ErrorType>(handler: @escaping (_ error: ErrorType) -> Void) -> Disposable where Element: ErrorExtractor<ErrorType> {
+    func onFailure<ErrorType>(handler: @escaping (_ error: ErrorType) -> Void) -> any Disposable where Element: ErrorExtractor<ErrorType> {
         subscribe { result in
             if let error = result.getError() {
                 handler(error)

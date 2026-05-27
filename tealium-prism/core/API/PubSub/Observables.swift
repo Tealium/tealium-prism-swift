@@ -56,7 +56,7 @@ public extension Observables {
      *
      * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and emit a new event to the subscribers when the function completes.
      */
-    static func callback<Element>(from asyncFunction: @escaping (@escaping (Element) -> Void) -> Disposable) -> Observable<Element> {
+    static func callback<Element>(from asyncFunction: @escaping (@escaping (Element) -> Void) -> any Disposable) -> Observable<Element> {
         CallbackObservable { observer in
             asyncFunction(observer.onNext(_:))
         }

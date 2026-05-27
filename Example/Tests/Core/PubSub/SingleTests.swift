@@ -14,8 +14,8 @@ final class SingleTests: XCTestCase {
     func test_emits_only_first_event_of_underlying_observable() {
         let observerCalled = expectation(description: "Observer called")
         let subject = Subject<Int>()
-        let single = SingleImpl<Int>(observable: subject.asObservable(),
-                                     queue: .main)
+        let single = Single<Int>(observable: subject.asObservable(),
+                                 queue: .main)
         _ = single.subscribe { number in
             dispatchPrecondition(condition: .onQueue(.main))
             XCTAssertEqual(number, 1)
@@ -31,8 +31,8 @@ final class SingleTests: XCTestCase {
         let observerCalled = expectation(description: "Observer called")
         let subject = Subject<Int>()
         let queue = TealiumQueue.worker
-        let single = SingleImpl<Int>(observable: subject.asObservable(),
-                                     queue: queue)
+        let single = Single<Int>(observable: subject.asObservable(),
+                                 queue: queue)
         _ = single.subscribe { _ in
             dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
             observerCalled.fulfill()
@@ -46,8 +46,8 @@ final class SingleTests: XCTestCase {
 
     func test_onSuccess_is_called_when_result_is_successful() {
         let observerCalled = expectation(description: "Observer called")
-        let single = SingleImpl<Result<Int, Error>>(observable: Observables.just(.success(1)),
-                                                    queue: .main)
+        let single = Single<Result<Int, Error>>(observable: Observables.just(.success(1)),
+                                                queue: .main)
 
         _ = single.onSuccess { value in
             XCTAssertEqual(value, 1)
@@ -59,8 +59,8 @@ final class SingleTests: XCTestCase {
     func test_onSuccess_is_not_called_when_result_is_unsuccessful() {
         let observerCalled = expectation(description: "Observer called")
         observerCalled.isInverted = true
-        let single = SingleImpl<Result<Int, Error>>(observable: Observables.just(.failure(NetworkError.unknown(nil))),
-                                                    queue: .main)
+        let single = Single<Result<Int, Error>>(observable: Observables.just(.failure(NetworkError.unknown(nil))),
+                                                queue: .main)
 
         _ = single.onSuccess { _ in
             observerCalled.fulfill()
@@ -70,8 +70,8 @@ final class SingleTests: XCTestCase {
 
     func test_onFailure_is_called_when_result_is_unsuccessful() {
         let observerCalled = expectation(description: "Observer called")
-        let single = SingleImpl<Result<Int, Error>>(observable: Observables.just(.failure(NetworkError.unknown(nil))),
-                                                    queue: .main)
+        let single = Single<Result<Int, Error>>(observable: Observables.just(.failure(NetworkError.unknown(nil))),
+                                                queue: .main)
 
         _ = single.onFailure { error in
             guard case .unknown = error as? NetworkError else {
@@ -86,8 +86,8 @@ final class SingleTests: XCTestCase {
     func test_onFailure_is_not_called_when_result_is_successful() {
         let observerCalled = expectation(description: "Observer called")
         observerCalled.isInverted = true
-        let single = SingleImpl<Result<Int, Error>>(observable: Observables.just(.success(1)),
-                                                    queue: .main)
+        let single = Single<Result<Int, Error>>(observable: Observables.just(.success(1)),
+                                                queue: .main)
 
         _ = single.onFailure { _ in
             observerCalled.fulfill()
@@ -96,16 +96,16 @@ final class SingleTests: XCTestCase {
     }
 
     func test_toAsync_returns_item_when_successful() async throws {
-        let single = SingleImpl<Result<Int, Error>>(observable: Observables.just(.success(1)),
-                                                    queue: .main)
+        let single = Single<Result<Int, Error>>(observable: Observables.just(.success(1)),
+                                                queue: .main)
 
         let item = try await single.toAsync()
         XCTAssertEqual(item, 1)
     }
 
     func test_toAsync_throws_error_when_unsuccessful() async throws {
-        let single = SingleImpl<Result<Int, Error>>(observable: Observables.just(.failure(NetworkError.unknown(nil))),
-                                                    queue: .main)
+        let single = Single<Result<Int, Error>>(observable: Observables.just(.failure(NetworkError.unknown(nil))),
+                                                queue: .main)
         do {
             _ = try await single.toAsync()
             XCTFail("Expected to throw")

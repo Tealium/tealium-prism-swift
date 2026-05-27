@@ -28,7 +28,7 @@ class MockAsyncCommand: Command {
         self.errorToThrow = errorToThrow
     }
 
-    func execute(payload: DataObject, completion: @escaping (CommandError?) -> Void) -> Disposable {
+    func execute(payload: DataObject, completion: @escaping (CommandError?) -> Void) -> any Disposable {
         executeCalled = true
         executeCallCount += 1
         lastPayload = payload

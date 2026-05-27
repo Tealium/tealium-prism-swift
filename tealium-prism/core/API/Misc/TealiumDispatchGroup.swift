@@ -28,7 +28,7 @@ public class TealiumDispatchGroup {
     ///   - completion: Called when all work items complete with their results.
     /// - Returns: A `Disposable` that prevents the completion from being called when disposed.
     @discardableResult
-    public func parallelExecution<Result>(_ works: [(@escaping (Result) -> Void) -> Disposable], completion: @escaping ([Result]) -> Void) -> Disposable {
+    public func parallelExecution<Result>(_ works: [(@escaping (Result) -> Void) -> any Disposable], completion: @escaping ([Result]) -> Void) -> any Disposable {
         guard works.count > 0 else {
             completion([])
             return Disposables.disposed()

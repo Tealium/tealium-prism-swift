@@ -54,7 +54,7 @@ class CallbackObservable<Element>: Observable<Element> {
         self.block = block
     }
 
-    override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         let observer = CallbackObserver(downstream: observer)
         let subscription = block(observer)
         observer.setUpstream(subscription)

@@ -73,7 +73,7 @@ class CombineLatestObservable<First, Other>: Observable<(First, Other)> {
         self.other = other
     }
 
-    override func subscribe<O: Observer>(_ observer: O) -> Disposable where O.Element == (First, Other) {
+    override func subscribe<O: Observer>(_ observer: O) -> any Disposable where O.Element == (First, Other) {
         CombineLatestCoordinator(downstream: observer, source: source, other: other)
     }
 }

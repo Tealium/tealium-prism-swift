@@ -49,7 +49,7 @@ public class ReplaySubject<Element>: Subject<Element> {
         }
     }
 
-    public override func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    public override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         asObservable().subscribe(observer)
     }
 

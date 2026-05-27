@@ -54,7 +54,7 @@ final class TealiumDispatchGroupTests: XCTestCase {
         parallelExecutionCompletes.isInverted = true
 
         let disposable = group.parallelExecution([
-            { (completion: @escaping (Int) -> Void) -> Disposable in
+            { (completion: @escaping (Int) -> Void) -> any Disposable in
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) {
                     completion(1)
                 }
@@ -140,7 +140,7 @@ final class TealiumDispatchGroupTests: XCTestCase {
 
             // A "work" that never calls its callback; group will be drained
             // via the Subscription in parallelExecution when we dispose.
-            let works: [(@escaping (Int) -> Void) -> Disposable] = [
+            let works: [(@escaping (Int) -> Void) -> any Disposable] = [
                 { _ in Disposables.disposed() }
             ]
 

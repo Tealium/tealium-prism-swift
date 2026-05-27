@@ -19,7 +19,7 @@ public class NetworkHelper: NetworkHelperProtocol {
         self.logger = logger
     }
 
-    private func send(requestBuilder: RequestBuilder, completion: @escaping (NetworkResult) -> Void) -> Disposable {
+    private func send(requestBuilder: RequestBuilder, completion: @escaping (NetworkResult) -> Void) -> any Disposable {
         let completion: (NetworkResult) -> Void = { [weak self] result in
             self?.logger?.log(level: result.logLevel(),
                               category: LogCategory.networkHelper,
@@ -44,7 +44,7 @@ public class NetworkHelper: NetworkHelperProtocol {
     public func get(url: URLConvertible,
                     etag: String? = nil,
                     additionalHeaders: [String: String]? = nil,
-                    completion: @escaping (NetworkResult) -> Void) -> Disposable {
+                    completion: @escaping (NetworkResult) -> Void) -> any Disposable {
         send(requestBuilder: .makeGET(url: url, etag: etag)
             .additionalHeaders(additionalHeaders),
              completion: completion)
@@ -53,7 +53,7 @@ public class NetworkHelper: NetworkHelperProtocol {
     public func post(url: URLConvertible,
                      body: DataObject,
                      additionalHeaders: [String: String]? = nil,
-                     completion: @escaping (NetworkResult) -> Void) -> Disposable {
+                     completion: @escaping (NetworkResult) -> Void) -> any Disposable {
         send(requestBuilder: .makePOST(url: url, gzippedJson: body)
             .additionalHeaders(additionalHeaders),
              completion: completion)

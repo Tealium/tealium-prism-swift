@@ -97,7 +97,7 @@ class MockDispatcher: MockModule, Dispatcher {
 
     @Subject<[Dispatch]> var onDispatch
 
-    func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> Disposable {
+    func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> any Disposable {
         let subscription = Subscription { }
         let completion: ([Dispatch]) -> Void = { data in
             guard !subscription.isDisposed, !data.isEmpty else { return }

@@ -75,7 +75,7 @@ class IterableCombineLatestObservable<Element>: Observable<[Element]> {
         self.observables = observables
     }
 
-    override func subscribe<O: Observer>(_ observer: O) -> Disposable where O.Element == [Element] {
+    override func subscribe<O: Observer>(_ observer: O) -> any Disposable where O.Element == [Element] {
         guard !observables.isEmpty else {
             observer.onNext([])
             observer.onComplete()

@@ -23,7 +23,7 @@ import Foundation
 /// to ensure subscription happens on the source's queue.
 public class Observable<Element>: Subscribable, ObservableConvertible {
     /// A handler called upon subscription to an observable with the given observer.
-    public typealias SubscriptionHandler = (any Observer<Element>) -> Disposable
+    public typealias SubscriptionHandler = (any Observer<Element>) -> any Disposable
 
     init() {}
 
@@ -31,7 +31,7 @@ public class Observable<Element>: Subscribable, ObservableConvertible {
     /// - Returns: A `Disposable` representing the subscription. Disposing it cancels event delivery
     ///   (the observer will no longer receive `onNext` or `onComplete`).
     @discardableResult
-    public func subscribe<O: Observer<Element>>(_ observer: O) -> Disposable {
+    public func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         fatalError("Observable.subscribe(_:) must be overridden by subclasses")
     }
 }
@@ -49,7 +49,7 @@ public extension Observable {
      * - returns: a `Disposable` that can be used to dispose this observer before the first event is sent to the observer, in case it's not needed any longer.
      */
     @discardableResult
-    func subscribeOnce(_ observer: @escaping (Element) -> Void) -> Disposable {
+    func subscribeOnce(_ observer: @escaping (Element) -> Void) -> any Disposable {
         first().subscribe(observer)
     }
 
@@ -69,7 +69,7 @@ public extension Observable {
      * - returns: A `Disposable` for cancelling the subscription. Can be ignored as it will be stored in the composite until completed.
      */
     @discardableResult
-    func subscribe(composite: any CompositeDisposable, observer: any Observer<Element>) -> Disposable {
+    func subscribe(composite: any CompositeDisposable, observer: any Observer<Element>) -> any Disposable {
         let obs = UnsubscribingObserver(owner: composite, delegate: observer)
         let upstream = subscribe(obs)
         obs.setUpstream(upstream)

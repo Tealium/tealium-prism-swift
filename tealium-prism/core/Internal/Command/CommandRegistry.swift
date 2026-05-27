@@ -32,7 +32,7 @@ class CommandRegistry {
     ///   - payload: The data to pass to the command.
     ///   - completion: Called with `nil` on success or a `CommandError` on failure.
     /// - Returns: A `Disposable` that cancels the command's in-progress work when disposed.
-    func execute(commandName: String, payload: DataObject, completion: @escaping (CommandError?) -> Void) -> Disposable {
+    func execute(commandName: String, payload: DataObject, completion: @escaping (CommandError?) -> Void) -> any Disposable {
         let normalizedName = Self.normalize(commandName)
 
         guard let command = commands[normalizedName] else {
