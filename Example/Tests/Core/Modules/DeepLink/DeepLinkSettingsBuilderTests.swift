@@ -25,7 +25,7 @@ final class DeepLinkSettingsBuilderTests: XCTestCase {
                        [
                         "enabled": true,
                         "configuration":
-                            try DataItem(serializing: [
+                            try DataItem(jsonValue: [
                                 "deep_link_trace_enabled": false,
                                 "send_deep_link_event": true
                             ])

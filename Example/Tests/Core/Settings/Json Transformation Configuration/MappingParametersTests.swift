@@ -20,7 +20,7 @@ final class MappingParametersTests: XCTestCase {
 
     func test_toDataObject_on_detailedParameters_returns_complete_object() throws {
         XCTAssertEqual(detailedParameters.toDataObject(), [
-            "reference": try DataItem(serializing: ["path": "somePath.key"]),
+            "reference": try DataItem(jsonValue: ["path": "somePath.key"]),
             "filter": ["value": "someFilter"],
             "map_to": ["value": "someMapValue"],
         ])

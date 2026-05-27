@@ -99,7 +99,7 @@ class TealiumConfigTests: TealiumConfigBaseTests {
             .setScope(.dispatchers(["123"])))
         let settings = config.getEnforcedSDKSettings()
         XCTAssertEqual(settings, [
-            "transformations": try DataItem(serializing: [
+            "transformations": try DataItem(jsonValue: [
                 "transformerId-transformationId1": [
                     "transformation_id": "transformationId1",
                     "transformer_id": "transformerId",
@@ -119,7 +119,7 @@ class TealiumConfigTests: TealiumConfigBaseTests {
         config.setLoadRule(.just(.isDefined(variable: "key2")), forId: "rule2")
         let settings = config.getEnforcedSDKSettings()
         XCTAssertEqual(settings, [
-            "load_rules": try DataItem(serializing: [
+            "load_rules": try DataItem(jsonValue: [
                 "rule1": [
                     "id": "rule1",
                     "conditions": [

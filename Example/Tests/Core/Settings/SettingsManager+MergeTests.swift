@@ -164,7 +164,7 @@ final class SettingsManagerMergeTests: XCTestCase {
             ],
             [
                 "module": [
-                    "configuration": try DataItem(serializing: [
+                    "configuration": try DataItem(jsonValue: [
                         "key1": "value2",
                         "key2": "value2",
                         "key3": "value2",
@@ -176,7 +176,7 @@ final class SettingsManagerMergeTests: XCTestCase {
         let expected: DataObject = [
             "modules": [
                 "module": [
-                    "configuration": try DataItem(serializing: [
+                    "configuration": try DataItem(jsonValue: [
                         "key1": "value2",
                         "key2": "value2",
                         "key3": "value2",

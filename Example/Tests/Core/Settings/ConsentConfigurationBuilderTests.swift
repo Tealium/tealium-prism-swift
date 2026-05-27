@@ -20,7 +20,7 @@ final class ConsentConfigurationBuilderTests: XCTestCase {
                 .build()
         XCTAssertEqual(configuration, [
             "tealium_purpose_id": "tealium",
-            "purposes": try DataItem(serializing: [
+            "purposes": try DataItem(jsonValue: [
                 "purpose1": [
                     "purpose_id": "purpose1",
                     "dispatcher_ids": ["dispatcherId1"]

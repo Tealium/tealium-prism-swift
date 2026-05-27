@@ -35,7 +35,7 @@ public protocol DataInput { }
  * For cases in which you have only nested Arrays and Dictionaries that only contain valid `DataInput`,
  * implementing this protocol is not necessary and you can just wrap them with the prebuilt `DataItem` wrapper.
  *
- * Although not preferable, you can make any `Encodable` type a `DataInputConvertible` by wrapping it with `DataItem(serializing:)`.
+ * Although not preferable, you can make any `Encodable` type a `DataInputConvertible` by wrapping it with `DataItem(jsonValue:)`.
  * Note that this method can fail, so you must handle the eventual `EncodingError` that can be thrown in case of failure.
  */
 public protocol DataInputConvertible {

@@ -29,7 +29,7 @@ final class LifecycleSettingsBuilderTests: XCTestCase {
                        [
                         "enabled": true,
                         "configuration":
-                            try DataItem(serializing: [
+                            try DataItem(jsonValue: [
                                 "autotracking_enabled": false,
                                 "data_target": "allEvents",
                                 "session_timeout": 1,

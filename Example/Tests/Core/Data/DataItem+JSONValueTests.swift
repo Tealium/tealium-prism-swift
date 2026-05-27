@@ -1,5 +1,5 @@
 //
-//  DataItem+SerializingTests.swift
+//  DataItem+JSONValueTests.swift
 //  tealium-prism
 //
 //  Created by Enrico Zannini on 30/08/24.
@@ -9,7 +9,7 @@
 import TealiumPrism
 import XCTest
 
-final class DataItemSerializingTests: XCTestCase {
+final class DataItemJSONValueTests: XCTestCase {
     let nilObj: Any? = nil
     func getNil() -> Any {
         nilObj as Any
@@ -17,7 +17,7 @@ final class DataItemSerializingTests: XCTestCase {
     var any: Any = NSNull()
 
     func getValue() throws -> DataItem {
-        try DataItem(serializing: any)
+        try DataItem(jsonValue: any)
     }
 
     func test_nil_throws_an_error() throws {
@@ -143,7 +143,7 @@ final class DataItemSerializingTests: XCTestCase {
     }
 
     func test_nan_and_infinity_are_converted_to_string() throws {
-        let value = try DataItem(serializing: [NSNumber(value: Double.nan), NSNumber(value: Float.infinity), NSNumber(value: -Float.infinity), -Double.infinity, Double.infinity, Float.nan])
+        let value = try DataItem(jsonValue: [NSNumber(value: Double.nan), NSNumber(value: Float.infinity), NSNumber(value: -Float.infinity), -Double.infinity, Double.infinity, Float.nan])
         let result = value.getArray(of: String.self)
         let nan = "NaN"
         let infinity = "Infinity"
@@ -152,7 +152,7 @@ final class DataItemSerializingTests: XCTestCase {
     }
 
     func test_iso_date_strings_remain_strings() throws {
-        let value = try DataItem(serializing: Date())
+        let value = try DataItem(jsonValue: Date())
         let result = value.get(as: String.self)
         XCTAssertNotNil(result)
     }
