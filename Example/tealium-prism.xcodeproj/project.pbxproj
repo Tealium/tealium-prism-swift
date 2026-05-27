@@ -679,7 +679,7 @@
 		87A408DD2E97F06E005D92CC /* MockModulesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1523CE7D2ABAFC170001D6D3 /* MockModulesRepository.swift */; };
 		87A408DE2E97F06E005D92CC /* Condition+LessThanOrEqualTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE76EB2D786FFD00BB1D77 /* Condition+LessThanOrEqualTests.swift */; };
 		87A408DF2E97F06E005D92CC /* TransformationSettings+ConverterTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF304E2DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift */; };
-		87A408E02E97F06E005D92CC /* DataItem+SerializingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54812C8211B100F1C114 /* DataItem+SerializingTests.swift */; };
+		87A408E02E97F06E005D92CC /* DataItem+JSONValueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54812C8211B100F1C114 /* DataItem+JSONValueTests.swift */; };
 		87A408E22E97F06E005D92CC /* XCTAssert+Result.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AE2B852A127DD90093D154 /* XCTAssert+Result.swift */; };
 		87A408E32E97F06E005D92CC /* DispatchManager+MaximumInflightTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF962C78C018003687C7 /* DispatchManager+MaximumInflightTests.swift */; };
 		87A408E42E97F06E005D92CC /* DisposableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 153781282A617FC5007BCA70 /* DisposableTests.swift */; };
@@ -1086,9 +1086,9 @@
 		87AF54762C7F4CCA00F1C114 /* DataObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54752C7F4CCA00F1C114 /* DataObjectTests.swift */; };
 		87AF54772C7F4CCA00F1C114 /* DataObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54752C7F4CCA00F1C114 /* DataObjectTests.swift */; };
 		87AF54782C7F4CCA00F1C114 /* DataObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54752C7F4CCA00F1C114 /* DataObjectTests.swift */; };
-		87AF54822C8211B100F1C114 /* DataItem+SerializingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54812C8211B100F1C114 /* DataItem+SerializingTests.swift */; };
-		87AF54832C8211B100F1C114 /* DataItem+SerializingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54812C8211B100F1C114 /* DataItem+SerializingTests.swift */; };
-		87AF54842C8211B100F1C114 /* DataItem+SerializingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54812C8211B100F1C114 /* DataItem+SerializingTests.swift */; };
+		87AF54822C8211B100F1C114 /* DataItem+JSONValueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54812C8211B100F1C114 /* DataItem+JSONValueTests.swift */; };
+		87AF54832C8211B100F1C114 /* DataItem+JSONValueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54812C8211B100F1C114 /* DataItem+JSONValueTests.swift */; };
+		87AF54842C8211B100F1C114 /* DataItem+JSONValueTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54812C8211B100F1C114 /* DataItem+JSONValueTests.swift */; };
 		87AF54862C8217EE00F1C114 /* XCTAssert+NSNull.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54852C8217EE00F1C114 /* XCTAssert+NSNull.swift */; };
 		87AF54872C8217EE00F1C114 /* XCTAssert+NSNull.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54852C8217EE00F1C114 /* XCTAssert+NSNull.swift */; };
 		87AF54882C8217EE00F1C114 /* XCTAssert+NSNull.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54852C8217EE00F1C114 /* XCTAssert+NSNull.swift */; };
@@ -2349,7 +2349,7 @@
 		87AF546A2C7E389C00F1C114 /* TimeFrameTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TimeFrameTests.swift; sourceTree = "<group>"; };
 		87AF546B2C7E389C00F1C114 /* TealiumDispatchGroupTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TealiumDispatchGroupTests.swift; sourceTree = "<group>"; };
 		87AF54752C7F4CCA00F1C114 /* DataObjectTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataObjectTests.swift; sourceTree = "<group>"; };
-		87AF54812C8211B100F1C114 /* DataItem+SerializingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataItem+SerializingTests.swift"; sourceTree = "<group>"; };
+		87AF54812C8211B100F1C114 /* DataItem+JSONValueTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataItem+JSONValueTests.swift"; sourceTree = "<group>"; };
 		87AF54852C8217EE00F1C114 /* XCTAssert+NSNull.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTAssert+NSNull.swift"; sourceTree = "<group>"; };
 		87B3EECD2DAF9FF30030B922 /* CoreTests_iOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CoreTests_iOS-Info.plist"; sourceTree = "<group>"; };
 		87B3EECE2DAF9FF30030B922 /* CoreTests_macOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "CoreTests_macOS-Info.plist"; sourceTree = "<group>"; };
@@ -3613,7 +3613,7 @@
 				486956A42A449A8B0014AC58 /* DataInputTests.swift */,
 				157293242AB06BF50015A08D /* DataItemTests.swift */,
 				87795FD52C6BC52B00FEB0D6 /* DataItem+StringValueTests.swift */,
-				87AF54812C8211B100F1C114 /* DataItem+SerializingTests.swift */,
+				87AF54812C8211B100F1C114 /* DataItem+JSONValueTests.swift */,
 				87AF54752C7F4CCA00F1C114 /* DataObjectTests.swift */,
 				EC0E52D52D887F77002B0FD8 /* DataObject+DeepMergeTests.swift */,
 				87A40AE42E9FA8F2005D92CC /* JSONPathTests.swift */,
@@ -6389,7 +6389,7 @@
 				1597DC7B2A446ADA00C394D3 /* MockInterceptor.swift in Sources */,
 				D54BBFDE2C78C01A003687C7 /* RetryPolicyTests.swift in Sources */,
 				EC2AF5E92DE9EAEC004AE72F /* DeviceDataModuleConfigurationTests.swift in Sources */,
-				87AF54822C8211B100F1C114 /* DataItem+SerializingTests.swift in Sources */,
+				87AF54822C8211B100F1C114 /* DataItem+JSONValueTests.swift in Sources */,
 				87FC086A2D931B9500E1041D /* LoadRule+ConverterTests.swift in Sources */,
 				ECBF304B2DC0EFA8007A1A42 /* TransformationSettingsTests.swift in Sources */,
 				87A40AC82E99695F005D92CC /* NotificationCenter+PostApplicationNotification.swift in Sources */,
@@ -7047,7 +7047,7 @@
 				87A408DD2E97F06E005D92CC /* MockModulesRepository.swift in Sources */,
 				87A408DE2E97F06E005D92CC /* Condition+LessThanOrEqualTests.swift in Sources */,
 				87A408DF2E97F06E005D92CC /* TransformationSettings+ConverterTests.swift in Sources */,
-				87A408E02E97F06E005D92CC /* DataItem+SerializingTests.swift in Sources */,
+				87A408E02E97F06E005D92CC /* DataItem+JSONValueTests.swift in Sources */,
 				87A408E22E97F06E005D92CC /* XCTAssert+Result.swift in Sources */,
 				87A409652E97F955005D92CC /* DeviceDataProviderWatchOSTests.swift in Sources */,
 				87A408E32E97F06E005D92CC /* DispatchManager+MaximumInflightTests.swift in Sources */,
@@ -7589,7 +7589,7 @@
 				87BA6D6D2C6A470C00784784 /* MockModulesRepository.swift in Sources */,
 				87EE76EE2D786FFD00BB1D77 /* Condition+LessThanOrEqualTests.swift in Sources */,
 				ECBF30502DC10C74007A1A42 /* TransformationSettings+ConverterTests.swift in Sources */,
-				87AF54842C8211B100F1C114 /* DataItem+SerializingTests.swift in Sources */,
+				87AF54842C8211B100F1C114 /* DataItem+JSONValueTests.swift in Sources */,
 				87BA6D6F2C6A470C00784784 /* XCTAssert+Result.swift in Sources */,
 				D54BBFF82C78C01A003687C7 /* DispatchManager+MaximumInflightTests.swift in Sources */,
 				87BA6D732C6A470C00784784 /* DisposableTests.swift in Sources */,
@@ -7861,7 +7861,7 @@
 				87FC085D2D92F79200E1041D /* DataObject+DeepMergeTests.swift in Sources */,
 				87BA6DEB2C6A47AF00784784 /* MockModulesRepository.swift in Sources */,
 				9E47A87E2F75E22D00DF0501 /* MockAsyncCommand.swift in Sources */,
-				87AF54832C8211B100F1C114 /* DataItem+SerializingTests.swift in Sources */,
+				87AF54832C8211B100F1C114 /* DataItem+JSONValueTests.swift in Sources */,
 				8753710B2E2E4C2B00CDED6D /* URLTests.swift in Sources */,
 				87BA6DED2C6A47AF00784784 /* XCTAssert+Result.swift in Sources */,
 				EC2AF5EE2DE9EF97004AE72F /* DeviceDataModuleBaseTests.swift in Sources */,

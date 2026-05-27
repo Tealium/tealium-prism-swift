@@ -14,7 +14,7 @@ declare -a SPM_SCHEMES=(
     "TealiumPrismCore"
     "TealiumPrismLifecycle"
     "TealiumPrismMomentsAPI"
-#    "TealiumPrismExtensions"
+    "TealiumPrismExtensions"
     "TealiumPrismJavaScriptTransformer"
 )
 

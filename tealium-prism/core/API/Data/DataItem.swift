@@ -73,13 +73,15 @@ public struct DataItem {
      * Additionally you can pass any valid `DataInput`, including any sort of Dictionary or Array that only contain a mix of valid `DataInput`.
      * Prefer using other methods when dealing with valid `DataInput` whose type are known at compile time (like if you have a `String` or an array of `Int` for example).
      *
-     * - Warning: Non conforming floats like `Double.nan` or `Float.infinity` will be silently converted to strings "NaN" and "Infinity" (or "-Infinity" for negative "Infinity") immediately by this function.
+     * - Warning: Non conforming floats like `Double.nan` or `Float.infinity` will be silently converted to strings "NaN" and "Infinity"
+     * (or "-Infinity" for negative "Infinity") immediately by this function.
+     * Dates will be converted to Strings in the following format: yyyy-MM-dd'T'HH:mm:ss'Z'.
      *
      * - throws: An `EncodingError` if any other type of values are passed in the parameter or in eventual nested values.
      */
-    public init(serializing value: Any) throws {
+    public init(jsonValue: Any) throws {
         // swiftlint:disable:next optional_data_string_conversion
-        self.init(stringValue: String(decoding: try Tealium.jsonEncoder.encode(AnyCodable(value)), as: UTF8.self)) // Safe as we just used encode that returns UTF8 formatted data
+        self.init(stringValue: String(decoding: try Tealium.jsonEncoder.encode(AnyCodable(jsonValue)), as: UTF8.self)) // Safe as we just used encode that returns UTF8 formatted data
     }
 
     /// Do not change the LazyConstant wrapper. It must be set only once at init time.

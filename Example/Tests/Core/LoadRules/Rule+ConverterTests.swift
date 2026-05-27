@@ -37,7 +37,7 @@ final class RuleConverterTests: XCTestCase {
     let converter = Rule.converter(ruleItemConverter: Condition.converter)
 
     func test_init_from_and_of_conditions() throws {
-        let item = try DataItem(serializing: [
+        let item = try DataItem(jsonValue: [
             "operator": "and",
             "children": [
                 [
@@ -68,7 +68,7 @@ final class RuleConverterTests: XCTestCase {
     }
 
     func test_init_from_or_of_conditions() throws {
-        let item = try DataItem(serializing: [
+        let item = try DataItem(jsonValue: [
             "operator": "or",
             "children": [
                 [
@@ -100,7 +100,7 @@ final class RuleConverterTests: XCTestCase {
     }
 
     func test_init_from_not_of_one_condition() throws {
-        let item = try DataItem(serializing: [
+        let item = try DataItem(jsonValue: [
             "operator": "not",
             "children": [
                 [

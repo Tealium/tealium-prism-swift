@@ -49,19 +49,19 @@ final class DataObjectTests: XCTestCase {
             "key0": null,
             "key1": string,
             "key2": int,
-            "key3": try DataItem(serializing: stringArray),
-            "key4": try DataItem(serializing: stringDictionary),
-            "key5": try DataItem(serializing: nestedDictionary),
-            "key6": try DataItem(serializing: nestedDictionaryArray),
-            "key7": try DataItem(serializing: mixedArray),
-            "key8": try DataItem(serializing: mixedDictionary),
-            "key9": try DataItem(serializing: nestedMixedDictionary),
-            "key10": try DataItem(serializing: nestedMixedArray),
+            "key3": try DataItem(jsonValue: stringArray),
+            "key4": try DataItem(jsonValue: stringDictionary),
+            "key5": try DataItem(jsonValue: nestedDictionary),
+            "key6": try DataItem(jsonValue: nestedDictionaryArray),
+            "key7": try DataItem(jsonValue: mixedArray),
+            "key8": try DataItem(jsonValue: mixedDictionary),
+            "key9": try DataItem(jsonValue: nestedMixedDictionary),
+            "key10": try DataItem(jsonValue: nestedMixedArray),
         ]
-        dataObject.set(converting: try DataItem(serializing: mixedArray), key: "key11")
-        dataObject.set(converting: try DataItem(serializing: mixedDictionary), key: "key12")
-        dataObject.set(converting: try DataItem(serializing: nestedMixedDictionary), key: "key13")
-        dataObject.set(converting: try DataItem(serializing: nestedMixedArray), key: "key14")
+        dataObject.set(converting: try DataItem(jsonValue: mixedArray), key: "key11")
+        dataObject.set(converting: try DataItem(jsonValue: mixedDictionary), key: "key12")
+        dataObject.set(converting: try DataItem(jsonValue: nestedMixedDictionary), key: "key13")
+        dataObject.set(converting: try DataItem(jsonValue: nestedMixedArray), key: "key14")
         XCTAssertEqual(dataObject.count, 15)
         XCTAssertEqual(dataObject.asDictionary(), [
             "key0": null,
@@ -105,15 +105,15 @@ final class DataObjectTests: XCTestCase {
             "key4": stringDictionary,
             "key5": nestedDictionary,
             "key6": nestedDictionaryArray,
-            "key7": try DataItem(serializing: mixedArray),
-            "key8": try DataItem(serializing: mixedDictionary),
-            "key9": try DataItem(serializing: nestedMixedDictionary),
-            "key10": try DataItem(serializing: nestedMixedArray),
+            "key7": try DataItem(jsonValue: mixedArray),
+            "key8": try DataItem(jsonValue: mixedDictionary),
+            "key9": try DataItem(jsonValue: nestedMixedDictionary),
+            "key10": try DataItem(jsonValue: nestedMixedArray),
         ]
-        dataObject.set(converting: try DataItem(serializing: mixedArray), key: "key11")
-        dataObject.set(converting: try DataItem(serializing: mixedDictionary), key: "key12")
-        dataObject.set(converting: try DataItem(serializing: nestedMixedDictionary), key: "key13")
-        dataObject.set(converting: try DataItem(serializing: nestedMixedArray), key: "key14")
+        dataObject.set(converting: try DataItem(jsonValue: mixedArray), key: "key11")
+        dataObject.set(converting: try DataItem(jsonValue: mixedDictionary), key: "key12")
+        dataObject.set(converting: try DataItem(jsonValue: nestedMixedDictionary), key: "key13")
+        dataObject.set(converting: try DataItem(jsonValue: nestedMixedArray), key: "key14")
         XCTAssertEqual(dataObject.count, 15)
         XCTAssertEqual(dataObject.asDictionary(), [
             "key0": null,
@@ -231,23 +231,23 @@ final class DataObjectTests: XCTestCase {
         let nestedMixedArray = Optional([["value10", 10]])
         let actualNil = Optional<Int>.none
         var dataObject: DataObject = [
-            "key0": try DataItem(serializing: null as Any),
-            "key1": try DataItem(serializing: string as Any),
-            "key2": try DataItem(serializing: int as Any),
-            "key3": try DataItem(serializing: stringArray as Any),
-            "key4": try DataItem(serializing: stringDictionary as Any),
-            "key5": try DataItem(serializing: nestedDictionary as Any),
-            "key6": try DataItem(serializing: nestedDictionaryArray as Any),
-            "key7": try DataItem(serializing: mixedArray as Any),
-            "key8": try DataItem(serializing: mixedDictionary as Any),
-            "key9": try DataItem(serializing: nestedMixedDictionary as Any),
-            "key10": try DataItem(serializing: nestedMixedArray as Any),
-            "key15": try DataItem(serializing: actualNil as Any)
+            "key0": try DataItem(jsonValue: null as Any),
+            "key1": try DataItem(jsonValue: string as Any),
+            "key2": try DataItem(jsonValue: int as Any),
+            "key3": try DataItem(jsonValue: stringArray as Any),
+            "key4": try DataItem(jsonValue: stringDictionary as Any),
+            "key5": try DataItem(jsonValue: nestedDictionary as Any),
+            "key6": try DataItem(jsonValue: nestedDictionaryArray as Any),
+            "key7": try DataItem(jsonValue: mixedArray as Any),
+            "key8": try DataItem(jsonValue: mixedDictionary as Any),
+            "key9": try DataItem(jsonValue: nestedMixedDictionary as Any),
+            "key10": try DataItem(jsonValue: nestedMixedArray as Any),
+            "key15": try DataItem(jsonValue: actualNil as Any)
         ]
-        dataObject.set(converting: try DataItem(serializing: mixedArray as Any), key: "key11")
-        dataObject.set(converting: try DataItem(serializing: mixedDictionary as Any), key: "key12")
-        dataObject.set(converting: try DataItem(serializing: nestedMixedDictionary as Any), key: "key13")
-        dataObject.set(converting: try DataItem(serializing: nestedMixedArray as Any), key: "key14")
+        dataObject.set(converting: try DataItem(jsonValue: mixedArray as Any), key: "key11")
+        dataObject.set(converting: try DataItem(jsonValue: mixedDictionary as Any), key: "key12")
+        dataObject.set(converting: try DataItem(jsonValue: nestedMixedDictionary as Any), key: "key13")
+        dataObject.set(converting: try DataItem(jsonValue: nestedMixedArray as Any), key: "key14")
         XCTAssertEqual(dataObject.count, 16)
         XCTAssertEqual(dataObject.asDictionary(), [
             "key0": null,
@@ -289,17 +289,17 @@ final class DataObjectTests: XCTestCase {
             "key3": stringArray?.asDataArray(),
             "key4": stringDictionary?.asDataDictionary(),
             "key5": nestedDictionary,
-            "key6": try nestedDictionaryArray.flatMap { try DataItem(serializing: $0) },
-            "key7": try mixedArray.flatMap { try DataItem(serializing: $0) },
-            "key8": try mixedDictionary.flatMap { try DataItem(serializing: $0) },
-            "key9": try nestedMixedDictionary.flatMap { try DataItem(serializing: $0 ) },
-            "key10": try nestedMixedArray.flatMap { try DataItem(serializing: $0) },
+            "key6": try nestedDictionaryArray.flatMap { try DataItem(jsonValue: $0) },
+            "key7": try mixedArray.flatMap { try DataItem(jsonValue: $0) },
+            "key8": try mixedDictionary.flatMap { try DataItem(jsonValue: $0) },
+            "key9": try nestedMixedDictionary.flatMap { try DataItem(jsonValue: $0 ) },
+            "key10": try nestedMixedArray.flatMap { try DataItem(jsonValue: $0) },
             "key15": actualNil
         ])
-        dataObject.set(converting: try DataItem(serializing: mixedArray as Any), key: "key11")
-        dataObject.set(converting: try DataItem(serializing: mixedDictionary as Any), key: "key12")
-        dataObject.set(converting: try DataItem(serializing: nestedMixedDictionary as Any), key: "key13")
-        dataObject.set(converting: try DataItem(serializing: nestedMixedArray as Any), key: "key14")
+        dataObject.set(converting: try DataItem(jsonValue: mixedArray as Any), key: "key11")
+        dataObject.set(converting: try DataItem(jsonValue: mixedDictionary as Any), key: "key12")
+        dataObject.set(converting: try DataItem(jsonValue: nestedMixedDictionary as Any), key: "key13")
+        dataObject.set(converting: try DataItem(jsonValue: nestedMixedArray as Any), key: "key14")
         XCTAssertEqual(dataObject.count, 15, "actualNil should be removed")
         XCTAssertEqual(dataObject.asDictionary(), [
             "key0": null,
@@ -385,7 +385,7 @@ final class DataObjectTests: XCTestCase {
     func test_buildPath_fills_arrays_with_nils() throws {
         var dataObject: DataObject = [:]
         dataObject.buildPath(JSONPath["container"][3]["property"], andSet: DataItem(value: "value"))
-        XCTAssertEqual(dataObject, ["container": try DataItem(serializing: [nil, nil, nil, ["property": "value"]])])
+        XCTAssertEqual(dataObject, ["container": try DataItem(jsonValue: [nil, nil, nil, ["property": "value"]])])
     }
 
     func test_buildPath_merges_objects() {
@@ -409,7 +409,7 @@ final class DataObjectTests: XCTestCase {
         ]
         dataObject.buildPath(JSONPath["container"]["array"][5], andSet: DataItem(value: "value"))
         XCTAssertEqual(dataObject, ["container": [
-            "array": try DataItem(serializing: ["1", "2", "3", nil, nil, "value"])
+            "array": try DataItem(jsonValue: ["1", "2", "3", nil, nil, "value"])
         ]])
     }
 
@@ -433,5 +433,85 @@ final class DataObjectTests: XCTestCase {
         ]
         dataObject.buildPath(JSONPath["container"][0]["property"], andSet: DataItem(value: "value"))
         XCTAssertEqual(dataObject, ["container": [["property": "value"]]])
+    }
+
+    // MARK: - init(jsonObject:)
+
+    func test_init_jsonObject_simple_dictionary() throws {
+        let json: [String: Any] = [
+            "key1": "value1",
+            "key2": 42,
+            "key3": true,
+            "key4": Date(unixMilliseconds: 0)
+        ]
+        let dataObject = try DataObject(jsonObject: json)
+
+        XCTAssertEqual(dataObject.get(key: "key1"), "value1")
+        XCTAssertEqual(dataObject.get(key: "key2"), 42)
+        XCTAssertEqual(dataObject.get(key: "key3"), true)
+        XCTAssertEqual(dataObject.get(key: "key4"), "1970-01-01T00:00:00Z")
+    }
+
+    func test_init_jsonObject_nested_dictionary() throws {
+        let json: [String: Any] = [
+            "outer": ["inner": "value"]
+        ]
+        let dataObject = try DataObject(jsonObject: json)
+        let outer = dataObject.getDataDictionary(key: "outer")?.toDataObject()
+
+        XCTAssertEqual(outer?.get(key: "inner"), "value")
+    }
+
+    func test_init_jsonObject_with_arrays() throws {
+        let json: [String: Any] = ["items": [1, 2, 3]]
+        let dataObject = try DataObject(jsonObject: json)
+
+        XCTAssertEqual(dataObject.getArray(key: "items"), [1, 2, 3])
+    }
+
+    func test_init_jsonObject_with_null_values() throws {
+        let json: [String: Any] = ["key": NSNull()]
+        let dataObject = try DataObject(jsonObject: json)
+
+        XCTAssertNSNull(dataObject.getDataItem(key: "key")?.toDataInput())
+    }
+
+    func test_init_jsonObject_throws_for_non_serializable_value() {
+        let json: [String: Any] = ["key": self]
+
+        XCTAssertThrows(try DataObject(jsonObject: json)) { (error: JSONParsingError) in
+            guard case let .invalidJSON(internalError) = error else {
+                return XCTFail("Expected JSONParsingError.invalidJSON, got \(type(of: error)): \(error)")
+            }
+            XCTAssertTrue(internalError is EncodingError,
+                          "Expected EncodingError, got \(type(of: internalError)): \(internalError)")
+        }
+    }
+
+    func test_init_jsonObject_empty_dictionary() throws {
+        let json: [String: Any] = [:]
+        let dataObject = try DataObject(jsonObject: json)
+
+        XCTAssertEqual(dataObject.count, 0)
+    }
+
+    func test_init_jsonObject_complex_nested_structure() throws {
+        let json: [String: Any] = [
+            "name": "test",
+            "count": 5,
+            "tags": ["a", "b", "c"],
+            "metadata": [
+                "nested_array": [1, 2],
+                "nested_bool": false
+            ]
+        ]
+        let dataObject = try DataObject(jsonObject: json)
+
+        XCTAssertEqual(dataObject.get(key: "name"), "test")
+        XCTAssertEqual(dataObject.get(key: "count"), 5)
+        XCTAssertEqual(dataObject.getArray(key: "tags"), ["a", "b", "c"])
+        let metadata: DataObject? = dataObject.getDataDictionary(key: "metadata")?.toDataObject()
+        XCTAssertEqual(metadata?.getArray(key: "nested_array"), [1, 2])
+        XCTAssertEqual(metadata?.get(key: "nested_bool"), false)
     }
 }

@@ -220,14 +220,14 @@ final class DataItemTests: XCTestCase {
     }
 
     func test_toDataInput_from_conversion_can_be_read_as_DataInput() throws {
-        let int = try DataItem(serializing: 1)
-        let double = try DataItem(serializing: 1.4)
-        let intDouble = try DataItem(serializing: 2.0)
-        let bool = try DataItem(serializing: true)
-        let string = try DataItem(serializing: "string")
-        let array = try DataItem(serializing: [1, 2, 3.5])
-        let dictionary = try DataItem(serializing: ["1": 1, "2": 2, "3": 3.5])
-        let multiLevelDictionary = try DataItem(serializing: ["1": [1, "1"], "2": [2, "2"], "3": [3.5, "3.5"]])
+        let int = try DataItem(jsonValue: 1)
+        let double = try DataItem(jsonValue: 1.4)
+        let intDouble = try DataItem(jsonValue: 2.0)
+        let bool = try DataItem(jsonValue: true)
+        let string = try DataItem(jsonValue: "string")
+        let array = try DataItem(jsonValue: [1, 2, 3.5])
+        let dictionary = try DataItem(jsonValue: ["1": 1, "2": 2, "3": 3.5])
+        let multiLevelDictionary = try DataItem(jsonValue: ["1": [1, "1"], "2": [2, "2"], "3": [3.5, "3.5"]])
         XCTAssertNotNil(int.toDataInput())
         XCTAssertNotNil(int.toDataInput())
         XCTAssertNotNil(double.toDataInput())

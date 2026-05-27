@@ -87,6 +87,31 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
         self.dictionary = dictionaryInput
     }
 
+    /// Creates a DataObject from a JSON serializable Dictionary.
+    ///
+    ///  This method performs a JSON encoding round-trip to validate and convert the input.
+    ///
+    /// - Warning: Non conforming floats like `Double.nan` or `Float.infinity` will be silently converted to strings "NaN" and "Infinity"
+    /// (or "-Infinity" for negative "Infinity") immediately by this function.
+    /// Dates will be converted to Strings in the following format: yyyy-MM-dd'T'HH:mm:ss'Z'.
+    ///
+    /// - parameter jsonObject: The dictionary representing a JSON serializable object
+    /// - throws: A `JSONParsingError` in case of non serializable objects.
+    public init(jsonObject: [String: Any]) throws(JSONParsingError) {
+        let item: DataItem
+        do {
+            item = try DataItem(jsonValue: jsonObject)
+        } catch {
+            throw JSONParsingError.invalidJSON(error)
+        }
+        guard let dictionary = item.getDataDictionary() else {
+            // Should never happen
+            throw JSONParsingError.jsonIsNotADictionary(item.value as Any)
+        }
+        self = dictionary.toDataObject()
+
+    }
+
     /**
      * Sets the value at the given key
      */
@@ -238,7 +263,7 @@ extension DataObject {
      * let lhs: DataObject = [
      *     "key1": "string",
      *     "key2": true,
-     *     "lvl-1": try DataItem(serializing: [
+     *     "lvl-1": try DataItem(jsonValue: [
      *         "key1": "string",
      *         "key2": true,
      *         "lvl-2": [
@@ -254,7 +279,7 @@ extension DataObject {
      *
      * let rhs: DataObject = [
      *     "key1": "new string",
-     *     "lvl-1": try DataItem(serializing: [
+     *     "lvl-1": try DataItem(jsonValue: [
      *         "key1": "new string",
      *         "lvl-2": [
      *             "key1": "new string",
@@ -271,7 +296,7 @@ extension DataObject {
      * let result: DataObject = [
      *     "key1": "new string",            // from rhs
      *     "key2": true,                    // from lhs
-     *     "lvl-1": try DataItem(serializing: [
+     *     "lvl-1": try DataItem(jsonValue: [
      *         "key1": "new string",        // from rhs
      *         "key2": true,                // from lhs
      *         "lvl-2": [

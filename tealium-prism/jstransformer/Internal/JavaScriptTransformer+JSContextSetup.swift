@@ -125,7 +125,7 @@ extension JavaScriptTransformer {
         }
         jsDataLayer["getAll"] = getAll
         let put: @convention(block) (_ key: String, _ value: Any, _ expiryMilliseconds: Int) -> Void = { [dataLayer] key, value, expiryMilliseconds in
-            guard let item = try? DataItem(serializing: value) else {
+            guard let item = try? DataItem(jsonValue: value) else {
                 return
             }
             let expiry = if expiryMilliseconds == 0 {
