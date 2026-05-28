@@ -41,7 +41,7 @@ final class ConsentSettingsTests: XCTestCase {
             .setConfiguration(ConsentConfigurationBuilder()
                 .setTealiumPurposeId("tealium")
                 .addPurpose("purpose", dispatcherIds: ["dispatcherIds"])
-                .setRefireDispatchersIds(["id"])
+                .setRefireDispatcherIds(["id"])
             )
         let consentSettings = builder.build()
             .getConvertible(converter: ConsentSettings.converter)

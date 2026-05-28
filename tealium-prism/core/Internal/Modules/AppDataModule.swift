@@ -106,14 +106,14 @@ class AppDataModule: AppDataCollection, BasicModule, Collector {
     }
 
     func collect(_ dispatchContext: DispatchContext) -> DataObject {
-        [
+        DataObject(compacting: [
             TealiumDataKey.appUUID: appUUID,
             TealiumDataKey.appBuild: Self.build(bundle: self.bundle),
             TealiumDataKey.appName: Self.name(bundle: self.bundle),
             TealiumDataKey.appRDNS: Self.rdns(bundle: self.bundle),
             TealiumDataKey.appVersion: Self.version(bundle: self.bundle),
             TealiumDataKey.appMemoryUsage: Self.appMemoryUsage()
-        ]
+        ])
     }
 }
 

@@ -54,7 +54,7 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
         self.networkHelper = networkHelper
         self.dataStore = try? storeProvider.getModuleStore(name: Self.moduleType)
         self.transformerRegistrar = transformerRegistrar
-        self.transformerRegistrar.registerTransformation(TransformationSettings(id: "model-info-and-orientation", transformerId: Self.moduleType, scopes: [.afterCollectors]))
+        self.transformerRegistrar.registerTransformation(TransformationSettings(id: "model-info-and-orientation", transformerId: Self.moduleType, scope: .afterCollectors))
         self.queue = queue
         self.logger = logger
         self.constantData = deviceDataProvider.getConstantData()

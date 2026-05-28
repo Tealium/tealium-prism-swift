@@ -67,7 +67,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
         let dispatch = Dispatch(name: "test_event", data: [:])
         let transformation = TransformationSettings(id: "model-info",
                                                     transformerId: DeviceDataModule.moduleType,
-                                                    scopes: [.afterCollectors])
+                                                    scope: .afterCollectors)
         try networkHelper.encodeResult(modelsDataObject)
         deviceDataCollector.applyTransformation(transformation, to: dispatch, scope: .afterCollectors) { result in
             guard let result else {
@@ -101,7 +101,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
         let dispatch = Dispatch(name: "test_event", data: [:])
         let transformation = TransformationSettings(id: "model-info",
                                                     transformerId: DeviceDataModule.moduleType,
-                                                    scopes: [.afterCollectors])
+                                                    scope: .afterCollectors)
         try networkHelper.encodeResult(modelsDataObject)
         deviceDataCollector.applyTransformation(transformation, to: dispatch, scope: .afterCollectors) { result in
             guard let result else {
@@ -129,7 +129,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
         let dispatch = Dispatch(name: "test_event", data: [:])
         let transformation = TransformationSettings(id: "model-info",
                                                     transformerId: DeviceDataModule.moduleType,
-                                                    scopes: [.afterCollectors])
+                                                    scope: .afterCollectors)
         try networkHelper.encodeResult(modelsDataObject)
         deviceDataCollector.applyTransformation(transformation, to: dispatch, scope: .afterCollectors) { result in
             guard let result else {
@@ -188,8 +188,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
 
     func test_module_registers_transformation_on_init() {
         _ = deviceDataCollector
-        let dispatch = Dispatch(name: "test_event", data: [:])
-        let transformerId = transformerCoordinator.getTransformations(for: dispatch, .afterCollectors)[0].transformerId
+        let transformerId = transformerCoordinator.getTransformations(for: .afterCollectors)[0].transformerId
         XCTAssertEqual(transformerId, DeviceDataModule.moduleType)
     }
 
@@ -246,7 +245,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
         let dispatch = Dispatch(name: "test_event", data: [:])
         let transformation = TransformationSettings(id: "model-info-and-orientation",
                                                     transformerId: DeviceDataModule.moduleType,
-                                                    scopes: [.afterCollectors])
+                                                    scope: .afterCollectors)
         _configuration.value = [Keys.deviceNamesUrl: ""]
         deviceDataCollector.applyTransformation(transformation, to: dispatch, scope: .afterCollectors) { result in
             guard let result else {

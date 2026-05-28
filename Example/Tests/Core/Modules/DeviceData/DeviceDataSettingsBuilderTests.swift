@@ -27,7 +27,7 @@ final class DeviceDataSettingsBuilderTests: XCTestCase {
                        [
                         "enabled": true,
                         "configuration":
-                            try DataItem(serializing: [
+                            try DataItem(jsonValue: [
                                 "device_names_url": "someUrl",
                                 "memory_reporting_enabled": true,
                                 "battery_reporting_enabled": false,

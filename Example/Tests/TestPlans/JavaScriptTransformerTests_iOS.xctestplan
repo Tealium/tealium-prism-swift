@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "5E53DF5A-2E21-4C7C-9EE8-3DFBAEADB43B",
+      "name" : "Configuration 1",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "EC0F59682F59A44E00B70783",
+        "name" : "JavaScriptTransformerTests_iOS"
+      }
+    }
+  ],
+  "version" : 1
+}

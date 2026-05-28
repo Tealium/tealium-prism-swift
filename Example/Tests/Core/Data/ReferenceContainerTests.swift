@@ -10,8 +10,8 @@
 import XCTest
 
 final class ReferenceContainerTests: XCTestCase {
-    let key = ReferenceContainer(key: "someKey")
-    let path = ReferenceContainer(path: JSONPath["container"]["key"])
+    let key = ReferenceContainer.key("someKey")
+    let path = ReferenceContainer.path(JSONPath["container"]["key"])
 
     func test_toDataObject_returns_object_with_key() {
         XCTAssertEqual(key.toDataObject(), [

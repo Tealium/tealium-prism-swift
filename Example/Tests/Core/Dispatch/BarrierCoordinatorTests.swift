@@ -28,9 +28,9 @@ final class BarrierCoordinatorTests: XCTestCase {
         let otherBarrier = MockBarrier()
 
         _barriers.value = [
-            ScopedBarrier(barrier: allBarrier, scopes: [.all]),
-            ScopedBarrier(barrier: specificBarrier, scopes: [.dispatcher(id: "test")]),
-            ScopedBarrier(barrier: otherBarrier, scopes: [.dispatcher(id: "other")])
+            ScopedBarrier(barrier: allBarrier, scope: .all),
+            ScopedBarrier(barrier: specificBarrier, scope: .dispatchers(["test"])),
+            ScopedBarrier(barrier: otherBarrier, scope: .dispatchers(["other"]))
         ]
 
         let barriersEmitted = expectation(description: "Barriers emitted")
@@ -50,8 +50,8 @@ final class BarrierCoordinatorTests: XCTestCase {
         let otherBarrier = MockBarrier()
 
         _barriers.value = [
-            ScopedBarrier(barrier: allBarrier, scopes: [.all]),
-            ScopedBarrier(barrier: specificBarrier, scopes: [.dispatcher(id: "test")]),
+            ScopedBarrier(barrier: allBarrier, scope: .all),
+            ScopedBarrier(barrier: specificBarrier, scope: .dispatchers(["test"])),
         ]
 
         let barriersEmitted = expectation(description: "Barriers emitted")
@@ -63,7 +63,7 @@ final class BarrierCoordinatorTests: XCTestCase {
             barriersEmitted.fulfill()
         }
 
-        _barriers.value.append(ScopedBarrier(barrier: otherBarrier, scopes: [.all]))
+        _barriers.value.append(ScopedBarrier(barrier: otherBarrier, scope: .all))
 
         coordinator.onBarriers(for: "test").subscribeOnce { barriers in
             XCTAssertEqual(barriers.count, 3)
@@ -81,8 +81,8 @@ final class BarrierCoordinatorTests: XCTestCase {
         let openBarrier2 = MockBarrier()
 
         _barriers.value = [
-            ScopedBarrier(barrier: openBarrier1, scopes: [.all]),
-            ScopedBarrier(barrier: openBarrier2, scopes: [.dispatcher(id: "test")])
+            ScopedBarrier(barrier: openBarrier1, scope: .all),
+            ScopedBarrier(barrier: openBarrier2, scope: .dispatchers(["test"]))
         ]
 
         let stateEmitted = expectation(description: "State emitted")
@@ -100,8 +100,8 @@ final class BarrierCoordinatorTests: XCTestCase {
         closedBarrier.setState(.closed)
 
         _barriers.value = [
-            ScopedBarrier(barrier: openBarrier, scopes: [.all]),
-            ScopedBarrier(barrier: closedBarrier, scopes: [.dispatcher(id: "test")])
+            ScopedBarrier(barrier: openBarrier, scope: .all),
+            ScopedBarrier(barrier: closedBarrier, scope: .dispatchers(["test"]))
         ]
 
         let stateEmitted = expectation(description: "State emitted")
@@ -117,7 +117,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         let stateChangingBarrier = MockBarrier()
 
         _barriers.value = [
-            ScopedBarrier(barrier: stateChangingBarrier, scopes: [.all])
+            ScopedBarrier(barrier: stateChangingBarrier, scope: .all)
         ]
         let stateEmitted = expectation(description: "State emitted")
         stateEmitted.expectedFulfillmentCount = 2
@@ -142,7 +142,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         let alwaysOpenBarrier = MockBarrier()
 
         _barriers.value = [
-            ScopedBarrier(barrier: stateChangingBarrier, scopes: [.all]),
+            ScopedBarrier(barrier: stateChangingBarrier, scope: .all),
         ]
         let stateEmitted = expectation(description: "State emitted")
 
@@ -152,7 +152,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         }
         stateChangingBarrier.setState(.open)
         _barriers.value = [
-            ScopedBarrier(barrier: alwaysOpenBarrier, scopes: [.all])
+            ScopedBarrier(barrier: alwaysOpenBarrier, scope: .all)
         ]
         waitForDefaultTimeout()
         disposable.dispose()
@@ -164,7 +164,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         closedBarrier.setState(.closed)
 
         _barriers.value = [
-            ScopedBarrier(barrier: openBarrier, scopes: [.all])
+            ScopedBarrier(barrier: openBarrier, scope: .all)
         ]
 
         let stateEmitted = expectation(description: "State emitted")
@@ -182,7 +182,7 @@ final class BarrierCoordinatorTests: XCTestCase {
         }
 
         _barriers.value = [
-            ScopedBarrier(barrier: closedBarrier, scopes: [.all])
+            ScopedBarrier(barrier: closedBarrier, scope: .all)
         ]
         waitForDefaultTimeout()
         disposable.dispose()
@@ -190,7 +190,7 @@ final class BarrierCoordinatorTests: XCTestCase {
 
     func test_applicationStatus_backgrounded_does_not_start_background_task_if_queue_is_empty() {
         _barriers.value = [
-            ScopedBarrier(barrier: MockBarrier(), scopes: [.all])
+            ScopedBarrier(barrier: MockBarrier(), scope: .all)
         ]
         queueMetrics.setQueueSize(0)
 
@@ -202,7 +202,7 @@ final class BarrierCoordinatorTests: XCTestCase {
 
     func test_applicationStatus_backgrounded_starts_background_task_if_queue_is_not_empty() {
         _barriers.value = [
-            ScopedBarrier(barrier: MockBarrier(), scopes: [.all])
+            ScopedBarrier(barrier: MockBarrier(), scope: .all)
         ]
         queueMetrics.setQueueSize(1)
 
@@ -214,7 +214,7 @@ final class BarrierCoordinatorTests: XCTestCase {
 
     func test_background_stops_immediately_upon_emptying_the_queue() {
         _barriers.value = [
-            ScopedBarrier(barrier: MockBarrier(), scopes: [.all])
+            ScopedBarrier(barrier: MockBarrier(), scope: .all)
         ]
         queueMetrics.setQueueSize(1)
 
@@ -224,5 +224,70 @@ final class BarrierCoordinatorTests: XCTestCase {
         XCTAssertTrue(starter.backgroundTaskOngoing)
         queueMetrics.setQueueSize(0)
         XCTAssertFalse(starter.backgroundTaskOngoing)
+    }
+
+    func test_onBarriersState_emits_open_when_no_barriers() {
+        _barriers.value = []
+
+        let stateEmitted = expectation(description: "State emitted")
+        coordinator.onBarriersState(for: "test").subscribeOnce { state in
+            XCTAssertEqual(state, .open)
+            stateEmitted.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_onBarriersState_emits_open_when_barriers_are_scoped_to_empty_dispatchers() {
+        let closedBarrier = MockBarrier()
+        closedBarrier.setState(.closed)
+
+        _barriers.value = [
+            ScopedBarrier(barrier: closedBarrier, scope: .dispatchers([]))
+        ]
+
+        let stateEmitted = expectation(description: "State emitted")
+        coordinator.onBarriersState(for: "test").subscribeOnce { state in
+            XCTAssertEqual(state, .open)
+            stateEmitted.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_onBarriersState_emits_open_when_other_dispatchers_barriers_are_closed() {
+        let closedBarrier = MockBarrier()
+        closedBarrier.setState(.closed)
+
+        _barriers.value = [
+            ScopedBarrier(barrier: closedBarrier, scope: .dispatchers(["other"]))
+        ]
+
+        let stateEmitted = expectation(description: "State emitted")
+        coordinator.onBarriersState(for: "test").subscribeOnce { state in
+            XCTAssertEqual(state, .open)
+            stateEmitted.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_onBarriersState_emits_closed_for_all_dispatchers_when_all_scope_barrier_becomes_closed() {
+        let barrier = MockBarrier()
+
+        _barriers.value = [
+            ScopedBarrier(barrier: barrier, scope: .all)
+        ]
+
+        let dispatcher1Closed = expectation(description: "Dispatcher1 closed")
+        let dispatcher2Closed = expectation(description: "Dispatcher2 closed")
+
+        coordinator.onBarriersState(for: "dispatcher1").ignoreFirst().subscribeOnce { state in
+            XCTAssertEqual(state, .closed)
+            dispatcher1Closed.fulfill()
+        }
+        coordinator.onBarriersState(for: "dispatcher2").ignoreFirst().subscribeOnce { state in
+            XCTAssertEqual(state, .closed)
+            dispatcher2Closed.fulfill()
+        }
+        barrier.setState(.closed)
+        waitForDefaultTimeout()
     }
 }

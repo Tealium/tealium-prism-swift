@@ -33,7 +33,7 @@ public enum DispatchScope: RawRepresentable, Codable, Equatable {
         case DispatchScope.afterCollectors.rawValue:
             self = .afterCollectors
         default:
-            self = .dispatcher(id: lowercasedScope)
+            self = .dispatcher(id: rawValue)
         }
     }
 }

@@ -15,7 +15,7 @@
     },
     "barriers": {
         "BatchingBarrier": {
-            "scopes": [
+            "scope": [
                 "MockDispatcher2"
             ],
             "barrier_id": "BatchingBarrier",

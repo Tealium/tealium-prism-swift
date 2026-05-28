@@ -230,26 +230,26 @@ final class BatchingBarrierTests: XCTestCase {
 // MARK: - Factory Tests
 extension BatchingBarrierTests {
 
-    func test_factory_sets_default_scopes() {
-        let factory = BatchingBarrier.Factory(defaultScopes: [.all])
-        XCTAssertEqual(factory.defaultScopes(), [.all])
+    func test_factory_sets_default_scope() {
+        let factory = BatchingBarrier.Factory(defaultScope: .all)
+        XCTAssertEqual(factory.defaultScope(), .all)
     }
 
     func test_factory_with_enforced_settings() {
         let enforcedSettings: DataObject = [
             BatchingBarrierConfiguration.Keys.batchSize: 5
         ]
-        let factory = BatchingBarrier.Factory(defaultScopes: [.all], enforcedSettings: enforcedSettings)
+        let factory = BatchingBarrier.Factory(defaultScope: .all, enforcedSettings: enforcedSettings)
         XCTAssertEqual(factory.getEnforcedSettings(), enforcedSettings)
     }
 
     func test_factory_without_enforced_settings() {
-        let factory = BatchingBarrier.Factory(defaultScopes: [.all])
+        let factory = BatchingBarrier.Factory(defaultScope: .all)
         XCTAssertEqual(factory.getEnforcedSettings(), [:])
     }
 
     func test_factory_id_matches_barrier_id() {
-        let factory = BatchingBarrier.Factory(defaultScopes: [])
+        let factory = BatchingBarrier.Factory(defaultScope: .dispatchers([]))
         XCTAssertEqual(factory.id, BatchingBarrier.id)
     }
 }

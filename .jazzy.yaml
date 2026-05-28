@@ -1,5 +1,7 @@
 modules:
   - TealiumPrismCore
+  - TealiumPrismExtensions
+  - TealiumPrismJavaScriptTransformer
   - TealiumPrismLifecycle
   - TealiumPrismMomentsAPI
 title: TealiumPrism
@@ -76,6 +78,25 @@ custom_categories:
   - name: Trace Module
     children:
       - regex: ^Trace
+  - name: Transformations
+    children:
+      - SetDataValues
+      - PersistDataValue
+      - Lowercase
+      - JavaScript
+  - name: SetDataValues Transformation
+    children:
+      - SetDataValuesSettingsBuilder
+  - name: PersistDataValue Transformation
+    children:
+      - PersistDataValueSettingsBuilder
+      - UpdatePolicy
+  - name: Lowercase Transformation
+    children:
+      - LowercaseSettingsBuilder
+  - name: JavaScript Transformation
+    children:
+      - JavaScriptTransformationSettingsBuilder
   - name: Rules
     children:
       - regex: Rule
@@ -85,9 +106,6 @@ custom_categories:
     children:
       - Barriers
       - regex: Barrier
-  - name: Transformations
-    children:
-      - regex: Transformation
   - name: Module
     children:
       - Module
@@ -95,12 +113,15 @@ custom_categories:
       - regex: Collector
       - regex: Dispatcher
       - TealiumContext
-      - regex: Transformer
       - regex: Mapping
+  - name: Transformation
+    children:
+      - regex: ^Transformation
+      - regex: ^Transformer
   - name: Data
     children:
       - regex: ^Data
-      - Expiry
+      - regex: ^Expiry
       - regex: ^Dispatch
       - regex: ^JSON
       - regex: Root

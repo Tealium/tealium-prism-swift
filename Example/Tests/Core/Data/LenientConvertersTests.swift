@@ -110,7 +110,7 @@ final class LenientConvertersTests: XCTestCase {
     }
 
     func test_doubleConverter_returns_nil_for_nsNull() {
-        let dataItem = DataItem(value: NSNull())
+        let dataItem = DataItem.null
         let result = LenientConverters.double.convert(dataItem: dataItem)
         XCTAssertNil(result)
     }
@@ -178,7 +178,7 @@ final class LenientConvertersTests: XCTestCase {
     }
 
     func test_intConverter_returns_nil_for_nsNull() {
-        let dataItem = DataItem(value: NSNull())
+        let dataItem = DataItem.null
         let result = LenientConverters.int.convert(dataItem: dataItem)
         XCTAssertNil(result)
     }
@@ -335,7 +335,7 @@ final class LenientConvertersTests: XCTestCase {
     }
 
     func test_boolConverter_returns_nil_for_nsNull() {
-        let dataItem = DataItem(value: NSNull())
+        let dataItem = DataItem.null
         let result = LenientConverters.bool.convert(dataItem: dataItem)
         XCTAssertNil(result)
     }
@@ -429,7 +429,7 @@ final class LenientConvertersTests: XCTestCase {
     }
 
     func test_stringConverter_returns_nil_for_nsNull() {
-        let dataItem = DataItem(value: NSNull())
+        let dataItem = DataItem.null
         let result = LenientConverters.string.convert(dataItem: dataItem)
         XCTAssertNil(result)
     }

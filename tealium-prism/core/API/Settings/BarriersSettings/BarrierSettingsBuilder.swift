@@ -20,11 +20,11 @@ open class BarrierSettingsBuilder {
     /// Creates a new barrier settings builder.
     public init() { }
 
-    /// Set the scopes where this barrier should be applied.
-    /// - Parameter scopes: An array of `BarrierScope` values defining where the barrier applies.
+    /// Set the scope where this barrier should be applied.
+    /// - Parameter scope: A `BarrierScope` value defining where the barrier applies.
     /// - Returns: The builder instance for method chaining.
-    public func setScopes(_ scopes: [BarrierScope]) -> Self {
-        _dataObject.set(converting: scopes, key: Keys.scopes)
+    public func setScope(_ scope: BarrierScope) -> Self {
+        _dataObject.set(converting: scope, key: Keys.scope)
         return self
     }
 

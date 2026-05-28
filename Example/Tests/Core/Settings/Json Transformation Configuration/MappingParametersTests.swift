@@ -11,16 +11,16 @@ import XCTest
 
 final class MappingParametersTests: XCTestCase {
 
-    let basicParameters = MappingParameters(reference: ReferenceContainer(key: "key"),
+    let basicParameters = MappingParameters(reference: .key("key"),
                                             filter: nil,
                                             mapTo: nil)
-    let detailedParameters = MappingParameters(reference: ReferenceContainer(path: JSONPath["somePath"]["key"]),
+    let detailedParameters = MappingParameters(reference: .path(JSONPath["somePath"]["key"]),
                                                filter: StringContainer("someFilter"),
                                                mapTo: ValueContainer("someMapValue"))
 
     func test_toDataObject_on_detailedParameters_returns_complete_object() throws {
         XCTAssertEqual(detailedParameters.toDataObject(), [
-            "reference": try DataItem(serializing: ["path": "somePath.key"]),
+            "reference": try DataItem(jsonValue: ["path": "somePath.key"]),
             "filter": ["value": "someFilter"],
             "map_to": ["value": "someMapValue"],
         ])

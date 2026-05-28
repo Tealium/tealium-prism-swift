@@ -8,7 +8,18 @@
 
 import Foundation
 
-/// A container for a string value
+/// A container for a string value.
+///
+/// ## JSON Representation
+///
+/// ```json
+/// {
+///   "value": "some_string"
+/// }
+/// ```
+///
+/// When used as a filter in a ``Condition``, the value is the target string
+/// for the comparison operator.
 public struct StringContainer: Equatable {
     enum Keys {
         static let value = "value"

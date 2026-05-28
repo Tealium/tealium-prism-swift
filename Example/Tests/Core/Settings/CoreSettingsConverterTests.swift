@@ -12,7 +12,7 @@ import XCTest
 final class CoreSettingsConverterTests: XCTestCase {
 
     func test_init_from_json_dictionary() throws {
-        let dataObject = try DataItem(serializing: [
+        let dataObject = try DataItem(jsonValue: [
             "log_level": "trace",
             "max_queue_size": 20,
             "expiration": 50.0,
@@ -31,7 +31,7 @@ final class CoreSettingsConverterTests: XCTestCase {
     }
 
     func test_init_from_empty_dictionary_fills_defaults() throws {
-        let dataObject = try DataItem(serializing: [:])
+        let dataObject = try DataItem(jsonValue: [:])
         guard let settings = CoreSettings.converter.convert(dataItem: dataObject) else {
             XCTFail("Settings cannot be converted")
             return

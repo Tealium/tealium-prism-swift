@@ -24,7 +24,7 @@ fileprivate extension DataItem {
     }
 
     func describeValue() -> String {
-        guard let result = self.stringValue ?? self.value else {
+        guard let result = self.value else {
             return "null"
         }
         return String(describing: result)

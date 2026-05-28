@@ -41,7 +41,7 @@ class SettingsManagerTestCase: XCTestCase {
     }
 
     func localRules() throws -> DataItem {
-        try DataItem(serializing: [
+        try DataItem(jsonValue: [
             "id": "localRule",
             "conditions": [
                 "operator": "and",
@@ -56,10 +56,10 @@ class SettingsManagerTestCase: XCTestCase {
     }
 
     func localTransformation() throws -> DataItem {
-        try DataItem(serializing: [
+        try DataItem(jsonValue: [
             "transformation_id": "transformationId",
             "transformer_id": "transformerId",
-            "scopes": ["afterCollectors"],
+            "scope": "aftercollectors",
             "configuration": [
                 "key": "value"
             ],

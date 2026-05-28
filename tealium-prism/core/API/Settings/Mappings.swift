@@ -8,6 +8,7 @@
 
 import Foundation
 
+/// Base builder class for a single mapping operation. Use ``Mappings`` factory methods to create instances.
 public class MappingsBuilder {
     fileprivate var reference: ReferenceContainer?
     fileprivate let destination: ReferenceContainer
@@ -94,6 +95,7 @@ public class MappingsBuilder {
 open class Mappings {
     var mappingsList: [MappingsBuilder] = []
 
+    /// Creates an empty `Mappings` instance. Add operations with `mapFrom`, `keep`, or `mapConstant`.
     required public init() { }
 
     /// Builds and returns an array of `MappingOperation` instances.
@@ -132,7 +134,7 @@ open class Mappings {
          *      - target: The target value that the source key should contain.
          */
         public func ifValueIn(_ path: JSONObjectPath, equals target: String) {
-            self.reference = ReferenceContainer(path: path)
+            self.reference = .path(path)
             self.filter = StringContainer(target)
         }
 
@@ -145,7 +147,7 @@ open class Mappings {
          *      - target: The target value that the source key should contain.
          */
         public func ifValueIn(_ key: String, equals target: String) {
-            self.reference = ReferenceContainer(key: key)
+            self.reference = .key(key)
             self.filter = StringContainer(target)
         }
     }
@@ -154,7 +156,7 @@ open class Mappings {
     /// Intended to be used for so called Remote Command Dispatchers.
     public class CommandOptions: ConstantOptions {
         init(commandName: String) {
-            super.init(constant: commandName, destination: ReferenceContainer(key: TealiumDataKey.commandName))
+            super.init(constant: commandName, destination: .key(TealiumDataKey.commandName))
         }
 
         /**
@@ -162,7 +164,7 @@ open class Mappings {
          * This adds a filter condition that checks if the event type equals "event".
          */
         public func forAllEvents() {
-            self.reference = ReferenceContainer(key: TealiumDataKey.eventType)
+            self.reference = .key(TealiumDataKey.eventType)
             self.filter = StringContainer(DispatchType.event.rawValue)
         }
 
@@ -171,7 +173,7 @@ open class Mappings {
          * This adds a filter condition that checks if the event type equals "view".
          */
         public func forAllViews() {
-            self.reference = ReferenceContainer(key: TealiumDataKey.eventType)
+            self.reference = .key(TealiumDataKey.eventType)
             self.filter = StringContainer(DispatchType.view.rawValue)
         }
     }
@@ -188,7 +190,7 @@ public extension Mappings {
      */
     @discardableResult
     func mapFrom(_ key: String, to destination: JSONObjectPath) -> VariableOptions {
-        mapFrom(ReferenceContainer(key: key), to: ReferenceContainer(path: destination))
+        mapFrom(.key(key), to: .path(destination))
     }
 
     /**
@@ -201,7 +203,7 @@ public extension Mappings {
      */
     @discardableResult
     func mapFrom(_ path: JSONObjectPath, to destination: JSONObjectPath) -> VariableOptions {
-        mapFrom(ReferenceContainer(path: path), to: ReferenceContainer(path: destination))
+        mapFrom(.path(path), to: .path(destination))
     }
 
     /**
@@ -214,7 +216,7 @@ public extension Mappings {
      */
     @discardableResult
     func mapFrom(_ path: JSONObjectPath, to destination: String) -> VariableOptions {
-        mapFrom(ReferenceContainer(path: path), to: ReferenceContainer(key: destination))
+        mapFrom(.path(path), to: .key(destination))
     }
 
     /**
@@ -227,7 +229,7 @@ public extension Mappings {
      */
     @discardableResult
     func mapFrom(_ key: String, to destination: String) -> VariableOptions {
-        mapFrom(ReferenceContainer(key: key), to: ReferenceContainer(key: destination))
+        mapFrom(.key(key), to: .key(destination))
     }
 
     /**
@@ -238,7 +240,7 @@ public extension Mappings {
      */
     @discardableResult
     func keep(_ key: String) -> VariableOptions {
-        keep(ReferenceContainer(key: key))
+        keep(.key(key))
     }
 
     /**
@@ -249,7 +251,7 @@ public extension Mappings {
      */
     @discardableResult
     func keep(_ path: JSONObjectPath) -> VariableOptions {
-        keep(ReferenceContainer(path: path))
+        keep(.path(path))
     }
 
     /**
@@ -265,7 +267,7 @@ public extension Mappings {
      */
     @discardableResult
     func mapConstant(_ value: DataInput, to destination: JSONObjectPath) -> ConstantOptions {
-        mapConstant(value, to: ReferenceContainer(path: destination))
+        mapConstant(value, to: .path(destination))
     }
 
     /**
@@ -280,7 +282,7 @@ public extension Mappings {
      */
     @discardableResult
     func mapConstant(_ value: DataInput, to destination: String) -> ConstantOptions {
-        mapConstant(value, to: ReferenceContainer(key: destination))
+        mapConstant(value, to: .key(destination))
     }
 
     /**

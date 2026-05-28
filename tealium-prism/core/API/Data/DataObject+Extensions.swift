@@ -35,3 +35,11 @@ extension DataObject: DataInputConvertible {
         asDictionary()
     }
 }
+
+public extension DataObject {
+    /// Serializes the data object to a JSON string.
+    /// - Returns: A UTF-8 JSON string representation of the data object.
+    func serialize() throws -> String {
+        try asDictionary().serialize()
+    }
+}

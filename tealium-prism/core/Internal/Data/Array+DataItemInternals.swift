@@ -14,11 +14,10 @@ extension Array where Element == DataItem {
             indices.contains(index) ? self[index] : nil
         }
         set {
-            let item = newValue ?? DataItem(converting: Optional<String>.none)
             while index > count {
-                self.insert(DataItem(converting: Optional<String>.none), at: count)
+                self.insert(.null, at: count)
             }
-            self.insert(item, at: index)
+            self.insert(newValue ?? .null, at: index)
         }
     }
 

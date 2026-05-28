@@ -16,11 +16,11 @@ final class ConsentConfigurationBuilderTests: XCTestCase {
                 .setTealiumPurposeId("tealium")
                 .addPurpose("purpose1", dispatcherIds: ["dispatcherId1"])
                 .addPurpose("purpose2", dispatcherIds: ["dispatcherId2"])
-                .setRefireDispatchersIds(["refireDispatcher"])
+                .setRefireDispatcherIds(["refireDispatcher"])
                 .build()
         XCTAssertEqual(configuration, [
             "tealium_purpose_id": "tealium",
-            "purposes": try DataItem(serializing: [
+            "purposes": try DataItem(jsonValue: [
                 "purpose1": [
                     "purpose_id": "purpose1",
                     "dispatcher_ids": ["dispatcherId1"]

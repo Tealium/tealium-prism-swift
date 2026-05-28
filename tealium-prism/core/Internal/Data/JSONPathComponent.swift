@@ -1,6 +1,6 @@
 //
 //  JSONPathComponent.swift
-//  Pods
+//  tealium-prism
 //
 //  Created by Enrico Zannini on 22/10/25.
 //  Copyright © 2025 Tealium, Inc. All rights reserved.

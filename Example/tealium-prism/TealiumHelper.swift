@@ -18,7 +18,10 @@ class TealiumHelper {
         [
             CustomCollector.Factory(),
             CustomDispatcher.Factory(),
-            ModuleWithExternalDependencies.Factory(otherDependencies: NSObject())
+            ModuleWithExternalDependencies.Factory(otherDependencies: NSObject()),
+            Modules.collect(forcingSettings: { enforcedSettings in
+                enforcedSettings.setEnabled(false)
+            })
         ]
     }
 
@@ -36,12 +39,83 @@ class TealiumHelper {
 //        config.addBarrier(Barriers.batching())
         config.enableConsentIntegration(with: cmp) { enforcedConfiguration in
             enforcedConfiguration.setTealiumPurposeId(CustomCMP.Purposes.tealium.rawValue)
-                .setRefireDispatchersIds([Modules.Types.collect])
+                .setRefireDispatcherIds([Modules.Types.collect])
                 .addPurpose(CustomCMP.Purposes.tracking.rawValue, dispatcherIds: [
                     Modules.Types.collect,
                     CustomDispatcher.Factory.moduleType
                 ])
         }
+        config.setTransformation(
+            SetDataValuesSettingsBuilder(id: "duplicate-tealium_event-to-some_destination")
+                .setScope(.allDispatchers)
+                .setFrom(.key("tealium_event"), to: .key("some_destination"))
+                .setOrder(0)
+        )
+
+        config.setTransformation(
+            LowercaseSettingsBuilder(id: "lowercase-specific")
+                .setScope(.allDispatchers)
+                .setOrder(1)
+                .lowercaseVariables([.key("event_category"), .key("event_label"), .key("user_id")])
+        )
+
+        config.setTransformation(
+            PersistDataValueSettingsBuilder(id: "persist-some value")
+                .setExpiryPolicy(.forever)
+                .setUpdatePolicy(.keepFirstValue)
+                .persistConstant("some value", to: .key("some_key"))
+                .setScope(.allDispatchers)
+                .setOrder(2)
+        )
+
+        config.setTransformation(
+            JavaScriptTransformationSettingsBuilder(id: "set-js_key")
+                .setJsCode("payload.js_key = payload.tealium_event + '-JS'")
+                .setScope(.afterCollectors)
+                .setOrder(3)
+        )
+
+        config.setTransformation(
+            JavaScriptTransformationSettingsBuilder(id: "put-data-layer")
+                .setJsCode("""
+                    dataLayer.put('js_put', payload.tealium_random, Expiry.forever); 
+                    console.log('TealiumRandom: ' + dataLayer.get('js_put'))
+                    """)
+                .setScope(.afterCollectors)
+                .setOrder(2)
+        )
+
+//        config.setTransformation(
+//            JavaScriptTransformationSettingsBuilder(id: "make-http-request")
+//                .setJsCode("""
+//                        network.get('https://jsonplaceholder.typicode.com/todos/1', (status, data, headers) => {
+//                            console.log('JS Request status code: ' + status + ' - Data: ' + JSON.stringify(data, null, 2))
+//                        })
+//                        """)
+//                .setScope(.afterCollectors)
+//                .setOrder(1)
+//        )
+
+        config.setTransformation(
+            JavaScriptTransformationSettingsBuilder(id: "js-drop")
+                .setJsCode("""
+                        if (payload.tealium_event == 'screen_view') {
+                            drop()
+                        }
+                        """)
+                .setScope(.afterCollectors)
+                .setOrder(4)
+        )
+
+        config.setTransformation(
+            JavaScriptTransformationSettingsBuilder(id: "trackNewEvents")
+                .setJsCode("""
+                        track('some-new-event')
+                        """)
+                .setScope(.afterCollectors)
+                .setOrder(5)
+        )
+
         return Tealium.create(config: config)
     }
 

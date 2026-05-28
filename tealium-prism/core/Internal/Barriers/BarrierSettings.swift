@@ -8,35 +8,38 @@
 
 import Foundation
 
-/// A model that defines which scopes a specific barrier, identified by its `barrierId`, should be applied to.
+/// A model that defines which scope a specific barrier, identified by its `barrierId`, should be applied to.
 struct BarrierSettings {
     /// The ID of the barrier, used to lookup and connect a `ConfigurableBarrier` to its settings.
     let barrierId: String
-    /// The scopes onto which the `Barrier` should be applied.
-    let scopes: [BarrierScope]?
+    /// The scope onto which the `Barrier` should be applied, or `nil` to use the factory default.
+    let scope: BarrierScope?
     /// A generic configuration object that can be used by the `ConfigurableBarrier` to affect its behavior.
     let configuration: DataObject
 
-    init(barrierId: String, scopes: [BarrierScope]?, configuration: DataObject = [:]) {
+    init(barrierId: String, scope: BarrierScope? = nil, configuration: DataObject = [:]) {
         self.barrierId = barrierId
-        self.scopes = scopes
+        self.scope = scope
         self.configuration = configuration
     }
 
     enum Keys {
         static let barrierId = "barrier_id"
-        static let scopes = "scopes"
+        static let scope = "scope"
         static let configuration = "configuration"
     }
 }
 
 extension BarrierSettings: DataObjectConvertible {
     func toDataObject() -> DataObject {
-        [
+        var result: DataObject = [
             Keys.barrierId: barrierId,
-            Keys.scopes: scopes,
             Keys.configuration: configuration
         ]
+        if let scope {
+            result.set(converting: scope, key: Keys.scope)
+        }
+        return result
     }
 }
 
@@ -45,16 +48,15 @@ extension BarrierSettings {
         typealias Convertible = BarrierSettings
         func convert(dataItem: DataItem) -> Convertible? {
             guard let dictionary = dataItem.getDataDictionary(),
-                  let barrierId = dictionary.get(key: Keys.barrierId, as: String.self)
+                  let barrierId: String = dictionary.get(key: Keys.barrierId)
             else {
                 return nil
             }
-            let scopes = dictionary.getArray(key: Keys.scopes, of: String.self)?.compactMap({ $0 })
+            // if scope is nil, default scope fallback will be used in BarrierManager.scopedConfigBarriers()
+            let scope = dictionary.getConvertible(key: Keys.scope, converter: BarrierScope.converter)
             let configuration = dictionary.getDataDictionary(key: Keys.configuration)?.toDataObject() ?? [:]
-            return BarrierSettings(barrierId: barrierId,
-                                   scopes: scopes?.map { BarrierScope(rawValue: $0) },
-                                   configuration: configuration)
+            return BarrierSettings(barrierId: barrierId, scope: scope, configuration: configuration)
         }
     }
-    static let converter = Converter()
+    static let converter: any DataItemConverter<BarrierSettings> = Converter()
 }

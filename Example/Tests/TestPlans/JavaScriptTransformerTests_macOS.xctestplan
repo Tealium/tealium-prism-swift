@@ -1,0 +1,24 @@
+{
+  "configurations" : [
+    {
+      "id" : "449A98ED-0F1D-482A-A7B8-788DED04C9A8",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "EC3B93E82F59F36E00EC18C2",
+        "name" : "JavaScriptTransformerTests_macOS"
+      }
+    }
+  ],
+  "version" : 1
+}

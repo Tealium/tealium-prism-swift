@@ -60,12 +60,24 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
     }
 
     /**
-     * Creates a `DataObject` from a `[String: DataInputConvertible?]` dictionary.
+     * Creates a `DataObject` from a `[String: DataInputConvertible?]` dictionary, omitting any keys whose value is `nil`.
      *
-     * The Convertible elements will be converted immediately before being stored.
-     * `nil`s in root object will be removed.
+     * Use this initializer whenever one or more root values may be optional.
+     * The dictionary literal syntax requires non-optional `DataInputConvertible` values and will not
+     * compile when optional values are present; this initializer accepts optionals and strips `nil`
+     * entries so only explicitly set values appear in the result.
+     *
+     * ```swift
+     * // ✅ Compiles and omits keys whose value is nil
+     * DataObject(compacting: ["key": optionalValue])
+     *
+     * // ❌ Does not compile when optionalValue is optional
+     * ["key": optionalValue] as DataObject
+     * ```
+     *
+     * The remaining (non-nil) convertible elements are converted immediately before being stored.
      */
-    init(compacting dictionary: [String: DataInputConvertible?] = [:]) {
+    public init(compacting dictionary: [String: DataInputConvertible?] = [:]) {
         self.init(dictionary: dictionary.compactMapValues { $0 })
     }
 
@@ -73,6 +85,31 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
     /// - Parameter dictionaryInput: The dictionary containing DataInput values.
     public init(dictionaryInput: [String: DataInput]) {
         self.dictionary = dictionaryInput
+    }
+
+    /// Creates a DataObject from a JSON serializable Dictionary.
+    ///
+    ///  This method performs a JSON encoding round-trip to validate and convert the input.
+    ///
+    /// - Warning: Non conforming floats like `Double.nan` or `Float.infinity` will be silently converted to strings "NaN" and "Infinity"
+    /// (or "-Infinity" for negative "Infinity") immediately by this function.
+    /// Dates will be converted to Strings in the following format: yyyy-MM-dd'T'HH:mm:ss'Z'.
+    ///
+    /// - parameter jsonObject: The dictionary representing a JSON serializable object
+    /// - throws: A `JSONParsingError` in case of non serializable objects.
+    public init(jsonObject: [String: Any]) throws(JSONParsingError) {
+        let item: DataItem
+        do {
+            item = try DataItem(jsonValue: jsonObject)
+        } catch {
+            throw JSONParsingError.invalidJSON(error)
+        }
+        guard let dictionary = item.getDataDictionary() else {
+            // Should never happen
+            throw JSONParsingError.jsonIsNotADictionary(item.value as Any)
+        }
+        self = dictionary.toDataObject()
+
     }
 
     /**
@@ -126,6 +163,68 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
     }
 }
 
+public extension DataStore {
+    /**
+     * Builds a nested path in the data store and sets a value at that location.
+     *
+     * This method creates the necessary nested structure (objects and arrays) to accommodate
+     * the specified path, then sets the provided item at that location with the given expiry.
+     * If any part of the path doesn't exist, it will be automatically created.
+     *
+     * For nested objects, missing dictionary keys will be created as empty dictionaries.
+     * For nested arrays, if an index is beyond the current array bounds, the array will be
+     * extended with `nil` values until it reaches the required capacity.
+     *
+     * Example:
+     * ```swift
+     * // Creates nested structure: { "user": { "profile": { "name": "John" } } }
+     * let path = JSONPath["user"]["profile"]["name"]
+     * let nameItem = DataItem(value: "John")
+     * try dataStore.buildPath(path, andSet: nameItem, expiry: .session)
+     * ```
+     *
+     * - Parameters:
+     *   - path: The `JSONObjectPath` specifying where to set the value. Can include nested
+     *           object keys and array indices.
+     *   - item: The `DataItem` to store at the specified path location.
+     *   - expiry: The time frame for this data to remain stored before expiring.
+     *
+     * - Throws: An error if the commit operation fails during the transaction.
+     */
+    func buildPath(_ path: JSONObjectPath, andSet item: DataItem, expiry: Expiry) throws {
+        var components = path.components
+        _ = components.removeFirst()
+        let edit = self.edit()
+        guard !components.isEmpty else {
+            try edit
+                .put(key: path.root,
+                     value: item.toDataInput(),
+                     expiry: expiry)
+                .commit()
+            return
+        }
+        let component = components.removeFirst()
+        let nested = self.getDataItem(key: path.root)
+        switch component {
+        case let .index(index):
+            var array = nested?.getDataArray() ?? []
+            array.buildPath(index: index, components: &components, andSet: item)
+            _ = edit.put(key: path.root,
+                         value: array.toDataInput(),
+                         expiry: expiry)
+        case let .key(internalKey):
+            let dictionary = nested?.getDataDictionary() ?? [:]
+            var dataObject = dictionary.toDataObject()
+            dataObject.buildPath(key: internalKey, components: &components, andSet: item)
+            _ = edit
+                .put(key: path.root,
+                     value: dataObject.toDataInput(),
+                     expiry: expiry)
+        }
+        try edit.commit()
+    }
+}
+
 /// Allows use of plus operator for DataObject.
 public func + (lhs: DataObject, rhs: DataObject) -> DataObject {
     var lhsCopy = lhs
@@ -164,7 +263,7 @@ extension DataObject {
      * let lhs: DataObject = [
      *     "key1": "string",
      *     "key2": true,
-     *     "lvl-1": try DataItem(serializing: [
+     *     "lvl-1": try DataItem(jsonValue: [
      *         "key1": "string",
      *         "key2": true,
      *         "lvl-2": [
@@ -180,7 +279,7 @@ extension DataObject {
      *
      * let rhs: DataObject = [
      *     "key1": "new string",
-     *     "lvl-1": try DataItem(serializing: [
+     *     "lvl-1": try DataItem(jsonValue: [
      *         "key1": "new string",
      *         "lvl-2": [
      *             "key1": "new string",
@@ -197,7 +296,7 @@ extension DataObject {
      * let result: DataObject = [
      *     "key1": "new string",            // from rhs
      *     "key2": true,                    // from lhs
-     *     "lvl-1": try DataItem(serializing: [
+     *     "lvl-1": try DataItem(jsonValue: [
      *         "key1": "new string",        // from rhs
      *         "key2": true,                // from lhs
      *         "lvl-2": [
@@ -242,7 +341,7 @@ extension [String: DataInput] {
         var result = left
         for key in right.keys {
             if let dictR = right[key] as? [String: DataInput],
-                let dictL = left[key] as? [String: DataInput] {
+               let dictL = left[key] as? [String: DataInput] {
                 result[key] = recursiveMerge(dictL, dictR, depth - 1)
             } else if let value = right[key] {
                 result[key] = value
@@ -259,7 +358,7 @@ extension [String: DataInput] {
 }
 
 fileprivate extension DataObject {
-     mutating func buildPath<Root: PathRoot>(key: String, components: inout [JSONPathComponent<Root>], andSet item: DataItem) {
+    mutating func buildPath<Root: PathRoot>(key: String, components: inout [JSONPathComponent<Root>], andSet item: DataItem) {
         guard !components.isEmpty else {
             set(converting: item, key: key)
             return

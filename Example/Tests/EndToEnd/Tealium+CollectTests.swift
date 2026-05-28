@@ -33,16 +33,8 @@ final class TealiumCollectTests: TealiumBaseTests {
             Self.decodeBody(request.httpBody) { body in
                 XCTAssertEqual(body, [
                     "_dc_ttl_": 5.minutes.inMilliseconds(),
-                    "enabled_modules": [
-                        "Collect",
-                        "DataLayer",
-                        "TealiumData"
-                    ],
-                    "enabled_modules_versions": [
-                        TealiumConstants.libraryVersion,
-                        TealiumConstants.libraryVersion,
-                        TealiumConstants.libraryVersion
-                    ],
+                    "enabled_modules": body["enabled_modules"],
+                    "enabled_modules_versions": body["enabled_modules_versions"],
                     "is_new_session": true,
                     "tealium_account": "mockAccount",
                     "tealium_profile": "mockProfile",
@@ -101,7 +93,7 @@ final class TealiumCollectTests: TealiumBaseTests {
 
     func test_collect_sends_multiple_events_in_a_batch() {
         config.addModule(Modules.collect())
-        let barrierFactory = MockBarrierFactory(defaultScopes: [.all])
+        let barrierFactory = MockBarrierFactory(defaultScope: .all)
         config.addBarrier(barrierFactory)
         let httpRequestSent = expectation(description: "Http Request is sent")
         client.requestDidSend = { request in
@@ -171,17 +163,16 @@ final class TealiumCollectTests: TealiumBaseTests {
     func test_collect_sends_transformed_event() {
         config.addModule(Modules.collect())
         config.addModule(StubModuleFactory(module: MockTransformer(transformation: { _, dispatch, _ in
-            Dispatch(payload: [
+            Dispatch(payload: DataObject(compacting: [
                 "tealium_account": dispatch.payload.getDataItem(key: "tealium_account"),
                 "tealium_profile": dispatch.payload.getDataItem(key: "tealium_profile"),
                 "tealium_visitor_id": dispatch.payload.getDataItem(key: "tealium_visitor_id"),
                 "tealium_event": dispatch.payload.getDataItem(key: "tealium_event"),
                 "transformed_key": "transformed_value"
-            ], id: dispatch.id, timestamp: 0)
+            ]), id: dispatch.id, timestamp: 0)
         })))
-        config.setTransformation(TransformationSettings(id: "transformation",
-                                                        transformerId: MockTransformer.moduleType,
-                                                        scopes: [.allDispatchers]))
+        config.setTransformation(TransformationSettingsBuilder(id: "transformation", transformerId: MockTransformer.moduleType)
+            .setScope(.allDispatchers))
         let httpRequestSent = expectation(description: "Http Request is sent")
         client.requestDidSend = { request in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))

@@ -38,7 +38,7 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
         let flushableBarrier = MockBarrier1()
         flushableBarrier.setState(.closed)
         _barriers.value = [
-            ScopedBarrier(barrier: flushableBarrier, scopes: [.all]),
+            ScopedBarrier(barrier: flushableBarrier, scope: .all),
         ]
         let barriersClosed = expectation(description: "Barriers closed")
         let barriersOpen = expectation(description: "Barriers open")
@@ -63,8 +63,8 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
         blockingBarrier.setFlushable(false)
         flushableBarrier.setState(.closed)
         _barriers.value = [
-            ScopedBarrier(barrier: blockingBarrier, scopes: [.all]),
-            ScopedBarrier(barrier: flushableBarrier, scopes: [.all]),
+            ScopedBarrier(barrier: blockingBarrier, scope: .all),
+            ScopedBarrier(barrier: flushableBarrier, scope: .all),
         ]
         let barriersClosed = expectation(description: "Barriers closed")
 
@@ -83,7 +83,7 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
         barrier.setState(.closed)
         barrier.setFlushable(false)
         _barriers.value = [
-            ScopedBarrier(barrier: barrier, scopes: [.all]),
+            ScopedBarrier(barrier: barrier, scope: .all),
         ]
         let barriersClosed = expectation(description: "Barriers closed")
         let barriersOpen = expectation(description: "Barriers open")
@@ -106,7 +106,7 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
         let barrier = MockBarrier1()
         barrier.setState(.closed)
         _barriers.value = [
-            ScopedBarrier(barrier: barrier, scopes: [.all]),
+            ScopedBarrier(barrier: barrier, scope: .all),
         ]
         let barriersClosed = expectation(description: "Barriers closed")
         barriersClosed.expectedFulfillmentCount = 2
@@ -130,7 +130,7 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
         let barrier = MockBarrier1()
         barrier.setState(.open)
         _barriers.value = [
-            ScopedBarrier(barrier: barrier, scopes: [.all]),
+            ScopedBarrier(barrier: barrier, scope: .all),
         ]
         let barriersOpen = expectation(description: "Barriers open")
 
@@ -152,8 +152,8 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
         nonFlushableBarrier.setFlushable(false)
         flushableBarrier.setState(.closed)
         _barriers.value = [
-            ScopedBarrier(barrier: nonFlushableBarrier, scopes: [.all]),
-            ScopedBarrier(barrier: flushableBarrier, scopes: [.all]),
+            ScopedBarrier(barrier: nonFlushableBarrier, scope: .all),
+            ScopedBarrier(barrier: flushableBarrier, scope: .all),
         ]
         let barriersClosed = expectation(description: "Barriers closed")
         barriersClosed.expectedFulfillmentCount = 2
@@ -179,7 +179,7 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
         let flushableBarrier = MockBarrier1()
         flushableBarrier.setState(.closed)
         _barriers.value = [
-            ScopedBarrier(barrier: flushableBarrier, scopes: [.all]),
+            ScopedBarrier(barrier: flushableBarrier, scope: .all),
         ]
         let barriersClosed = expectation(description: "Barriers closed")
         barriersClosed.expectedFulfillmentCount = 2
@@ -203,7 +203,7 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
         let flushableBarrier = MockBarrier1()
         flushableBarrier.setState(.closed)
         _barriers.value = [
-            ScopedBarrier(barrier: flushableBarrier, scopes: [.all]),
+            ScopedBarrier(barrier: flushableBarrier, scope: .all),
         ]
         let barriersClosed = expectation(description: "Barriers closed")
         let barriersOpen = expectation(description: "Barriers open")
@@ -225,7 +225,7 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
         let flushableBarrier = MockBarrier1()
         flushableBarrier.setState(.closed)
         _barriers.value = [
-            ScopedBarrier(barrier: flushableBarrier, scopes: [.all]),
+            ScopedBarrier(barrier: flushableBarrier, scope: .all),
         ]
         let barriersClosed = expectation(description: "Barriers closed")
         let barriersOpen = expectation(description: "Barriers open")
@@ -247,7 +247,7 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
         let flushableBarrier = MockBarrier1()
         flushableBarrier.setState(.closed)
         _barriers.value = [
-            ScopedBarrier(barrier: flushableBarrier, scopes: [.all]),
+            ScopedBarrier(barrier: flushableBarrier, scope: .all),
         ]
         let barriersClosed = expectation(description: "Barriers closed")
         let barriersOpen = expectation(description: "Barriers open")
@@ -277,8 +277,8 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
         let connectivityBarrier = MockConnectivityBarrier()
 
         _barriers.value = [
-            ScopedBarrier(barrier: batchingBarrier, scopes: [.all]),
-            ScopedBarrier(barrier: connectivityBarrier, scopes: [.all])
+            ScopedBarrier(barrier: batchingBarrier, scope: .all),
+            ScopedBarrier(barrier: connectivityBarrier, scope: .all)
         ]
 
         let batchingCloses = expectation(description: "BatchingBarrier closed")

@@ -8,9 +8,28 @@
 
 import Foundation
 
-/**
- * A container for a reference to a variable in the data layer.
- */
+/// A container for a reference to a variable in the data layer.
+///
+/// ## JSON Representation
+///
+/// **Flat key** (created via ``key(_:)``):
+///
+/// ```json
+/// {
+///   "key": "email"
+/// }
+/// ```
+///
+/// **Nested path** (created via ``path(_:)``):
+///
+/// ```json
+/// {
+///   "path": "user.address.city"
+/// }
+/// ```
+///
+/// The `"path"` value uses dot notation for object keys and bracket notation
+/// for array indices (e.g. `"items[0].name"`).
 public struct ReferenceContainer: Equatable {
     enum Keys {
         static let key = "key"
@@ -24,18 +43,18 @@ public struct ReferenceContainer: Equatable {
     }
     let ref: ReferenceType
 
-    init(ref: ReferenceType) {
-        self.ref = ref
-    }
-
     /// Creates a ReferenceContainer to a variable in the root of a JSON object.
-    public init(key: String) {
-        self.init(ref: .key(key))
+    public static func key(_ key: String) -> Self {
+        ReferenceContainer(ref: .key(key))
     }
 
     /// Creates a ReferenceContainer to a variable nested in a JSON object.
-    public init(path: JSONObjectPath) {
-        self.init(ref: .path(path))
+    public static func path(_ path: JSONObjectPath) -> Self {
+        ReferenceContainer(ref: .path(path))
+    }
+
+    init(ref: ReferenceType) {
+        self.ref = ref
     }
 
     /// The path to a potentially nested variable in a JSON object.

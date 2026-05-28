@@ -12,7 +12,7 @@ import XCTest
 final class LoadRuleConverterTests: XCTestCase {
     let converter = LoadRule.converter
     func test_convert_converts_loadRule_with_and() throws {
-        let loadRule = try DataItem(serializing: [
+        let loadRule = try DataItem(jsonValue: [
             "id": "ruleId",
             "conditions": [
                 "operator": "and",
@@ -47,7 +47,7 @@ final class LoadRuleConverterTests: XCTestCase {
     }
 
     func test_convert_converts_loadRule_with_or() throws {
-        let loadRule = try DataItem(serializing: [
+        let loadRule = try DataItem(jsonValue: [
             "id": "ruleId",
             "conditions": [
                 "operator": "or",
@@ -82,7 +82,7 @@ final class LoadRuleConverterTests: XCTestCase {
     }
 
     func test_convert_converts_loadRule_with_not() throws {
-        let loadRule = try DataItem(serializing: [
+        let loadRule = try DataItem(jsonValue: [
             "id": "ruleId",
             "conditions": [
                 "operator": "not",
@@ -116,7 +116,7 @@ final class LoadRuleConverterTests: XCTestCase {
     }
 
     func test_convert_converts_loadRule_with_just() throws {
-        let loadRule = try DataItem(serializing: [
+        let loadRule = try DataItem(jsonValue: [
             "id": "ruleId",
             "conditions": [
                 "variable": ["path": "container.pageName"],

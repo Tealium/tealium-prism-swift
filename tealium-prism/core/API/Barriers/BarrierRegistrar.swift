@@ -13,13 +13,13 @@
  */
 public protocol BarrierRegistrar {
     /**
-     * Registers or updates an additional `Barrier` with the applied `scopes`.
+     * Registers or updates an additional `Barrier` with the applied `scope`.
      *
      * - Parameters:
      *  - barrier: The `Barrier` to add to the list of barriers.
-     *  - scopes: The array of `BarrierScope`s that this `Barrier` applies to.
+     *  - scope: The `BarrierScope` that this `Barrier` applies to.
      */
-    func registerScopedBarrier(_ barrier: Barrier, scopes: [BarrierScope])
+    func registerScopedBarrier(_ barrier: Barrier, scope: BarrierScope)
 
     /**
      * Unregisters the given `barrier` if it's currently registered.

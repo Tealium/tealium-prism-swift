@@ -10,10 +10,12 @@ errors=()
 # Test CocoaPods Example build
 cd ../Example && ../scripts/build.sh --scheme "$EXAMPLE_SCHEME" --destination "$IOS_DESTINATION" || errors+=("$EXAMPLE_SCHEME on $IOS_DESTINATION")
 
-declare -a SPM_SCHEMES=( 
+declare -a SPM_SCHEMES=(
     "TealiumPrismCore"
     "TealiumPrismLifecycle"
     "TealiumPrismMomentsAPI"
+    "TealiumPrismExtensions"
+    "TealiumPrismJavaScriptTransformer"
 )
 
 declare -a SPM_DESTINATIONS=(

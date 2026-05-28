@@ -35,4 +35,14 @@ Pod::Spec.new do |s|
       momentsapi.source_files = "tealium-prism/momentsapi/**/*.{swift,h,m}"
       momentsapi.dependency "tealium-prism/Core"
     end
+
+  s.subspec "Extensions" do |extensions|
+      extensions.source_files = "tealium-prism/Extensions/**/*.{swift,h,m}"
+      extensions.dependency "tealium-prism/Core"
+    end
+
+  s.subspec "JavaScriptTransformer" do |jstransformer|
+      jstransformer.source_files = "tealium-prism/JSTransformer/**/*.{swift,h,m}"
+      jstransformer.dependency "tealium-prism/Core"
+    end
 end

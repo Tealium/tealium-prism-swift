@@ -16,6 +16,8 @@ public protocol Module: AnyObject {
     var id: String { get }
     /// Returns true if the module is optional and can be disabled, or false otherwise. Default is true.
     static var canBeDisabled: Bool { get }
+    /// The unique type identifier for this module kind, shared across all instances of the same module type.
+    static var moduleType: String { get }
     /// Updates the configuration and, if the configuration is valid, return the same class otherwise return nil and the module is considered disabled.
     func updateConfiguration(_ configuration: DataObject) -> Self?
     /// Called when a previously created module needs to shut down, to allow it to perform some final cleanup before removing it form the available modules.
@@ -36,6 +38,7 @@ public protocol BasicModule: Module {
 
 public extension Module {
     static var canBeDisabled: Bool { true }
+    static var moduleType: String { String(describing: self) }
     func updateConfiguration(_ configuration: DataObject) -> Self? {
         return self
     }

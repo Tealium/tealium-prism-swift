@@ -93,22 +93,22 @@ class TealiumConfigTests: TealiumConfigBaseTests {
     }
 
     func test_getEnforcedSDKSettings_returns_settings_with_transformations() throws {
-        config.setTransformation(TransformationSettings(id: "transformationId1", transformerId: "transformerId", scopes: [.allDispatchers]))
-        config.setTransformation(TransformationSettings(id: "transformationId2", transformerId: "transformerId", scopes: [.dispatcher(id: "123")]))
+        config.setTransformation(TransformationSettingsBuilder(id: "transformationId1", transformerId: "transformerId")
+            .setScope(.allDispatchers))
+        config.setTransformation(TransformationSettingsBuilder(id: "transformationId2", transformerId: "transformerId")
+            .setScope(.dispatchers(["123"])))
         let settings = config.getEnforcedSDKSettings()
         XCTAssertEqual(settings, [
-            "transformations": try DataItem(serializing: [
+            "transformations": try DataItem(jsonValue: [
                 "transformerId-transformationId1": [
                     "transformation_id": "transformationId1",
                     "transformer_id": "transformerId",
-                    "scopes": ["alldispatchers"],
-                    "configuration": [:]
+                    "scope": "alldispatchers"
                 ],
                 "transformerId-transformationId2": [
                     "transformation_id": "transformationId2",
                     "transformer_id": "transformerId",
-                    "scopes": ["123"],
-                    "configuration": [:]
+                    "scope": ["123"]
                 ]
             ])
         ])
@@ -119,7 +119,7 @@ class TealiumConfigTests: TealiumConfigBaseTests {
         config.setLoadRule(.just(.isDefined(variable: "key2")), forId: "rule2")
         let settings = config.getEnforcedSDKSettings()
         XCTAssertEqual(settings, [
-            "load_rules": try DataItem(serializing: [
+            "load_rules": try DataItem(jsonValue: [
                 "rule1": [
                     "id": "rule1",
                     "conditions": [

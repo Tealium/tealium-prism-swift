@@ -127,7 +127,8 @@ class TealiumImpl {
                                       queue: modulesManager.queue,
                                       visitorId: visitorIdProvider.visitorId,
                                       queueMetrics: queueManager,
-                                      connectivityManager: ConnectivityManager.shared.emittingOn(queue: queue))
+                                      connectivityManager: ConnectivityManager.shared.emittingOn(queue: queue),
+                                      dataLayer: dataLayerStore)
         self.instanceName = "\(config.account)-\(config.profile)"
         barrierManager.initializeBarriers(factories: config.barriers, context: context)
         logger.info(category: LogCategory.tealium, "Instance \(self.instanceName) initialized.")

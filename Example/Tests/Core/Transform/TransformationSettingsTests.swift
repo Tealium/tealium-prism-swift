@@ -11,9 +11,8 @@ import XCTest
 
 final class TransformationSettingsTests: XCTestCase {
     var testEvent = Dispatch(name: "test_event")
-    var scopes = [TransformationScope.allDispatchers]
     var conditions: Rule<Condition> = .just(Condition.equals(ignoreCase: false, variable: "tealium_event", target: "test_event"))
-    lazy var transformation = TransformationSettings(id: "test", transformerId: "test", scopes: scopes, conditions: conditions)
+    lazy var transformation = TransformationSettings(id: "test", transformerId: "test", scope: .allDispatchers, conditions: conditions)
     let complexRule = Rule<Condition>.and([
         .just(Condition.equals(ignoreCase: false, variable: "tealium_event", target: "test_event")),
         .just(Condition.contains(ignoreCase: false, variable: "screen_name", string: "home"))
@@ -41,10 +40,9 @@ final class TransformationSettingsTests: XCTestCase {
     }
 
     func test_transformation_matches_dispatch_without_conditions() {
-        // Test with no conditions (should always match)
         let transformation = TransformationSettings(id: "test",
                                                     transformerId: "test",
-                                                    scopes: [.allDispatchers],
+                                                    scope: .allDispatchers,
                                                     conditions: nil)
 
         let dispatch = testEvent
@@ -54,7 +52,7 @@ final class TransformationSettingsTests: XCTestCase {
     func test_matchesDispatch_throws_the_error_that_condition_matches_throws_inside() {
         let transformation = TransformationSettings(id: "test",
                                                     transformerId: "test",
-                                                    scopes: [.allDispatchers],
+                                                    scope: .allDispatchers,
                                                     conditions: .just(
                                                         Condition(variable: "missing", operator: .equals(true), filter: "test")
                                                     ))
@@ -66,41 +64,5 @@ final class TransformationSettingsTests: XCTestCase {
                 return
             }
         }
-    }
-
-    func test_transformation_scope_rawValue() {
-        // Test the rawValue property for all cases
-        XCTAssertEqual(TransformationScope.afterCollectors.rawValue, "aftercollectors")
-        XCTAssertEqual(TransformationScope.allDispatchers.rawValue, "alldispatchers")
-        XCTAssertEqual(TransformationScope.dispatcher(id: "test_dispatcher").rawValue, "test_dispatcher")
-    }
-
-    func test_transformation_scope_init_from_rawValue() {
-        // Test initialization from rawValue for all cases
-        XCTAssertEqual(TransformationScope(rawValue: "aftercollectors"), .afterCollectors)
-        XCTAssertEqual(TransformationScope(rawValue: "AFTERCOLLECTORS"), .afterCollectors) // Case insensitive
-        XCTAssertEqual(TransformationScope(rawValue: "alldispatchers"), .allDispatchers)
-        XCTAssertEqual(TransformationScope(rawValue: "ALLDISPATCHERS"), .allDispatchers) // Case insensitive
-        XCTAssertEqual(TransformationScope(rawValue: "test_dispatcher"), .dispatcher(id: "test_dispatcher"))
-    }
-
-    func test_transformation_matches_equal_scopes() {
-        scopes = [.afterCollectors, .dispatcher(id: "specific_dispatcher")]
-        XCTAssertTrue(transformation.matchesScope(.afterCollectors))
-        XCTAssertTrue(transformation.matchesScope(.dispatcher(id: "specific_dispatcher")))
-    }
-
-    func test_transformation_does_not_match_different_scopes() {
-        scopes = [.dispatcher(id: "specific_dispatcher")]
-        XCTAssertFalse(transformation.matchesScope(.dispatcher(id: "other_dispatcher")))
-        XCTAssertFalse(transformation.matchesScope(.afterCollectors))
-    }
-
-    func test_allDispatcher_transformation_matches_any_dispatcher_scope() {
-        XCTAssertTrue(transformation.matchesScope(.dispatcher(id: "any_dispatcher")))
-    }
-
-    func test_allDispatcher_transformation_does_not_match_afterCollectors_scope() {
-        XCTAssertFalse(transformation.matchesScope(.afterCollectors))
     }
 }

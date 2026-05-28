@@ -1,0 +1,105 @@
+//
+//  SetDataValuesTransformerTests.swift
+//  tealium-prism
+//
+//  Created by Enrico Zannini on 16/12/25.
+//  Copyright © 2025 Tealium, Inc. All rights reserved.
+//
+
+@testable import TealiumPrism
+import XCTest
+
+final class SetDataValuesTransformerTests: ExtensionsBaseTests {
+
+    let transformer = SetDataValuesTransformer()
+
+    func test_id_returnsCorrectValue() {
+        XCTAssertEqual(transformer.id, Modules.Types.setDataValuesTransformer)
+    }
+
+    func test_version_returnsCorrectValue() {
+        XCTAssertEqual(transformer.version, TealiumConstants.libraryVersion)
+    }
+
+    func test_applyTransformation_withInvalidConfiguration_completesWithOriginalDispatch() {
+        let dispatch = Dispatch(name: "test", data: ["key": "value"])
+        let settings = TransformationSettings(
+            id: "test",
+            transformerId: Modules.Types.setDataValuesTransformer,
+            scope: .afterCollectors,
+            configuration: [:] // invalid - no operations inside
+        )
+        let expectation = expectation(description: "Transformation completes with original dispatch when configuration is invalid")
+        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+            XCTAssertEqual(result?.payload, dispatch.payload)
+            expectation.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_applyTransformation_withEmptyOperations_completesWithOriginalDispatch() throws {
+        let dispatch = Dispatch(name: "test", data: ["key": "value"])
+        let settings = try makeSettings(SetDataValuesSettingsBuilder(id: "test"))
+        let expectation = expectation(description: "Transformation completes with original dispatch")
+        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+            XCTAssertEqual(result?.payload, dispatch.payload)
+            expectation.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_applyTransformation_withReferenceOperation_copiesValue() throws {
+        let dispatch = Dispatch(name: "test", data: ["source_key": "source_value"])
+        let settings = try makeSettings(SetDataValuesSettingsBuilder(id: "test")
+            .setFrom(.key("source_key"), to: .key("destination_key")))
+        let expectation = expectation(description: "Value is copied from source to destination")
+        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+            XCTAssertEqual(result?.payload.get(key: "destination_key"), "source_value")
+            expectation.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_applyTransformation_withConstantOperation_setsValue() throws {
+        let dispatch = Dispatch(name: "test", data: ["existing_key": "existing_value"])
+        let settings = try makeSettings(SetDataValuesSettingsBuilder(id: "test")
+            .setConstant("constant_value", to: .key("destination_key")))
+        let expectation = expectation(description: "Constant value is set to destination")
+        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+            XCTAssertEqual(result?.payload.get(key: "destination_key"), "constant_value")
+            expectation.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_applyTransformation_withMultipleOperations_appliesAll() throws {
+        let dispatch = Dispatch(name: "test", data: [
+            "source1": "value1",
+            "source2": "value2"
+        ])
+        let settings = try makeSettings(SetDataValuesSettingsBuilder(id: "test")
+            .setFrom(.key("source1"), to: .key("dest1"))
+            .setConstant("constant", to: .key("dest2")))
+        let expectation = expectation(description: "All operations are applied")
+        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+            let dest1Value: String? = result?.payload.get(key: "dest1")
+            let dest2Value: String? = result?.payload.get(key: "dest2")
+            XCTAssertEqual(dest1Value, "value1")
+            XCTAssertEqual(dest2Value, "constant")
+            expectation.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_applyTransformation_withMissingSourceReference_skipsOperation() throws {
+        let dispatch = Dispatch(name: "test", data: ["existing_key": "existing_value"])
+        let settings = try makeSettings(SetDataValuesSettingsBuilder(id: "test")
+            .setFrom(.key("missing_key"), to: .key("destination_key")))
+        let expectation = expectation(description: "Operation is skipped for missing source")
+        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+            XCTAssertNil(result?.payload.getDataItem(key: "destination_key"))
+            expectation.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+}

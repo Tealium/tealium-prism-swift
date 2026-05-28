@@ -13,7 +13,7 @@ final class ConditionConverterTests: XCTestCase {
     let converter = Condition.converter
 
     func test_convert_converts_full_dataItem() throws {
-        let conditionObject = try DataItem(serializing: [
+        let conditionObject = try DataItem(jsonValue: [
             "variable": ["path": "container.pageName"],
             "operator": "equals",
             "filter": ["value": "Home"]
@@ -26,7 +26,7 @@ final class ConditionConverterTests: XCTestCase {
     }
 
     func test_convert_converts_dataItem_with_just_operator_and_variable() throws {
-        let conditionObject = try DataItem(serializing: [
+        let conditionObject = try DataItem(jsonValue: [
             "variable": ["key": "pageName"],
             "operator": "defined"
         ])
@@ -78,7 +78,7 @@ final class ConditionConverterTests: XCTestCase {
     }
 
     func test_convert_succeeds_with_non_lowercased_operator() throws {
-        let conditionObject = try DataItem(serializing: [
+        let conditionObject = try DataItem(jsonValue: [
             "variable": ["path": "container.pageName"],
             "operator": "eQuaLs",
             "filter": ["value": "Home"]

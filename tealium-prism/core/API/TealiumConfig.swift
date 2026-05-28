@@ -167,11 +167,12 @@ public struct TealiumConfig {
      * The transformation ID and transformer ID will be combined and need to be unique or the newer transformation will replace older ones.
      *
      * - Parameters:
-     *      - transformation: The `TransformationSettings` that defines which `Transformer` should handle this transformation and how.
+     *      - builder: The `TransformationSettingsBuilder` that defines which `Transformer` should handle this transformation and how.
      */
-    mutating public func setTransformation(_ transformation: TransformationSettings) {
-        transformations.set(converting: transformation,
-                            key: "\(transformation.transformerId)-\(transformation.id)")
+    mutating public func setTransformation(_ builder: TransformationSettingsBuilder) {
+        let dataObject = builder.build()
+        transformations.set(converting: dataObject,
+                            key: "\(builder.transformerId)-\(builder.id)")
     }
 
     /**

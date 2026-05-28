@@ -13,6 +13,9 @@
         "ConnectivityData": {
             "module_type": "ConnectivityData"
         },
+        "CustomDispatcher": {
+            "module_type": "CustomDispatcher"
+        },
         "DataLayer": {
             "module_type": "DataLayer"
         },

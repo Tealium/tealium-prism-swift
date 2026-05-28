@@ -21,7 +21,7 @@ final class SDKSettingsTests: XCTestCase {
 
     func test_initialization_with_core_settings_returns_new_core() throws {
         let input: DataObject = [
-            "core": try DataItem(serializing: [
+            "core": try DataItem(jsonValue: [
                 "log_level": "trace",
                 "max_queue_size": 37,
                 "refresh_interval": 45,
@@ -40,7 +40,7 @@ final class SDKSettingsTests: XCTestCase {
 
     func test_initialization_with_module_settings_returns_moduleSettings() throws {
         let input: DataObject = [
-            "modules": try DataItem(serializing: [
+            "modules": try DataItem(jsonValue: [
                 "moduleId": [
                     "enabled": false,
                     "module_type": "moduleId",
@@ -60,7 +60,7 @@ final class SDKSettingsTests: XCTestCase {
 
     func test_initialization_with_load_rules_returns_loadRules() throws {
         let input: DataObject = [
-            "load_rules": try DataItem(serializing: [
+            "load_rules": try DataItem(jsonValue: [
                 "ruleId": [
                     "id": "ruleId",
                     "conditions": [
@@ -95,11 +95,11 @@ final class SDKSettingsTests: XCTestCase {
 
     func test_initialization_with_transformations_returns_transformations() throws {
         let input: DataObject = [
-            "transformations": try DataItem(serializing: [
+            "transformations": try DataItem(jsonValue: [
                 "transformerId-transformationId": [
                     "transformation_id": "transformationId",
                     "transformer_id": "transformerId",
-                    "scopes": ["afterCollectors"],
+                    "scope": "aftercollectors",
                     "configuration": [
                         "key": "value"
                     ]
@@ -113,16 +113,16 @@ final class SDKSettingsTests: XCTestCase {
         }
         XCTAssertEqual(transformation.id, "transformationId")
         XCTAssertEqual(transformation.transformerId, "transformerId")
-        XCTAssertEqual(transformation.scopes, [.afterCollectors])
+        XCTAssertEqual(transformation.scope, .afterCollectors)
         XCTAssertEqual(transformation.configuration, ["key": "value"])
     }
 
     func test_initialization_with_barriers_returns_barriers() throws {
         let input: DataObject = [
-            "barriers": try DataItem(serializing: [
+            "barriers": try DataItem(jsonValue: [
                 "barrierId": [
                     "barrier_id": "barrierId",
-                    "scopes": ["all"],
+                    "scope": "all",
                     "configuration": [
                         "key": "value"
                     ]
@@ -135,7 +135,7 @@ final class SDKSettingsTests: XCTestCase {
             return
         }
         XCTAssertEqual(barrier.barrierId, "barrierId")
-        XCTAssertEqual(barrier.scopes, [.all])
+        XCTAssertEqual(barrier.scope, .all)
         XCTAssertEqual(barrier.configuration, ["key": "value"])
     }
 }

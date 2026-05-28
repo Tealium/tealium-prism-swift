@@ -15,13 +15,12 @@ public protocol BarrierFactory<BarrierType> {
     associatedtype BarrierType: ConfigurableBarrier
 
     /**
-     * An optional set of default `BarrierScope` to use in the event that these are not configured
-     * in any settings sources.
+     * The default `BarrierScope` to use when no scope is provided by any settings source.
      *
-     * In the case that no settings are found, and no default is available, then `BarrierScope.all`
-     * will be used. Therefore applying badly configured `Barrier` implementations to all `Dispatcher`s
+     * - Note: The protocol extension returns `.all` if not overridden, which applies the barrier to all dispatchers.
+     * Override this when a narrower default scope is appropriate for your `Barrier` implementation.
      */
-    func defaultScopes() -> [BarrierScope]
+    func defaultScope() -> BarrierScope
 
     /**
      * Creates a `ConfigurableBarrier` instance using the given `context` and `configuration`.
@@ -47,6 +46,10 @@ extension BarrierFactory {
      * This String will be used to match up barriers scoped in the configuration JSON.
      */
     var id: String { BarrierType.id }
+
+    public func defaultScope() -> BarrierScope {
+        .all
+    }
 
     public func getEnforcedSettings() -> DataObject {
         [:]

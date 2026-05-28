@@ -53,5 +53,5 @@ extension SessionInfo {
                                eventCount: dictionary.get(key: Keys.eventCount) ?? 1)
         }
     }
-    static let converter = Converter()
+    static let converter: any DataItemConverter<SessionInfo> = Converter()
 }

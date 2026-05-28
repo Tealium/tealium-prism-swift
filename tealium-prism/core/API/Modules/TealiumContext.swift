@@ -48,6 +48,8 @@ public class TealiumContext {
     public let queueMetrics: QueueMetrics
     /// Monitor for connectivity.
     public let connectivityManager: ConnectivityManagerProtocol
+    /// The `DataStore` for the `DataLayer`
+    public let dataLayer: any DataStore
 
     init(modulesManager: ModulesManager,
          sessionRegistry: SessionRegistry,
@@ -64,7 +66,8 @@ public class TealiumContext {
          queue: TealiumQueue,
          visitorId: ObservableState<String>,
          queueMetrics: QueueMetrics,
-         connectivityManager: ConnectivityManagerProtocol) {
+         connectivityManager: ConnectivityManagerProtocol,
+         dataLayer: any DataStore) {
         self.modulesManager = modulesManager
         self.sessionRegistry = sessionRegistry
         self.config = config
@@ -81,5 +84,6 @@ public class TealiumContext {
         self.visitorId = visitorId
         self.queueMetrics = queueMetrics
         self.connectivityManager = connectivityManager
+        self.dataLayer = dataLayer
     }
 }

@@ -14,11 +14,18 @@ declare -a SCHEMES=(
     "LifecycleTests_iOS" 
     "LifecycleTests_tvOS" 
     "LifecycleTests_macOS" 
-    "LifecycleTests_watchOS" 
+    "LifecycleTests_watchOS"
     "MomentsAPITests_iOS"
     "MomentsAPITests_tvOS"
     "MomentsAPITests_macOS"
     "MomentsAPITests_watchOS"
+    "ExtensionsTests_iOS"
+    "ExtensionsTests_tvOS"
+    "ExtensionsTests_macOS"
+    "ExtensionsTests_watchOS"
+    "JavaScriptTransformerTests_iOS"
+    "JavaScriptTransformerTests_tvOS"
+    "JavaScriptTransformerTests_macOS"
 )
 IOS_DESTINATION='platform=iOS Simulator,name=iPhone 16 Pro'
 TVOS_DESTINATION='platform=tvOS Simulator,name=Apple TV'

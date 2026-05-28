@@ -30,7 +30,7 @@ final class ModuleSettingsBuilderTests: XCTestCase {
         XCTAssertEqual(builder.setRules(.and(["ruleId"])).build(),
                        [
                         "configuration": DataObject(),
-                        "rules": try DataItem(serializing: [
+                        "rules": try DataItem(jsonValue: [
                             "operator": "and",
                             "children": [
                                 "ruleId"
@@ -47,7 +47,7 @@ final class ModuleSettingsBuilderTests: XCTestCase {
             .build()
         XCTAssertEqual(build, [
             "configuration": DataObject(),
-            "mappings": try DataItem(serializing: [[
+            "mappings": try DataItem(jsonValue: [[
                 "destination": [
                     "key": "destinationVariable"
                 ],
@@ -82,7 +82,7 @@ final class ModuleSettingsBuilderTests: XCTestCase {
         XCTAssertEqual(build, [
             "enabled": true,
             "configuration": DataObject(),
-            "mappings": try DataItem(serializing: [[
+            "mappings": try DataItem(jsonValue: [[
                 "destination": [
                     "key": "constant_key"
                 ],

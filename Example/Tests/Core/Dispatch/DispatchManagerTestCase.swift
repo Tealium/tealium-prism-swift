@@ -17,18 +17,23 @@ class DispatchManagerTestCase: XCTestCase {
             .map { $0.id }
     }
 
-    @StateSubject([TransformationSettings(id: "transformation1",
-                                          transformerId: "transformer1",
-                                          scopes: [.afterCollectors, .allDispatchers])])
+    @StateSubject([
+        TransformationSettings(id: "transformation1-aftercollectors",
+                               transformerId: "transformer1",
+                               scope: .afterCollectors),
+        TransformationSettings(id: "transformation2-alldispatchers",
+                               transformerId: "transformer1",
+                               scope: .allDispatchers)
+    ])
     var transformations
 
     let transformer = MockTransformer1 { transformation, dispatch, scope in
         var dispatch = dispatch
-        dispatch.enrich(data: ["transformation-\(scope.rawValue)": transformation])
+        dispatch.enrich(data: ["transformation-\(scope.rawValue)": transformation.id])
         return dispatch
     }
     lazy var transformers = StateSubject<[Transformer]>([transformer])
-    lazy var onBarriers: Observable<[ScopedBarrier]> = Observables.just([(barrier, [BarrierScope.all])])
+    lazy var onBarriers: Observable<[ScopedBarrier]> = Observables.just([(barrier, BarrierScope.all)])
     let barrier = MockBarrier()
     lazy var config = TealiumConfig(account: "test",
                                     profile: "test",

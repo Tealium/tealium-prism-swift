@@ -52,7 +52,7 @@ struct ContentView: View {
                             }
                             TealiumTextButton(title: "Track Event") {
                                 TealiumHelper.shared.teal?.track("button_tapped",
-                                                                 data: ["event_category": "example",
+                                                                 data: ["event_category": "EXAMPLE",
                                                                         "event_action": "tap",
                                                                         "event_label": "Track Event"])
                             }

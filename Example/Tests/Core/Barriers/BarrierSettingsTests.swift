@@ -10,78 +10,143 @@
 import XCTest
 
 final class BarrierSettingsTests: XCTestCase {
+    let converter = BarrierSettings.converter
 
-    func test_init_with_nil_scopes() {
-        let settings = BarrierSettings(barrierId: "test", scopes: nil, configuration: [:])
+    func test_init_with_nil_scope() {
+        let settings = BarrierSettings(barrierId: "test")
         XCTAssertEqual(settings.barrierId, "test")
-        XCTAssertNil(settings.scopes)
+        XCTAssertNil(settings.scope)
         XCTAssertEqual(settings.configuration, [:])
     }
 
-    func test_init_with_scopes() {
-        let scopes: [BarrierScope] = [.all, .dispatcher(id: "test")]
-        let settings = BarrierSettings(barrierId: "test", scopes: scopes, configuration: [:])
+    func test_init_with_all_scope() {
+        let settings = BarrierSettings(barrierId: "test", scope: .all, configuration: [:])
         XCTAssertEqual(settings.barrierId, "test")
-        XCTAssertEqual(settings.scopes, scopes)
+        XCTAssertEqual(settings.scope, .all)
+        XCTAssertEqual(settings.configuration, [:])
     }
 
-    func test_converter_with_nil_scopes() {
+    func test_init_with_dispatchers_scope() {
+        let settings = BarrierSettings(barrierId: "test", scope: .dispatchers(["a", "b"]))
+        XCTAssertEqual(settings.barrierId, "test")
+        XCTAssertEqual(settings.scope, .dispatchers(["a", "b"]))
+    }
+
+    func test_converter_with_all_scope_string() {
+        let dataItem = DataItem(value: [
+            BarrierSettings.Keys.barrierId: "test",
+            BarrierSettings.Keys.scope: "all",
+            BarrierSettings.Keys.configuration: [:]
+        ])
+        guard let settings = converter.convert(dataItem: dataItem) else {
+            XCTFail("Expected settings"); return
+        }
+        XCTAssertEqual(settings.barrierId, "test")
+        XCTAssertEqual(settings.scope, .all)
+    }
+
+    func test_converter_with_dispatchers_scope_array() {
+        let dataItem = DataItem(value: [
+            BarrierSettings.Keys.barrierId: "test",
+            BarrierSettings.Keys.scope: ["collect", "trace"],
+            BarrierSettings.Keys.configuration: [:]
+        ])
+        guard let settings = converter.convert(dataItem: dataItem) else {
+            XCTFail("Expected settings"); return
+        }
+        XCTAssertEqual(settings.barrierId, "test")
+        XCTAssertEqual(settings.scope, .dispatchers(["collect", "trace"]))
+    }
+
+    func test_converter_missing_barrier_id_returns_nil() {
+        let dataItem = DataItem(value: [
+            BarrierSettings.Keys.scope: "all",
+            BarrierSettings.Keys.configuration: [:]
+        ])
+        XCTAssertNil(converter.convert(dataItem: dataItem))
+    }
+
+    func test_converter_missing_scope_returns_settings_with_nil_scope() {
         let dataItem = DataItem(value: [
             BarrierSettings.Keys.barrierId: "test",
             BarrierSettings.Keys.configuration: [:]
         ])
-        let converter = BarrierSettings.Converter()
-        let settings = converter.convert(dataItem: dataItem)
-        XCTAssertNotNil(settings)
-        XCTAssertEqual(settings?.barrierId, "test")
-        XCTAssertNil(settings?.scopes)
+        guard let settings = converter.convert(dataItem: dataItem) else {
+            XCTFail("Expected settings"); return
+        }
+        XCTAssertEqual(settings.barrierId, "test")
+        XCTAssertNil(settings.scope)
     }
 
-    func test_converter_with_scopes() {
+    func test_converter_unknown_scope_string_returns_settings_with_nil_scope() {
         let dataItem = DataItem(value: [
             BarrierSettings.Keys.barrierId: "test",
-            BarrierSettings.Keys.scopes: ["all", "test-dispatcher"],
+            BarrierSettings.Keys.scope: "unknown_scope",
             BarrierSettings.Keys.configuration: [:]
         ])
-        let converter = BarrierSettings.Converter()
-        let settings = converter.convert(dataItem: dataItem)
-        XCTAssertNotNil(settings)
-        XCTAssertEqual(settings?.barrierId, "test")
-        XCTAssertEqual(settings?.scopes, [.all, .dispatcher(id: "test-dispatcher")])
+        guard let settings = converter.convert(dataItem: dataItem) else {
+            XCTFail("Expected settings"); return
+        }
+        XCTAssertEqual(settings.barrierId, "test")
+        XCTAssertNil(settings.scope)
     }
 
-    func test_converter_with_invalid_data_returns_nil() {
-        let dataItem = DataItem(value: [
-            BarrierSettings.Keys.scopes: ["all"],
-            BarrierSettings.Keys.configuration: [:]
-            // Missing barrierId
-        ])
-        let converter = BarrierSettings.Converter()
-        let settings = converter.convert(dataItem: dataItem)
-        XCTAssertNil(settings)
-    }
-
-    func test_converter_with_empty_scopes_array() {
+    func test_converter_nsnull_scope_returns_settings_with_nil_scope() {
         let dataItem = DataItem(value: [
             BarrierSettings.Keys.barrierId: "test",
-            BarrierSettings.Keys.scopes: [],
+            BarrierSettings.Keys.scope: NSNull(),
             BarrierSettings.Keys.configuration: [:]
         ])
-        let converter = BarrierSettings.Converter()
-        let settings = converter.convert(dataItem: dataItem)
-        XCTAssertEqual(settings?.barrierId, "test")
-        XCTAssertEqual(settings?.scopes, [])
+        guard let settings = converter.convert(dataItem: dataItem) else {
+            XCTFail("Expected settings"); return
+        }
+        XCTAssertEqual(settings.barrierId, "test")
+        XCTAssertNil(settings.scope)
     }
 
-    func test_toDataObject_with_nil_scope() {
-        let settings = BarrierSettings(barrierId: "test", scopes: nil, configuration: [:])
-        let expected: DataObject = ["barrier_id": "test", "scopes": NSNull(), "configuration": DataItem(value: [:])]
-        XCTAssertEqual(settings.toDataObject(), expected)
+    func test_converter_empty_dispatchers_array_returns_settings() {
+        let dataItem = DataItem(value: [
+            BarrierSettings.Keys.barrierId: "test",
+            BarrierSettings.Keys.scope: [DataInput](),
+            BarrierSettings.Keys.configuration: [:]
+        ])
+        guard let settings = converter.convert(dataItem: dataItem) else {
+            XCTFail("Expected settings"); return
+        }
+        XCTAssertEqual(settings.barrierId, "test")
+        XCTAssertEqual(settings.scope, .dispatchers([]))
     }
 
-    func test_toDataObject_with_scopes() {
-        let settings = BarrierSettings(barrierId: "test", scopes: [.all], configuration: [:])
-        let expected: DataObject = ["barrier_id": "test", "scopes": ["all"], "configuration": DataItem(value: [:])]
-        XCTAssertEqual(settings.toDataObject(), expected)
+    func test_converter_missing_configuration_defaults_to_empty() {
+        let dataItem = DataItem(value: [
+            BarrierSettings.Keys.barrierId: "test",
+            BarrierSettings.Keys.scope: "all"
+        ])
+        guard let settings = converter.convert(dataItem: dataItem) else {
+            XCTFail("Expected settings"); return
+        }
+        XCTAssertEqual(settings.configuration, [:])
+    }
+
+    func test_toDataObject_with_all_scope() {
+        let settings = BarrierSettings(barrierId: "test", scope: .all, configuration: ["configKey": "configValue"])
+        let dataObject = settings.toDataObject()
+        XCTAssertEqual(dataObject.get(key: BarrierSettings.Keys.barrierId), "test")
+        XCTAssertEqual(dataObject.get(key: BarrierSettings.Keys.scope), "all")
+        let configuration = dataObject.getDataDictionary(key: BarrierSettings.Keys.configuration)
+        XCTAssertEqual(configuration?.get(key: "configKey"), "configValue")
+    }
+
+    func test_toDataObject_with_nil_scope_omits_scope_key() {
+        let settings = BarrierSettings(barrierId: "test", configuration: [:])
+        let dataObject = settings.toDataObject()
+        XCTAssertFalse(dataObject.keys.contains(BarrierSettings.Keys.scope))
+    }
+
+    func test_toDataObject_with_dispatchers_scope() {
+        let settings = BarrierSettings(barrierId: "test", scope: .dispatchers(["collect"]), configuration: [:])
+        let dataObject = settings.toDataObject()
+        XCTAssertEqual(dataObject.getArray(key: BarrierSettings.Keys.scope), ["collect"])
+        XCTAssertTrueOptional(dataObject.getDataDictionary(key: BarrierSettings.Keys.configuration)?.keys.isEmpty)
     }
 }

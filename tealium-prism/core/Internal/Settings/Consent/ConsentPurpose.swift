@@ -41,5 +41,5 @@ extension ConsentPurpose {
             return ConsentPurpose(purposeId: purposeId, dispatcherIds: dispatcherIds.compactMap { $0 })
         }
     }
-    static let converter = Converter()
+    static let converter: any DataItemConverter<ConsentPurpose> = Converter()
 }

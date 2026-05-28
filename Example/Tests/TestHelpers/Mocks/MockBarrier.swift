@@ -52,12 +52,12 @@ class MockBarrier2: MockConfigurableBarrier {
 
 class MockBarrierFactory<SomeBarrier: MockConfigurableBarrier>: BarrierFactory {
     typealias BarrierType = SomeBarrier
-    let _defaultScopes: [BarrierScope]
+    let _defaultScope: BarrierScope
     let enforcedSettings: DataObject
     let barrier = SomeBarrier()
 
-    init(defaultScopes: [BarrierScope], enforcedSettings: DataObject? = nil) {
-        _defaultScopes = defaultScopes
+    init(defaultScope: BarrierScope, enforcedSettings: DataObject? = nil) {
+        _defaultScope = defaultScope
         self.enforcedSettings = enforcedSettings ?? [:]
     }
 
@@ -66,8 +66,8 @@ class MockBarrierFactory<SomeBarrier: MockConfigurableBarrier>: BarrierFactory {
         return barrier
     }
 
-    func defaultScopes() -> [BarrierScope] {
-        _defaultScopes
+    func defaultScope() -> BarrierScope {
+        _defaultScope
     }
 
     func getEnforcedSettings() -> DataObject {
