@@ -73,8 +73,26 @@ final class LenientConvertersTests: XCTestCase {
         XCTAssertEqual(result, -Double.infinity)
     }
 
+    func test_doubleConverter_handles_infinity_string() {
+        let dataItem = DataItem(value: "Infinity")
+        let result = LenientConverters.double.convert(dataItem: dataItem)
+        XCTAssertEqual(result, Double.infinity)
+    }
+
+    func test_doubleConverter_handles_negative_infinity_string() {
+        let dataItem = DataItem(value: "-Infinity")
+        let result = LenientConverters.double.convert(dataItem: dataItem)
+        XCTAssertEqual(result, -Double.infinity)
+    }
+
     func test_doubleConverter_handles_nan() {
         let dataItem = DataItem(value: Double.nan)
+        let result = LenientConverters.double.convert(dataItem: dataItem)
+        XCTAssertTrueOptional(result?.isNaN)
+    }
+
+    func test_doubleConverter_handles_nan_string() {
+        let dataItem = DataItem(value: "NaN")
         let result = LenientConverters.double.convert(dataItem: dataItem)
         XCTAssertTrueOptional(result?.isNaN)
     }
@@ -189,6 +207,30 @@ final class LenientConvertersTests: XCTestCase {
         let dataItem = DataItem(value: "NaN")
         let result = LenientConverters.int.convert(dataItem: dataItem)
         XCTAssertNil(result)
+    }
+
+    func test_intConverter_converts_Infinity_string_to_Int_max() {
+        let dataItem = DataItem(value: "Infinity")
+        let result = LenientConverters.int.convert(dataItem: dataItem)
+        XCTAssertEqual(result, Int.max)
+    }
+
+    func test_intConverter_converts_negative_Infinity_string_to_Int_max() {
+        let dataItem = DataItem(value: "-Infinity")
+        let result = LenientConverters.int.convert(dataItem: dataItem)
+        XCTAssertEqual(result, Int.min)
+    }
+
+    func test_intConverter_converts_out_of_bounds_number_to_Int_max() {
+        let dataItem = DataItem(value: "100000000000000000000000000000")
+        let result = LenientConverters.int.convert(dataItem: dataItem)
+        XCTAssertEqual(result, Int.max)
+    }
+
+    func test_intConverter_converts_negative_out_of_bounds_number_to_Int_min() {
+        let dataItem = DataItem(value: "-100000000000000000000000000000")
+        let result = LenientConverters.int.convert(dataItem: dataItem)
+        XCTAssertEqual(result, Int.min)
     }
 
     // MARK: - BoolConverter Tests

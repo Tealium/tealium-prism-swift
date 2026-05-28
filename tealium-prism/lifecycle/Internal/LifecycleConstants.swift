@@ -42,7 +42,6 @@ enum LifecycleStateKey {
 }
 
 enum LifecycleStorageKey {
-    static let isActiveSession = "is_active_session"
     static let appVersion = "app_version"
     static let timestampUpdate = "timestamp_update"
     static let timestampFirstLaunch = "timestamp_first_launch"
