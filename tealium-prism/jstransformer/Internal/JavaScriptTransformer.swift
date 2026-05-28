@@ -24,20 +24,15 @@ class JavaScriptTransformer: Transformer, BasicModule {
     let tracker: Tracker
     let dataLayer: any DataStore
     let logger: LoggerProtocol?
-    let networkHelper: any NetworkHelperProtocol
-    let automaticDisposer: CompositeDisposable = Disposables.automaticComposite()
-
     convenience required init?(context: TealiumContext, moduleConfiguration: DataObject) {
         self.init(tracker: context.tracker,
                   dataLayer: context.dataLayer,
-                  logger: context.logger,
-                  networkHelper: context.networkHelper)
+                  logger: context.logger)
     }
 
     init?(tracker: Tracker,
           dataLayer: any DataStore,
-          logger: LoggerProtocol?,
-          networkHelper: any NetworkHelperProtocol) {
+          logger: LoggerProtocol?) {
         guard let jsContext = JSContext() else {
             return nil
         }
@@ -45,12 +40,11 @@ class JavaScriptTransformer: Transformer, BasicModule {
         self.tracker = tracker
         self.dataLayer = dataLayer
         self.logger = logger
-        self.networkHelper = networkHelper
         setupConsole()
         setupTrack()
         setupDataLayer()
         setupExpiry()
-        setupNetworkHelper()
+        // setupNetworkHelper() — re-enable when async/await or promises are properly supported
     }
 
     func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) {

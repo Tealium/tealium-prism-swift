@@ -59,57 +59,58 @@ extension JavaScriptTransformer {
         )
     }
 
-    func setupNetworkHelper() {
-        guard let jsNetwork = JSValue(newObjectIn: jsContext) else { return }
-        func complete(result: NetworkResult, completion: JSValue) {
-            guard completion.isObject else { return }
-            switch result {
-            case let .success(response):
-                guard let json = try? JSONSerialization.jsonObject(with: response.data) else {
-                    guard let string = String(data: response.data, encoding: .utf8) else {
-                        completion.call(withArguments: [
-                            response.urlResponse.statusCode, "undefined", response.urlResponse.allHeaderFields
-                        ])
-                        return
-                    }
-                    completion.call(withArguments: [
-                        response.urlResponse.statusCode, string, response.urlResponse.allHeaderFields
-                    ])
-                    return
-                }
-                completion.call(withArguments: [
-                    response.urlResponse.statusCode, json, response.urlResponse.allHeaderFields
-                ])
-            case let .failure(error):
-                completion.call(withArguments: [error.localizedDescription])
-            }
-        }
-        let get: @convention(block) (_ url: String, _ completion: JSValue) -> Void = { [weak self, networkHelper] url, completion in
-            guard let self else { return }
-            networkHelper.get(url: url) { result in
-                complete(result: result, completion: completion)
-            }.addTo(self.automaticDisposer)
-        }
-        jsNetwork["get"] = get
-        let _post: @convention(block) (
-            _ url: String,
-            _ stringifiedPayload: String,
-            _ completion: JSValue
-        ) -> Void = { [weak self, networkHelper] url, payload, completion in
-            guard let self else { return }
-            let body = (try? DataObject(jsonString: payload)) ?? [:]
-            networkHelper.post(url: url, body: body) { result in
-                complete(result: result, completion: completion)
-            }.addTo(self.automaticDisposer)
-        }
-        jsNetwork["_post"] = _post
-        jsContext["network"] = jsNetwork
-        jsContext.evaluateScript("""
-        network.post = function(url, payload, completion) {
-            this._post(url, JSON.stringify(payload), completion)
-        }
-        """)
-    }
+// TODO: Re-implement network support once async/await or promises are properly supported for async JS transformations
+//    func setupNetworkHelper() {
+//        guard let jsNetwork = JSValue(newObjectIn: jsContext) else { return }
+//        func complete(result: NetworkResult, completion: JSValue) {
+//            guard completion.isObject else { return }
+//            switch result {
+//            case let .success(response):
+//                guard let json = try? JSONSerialization.jsonObject(with: response.data) else {
+//                    guard let string = String(data: response.data, encoding: .utf8) else {
+//                        completion.call(withArguments: [
+//                            response.urlResponse.statusCode, "undefined", response.urlResponse.allHeaderFields
+//                        ])
+//                        return
+//                    }
+//                    completion.call(withArguments: [
+//                        response.urlResponse.statusCode, string, response.urlResponse.allHeaderFields
+//                    ])
+//                    return
+//                }
+//                completion.call(withArguments: [
+//                    response.urlResponse.statusCode, json, response.urlResponse.allHeaderFields
+//                ])
+//            case let .failure(error):
+//                completion.call(withArguments: [error.localizedDescription])
+//            }
+//        }
+//        let get: @convention(block) (_ url: String, _ completion: JSValue) -> Void = { [weak self, networkHelper] url, completion in
+//            guard let self else { return }
+//            networkHelper.get(url: url) { result in
+//                complete(result: result, completion: completion)
+//            }.addTo(self.automaticDisposer)
+//        }
+//        jsNetwork["get"] = get
+//        let _post: @convention(block) (
+//            _ url: String,
+//            _ stringifiedPayload: String,
+//            _ completion: JSValue
+//        ) -> Void = { [weak self, networkHelper] url, payload, completion in
+//            guard let self else { return }
+//            let body = (try? DataObject(jsonString: payload)) ?? [:]
+//            networkHelper.post(url: url, body: body) { result in
+//                complete(result: result, completion: completion)
+//            }.addTo(self.automaticDisposer)
+//        }
+//        jsNetwork["_post"] = _post
+//        jsContext["network"] = jsNetwork
+//        jsContext.evaluateScript("""
+//        network.post = function(url, payload, completion) {
+//            this._post(url, JSON.stringify(payload), completion)
+//        }
+//        """)
+//    }
 
     func setupDataLayer() {
         guard let jsDataLayer = JSValue(newObjectIn: jsContext) else {

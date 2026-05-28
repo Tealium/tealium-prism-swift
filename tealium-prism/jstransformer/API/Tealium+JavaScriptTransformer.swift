@@ -32,7 +32,6 @@ public extension Modules {
     ///   - `track(event, type, payload)` – tracks an event with type and additional data.
     /// - `drop()` – sets `payload` to `undefined`, causing the dispatch to be dropped.
     /// - `dataLayer` – read/write access to the persistent data layer (`get`, `getAll`, `put`, `remove`, `clear`).
-    /// - `network` – HTTP helper with `get(url, callback)` and `post(url, payload, callback)`.
     /// - `console` – logging bridge (`debug`, `log`, `info`, `warn`, `error`).
     /// - `Expiry` – constants for data expiry (`forever`, `session`, `untilRestart`).
     ///
