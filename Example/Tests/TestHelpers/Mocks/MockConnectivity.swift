@@ -61,10 +61,11 @@ class MockEmpiricalConnectivity: EmpiricalConnectivityProtocol {
 class MockConnectivityManager: ConnectivityManager {
     let mockConnectivityMonitor: MockConnectivityMonitor
     let mockEmpiricalConnectivity: MockEmpiricalConnectivity
-    init() {
+    init(queue: TealiumQueue) {
         self.mockConnectivityMonitor = MockConnectivityMonitor()
         self.mockEmpiricalConnectivity = MockEmpiricalConnectivity()
-        super.init(connectivityMonitor: mockConnectivityMonitor,
+        super.init(queue: queue,
+                   connectivityMonitor: mockConnectivityMonitor,
                    empiricalConnectivity: mockEmpiricalConnectivity)
     }
 }

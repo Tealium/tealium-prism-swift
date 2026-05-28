@@ -30,7 +30,6 @@ class SubjectTests: XCTestCase {
 
     func subscribeOnce_calls_the_observer_only_once(_ publisher: BasePublisher<Int>) {
         let eventNotified = expectation(description: "Event is notified")
-        eventNotified.assertForOverFulfill = true
         let eventNotNotified = expectation(description: "Event is NOT notified")
         eventNotNotified.isInverted = true
         publisher.publish(1)

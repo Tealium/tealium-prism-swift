@@ -38,13 +38,17 @@ final class OperatorsResubscribingTests: XCTestCase {
         eventsPublished.expectedFulfillmentCount = 2
         var eventCount = 0
         _ = Observable { observer in
+            let subscription = Disposables.composite()
             if eventCount < 2 {
                 DispatchQueue.main.async {
                     eventCount += 1
+                    guard !subscription.isDisposed else {
+                        return
+                    }
                     observer(eventCount)
                 }
             }
-            return Disposables.disposed()
+            return subscription
         }
         .resubscribingWhile { _ in eventCount < 2 }
         .subscribe { number in
@@ -60,13 +64,17 @@ final class OperatorsResubscribingTests: XCTestCase {
         var eventCount = 0
         _ = Observable { observer in
             subscribeCalled.fulfill()
+            let subscription = Disposables.composite()
             if eventCount < 2 {
                 DispatchQueue.main.async {
                     eventCount += 1
+                    guard !subscription.isDisposed else {
+                        return
+                    }
                     observer(eventCount)
                 }
             }
-            return Disposables.disposed()
+            return subscription
         }
         .resubscribingWhile { _ in eventCount < 2 }
         .subscribe { _ in }
@@ -91,5 +99,17 @@ final class OperatorsResubscribingTests: XCTestCase {
         .resubscribingWhile { _ in eventCount < 2 }
         .subscribe { _ in }
         waitForDefaultTimeout()
+    }
+
+    func test_resubscribingWhile_disposes_subscription_when_upstream_is_disposed() {
+        let observable: Observable<Void> = Observables.empty().resubscribingWhile { _ in true }
+
+        let disposable = observable.subscribe { _ in }
+
+        XCTAssertTrue(disposable.isDisposed)
+    }
+
+    func test_resubscribingWhile_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        assertNoEmissionAfterSideEffectDisposal { $0.resubscribingWhile { _ in true } }
     }
 }

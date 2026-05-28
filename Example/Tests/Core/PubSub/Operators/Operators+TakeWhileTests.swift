@@ -35,6 +35,23 @@ final class OperatorsTakeWhileTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
+    func test_reentrancy_events_over_conditions_are_not_emitted() {
+        let expectation = expectation(description: "Only first event is reported even if downstream emits again in the upstream")
+        expectation.expectedFulfillmentCount = 2
+        var count = 1
+        let subject = Subject<Int>()
+        _ = subject.asObservable()
+            .takeWhile({ $0 % 2 == 1 }, inclusive: true)
+            .subscribe { res in
+                XCTAssertEqual(res, count)
+                count += 1
+                subject.publish(2 * res) // Crashes in case of reentrancy (if takeWhile was not safely handling the disposal of the observer)
+                expectation.fulfill()
+            }
+        subject.publish(1)
+        waitForDefaultTimeout()
+    }
+
     func test_events_over_conditions_are_not_emitted_inclusive() {
         let expectations = [
             expectation(description: "Event 1 is emitted"),
@@ -185,5 +202,34 @@ final class OperatorsTakeWhileTests: XCTestCase {
         pub.publish(2)
         XCTAssertTrue(subscription.isDisposed)
         waitForDefaultTimeout()
+    }
+
+    func test_takeWhile_disposes_subscription_when_upstream_is_disposed() {
+        let observable = Observables.just(1, 2, 3)
+            .takeWhile { $0 < 10 }
+
+        let disposable = observable.subscribe { _ in }
+
+        XCTAssertTrue(disposable.isDisposed)
+    }
+
+    func test_takeWhile_disposes_subscription_after_emitting_last_value() {
+        let emitted = expectation(description: "Events emitted until the end")
+        let disposed = expectation(description: "Disposable disposed")
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
+            .takeWhile({ _ in false }, inclusive: true)
+        observable.subscribe { res in
+            XCTAssertEqual(res, 1)
+            emitted.fulfill()
+        }.onDispose {
+            disposed.fulfill()
+        }
+        subject.publish(1)
+        wait(for: [emitted, disposed], timeout: Self.defaultTimeout, enforceOrder: true)
+    }
+
+    func test_takeWhile_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        assertNoEmissionAfterSideEffectDisposal { $0.takeWhile { _ in true } }
     }
 }

@@ -16,7 +16,7 @@ class MockQueueMetrics: QueueMetrics {
         _size.value = queueSize
     }
 
-    func onQueueSizePendingDispatch(for processorId: String) -> TealiumPrism.Observable<Int> {
+    func onQueueSizePendingDispatch(for processorId: String) -> Observable<Int> {
         size.asObservable()
     }
 

@@ -10,7 +10,7 @@
 import XCTest
 
 final class ConnectivityBarrierTests: XCTestCase {
-    let manager = MockConnectivityManager()
+    let manager = MockConnectivityManager(queue: .main)
     var configuration = DataObject()
     lazy var barrier = ConnectivityBarrier(connectionManager: manager, configuration: configuration)
 

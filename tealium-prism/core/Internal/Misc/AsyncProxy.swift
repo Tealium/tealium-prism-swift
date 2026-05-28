@@ -24,10 +24,11 @@ class AsyncProxy<Object: AnyObject, Failure: Error> {
 
     let queue: TealiumQueue
     private(set) var onObject: Observable<ObjectResult>
-    let disposer = DisposableContainer()
+    let disposer: AsyncDisposableContainer
     init(queue: TealiumQueue, onObject: Observable<ObjectResult>) {
         self.queue = queue
         self.onObject = onObject
+        self.disposer = AsyncDisposableContainer(queue: queue)
     }
 
     func getProxiedObject(completion: @escaping (Object?) -> Void) {
@@ -60,7 +61,7 @@ class AsyncProxy<Object: AnyObject, Failure: Error> {
             }
         })
         SingleImpl(observable: observable, queue: queue)
-            .subscribe(replay)
+            .subscribe(subject: replay)
             .addTo(disposer)
         return replay.asObservable().asSingle(queue: queue)
     }

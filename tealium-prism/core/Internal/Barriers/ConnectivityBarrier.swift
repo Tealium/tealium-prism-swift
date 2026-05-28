@@ -74,7 +74,7 @@ extension ConnectivityBarrier {
         }
 
         func create(context: TealiumContext, configuration: DataObject) -> ConnectivityBarrier {
-            ConnectivityBarrier(connectionManager: ConnectivityManager.shared,
+            ConnectivityBarrier(connectionManager: context.connectivityManager,
                                 configuration: configuration)
         }
 

@@ -80,13 +80,14 @@ public extension Observables {
      * All subsequent changes to any observable will be emitted one by one.
      */
     static func combineLatest<Element>(_ observables: [Observable<Element>]) -> Observable<[Element]> {
+        // Internal function added to make compilation easier
         func subscriptionHandler(_ observer: @escaping ([Element]) -> Void) -> Disposable {
-            let container = DisposableContainer()
             let count = observables.count
             guard count > 0 else {
                 observer([])
-                return container
+                return Disposables.disposed()
             }
+            let downstream = DisposableContainer()
             var temporaryArray: [Element?]? = [Element?](repeating: nil, count: observables.count)
             var resultArray = [Element]()
             func notify(element: Element, index: Int) {
@@ -103,12 +104,21 @@ public extension Observables {
                     observer(resultArray)
                 }
             }
-            for index in 0..<count {
-                observables[index].subscribe { element in
-                    notify(element: element, index: index)
-                }.addTo(container)
+            var subscriptionsCount = count
+            for index in 0 ..< count {
+                observables[index]
+                    .subscribe { element in
+                        notify(element: element, index: index)
+                    }
+                    .addTo(downstream)
+                    .onDispose {
+                        subscriptionsCount -= 1
+                        if subscriptionsCount == 0 {
+                            downstream.dispose()
+                        }
+                    }
             }
-            return container
+            return downstream
         }
         return Self.create(subscriptionHandler: subscriptionHandler)
     }

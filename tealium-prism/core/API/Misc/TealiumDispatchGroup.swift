@@ -26,27 +26,42 @@ public class TealiumDispatchGroup {
     /// - Parameters:
     ///   - works: An array of work items that take a completion handler.
     ///   - completion: Called when all work items complete with their results.
-    public func parallelExecution<Result>(_ works: [(@escaping (Result) -> Void) -> Void], completion: @escaping ([Result]) -> Void) {
+    /// - Returns: A `Disposable` that prevents the completion from being called when disposed.
+    @discardableResult
+    public func parallelExecution<Result>(_ works: [(@escaping (Result) -> Void) -> Disposable], completion: @escaping ([Result]) -> Void) -> Disposable {
         guard works.count > 0 else {
             completion([])
-            return
+            return Disposables.disposed()
         }
+        let container = DisposableContainer()
         let dispatchGroup = DispatchGroup()
         dispatchGroup.enter()
         var results = [Int: Result]()
         let queue = self.queue
         dispatchGroup.notify(queue: queue.dispatchQueue) {
+            guard !container.isDisposed else { return }
             completion(results.sorted { $0.key < $1.key }.map { $0.value })
         }
         for (index, work) in works.enumerated() {
             dispatchGroup.enter()
-            work { result in
+            let completeWork = SelfDestructingCompletion {
+                dispatchGroup.leave()
+            }
+            let disposable = work { result in
                 queue.ensureOnQueue {
+                    guard !container.isDisposed else {
+                        return
+                    }
                     results[index] = result
-                    dispatchGroup.leave()
+                    completeWork.complete(result: ())
                 }
             }
+            container.add(disposable)
+            container.add(Subscription {
+                completeWork.complete(result: ())
+            })
         }
         dispatchGroup.leave()
+        return container
     }
 }

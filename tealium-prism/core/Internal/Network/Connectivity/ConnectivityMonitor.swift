@@ -15,7 +15,7 @@ public class ConnectivityMonitor {
 
 private func defaultConnectivityMonitor() -> ConnectivityMonitorProtocol {
     #if !os(watchOS)
-    return TealiumNWPathMonitor(queue: TealiumQueue.worker)
+    return TealiumNWPathMonitor(queue: ConnectivityManager.defaultQueue)
     #else
     return AlwaysUnknownConnectivityMonitor()
     #endif

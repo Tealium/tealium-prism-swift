@@ -22,7 +22,7 @@ final class NetworkConfigurationTests: XCTestCase {
         XCTAssertTrue(defaultInterceptors.contains(where: { $0 is ConnectivityManager }), "ConnectivityManager should be one of the default interceptors")
     }
 
-    func test_DefaultInterceptor_should_be_the_first_intercetor() {
+    func test_DefaultInterceptor_should_be_the_first_interceptor() {
         let defaultInterceptors = NetworkConfiguration.defaultInterceptors
         XCTAssertTrue(defaultInterceptors.first is DefaultInterceptor, "DefaultInterceptor should be the first default interceptor")
     }

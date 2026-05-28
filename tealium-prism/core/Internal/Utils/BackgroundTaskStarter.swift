@@ -30,31 +30,38 @@ class BackgroundTaskStarter {
         self.backgroundTaskTimeout = backgroundTaskTimeout
     }
 
-    /// Returns an observable that emits true immediately, starts a background task on iOS or WatchOS,
-    /// and emits false when the background task ended, expired or the subscription is disposed.
-    func startBackgroundTask() -> Observable<Bool> {
+    /// Returns an observable that emits true upon subscription, starts a background task on iOS or WatchOS,
+    /// and emits false when the background task ended or expired.
+    func startBackgroundTask(withName name: String? = nil) -> Observable<Bool> {
         Observable { [queue, backgroundTaskTimeout] observer in
-            let disposable = DisposableContainer()
             observer(true)
-            disposable.add(Subscription {
+            let disposable = AsyncDisposableContainer(queue: queue)
+            let completion = SelfDestructingCompletion {
                 observer(false)
-            })
+                disposable.dispose()
+            }
 #if os(iOS)
             if let application = Self.sharedApplication {
                 // Only use from main thread
                 var taskId: UIBackgroundTaskIdentifier = .invalid
-                disposable.add(Subscription {
-                    DispatchQueue.main.async {
-                        application.endBackgroundTask(taskId)
-                        taskId = .invalid
+                func endTaskIfNeeded() {
+                    guard taskId != .invalid else {
+                        return
                     }
-                })
-                taskId = application.beginBackgroundTask {
-                    // End task immediately on main thread to avoid potential crashes
                     application.endBackgroundTask(taskId)
                     taskId = .invalid
+                }
+
+                disposable.onDispose {
+                    DispatchQueue.main.async {
+                        endTaskIfNeeded()
+                    }
+                }
+                taskId = application.beginBackgroundTask(withName: name) {
+                    // End task immediately on main thread to avoid potential crashes
+                    endTaskIfNeeded()
                     queue.ensureOnQueue {
-                        disposable.dispose()
+                        completion.complete(result: ())
                     }
                 }
             }
@@ -63,13 +70,13 @@ class BackgroundTaskStarter {
             pInfo.performExpiringActivity(withReason: "Tealium Swift: Dispatch Queued Events") { expired in
                 if expired {
                     queue.ensureOnQueue {
-                        disposable.dispose()
+                        completion.complete(result: ())
                     }
                 }
             }
 #endif
             queue.dispatchQueue.asyncAfter(deadline: .now() + backgroundTaskTimeout) {
-                disposable.dispose()
+                completion.complete(result: ())
             }
             return disposable
         }

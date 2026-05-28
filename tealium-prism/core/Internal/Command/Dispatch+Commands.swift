@@ -8,7 +8,7 @@
 
 import Foundation
 
-public extension Dispatch {
+extension Dispatch {
     /// Extracts command(s) from the dispatch payload.
     /// Supports both single command (String) and array of commands ([String]).
     /// Commands are mapped to the "command_name" key by Mappings (not tealium_event).

@@ -13,7 +13,8 @@ final class ConnectivityManagerTests: XCTestCase {
     let connectionErrorResult = NetworkResult.failure(.urlError(URLError(.notConnectedToInternet)))
     let connectivityMonitor = MockConnectivityMonitor()
     let empiricalConnectivity = MockEmpiricalConnectivity()
-    lazy var manager: ConnectivityManager = ConnectivityManager(connectivityMonitor: connectivityMonitor,
+    lazy var manager: ConnectivityManager = ConnectivityManager(queue: .main,
+                                                                connectivityMonitor: connectivityMonitor,
                                                                 empiricalConnectivity: empiricalConnectivity)
 
     func test_connectivity_is_assumed_available_on_start() {

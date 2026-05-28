@@ -25,4 +25,11 @@ final class OperatorsIgnoreTests: XCTestCase {
         sub.publish(3)
         waitForDefaultTimeout()
     }
+
+    func test_ignore_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        assertNoEmissionAfterSideEffectDisposal(
+            upstreamValues: [0, 1, 2],
+            applyOperator: { $0.ignore(1) }
+        )
+    }
 }

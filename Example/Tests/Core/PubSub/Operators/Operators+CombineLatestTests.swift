@@ -94,4 +94,74 @@ final class OperatorsCombineLatestTests: XCTestCase {
         helper = nil
         waitForDefaultTimeout()
     }
+
+    func test_combineLatest_disposes_subscription_when_both_upstreams_are_disposed() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        let observable = subject.asObservable()
+            .first()
+            .combineLatest(Observables.just(1))
+
+        let disposable = observable.subscribe { res in
+            eventEmitted.fulfill()
+            XCTAssertEqual(res.0, 1)
+            XCTAssertEqual(res.1, 1)
+        }
+        subject.publish(1)
+        subject.publish(2)
+
+        XCTAssertTrue(disposable.isDisposed)
+        waitForDefaultTimeout()
+    }
+
+    func test_combineLatest_does_not_dispose_subscription_if_upstream_is_not_disposed() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        eventEmitted.expectedFulfillmentCount = 2
+        let observable = subject.asObservable().filter { $0 == 1 }
+            .combineLatest(subject.asObservable()
+                .takeWhile({ $0 < 2 }, inclusive: true))
+        var count = 1
+        let disposable = observable.subscribe { res in
+            eventEmitted.fulfill()
+            XCTAssertEqual(res.0, 1)
+            XCTAssertEqual(res.1, count)
+            count += 1
+        }
+        subject.publish(1)
+        subject.publish(2)
+
+        waitForDefaultTimeout()
+        XCTAssertFalse(disposable.isDisposed)
+
+    }
+
+    func test_combineLatest_does_not_dispose_subscription_if_combined_upstream_is_not_disposed() {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        eventEmitted.expectedFulfillmentCount = 2
+        let observable = subject.asObservable()
+            .first()
+            .combineLatest(subject.asObservable())
+        var count = 1
+        let disposable = observable.subscribe { res in
+            eventEmitted.fulfill()
+            XCTAssertEqual(res.0, 1)
+            XCTAssertEqual(res.1, count)
+            count += 1
+        }
+        subject.publish(1)
+        subject.publish(2)
+
+        waitForDefaultTimeout()
+        XCTAssertFalse(disposable.isDisposed)
+    }
+
+    func test_combineLatest_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        assertNoEmissionAfterSideEffectDisposal {
+            StateSubject(0).asObservable().combineLatest($0)
+        } assertions: {
+            XCTAssertEqual($0.1, 1)
+        }
+    }
 }

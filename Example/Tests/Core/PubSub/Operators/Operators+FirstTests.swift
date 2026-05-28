@@ -22,6 +22,20 @@ final class OperatorsFirstTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
+    func test_first_returns_only_first_event_even_on_reentrancy_observable() {
+        let expectation = expectation(description: "Only first event is reported even if downstream emits again in the upstream")
+        let subject = Subject<Int>()
+        _ = subject.asObservable()
+            .first()
+            .subscribe { res in
+                subject.publish(2 * res) // Crashes in case of reentrancy (if first was not safely handling the disposal of the observer)
+                XCTAssertEqual(res, 1)
+                expectation.fulfill()
+            }
+        subject.publish(1)
+        waitForDefaultTimeout()
+    }
+
     func test_first_returns_only_first_event_that_is_included() {
         let expectation = expectation(description: "Only first event is reported")
         _ = observable123.first { $0 == 2 }
@@ -65,5 +79,34 @@ final class OperatorsFirstTests: XCTestCase {
         })
         pub.publish(1)
         waitForDefaultTimeout()
+    }
+
+    func test_first_disposes_subscription_when_upstream_is_disposed() {
+        let observable = Observables.just(1, 2, 3)
+            .first { $0 > 10 }
+
+        let disposable = observable.subscribe { _ in }
+
+        XCTAssertTrue(disposable.isDisposed)
+    }
+
+    func test_first_disposes_subscription_after_emitting_the_event() {
+        let emitted = expectation(description: "Events emitted until the end")
+        let disposed = expectation(description: "Subscription id disposed")
+        let subject = Subject<Int>()
+        let observable = subject.asObservable()
+            .first()
+        observable.subscribe { res in
+            XCTAssertEqual(res, 1)
+            emitted.fulfill()
+        }.onDispose {
+            disposed.fulfill()
+        }
+        subject.publish(1)
+        wait(for: [emitted, disposed], timeout: Self.defaultTimeout, enforceOrder: true)
+    }
+
+    func test_first_does_not_emit_subsequent_synchronous_event_after_observer_side_effect_disposal() {
+        assertNoEmissionAfterSideEffectDisposal { $0.first() }
     }
 }
