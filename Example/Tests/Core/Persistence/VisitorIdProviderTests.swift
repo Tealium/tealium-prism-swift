@@ -24,13 +24,23 @@ final class VisitorIdProviderTests: XCTestCase {
     override func setUpWithError() throws {
         let modulesRepository = SQLModulesRepository(dbProvider: databaseProvider)
         let dataStore = try ModuleStoreProvider(databaseProvider: databaseProvider,
-                                                modulesRepository: modulesRepository).getModuleStore(name: "visitor")
+                                                modulesRepository: modulesRepository).getSharedDataStore()
         dataStorage = VisitorStorage(storage: dataStore)
     }
 
     func test_init_with_existingVisitorId_publishes_it_in_visitorId() {
         existingVisitorId = "existing"
         XCTAssertEqual(provider.visitorId.value, "existing")
+    }
+
+    func test_init_with_empty_existingVisitorId_publishes_different_id_in_visitorId() {
+        existingVisitorId = ""
+        XCTAssertNotEqual(provider.visitorId.value, "")
+    }
+
+    func test_init_with_blank_existingVisitorId_publishes_different_id_in_visitorId() {
+        existingVisitorId = " "
+        XCTAssertNotEqual(provider.visitorId.value, " ")
     }
 
     func test_identify_hashes_identities() {

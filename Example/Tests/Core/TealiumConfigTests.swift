@@ -9,13 +9,16 @@
 @testable import TealiumPrism
 import XCTest
 
-final class TealiumConfigTests: XCTestCase {
+class TealiumConfigBaseTests: XCTestCase {
     var config = TealiumConfig(account: "test",
                                profile: "test",
                                environment: "dev",
                                modules: [],
                                settingsFile: nil,
                                settingsUrl: nil)
+}
+
+class TealiumConfigTests: TealiumConfigBaseTests {
 
     func test_getEnforcedSDKSettings_returns_settings_for_each_module() {
         let settings1 = MultipleInstancesSettingsBuilder()

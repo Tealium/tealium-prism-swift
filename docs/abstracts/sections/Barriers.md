@@ -8,7 +8,7 @@ The barrier system consists of several key components:
 - **`ConfigurableBarrier`**: Barriers that can be configured at runtime with settings
 - **`BarrierScope`**: Defines which dispatchers a barrier applies to
 - **`BarrierState`**: Represents whether a barrier is open (allowing dispatches) or closed (blocking dispatches)
-- **`BarrierRegistry`**: Interface for registering custom barriers at runtime
+- **`BarrierRegistrar`**: Interface for registering custom barriers at runtime
 
 Barriers are evaluated before each dispatch is sent to determine if the dispatch should proceed or be queued until conditions are met.
 
@@ -56,6 +56,15 @@ var isFlushable: Observable<Bool> {
 **Note**: If any barriers that are not flushable are closed, then the dispatch won't proceed regardless of the flushable barriers' states.
 
 ## Built-in Barriers
+
+There are two built-in barriers provided by the SDK: the connectivity barrier and the batching barrier. 
+By default (if you don't configure any of them at all), these are scoped: the connectivity barrier - to the Collect dispatcher, and the batching barrier is deactivated.
+
+You can add Batching Barrier with no enforced settings - it will be scoped to Collect dispatcher only, and will use default batch size of 1.
+```swift
+config.addBarrier(Barriers.batching())
+```
+The scopes and other settings can be customized as usual with Programmatic > Remote > Local configuration options.
 
 ### Connectivity Barrier
 
@@ -115,7 +124,7 @@ This example shows a simple time-based barrier that periodically opens for a bri
 
 **Important**: Barriers are used from the Tealium worker queue internally by the SDK. Always use `TealiumQueue.worker` when creating timers or performing operations that change barrier state, as using other queues might lead to crashes.
 
-**Note**: This non-configurable barrier can only be added by a custom module created by the user using the `BarrierRegistry.registerScopedBarrier(_:scopes:)` method (see the **Runtime Barrier Management** section below). If you need to add barriers through the TealiumConfig, you should create a configurable barrier with its factory instead (see the **Configurable Barrier Implementation** section below).
+**Note**: This non-configurable barrier can only be added by a custom module created by the user using the `BarrierRegistrar.registerScopedBarrier(_:scopes:)` method (see the **Runtime Barrier Management** section below). If you need to add barriers through the TealiumConfig, you should create a configurable barrier with its factory instead (see the **Configurable Barrier Implementation** section below).
 
 ```swift
 class CustomTimerBarrier: Barrier {
@@ -267,21 +276,21 @@ The barriers will automatically receive `updateConfiguration()` calls when setti
 
 ### Registering Barriers at Runtime
 
-If, for some reason, your Module implementation needs to register barriers at runtime, you can do so via the `BarrierRegistry`:
+If, for some reason, your Module implementation needs to register barriers at runtime, you can do so via the `BarrierRegistrar`:
 
 ```swift
-// Get the barrier registry from `TealiumContext`
-let barrierRegistry = context.barrierRegistry
+// Get the barrier registrar from `TealiumContext`
+let barrierRegistrar = context.barrierRegistrar
 
 // Create and register a custom barrier
 let customBarrier = CustomTimerBarrier(interval: 30.0)
-barrierRegistry.registerScopedBarrier(
+barrierRegistrar.registerScopedBarrier(
     customBarrier, 
     scopes: [.dispatcher(id: "my_dispatcher")]
 )
 
 // Unregister when no longer needed
-barrierRegistry.unregisterScopedBarrier(customBarrier)
+barrierRegistrar.unregisterScopedBarrier(customBarrier)
 ```
 
 ## Advanced Barrier Patterns

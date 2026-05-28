@@ -31,7 +31,7 @@ final class ModulesManagerTests: XCTestCase {
     func createContext() -> TealiumContext {
         MockContext(modulesManager: modulesManager,
                     config: config,
-                    transformerRegistry: transformerCoordinator,
+                    transformerRegistrar: transformerCoordinator,
                     databaseProvider: databaseProvider,
                     queue: queue)
     }

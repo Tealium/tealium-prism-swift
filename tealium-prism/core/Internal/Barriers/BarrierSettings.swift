@@ -13,15 +13,11 @@ struct BarrierSettings {
     /// The ID of the barrier, used to lookup and connect a `ConfigurableBarrier` to its settings.
     let barrierId: String
     /// The scopes onto which the `Barrier` should be applied.
-    let scopes: [BarrierScope]
-    /// A generic configuration object that can be used by the `ConfigurableBarrier` to affect it's behavior.
+    let scopes: [BarrierScope]?
+    /// A generic configuration object that can be used by the `ConfigurableBarrier` to affect its behavior.
     let configuration: DataObject
 
-    func matchesScope(_ scope: BarrierScope) -> Bool {
-        self.scopes.contains { $0 == scope }
-    }
-
-    init(barrierId: String, scopes: [BarrierScope], configuration: DataObject = [:]) {
+    init(barrierId: String, scopes: [BarrierScope]?, configuration: DataObject = [:]) {
         self.barrierId = barrierId
         self.scopes = scopes
         self.configuration = configuration
@@ -43,19 +39,20 @@ extension BarrierSettings: DataObjectConvertible {
         ]
     }
 }
+
 extension BarrierSettings {
     struct Converter: DataItemConverter {
         typealias Convertible = BarrierSettings
         func convert(dataItem: DataItem) -> Convertible? {
             guard let dictionary = dataItem.getDataDictionary(),
-                  let barrierId = dictionary.get(key: Keys.barrierId, as: String.self),
-                  let scopes = dictionary.getArray(key: Keys.scopes, of: String.self)?
-                .compactMap({ $0 }) else {
+                  let barrierId = dictionary.get(key: Keys.barrierId, as: String.self)
+            else {
                 return nil
             }
+            let scopes = dictionary.getArray(key: Keys.scopes, of: String.self)?.compactMap({ $0 })
             let configuration = dictionary.getDataDictionary(key: Keys.configuration)?.toDataObject() ?? [:]
             return BarrierSettings(barrierId: barrierId,
-                                   scopes: scopes.map { BarrierScope(rawValue: $0) },
+                                   scopes: scopes?.map { BarrierScope(rawValue: $0) },
                                    configuration: configuration)
         }
     }

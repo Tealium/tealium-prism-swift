@@ -17,7 +17,7 @@ public extension Condition {
      *      - target: the target value to check against
      */
     static func equals(ignoreCase: Bool, variable: JSONObjectPath, target: String) -> Self {
-        Condition(variable: variable, operator: .equals(ignoreCase), filter: ValueContainer(target))
+        Condition(variable: variable, operator: .equals(ignoreCase), filter: StringContainer(target))
     }
 
     /**
@@ -30,7 +30,7 @@ public extension Condition {
      *      - target: the target value to check against
      */
     static func equals(ignoreCase: Bool, variable: String, target: String) -> Self {
-        Condition(variable: variable, operator: .equals(ignoreCase), filter: ValueContainer(target))
+        Condition(variable: variable, operator: .equals(ignoreCase), filter: StringContainer(target))
     }
 
     /**
@@ -43,7 +43,7 @@ public extension Condition {
      *      - target: the target value to check against
      */
     static func doesNotEqual(ignoreCase: Bool, variable: JSONObjectPath, target: String) -> Self {
-        Condition(variable: variable, operator: .notEquals(ignoreCase), filter: ValueContainer(target))
+        Condition(variable: variable, operator: .notEquals(ignoreCase), filter: StringContainer(target))
     }
 
     /**
@@ -56,7 +56,7 @@ public extension Condition {
      *      - target: the target value to check against
      */
     static func doesNotEqual(ignoreCase: Bool, variable: String, target: String) -> Self {
-        Condition(variable: variable, operator: .notEquals(ignoreCase), filter: ValueContainer(target))
+        Condition(variable: variable, operator: .notEquals(ignoreCase), filter: StringContainer(target))
     }
 
     /**
@@ -69,7 +69,7 @@ public extension Condition {
      *      - string: the target value to check against
      */
     static func contains(ignoreCase: Bool, variable: JSONObjectPath, string: String) -> Self {
-        Condition(variable: variable, operator: .contains(ignoreCase), filter: ValueContainer(string))
+        Condition(variable: variable, operator: .contains(ignoreCase), filter: StringContainer(string))
     }
 
     /**
@@ -82,7 +82,7 @@ public extension Condition {
      *      - string: the target value to check against
      */
     static func contains(ignoreCase: Bool, variable: String, string: String) -> Self {
-        Condition(variable: variable, operator: .contains(ignoreCase), filter: ValueContainer(string))
+        Condition(variable: variable, operator: .contains(ignoreCase), filter: StringContainer(string))
     }
 
     /**
@@ -95,7 +95,7 @@ public extension Condition {
      *      - string: the target value to check against
      */
     static func doesNotContain(ignoreCase: Bool, variable: JSONObjectPath, string: String) -> Self {
-        Condition(variable: variable, operator: .notContains(ignoreCase), filter: ValueContainer(string))
+        Condition(variable: variable, operator: .notContains(ignoreCase), filter: StringContainer(string))
     }
 
     /**
@@ -108,7 +108,7 @@ public extension Condition {
      *      - string: the target value to check against
      */
     static func doesNotContain(ignoreCase: Bool, variable: String, string: String) -> Self {
-        Condition(variable: variable, operator: .notContains(ignoreCase), filter: ValueContainer(string))
+        Condition(variable: variable, operator: .notContains(ignoreCase), filter: StringContainer(string))
     }
 
     /**
@@ -121,7 +121,7 @@ public extension Condition {
      *      - prefix: the target value to check against
      */
     static func startsWith(ignoreCase: Bool, variable: JSONObjectPath, prefix: String) -> Self {
-        Condition(variable: variable, operator: .startsWith(ignoreCase), filter: ValueContainer(prefix))
+        Condition(variable: variable, operator: .startsWith(ignoreCase), filter: StringContainer(prefix))
     }
 
     /**
@@ -134,7 +134,7 @@ public extension Condition {
      *      - prefix: the target value to check against
      */
     static func startsWith(ignoreCase: Bool, variable: String, prefix: String) -> Self {
-        Condition(variable: variable, operator: .startsWith(ignoreCase), filter: ValueContainer(prefix))
+        Condition(variable: variable, operator: .startsWith(ignoreCase), filter: StringContainer(prefix))
     }
 
     /**
@@ -147,7 +147,7 @@ public extension Condition {
      *      - prefix: the target value to check against
      */
     static func doesNotStartWith(ignoreCase: Bool, variable: JSONObjectPath, prefix: String) -> Self {
-        Condition(variable: variable, operator: .notStartsWith(ignoreCase), filter: ValueContainer(prefix))
+        Condition(variable: variable, operator: .notStartsWith(ignoreCase), filter: StringContainer(prefix))
     }
 
     /**
@@ -160,7 +160,7 @@ public extension Condition {
      *      - prefix: the target value to check against
      */
     static func doesNotStartWith(ignoreCase: Bool, variable: String, prefix: String) -> Self {
-        Condition(variable: variable, operator: .notStartsWith(ignoreCase), filter: ValueContainer(prefix))
+        Condition(variable: variable, operator: .notStartsWith(ignoreCase), filter: StringContainer(prefix))
     }
 
     /**
@@ -173,7 +173,7 @@ public extension Condition {
      *      - suffix: the target value to check against
      */
     static func endsWith(ignoreCase: Bool, variable: JSONObjectPath, suffix: String) -> Self {
-        Condition(variable: variable, operator: .endsWith(ignoreCase), filter: ValueContainer(suffix))
+        Condition(variable: variable, operator: .endsWith(ignoreCase), filter: StringContainer(suffix))
     }
 
     /**
@@ -186,7 +186,7 @@ public extension Condition {
      *      - suffix: the target value to check against
      */
     static func endsWith(ignoreCase: Bool, variable: String, suffix: String) -> Self {
-        Condition(variable: variable, operator: .endsWith(ignoreCase), filter: ValueContainer(suffix))
+        Condition(variable: variable, operator: .endsWith(ignoreCase), filter: StringContainer(suffix))
     }
 
     /**
@@ -199,7 +199,7 @@ public extension Condition {
      *      - suffix: the target value to check against
      */
     static func doesNotEndWith(ignoreCase: Bool, variable: JSONObjectPath, suffix: String) -> Self {
-        Condition(variable: variable, operator: .notEndsWith(ignoreCase), filter: ValueContainer(suffix))
+        Condition(variable: variable, operator: .notEndsWith(ignoreCase), filter: StringContainer(suffix))
     }
 
     /**
@@ -212,7 +212,7 @@ public extension Condition {
      *      - suffix: the target value to check against
      */
     static func doesNotEndWith(ignoreCase: Bool, variable: String, suffix: String) -> Self {
-        Condition(variable: variable, operator: .notEndsWith(ignoreCase), filter: ValueContainer(suffix))
+        Condition(variable: variable, operator: .notEndsWith(ignoreCase), filter: StringContainer(suffix))
     }
 
     /**
@@ -337,7 +337,7 @@ public extension Condition {
      *      - number: the target value to check against
      */
     static func isGreaterThan(orEqual: Bool, variable: JSONObjectPath, number: String) -> Self {
-        Condition(variable: variable, operator: .greaterThan(orEqual), filter: ValueContainer(number))
+        Condition(variable: variable, operator: .greaterThan(orEqual), filter: StringContainer(number))
     }
 
     /**
@@ -350,7 +350,7 @@ public extension Condition {
      *      - number: the target value to check against
      */
     static func isGreaterThan(orEqual: Bool, variable: String, number: String) -> Self {
-        Condition(variable: variable, operator: .greaterThan(orEqual), filter: ValueContainer(number))
+        Condition(variable: variable, operator: .greaterThan(orEqual), filter: StringContainer(number))
     }
 
     /**
@@ -363,7 +363,7 @@ public extension Condition {
      *      - number: the target value to check against
      */
     static func isLessThan(orEqual: Bool, variable: JSONObjectPath, number: String) -> Self {
-        Condition(variable: variable, operator: .lessThan(orEqual), filter: ValueContainer(number))
+        Condition(variable: variable, operator: .lessThan(orEqual), filter: StringContainer(number))
     }
 
     /**
@@ -376,7 +376,7 @@ public extension Condition {
      *      - number: the target value to check against
      */
     static func isLessThan(orEqual: Bool, variable: String, number: String) -> Self {
-        Condition(variable: variable, operator: .lessThan(orEqual), filter: ValueContainer(number))
+        Condition(variable: variable, operator: .lessThan(orEqual), filter: StringContainer(number))
     }
 
     /**
@@ -384,12 +384,11 @@ public extension Condition {
      * is matched by the given `regex`.
      *
      * - Parameters:
-     *      - path: optional list of keys that form the access to sub-objects when accessing the `variable`
      *      - variable: the path to the variable in the payload to extract the value from for the comparison
      *      - regex: the target regex to check against
      */
     static func regularExpression(variable: JSONObjectPath, regex: String) -> Self {
-        Condition(variable: variable, operator: .regex, filter: ValueContainer(regex))
+        Condition(variable: variable, operator: .regex, filter: StringContainer(regex))
     }
 
     /**
@@ -397,11 +396,10 @@ public extension Condition {
      * is matched by the given `regex`.
      *
      * - Parameters:
-     *      - path: optional list of keys that form the access to sub-objects when accessing the `variable`
      *      - variable: the key to the variable in the payload to extract the value from for the comparison
      *      - regex: the target regex to check against
      */
     static func regularExpression(variable: String, regex: String) -> Self {
-        Condition(variable: variable, operator: .regex, filter: ValueContainer(regex))
+        Condition(variable: variable, operator: .regex, filter: StringContainer(regex))
     }
 }

@@ -10,6 +10,7 @@ import Foundation
 
 /// An error that can be created with an underlying error of a specific type.
 public protocol ErrorWrapping<SomeError>: Error {
+    /// The type of error that this `ErrorWrapping` can wrap.
     associatedtype SomeError: Error
     /// Creates an `ErrorWrapping` error with the given underlying error.
     /// Usually this can be a case in an error enum.

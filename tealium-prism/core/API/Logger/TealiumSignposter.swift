@@ -12,6 +12,7 @@ import os.signpost
 extension TealiumSignposter {
     static let startup = TealiumSignposter(category: LogCategory.startup)
     static let tracking = TealiumSignposter(category: LogCategory.tracking)
+    static let queue = TealiumSignposter(category: LogCategory.queueManager)
     static let dispatching = TealiumSignposter(category: LogCategory.dispatchManager)
     static let settings = TealiumSignposter(category: LogCategory.settingsManager)
     static let networking = TealiumSignposter(category: LogCategory.networkHelper)
@@ -77,7 +78,7 @@ public class TealiumSignposter {
     private static func signposter(category: String) -> Any? {
         if #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *) {
             if TealiumSignposter.enabled {
-                return OSSignposter(subsystem: "com.tealium.swift", category: category)
+                return OSSignposter(subsystem: TealiumConstants.subsystem, category: category)
             } else {
                 return OSSignposter.disabled
             }
@@ -133,7 +134,7 @@ public class TealiumSignposter {
     }
 
     /**
-     * Ends an interval previusly created with the given name on iOS 15+.
+     * Ends an interval previously created with the given name on iOS 15+.
      *
      * No-op on iOS < 15.
      *
@@ -151,7 +152,7 @@ public class TealiumSignposter {
     }
 
     /**
-     * Ends an interval previusly created with the given name on iOS 15+.
+     * Ends an interval previously created with the given name on iOS 15+.
      *
      * No-op on iOS < 15.
      *
@@ -257,7 +258,7 @@ public class TealiumSignpostInterval {
     }
 
     /**
-     * Ends the previusly created interval.
+     * Ends the previously created interval.
      *
      * No-op on iOS < 15.
      */
@@ -267,7 +268,7 @@ public class TealiumSignpostInterval {
     }
 
     /**
-     * Ends an interval previusly created with the given name on iOS 15+.
+     * Ends an interval previously created with the given name on iOS 15+.
      *
      * No-op on iOS < 15.
      *

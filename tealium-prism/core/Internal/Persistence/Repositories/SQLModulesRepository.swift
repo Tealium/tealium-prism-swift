@@ -13,21 +13,25 @@ class SQLModulesRepository: ModulesRepository {
 
     @Subject<ExpiredDataEvent> var onDataExpired
     private let database: Connection
-
+    private let signposter = TealiumSignposter(category: "Modules-Repository")
     init(dbProvider: DatabaseProviderProtocol) {
         self.database = dbProvider.database
     }
 
     func getModules() -> [String: Int64] {
+        let interval = TealiumSignpostInterval(signposter: signposter, name: "Get Modules").begin()
+        defer { interval.end() }
         guard let rows = try? database.prepare(ModuleSchema.getModules()) else {
             return [:]
         }
-        return [String: Int64](rows.compactMap({ row in
+        return [String: Int64](rows.map { row in
             (row[ModuleSchema.name], row[ModuleSchema.id])
-        }), prefersFirst: false)
+        }, prefersFirst: false)
     }
 
     func registerModule(name: String) throws -> Int64 {
+        let interval = TealiumSignpostInterval(signposter: signposter, name: "Register Module").begin(name)
+        defer { interval.end() }
         if let moduleRow = try database.pluck(ModuleSchema.getModule(moduleName: name)) {
             return moduleRow[ModuleSchema.id]
         }
@@ -35,6 +39,8 @@ class SQLModulesRepository: ModulesRepository {
     }
 
     func deleteExpired(expiry: ExpirationRequest) {
+        let interval = TealiumSignpostInterval(signposter: signposter, name: "Delete Expired").begin("\(expiry)")
+        defer { interval.end() }
         let date = Date()
         guard let rows = try? database.prepare(ModuleStorageSchema.getExpired(request: expiry, date: date)) else {
             return

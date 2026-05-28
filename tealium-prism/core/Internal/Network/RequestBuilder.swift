@@ -39,6 +39,15 @@ class RequestBuilder {
             .etag(etag)
     }
 
+    func additionalHeaders(_ additionalHeaders: [String: String]?) -> RequestBuilder {
+        if let additionalHeaders = additionalHeaders {
+            for (key, value) in additionalHeaders {
+                header(value, forField: key)
+            }
+        }
+        return self
+    }
+
     @discardableResult
     func header(_ value: String?, forField field: String) -> Self {
         headers[field] = value

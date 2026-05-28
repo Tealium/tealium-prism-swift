@@ -15,9 +15,13 @@ declare -a SCHEMES=(
     "LifecycleTests_tvOS" 
     "LifecycleTests_macOS" 
     "LifecycleTests_watchOS"
-    "ExtensionsTests_iOS" 
-    "ExtensionsTests_tvOS" 
-    "ExtensionsTests_macOS" 
+    "MomentsAPITests_iOS"
+    "MomentsAPITests_tvOS"
+    "MomentsAPITests_macOS"
+    "MomentsAPITests_watchOS"
+    "ExtensionsTests_iOS"
+    "ExtensionsTests_tvOS"
+    "ExtensionsTests_macOS"
     "ExtensionsTests_watchOS"
 )
 IOS_DESTINATION='platform=iOS Simulator,name=iPhone 16 Pro'

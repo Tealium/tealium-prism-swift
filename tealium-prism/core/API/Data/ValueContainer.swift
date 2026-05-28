@@ -2,30 +2,36 @@
 //  ValueContainer.swift
 //  tealium-prism
 //
-//  Created by Enrico Zannini on 07/04/25.
-//  Copyright © 2025 Tealium, Inc. All rights reserved.
+//  Created by Den Guzov on 28/01/2026.
+//  Copyright © 2026 Tealium, Inc. All rights reserved.
 //
 
-/// A container for a generic value that is stored in a `String`.
-public struct ValueContainer: Equatable {
+import Foundation
+
+/// A container for a value that is stored as a `DataItem`.
+public struct ValueContainer {
     enum Keys {
         static let value = "value"
     }
 
-    /// The string representation of a value. Will be parsed as a number if necessary.
-    public let value: String
+    /// The value stored in this container
+    public let value: DataItem
 
-    /// Creates a value container with the specified string value.
-    /// - Parameter value: The string value to store.
-    public init(_ value: String) {
-        self.value = value
+    /// Creates a value container with the specified value
+    /// - Parameter value: The value to store
+    public init(_ value: DataInput) {
+        self.init(item: DataItem(value: value))
+    }
+
+    /// Internal initializer that takes a `DataItem` directly
+    /// - Parameter item: The `DataItem` to store
+    init(item: DataItem) {
+        self.value = item
     }
 }
 
 extension ValueContainer: DataObjectConvertible {
     public func toDataObject() -> DataObject {
-        [
-            Keys.value: value
-        ]
+        return [Keys.value: value]
     }
 }

@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'tealium-prism'
   s.module_name      = "TealiumPrism"
-  s.version          = '0.2.0'
+  s.version          = '0.3.0'
   s.summary          = 'Tealium Prism Integration Library'
 
   s.description      = <<-DESC
@@ -23,12 +23,17 @@ Pod::Spec.new do |s|
   s.dependency 'SQLite.swift', '~> 0.15.0'
   
   s.subspec "Core" do |core|
-      core.source_files = "tealium-prism/Core/**/*.{swift,h,m}"
+      core.source_files = "tealium-prism/core/**/*.{swift,h,m}"
     end
 
   s.subspec "Lifecycle" do |lifecycle|
-      lifecycle.source_files = "tealium-prism/Lifecycle/**/*.{swift,h,m}"
+      lifecycle.source_files = "tealium-prism/lifecycle/**/*.{swift,h,m}"
       lifecycle.dependency "tealium-prism/Core"
+    end
+
+  s.subspec "MomentsAPI" do |momentsapi|
+      momentsapi.source_files = "tealium-prism/momentsapi/**/*.{swift,h,m}"
+      momentsapi.dependency "tealium-prism/Core"
     end
 
   s.subspec "Extensions" do |extensions|

@@ -17,7 +17,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
                                                     configuration: DeviceDataModuleConfiguration(configuration: configuration.value),
                                                     networkHelper: networkHelper,
                                                     storeProvider: context.moduleStoreProvider,
-                                                    transformerRegistry: transformerRegistry,
+                                                    transformerRegistrar: transformerCoordinator,
                                                     queue: .main,
                                                     logger: context.logger)
     let modelsDataObject: DataObject = [
@@ -63,13 +63,13 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
         XCTAssertNotNil(collected[DeviceDataKey.physicalMemory])
     }
 
-    func test_applyTransformation_enriches_dispatch_with_model_and_screen_and_battery_info() {
+    func test_applyTransformation_enriches_dispatch_with_model_and_screen_and_battery_info() throws {
         let transformationExpectation = expectation(description: "Transformation completed")
         let dispatch = Dispatch(name: "test_event", data: [:])
         let transformation = TransformationSettings(id: "model-info",
                                                     transformerId: DeviceDataModule.moduleType,
                                                     scopes: [.afterCollectors])
-        networkHelper.codableResult = ObjectResult.success(.successful(object: (modelsDataObject)))
+        try networkHelper.encodeResult(modelsDataObject)
         deviceDataCollector.applyTransformation(transformation, to: dispatch, scope: .afterCollectors) { result in
             guard let result else {
                 XCTFail("Transformation result should not be nil")
@@ -96,14 +96,14 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_skips_adding_screen_info_when_screen_reporting_disabled() {
+    func test_applyTransformation_skips_adding_screen_info_when_screen_reporting_disabled() throws {
         _configuration.value = [Keys.screenReportingEnabled: false]
         let transformationExpectation = expectation(description: "Transformation completed")
         let dispatch = Dispatch(name: "test_event", data: [:])
         let transformation = TransformationSettings(id: "model-info",
                                                     transformerId: DeviceDataModule.moduleType,
                                                     scopes: [.afterCollectors])
-        networkHelper.codableResult = ObjectResult.success(.successful(object: (modelsDataObject)))
+        try networkHelper.encodeResult(modelsDataObject)
         deviceDataCollector.applyTransformation(transformation, to: dispatch, scope: .afterCollectors) { result in
             guard let result else {
                 XCTFail("Transformation result should not be nil")
@@ -124,14 +124,14 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_skips_adding_battery_info_when_battery_reporting_disabled() {
+    func test_applyTransformation_skips_adding_battery_info_when_battery_reporting_disabled() throws {
         _configuration.value = [Keys.batteryReportingEnabled: false]
         let transformationExpectation = expectation(description: "Transformation completed")
         let dispatch = Dispatch(name: "test_event", data: [:])
         let transformation = TransformationSettings(id: "model-info",
                                                     transformerId: DeviceDataModule.moduleType,
                                                     scopes: [.afterCollectors])
-        networkHelper.codableResult = ObjectResult.success(.successful(object: (modelsDataObject)))
+        try networkHelper.encodeResult(modelsDataObject)
         deviceDataCollector.applyTransformation(transformation, to: dispatch, scope: .afterCollectors) { result in
             guard let result else {
                 XCTFail("Transformation result should not be nil")
@@ -190,16 +190,16 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
     func test_module_registers_transformation_on_init() {
         _ = deviceDataCollector
         let dispatch = Dispatch(name: "test_event", data: [:])
-        let transformerId = transformerRegistry.getTransformations(for: dispatch, .afterCollectors)[0].transformerId
+        let transformerId = transformerCoordinator.getTransformations(for: dispatch, .afterCollectors)[0].transformerId
         XCTAssertEqual(transformerId, DeviceDataModule.moduleType)
     }
 
     #if os(iOS)
-    func test_configuration_change_doesnt_trigger_resource_refresher_update_if_data_is_present() {
-        networkHelper.codableResult = ObjectResult.success(.successful(object: (modelsDataObject)))
+    func test_configuration_change_doesnt_trigger_resource_refresher_update_if_data_is_present() throws {
+        try networkHelper.encodeResult(modelsDataObject)
         let defaultRequestSent = expectation(description: "Request for default resource sent")
         networkHelper.requests.subscribe { request in
-            guard case let .get(url, _) = request else {
+            guard case let .get(url, _, _) = request else {
                 XCTFail("Unexpected request type: \(request)")
                 return
             }
@@ -220,7 +220,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
     func test_instantiating_another_instance_with_same_configuration_gets_cached_models_data() {
         let modelsRequestSent = expectation(description: "Models info request sent")
         networkHelper.requests.subscribeOnce { request in
-            guard case let .get(url, _) = request else {
+            guard case let .get(url, _, _) = request else {
                 XCTFail("Unexpected request type: \(request)")
                 return
             }
@@ -236,7 +236,7 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
                              configuration: DeviceDataModuleConfiguration(configuration: [:]),
                              networkHelper: networkHelper,
                              storeProvider: context.moduleStoreProvider,
-                             transformerRegistry: transformerRegistry,
+                             transformerRegistrar: transformerCoordinator,
                              queue: .main,
                              logger: context.logger)
         waitForLongTimeout()

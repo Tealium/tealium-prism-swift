@@ -59,7 +59,7 @@ final class LifecycleTrackerTests: XCTestCase {
                                    config: config,
                                    coreSettings: coreSettings,
                                    tracker: tracker,
-                                   transformerRegistry: transformerCoordinator,
+                                   transformerRegistrar: transformerCoordinator,
                                    databaseProvider: databaseProvider,
                                    queue: queue)
     lazy var dispatchManager = getDispatchManager()

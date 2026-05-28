@@ -16,7 +16,7 @@ extension MappingParameters {
             return MappingParameters(reference: object.getConvertible(key: Keys.reference,
                                                                       converter: ReferenceContainer.converter),
                                      filter: object.getConvertible(key: Keys.filter,
-                                                                   converter: ValueContainer.converter),
+                                                                   converter: StringContainer.converter),
                                      mapTo: object.getConvertible(key: Keys.mapTo,
                                                                   converter: ValueContainer.converter))
         }

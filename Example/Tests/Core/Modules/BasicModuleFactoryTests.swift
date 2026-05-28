@@ -1,5 +1,5 @@
 //
-//  DefaultModuleFactoryTests.swift
+//  BasicModuleFactoryTests.swift
 //  tealium-prism_Tests
 //
 //  Created by Enrico Zannini on 26/07/24.
@@ -29,16 +29,16 @@ class CustomModule: BasicModule {
 
 }
 
-final class DefaultModuleFactoryTests: XCTestCase {
+final class BasicModuleFactoryTests: XCTestCase {
     func test_getEnforcedSettings_returns_settings_built_in_the_init() {
         let settings: DataObject = ["key": "value"]
-        let factory = DefaultModuleFactory<CustomModule>(moduleType: CustomModule.moduleType, enforcedSettings: settings)
+        let factory = BasicModuleFactory<CustomModule>(moduleType: CustomModule.moduleType, enforcedSettings: settings)
         XCTAssertEqual(factory.getEnforcedSettings(), [settings])
     }
 
     func test_create_initializes_module_with_provided_configuration() {
         let configuration: DataObject = ["key": "value"]
-        let factory = DefaultModuleFactory<CustomModule>(moduleType: CustomModule.moduleType)
+        let factory = BasicModuleFactory<CustomModule>(moduleType: CustomModule.moduleType)
         let module = factory.create(moduleId: MockModule.moduleType,
                                     context: mockContext,
                                     moduleConfiguration: configuration)

@@ -46,6 +46,13 @@
         "identifier" : "8702A2752E266E64001C9743",
         "name" : "EndToEndTests_iOS"
       }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "9E19FD382EBD634100FB205A",
+        "name" : "MomentsAPITests_iOS"
+      }
     }
   ],
   "version" : 1

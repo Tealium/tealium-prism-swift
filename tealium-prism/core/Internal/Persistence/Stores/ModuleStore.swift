@@ -8,7 +8,7 @@
 
 import Foundation
 
-public class ModuleStore: DataStore {
+class ModuleStore: DataStore {
 
     private let repository: KeyValueRepository
 
@@ -23,7 +23,7 @@ public class ModuleStore: DataStore {
             .addTo(disposer)
     }
 
-    public func edit() -> DataStoreEditor {
+    func edit() -> DataStoreEditor {
         return Editor(repository: repository) { [weak self] edits in
             guard let self else { return }
             var removedKeys = [String]()
@@ -45,19 +45,19 @@ public class ModuleStore: DataStore {
         }
     }
 
-    public func getDataItem(key: String) -> DataItem? {
+    func getDataItem(key: String) -> DataItem? {
         repository.get(key: key)
     }
 
-    public func getAll() -> DataObject {
+    func getAll() -> DataObject {
         repository.getAll()
     }
 
-    public func keys() -> [String] {
+    func keys() -> [String] {
         repository.keys()
     }
 
-    public func count() -> Int {
+    func count() -> Int {
         repository.count()
     }
 

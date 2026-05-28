@@ -19,14 +19,11 @@ extension Array {
      */
     @discardableResult
     mutating func removeFirst(where shouldBeRemoved: (Element) throws -> Bool) rethrows -> Element? {
-        if let index = try self.firstIndex(where: shouldBeRemoved) {
-            return self.remove(at: index)
-        }
-        return nil
+        try firstIndex(where: shouldBeRemoved).flatMap { remove(at: $0) }
     }
 
     func diff<T: Equatable>(_ other: Self, by key: KeyPath<Element, T>) -> Self {
-        self.filter { element in
+        filter { element in
             !other.contains(where: { $0[keyPath: key] == element[keyPath: key] })
         }
     }

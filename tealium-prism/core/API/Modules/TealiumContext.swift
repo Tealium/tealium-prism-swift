@@ -16,10 +16,10 @@ public class TealiumContext {
     public let coreSettings: ObservableState<CoreSettings>
     /// The tracker responsible for processing and dispatching events.
     public let tracker: Tracker
-    /// Registry for managing barriers that control dispatch flow.
-    public let barrierRegistry: BarrierRegistry
-    /// Registry for managing data transformers.
-    public let transformerRegistry: TransformerRegistry
+    /// Registrar for registering/unregistering additional barriers that control dispatch flow.
+    public let barrierRegistrar: BarrierRegistrar
+    /// Registrar for registering/unregistering additional data transformations.
+    public let transformerRegistrar: TransformerRegistrar
     /// Provider for database connections.
     public let databaseProvider: DatabaseProviderProtocol
     /// Provider for module-specific data stores.
@@ -54,8 +54,8 @@ public class TealiumContext {
          config: TealiumConfig,
          coreSettings: ObservableState<CoreSettings>,
          tracker: Tracker,
-         barrierRegistry: BarrierRegistry,
-         transformerRegistry: TransformerRegistry,
+         barrierRegistrar: BarrierRegistrar,
+         transformerRegistrar: TransformerRegistrar,
          databaseProvider: DatabaseProviderProtocol,
          moduleStoreProvider: ModuleStoreProvider,
          logger: LoggerProtocol?,
@@ -68,8 +68,8 @@ public class TealiumContext {
         self.modulesManager = modulesManager
         self.sessionRegistry = sessionRegistry
         self.config = config
-        self.barrierRegistry = barrierRegistry
-        self.transformerRegistry = transformerRegistry
+        self.barrierRegistrar = barrierRegistrar
+        self.transformerRegistrar = transformerRegistrar
         self.coreSettings = coreSettings
         self.tracker = tracker
         self.databaseProvider = databaseProvider

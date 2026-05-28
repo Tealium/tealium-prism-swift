@@ -22,7 +22,7 @@ class MockSessionManager: SessionManager {
                                                 modulesRepository: modulesRepository)
         let dataStore: any DataStore
         do {
-            dataStore = try storeProvider.getModuleStore(name: "core")
+            dataStore = try storeProvider.getSharedDataStore()
         } catch {
             XCTFail("Failed to get module store: \(error)")
             // Provide a fallback or terminate; here we use fatalError to stop the test
