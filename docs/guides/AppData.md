@@ -13,6 +13,7 @@ The AppData module collects the following information:
 | App Name | `app_name` | Application display name | `CFBundleName` |
 | App rDNS | `app_rdns` | Reverse DNS identifier (e.g., "com.example.myapp") | `CFBundleIdentifier` |
 | App Version | `app_version` | User-facing version (e.g., "1.0.0") | `CFBundleShortVersionString` |
+| App Memory Usage | `app_memory_usage` | Current app process memory in MB (e.g., "42.00MB") | System info |
 
 ## Installation/Configuration
 

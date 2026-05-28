@@ -10,39 +10,11 @@ import Darwin
 import Foundation
 
 private let HOST_VM_INFO64_COUNT: mach_msg_type_number_t =
-    UInt32(MemoryLayout<vm_statistics64_data_t>.size / MemoryLayout<integer_t>.size)
+UInt32(MemoryLayout<vm_statistics64_data_t>.size / MemoryLayout<integer_t>.size)
 
 extension DeviceDataProvider {
-    enum Unit: Double {
-        case megabyte = 1_048_576
-    }
-
-    /// - Returns: `[String: String]` containing current memory usage info
+    /// - Returns: `[String: String]` containing current device memory usage info
     var memoryUsage: [String: String] {
-        // total physical memory in megabytes
-        let physical = Double(ProcessInfo.processInfo.physicalMemory) / Unit.megabyte.rawValue
-
-        // current memory used by this process/app
-        var info = mach_task_basic_info()
-        var count = mach_msg_type_number_t(MemoryLayout<mach_task_basic_info>.size) / 4
-        var appMemoryUsed = ""
-
-        let kerr: kern_return_t = withUnsafeMutablePointer(to: &info) {
-            $0.withMemoryRebound(to: integer_t.self, capacity: 1) {
-                task_info(mach_task_self_,
-                          task_flavor_t(MACH_TASK_BASIC_INFO),
-                          $0,
-                          &count)
-            }
-        }
-
-        if kerr == KERN_SUCCESS {
-            appMemoryUsed = String(format: "%0.2fMB", Double(info.resident_size) / Unit.megabyte.rawValue)
-        } else {
-            appMemoryUsed = TealiumConstants.unknown
-        }
-
-        // summary of used system memory
         let pageSize = vm_kernel_page_size
         let machHost = mach_host_self()
         var size = HOST_VM_INFO64_COUNT
@@ -55,20 +27,15 @@ extension DeviceDataProvider {
         let data = hostInfo.move()
         hostInfo.deallocate()
 
-        let free = Double(data.free_count) * Double(pageSize)
-            / Unit.megabyte.rawValue
-        let active = Double(data.active_count) * Double(pageSize)
-            / Unit.megabyte.rawValue
-        let inactive = Double(data.inactive_count) * Double(pageSize)
-            / Unit.megabyte.rawValue
-        let wired = Double(data.wire_count) * Double(pageSize)
-            / Unit.megabyte.rawValue
+        let physical = Double(ProcessInfo.processInfo.physicalMemory) / ByteUnit.megabyte
+        let free = Double(data.free_count) * Double(pageSize) / ByteUnit.megabyte
+        let active = Double(data.active_count) * Double(pageSize) / ByteUnit.megabyte
+        let inactive = Double(data.inactive_count) * Double(pageSize) / ByteUnit.megabyte
+        let wired = Double(data.wire_count) * Double(pageSize) / ByteUnit.megabyte
         // Result of the compression. This is what you see in Activity Monitor
-        let compressed = Double(data.compressor_page_count) * Double(pageSize)
-            / Unit.megabyte.rawValue
+        let compressed = Double(data.compressor_page_count) * Double(pageSize) / ByteUnit.megabyte
 
         return [
-            DeviceDataKey.appMemoryUsage: appMemoryUsed,
             DeviceDataKey.memoryActive: String(format: "%0.2fMB", active),
             DeviceDataKey.memoryCompressed: String(format: "%0.2fMB", compressed),
             DeviceDataKey.memoryFree: String(format: "%0.2fMB", free),

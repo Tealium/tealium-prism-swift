@@ -16,7 +16,7 @@ import Foundation
 /// Base `Mappings` methods (accepting `String` and `JSONObjectPath`) remain
 /// available for cases not covered by the enums.
 open class CommandMappingsBuilder<
-    Command: CommandNamed,
+    Command: CommandName,
     Destination: JSONObjectPathConvertible
 >: Mappings {
 
