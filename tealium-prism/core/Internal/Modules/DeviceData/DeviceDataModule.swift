@@ -143,7 +143,7 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
     }
 
     private func onMainThreadData() -> Observable<DataObject> {
-        Observables.callback(from: { [deviceDataProvider, configuration] completion in
+        Observables.callback(from: { [deviceDataProvider, configuration, queue] completion in
             TealiumQueue.main.ensureOnQueue {
                 var result: DataObject = [:]
                 if configuration.batteryReportingEnabled == true {
@@ -155,9 +155,11 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
                     result.set(deviceDataProvider.resolution, key: DeviceDataKey.resolution)
                     result.set(deviceDataProvider.logicalResolution, key: DeviceDataKey.logicalResolution)
                 }
-                completion(result)
+                queue.ensureOnQueue {
+                    completion(result)
+                }
             }
-        }).observeOn(queue)
+        })
     }
 
     func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) {
