@@ -15,4 +15,6 @@ class MockDispatchManager: DispatchManagerProtocol {
         _onDispatch.onNext(dispatch)
         onTrackResult?(.accepted(dispatch, info: "Mock Accepted"))
     }
+    func stopDispatchLoop() {
+    }
 }

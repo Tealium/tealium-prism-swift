@@ -11,6 +11,7 @@ import Foundation
 protocol DispatchManagerProtocol {
     var tealiumPurposeExplicitlyBlocked: Bool { get }
     func track(_ dispatch: Dispatch, onTrackResult: TrackResultCompletion?)
+    func stopDispatchLoop()
 }
 
 extension DispatchManagerProtocol {

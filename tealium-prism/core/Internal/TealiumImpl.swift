@@ -155,6 +155,7 @@ class TealiumImpl {
 
     deinit {
         self.modulesManager.shutdown()
+        self.tracker.dispatchManager.stopDispatchLoop()
         let instanceName = self.instanceName
         context.logger?.info(category: LogCategory.tealium, "Instance \(instanceName) shutting down.")
     }

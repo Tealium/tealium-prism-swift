@@ -383,4 +383,50 @@ final class TealiumTests: TealiumBaseTests {
         }
         waitForDefaultTimeout()
     }
+
+    func test_dispatcher_holding_context_deinitializes() {
+        let dispatcherDeinitialized = expectation(description: "Dispatcher containing TealiumContext is deinitialized")
+        DispatcherWithContext.onCreate
+            .first()
+            .flatMap(\.onDeinit)
+            .subscribe {
+                dispatcherDeinitialized.fulfill()
+            }
+        config.addModule(BasicModuleFactory<DispatcherWithContext>(moduleType: "DispatcherWithContext",
+                                                                   enforcedSettings: [:]))
+        let initializationCompleted = expectation(description: "Tealium initialization completed")
+        var teal: Tealium? = createTealium { _ in
+            initializationCompleted.fulfill()
+        }
+        wait(for: [initializationCompleted], timeout: Self.longTimeout)
+        weak var weakTeal = teal
+        teal = nil
+        XCTAssertNil(weakTeal)
+        waitForLongTimeout()
+    }
+}
+
+/// A Dispatcher holding a strong reference of the `TealiumContext` to simulate a potential retain cycle
+private class DispatcherWithContext: Dispatcher, BasicModule {
+    let context: TealiumContext
+    @Subject<DispatcherWithContext> static var onCreate
+    @Subject<Void> var onDeinit
+    required init?(context: TealiumContext, moduleConfiguration: DataObject) {
+        self.context = context
+        Self._onCreate.onNext(self)
+    }
+
+    func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> any Disposable {
+        completion(data)
+        return Disposables.disposed()
+    }
+
+    let version: String = TealiumConstants.libraryVersion
+
+    let id: String = "DispatcherWithContext"
+
+    deinit {
+        _onDeinit.onNext()
+    }
+
 }
