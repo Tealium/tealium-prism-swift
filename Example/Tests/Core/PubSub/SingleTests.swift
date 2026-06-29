@@ -116,4 +116,19 @@ final class SingleTests: XCTestCase {
             }
         }
     }
+
+    // This test only verifies that it can build with a specific Result error like NetworkError
+    func test_toAsync_throws_specific_error() async throws {
+        let single = Single<Result<Int, NetworkError>>(observable: Observables.just(.failure(NetworkError.unknown(nil))),
+                                                       queue: .main)
+        do {
+            _ = try await single.toAsync()
+            XCTFail("Expected to throw")
+        } catch {
+            guard case .unknown = error as? NetworkError else {
+                XCTFail("Unexpected error \(error)")
+                return
+            }
+        }
+    }
 }

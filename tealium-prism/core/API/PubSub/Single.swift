@@ -127,7 +127,9 @@ public extension Single {
 
 public extension Single {
     /// Transforms this single into an async function that can be awaited on.
-    func toAsync<Value>() async throws -> Value where Element == Result<Value, Error> {
+    func toAsync<Value, Failure: Error>() async throws -> Value where Element == Result<Value, Failure> {
+        // `withCheckedThrowingContinuation` throws a generic Error, so we can't force this to be of type Failure.
+        // Nonetheless it's still useful to support multiple Failures types or we can't call this on SingleResult with typed errors.
         try await withCheckedThrowingContinuation { continuation in
             _ = self.subscribe { result in
                 continuation.resume(with: result)
