@@ -1564,6 +1564,10 @@
 		9EBB72DA2ED4F32100679293 /* XCTAssert+NSNull.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54852C8217EE00F1C114 /* XCTAssert+NSNull.swift */; };
 		9EBB72DB2ED4F32100679293 /* XCTAssert+NaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F8E6C12CAAD00E00F65EA1 /* XCTAssert+NaN.swift */; };
 		A67C9B8761089B240661C166 /* Pods_MomentsAPITests_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC384D02B181A99B4D1514B0 /* Pods_MomentsAPITests_tvOS.framework */; };
+		AABBCCDD000000000000000C /* TemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDD000000000000000B /* TemplateTests.swift */; };
+		AABBCCDD000000000000000D /* TemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDD000000000000000B /* TemplateTests.swift */; };
+		AABBCCDD000000000000000E /* TemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDD000000000000000B /* TemplateTests.swift */; };
+		AABBCCDD000000000000000F /* TemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDD000000000000000B /* TemplateTests.swift */; };
 		ADCCE3EC2366F27BFA2E68BD /* MockContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A1631A2DCA079D00F6EA3F /* MockContext.swift */; };
 		C50A8F3026E500B179786149 /* MockNetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158C1AFA2B04F80200FF02E6 /* MockNetworkHelper.swift */; };
 		D54BBFB42C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF7D2C78C015003687C7 /* TransformerCoordinatorTests.swift */; };
@@ -2469,6 +2473,7 @@
 		A6AD121B1CF15ED456748A66 /* Pods-CoreTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoreTests_iOS.debug.xcconfig"; path = "Target Support Files/Pods-CoreTests_iOS/Pods-CoreTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		A71F25F9CDB2754039E94C4D /* Pods-Example_iOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example_iOS.release.xcconfig"; path = "Target Support Files/Pods-Example_iOS/Pods-Example_iOS.release.xcconfig"; sourceTree = "<group>"; };
 		A7B1F98B323F053BE100BD62 /* Pods-Example_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Example_iOS.debug.xcconfig"; path = "Target Support Files/Pods-Example_iOS/Pods-Example_iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		AABBCCDD000000000000000B /* TemplateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TemplateTests.swift; sourceTree = "<group>"; };
 		AE4D7CDEFE3776716346F57A /* Pods-LifecycleTests_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LifecycleTests_tvOS.debug.xcconfig"; path = "Target Support Files/Pods-LifecycleTests_tvOS/Pods-LifecycleTests_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		AEC9A4831EF0B4000D84B542 /* Pods-JavaScriptTransformerTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-JavaScriptTransformerTests_iOS.debug.xcconfig"; path = "Target Support Files/Pods-JavaScriptTransformerTests_iOS/Pods-JavaScriptTransformerTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		B1E429ACC80C8A8083F9B516 /* Pods-ExtensionsTests_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ExtensionsTests_tvOS.debug.xcconfig"; path = "Target Support Files/Pods-ExtensionsTests_tvOS/Pods-ExtensionsTests_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -2613,11 +2618,11 @@
 		F386AEACFA32C0448DB6FF23 /* Pods_EndToEndTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EndToEndTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonDisposalCheckingObservable.swift; sourceTree = "<group>"; };
 		F533C86F2F730833007871E7 /* MockBackgroundTaskStarter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBackgroundTaskStarter.swift; sourceTree = "<group>"; };
+		F575554A2F7EDA490066BAED /* LazyConstantTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyConstantTests.swift; sourceTree = "<group>"; };
 		F5CBDCAD2F7694F900D6A8E2 /* ConnectivityManagerWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivityManagerWrapperTests.swift; sourceTree = "<group>"; };
 		F5CEEFEC2FBDB88C00162847 /* DisposableObserverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisposableObserverTests.swift; sourceTree = "<group>"; };
 		F5CEEFED2FBDB88C00162847 /* ThreadSafeAnonymousObserverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeAnonymousObserverTests.swift; sourceTree = "<group>"; };
 		F5CEEFEE2FBDB88C00162847 /* UnsubscribingObserverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnsubscribingObserverTests.swift; sourceTree = "<group>"; };
-		F575554A2F7EDA490066BAED /* LazyConstantTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyConstantTests.swift; sourceTree = "<group>"; };
 		F61B8EB1042140D9BE3D6214 /* LifecycleTests_watchOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LifecycleTests_watchOS-Info.plist"; sourceTree = "<group>"; };
 		F6F88855524B085D1A499E24 /* Pods_MomentsAPITests_watchOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MomentsAPITests_watchOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F7D7D4FF07D6DB970EEC8C8F /* Pods-EndToEndTests_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EndToEndTests_tvOS.debug.xcconfig"; path = "Target Support Files/Pods-EndToEndTests_tvOS/Pods-EndToEndTests_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -2989,6 +2994,7 @@
 				877B4F742DAE6FFD00AB8A43 /* Delegate Proxy */,
 				D58EE2DC2C74CDDE00FBDF94 /* ApplicationStatusListenerTests.swift */,
 				87AC5FCB2ED89AC000F189DC /* TemplateProcessorTests.swift */,
+				AABBCCDD000000000000000B /* TemplateTests.swift */,
 			);
 			path = Misc;
 			sourceTree = "<group>";
@@ -3832,16 +3838,6 @@
 			path = DeepLink;
 			sourceTree = "<group>";
 		};
-		F5CEEFEF2FBDB88C00162847 /* Observers */ = {
-			isa = PBXGroup;
-			children = (
-				F5CEEFEC2FBDB88C00162847 /* DisposableObserverTests.swift */,
-				F5CEEFED2FBDB88C00162847 /* ThreadSafeAnonymousObserverTests.swift */,
-				F5CEEFEE2FBDB88C00162847 /* UnsubscribingObserverTests.swift */,
-			);
-			path = Observers;
-			sourceTree = "<group>";
-		};
 		ECAD80552F5B383300B34935 /* Lowercase */ = {
 			isa = PBXGroup;
 			children = (
@@ -3850,6 +3846,16 @@
 				ECAD80542F5B383300B34935 /* LowercaseTransformerTests.swift */,
 			);
 			path = Lowercase;
+			sourceTree = "<group>";
+		};
+		F5CEEFEF2FBDB88C00162847 /* Observers */ = {
+			isa = PBXGroup;
+			children = (
+				F5CEEFEC2FBDB88C00162847 /* DisposableObserverTests.swift */,
+				F5CEEFED2FBDB88C00162847 /* ThreadSafeAnonymousObserverTests.swift */,
+				F5CEEFEE2FBDB88C00162847 /* UnsubscribingObserverTests.swift */,
+			);
+			path = Observers;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -6459,6 +6465,7 @@
 				EC7FDD002F115F5F008A4D45 /* BarrierSettingsTests.swift in Sources */,
 				87D64D6D2CB4157A0084F43D /* TealiumLoggerTests.swift in Sources */,
 				87AC5FCD2ED89AC000F189DC /* TemplateProcessorTests.swift in Sources */,
+				AABBCCDD000000000000000D /* TemplateTests.swift in Sources */,
 				ECAB835C2DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift in Sources */,
 				D54BBFF62C78C01A003687C7 /* DispatchManager+MaximumInflightTests.swift in Sources */,
 				EC1230ED2F2BBD5B00C24060 /* StringContainerTests.swift in Sources */,
@@ -7063,6 +7070,7 @@
 				87A408CE2E97F06E005D92CC /* DispatchManager+ConsentTests.swift in Sources */,
 				87A40AD82E9E57EA005D92CC /* ModuleRegistryTests.swift in Sources */,
 				87AC5FCE2ED89AC000F189DC /* TemplateProcessorTests.swift in Sources */,
+				AABBCCDD000000000000000E /* TemplateTests.swift in Sources */,
 				87A408CF2E97F06E005D92CC /* MockCMPIntegration.swift in Sources */,
 				87A408D02E97F06E005D92CC /* ObservablesTests.swift in Sources */,
 				87A408D12E97F06E005D92CC /* SettingsManager+MergeTests.swift in Sources */,
@@ -7611,6 +7619,7 @@
 				87BA6D602C6A470C00784784 /* ObservablesTests.swift in Sources */,
 				87BA6D622C6A470C00784784 /* SettingsManager+MergeTests.swift in Sources */,
 				87AC5FCF2ED89AC000F189DC /* TemplateProcessorTests.swift in Sources */,
+				AABBCCDD000000000000000F /* TemplateTests.swift in Sources */,
 				87ED26EE2CE509EE0086FFA4 /* DataLayerWrapper+TransactionallyTests.swift in Sources */,
 				877C5F6C2CBD69F0008D4B78 /* VisitorIdProviderTests.swift in Sources */,
 				D54BBFFE2C78C01A003687C7 /* DispatchManager+TrackTests.swift in Sources */,
@@ -7875,6 +7884,7 @@
 				87EE77012D78791500BB1D77 /* Condition+NotStartsWithTests.swift in Sources */,
 				87BA6DD62C6A47AF00784784 /* MockConfig.swift in Sources */,
 				87AC5FCC2ED89AC000F189DC /* TemplateProcessorTests.swift in Sources */,
+				AABBCCDD000000000000000C /* TemplateTests.swift in Sources */,
 				87ED26E62CE4E47D0086FFA4 /* DataLayerModuleTests.swift in Sources */,
 				87BA6DD82C6A47AF00784784 /* TealiumImplementationTests.swift in Sources */,
 				D54BBFEE2C78C01A003687C7 /* DispatchManager+ConsentTests.swift in Sources */,
@@ -8545,7 +8555,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = XC939GDC9P;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "tealium-prism/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -8568,7 +8578,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = XC939GDC9P;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "tealium-prism/Info.plist";
 				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (

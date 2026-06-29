@@ -10,7 +10,7 @@ import Foundation
 
 /// Utility to replace double brace wrapped text with values extracted from a `DataObject`.
 public class TemplateProcessor {
-    private static let handlebarsRegex = "\\{\\{(.*?)\\}\\}"
+    private static let handlebarsRegex = try? NSRegularExpression(pattern: "\\{\\{\\s*(.*?)\\s*\\}\\}")
 
     /**
      * Processes the input `text` looking for all occurrences of double brace wrapped text: `{{  }}`
@@ -30,51 +30,67 @@ public class TemplateProcessor {
      * - Returns: A new string with all substitution blocks replaced
      */
     public class func process(text: String, context: DataObject) -> String {
-        guard let groups = try? text.groups(for: handlebarsRegex) else {
-            return text
-        }
-        return groups.reduce(text, { partialResult, matches in
-            guard matches.count > 1 else {
-                return partialResult
-            }
-            let result = processHandlebarsTemplate(matches[1], context: context)
-            return partialResult.replacingOccurrences(of: matches[0], with: result ?? "")
-        })
+        compile(text).process(context: context)
     }
 
-    private static func processHandlebarsTemplate(_ template: String, context: DataObject) -> String? {
-        var parts = template.components(separatedBy: "||")
+    /**
+     * Compiles the input `text` into a reusable `Template`, scanning once to split the source into
+     * plain-text and substitution sections. The substitution paths it references are collected
+     * ahead of time (see `Template.substitutions`).
+     *
+     * This lets callers learn up-front which values a context needs to provide - so (potentially slow)
+     * work to populate the context can be limited to only the required data - before processing the
+     * template against one or more contexts via `Template.process(context:)`.
+     *
+     * Each substitution block follows the same rules as `process(text:context:)`.
+     *
+     * - Parameter text: the String to compile, looking for `{{ }}` substitution blocks.
+     * - Returns: A compiled `Template`.
+     */
+    public class func compile(_ text: String) -> Template {
+        guard let handlebarsRegex else {
+            return Template(sections: [.text(text)])
+        }
+
+        let nsText = text as NSString
+        var sections: [TemplateSection] = []
+        var lastLocation = 0
+
+        for match in handlebarsRegex.matches(in: text, range: NSRange(location: 0, length: nsText.length)) {
+
+            if match.range.location > lastLocation {
+                let precedingRange = NSRange(location: lastLocation,
+                                             length: match.range.location - lastLocation)
+                sections.append(.text(nsText.substring(with: precedingRange)))
+            }
+
+            let innerRange = match.range(at: 1)
+            let inner = innerRange.location != NSNotFound ? nsText.substring(with: innerRange) : ""
+            sections.append(section(from: inner))
+
+            lastLocation = match.range.location + match.range.length
+        }
+
+        if lastLocation < nsText.length {
+            sections.append(.text(nsText.substring(from: lastLocation)))
+        }
+
+        return Template(sections: sections)
+    }
+
+    /// Parses the content inside a `{{ }}` block into a section. The content is `path || fallback`,
+    /// where only the first `||` separates path from fallback (extra `||` parts are ignored) and
+    /// both are trimmed. An unparsable path (including a blank one) becomes literal text - the
+    /// fallback if present, otherwise an empty string.
+    private static func section(from inner: String) -> TemplateSection {
+        let parts = inner.components(separatedBy: "||")
             .map { $0.trimmingCharacters(in: .whitespaces) }
-            .prefix(2) // [path, fallback]
-        guard let path = parts.popFirst() else {
-            return nil
-        }
-        return processJsonPath(path, context: context) ?? parts.first
-    }
+        let pathString = parts.first ?? ""
+        let fallback = parts.count > 1 ? parts[1] : nil
 
-    private static func processJsonPath(_ path: String, context: DataObject) -> String? {
-        guard let jsonPath = try? JSONObjectPath.parse(path),
-            let item = context.extractDataItem(path: jsonPath) else {
-            return nil
+        guard let path = try? JSONObjectPath.parse(pathString) else {
+            return .text(fallback ?? "")
         }
-        return DataItemFormatter.format(dataItem: item)
-    }
-}
-
-fileprivate extension String {
-    func groups(for regexPattern: String) throws -> [[String]] {
-        let text = self
-        let regex = try NSRegularExpression(pattern: regexPattern)
-        let matches = regex.matches(in: text,
-                                    range: NSRange(text.startIndex..., in: text))
-        return matches.map { match in
-            return (0..<match.numberOfRanges).map {
-                let rangeBounds = match.range(at: $0)
-                guard let range = Range(rangeBounds, in: text) else {
-                    return ""
-                }
-                return String(text[range])
-            }
-        }
+        return .substitution(path: path, fallback: fallback)
     }
 }

@@ -199,6 +199,53 @@ final class ModuleProxyTests: XCTestCase {
         waitOnQueue(queue: queue)
     }
 
+    /// Registers two instances of `ModuleWithObservable` in the manager.
+    func configureTwoInstances() {
+        config.modules = [ModuleWithObservable.factory(
+            allowsMultipleInstances: true,
+            enforcedSettings: MultipleInstancesSettingsBuilder().setModuleId("Instance1").setOrder(1),
+            MultipleInstancesSettingsBuilder().setModuleId("Instance2").setOrder(2))]
+        manager.updateSettings(context: context(),
+                               settings: SDKSettings(config.getEnforcedSDKSettings()))
+    }
+
+    func test_observeModules_emits_transform_over_all_registered_instances() {
+        let completed = expectation(description: "observeModules emits")
+        configureTwoInstances()
+        _onModulesManager.onNext(manager)
+        let subscribable: any Subscribable<Int> = proxy.observeModules { modules in
+            Observables.just(modules.count)
+        }
+        _ = subscribable.subscribe { count in
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
+            XCTAssertEqual(count, 2)
+            completed.fulfill()
+        }
+        waitOnQueue(queue: queue)
+    }
+
+    func test_observeModules_re_emits_when_the_set_of_instances_changes() {
+        let completed = expectation(description: "observeModules re-emits")
+        completed.expectedFulfillmentCount = 2
+        var counts: [Int] = []
+        configureTwoInstances()
+        _onModulesManager.onNext(manager)
+        let subscribable: any Subscribable<Int> = proxy.observeModules { modules in
+            Observables.just(modules.count)
+        }
+        _ = subscribable.subscribe { count in
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
+            counts.append(count)
+            completed.fulfill()
+        }
+        queue.ensureOnQueue {
+            self.manager.updateSettings(context: self.context(),
+                                        settings: self.settings(moduleEnabled: false))
+        }
+        waitOnQueue(queue: queue)
+        XCTAssertEqual(counts, [2, 0])
+    }
+
     func test_observeModule_with_keyPath_emits_transformed_observable_everytime_module_is_enabled() {
         let completed = expectation(description: "ObserveModule completes")
         completed.expectedFulfillmentCount = 2

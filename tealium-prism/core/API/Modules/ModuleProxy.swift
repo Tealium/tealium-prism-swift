@@ -82,6 +82,35 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
     }
 
     /**
+     * Observe an observable derived from every `SpecificModule` instance currently registered.
+     *
+     * Use this when a module type may be registered multiple times (for example, multiple
+     * MomentsAI instances for different use cases) and the caller needs to react to the full
+     * set of instances. The `transform` receives the current list and returns the `Observable`
+     * to expose; it re-runs whenever the set changes by identity.
+     *
+     * - parameter transform: Maps the current list of instances to an `Observable`.
+     * - returns: A `Subscribable` for the inner `Observable`.
+     */
+    public func observeModules<Other>(transform: @escaping ([SpecificModule]) -> Observable<Other>) -> any Subscribable<Other> {
+        onModulesManager.flatMapLatest { modulesManager in
+            guard let modulesManager else {
+                return Observables.empty()
+            }
+            return modulesManager.modules.asObservable()
+                .map { list in
+                    list.compactMap { $0 as? SpecificModule }
+                }
+                .distinct {
+                    $0.elementsEqual($1) { oldModule, newModule in
+                        oldModule === newModule
+                    }
+                }
+                .flatMapLatest(transform)
+        }.subscribeOn(asyncProxy.queue)
+    }
+
+    /**
      * Retrieves the `Module`, providing it in the `completion`.
      *
      * - parameter completion: The block of code to receive the `Module` in, if present, or nil.
