@@ -43,12 +43,14 @@ final class CollectModuleTests: XCTestCase {
                     [
                         TealiumDataKey.event: "event1",
                         TealiumDataKey.eventType: "event",
-                        TealiumDataKey.timestampUnixMilliseconds: self.stubDispatches[0].timestamp
+                        TealiumDataKey.timestampUnixMilliseconds: self.stubDispatches[0].timestamp,
+                        TealiumDataKey.requestUUID: self.stubDispatches[0].id
                     ],
                     [
                         TealiumDataKey.event: "event2",
                         TealiumDataKey.eventType: "event",
-                        TealiumDataKey.timestampUnixMilliseconds: self.stubDispatches[1].timestamp
+                        TealiumDataKey.timestampUnixMilliseconds: self.stubDispatches[1].timestamp,
+                        TealiumDataKey.requestUUID: self.stubDispatches[1].id
                     ]
                 ]
                 XCTAssertEqual(body,

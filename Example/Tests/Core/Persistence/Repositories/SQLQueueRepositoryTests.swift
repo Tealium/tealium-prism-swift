@@ -317,7 +317,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
     private func createOldDispatch(_ name: String, pastTimeFrame: TimeFrame) -> Dispatch {
         let pastTimestamp = pastTimeFrame.beforeNow().unixTimeMilliseconds
         return Dispatch(payload: [TealiumDataKey.event: name],
-                        id: UUID().uuidString,
+                        id: StringUtils.generateUUID(),
                         timestamp: pastTimestamp)
     }
 }

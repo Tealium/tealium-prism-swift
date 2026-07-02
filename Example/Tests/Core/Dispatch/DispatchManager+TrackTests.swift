@@ -60,7 +60,7 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
         let completionCalled = expectation(description: completionCalledDescription)
         dispatchManager.track(Dispatch(name: "someEvent")) { result in
             XCTAssertTrackResultIsDropped(result) { dispatch in
-                XCTAssertEqual(dispatch.payload.count, 3)
+                XCTAssertEqual(dispatch.payload.count, 4)
             }
             completionCalled.fulfill()
         }
@@ -75,7 +75,7 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
         dispatchManager.track(Dispatch(name: "someEvent")) { result in
             completionCalled.fulfill()
             XCTAssertTrackResultIsDropped(result) { dispatch in
-                XCTAssertEqual(dispatch.payload.count, 3)
+                XCTAssertEqual(dispatch.payload.count, 4)
             }
         }
         waitForDefaultTimeout()

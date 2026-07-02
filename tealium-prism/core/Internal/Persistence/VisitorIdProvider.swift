@@ -164,7 +164,7 @@ class VisitorIdProvider {
         return generateVisitorId()
     }
 
-    private static func generateVisitorId(_ uuid: UUID = UUID()) -> String {
-        return uuid.uuidString.replacingOccurrences(of: "-", with: "")
+    private static func generateVisitorId() -> String {
+        return StringUtils.generateUUID().replacingOccurrences(of: "-", with: "")
     }
 }

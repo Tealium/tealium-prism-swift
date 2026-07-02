@@ -79,7 +79,7 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
         applyDecision(decisionType: .explicit, purposes: [])
         let result = consentManager.applyConsent(to: Dispatch(name: "event1"))
         XCTAssertTrackResultIsDropped(result) { dispatch in
-            XCTAssertEqual(dispatch.payload.count, 3)
+            XCTAssertEqual(dispatch.payload.count, 4)
         }
     }
 
@@ -87,7 +87,7 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
         applyDecision(decisionType: .implicit, purposes: [])
         let result = consentManager.applyConsent(to: Dispatch(name: "event1"))
         XCTAssertTrackResultIsAccepted(result) { dispatch in
-            XCTAssertEqual(dispatch.payload.count, 3)
+            XCTAssertEqual(dispatch.payload.count, 4)
         }
     }
 
@@ -106,7 +106,7 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
         dispatch.enrich(data: [TealiumDataKey.allConsentedPurposes: ["tealium"]]) // this is gonna be the 3rd property of payload...
         let result = consentManager.applyConsent(to: dispatch)
         XCTAssertTrackResultIsDropped(result) { dispatch in
-            XCTAssertEqual(dispatch.payload.count, 4) // ...that's why 4 is here
+            XCTAssertEqual(dispatch.payload.count, 5) // ...that's why 5 is here
         }
     }
 

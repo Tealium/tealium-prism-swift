@@ -35,7 +35,7 @@ public struct Dispatch {
         payload.set(name, key: TealiumDataKey.event)
         payload.set(type.rawValue, key: TealiumDataKey.eventType)
         self.init(payload: payload,
-                  id: UUID().uuidString,
+                  id: StringUtils.generateUUID(),
                   timestamp: Date().unixTimeMilliseconds)
     }
 
@@ -44,6 +44,7 @@ public struct Dispatch {
         self.id = id
         self.timestamp = timestamp
         self.payload.set(timestamp, key: TealiumDataKey.timestampUnixMilliseconds)
+        self.payload.set(id, key: TealiumDataKey.requestUUID)
     }
 
     /// The name of this dispatch.

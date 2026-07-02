@@ -46,6 +46,7 @@ final class TealiumCollectTests: TealiumBaseTests {
                     "tealium_random": body["tealium_random"],
                     "tealium_session_id": body["tealium_session_id"],
                     "tealium_timestamp_epoch_milliseconds": body["tealium_timestamp_epoch_milliseconds"],
+                    "request_uuid": body["request_uuid"],
                     "tealium_visitor_id": body["tealium_visitor_id"]
                 ])
             }
@@ -184,6 +185,7 @@ final class TealiumCollectTests: TealiumBaseTests {
                     "tealium_visitor_id": body["tealium_visitor_id"],
                     "tealium_event": "Event",
                     "tealium_timestamp_epoch_milliseconds": 0,
+                    "request_uuid": body["request_uuid"],
                     "transformed_key": "transformed_value"
                 ])
             }

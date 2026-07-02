@@ -80,6 +80,8 @@ public extension TealiumDataKey {
     static let tealiumTraceId = "tealium_trace_id"
     /// Mapping destination for commands used by Remote Command Dispatchers.
     static let commandName = "command_name"
+    /// A unique UUID to identify a specific event
+    static let requestUUID = "request_uuid"
 }
 
 enum ConditionOperators {

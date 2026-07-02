@@ -92,7 +92,7 @@ class AppDataModule: AppDataCollection, BasicModule, Collector {
 
     private var appUUID: String {
         guard let uuid: String = dataStore.get(key: TealiumDataKey.appUUID) else {
-            let newUUID = UUID().uuidString
+            let newUUID = StringUtils.generateUUID()
             do {
                 try dataStore.edit()
                     .put(key: TealiumDataKey.appUUID, value: newUUID, expiry: .forever)

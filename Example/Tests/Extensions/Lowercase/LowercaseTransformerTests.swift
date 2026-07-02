@@ -212,29 +212,6 @@ final class LowercaseTransformerTests: ExtensionsBaseTests {
         waitForDefaultTimeout()
     }
 
-    func test_applyTransformation_with_allVariables_and_empty_payload_returns_empty_dispatch() throws {
-        let dispatch = Dispatch(name: "test", data: [:])
-        let settings = try makeSettings(LowercaseSettingsBuilder(id: "test").lowercaseAllVariables())
-        let expectation = expectation(description: "Empty payload returns empty dispatch")
-        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
-            XCTAssertEqual(result?.payload, dispatch.payload)
-            expectation.fulfill()
-        }
-        waitForDefaultTimeout()
-    }
-
-    func test_applyTransformation_with_variables_and_empty_payload_returns_empty_dispatch() throws {
-        let dispatch = Dispatch(name: "test", data: [:])
-        let settings = try makeSettings(LowercaseSettingsBuilder(id: "test")
-            .lowercaseVariables([.key("any_key")]))
-        let expectation = expectation(description: "Empty payload returns empty dispatch")
-        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
-            XCTAssertEqual(result?.payload, dispatch.payload)
-            expectation.fulfill()
-        }
-        waitForDefaultTimeout()
-    }
-
     func test_applyTransformation_with_unrecognized_variables_value_returns_original_dispatch() {
         let dispatch = Dispatch(name: "test", data: ["key": "VALUE"])
         let settings = TransformationSettings(

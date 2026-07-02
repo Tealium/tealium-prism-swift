@@ -150,7 +150,7 @@ private extension TealiumDelegateProxy {
 
     static func createSubClass(from originalDelegate: NSObjectProtocol) -> AnyClass? {
         let originalClass = type(of: originalDelegate)
-        let newClassName = "\(originalClass)_\(UUID().uuidString)"
+        let newClassName = "\(originalClass)_\(StringUtils.generateUUID())"
 
         guard NSClassFromString(newClassName) == nil else {
             return nil
