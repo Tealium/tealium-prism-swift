@@ -39,7 +39,7 @@ public extension Subscribable {
     func subscribe(_ onNext: @escaping (Element) -> Void, onComplete: @escaping () -> Void = { }) -> any Disposable {
         let observer = ThreadSafeAnonymousObserver(onNext: onNext, onComplete: onComplete)
         let upstream = self.subscribe(observer)
-        observer.setUpstream(upstream)
+        observer.link(upstream)
         return observer
     }
 }

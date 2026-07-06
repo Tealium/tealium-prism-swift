@@ -11,7 +11,7 @@ import Foundation
  private class CallbackObserver<Element>: LinkableObserver {
     private var downstream: (any Observer<Element>)?
     private(set) var isStopped = false
-    private let linkable = UpstreamLinkableImpl()
+    private let linkable = SingleLinkable()
 
     var isDisposed: Bool { linkable.isDisposed }
 
@@ -35,7 +35,7 @@ import Foundation
         dispose()
     }
 
-    func setUpstream(_ disposable: any Disposable) { linkable.setUpstream(disposable) }
+    func link(_ disposable: any Disposable) { linkable.link(disposable) }
 
     func dispose() {
         isStopped = true
@@ -57,7 +57,7 @@ class CallbackObservable<Element>: Observable<Element> {
     override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         let observer = CallbackObserver(downstream: observer)
         let subscription = block(observer)
-        observer.setUpstream(subscription)
+        observer.link(subscription)
         return observer
     }
 }

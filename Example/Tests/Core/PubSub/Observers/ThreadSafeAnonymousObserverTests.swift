@@ -63,7 +63,7 @@ final class ThreadSafeAnonymousObserverTests: XCTestCase {
         let upstreamDisposed = expectation(description: "upstream disposed")
         let upstream = Subscription { upstreamDisposed.fulfill() }
         let observer = ThreadSafeAnonymousObserver<Int>(onNext: { _ in }, onComplete: { })
-        observer.setUpstream(upstream)
+        observer.link(upstream)
 
         observer.onComplete()
 
@@ -123,7 +123,7 @@ final class ThreadSafeAnonymousObserverTests: XCTestCase {
         let upstreamDisposed = expectation(description: "upstream disposed once")
         let upstream = Subscription { upstreamDisposed.fulfill() }
         let downstream = ThreadSafeAnonymousObserver<Int>(onNext: { _ in }, onComplete: { })
-        downstream.setUpstream(upstream)
+        downstream.link(upstream)
 
         downstream.dispose()
         downstream.dispose()
@@ -131,24 +131,24 @@ final class ThreadSafeAnonymousObserverTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    // MARK: - setUpstream
+    // MARK: - link
 
-    func test_setUpstream_disposes_upstream_when_observer_is_already_disposed() {
+    func test_link_disposes_upstream_when_observer_is_already_disposed() {
         let upstreamDisposed = expectation(description: "upstream disposed immediately")
         let upstream = Subscription { upstreamDisposed.fulfill() }
         let observer = ThreadSafeAnonymousObserver<Int>(onNext: { _ in }, onComplete: { })
         observer.dispose()
 
-        observer.setUpstream(upstream)
+        observer.link(upstream)
 
         waitForDefaultTimeout()
     }
 
-    func test_setUpstream_disposes_upstream_on_observer_dispose() {
+    func test_link_disposes_upstream_on_observer_dispose() {
         let upstreamDisposed = expectation(description: "upstream disposed on observer dispose")
         let upstream = Subscription { upstreamDisposed.fulfill() }
         let observer = ThreadSafeAnonymousObserver<Int>(onNext: { _ in }, onComplete: { })
-        observer.setUpstream(upstream)
+        observer.link(upstream)
 
         observer.dispose()
 
@@ -218,7 +218,7 @@ final class ThreadSafeAnonymousObserverTests: XCTestCase {
         XCTAssertTrue(observer.isDisposed)
     }
 
-    func test_thread_safety_concurrent_setUpstream_and_onComplete_always_disposes_upstream() {
+    func test_thread_safety_concurrent_link_and_onComplete_always_disposes_upstream() {
         for _ in 0..<50 {
             let upstreamDisposed = expectation(description: "upstream disposed")
             let upstream = Subscription { upstreamDisposed.fulfill() }
@@ -227,7 +227,7 @@ final class ThreadSafeAnonymousObserverTests: XCTestCase {
 
             group.enter()
             DispatchQueue.global().async {
-                observer.setUpstream(upstream)
+                observer.link(upstream)
                 group.leave()
             }
             group.enter()

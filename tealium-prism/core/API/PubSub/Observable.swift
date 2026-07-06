@@ -72,7 +72,7 @@ public extension Observable {
     func subscribe(composite: any CompositeDisposable, observer: any Observer<Element>) -> any Disposable {
         let obs = UnsubscribingObserver(owner: composite, delegate: observer)
         let upstream = subscribe(obs)
-        obs.setUpstream(upstream)
+        obs.link(upstream)
         composite.add(obs)
         return obs
     }

@@ -77,7 +77,7 @@ final class DisposableObserverTests: XCTestCase {
         let upstream = Subscription { upstreamDisposed.fulfill() }
         let downstream = AnonymousObserver<Int>(onNext: { _ in }, onComplete: { })
         let observer = DisposableObserver(downstream: downstream)
-        observer.setUpstream(upstream)
+        observer.link(upstream)
 
         observer.onComplete()
 
@@ -132,7 +132,7 @@ final class DisposableObserverTests: XCTestCase {
         let upstream = Subscription { upstreamDisposed.fulfill() }
         let downstream = AnonymousObserver<Int>(onNext: { _ in }, onComplete: { })
         let observer = DisposableObserver(downstream: downstream)
-        observer.setUpstream(upstream)
+        observer.link(upstream)
 
         observer.dispose()
         observer.dispose()
@@ -173,16 +173,16 @@ final class DisposableObserverTests: XCTestCase {
         XCTAssertNil(weakRef, "onComplete() must nil downstreal")
     }
 
-    // MARK: - setUpstream
+    // MARK: - link
 
-    func test_setUpstream_disposes_upstream_when_already_disposed() {
+    func test_link_disposes_upstream_when_already_disposed() {
         let upstreamDisposed = expectation(description: "upstream disposed immediately")
         let upstream = Subscription { upstreamDisposed.fulfill() }
         let downstream = AnonymousObserver<Int>(onNext: { _ in }, onComplete: { })
         let observer = DisposableObserver(downstream: downstream)
         observer.dispose()
 
-        observer.setUpstream(upstream)
+        observer.link(upstream)
 
         waitForDefaultTimeout()
     }

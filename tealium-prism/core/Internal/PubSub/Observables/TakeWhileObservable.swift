@@ -13,7 +13,7 @@ private class TakeWhileObserver<Element>: LinkableObserver {
     private let predicate: (Element) -> Bool
     private let inclusive: Bool
     private(set) var isStopped = false
-    private let linkable = UpstreamLinkableImpl()
+    private let linkable = SingleLinkable()
 
     var isDisposed: Bool { linkable.isDisposed }
 
@@ -42,7 +42,7 @@ private class TakeWhileObserver<Element>: LinkableObserver {
         dispose()
     }
 
-    func setUpstream(_ disposable: any Disposable) { linkable.setUpstream(disposable) }
+    func link(_ disposable: any Disposable) { linkable.link(disposable) }
 
     func dispose() {
         isStopped = true
@@ -63,8 +63,8 @@ class TakeWhileObservable<Element>: Observable<Element> {
     }
 
     override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
-        source.subscribeAndLink {
+        source.subscribeAndLink(
             TakeWhileObserver(downstream: observer, predicate: predicate, inclusive: inclusive)
-        }
+        )
     }
 }

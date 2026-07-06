@@ -12,7 +12,7 @@ import Foundation
 /// and disposes its linked upstream subscription on completion.
 class DisposableObserver<O: Observer<Element>, Element>: LinkableObserver {
     private var downstream: O?
-    private let linkable = UpstreamLinkableImpl()
+    private let linkable = SingleLinkable()
 
     private(set) var isCompleted = false
 
@@ -34,8 +34,8 @@ class DisposableObserver<O: Observer<Element>, Element>: LinkableObserver {
         dispose()
     }
 
-    func setUpstream(_ disposable: any Disposable) {
-        linkable.setUpstream(disposable)
+    func link(_ disposable: any Disposable) {
+        linkable.link(disposable)
     }
 
     func dispose() {
@@ -48,11 +48,10 @@ class DisposableObserver<O: Observer<Element>, Element>: LinkableObserver {
 extension Observable {
     /// Subscribes a `LinkableObserver` as downstream, then links the resulting upstream disposable back to it.
     @discardableResult
-    func subscribeAndLink<L: LinkableObserver>(downstreamSupplier: () -> L) -> L where L.Element == Element {
-        let downstream = downstreamSupplier()
-        let upstream = subscribe(downstream)
-        downstream.setUpstream(upstream)
-        return downstream
+    func subscribeAndLink<Downstream: LinkableObserver>(_ observer: Downstream) -> Downstream where Downstream.Element == Element {
+        let upstream = subscribe(observer)
+        observer.link(upstream)
+        return observer
     }
 }
 

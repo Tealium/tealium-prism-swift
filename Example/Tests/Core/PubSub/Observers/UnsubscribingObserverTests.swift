@@ -94,7 +94,7 @@ final class UnsubscribingObserverTests: XCTestCase {
         let upstream = Subscription { upstreamDisposed.fulfill() }
         let delegate = AnonymousObserver<Int>(onNext: { _ in }, onComplete: { })
         let observer = UnsubscribingObserver(owner: container, delegate: delegate)
-        observer.setUpstream(upstream)
+        observer.link(upstream)
 
         observer.onComplete()
 
@@ -148,7 +148,7 @@ final class UnsubscribingObserverTests: XCTestCase {
         let upstream = Subscription { upstreamDisposed.fulfill() }
         let delegate = AnonymousObserver<Int>(onNext: { _ in }, onComplete: { })
         let observer = UnsubscribingObserver(owner: container, delegate: delegate)
-        observer.setUpstream(upstream)
+        observer.link(upstream)
 
         observer.dispose()
 

@@ -13,7 +13,7 @@ import Foundation
 class UnsubscribingObserver<Element>: LinkableObserver {
     private let owner: any CompositeDisposable
     private var delegate: (any Observer<Element>)?
-    private let linkable = UpstreamLinkableImpl()
+    private let linkable = SingleLinkable()
 
     var isDisposed: Bool { linkable.isDisposed }
 
@@ -34,8 +34,8 @@ class UnsubscribingObserver<Element>: LinkableObserver {
         dispose()
     }
 
-    func setUpstream(_ disposable: any Disposable) {
-        linkable.setUpstream(disposable)
+    func link(_ disposable: any Disposable) {
+        linkable.link(disposable)
     }
 
     func dispose() {

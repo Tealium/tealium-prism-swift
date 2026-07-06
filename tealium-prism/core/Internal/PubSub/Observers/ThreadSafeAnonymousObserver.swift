@@ -13,11 +13,11 @@ import Foundation
 ///
 /// Thread-safe because `subscribe` is typically called from an unknown thread while
 /// upstream emissions and completion arrive on a different queue (e.g. via `subscribeOn`),
-/// creating a race between `setUpstream` and `onComplete`/`dispose`.
+/// creating a race between `link` and `onComplete`/`dispose`.
 ///
 /// Unlike `AnonymousObserver`, this class:
 /// - Guards all paths with `isDisposed` under a lock, since it has no external wrapper protecting it.
-/// - Manages the upstream `Disposable` via `setUpstream`/`dispose`, handling the assign-after-complete race.
+/// - Manages the upstream `Disposable` via `link`/`dispose`, handling the assign-after-complete race.
 /// - Nils callbacks on both completion and disposal to release user-captured references (view controllers, etc.).
 class ThreadSafeAnonymousObserver<Element>: LinkableObserver {
     private var upstream: (any Disposable)?
@@ -67,7 +67,7 @@ class ThreadSafeAnonymousObserver<Element>: LinkableObserver {
         upstream?.dispose()
     }
 
-    func setUpstream(_ disposable: any Disposable) {
+    func link(_ disposable: any Disposable) {
         let shouldDispose: Bool = lock.synchronize {
             if isDisposed {
                 return true

@@ -12,7 +12,7 @@ private class FirstObserver<Element>: LinkableObserver {
     private var downstream: (any Observer<Element>)?
     private let predicate: (Element) -> Bool
     private(set) var isStopped = false
-    private let linkable = UpstreamLinkableImpl()
+    private let linkable = SingleLinkable()
 
     var isDisposed: Bool { linkable.isDisposed }
 
@@ -36,7 +36,7 @@ private class FirstObserver<Element>: LinkableObserver {
         dispose()
     }
 
-    func setUpstream(_ disposable: any Disposable) { linkable.setUpstream(disposable) }
+    func link(_ disposable: any Disposable) { linkable.link(disposable) }
 
     func dispose() {
         isStopped = true
@@ -55,8 +55,8 @@ class FirstObservable<Element>: Observable<Element> {
     }
 
     override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
-        source.subscribeAndLink {
+        source.subscribeAndLink(
             FirstObserver(downstream: observer, predicate: predicate)
-        }
+        )
     }
 }

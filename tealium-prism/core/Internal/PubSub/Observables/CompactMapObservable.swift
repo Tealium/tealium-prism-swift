@@ -37,9 +37,9 @@ class CompactMapObservable<Source, Element>: Observable<Element> {
     }
 
     override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
-        source.subscribeAndLink {
+        source.subscribeAndLink(
             CompactMapObserver(downstream: observer, transform: transform)
                 .asLinkableObserver()
-        }
+        )
     }
 }
