@@ -1646,6 +1646,10 @@
 		D5EF2DFC2C1731BC00F7BC40 /* MockCMPIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EF2DFB2C1731BC00F7BC40 /* MockCMPIntegration.swift */; };
 		D8D9A8B713B6496C439431DD /* Pods_LifecycleTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E8C36B03477CF2635A3840E4 /* Pods_LifecycleTests_iOS.framework */; };
 		E361BCD87EDFB48F9149440C /* Pods_MomentsAPITests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC6CADB50814D2DD14E91632 /* Pods_MomentsAPITests_macOS.framework */; };
+		E51687B22FFBA5450016C5DA /* DataItem+JSONStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */; };
+		E51687B32FFBA5450016C5DA /* DataItem+JSONStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */; };
+		E51687B42FFBA5450016C5DA /* DataItem+JSONStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */; };
+		E51687B52FFBA5450016C5DA /* DataItem+JSONStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */; };
 		E8A72A684223BC129B831984 /* MockConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15BBB2892B07E362009D4CB5 /* MockConfig.swift */; };
 		E93A0D40784A02ECE27FEF89 /* Pods_JavaScriptTransformerTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2981DEB9FDDBF4D8D4256E95 /* Pods_JavaScriptTransformerTests_macOS.framework */; };
 		EC0D84EB2D6F671D00436087 /* ConnectivityDataModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0D84EA2D6F671D00436087 /* ConnectivityDataModuleTests.swift */; };
@@ -2519,6 +2523,7 @@
 		DC0D7EDBD3533E3C50791B1C /* tealium-prism.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "tealium-prism.podspec"; path = "../tealium-prism.podspec"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		DC75CF09E77D0B23BF3F1193 /* Pods-EndToEndTests_watchOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EndToEndTests_watchOS.debug.xcconfig"; path = "Target Support Files/Pods-EndToEndTests_watchOS/Pods-EndToEndTests_watchOS.debug.xcconfig"; sourceTree = "<group>"; };
 		E176CE58B150E719A80BC8D4 /* Pods_ExtensionsTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ExtensionsTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataItem+JSONStringTests.swift"; sourceTree = "<group>"; };
 		E8C36B03477CF2635A3840E4 /* Pods_LifecycleTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LifecycleTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA426159A769372703C45EB3 /* Pods_MomentsAPITests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MomentsAPITests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EC0D84EA2D6F671D00436087 /* ConnectivityDataModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivityDataModuleTests.swift; sourceTree = "<group>"; };
@@ -3630,6 +3635,7 @@
 		D54BC0072C78C34F003687C7 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */,
 				ECF92FA92F69831A00A5AE06 /* ValueSourceTests.swift */,
 				EC8CF8E92F3CCFCB00812410 /* LenientConvertersTests.swift */,
 				486956A42A449A8B0014AC58 /* DataInputTests.swift */,
@@ -6479,6 +6485,7 @@
 				1597DC7D2A446B1400C394D3 /* MockBackoff.swift in Sources */,
 				87EE76E82D786F1F00BB1D77 /* Condition+GreaterThanOrEqualTests.swift in Sources */,
 				EC2EA5F72DB1474E00CCB144 /* DeepLinkBaseTests.swift in Sources */,
+				E51687B52FFBA5450016C5DA /* DataItem+JSONStringTests.swift in Sources */,
 				8753710A2E2E4C2B00CDED6D /* URLTests.swift in Sources */,
 				87FC086D2D94133500E1041D /* SDKSettingsTests.swift in Sources */,
 				87FC08A52D95B16B00E1041D /* SettingsManagerTestCase.swift in Sources */,
@@ -7184,6 +7191,7 @@
 				87A409312E97F06E005D92CC /* MappingsEngineTests.swift in Sources */,
 				87A409322E97F06E005D92CC /* Operators+MergeTests.swift in Sources */,
 				87A409332E97F06E005D92CC /* DispatchManager+DispatchersListTests.swift in Sources */,
+				E51687B22FFBA5450016C5DA /* DataItem+JSONStringTests.swift in Sources */,
 				87A409342E97F06E005D92CC /* ResourceRefresherTests.swift in Sources */,
 				F575554B2F7EDA490066BAED /* LazyConstantTests.swift in Sources */,
 				87A409352E97F06E005D92CC /* Condition+NotEqualsTests.swift in Sources */,
@@ -7733,6 +7741,7 @@
 				87BA6D922C6A470C00784784 /* Operators+MergeTests.swift in Sources */,
 				D54BBFF52C78C01A003687C7 /* DispatchManager+DispatchersListTests.swift in Sources */,
 				D54BBFDA2C78C01A003687C7 /* ResourceRefresherTests.swift in Sources */,
+				E51687B32FFBA5450016C5DA /* DataItem+JSONStringTests.swift in Sources */,
 				87EE76D62D7865D300BB1D77 /* Condition+NotEqualsTests.swift in Sources */,
 				F575554C2F7EDA490066BAED /* LazyConstantTests.swift in Sources */,
 				876F25042DDF2EAC00C55FFE /* SDKSettings+copy.swift in Sources */,
@@ -7998,6 +8007,7 @@
 				87EE76D92D78670400BB1D77 /* Condition+IsDefinedTests.swift in Sources */,
 				87AF54702C7E389C00F1C114 /* TimeFrameTests.swift in Sources */,
 				876F25032DDF2EAC00C55FFE /* SDKSettings+copy.swift in Sources */,
+				E51687B42FFBA5450016C5DA /* DataItem+JSONStringTests.swift in Sources */,
 				873B78342DA7DB530026A356 /* MappingParametersTests.swift in Sources */,
 				F575554E2F7EDA490066BAED /* LazyConstantTests.swift in Sources */,
 				87FC086F2D94133500E1041D /* SDKSettingsTests.swift in Sources */,

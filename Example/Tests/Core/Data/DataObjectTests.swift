@@ -480,11 +480,14 @@ final class DataObjectTests: XCTestCase {
         let json: [String: Any] = ["key": self]
 
         XCTAssertThrows(try DataObject(jsonObject: json)) { (error: JSONParsingError) in
-            guard case let .invalidJSON(internalError) = error else {
+            guard case let .invalidJSON(firstInternalError) = error else {
                 return XCTFail("Expected JSONParsingError.invalidJSON, got \(type(of: error)): \(error)")
             }
-            XCTAssertTrue(internalError is EncodingError,
-                          "Expected EncodingError, got \(type(of: internalError)): \(internalError)")
+            guard case let .invalidJSON(secondInternalError) = firstInternalError as? JSONParsingError else {
+                return XCTFail("Expected JSONParsingError.invalidJSON, got \(type(of: firstInternalError)): \(firstInternalError)")
+            }
+            XCTAssertTrue(secondInternalError is EncodingError,
+                          "Expected EncodingError, got \(type(of: secondInternalError)): \(secondInternalError)")
         }
     }
 

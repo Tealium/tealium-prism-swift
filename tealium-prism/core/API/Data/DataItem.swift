@@ -32,19 +32,40 @@ public struct DataItem {
     // The internal value only changes when initialized with a string.
     /// A `DataItem` representing `null`.
     public static let null = DataItem(value: NSNull())
-    /**
-     * Initialize this wrapper from a JSON `String` representation of the value.
-     *
-     * For example:
-     * - An `Int` will be represented like this: "1"
-     * - A `Bool` will be represented like this: "true"
-     * - A `Double` will be represented like this: "2.5"
-     * - A `String` will be represented like this: "\"string\""
-     * - An `Array` will  be represented like this: "[1,2,3]"
-     * - a `Dictionary` will be represented like this: "{\"key\": \"value\"}"
-     */
-    init(stringValue: String) {
-        self._value = LazyConstant(wrappedValue: try? stringValue.deserialize())
+
+    /// Creates a `DataItem` by deserializing a JSON string representation of any value.
+    ///
+    /// For example:
+    /// - `"1"` → `Int` 1
+    /// - `"true"` → `Bool` true
+    /// - `"2.5"` → `Double` 2.5
+    /// - `"\"hello\""` → `String` "hello"
+    /// - `"null"` → `NSNull()`
+    /// - `"[1,2,3]"` → `Array`
+    /// - `"{\"key\":\"value\"}"` → `Dictionary`
+    ///
+    /// - Parameter jsonString: A JSON-encoded string representing any JSON value.
+    /// - Throws: A [`JSONParsingError.invalidJSON`](doc:JSONParsingError/invalidJSON(_:)) if `jsonString` is not valid JSON.
+    public init(jsonString: String) throws(JSONParsingError) {
+        do {
+            self.init(safeValue: try jsonString.deserialize())
+        } catch {
+            throw JSONParsingError.invalidJSON(error)
+        }
+    }
+
+    /// Creates a `DataItem` from a JSON string, evaluating the value lazily on first access.
+    ///
+    /// Unlike [`init(jsonString:)`](doc:DataItem/init(jsonString:)) this initializer:
+    /// - Does **not** throw — if `jsonString` is not valid JSON the wrapped value silently becomes `nil`.
+    /// - Evaluates lazily — deserialization is deferred until the value is first accessed.
+    ///
+    /// Prefer [`init(jsonString:)`](doc:DataItem/init(jsonString:)) when invalid JSON should be surfaced as an error.
+    /// Use this initializer only when the string is known to be valid JSON and lazy evaluation is desirable.
+    ///
+    /// - Parameter jsonString: A JSON-encoded string representing any JSON value.
+    init(stringValue jsonString: String) {
+        self._value = LazyConstant(wrappedValue: try? jsonString.deserialize())
     }
 
     /// Initialize a `DataItem` with a specific value that is a valid `DataInput`.
@@ -77,11 +98,15 @@ public struct DataItem {
      * (or "-Infinity" for negative "Infinity") immediately by this function.
      * Dates will be converted to Strings in the following format: yyyy-MM-dd'T'HH:mm:ss'Z'.
      *
-     * - throws: An `EncodingError` if any other type of values are passed in the parameter or in eventual nested values.
+     * - throws: A [`JSONParsingError.invalidJSON`](doc:JSONParsingError/invalidJSON(_:)) if any other type of values are passed in the parameter or in eventual nested values.
      */
-    public init(jsonValue: Any) throws {
-        // swiftlint:disable:next optional_data_string_conversion
-        self.init(stringValue: String(decoding: try Tealium.jsonEncoder.encode(AnyCodable(jsonValue)), as: UTF8.self)) // Safe as we just used encode that returns UTF8 formatted data
+    public init(jsonValue: Any) throws(JSONParsingError) {
+        do {
+            // swiftlint:disable:next optional_data_string_conversion
+            self.init(stringValue: String(decoding: try Tealium.jsonEncoder.encode(AnyCodable(jsonValue)), as: UTF8.self)) // Safe as we just used encode that returns UTF8 formatted data
+        } catch {
+            throw JSONParsingError.invalidJSON(error)
+        }
     }
 
     /// Do not change the LazyConstant wrapper. It must be set only once at init time.
@@ -279,6 +304,14 @@ extension DataItem: Decodable {
         let container = try decoder.singleValueContainer()
         let anyCodable = try container.decode(AnyCodable.self)
         self.init(safeValue: anyCodable.value)
+    }
+}
+
+public extension DataItem {
+    /// Serializes the data item to a JSON string.
+    /// - Returns: A UTF-8 JSON string representation of the data item.
+    func serialize() throws -> String {
+        try toDataInput().serialize()
     }
 }
 
