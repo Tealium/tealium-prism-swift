@@ -28,9 +28,6 @@ public class Tealium {
     /// Observable for the modules manager.
     private let onModulesManager: Observable<ModulesManager?>
 
-    /// Disposer for async operations.
-    private lazy var asyncDisposer = AsyncDisposableContainer(queue: queue)
-
     /// Queue for Tealium operations.
     let queue: TealiumQueue
 
@@ -193,7 +190,6 @@ public class Tealium {
     }
 
     deinit {
-        asyncDisposer.dispose()
         queue.ensureOnQueue { [proxy = self.proxy] in // Avoid capturing self in deinit
             // Make sure `TealiumImpl` is only deallocated from the right queue
             proxy.shutDown()

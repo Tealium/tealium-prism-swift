@@ -17,17 +17,17 @@ func XCTAssertNotNaN(_ value: Decimal?, file: StaticString = #filePath, line: UI
 }
 
 func XCTAssertNaN(_ value: Float?, file: StaticString = #filePath, line: UInt = #line) {
-    XCTAssertNaN(value.flatMap { Double($0) }, file: file, line: line)
+    XCTAssertNaN(value.map { Double($0) }, file: file, line: line)
 }
 
 func XCTAssertNotNaN(_ value: Float?, file: StaticString = #filePath, line: UInt = #line) {
-    XCTAssertNotNaN(value.flatMap { Double($0) }, file: file, line: line)
+    XCTAssertNotNaN(value.map { Double($0) }, file: file, line: line)
 }
 
 func XCTAssertNaN(_ value: Double?, file: StaticString = #filePath, line: UInt = #line) {
-    XCTAssertNaN(value.flatMap { Decimal($0) }, file: file, line: line)
+    XCTAssertNaN(value.map { Decimal($0) }, file: file, line: line)
 }
 
 func XCTAssertNotNaN(_ value: Double?, file: StaticString = #filePath, line: UInt = #line) {
-    XCTAssertNotNaN(value.flatMap { Decimal($0) }, file: file, line: line)
+    XCTAssertNotNaN(value.map { Decimal($0) }, file: file, line: line)
 }

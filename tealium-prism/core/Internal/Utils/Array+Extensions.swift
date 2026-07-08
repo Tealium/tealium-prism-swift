@@ -19,7 +19,7 @@ extension Array {
      */
     @discardableResult
     mutating func removeFirst(where shouldBeRemoved: (Element) throws -> Bool) rethrows -> Element? {
-        try firstIndex(where: shouldBeRemoved).flatMap { remove(at: $0) }
+        try firstIndex(where: shouldBeRemoved).map { remove(at: $0) }
     }
 
     func diff<T: Equatable>(_ other: Self, by key: KeyPath<Element, T>) -> Self {

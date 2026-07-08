@@ -131,4 +131,15 @@ final class SingleTests: XCTestCase {
             }
         }
     }
+
+    func test_toAsync_throws_error_when_underlying_observable_completes_before_onNext() async throws {
+        let single = Single<Result<Int, Error>>(observable: Observables.empty(),
+                                                queue: .main)
+        do {
+            _ = try await single.toAsync()
+            XCTFail("Expected to throw")
+        } catch {
+            XCTAssertTrue(error is CancellationError)
+        }
+    }
 }

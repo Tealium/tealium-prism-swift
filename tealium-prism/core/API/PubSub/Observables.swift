@@ -95,4 +95,13 @@ public extension Observables {
     static func combineLatest<Element>(_ observables: [Observable<Element>]) -> Observable<[Element]> {
         IterableCombineLatestObservable(observables: observables)
     }
+
+    /**
+     * Returns a single observable that forwards every event from each of the provided observables.
+     *
+     * **Completion:** Completes only when all merged sources have completed.
+     */
+    static func merge<Element>(_ observables: [Observable<Element>]) -> Observable<Element> {
+        Observables.from(observables).flatMap { $0 }
+    }
 }

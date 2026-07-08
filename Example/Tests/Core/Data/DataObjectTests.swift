@@ -289,11 +289,11 @@ final class DataObjectTests: XCTestCase {
             "key3": stringArray?.asDataArray(),
             "key4": stringDictionary?.asDataDictionary(),
             "key5": nestedDictionary,
-            "key6": try nestedDictionaryArray.flatMap { try DataItem(jsonValue: $0) },
-            "key7": try mixedArray.flatMap { try DataItem(jsonValue: $0) },
-            "key8": try mixedDictionary.flatMap { try DataItem(jsonValue: $0) },
-            "key9": try nestedMixedDictionary.flatMap { try DataItem(jsonValue: $0 ) },
-            "key10": try nestedMixedArray.flatMap { try DataItem(jsonValue: $0) },
+            "key6": try nestedDictionaryArray.map { try DataItem(jsonValue: $0) },
+            "key7": try mixedArray.map { try DataItem(jsonValue: $0) },
+            "key8": try mixedDictionary.map { try DataItem(jsonValue: $0) },
+            "key9": try nestedMixedDictionary.map { try DataItem(jsonValue: $0 ) },
+            "key10": try nestedMixedArray.map { try DataItem(jsonValue: $0) },
             "key15": actualNil
         ])
         dataObject.set(converting: try DataItem(jsonValue: mixedArray as Any), key: "key11")

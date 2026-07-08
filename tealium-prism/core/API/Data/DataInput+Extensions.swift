@@ -45,7 +45,7 @@ extension Dictionary: DataInputConvertible where Key == String, Value: DataInput
 public extension Optional where Wrapped: DataInput {
     /// Returns a `DataItem` that contains the wrapped value or `NSNull`, if the wrapped value was `nil`.
     func asDataItem() -> DataItem {
-        flatMap { DataItem(value: $0) } ?? .null
+        map { DataItem(value: $0) } ?? .null
     }
 }
 
@@ -89,7 +89,7 @@ public extension Array where Element == DataInput? {
     /// // → ["scores": [42, "value"]]
     /// ```
     func asDataArray() -> [DataItem] {
-        map { $0.flatMap { DataItem(value: $0) } ?? .null }
+        map { $0.map { DataItem(value: $0) } ?? .null }
     }
 }
 
@@ -133,6 +133,6 @@ public extension Dictionary where Key == String, Value == DataInput? {
     /// // → ["user": ["name": "Alice", "age": 25]]
     /// ```
     func asDataDictionary() -> [String: DataItem] {
-        mapValues { $0.flatMap { DataItem(value: $0) } ?? .null }
+        mapValues { $0.map { DataItem(value: $0) } ?? .null }
     }
 }

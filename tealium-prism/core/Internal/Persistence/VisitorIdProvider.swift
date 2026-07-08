@@ -140,7 +140,7 @@ class VisitorIdProvider {
             }
         } catch {
             logger?.error(category: visitorCategory,
-                          "Failed to change visitor to \(visitorId)\(identity.flatMap { " and identity " + $0 } ?? "")\nError: \(error)")
+                          "Failed to change visitor to \(visitorId)\(identity.map { " and identity " + $0 } ?? "")\nError: \(error)")
         }
     }
 

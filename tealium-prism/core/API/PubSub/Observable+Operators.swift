@@ -131,7 +131,7 @@ public extension Observable {
     ///
     /// **Completion:** Completes only when all merged sources have completed.
     func merge(_ otherObservables: Observable<Element>...) -> Observable<Element> {
-        Observables.from([self] + otherObservables).flatMap { $0 }
+        Observables.merge([self] + otherObservables)
     }
 
     /**
