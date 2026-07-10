@@ -30,4 +30,11 @@ final class LifecycleConfigurationTests: XCTestCase {
         XCTAssertEqual(configuration.sessionTimeoutInMinutes, 1)
         XCTAssertEqual(configuration.trackedLifecycleEvents, [LifecycleEvent.sleep])
     }
+
+    func test_init_with_non_lowercased_tracked_events_creates_correct_events() {
+        let configuration = LifecycleConfiguration(configuration: [
+            "tracked_lifecycle_events": ["LAUNCH", "SleEp"]
+        ])
+        XCTAssertEqual(configuration.trackedLifecycleEvents, [.launch, .sleep])
+    }
 }
