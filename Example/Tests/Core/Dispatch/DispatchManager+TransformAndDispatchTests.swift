@@ -40,6 +40,33 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         waitForDefaultTimeout()
     }
 
+    func test_all_events_not_allowed_by_loadRules_are_removed_from_the_queue_without_dispatching() {
+        disableModule(module: module1)
+        let condition = Condition.endsWith(ignoreCase: false, variable: "tealium_event", suffix: "to_keep")
+        _sdkSettings.add(modules: [MockDispatcher2.moduleType: ModuleSettings(moduleType: MockDispatcher2.moduleType,
+                                                                              rules: "ruleId")],
+                         loadRules: ["ruleId": LoadRule(id: "ruleId", conditions: .just(condition))])
+        let dispatches = [
+            Dispatch(name: "event_to_be_dropped"),
+            Dispatch(name: "event_to_be_dropped"),
+            Dispatch(name: "event_to_be_dropped")
+        ]
+        let eventsAreDeleted = expectation(description: "Events are deleted from the queue")
+        let eventsAreDispatched = expectation(description: "Dispatcher is not called")
+        eventsAreDispatched.isInverted = true
+        module2?.onDispatch.subscribe { _ in
+            eventsAreDispatched.fulfill()
+        }
+        queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
+        _ = queueManager.onDeleteRequest.subscribe { deletedUUIDs, _ in
+            if dispatches.map({ $0.id }) == deletedUUIDs {
+                eventsAreDeleted.fulfill()
+            }
+        }
+        _ = dispatchManager
+        waitForDefaultTimeout()
+    }
+
     func test_events_not_allowed_by_loadRules_are_removed_from_the_queue() {
         let eventsAreDeleted = expectation(description: "Events are deleted")
         disableModule(module: module1)
@@ -142,6 +169,28 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         }
         _ = dispatchManager
         wait(for: [eventDispatched, eventsAreDeleted], timeout: Self.defaultTimeout, enforceOrder: true)
+    }
+
+    func test_mixed_consent_batch_deletes_both_accepted_and_rejected_events() {
+        let allEventsAreDeleted = expectation(description: "All events are deleted from the queue")
+        allEventsAreDeleted.expectedFulfillmentCount = 3
+        consentManager = MockConsentManager()
+        consentManager?._onConfigurationSelected.onNext(ConsentConfiguration(tealiumPurposeId: "",
+                                                                             refireDispatchersIds: [],
+                                                                             purposes: ["purpose1": ConsentPurpose(purposeId: "purpose1", dispatcherIds: [MockDispatcher2.moduleType])]))
+        disableModule(module: module1)
+        let accepted = Dispatch(name: "accepted_event", data: [TealiumDataKey.allConsentedPurposes: ["purpose1"]])
+        let rejected1 = Dispatch(name: "rejected_event")
+        let rejected2 = Dispatch(name: "rejected_event")
+        let dispatches = [accepted, rejected1, rejected2]
+        queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
+        _ = queueManager.onDeleteRequest.subscribe { deletedUUIDs, _ in
+            for id in deletedUUIDs where dispatches.map({ $0.id }).contains(id) {
+                allEventsAreDeleted.fulfill()
+            }
+        }
+        _ = dispatchManager
+        waitForDefaultTimeout()
     }
 
     func test_events_are_not_dequeued_if_consent_enabled_but_configuration_not_present() {

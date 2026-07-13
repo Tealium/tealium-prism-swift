@@ -8,7 +8,7 @@
 
 import Foundation
 
- private class CallbackObserver<Element>: LinkableObserver {
+private class CallbackObserver<Element>: LinkableObserver {
     private var downstream: (any Observer<Element>)?
     private(set) var isStopped = false
     private let linkable = SingleLinkable()
@@ -21,16 +21,18 @@ import Foundation
 
     func onNext(_ element: Element) {
         guard !isStopped else { return }
-        // We should stop before calling onNext to avoid reentrancy.
-        // In practice this should never happen, unless someone saves a reference to this class
-        // And calls again `onNext` or `onComplete` on that observer inside of this `onNext`.
+        isStopped = true
         downstream?.onNext(element)
-        onComplete()
+        complete()
     }
 
     func onComplete() {
         guard !isStopped else { return }
         isStopped = true
+        complete()
+    }
+
+    private func complete() {
         downstream?.onComplete()
         dispose()
     }

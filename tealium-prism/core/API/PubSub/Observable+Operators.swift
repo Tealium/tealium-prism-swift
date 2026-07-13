@@ -193,6 +193,7 @@ public extension Observable {
      *
      * - parameter block: a block of code, to be executed with the next value from the source, along with
      * the observer with which to emit downstream.
+     * Each call to this block is expected to complete only once. Further completion calls are ignored.
      */
     func callback<Result>(from block: @escaping (_ element: Element, _ completion: @escaping (Result) -> Void) -> Void) -> Observable<Result> {
         flatMap { value in
@@ -208,6 +209,7 @@ public extension Observable {
      *
      * - parameter block: a block of code, to be executed with the next value from the source, along with
      * the observer with which to emit downstream, disposable by the returned `Disposable` object.
+     * Each call to this block is expected to complete only once. Further completion calls are ignored.
      */
     func callback<Result>(fromDisposable block: @escaping (_ element: Element, _ completion: @escaping (Result) -> Void) -> any Disposable) -> Observable<Result> {
         flatMap { value in

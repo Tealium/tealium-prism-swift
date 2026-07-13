@@ -24,7 +24,7 @@ public protocol QueueManagerProtocol: QueueMetrics {
      *
      * - Parameter processor: The `processor` for which to listen for the events count change
      *
-     * - Returns: A `Observable<Int>` that emits events with the count of `Dispatch`es that are currently inflight.
+     * - Returns: An `Observable<Int>` that emits events with the count of `Dispatch`es that are currently inflight.
      */
     func onInflightDispatchesCount(for processor: String) -> Observable<Int>
 

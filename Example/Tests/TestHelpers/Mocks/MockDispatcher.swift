@@ -132,9 +132,16 @@ class MockDispatcher1: MockDispatcher {
 }
 
 class MockDispatcher2: MockDispatcher {
+    var splitDispatches: Bool = false
     required init?(moduleId: String, context: TealiumContext, moduleConfiguration: DataObject) {
         super.init(moduleId: moduleId, context: context, moduleConfiguration: moduleConfiguration)
+        _ = updateConfiguration(moduleConfiguration)
         self.dispatchLimit = 3
+    }
+
+    override func updateConfiguration(_ configuration: DataObject) -> Self? {
+        splitDispatches = configuration.get(key: "split_dispatches") ?? false
+        return super.updateConfiguration(configuration)
     }
 
     required convenience init(moduleId: String = MockDispatcher2.moduleType) {
@@ -144,6 +151,19 @@ class MockDispatcher2: MockDispatcher {
     init(moduleId: String = MockDispatcher.moduleType, dispatchLimit: Int = 3) {
         super.init(moduleId: moduleId)
         self.dispatchLimit = dispatchLimit
+    }
+
+    override func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> any Disposable {
+        if splitDispatches {
+            let disposable = Disposables.composite()
+            for event in data {
+                super.dispatch([event], completion: completion)
+                    .addTo(disposable)
+            }
+            return disposable
+        } else {
+            return super.dispatch(data, completion: completion)
+        }
     }
 }
 

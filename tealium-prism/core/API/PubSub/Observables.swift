@@ -32,13 +32,15 @@ public extension Observables {
     static func create<Element>(subscriptionHandler: @escaping Observable<Element>.SubscriptionHandler) -> Observable<Element> {
         AnonymousObservable(subscriptionHandler)
     }
+
     /**
      * Returns an observable that will send only one event once the asyncFunction has completed.
      *
      * - Parameter asyncFunction: is the function that needs to be called and needs to report the completion to the provided observer.
      *  This function will only be called when an observer subscribes to the returned Observable. Every subscription will cause the asyncFunction to be called again.
      *
-     * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and emit a new event to the subscribers when the function completes.
+     * - Returns: an `Observable` that, when a new observer subscribes, will call the asyncFunction and emit a new event to the subscribers when the function completes. Completion of the asyncFunction is expected to happen only once.
+     * Subsequent completion calls are ignored.
      */
     static func callback<Element>(from asyncFunction: @escaping (@escaping (Element) -> Void) -> Void) -> Observable<Element> {
         CallbackObservable { observer in
@@ -54,7 +56,8 @@ public extension Observables {
      *  This function will only be called when an observer subscribes to the returned Observable. Every subscription will cause the asyncFunction to be called again.
      *  The `Disposable` returned by this function will be disposed if the subscription is disposed before the event is emitted, allowing to cancel the ongoing work.
      *
-     * - Returns: a `Observable` that, when a new observer subscribes, will call the asyncFunction and emit a new event to the subscribers when the function completes.
+     * - Returns: an `Observable` that, when a new observer subscribes, will call the asyncFunction and emit a new event to the subscribers when the function completes. Completion of the asyncFunction is expected to happen only once.
+     * Subsequent completion calls are ignored.
      */
     static func callback<Element>(from asyncFunction: @escaping (@escaping (Element) -> Void) -> any Disposable) -> Observable<Element> {
         CallbackObservable { observer in

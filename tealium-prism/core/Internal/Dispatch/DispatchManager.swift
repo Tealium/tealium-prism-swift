@@ -112,21 +112,33 @@ class DispatchManager: DispatchManagerProtocol {
                     } else {
                         return Observables.empty()
                     }
-                }.callback(fromDisposable: { [weak self] dispatchSplit, completion in
-                    let subscription = Subscription { }
-                    guard let self else {
-                        return subscription
+                }
+                .flatMap { [weak self] dispatchSplit in
+                    Observables.create { [weak self] observer in
+                        guard let self else {
+                            return Disposables.disposed()
+                        }
+                        if !dispatchSplit.unsuccessful.isEmpty {
+                            self.logger?.debug(category: LogCategory.dispatchManager,
+                                               "Dispatches discarded due to consent \(dispatchSplit.unsuccessful.shortDescription())")
+                            observer.onNext((dispatcher, dispatchSplit.unsuccessful))
+                        }
+                        var dispatches = dispatchSplit.successful
+
+                        self.logger?.debug(category: LogCategory.dispatchManager,
+                                           "Sending events to dispatcher \(dispatcher.id): \(dispatches.shortDescription())")
+                        let interval = TealiumSignpostInterval(signposter: .dispatching, name: "Transform and Dispatch")
+                            .begin(dispatcher.id)
+                        return self.transformAndDispatch(dispatches: dispatches, for: dispatcher) { processedDispatches in
+                            dispatches = dispatches.diff(processedDispatches, by: \.id)
+                            observer.onNext((dispatcher, processedDispatches))
+                            if dispatches.isEmpty {
+                                interval.end(dispatchSplit.successful.shortDescription())
+                                observer.onComplete()
+                            }
+                        }
                     }
-                    self.logger?.debug(category: LogCategory.dispatchManager,
-                                       "Sending events to dispatcher \(dispatcher.id): \(dispatchSplit.successful.shortDescription())")
-                    let interval = TealiumSignpostInterval(signposter: .dispatching, name: "Transform and Dispatch")
-                        .begin(dispatcher.id)
-                    return self.transformAndDispatch(dispatchSplit: dispatchSplit, for: dispatcher) { processedDispatches in
-                        defer { interval.end(processedDispatches.shortDescription()) }
-                        guard !subscription.isDisposed else { return }
-                        completion((dispatcher, processedDispatches))
-                    }
-                })
+                }.filter { !$0.1.isEmpty }
         }
         .subscribe { [weak self] dispatcher, processedDispatches in
             self?.queueManager.deleteDispatches(processedDispatches.map { $0.id }, for: dispatcher.id)
@@ -172,15 +184,12 @@ class DispatchManager: DispatchManagerProtocol {
             }
     }
 
-    private func transformAndDispatch(dispatchSplit: DispatchSplit, for dispatcher: Dispatcher, onProcessedDispatches: @escaping ([Dispatch]) -> Void) -> any Disposable {
-        if !dispatchSplit.unsuccessful.isEmpty {
-            logger?.debug(category: LogCategory.dispatchManager,
-                          "Dispatches discarded due to consent \(dispatchSplit.unsuccessful.shortDescription())")
-            onProcessedDispatches(dispatchSplit.unsuccessful)
-        }
-        let dispatches = dispatchSplit.successful
+    private func transformAndDispatch(dispatches: [Dispatch],
+                                      for dispatcher: Dispatcher,
+                                      onProcessedDispatches: @escaping ([Dispatch]) -> Void) -> any Disposable {
         let container = DisposableContainer()
         guard !dispatches.isEmpty else {
+            onProcessedDispatches([])
             return container
         }
         let transformHandler = TealiumSignpostInterval(signposter: .dispatching, name: "Transform").begin(dispatcher.id)
@@ -197,6 +206,7 @@ class DispatchManager: DispatchManagerProtocol {
                                    "Dispatching disallowed for Dispatcher \(dispatcher.id) and Dispatches \(removedDispatches.shortDescription())")
                 onProcessedDispatches(removedDispatches)
             }
+            guard !passed.isEmpty else { return }
 
             let mapped = passed.map {
                 self.mappingsEngine.map(dispatcherId: dispatcher.id, dispatch: $0)

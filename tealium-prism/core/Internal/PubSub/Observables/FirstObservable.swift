@@ -25,13 +25,16 @@ private class FirstObserver<Element>: LinkableObserver {
         guard !isStopped, predicate(element) else { return }
         isStopped = true
         downstream?.onNext(element)
-        downstream?.onComplete()
-        dispose()
+        complete()
     }
 
     func onComplete() {
         guard !isStopped else { return }
         isStopped = true
+        complete()
+    }
+
+    private func complete() {
         downstream?.onComplete()
         dispose()
     }

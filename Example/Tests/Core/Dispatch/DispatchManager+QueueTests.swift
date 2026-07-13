@@ -81,4 +81,28 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
         _ = dispatchManager
         waitForDefaultTimeout()
     }
+
+    func test_dispatcher_completing_events_in_multiple_batches_causes_delete_of_all_batches() {
+        disableModule(module: module1)
+        guard let module = module2 else {
+            XCTFail("Module not found")
+            return
+        }
+        let settings = ModuleSettings(moduleId: module.id,
+                                      moduleType: module.id,
+                                      enabled: true,
+                                      configuration: ["split_dispatches": true])
+        _sdkSettings.add(modules: [module.id: settings])
+        modulesManager.updateSettings(context: context, settings: sdkSettings.value)
+        queueManager.storeDispatches(createDispatches(amount: 3), enqueueingFor: allDispatchers)
+        let deletedEvents = expectation(description: "Deleted all 3 events separately")
+        deletedEvents.expectedFulfillmentCount = 3
+        queueManager.onDeleteRequest.subscribe { (events: ([String], String)) in
+            guard events.1 == module.id else { return }
+            XCTAssertEqual(events.0.count, 1)
+            deletedEvents.fulfill()
+        }
+        _ = dispatchManager
+        waitForDefaultTimeout()
+    }
 }
