@@ -255,19 +255,8 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         config.setLoadRule(.just(condition), forId: "programmaticRule")
         let manager = try getManager()
         let settings = manager.settings.value
-        guard case let .just(item) = settings.loadRules["programmaticRule"]?.conditions else {
-            XCTFail("Failed to extract programmatic JUST rule")
-            return
-        }
-        XCTAssertEqual(item as? Condition, condition)
-        guard case let .and(children) = settings.loadRules["localRule"]?.conditions else {
-            XCTFail("Failed to extract local AND rule")
-            return
-        }
-        guard case let .just(localItem) = children.first else {
-            XCTFail("Failed to extract local JUST rule")
-            return
-        }
-        XCTAssertEqual(localItem as? Condition, Condition(variable: "variable", operator: .isDefined, filter: nil))
+        XCTAssertEqual(settings.loadRules["programmaticRule"]?.conditions, .just(condition))
+        XCTAssertEqual(settings.loadRules["localRule"]?.conditions,
+                       .and([.just(Condition(variable: "variable", operator: .isDefined, filter: nil))]))
     }
 }

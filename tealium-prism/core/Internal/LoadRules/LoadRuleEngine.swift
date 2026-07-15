@@ -26,7 +26,7 @@ class LoadRuleEngine {
 
     init(sdkSettings: ObservableState<SDKSettings>, logger: LoggerProtocol?) {
         self.logger = logger
-        ruleIdToRuleMap = sdkSettings.mapState { $0.loadRules.mapValues { $0.conditions } }
+        ruleIdToRuleMap = sdkSettings.mapState { $0.loadRules.mapValues { $0.conditions.asMatchable() } }
         sdkSettings.subscribe { [weak self] settings in
             guard let self else { return }
             self.moduleIdToRuleMap = settings.modules.reduce(into: [:]) { result, element in

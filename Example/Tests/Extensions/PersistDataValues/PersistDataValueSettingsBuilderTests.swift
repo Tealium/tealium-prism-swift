@@ -68,11 +68,11 @@ final class PersistDataValueSettingsBuilderTests: ExtensionsBaseTests {
     func test_setUpdatePolicy_sets_updatePolicy_key() {
         let settings = PersistDataValueSettingsBuilder(id: transformationId)
             .persistConstant("value", to: .key("dest"))
-            .setUpdatePolicy(.keepFirstValue)
+            .setUpdatePolicy(.allowUpdate)
             .build()
         let rawValue: String? = configDataObject(from: settings)
             .get(key: PersistDataValueConfiguration.Keys.updatePolicy)
-        XCTAssertEqual(rawValue, UpdatePolicy.keepFirstValue.rawValue)
+        XCTAssertEqual(rawValue, "allowupdate")
     }
 
     func test_build_without_setExpiryPolicy_omits_duration_key() {
@@ -127,7 +127,7 @@ final class PersistDataValueSettingsBuilderTests: ExtensionsBaseTests {
 
         let rawUpdatePolicy: String? = configDataObject(from: settings)
             .get(key: PersistDataValueConfiguration.Keys.updatePolicy)
-        XCTAssertEqual(rawUpdatePolicy, UpdatePolicy.keepFirstValue.rawValue)
+        XCTAssertEqual(rawUpdatePolicy, "keepfirstvalue")
     }
 
     func test_persistConstant_returns_builder() {

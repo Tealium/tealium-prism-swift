@@ -17,9 +17,9 @@ import TealiumPrismCore
  */
 public enum LifecycleDataTarget: String, DataInputConvertible {
     /// Add lifecycle data to all events.
-    case allEvents
+    case allEvents = "allevents"
     /// Add lifecycle data only to lifecycle events.
-    case lifecycleEventsOnly
+    case lifecycleEventsOnly = "lifecycleeventsonly"
 
     init?(rawValue: String?) {
         guard let rawValue else {
@@ -30,9 +30,9 @@ public enum LifecycleDataTarget: String, DataInputConvertible {
 
     public init?(rawValue: String) {
         switch rawValue.lowercased() {
-        case Self.allEvents.rawValue.lowercased():
+        case Self.allEvents.rawValue:
             self = .allEvents
-        case Self.lifecycleEventsOnly.rawValue.lowercased():
+        case Self.lifecycleEventsOnly.rawValue:
             self = .lifecycleEventsOnly
         default:
             return nil

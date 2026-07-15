@@ -6,9 +6,9 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
-struct LoadRule {
+struct LoadRule: Equatable {
     let id: String
-    let conditions: Rule<Matchable>
+    let conditions: Rule<Condition>
 }
 
 extension LoadRule {
@@ -27,7 +27,7 @@ extension LoadRule {
             else {
                 return nil
             }
-            return LoadRule(id: id, conditions: rules.asMatchable())
+            return LoadRule(id: id, conditions: rules)
         }
     }
     static let converter: any DataItemConverter<LoadRule> = Converter()

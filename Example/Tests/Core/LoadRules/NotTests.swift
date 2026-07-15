@@ -15,18 +15,18 @@ final class NotTests: XCTestCase {
         .not(.just(condition))
     }
     func test_not_returns_true_if_contained_is_false() {
-        let not = not(condition: MockMatchable(result: false))
+        let not = not(condition: AlwaysFalse())
         XCTAssertTrue(try not.matches(payload: [:]))
     }
 
     func test_not_returns_false_if_contained_is_true() {
-        let not = not(condition: MockMatchable(result: true))
+        let not = not(condition: AlwaysTrue())
         XCTAssertFalse(try not.matches(payload: [:]))
     }
 
     func test_not_nested_returns_underlying_condition() {
-        let doubleNotTrue = not(condition: not(condition: MockMatchable(result: true)))
-        let doubleNotFalse = not(condition: not(condition: MockMatchable(result: false)))
+        let doubleNotTrue = not(condition: not(condition: AlwaysTrue()))
+        let doubleNotFalse = not(condition: not(condition: AlwaysFalse()))
         XCTAssertTrue(try doubleNotTrue.matches(payload: [:]))
         XCTAssertFalse(try doubleNotFalse.matches(payload: [:]))
     }

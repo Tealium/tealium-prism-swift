@@ -35,6 +35,24 @@ final class MomentsAPIConfigurationTests: XCTestCase {
         XCTAssertEqual(value, customRegion, "Custom region should match input value")
     }
 
+    func test_momentsAPIRegion_rawValue_is_lowercase() {
+        XCTAssertEqual(MomentsAPIRegion.germany.rawValue, "eu-central-1")
+        XCTAssertEqual(MomentsAPIRegion.usEast.rawValue, "us-east-1")
+        XCTAssertEqual(MomentsAPIRegion.sydney.rawValue, "ap-southeast-2")
+        XCTAssertEqual(MomentsAPIRegion.oregon.rawValue, "us-west-2")
+        XCTAssertEqual(MomentsAPIRegion.tokyo.rawValue, "ap-northeast-1")
+        XCTAssertEqual(MomentsAPIRegion.hongKong.rawValue, "ap-east-1")
+    }
+
+    func test_momentsAPIRegion_init_is_case_insensitive() {
+        XCTAssertEqual(MomentsAPIRegion(rawValue: "EU-CENTRAL-1"), .germany)
+        XCTAssertEqual(MomentsAPIRegion(rawValue: "US-EAST-1"), .usEast)
+        XCTAssertEqual(MomentsAPIRegion(rawValue: "AP-SOUTHEAST-2"), .sydney)
+        XCTAssertEqual(MomentsAPIRegion(rawValue: "US-WEST-2"), .oregon)
+        XCTAssertEqual(MomentsAPIRegion(rawValue: "AP-NORTHEAST-1"), .tokyo)
+        XCTAssertEqual(MomentsAPIRegion(rawValue: "AP-EAST-1"), .hongKong)
+    }
+
     func test_init_with_all_valid_regions() {
         let predefinedRegions: [MomentsAPIRegion] = [.germany, .usEast, .sydney, .oregon, .tokyo, .hongKong]
         for region in predefinedRegions {

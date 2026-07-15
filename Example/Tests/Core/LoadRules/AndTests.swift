@@ -22,18 +22,18 @@ final class AndTests: XCTestCase {
 
     func test_and_returns_true_if_all_contained_are_true() {
         let and = and(conditions: [
-            MockMatchable(result: true),
-            MockMatchable(result: true),
-            MockMatchable(result: true)
+            AlwaysTrue(),
+            AlwaysTrue(),
+            AlwaysTrue()
         ])
         XCTAssertTrue(try and.matches(payload: [:]))
     }
 
     func test_and_returns_false_if_at_least_one_contained_returns_false() {
         let and = and(conditions: [
-            MockMatchable(result: true),
-            MockMatchable(result: true),
-            MockMatchable(result: false)
+            AlwaysTrue(),
+            AlwaysTrue(),
+            AlwaysFalse()
         ])
         XCTAssertFalse(try and.matches(payload: [:]))
     }
@@ -46,8 +46,8 @@ final class AndTests: XCTestCase {
             matchRequestNotPerformed.fulfill()
         }
         let and = and(conditions: [
-            MockMatchable(result: true),
-            MockMatchable(result: false),
+            AlwaysTrue(),
+            AlwaysFalse(),
             final
         ])
         XCTAssertFalse(try and.matches(payload: [:]))
@@ -57,22 +57,22 @@ final class AndTests: XCTestCase {
     func test_and_returns_true_if_all_contained_are_true_when_nesting() {
         let and = and(conditions: [
             and(conditions: [
-                MockMatchable(result: true),
-                MockMatchable(result: true)
+                AlwaysTrue(),
+                AlwaysTrue()
             ]),
-            MockMatchable(result: true),
-            MockMatchable(result: true)
+            AlwaysTrue(),
+            AlwaysTrue()
         ])
         XCTAssertTrue(try and.matches(payload: [:]))
     }
 
     func test_and_returns_false_if_at_least_one_contained_returns_false_when_nesting() {
         let and = and(conditions: [
-            MockMatchable(result: true),
-            MockMatchable(result: true),
+            AlwaysTrue(),
+            AlwaysTrue(),
             and(conditions: [
-                MockMatchable(result: true),
-                MockMatchable(result: false)
+                AlwaysTrue(),
+                AlwaysFalse()
             ])
         ])
         XCTAssertFalse(try and.matches(payload: [:]))

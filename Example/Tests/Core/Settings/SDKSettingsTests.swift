@@ -76,21 +76,8 @@ final class SDKSettingsTests: XCTestCase {
             ])
         ]
         let result = SDKSettings(input)
-        guard let rule = result.loadRules["ruleId"] else {
-            XCTFail("LoadRule not found.")
-            return
-        }
-        let expected = Condition(variable: "variable", operator: .isDefined, filter: nil)
-        guard case let .and(children) = rule.conditions else {
-            XCTFail("Rule conditions \(rule.conditions) should be AND")
-            return
-        }
-        XCTAssertEqual(children.count, 1)
-        guard case let .just(item) = children.first else {
-            XCTFail("Rule conditions \(children) should be JUST item")
-            return
-        }
-        XCTAssertEqual(item as? Condition, expected)
+        let condition = Condition(variable: "variable", operator: .isDefined, filter: nil)
+        XCTAssertEqual(result.loadRules["ruleId"]?.conditions, .and([.just(condition)]))
     }
 
     func test_initialization_with_transformations_returns_transformations() throws {

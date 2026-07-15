@@ -20,8 +20,8 @@ final class LoadRuleEngineTests: XCTestCase {
 
     override func setUp() {
         _sdkSettings.add(loadRules: [
-            "true": LoadRule(id: "true", conditions: .just(AlwaysTrue())),
-            "false": LoadRule(id: "false", conditions: .just(AlwaysFalse())),
+            "true": LoadRule(id: "true", conditions: .just(.isDefined(variable: "tealium_event"))),
+            "false": LoadRule(id: "false", conditions: .just(.isNotDefined(variable: "tealium_event"))),
             "equals": LoadRule(id: "equals", conditions: .just(Condition.equals(ignoreCase: false,
                                                                                 variable: "variable",
                                                                                 target: "value"))),

@@ -22,18 +22,18 @@ final class OrTests: XCTestCase {
 
     func test_or_returns_true_if_at_least_one_contained_is_true() {
         let orCondition = or(conditions: [
-            MockMatchable(result: false),
-            MockMatchable(result: true),
-            MockMatchable(result: false)
+            AlwaysFalse(),
+            AlwaysTrue(),
+            AlwaysFalse()
         ])
         XCTAssertTrue(try orCondition.matches(payload: [:]))
     }
 
     func test_or_returns_false_if_all_contained_return_false() {
         let orCondition = or(conditions: [
-            MockMatchable(result: false),
-            MockMatchable(result: false),
-            MockMatchable(result: false)
+            AlwaysFalse(),
+            AlwaysFalse(),
+            AlwaysFalse()
         ])
         XCTAssertFalse(try orCondition.matches(payload: [:]))
     }
@@ -46,7 +46,7 @@ final class OrTests: XCTestCase {
             matchRequestNotPerformed.fulfill()
         }
         let orCondition = or(conditions: [
-            MockMatchable(result: true),
+            AlwaysTrue(),
             final
         ])
         XCTAssertTrue(try orCondition.matches(payload: [:]))
@@ -56,22 +56,22 @@ final class OrTests: XCTestCase {
     func test_or_returns_true_if_at_least_one_true_when_nesting() {
         let orCondition = or(conditions: [
             or(conditions: [
-                MockMatchable(result: true),
-                MockMatchable(result: false)
+                AlwaysTrue(),
+                AlwaysFalse()
             ]),
-            MockMatchable(result: false),
-            MockMatchable(result: false)
+            AlwaysFalse(),
+            AlwaysFalse()
         ])
         XCTAssertTrue(try orCondition.matches(payload: [:]))
     }
 
     func test_or_returns_false_if_all_contained_return_false_when_nesting() {
         let orCondition = or(conditions: [
-            MockMatchable(result: false),
-            MockMatchable(result: false),
+            AlwaysFalse(),
+            AlwaysFalse(),
             or(conditions: [
-                MockMatchable(result: false),
-                MockMatchable(result: false)
+                AlwaysFalse(),
+                AlwaysFalse()
             ])
         ])
         XCTAssertFalse(try orCondition.matches(payload: [:]))

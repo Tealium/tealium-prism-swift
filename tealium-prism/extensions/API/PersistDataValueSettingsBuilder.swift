@@ -16,16 +16,16 @@ import TealiumPrismCore
 public enum UpdatePolicy: String, Equatable {
     /// Subsequent persist operations are allowed to overwrite any existing value
     /// at the destination with the latest value.
-    case allowUpdate
+    case allowUpdate = "allowupdate"
     /// The first successfully persisted value is kept; any later attempts to
     /// persist a new value to the same destination are ignored.
-    case keepFirstValue
+    case keepFirstValue = "keepfirstvalue"
 
     public init?(rawValue: String) {
         switch rawValue.lowercased() {
-        case Self.allowUpdate.rawValue.lowercased():
+        case Self.allowUpdate.rawValue:
             self = .allowUpdate
-        case Self.keepFirstValue.rawValue.lowercased():
+        case Self.keepFirstValue.rawValue:
             self = .keepFirstValue
         default:
             return nil

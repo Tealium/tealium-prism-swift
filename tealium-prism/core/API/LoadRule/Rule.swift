@@ -31,3 +31,5 @@ extension Rule: ExpressibleByStringLiteral,
         self = .just(value)
     }
 }
+
+extension Rule: Equatable where Item: Equatable { }

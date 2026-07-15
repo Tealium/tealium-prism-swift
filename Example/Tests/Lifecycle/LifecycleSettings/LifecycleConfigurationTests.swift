@@ -31,10 +31,35 @@ final class LifecycleConfigurationTests: XCTestCase {
         XCTAssertEqual(configuration.trackedLifecycleEvents, [LifecycleEvent.sleep])
     }
 
+    func test_lifecycleEvent_rawValue_is_lowercase() {
+        XCTAssertEqual(LifecycleEvent.launch.rawValue, "launch")
+        XCTAssertEqual(LifecycleEvent.wake.rawValue, "wake")
+        XCTAssertEqual(LifecycleEvent.sleep.rawValue, "sleep")
+    }
+
     func test_init_with_non_lowercased_tracked_events_creates_correct_events() {
         let configuration = LifecycleConfiguration(configuration: [
             "tracked_lifecycle_events": ["LAUNCH", "SleEp"]
         ])
         XCTAssertEqual(configuration.trackedLifecycleEvents, [.launch, .sleep])
+    }
+
+    func test_lifecycleDataTarget_rawValue_is_lowercase() {
+        XCTAssertEqual(LifecycleDataTarget.allEvents.rawValue, "allevents")
+        XCTAssertEqual(LifecycleDataTarget.lifecycleEventsOnly.rawValue, "lifecycleeventsonly")
+    }
+
+    func test_lifecycleDataTarget_init_is_case_insensitive() {
+        XCTAssertEqual(LifecycleDataTarget(rawValue: "ALLEVENTS"), .allEvents)
+        XCTAssertEqual(LifecycleDataTarget(rawValue: "allEvents"), .allEvents)
+        XCTAssertEqual(LifecycleDataTarget(rawValue: "LIFECYCLEEVENTSONLY"), .lifecycleEventsOnly)
+        XCTAssertEqual(LifecycleDataTarget(rawValue: "lifecycleEventsOnly"), .lifecycleEventsOnly)
+    }
+
+    func test_init_with_non_lowercased_data_target_creates_correct_target() {
+        let configuration = LifecycleConfiguration(configuration: [
+            "data_target": "AllEvents"
+        ])
+        XCTAssertEqual(configuration.dataTarget, .allEvents)
     }
 }

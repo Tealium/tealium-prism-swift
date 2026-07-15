@@ -31,7 +31,7 @@ final class LifecycleSettingsBuilderTests: XCTestCase {
                         "configuration":
                             try DataItem(jsonValue: [
                                 "autotracking_enabled": false,
-                                "data_target": "allEvents",
+                                "data_target": "allevents",
                                 "session_timeout": 1,
                                 "tracked_lifecycle_events": [String]()
                             ])

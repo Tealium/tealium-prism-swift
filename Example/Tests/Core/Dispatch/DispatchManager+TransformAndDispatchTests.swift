@@ -90,13 +90,8 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
     }
 
     func test_loadRules_are_checked_after_transformations() {
-        let conditionIsChecked = expectation(description: "Condition is checked")
         let transformationIsPerformed = expectation(description: "Transformation is performed")
-        let condition = MockMatchable(result: true)
-        condition.onMatchRequest.subscribeOnce { payload in
-            XCTAssertTrue(payload.keys.contains("transformed"))
-            conditionIsChecked.fulfill()
-        }
+        let condition = Condition.isDefined(variable: "transformed")
         transformers.value = [
             MockTransformer1(transformation: { _, dispatch, _ in
                 transformationIsPerformed.fulfill()
@@ -114,9 +109,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         ]
         queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
         _ = dispatchManager
-        wait(for: [transformationIsPerformed, conditionIsChecked],
-             timeout: Self.defaultTimeout,
-             enforceOrder: true)
+        waitForDefaultTimeout()
     }
 
     func test_events_dropped_by_consent_are_removed_from_the_queue() {

@@ -26,24 +26,11 @@ final class LoadRuleConverterTests: XCTestCase {
             ]
         ])
         let converted = converter.convert(dataItem: loadRule)
-        guard let conditions = converted?.conditions else {
-            XCTFail("Conversion failed and returned nil")
-            return
-        }
-        XCTAssertEqual(converted?.id, "ruleId")
-        guard case let .and(children) = conditions else {
-            XCTFail("Condition AND do not match converted value \(conditions)")
-            return
-        }
-        XCTAssertEqual(children.count, 1)
-        guard case let .just(item) = children.first else {
-            XCTFail("Conditions condition children are not just an item \(children)")
-            return
-        }
-        let expected = Condition(variable: JSONPath["container"]["pageName"],
-                                 operator: .equals(false),
-                                 filter: "Home")
-        XCTAssertEqual(item as? Condition, expected)
+        let condition = Condition(variable: JSONPath["container"]["pageName"],
+                                  operator: .equals(false),
+                                  filter: "Home")
+        XCTAssertEqual(converted, LoadRule(id: "ruleId",
+                                           conditions: .and([.just(condition)])))
     }
 
     func test_convert_converts_loadRule_with_or() throws {
@@ -61,24 +48,11 @@ final class LoadRuleConverterTests: XCTestCase {
             ]
         ])
         let converted = converter.convert(dataItem: loadRule)
-        guard let conditions = converted?.conditions else {
-            XCTFail("Conversion failed and returned nil")
-            return
-        }
-        XCTAssertEqual(converted?.id, "ruleId")
-        guard case let .or(children) = conditions else {
-            XCTFail("Condition OR do not match converted value \(conditions)")
-            return
-        }
-        XCTAssertEqual(children.count, 1)
-        guard case let .just(item) = children.first else {
-            XCTFail("Conditions condition children are not just an item \(children)")
-            return
-        }
-        let expected = Condition(variable: JSONPath["container"]["pageName"],
-                                 operator: .equals(false),
-                                 filter: "Home")
-        XCTAssertEqual(item as? Condition, expected)
+        let condition = Condition(variable: JSONPath["container"]["pageName"],
+                                  operator: .equals(false),
+                                  filter: "Home")
+        XCTAssertEqual(converted, LoadRule(id: "ruleId",
+                                           conditions: .or([.just(condition)])))
     }
 
     func test_convert_converts_loadRule_with_not() throws {
@@ -96,23 +70,11 @@ final class LoadRuleConverterTests: XCTestCase {
             ]
         ])
         let converted = converter.convert(dataItem: loadRule)
-        guard let conditions = converted?.conditions else {
-            XCTFail("Conversion failed and returned nil")
-            return
-        }
-        XCTAssertEqual(converted?.id, "ruleId")
-        guard case let .not(child) = conditions else {
-            XCTFail("Condition NOT do not match converted value \(conditions)")
-            return
-        }
-        guard case let .just(item) = child else {
-            XCTFail("Conditions condition children are not just an item \(child)")
-            return
-        }
-        let expected = Condition(variable: JSONPath["container"]["pageName"],
-                                 operator: .equals(false),
-                                 filter: "Home")
-        XCTAssertEqual(item as? Condition, expected)
+        let condition = Condition(variable: JSONPath["container"]["pageName"],
+                                  operator: .equals(false),
+                                  filter: "Home")
+        XCTAssertEqual(converted, LoadRule(id: "ruleId",
+                                           conditions: .not(.just(condition))))
     }
 
     func test_convert_converts_loadRule_with_just() throws {
@@ -125,18 +87,11 @@ final class LoadRuleConverterTests: XCTestCase {
             ]
         ])
         let converted = converter.convert(dataItem: loadRule)
-        guard let conditions = converted?.conditions else {
-            XCTFail("Conversion failed and returned nil")
-            return
-        }
-        XCTAssertEqual(converted?.id, "ruleId")
-        guard case let .just(item) = conditions else {
-            XCTFail("Conditions condition children are not just an item \(conditions)")
-            return
-        }
-        let expected = Condition(variable: JSONPath["container"]["pageName"],
-                                 operator: .equals(false),
-                                 filter: "Home")
-        XCTAssertEqual(item as? Condition, expected)
+        let condition = Condition(variable: JSONPath["container"]["pageName"],
+                                  operator: .equals(false),
+                                  filter: "Home")
+        XCTAssertEqual(converted, LoadRule(id: "ruleId",
+                                           conditions: .just(condition)))
+
     }
 }
