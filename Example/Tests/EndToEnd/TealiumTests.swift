@@ -53,7 +53,7 @@ class TealiumBaseTests: XCTestCase {
     override func tearDown() {
         super.tearDown()
         waitForDispatchQueueToBeEmpty {
-            self.instanceManager.proxies.removeAll()
+            // Dropping the manager's strong references lets any remaining instances deallocate.
             self.instanceManager.instances.removeAll()
             self.disposer.dispose()
         }
@@ -116,7 +116,7 @@ final class TealiumTests: TealiumBaseTests {
         waitForLongTimeout()
     }
 
-    func test_deinit_after_track() {
+    func test_no_retain_cycle_after_track_and_shutdown() {
         let trackCompleted = expectation(description: "The track was completed")
         config.addModule(MockDispatcher.factory())
         let helper = RetainCycleHelper(variable: createTealium())
@@ -125,6 +125,9 @@ final class TealiumTests: TealiumBaseTests {
             trackCompleted.fulfill()
         }
         waitOnQueue(queue: instanceManager.queue, timeout: Self.defaultTimeout)
+        // With strong references, teardown is driven by an explicit shutdown, not by ARC.
+        instanceManager.shutdown(config.key)
+        waitForDispatchQueueToBeEmpty()
         helper.forceAndAssertObjectDeinit()
     }
 
@@ -138,19 +141,19 @@ final class TealiumTests: TealiumBaseTests {
         waitOnQueue(queue: queue)
     }
 
-    func test_module_shutdown_on_our_queue_when_tealium_deinit() {
+    func test_module_shutdown_on_our_queue_when_tealium_shutdown() {
         let initCompleted = expectation(description: "Tealium init completed")
         config.addModule(MockDispatcher.factory())
-        let helper = RetainCycleHelper(variable: createTealium { _ in
+        let teal = createTealium { _ in
             initCompleted.fulfill()
-        })
+        }
         waitOnQueue(queue: .worker, timeout: Self.defaultTimeout)
         let moduleShutdown = expectation(description: "Module is shutdown")
         MockDispatcher.onShutdown.subscribeOnce {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             moduleShutdown.fulfill()
         }
-        helper.forceAndAssertObjectDeinit()
+        teal.shutdown()
         waitOnQueue(queue: queue)
     }
 
@@ -384,7 +387,7 @@ final class TealiumTests: TealiumBaseTests {
         waitForDefaultTimeout()
     }
 
-    func test_dispatcher_holding_context_deinitializes() {
+    func test_dispatcher_holding_context_deinitializes_after_shutdown() {
         let dispatcherDeinitialized = expectation(description: "Dispatcher containing TealiumContext is deinitialized")
         DispatcherWithContext.onCreate
             .first()
@@ -399,7 +402,14 @@ final class TealiumTests: TealiumBaseTests {
             initializationCompleted.fulfill()
         }
         wait(for: [initializationCompleted], timeout: Self.longTimeout)
+        #if compiler(>=6.2.3)
+        weak let weakTeal = teal
+        #else
         weak var weakTeal = teal
+        #endif
+        // The manager retains the instance strongly, so shutdown is required to release it.
+        teal?.shutdown()
+        waitForDispatchQueueToBeEmpty()
         teal = nil
         XCTAssertNil(weakTeal)
         waitForLongTimeout()

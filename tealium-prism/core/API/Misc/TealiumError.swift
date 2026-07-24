@@ -15,4 +15,7 @@ public enum TealiumError: ErrorEnum, ErrorWrapping {
 
     /// The underlying error caused by the specific failed operation.
     case underlyingError(_ error: Error)
+
+    /// The `Tealium` instance has been shut down. Any operation attempted on a shut-down instance fails with this error.
+    case instanceShutdown
 }

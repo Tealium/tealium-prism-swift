@@ -142,6 +142,7 @@ class TealiumHelper {
 
     func stopTealium() {
         disposable.dispose()
+        self.teal?.shutdown()
         self.teal = nil
     }
 

@@ -223,8 +223,9 @@ final class TealiumCollectTests: TealiumBaseTests {
         }
         waitForDispatchQueueToBeEmpty()
         waitOnQueue(queue: queue, expectations: [firstHttpRequestSent], timeout: Self.longTimeout)
-        // Make sure tealium deallocates before creating a new one, or it will use same implementation
-        teal = nil
+        // Make sure tealium is shut down before creating a new one, or it will use same implementation
+        teal?.shutdown()
+        waitForDispatchQueueToBeEmpty()
         teal = createTealium() // Next launch
         teal?.track("Event2")
         waitForDispatchQueueToBeEmpty()

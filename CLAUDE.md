@@ -156,6 +156,9 @@ SQLite via SQLite.swift (0.15.4+). Repositories: `QueueRepository`, `KeyValueRep
 ### Session Management
 `Session` tracks `status` (started/resumed/ended), `sessionId`, `lastEventTimeMilliseconds`, `eventCount`. `SessionManager` updates on each `track()` call.
 
+### Instance Lifecycle
+`TealiumInstanceManager` strongly retains every created `Tealium`/`TealiumImpl` instance (keyed by `TealiumConfig.key`) — dropping all external references no longer deallocates it. Instances are released only via explicit `Tealium.shutdown()` or `TealiumInstanceManager.shutdown(_:)`, which tears down modules, the dispatch loop, and the session manager. Any call made on a shut-down instance fails with `TealiumError.instanceShutdown`.
+
 ## Key Files
 
 | File | Purpose |

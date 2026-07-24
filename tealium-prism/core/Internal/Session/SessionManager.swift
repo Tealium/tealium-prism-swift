@@ -85,6 +85,7 @@ class SessionManager: SessionRegistry {
     }
 
     func registerDispatch(_ dispatch: inout Dispatch) {
+        guard !disposer.isDisposed else { return }
         let timestamp = dispatch.timestamp
         let newSession = createOrExtendSession(timestamp: timestamp)
         var sessionData: DataObject = [
@@ -112,6 +113,10 @@ class SessionManager: SessionRegistry {
         } else {
             Session(status: .started, sessionInfo: .new(timestamp: timestamp))
         }
+    }
+
+    func shutdown() {
+        disposer.dispose()
     }
 }
 

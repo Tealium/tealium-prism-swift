@@ -14,6 +14,38 @@ final class TealiumImplementationTests: XCTestCase {
     @StateSubject([])
     var modules: ObservableState<[Module]>
 
+    private func makeImplementation() throws -> TealiumImpl {
+        var config = TealiumConfig(account: "mockAccount",
+                                   profile: "mockProfile",
+                                   environment: "mockEnv",
+                                   modules: [],
+                                   settingsFile: nil,
+                                   settingsUrl: nil) { builder in
+            builder.setMinLogLevel(.silent)
+        }
+        config.databaseName = nil
+        config.networkClient = MockNetworkClient(result: .success(.successful()))
+        return try TealiumImpl(config, queue: .worker)
+    }
+
+    func test_isShutdown_is_false_before_shutdown() throws {
+        let instance = try makeImplementation()
+        XCTAssertFalse(instance.isShutdown)
+    }
+
+    func test_isShutdown_is_true_after_shutdown() throws {
+        let instance = try makeImplementation()
+        instance.shutdown()
+        XCTAssertTrue(instance.isShutdown)
+    }
+
+    func test_shutdown_can_be_called_multiple_times() throws {
+        let instance = try makeImplementation()
+        instance.shutdown()
+        instance.shutdown()
+        XCTAssertTrue(instance.isShutdown)
+    }
+
     func test_queueProcessors_doesnt_emit_when_modules_empty() {
         let queueProcessorsDoesntEmit = expectation(description: "QueueProcessors doesn't emit for empty modules")
         queueProcessorsDoesntEmit.isInverted = true

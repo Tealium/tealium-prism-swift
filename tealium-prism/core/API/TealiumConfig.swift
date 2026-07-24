@@ -24,7 +24,7 @@ public struct TealiumConfig {
     /// The datasource for the data coming from this SDK
     public let dataSource: String?
 
-    /// A key used to uniquely identify `Tealium` instances.
+    /// A key used to uniquely identify `Tealium` instances. Computed as `"\(account)-\(profile)"`.
     public var key: String { "\(account)-\(profile)" }
 
     /// The file name from which to read the Local JSON settings.

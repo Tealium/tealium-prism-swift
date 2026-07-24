@@ -193,6 +193,14 @@ final class SessionManagerTests: XCTestCase {
         XCTAssertNotNil(payload.getDataItem(key: TealiumDataKey.sessionTimeout))
     }
 
+    func test_registerDispatch_after_shutdown_does_not_update_dispatch() {
+        sessionManager.shutdown()
+        sessionManager.registerDispatch(&dispatch)
+        XCTAssertNil(dispatch.payload.getDataItem(key: TealiumDataKey.sessionId))
+        XCTAssertNil(dispatch.payload.getDataItem(key: TealiumDataKey.isNewSession))
+        XCTAssertNil(dispatch.payload.getDataItem(key: TealiumDataKey.sessionTimeout))
+    }
+
     func test_registerDispatch_starts_new_session_if_expired() {
         let sessionChanges = expectation(description: "Session changes 4 times")
         sessionChanges.expectedFulfillmentCount = 4

@@ -167,9 +167,9 @@ final class LifecycleModuleSubscriptionTests: LifecycleModuleBaseTests {
                 wakeTracked.fulfill()
             }
         }.addTo(autoDisposer)
-        publishApplicationStatus(ApplicationStatus(type: .initialized))
-        publishApplicationStatus(ApplicationStatus(type: .backgrounded))
-        publishApplicationStatus(ApplicationStatus(type: .foregrounded))
+        publishApplicationStatus(ApplicationStatus(type: .initialized, timestamp: 1000))
+        publishApplicationStatus(ApplicationStatus(type: .backgrounded, timestamp: 2000))
+        publishApplicationStatus(ApplicationStatus(type: .foregrounded, timestamp: 3000))
         waitForDefaultTimeout()
     }
 

@@ -153,10 +153,29 @@ class TealiumImpl {
             }
     }
 
-    deinit {
-        self.modulesManager.shutdown()
-        self.tracker.dispatchManager.stopDispatchLoop()
-        let instanceName = self.instanceName
+    /// Whether this instance has been shut down. Once `true`, all resources have been released.
+    var isShutdown: Bool {
+        automaticDisposer.isDisposed
+    }
+
+    /**
+     * Releases all resources held by this instance: subscriptions, modules, the dispatch loop and the session manager.
+     *
+     * This method is idempotent — calling it more than once has no additional effect.
+     */
+    func shutdown() {
+        guard !isShutdown else { return }
+        automaticDisposer.dispose()
+        modulesManager.shutdown()
+        tracker.dispatchManager.stopDispatchLoop()
+        sessionManager.shutdown()
+        let instanceName = self.instanceName // Avoid capturing self in @escaping autoclosure
         context.logger?.info(category: LogCategory.tealium, "Instance \(instanceName) shutting down.")
+    }
+
+    deinit {
+        // Defensive: the instance is normally shut down explicitly via the `TealiumInstanceManager`
+        // before being deallocated. This guarantees teardown even if it wasn't.
+        shutdown()
     }
 }
