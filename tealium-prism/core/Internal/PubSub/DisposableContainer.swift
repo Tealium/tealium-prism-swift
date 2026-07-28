@@ -56,12 +56,29 @@ class DisposableContainer: CompositeDisposable {
 /// A simple wrapper that synchronizes adding and disposing the `Disposable` children on a specific queue.
 class AsyncDisposableContainer: DisposableContainer {
     let queue: TealiumQueue
+    private let lock = SynchronizeLock()
+
+    private var _isDisposed = false
+
+    override var isDisposed: Bool {
+        lock.synchronize {
+            _isDisposed
+        }
+    }
+
     init(queue: TealiumQueue) {
         self.queue = queue
     }
+
     override func dispose() {
-        queue.ensureOnQueue {
-            super.dispose()
+        let shouldDispose = lock.synchronize {
+            defer { _isDisposed = true }
+            return !_isDisposed
+        }
+        if shouldDispose {
+            queue.ensureOnQueue {
+                super.dispose()
+            }
         }
     }
 

@@ -43,8 +43,8 @@ class TealiumImpl {
                                                   logger: logger)
         settingsManager.startRefreshing(onActivity: config.appStatusListener
             .onApplicationStatus
-            .observeOn(queue)
-            .subscribeOn(queue))
+            .subscribeOn(queue)
+            .observeOn(queue))
         self.settingsManager = settingsManager
         self.loadRuleEngine = LoadRuleEngine(sdkSettings: settingsManager.settings, logger: logger)
         let coreSettings = settingsManager.settings.mapState { $0.core }

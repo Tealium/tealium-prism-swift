@@ -8,7 +8,9 @@
 
 import Foundation
 
-final class SynchronizeLock: NSLock, @unchecked Sendable {
+/// A lock that allows to synchronize blocks of code.
+/// It derives from an `NSRecursiveLock` to avoid deadlocks in case of reentrancy.
+final class SynchronizeLock: NSRecursiveLock, @unchecked Sendable {
     func synchronize<T>(_ action: () throws -> T) rethrows -> T {
         lock()
         defer {

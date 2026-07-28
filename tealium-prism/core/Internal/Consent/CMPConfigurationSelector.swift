@@ -22,8 +22,8 @@ class CMPConfigurationSelector {
         self.configuration = configuration
         let inspectorState = StateSubject<ConsentInspector?>(nil)
         configuration.combineLatest(cmpAdapter.consentDecision
-            .distinct()
-            .observeOn(queue))
+            .observeOn(queue)
+            .distinct())
         .compactMap { configuration, decision in
             guard let configuration, let decision else { return nil }
             return ConsentInspector(configuration: configuration,

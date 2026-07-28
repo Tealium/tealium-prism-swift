@@ -143,23 +143,22 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
     }
 
     private func onMainThreadData() -> Observable<DataObject> {
-        Observables.callback(from: { [deviceDataProvider, configuration, queue] completion in
-            TealiumQueue.main.ensureOnQueue {
-                var result: DataObject = [:]
-                if configuration.batteryReportingEnabled == true {
-                    result.set(deviceDataProvider.batteryPercent, key: DeviceDataKey.batteryPercent)
-                    result.set(deviceDataProvider.isCharging, key: DeviceDataKey.isCharging)
-                }
-                if configuration.screenReportingEnabled == true {
-                    result += deviceDataProvider.getScreenOrientation()
-                    result.set(deviceDataProvider.resolution, key: DeviceDataKey.resolution)
-                    result.set(deviceDataProvider.logicalResolution, key: DeviceDataKey.logicalResolution)
-                }
-                queue.ensureOnQueue {
-                    completion(result)
-                }
+        Observables.callback(from: { [deviceDataProvider, configuration] completion in
+            dispatchPrecondition(condition: .onQueue(.main))
+            var result: DataObject = [:]
+            if configuration.batteryReportingEnabled == true {
+                result.set(deviceDataProvider.batteryPercent, key: DeviceDataKey.batteryPercent)
+                result.set(deviceDataProvider.isCharging, key: DeviceDataKey.isCharging)
             }
-        })
+            if configuration.screenReportingEnabled == true {
+                result += deviceDataProvider.getScreenOrientation()
+                result.set(deviceDataProvider.resolution, key: DeviceDataKey.resolution)
+                result.set(deviceDataProvider.logicalResolution, key: DeviceDataKey.logicalResolution)
+            }
+            completion(result)
+            return Disposables.disposed()
+        }).subscribeOn(.main)
+            .observeOn(queue)
     }
 
     func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) {

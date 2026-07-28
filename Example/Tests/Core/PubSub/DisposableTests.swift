@@ -65,7 +65,6 @@ final class DisposableTests: XCTestCase {
         automaticDisposer = nil
         waitForDefaultTimeout()
     }
-
     func test_AsyncDisposableContainer_disposes_on_given_queue() {
         let queue = TealiumQueue.worker
         let disposer = AsyncDisposableContainer(queue: queue)
@@ -74,8 +73,30 @@ final class DisposableTests: XCTestCase {
             dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
             disposed.fulfill()
         }
+        let queueDrained = expectation(description: "queue drained")
+        queue.dispatchQueue.sync { queueDrained.fulfill() }
+        wait(for: [queueDrained], timeout: Self.defaultTimeout)
         disposer.dispose()
         waitOnQueue(queue: queue)
+    }
+
+    func test_AsyncDisposableContainer_disposes_on_given_queue_when_adding_disposable_after_dispose() {
+        let queue = TealiumQueue.worker
+        let disposer = AsyncDisposableContainer(queue: queue)
+        let disposed = expectation(description: "Subscription is disposed")
+        disposer.dispose()
+        disposer.onDispose {
+            dispatchPrecondition(condition: .onQueue(queue.dispatchQueue))
+            disposed.fulfill()
+        }
+        waitOnQueue(queue: queue)
+    }
+
+    func test_AsyncDisposableContainer_isDisposed_is_immediately_true() {
+        let queue = TealiumQueue.worker
+        let disposer = AsyncDisposableContainer(queue: queue)
+        disposer.dispose()
+        XCTAssertTrue(disposer.isDisposed)
     }
 
     func test_remove_removes_disposable_from_container() {

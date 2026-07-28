@@ -21,7 +21,11 @@ import Foundation
 /// - Nils callbacks on both completion and disposal to release user-captured references (view controllers, etc.).
 class ThreadSafeAnonymousObserver<Element>: LinkableObserver {
     private var upstream: (any Disposable)?
-    private(set) var isDisposed = false
+
+    private var _isDisposed = false
+    var isDisposed: Bool {
+        lock.synchronize { _isDisposed }
+    }
     private let lock = SynchronizeLock()
 
     private var _onNext: ((Element) -> Void)?
@@ -34,7 +38,7 @@ class ThreadSafeAnonymousObserver<Element>: LinkableObserver {
 
     func onNext(_ element: Element) {
         let onNext: ((Element) -> Void)? = lock.synchronize {
-            guard !isDisposed else { return nil }
+            guard !_isDisposed else { return nil }
             return _onNext
         }
         onNext?(element)
@@ -42,7 +46,7 @@ class ThreadSafeAnonymousObserver<Element>: LinkableObserver {
 
     func onComplete() {
         let onComplete: (() -> Void)? = lock.synchronize {
-            guard !isDisposed else { return nil }
+            guard !_isDisposed else { return nil }
             defer { stop() }
             return _onComplete
         }
@@ -58,8 +62,8 @@ class ThreadSafeAnonymousObserver<Element>: LinkableObserver {
 
     func dispose() {
         let upstream: (any Disposable)? = lock.synchronize {
-            guard !isDisposed else { return nil }
-            isDisposed = true
+            guard !_isDisposed else { return nil }
+            _isDisposed = true
             stop()
             defer { self.upstream = nil }
             return self.upstream
@@ -69,7 +73,7 @@ class ThreadSafeAnonymousObserver<Element>: LinkableObserver {
 
     func link(_ disposable: any Disposable) {
         let shouldDispose: Bool = lock.synchronize {
-            if isDisposed {
+            if _isDisposed {
                 return true
             }
             upstream = disposable

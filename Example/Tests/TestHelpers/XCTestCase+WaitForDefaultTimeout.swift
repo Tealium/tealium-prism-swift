@@ -33,4 +33,9 @@ public extension XCTestCase {
             wait(for: expectations, timeout: timeout)
         }
     }
+
+    /// Use this to avoid a warning when calling `throw XCTSkip` followed by some code that will never be executed.
+    func skip(_ message: String, file: StaticString = #filePath, line: UInt = #line) throws {
+        throw XCTSkip(message, file: file, line: line)
+    }
 }

@@ -25,21 +25,21 @@ class ConnectivityManagerWrapper: ConnectivityManagerProtocol {
 
     init(connectivityManager: ConnectivityManager, queue: TealiumQueue) {
         disposable = Disposables.composite(queue: connectivityManager.queue)
-        // Note that we can't use `observeOn` here because we `subscribeOn` a different queue.
-        // If we did use `observeOn` we would be causing race conditions.
         connectivityManager.connectionAssumedAvailable
             .subscribeOn(connectivityManager.queue)
-            .subscribe { [weak self] element in
-                queue.ensureOnQueue {
-                    self?._connectionAssumedAvailable.onNextIfChanged(element)
-                }
+            .observeOn(queue)
+            .subscribe { [_connectionAssumedAvailable] element in
+                _connectionAssumedAvailable.onNextIfChanged(element)
+            } onComplete: { [_connectionAssumedAvailable] in
+                _connectionAssumedAvailable.onComplete()
             }.addTo(disposable)
         connectivityManager.connection
             .subscribeOn(connectivityManager.queue)
-            .subscribe { [weak self] element in
-                queue.ensureOnQueue {
-                    self?._connection.onNextIfChanged(element)
-                }
+            .observeOn(queue)
+            .subscribe { [_connection] element in
+                _connection.onNextIfChanged(element)
+            } onComplete: { [_connection] in
+                _connection.onComplete()
             }.addTo(disposable)
     }
 

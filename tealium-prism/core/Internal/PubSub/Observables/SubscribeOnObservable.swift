@@ -28,6 +28,7 @@ private class SubscribeOnObserver<Element>: Observer {
         downstream = nil
         container.dispose()
     }
+
 }
 
 class SubscribeOnObservable<Element>: Observable<Element> {
@@ -42,7 +43,9 @@ class SubscribeOnObservable<Element>: Observable<Element> {
     override func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         let container = AsyncDisposableContainer(queue: queue)
         queue.ensureOnQueue { [source] in
-            let observer = SubscribeOnObserver(downstream: observer, container: container)
+            guard !container.isDisposed else { return }
+            let observer = SubscribeOnObserver(downstream: observer,
+                                               container: container)
             source.subscribe(observer).addTo(container)
         }
         return container

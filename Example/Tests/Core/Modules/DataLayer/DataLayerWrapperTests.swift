@@ -54,10 +54,16 @@ final class DataLayerWrapperTests: BaseDataLayerWrapperTests {
     func test_put_and_dispose_disposes_callback() {
         let notCompleted = expectation(description: "Not completed")
         notCompleted.isInverted = true
+        let semaphore = DispatchSemaphore(value: 0)
+        queue.ensureOnQueue {
+            // Lock the queue to avoid `onSuccess` to be called before `disposable.dispose` has a chance to run.
+            semaphore.wait()
+        }
         let disposable = wrapper.put(key: "key", value: "value").onSuccess {
             notCompleted.fulfill()
         }
         disposable.dispose()
+        semaphore.signal()
         waitOnQueue(queue: queue)
         XCTAssertTrue(disposable.isDisposed)
     }

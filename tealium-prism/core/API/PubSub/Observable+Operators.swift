@@ -10,20 +10,77 @@ import Foundation
 
 public extension Observable {
 
-    /// Ensures that the subscription to the source observable happens on the provided queue.
+    /// Ensures that the subscription to the source observable happens on the provided `queue`.
     ///
-    /// - Warning: Returns a `Subscribable`, not an `Observable`. Do not chain operators after this —
-    ///   operators use non-thread-safe `Observer`s that would race if the upstream emits
-    ///   on the specified queue while disposal happens from the caller's thread.
-    ///   Use `subscribe(onNext:onComplete:)` as the final step after `subscribeOn`.
-    func subscribeOn(_ queue: TealiumQueue) -> some Subscribable<Element> {
+    /// The source **must** emit on this same `queue` (see the first warning below); this operator
+    /// moves only the *subscription*, not the emission thread. It is useful to consume (via
+    /// `observeOn`) an `Observable` that emits from a thread different from the consumer's.
+    ///
+    /// Example:
+    ///
+    /// ```swift
+    /// let mainThreadSubject = Subject<Int>()
+    /// let queue = TealiumQueue(label: "someQueue")
+    /// queue.ensureOnQueue {
+    ///     mainThreadObservable.asObservable()
+    ///     .subscribeOn(.main)
+    ///     .observeOn(queue)
+    ///     .first()
+    ///     .map { $0 * 10 }
+    ///     .subscribe { print($0) }
+    /// }
+    ///
+    /// DispatchQueue.main.async {
+    ///     mainThreadSubject.onNext(1)
+    /// }
+    /// ```
+    ///
+    /// - Warning: This method is intended for observables that emit from the same queue as the one provided here.
+    /// Calling this method on an `Observable` that emits from a different queue will cause race conditions.
+    ///
+    /// You can `subscribe` to this `Observable` directly and you will receive `onNext` and `onComplete`
+    /// from the source queue (which must be the same as the provided queue) and you can dispose from any thread.
+    ///
+    /// - Warning: You can't chain any operator to the returned `Observable` other than `observeOn`
+    /// with the queue on which the consumer runs. After doing that you can chain any other operator,
+    /// as long as it also works from that same queue.
+    ///
+    func subscribeOn(_ queue: TealiumQueue) -> Observable<Element> {
         SubscribeOnObservable(source: self, queue: queue)
     }
 
     /// Ensures that downstream observers receive events on the provided queue.
     ///
-    /// - Warning: The subscription (and therefore disposal) must happen from the same queue.
-    ///   Disposing from a different thread races with event delivery on the specified queue.
+    /// This is useful to consume an `Observable` that emits from a thread different from the consumer's:
+    /// the source keeps emitting on its own thread, while `onNext`/`onComplete` are
+    /// re-delivered downstream on this `queue`.
+    ///
+    /// Example:
+    ///
+    /// ```swift
+    /// let mainThreadSubject = Subject<Int>()
+    /// let queue = TealiumQueue(label: "someQueue")
+    /// queue.ensureOnQueue {
+    ///     mainThreadObservable.asObservable()
+    ///     .subscribeOn(.main)
+    ///     .observeOn(queue)
+    ///     .first()
+    ///     .map { $0 * 10 }
+    ///     .subscribe { print($0) }
+    /// }
+    ///
+    /// DispatchQueue.main.async {
+    ///     mainThreadSubject.onNext(1)
+    /// }
+    /// ```
+    ///
+    /// - Warning: Disposing of a subscription to the returned `Observable` must happen from the same queue.
+    /// Disposing from a different queue races with event delivery on this `queue`.
+    ///
+    /// - Warning: Immediately before `observeOn` you must ensure to `subscribeOn` the producer queue,
+    /// and you must not chain any operator onto that `subscribeOn` before calling `observeOn`.
+    ///
+    /// See `subscribeOn` for the full contract.
     func observeOn(_ queue: TealiumQueue) -> Observable<Element> {
         ObserveOnObservable(source: self, queue: queue)
     }
