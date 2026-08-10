@@ -52,8 +52,7 @@ public class ApplicationStatusListener: NSObject {
     @ReplaySubject(ApplicationStatus(type: .initialized), cacheSize: Int.max)
     public var onApplicationStatus
 
-    private var wakeNotificationObserver: NSObjectProtocol?
-    private var sleepNotificationObserver: NSObjectProtocol?
+    private let disposable: AsyncDisposableContainer
 
     private(set) var initGraceTimer: RepeatingTimer?
     let queue: TealiumQueue
@@ -61,8 +60,9 @@ public class ApplicationStatusListener: NSObject {
     init(graceTimeInterval: Double = 10.0, leeway: DispatchTimeInterval = .milliseconds(10), queue: TealiumQueue = .worker, notificationCenter: NotificationCenter = NotificationCenter.default) {
         self.queue = queue
         self.notificationCenter = notificationCenter
+        self.disposable = AsyncDisposableContainer(queue: queue)
         super.init()
-        addListeners()
+        setupListeners().addTo(disposable)
         initGraceTimer = RepeatingTimer(timeInterval: graceTimeInterval,
                                         repeating: .never,
                                         leeway: leeway,
@@ -75,7 +75,7 @@ public class ApplicationStatusListener: NSObject {
     }
 
     /// Sets up notification listeners to trigger events in listening delegates.
-    func addListeners() {
+    func setupListeners() -> any Disposable {
         #if os(watchOS)
         let notificationApplicationDidBecomeActive = WKExtension.applicationDidBecomeActiveNotification
         let notificationApplicationWillResignActive = WKExtension.applicationWillResignActiveNotification
@@ -86,27 +86,30 @@ public class ApplicationStatusListener: NSObject {
         let notificationApplicationDidBecomeActive = UIApplication.didBecomeActiveNotification
         let notificationApplicationWillResignActive = UIApplication.willResignActiveNotification
         #endif
-        let operationQueue = OperationQueue()
-        operationQueue.underlyingQueue = queue.dispatchQueue
 
-        /// Notifies listeners of a sleep event.
-        sleepNotificationObserver = notificationCenter.addObserver(forName: notificationApplicationWillResignActive,
-                                                                   object: nil,
-                                                                   queue: operationQueue) { [weak self] _ in
-            self?._onApplicationStatus.onNext(ApplicationStatus(type: .backgrounded))
-        }
+        /// The following observables emit ApplicationStatus created at the time in which
+        /// the notification was posted, without thread switches.
+        let onBackground = notificationCenter
+            .observable(forName: notificationApplicationWillResignActive)
+            .map { _ in ApplicationStatus(type: .backgrounded) }
 
-        /// Notifies listeners of a wake event.
-        wakeNotificationObserver = notificationCenter.addObserver(forName: notificationApplicationDidBecomeActive,
-                                                                  object: nil,
-                                                                  queue: operationQueue) { [weak self] _ in
-            self?._onApplicationStatus.onNext(ApplicationStatus(type: .foregrounded))
-        }
+        let onForeground = notificationCenter
+            .observable(forName: notificationApplicationDidBecomeActive)
+            .map { _ in ApplicationStatus(type: .foregrounded) }
+
+        /// Here we `observeOn(queue)` (instead of using `addObserver` with an `OperationQueue`)
+        /// to avoid blocking the main thread while waiting for the queue to be empty and emit from that queue.
+        /// `subscribeOn` is added because, despite the notifications being thread safe,
+        /// they are emitted from the main thread, but `merge` is not thread safe,
+        /// so we need to dispose of it from that same thread.
+        return onBackground.merge(onForeground)
+            .subscribeOn(.main)
+            .observeOn(queue)
+            .subscribe(_onApplicationStatus)
     }
 
     deinit {
-        notificationCenter.removeObserver(sleepNotificationObserver as Any)
-        notificationCenter.removeObserver(wakeNotificationObserver as Any)
+        disposable.dispose()
     }
 }
 

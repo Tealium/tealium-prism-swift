@@ -15,16 +15,20 @@ final class ApplicationStatusListenerTests: XCTestCase {
     var queue: DispatchQueue {
         listener.queue.dispatchQueue
     }
+    var qos = DispatchQoS.userInteractive
     lazy var listener = ApplicationStatusListener(graceTimeInterval: graceTimeInterval,
                                                   leeway: .nanoseconds(0),
                                                   queue: TealiumQueue(label: "testQueue",
-                                                                      qos: .userInteractive),
+                                                                      qos: qos),
                                                   notificationCenter: notificationCenter)
+
+    var onApplicationStatus: Observable<ApplicationStatus> {
+        listener.onApplicationStatus.subscribeOn(listener.queue)
+    }
 
     func test_initialized_status_is_emitted_on_launch() {
         let emitted = expectation(description: "Initialized status emitted")
-        graceTimeInterval = 1.0
-        listener.onApplicationStatus.subscribeOnce { status in
+        onApplicationStatus.subscribeOnce { status in
             switch status.type {
             case .initialized:
                 emitted.fulfill()
@@ -32,7 +36,7 @@ final class ApplicationStatusListenerTests: XCTestCase {
                 return
             }
         }
-        waitForDefaultTimeout()
+        waitOnQueue(queue: listener.queue)
     }
 
     func test_cache_resized_after_grace_timeout() {
@@ -55,9 +59,8 @@ final class ApplicationStatusListenerTests: XCTestCase {
         let emitted = expectation(description: "Backgrounded status emitted")
         emitted.assertForOverFulfill = false
         emitted.expectedFulfillmentCount = 2
-        graceTimeInterval = 1.0
         let automaticDisposer = AutomaticDisposer()
-        listener.onApplicationStatus.subscribe { status in
+        onApplicationStatus.subscribe { status in
             switch status.type {
             case .backgrounded, .initialized:
                 emitted.fulfill()
@@ -66,16 +69,15 @@ final class ApplicationStatusListenerTests: XCTestCase {
             }
         }.addTo(automaticDisposer)
         notificationCenter.postResignActiveNotification()
-        waitForDefaultTimeout()
+        waitOnQueue(queue: listener.queue)
     }
 
     func test_foregrounded_status_is_emitted() {
         let emitted = expectation(description: "Foregrounded status emitted")
         emitted.assertForOverFulfill = false
         emitted.expectedFulfillmentCount = 2
-        graceTimeInterval = 1.0
         let automaticDisposer = AutomaticDisposer()
-        listener.onApplicationStatus.subscribe { status in
+        onApplicationStatus.subscribe { status in
             switch status.type {
             case .foregrounded, .initialized:
                 emitted.fulfill()
@@ -84,6 +86,70 @@ final class ApplicationStatusListenerTests: XCTestCase {
             }
         }.addTo(automaticDisposer)
         notificationCenter.postBecomeActiveNotification()
+        waitOnQueue(queue: listener.queue)
+    }
+
+    func test_status_is_delivered_on_provided_queue() {
+        let deliveredOnQueue = expectation(description: "Foregrounded status delivered on worker queue")
+        let automaticDisposer = AutomaticDisposer()
+        onApplicationStatus.subscribe { [queue] status in
+            guard status.type == .foregrounded else { return }
+            dispatchPrecondition(condition: .onQueue(queue))
+            deliveredOnQueue.fulfill()
+        }.addTo(automaticDisposer)
+        notificationCenter.postBecomeActiveNotification()
+        waitOnQueue(queue: listener.queue)
+    }
+
+    func test_post_does_not_block_the_posting_thread() {
+        let delivered = expectation(description: "Status is eventually delivered on the worker queue")
+        var statusDelivered = false
+        // Use a utility-QoS queue (matching production `TealiumQueue.worker`) so blocking it
+        // doesn't cause a priority inversion against the main thread that signals it.
+        qos = .utility
+        let blocker = DispatchSemaphore(value: 0)
+        let automaticDisposer = AutomaticDisposer()
+        onApplicationStatus.subscribe { status in
+            guard status.type == .foregrounded else { return }
+            statusDelivered = true
+            delivered.fulfill()
+        }.addTo(automaticDisposer)
+
+        // Occupy the (serial) worker queue so any asynchronous delivery is queued behind this block.
+        listener.queue.dispatchQueue.async { blocker.wait() }
+
+        notificationCenter.postBecomeActiveNotification()
+        // If posting were synchronous it would have delivered before this line (and deadlocked
+        // on the blocked queue); reaching here with no delivery proves it did not block.
+        XCTAssertFalse(statusDelivered, "Posting must not block the posting thread waiting for delivery")
+
+        blocker.signal()
+        waitOnQueue(queue: listener.queue)
+    }
+
+    func test_no_status_emitted_after_deinit() {
+        let notEmitted = expectation(description: "No status emitted after deinit")
+        notEmitted.isInverted = true
+        var localListener: ApplicationStatusListener? = ApplicationStatusListener(
+            graceTimeInterval: graceTimeInterval,
+            leeway: .nanoseconds(0),
+            queue: listener.queue,
+            notificationCenter: notificationCenter
+        )
+        let automaticDisposer = AutomaticDisposer()
+        localListener?.onApplicationStatus
+            .subscribeOn(listener.queue)
+            .subscribe { status in
+                switch status.type {
+                case .backgrounded, .foregrounded:
+                    notEmitted.fulfill()
+                default:
+                    return
+                }
+            }.addTo(automaticDisposer)
+        localListener = nil
+        notificationCenter.postBecomeActiveNotification()
+        notificationCenter.postResignActiveNotification()
         waitForDefaultTimeout()
     }
 

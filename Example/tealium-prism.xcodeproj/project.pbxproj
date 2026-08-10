@@ -2111,6 +2111,10 @@
 		F5AEBE682F6AC2D300EE1B69 /* MockConnectivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158A82362A39F5750028FD7C /* MockConnectivity.swift */; };
 		F5AEBE692F6AC2D300EE1B69 /* MockConnectivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158A82362A39F5750028FD7C /* MockConnectivity.swift */; };
 		F5AEBE6A2F6AC2D300EE1B69 /* MockConnectivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158A82362A39F5750028FD7C /* MockConnectivity.swift */; };
+		F5C7BE3B301A5ECF0074D81D /* NotificationCenter+observableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C7BE3A301A5ECF0074D81D /* NotificationCenter+observableTests.swift */; };
+		F5C7BE3C301A5ECF0074D81D /* NotificationCenter+observableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C7BE3A301A5ECF0074D81D /* NotificationCenter+observableTests.swift */; };
+		F5C7BE3D301A5ECF0074D81D /* NotificationCenter+observableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C7BE3A301A5ECF0074D81D /* NotificationCenter+observableTests.swift */; };
+		F5C7BE3E301A5ECF0074D81D /* NotificationCenter+observableTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5C7BE3A301A5ECF0074D81D /* NotificationCenter+observableTests.swift */; };
 		F5CBDCAE2F7694F900D6A8E2 /* ConnectivityManagerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5CBDCAD2F7694F900D6A8E2 /* ConnectivityManagerWrapperTests.swift */; };
 		F5CBDCAF2F7694F900D6A8E2 /* ConnectivityManagerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5CBDCAD2F7694F900D6A8E2 /* ConnectivityManagerWrapperTests.swift */; };
 		F5CBDCB02F7694F900D6A8E2 /* ConnectivityManagerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5CBDCAD2F7694F900D6A8E2 /* ConnectivityManagerWrapperTests.swift */; };
@@ -2634,6 +2638,7 @@
 		F538CED7300513D7004AB31B /* ModuleSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleSettingsTests.swift; sourceTree = "<group>"; };
 		F538CEDC30053FC9004AB31B /* JustTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JustTests.swift; sourceTree = "<group>"; };
 		F575554A2F7EDA490066BAED /* LazyConstantTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LazyConstantTests.swift; sourceTree = "<group>"; };
+		F5C7BE3A301A5ECF0074D81D /* NotificationCenter+observableTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NotificationCenter+observableTests.swift"; sourceTree = "<group>"; };
 		F5CBDCAD2F7694F900D6A8E2 /* ConnectivityManagerWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivityManagerWrapperTests.swift; sourceTree = "<group>"; };
 		F5CEEFEC2FBDB88C00162847 /* DisposableObserverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DisposableObserverTests.swift; sourceTree = "<group>"; };
 		F5CEEFED2FBDB88C00162847 /* ThreadSafeAnonymousObserverTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ThreadSafeAnonymousObserverTests.swift; sourceTree = "<group>"; };
@@ -3348,6 +3353,7 @@
 		87AF545C2C7E380600F1C114 /* Utils */ = {
 			isa = PBXGroup;
 			children = (
+				F5C7BE3A301A5ECF0074D81D /* NotificationCenter+observableTests.swift */,
 				872189022E5C6E6B00D3CCF1 /* BackgroundTaskStarterTests.swift */,
 				87451A692E1C29F00074EA1E /* ArrayTests.swift */,
 				87AF546B2C7E389C00F1C114 /* TealiumDispatchGroupTests.swift */,
@@ -6369,6 +6375,7 @@
 				876F25002DDF2AD400C55FFE /* CMPConfigurationSelectorTests.swift in Sources */,
 				15A223892B19F00600191132 /* MockConsentManager.swift in Sources */,
 				EC9C45602DA53D450046AB3A /* ModuleProxy+ExecuteTaskTests.swift in Sources */,
+				F5C7BE3D301A5ECF0074D81D /* NotificationCenter+observableTests.swift in Sources */,
 				876F79862C53A904008BC13B /* CoreSettingsConverterTests.swift in Sources */,
 				15A473882A5FEB7F00A7B7AE /* Operators+MapTests.swift in Sources */,
 				87E035462EB3D24F00BE16ED /* ReferenceContainerTests.swift in Sources */,
@@ -7068,6 +7075,7 @@
 				ECF92FAA2F69831A00A5AE06 /* ValueSourceTests.swift in Sources */,
 				87A408C02E97F06E005D92CC /* Operators+FilterTests.swift in Sources */,
 				87A408C12E97F06E005D92CC /* DeviceDataProviderCommonTests.swift in Sources */,
+				F5C7BE3C301A5ECF0074D81D /* NotificationCenter+observableTests.swift in Sources */,
 				87A408C22E97F06E005D92CC /* MockCollector.swift in Sources */,
 				87A408C32E97F06E005D92CC /* Sha256Tests.swift in Sources */,
 				EC7FDD062F115F5F008A4D45 /* ConnectivityBarrierSettingsBuilderTests.swift in Sources */,
@@ -7620,6 +7628,7 @@
 				ECF92FAC2F69831A00A5AE06 /* ValueSourceTests.swift in Sources */,
 				87FC087B2D9452FD00E1041D /* MockCollector.swift in Sources */,
 				877C5F702CBD6C99008D4B78 /* Sha256Tests.swift in Sources */,
+				F5C7BE3B301A5ECF0074D81D /* NotificationCenter+observableTests.swift in Sources */,
 				87BA6D562C6A470C00784784 /* ObservableTests.swift in Sources */,
 				D54BBFC52C78C01A003687C7 /* ErrorCooldownTests.swift in Sources */,
 				EC7FDD0B2F115F5F008A4D45 /* ConnectivityBarrierSettingsBuilderTests.swift in Sources */,
@@ -7888,6 +7897,7 @@
 				ECF92FAB2F69831A00A5AE06 /* ValueSourceTests.swift in Sources */,
 				87FC087A2D9452FD00E1041D /* MockCollector.swift in Sources */,
 				87BA6DCC2C6A47AF00784784 /* MockConsentManager.swift in Sources */,
+				F5C7BE3E301A5ECF0074D81D /* NotificationCenter+observableTests.swift in Sources */,
 				87BA6DCD2C6A47AF00784784 /* CoreSettingsConverterTests.swift in Sources */,
 				87BA6DCE2C6A47AF00784784 /* Operators+MapTests.swift in Sources */,
 				EC7FDD012F115F5F008A4D45 /* ConnectivityBarrierSettingsBuilderTests.swift in Sources */,
