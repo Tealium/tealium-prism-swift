@@ -47,11 +47,6 @@ class DatabaseHelper: SQLiteOpenHelper {
         try getDatabaseUpgrades(oldVersion: oldVersion).forEach {
             try $0.upgrade(database)
         }
-        database.userVersion = UserVersion(newVersion)
-    }
-
-    override func onDowngrade(database: Connection, fromOldVersion oldVersion: Int, toNewVersion newVersion: Int) throws {
-        throw DatabaseError.unsupportedDowngrade
     }
 
     func getDatabaseUpgrades(oldVersion: Int, upgrades: [DatabaseUpgrade] = DatabaseHelper.databaseUpgrades) -> [DatabaseUpgrade] {

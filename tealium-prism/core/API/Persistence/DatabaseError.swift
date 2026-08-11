@@ -10,6 +10,8 @@ import Foundation
 
 /// Errors that can occur during database operations.
 public enum DatabaseError: ErrorEnum, ErrorWrapping {
+    /// A database was created with version lower than 1
+    case invalidDatabaseVersion(_ version: Int)
     /// An attempt was made to downgrade the database to an unsupported version.
     case unsupportedDowngrade
     /// A database operation failed due to an underlying error.

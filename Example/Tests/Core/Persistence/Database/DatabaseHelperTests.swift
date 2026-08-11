@@ -67,10 +67,9 @@ class DatabaseHelperTests: XCTestCase {
         try databaseHelper.onUpgrade(database: connection, fromOldVersion: 1, toNewVersion: 3)
         XCTAssertTrueOptional(try connection.columnExists(column: "test_new_column", in: "module"))
         XCTAssertTrueOptional(try connection.columnExists(column: "v3_column", in: "module"))
-        XCTAssertEqual(connection.userVersion, 3)
     }
 
-    func test_onDowngrade_recreates_database() throws {
+    func test_onDowngrade_throws_unsupportedDowngrade() throws {
         let connection = try Connection(.inMemory)
         XCTAssertThrowsError(try databaseHelper.onDowngrade(database: connection, fromOldVersion: 3, toNewVersion: 1)) { error in
             guard let error = error as? DatabaseError, case .unsupportedDowngrade = error else {

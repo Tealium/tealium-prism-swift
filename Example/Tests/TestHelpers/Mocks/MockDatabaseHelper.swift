@@ -15,14 +15,14 @@ class MockDatabaseHelper: SQLiteOpenHelper {
     var onDowngradeCallback: (Connection, Int, Int) throws -> Void
     var onCreateCallback: (Connection) throws -> Void
     var onConfigureCallback: (Connection) throws -> Void
-    var onOpenCallback: (Connection) -> Void
+    var onOpenCallback: (Connection) throws -> Void
 
     init(version: Int,
          onUpgradeCallback: @escaping (Connection, Int, Int) throws -> Void = { _, _, _ in },
          onDowngradeCallback: @escaping (Connection, Int, Int) throws -> Void = { _, _, _ in },
          onCreateCallback: @escaping (Connection) throws -> Void = { _ in },
          onConfigureCallback: @escaping (Connection) throws -> Void = { _ in },
-         onOpenCallback: @escaping (Connection) -> Void = { _ in }) {
+         onOpenCallback: @escaping (Connection) throws -> Void = { _ in }) {
         self.onUpgradeCallback = onUpgradeCallback
         self.onDowngradeCallback = onDowngradeCallback
         self.onCreateCallback = onCreateCallback
@@ -42,7 +42,7 @@ class MockDatabaseHelper: SQLiteOpenHelper {
     override func onConfigure(database: Connection) throws {
         try onConfigureCallback(database)
     }
-    override func onOpen(database: Connection) {
-        onOpenCallback(database)
+    override func onOpen(database: Connection) throws {
+        try onOpenCallback(database)
     }
 }

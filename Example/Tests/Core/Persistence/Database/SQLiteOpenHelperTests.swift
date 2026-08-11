@@ -82,13 +82,14 @@ class SQLiteOpenHelperTests: XCTestCase {
         let onDowngradeExpectation = expectation(description: "onDowngrade is called.")
         let onOpenExpectation = expectation(description: "onOpen is called.")
         let connection = try openHelper.getDatabase()
-        let mockDatabaseHelper = MockDatabaseHelper(version: 0,
+        connection.userVersion = 2
+        let mockDatabaseHelper = MockDatabaseHelper(version: 1,
                                                     onUpgradeCallback: { _, _, _ in
             onUpgradeExpectation.fulfill()
         },
                                                     onDowngradeCallback: { _, oldVersion, newVersion in
-            XCTAssertEqual(oldVersion, self.openHelper.version)
-            XCTAssertEqual(newVersion, 0)
+            XCTAssertEqual(oldVersion, 2)
+            XCTAssertEqual(newVersion, 1)
             onDowngradeExpectation.fulfill()
         },
                                                     onCreateCallback: { _ in
@@ -104,6 +105,123 @@ class SQLiteOpenHelperTests: XCTestCase {
         wait(for: [configureExpectation, onDowngradeExpectation, onOpenExpectation, onUpgradeExpectation, onCreateExpectation],
              timeout: Self.defaultTimeout,
              enforceOrder: true)
+    }
+
+    func test_prepare_only_runs_onCreate_for_fresh_database_with_version_greater_than_one() throws {
+        let connection = try Connection(.inMemory)
+        let configureExpectation = expectation(description: "onConfigure is called.")
+        let onCreateExpectation = expectation(description: "onCreate is called.")
+        let onUpgradeExpectation = expectation(description: "onUpgrade is NEVER called.")
+        onUpgradeExpectation.isInverted = true
+        let onDowngradeExpectation = expectation(description: "onDowngrade is NEVER called.")
+        onDowngradeExpectation.isInverted = true
+        let onOpenExpectation = expectation(description: "onOpen is called.")
+        let mockDatabaseHelper = MockDatabaseHelper(version: 3,
+                                                    onUpgradeCallback: { _, _, _ in
+            onUpgradeExpectation.fulfill()
+        },
+                                                    onDowngradeCallback: { _, _, _ in
+            onDowngradeExpectation.fulfill()
+        },
+                                                    onCreateCallback: { _ in
+            onCreateExpectation.fulfill()
+        },
+                                                    onConfigureCallback: { _ in
+            configureExpectation.fulfill()
+        },
+                                                    onOpenCallback: { _ in
+            onOpenExpectation.fulfill()
+        })
+        try mockDatabaseHelper.prepare(database: connection)
+        wait(for: [configureExpectation, onCreateExpectation, onOpenExpectation, onUpgradeExpectation, onDowngradeExpectation],
+             timeout: Self.defaultTimeout,
+             enforceOrder: true)
+        XCTAssertEqual(connection.userVersion, 3)
+    }
+
+    func test_prepare_skips_schema_callbacks_when_stored_version_matches() throws {
+        let connection = try Connection(.inMemory)
+        connection.userVersion = 2
+        let configureExpectation = expectation(description: "onConfigure is called.")
+        let onCreateExpectation = expectation(description: "onCreate is NEVER called.")
+        onCreateExpectation.isInverted = true
+        let onUpgradeExpectation = expectation(description: "onUpgrade is NEVER called.")
+        onUpgradeExpectation.isInverted = true
+        let onDowngradeExpectation = expectation(description: "onDowngrade is NEVER called.")
+        onDowngradeExpectation.isInverted = true
+        let onOpenExpectation = expectation(description: "onOpen is called.")
+        let mockDatabaseHelper = MockDatabaseHelper(version: 2,
+                                                    onUpgradeCallback: { _, _, _ in
+            onUpgradeExpectation.fulfill()
+        },
+                                                    onDowngradeCallback: { _, _, _ in
+            onDowngradeExpectation.fulfill()
+        },
+                                                    onCreateCallback: { _ in
+            onCreateExpectation.fulfill()
+        },
+                                                    onConfigureCallback: { _ in
+            configureExpectation.fulfill()
+        },
+                                                    onOpenCallback: { _ in
+            onOpenExpectation.fulfill()
+        })
+        try mockDatabaseHelper.prepare(database: connection)
+        wait(for: [configureExpectation, onOpenExpectation, onCreateExpectation, onUpgradeExpectation, onDowngradeExpectation],
+             timeout: Self.defaultTimeout,
+             enforceOrder: true)
+    }
+
+    func test_prepare_sets_userVersion_to_target_after_onCreate() throws {
+        let connection = try Connection(.inMemory)
+        let mockDatabaseHelper = MockDatabaseHelper(version: 5)
+        try mockDatabaseHelper.prepare(database: connection)
+        XCTAssertEqual(connection.userVersion, 5)
+    }
+
+    func test_prepare_sets_userVersion_to_target_after_onUpgrade() throws {
+        let connection = try Connection(.inMemory)
+        connection.userVersion = 1
+        let mockDatabaseHelper = MockDatabaseHelper(version: 4)
+        try mockDatabaseHelper.prepare(database: connection)
+        XCTAssertEqual(connection.userVersion, 4)
+    }
+
+    func test_prepare_throws_when_version_is_less_than_1() {
+        let helper = SQLiteOpenHelper(version: 0, config: config)
+        XCTAssertThrowsError(try helper.getDatabase()) { error in
+            guard let databaseError = error as? DatabaseError,
+                  case let .invalidDatabaseVersion(version) = databaseError else {
+                return XCTFail("Expected invalidDatabaseVersion error but got \(error)")
+            }
+            XCTAssertEqual(version, 0)
+        }
+    }
+
+    func test_prepare_throws_when_onOpen_throws() throws {
+        let connection = try openHelper.getDatabase()
+        let onOpenExpectation = expectation(description: "onOpen is called.")
+        let databaseHelper = MockDatabaseHelper(version: 1,
+                                                onOpenCallback: { _ in
+            onOpenExpectation.fulfill()
+            throw NSError(domain: "Test Error", code: 1)
+        })
+        XCTAssertThrowsError(try databaseHelper.prepare(database: connection))
+        waitForDefaultTimeout()
+    }
+
+    func test_prepare_rolls_back_schema_changes_and_userVersion_when_onUpgrade_throws() throws {
+        let connection = try Connection(.inMemory)
+        try ModuleSchema.createTable(database: connection)
+        connection.userVersion = 1
+        let mockDatabaseHelper = MockDatabaseHelper(version: 2,
+                                                    onUpgradeCallback: { connection, _, _ in
+            try connection.run(ModuleSchema.table.addColumn(Expression<String>("rollback_column"), defaultValue: "test"))
+            throw NSError(domain: "Test Error", code: 1)
+        })
+        XCTAssertThrowsError(try mockDatabaseHelper.prepare(database: connection))
+        XCTAssertFalse(try connection.columnExists(column: "rollback_column", in: "module"))
+        XCTAssertEqual(connection.userVersion, 1)
     }
 
     func test_prepare_throws_when_onCreate_throws() {
@@ -136,8 +254,9 @@ class SQLiteOpenHelperTests: XCTestCase {
 
     func test_prepare_throws_when_onDowngrade_throws() throws {
         let connection = try openHelper.getDatabase()
+        connection.userVersion = 2
         let onDowngradeExpectation = expectation(description: "onDowngrade is called.")
-        let databaseHelper = MockDatabaseHelper(version: 0,
+        let databaseHelper = MockDatabaseHelper(version: 1,
                                                 onDowngradeCallback: { _, _, _ in
             onDowngradeExpectation.fulfill()
             throw NSError(domain: "Test Error", code: 1)
