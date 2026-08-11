@@ -105,45 +105,29 @@ class DispatchManager: DispatchManagerProtocol {
             coordinator.onBarriersState(for: dispatcher.id)
                 .flatMapLatest { [weak self] barriersState -> Observable<DispatchSplit> in
                     guard let self else { return Observables.empty() }
-                    self.logger?.debug(category: LogCategory.dispatchManager,
-                                       "BarrierState changed for \(dispatcher.id): \(barriersState)")
+                    self.debugLog("BarrierState changed for \(dispatcher.id): \(barriersState)")
                     if barriersState == .open {
                         return self.startConsentedDequeueLoop(for: dispatcher)
                     } else {
                         return Observables.empty()
                     }
                 }
-                .flatMap { [weak self] dispatchSplit in
-                    Observables.create { [weak self] observer in
-                        guard let self else {
-                            return Disposables.disposed()
-                        }
-                        if !dispatchSplit.unsuccessful.isEmpty {
-                            self.logger?.debug(category: LogCategory.dispatchManager,
-                                               "Dispatches discarded due to consent \(dispatchSplit.unsuccessful.shortDescription())")
-                            observer.onNext((dispatcher, dispatchSplit.unsuccessful))
-                        }
-                        var dispatches = dispatchSplit.successful
-
-                        self.logger?.debug(category: LogCategory.dispatchManager,
-                                           "Sending events to dispatcher \(dispatcher.id): \(dispatches.shortDescription())")
-                        let interval = TealiumSignpostInterval(signposter: .dispatching, name: "Transform and Dispatch")
-                            .begin(dispatcher.id)
-                        return self.transformAndDispatch(dispatches: dispatches, for: dispatcher) { processedDispatches in
-                            dispatches = dispatches.diff(processedDispatches, by: \.id)
-                            observer.onNext((dispatcher, processedDispatches))
-                            if dispatches.isEmpty {
-                                interval.end(dispatchSplit.successful.shortDescription())
-                                observer.onComplete()
-                            }
-                        }
+                .flatMap { [weak self] dispatchSplit -> Observable<(Dispatcher, [Dispatch])> in
+                    guard let self else {
+                        return Observables.empty()
                     }
-                }.filter { !$0.1.isEmpty }
+                    if !dispatchSplit.unsuccessful.isEmpty {
+                        self.debugLog("Dispatches discarded due to consent \(dispatchSplit.unsuccessful.shortDescription())")
+                    }
+                    return self.transformAndDispatch(dispatches: dispatchSplit.successful, for: dispatcher)
+                        .startWith(dispatchSplit.unsuccessful)
+                        .filter { !$0.isEmpty }
+                        .map { (dispatcher, $0) }
+                }
         }
         .subscribe { [weak self] dispatcher, processedDispatches in
             self?.queueManager.deleteDispatches(processedDispatches.map { $0.id }, for: dispatcher.id)
-            self?.logger?.debug(category: LogCategory.dispatchManager,
-                                "Dispatcher: \(dispatcher.id) processed events: \(processedDispatches.shortDescription())")
+            self?.debugLog("Dispatcher: \(dispatcher.id) processed events: \(processedDispatches.shortDescription())")
         }.addTo(self.managerContainer)
     }
 
@@ -184,42 +168,91 @@ class DispatchManager: DispatchManagerProtocol {
             }
     }
 
+    /// Applies dispatcher-scoped transformations and load rules to `dispatches`, then sends the result to `dispatcher`.
+    ///
+    /// Emits one `[Dispatch]` batch per completion callback from the dispatcher, plus a batch for any dispatches removed
+    /// by transformers or load rules (so the caller can delete them from the queue even though they were never sent).
+    /// Completes when all dispatches have been accounted for, or immediately if `dispatches` is empty.
     private func transformAndDispatch(dispatches: [Dispatch],
-                                      for dispatcher: Dispatcher,
-                                      onProcessedDispatches: @escaping ([Dispatch]) -> Void) -> any Disposable {
-        let container = DisposableContainer()
+                                      for dispatcher: Dispatcher) -> Observable<[Dispatch]> {
         guard !dispatches.isEmpty else {
-            onProcessedDispatches([])
+            return Observables.empty()
+        }
+        return Observables.create { [transformerCoordinator, weak self] observer in
+            let container = DisposableContainer()
+            let totalInterval = beginInterval("Transform and Dispatch", with: dispatcher.id)
+            let transformInterval = beginInterval("Transform", with: dispatcher.id)
+            container.onDispose {
+                transformInterval.end("Cancelled")
+                totalInterval.end("Cancelled")
+            }
+            func complete(_ reason: @autoclosure @escaping () -> String) {
+                totalInterval.end(reason())
+                observer.onComplete()
+            }
+            transformerCoordinator.transform(dispatches: dispatches,
+                                             for: .dispatcher(id: dispatcher.id)) { [weak self] transformedDispatches in
+                guard !container.isDisposed else { return }
+                transformInterval.end()
+                guard let self else {
+                    return complete("Deallocated Self")
+                }
+                let (passed, _) = self.loadRuleEngine.evaluateLoadRules(on: transformedDispatches,
+                                                                        forModule: dispatcher)
+                let removedDispatches = dispatches.diff(passed, by: \.id)
+                if !removedDispatches.isEmpty {
+                    debugLog("Dispatching disallowed for Dispatcher \(dispatcher.id) and Dispatches \(removedDispatches.shortDescription())")
+                    observer.onNext(removedDispatches)
+                }
+                guard !passed.isEmpty else {
+                    return complete("No Dispatch left to send after transformations and load rules.")
+                }
+                let mapped = passed.map { self.mappingsEngine.map(dispatcherId: dispatcher.id, dispatch: $0) }
+                self.dispatch(mapped, to: dispatcher, onProcessed: observer.onNext(_:), completion: complete(_:))
+                    .addTo(container)
+            }.addTo(container)
             return container
         }
-        let transformHandler = TealiumSignpostInterval(signposter: .dispatching, name: "Transform").begin(dispatcher.id)
+    }
 
-        self.transformerCoordinator.transform(dispatches: dispatches,
-                                              for: .dispatcher(id: dispatcher.id)) { [weak self] transformedDispatches in
-            transformHandler.end()
-            guard !container.isDisposed, let self else { return }
-            let (passed, _) = self.loadRuleEngine.evaluateLoadRules(on: transformedDispatches,
-                                                                    forModule: dispatcher)
-            let removedDispatches = dispatches.diff(passed, by: \.id)
-            if !removedDispatches.isEmpty {
-                self.logger?.debug(category: LogCategory.dispatchManager,
-                                   "Dispatching disallowed for Dispatcher \(dispatcher.id) and Dispatches \(removedDispatches.shortDescription())")
-                onProcessedDispatches(removedDispatches)
+    /// Sends `dispatches` to `dispatcher` and tracks completion across potentially multiple callbacks.
+    ///
+    /// `onProcessed` is called once per batch of dispatches acknowledged by the dispatcher.
+    /// `completion` is called (with a reason string) once every dispatch has been acknowledged, i.e. when the
+    /// dispatcher's remaining IDs reach zero. Disposing the returned `Disposable` silently cancels any pending callbacks.
+    private func dispatch(
+        _ dispatches: [Dispatch],
+        to dispatcher: Dispatcher,
+        onProcessed: @escaping ([Dispatch]) -> Void,
+        completion: @escaping (@autoclosure @escaping () -> String) -> Void
+    ) -> Disposable {
+        let container = DisposableContainer()
+        let dispatchInterval = beginInterval("Dispatch", with: dispatcher.id)
+        container.onDispose {
+            dispatchInterval.end("Cancelled")
+        }
+        var remainingDispatches = dispatches.map(\.id)
+        debugLog("Sending events to dispatcher \(dispatcher.id): \(dispatches.shortDescription())")
+        dispatcher.dispatch(dispatches) { processedDispatches in
+            guard !container.isDisposed else { return }
+            TealiumSignposter.dispatching.event("Event Batch", "Dispatcher: \(dispatcher.id) dispatched: \(processedDispatches.shortDescription())")
+            onProcessed(processedDispatches)
+            remainingDispatches = remainingDispatches.diff(processedDispatches.map(\.id), by: \.self)
+            if remainingDispatches.isEmpty {
+                dispatchInterval.end()
+                completion(dispatches.shortDescription())
             }
-            guard !passed.isEmpty else { return }
-
-            let mapped = passed.map {
-                self.mappingsEngine.map(dispatcherId: dispatcher.id, dispatch: $0)
-            }
-            let dispatchHandler = TealiumSignpostInterval(signposter: .dispatching, name: "Dispatch").begin(dispatcher.id)
-            dispatcher.dispatch(mapped) { processedDispatches in
-                dispatchHandler.end()
-                guard !container.isDisposed else { return }
-                onProcessedDispatches(processedDispatches)
-            }.addTo(container)
         }.addTo(container)
         return container
     }
+
+    private func debugLog(_ message: @autoclosure @escaping () -> String) {
+        logger?.debug(category: LogCategory.dispatchManager, message())
+    }
+}
+
+private func beginInterval(_ name: StaticString, with messageProvider: String) -> TealiumSignpostInterval {
+    TealiumSignpostInterval(signposter: .dispatching, name: name).begin(messageProvider)
 }
 
 extension Array where Element == Dispatch {

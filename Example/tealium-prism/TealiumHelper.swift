@@ -20,7 +20,7 @@ class TealiumHelper {
             CustomDispatcher.Factory(),
             ModuleWithExternalDependencies.Factory(otherDependencies: NSObject()),
             Modules.collect(forcingSettings: { enforcedSettings in
-                enforcedSettings.setEnabled(false)
+                enforcedSettings.setEnabled(true)
             })
         ]
     }
