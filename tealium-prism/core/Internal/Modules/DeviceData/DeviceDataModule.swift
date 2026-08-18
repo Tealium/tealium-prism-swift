@@ -143,7 +143,10 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
     }
 
     private func onMainThreadData() -> Observable<DataObject> {
-        Observables.callback(from: { [deviceDataProvider, configuration] completion in
+        guard configuration.batteryReportingEnabled || configuration.screenReportingEnabled else {
+            return Observables.just([:])
+        }
+        return Observables.callback(from: { [deviceDataProvider, configuration] completion in
             dispatchPrecondition(condition: .onQueue(.main))
             var result: DataObject = [:]
             if configuration.batteryReportingEnabled == true {
