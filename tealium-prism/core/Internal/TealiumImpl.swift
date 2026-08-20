@@ -35,7 +35,7 @@ class TealiumImpl {
             .flatMap { LogLevel.Minimum(from: $0) },
                                    queue: queue)
         let client = config.networkClient.newClient(withLogger: logger)
-        let networkHelper = NetworkHelper(networkClient: client, logger: logger)
+        let networkHelper = NetworkHelper(networkClient: client)
         let sharedDataStore = try storeProvider.getSharedDataStore()
         let settingsManager = try SettingsManager(config: config,
                                                   dataStore: sharedDataStore,
@@ -123,6 +123,7 @@ class TealiumImpl {
                                       moduleStoreProvider: storeProvider,
                                       logger: logger,
                                       networkHelper: networkHelper,
+                                      networkClient: client,
                                       activityListener: config.appStatusListener,
                                       queue: modulesManager.queue,
                                       visitorId: visitorIdProvider.visitorId,

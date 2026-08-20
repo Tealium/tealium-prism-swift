@@ -13,11 +13,7 @@ final class TealiumCollectTests: TealiumBaseTests {
 
     static func decodeBody(_ body: Data?, asserting: ([String: Any]) -> Void = { _ in }) {
         XCTAssertTrueOptional(body?.isGzipped, "Body should be gzipped")
-        guard let unzippedBody = try? body?.gunzipped(),
-        let deserializedBody = try? JSONSerialization.jsonObject(with: unzippedBody) as? [String: Any] else {
-            XCTFail("Can't deserialize body")
-            return
-        }
+        guard let deserializedBody = body?.gunzippedJSON() else { return }
         asserting(deserializedBody)
     }
 

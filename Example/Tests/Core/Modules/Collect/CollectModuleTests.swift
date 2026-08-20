@@ -10,9 +10,9 @@
 import XCTest
 
 final class CollectModuleTests: XCTestCase {
-    let networkHelper = MockNetworkHelper()
+    let mockClient = MockNetworkClient(result: .success(.successful()))
     var configuration = CollectModuleConfiguration(configuration: [:])
-    lazy var collect = CollectModule(networkHelper: networkHelper,
+    lazy var collect = CollectModule(networkClient: mockClient,
                                      configuration: configuration,
                                      logger: nil)
 
@@ -21,14 +21,33 @@ final class CollectModuleTests: XCTestCase {
         Dispatch(name: "event2", data: [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"])
     ]
 
+    private func urlString(of request: URLRequest, file: StaticString = #filePath, line: UInt = #line) -> String? {
+        guard let urlString = request.url?.absoluteString else {
+            XCTFail("Could not convert to URL", file: file, line: line)
+            return nil
+        }
+        return urlString
+    }
+
+    /// Decodes the gzipped JSON body of a Collect request back into a `DataObject`, asserting the body is gzipped.
+    private func decodeGzippedBody(_ request: URLRequest,
+                                   file: StaticString = #filePath,
+                                   line: UInt = #line) -> DataObject? {
+        XCTAssertEqual(request.httpBody?.isGzipped, true, "Collect body should be gzipped", file: file, line: line)
+        guard let json = request.httpBody?.gunzippedJSON(file: file, line: line),
+              let dataObject = try? DataObject(jsonObject: json) else {
+            XCTFail("Could not decode gzipped request body", file: file, line: line)
+            return nil
+        }
+        return dataObject
+    }
+
     func test_send_single_dispatch() {
         let postRequestSent = expectation(description: "The POST request is sent")
-        networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, body, _) = request {
-                XCTAssertEqual(try? url.asUrl(), self.collect?.configuration.url)
-                XCTAssertEqual(body, self.stubDispatches[0].payload)
-                postRequestSent.fulfill()
-            }
+        mockClient.requestDidSend = { request in
+            XCTAssertEqual(request.url, self.collect?.configuration.url)
+            XCTAssertEqual(self.decodeGzippedBody(request), self.stubDispatches[0].payload)
+            postRequestSent.fulfill()
         }
         _ = collect?.dispatch([stubDispatches[0]], completion: { _ in })
         waitForDefaultTimeout()
@@ -36,33 +55,31 @@ final class CollectModuleTests: XCTestCase {
 
     func test_send_multiple_dispatches() {
         let postRequestSent = expectation(description: "The POST request is sent")
-        networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, body, _) = request {
-                XCTAssertEqual(try? url.asUrl(), self.collect?.configuration.batchUrl)
-                let expectedEvents: [DataObject] = [
-                    [
-                        TealiumDataKey.event: "event1",
-                        TealiumDataKey.eventType: "event",
-                        TealiumDataKey.timestampUnixMilliseconds: self.stubDispatches[0].timestamp,
-                        TealiumDataKey.requestUUID: self.stubDispatches[0].id
-                    ],
-                    [
-                        TealiumDataKey.event: "event2",
-                        TealiumDataKey.eventType: "event",
-                        TealiumDataKey.timestampUnixMilliseconds: self.stubDispatches[1].timestamp,
-                        TealiumDataKey.requestUUID: self.stubDispatches[1].id
-                    ]
+        mockClient.requestDidSend = { request in
+            XCTAssertEqual(request.url, self.collect?.configuration.batchUrl)
+            let expectedEvents: [DataObject] = [
+                [
+                    TealiumDataKey.event: "event1",
+                    TealiumDataKey.eventType: "event",
+                    TealiumDataKey.timestampUnixMilliseconds: self.stubDispatches[0].timestamp,
+                    TealiumDataKey.requestUUID: self.stubDispatches[0].id
+                ],
+                [
+                    TealiumDataKey.event: "event2",
+                    TealiumDataKey.eventType: "event",
+                    TealiumDataKey.timestampUnixMilliseconds: self.stubDispatches[1].timestamp,
+                    TealiumDataKey.requestUUID: self.stubDispatches[1].id
                 ]
-                XCTAssertEqual(body,
-                               [
-                                "shared": [
-                                    TealiumDataKey.account: "account",
-                                    TealiumDataKey.profile: "profile"
-                                ],
-                                "events": expectedEvents
-                               ])
-                postRequestSent.fulfill()
-            }
+            ]
+            XCTAssertEqual(self.decodeGzippedBody(request),
+                           [
+                            "shared": [
+                                TealiumDataKey.account: "account",
+                                TealiumDataKey.profile: "profile"
+                            ],
+                            "events": expectedEvents
+                           ])
+            postRequestSent.fulfill()
         }
         _ = collect?.dispatch(stubDispatches, completion: { _ in })
         waitForDefaultTimeout()
@@ -71,11 +88,9 @@ final class CollectModuleTests: XCTestCase {
     func test_send_single_dispatch_overrides_profile_when_provided() {
         configuration = CollectModuleConfiguration(configuration: [CollectModuleConfiguration.Keys.overrideProfile: "override"])
         let postRequestSent = expectation(description: "The POST request is sent")
-        networkHelper.requests.subscribeOnce { request in
-            if case let .post(_, body, _) = request {
-                XCTAssertEqual(body.get(key: TealiumDataKey.profile), "override")
-                postRequestSent.fulfill()
-            }
+        mockClient.requestDidSend = { request in
+            XCTAssertEqual(self.decodeGzippedBody(request)?.get(key: TealiumDataKey.profile), "override")
+            postRequestSent.fulfill()
         }
         _ = collect?.dispatch([stubDispatches[0]], completion: { _ in })
         waitForDefaultTimeout()
@@ -84,11 +99,9 @@ final class CollectModuleTests: XCTestCase {
     func test_send_multiple_dispatches_overrides_profile_when_provided() {
         configuration = CollectModuleConfiguration(configuration: [CollectModuleConfiguration.Keys.overrideProfile: "override"])
         let postRequestSent = expectation(description: "The POST request is sent")
-        networkHelper.requests.subscribeOnce { request in
-            if case let .post(_, body, _) = request {
-                XCTAssertEqual(body.getDataDictionary(key: "shared")?.get(key: TealiumDataKey.profile), "override")
-                postRequestSent.fulfill()
-            }
+        mockClient.requestDidSend = { request in
+            XCTAssertEqual(self.decodeGzippedBody(request)?.getDataDictionary(key: "shared")?.get(key: TealiumDataKey.profile), "override")
+            postRequestSent.fulfill()
         }
         _ = collect?.dispatch(stubDispatches, completion: { _ in })
         waitForDefaultTimeout()
@@ -97,9 +110,8 @@ final class CollectModuleTests: XCTestCase {
     func test_multiple_dispatches_with_all_different_visitorIds_are_sent_in_different_single_requests() {
         let firstVisitorSent = expectation(description: "The POST request for the first visitor is sent")
         let secondVisitorSent = expectation(description: "The POST request for the second visitor is sent")
-        let subscription = networkHelper.requests.subscribe { request in
-            if case let .post(_, body, _) = request,
-               let visitorId = body.get(key: TealiumDataKey.visitorId, as: String.self) {
+        mockClient.requestDidSend = { request in
+            if let visitorId = self.decodeGzippedBody(request)?.get(key: TealiumDataKey.visitorId, as: String.self) {
                 if visitorId == "visitor1" {
                     firstVisitorSent.fulfill()
                 } else if visitorId == "visitor2" {
@@ -112,15 +124,13 @@ final class CollectModuleTests: XCTestCase {
             Dispatch(name: "event2", data: [TealiumDataKey.visitorId: "visitor2"])
         ], completion: { _ in })
         waitForDefaultTimeout()
-        subscription.dispose()
     }
 
     func test_multiple_dispatches_with_same_visitorIds_are_sent_in_the_same_batch() {
         let firstVisitorSent = expectation(description: "The POST request for the first visitor is sent")
         let secondVisitorSent = expectation(description: "The POST request for the second visitor is sent")
-        let subscription = networkHelper.requests.subscribe { request in
-            if case let .post(_, body, _) = request,
-               let shared = body.getDataDictionary(key: "shared"),
+        mockClient.requestDidSend = { request in
+            if let shared = self.decodeGzippedBody(request)?.getDataDictionary(key: "shared"),
                let visitorId = shared.get(key: TealiumDataKey.visitorId, as: String.self) {
                 if visitorId == "visitor1" {
                     firstVisitorSent.fulfill()
@@ -136,7 +146,6 @@ final class CollectModuleTests: XCTestCase {
             Dispatch(name: "event4", data: [TealiumDataKey.visitorId: "visitor2"])
         ], completion: { _ in })
         waitForDefaultTimeout()
-        subscription.dispose()
     }
 
     func test_multiple_dispatches_with_same_visitorIds_only_complete_with_the_batched_events() {
@@ -160,7 +169,7 @@ final class CollectModuleTests: XCTestCase {
 
     func test_disposed_dispatch_are_not_completed() {
         let postRequestCancelled = expectation(description: "The POST request is cancelled")
-        networkHelper.delay = 0
+        mockClient.delayBlock = { block in DispatchQueue.main.async(execute: block) }
         let subscription = collect?.dispatch([stubDispatches[0]], completion: { dispatches in
             XCTAssertEqual(dispatches.count, 0)
             postRequestCancelled.fulfill()
@@ -171,7 +180,7 @@ final class CollectModuleTests: XCTestCase {
 
     func test_disposed_dispatches_batch_is_not_completed() {
         let postRequestCancelled = expectation(description: "The POST request is cancelled")
-        networkHelper.delay = 0
+        mockClient.delayBlock = { block in DispatchQueue.main.async(execute: block) }
         let subscription = collect?.dispatch(stubDispatches, completion: { dispatches in
             XCTAssertEqual(dispatches.count, 0)
             postRequestCancelled.fulfill()
@@ -214,15 +223,10 @@ final class CollectModuleTests: XCTestCase {
             TealiumDataKey.tealiumTraceId: traceId
         ])
 
-        networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _, _) = request {
-                guard let urlString = try? url.asUrl().absoluteString else {
-                    XCTFail("Could not convert to URL")
-                    return
-                }
-                XCTAssertTrue(urlString.contains("tealium_trace_id=\(traceId)"), "URL should contain trace ID query parameter")
-                postRequestSent.fulfill()
-            }
+        mockClient.requestDidSend = { request in
+            guard let urlString = self.urlString(of: request) else { return }
+            XCTAssertTrue(urlString.contains("tealium_trace_id=\(traceId)"), "URL should contain trace ID query parameter")
+            postRequestSent.fulfill()
         }
         _ = collect?.dispatch([dispatchWithTrace], completion: { _ in })
         waitForDefaultTimeout()
@@ -231,15 +235,10 @@ final class CollectModuleTests: XCTestCase {
     func test_sendSingleDispatch_without_trace_id_does_not_add_query_param() {
         let postRequestSent = expectation(description: "The POST request is sent without trace ID")
 
-        networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _, _) = request {
-                guard let urlString = try? url.asUrl().absoluteString else {
-                    XCTFail("Could not convert to URL")
-                    return
-                }
-                XCTAssertFalse(urlString.contains("tealium_trace_id"), "URL should not contain trace ID query parameter")
-                postRequestSent.fulfill()
-            }
+        mockClient.requestDidSend = { request in
+            guard let urlString = self.urlString(of: request) else { return }
+            XCTAssertFalse(urlString.contains("tealium_trace_id"), "URL should not contain trace ID query parameter")
+            postRequestSent.fulfill()
         }
         _ = collect?.dispatch([stubDispatches[0]], completion: { _ in })
         waitForDefaultTimeout()
@@ -261,15 +260,10 @@ final class CollectModuleTests: XCTestCase {
             ])
         ]
 
-        networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _, _) = request {
-                guard let urlString = try? url.asUrl().absoluteString else {
-                    XCTFail("Could not convert to URL")
-                    return
-                }
-                XCTAssertTrue(urlString.contains("tealium_trace_id=\(traceId)"), "Batch URL should contain trace ID query parameter")
-                postRequestSent.fulfill()
-            }
+        mockClient.requestDidSend = { request in
+            guard let urlString = self.urlString(of: request) else { return }
+            XCTAssertTrue(urlString.contains("tealium_trace_id=\(traceId)"), "Batch URL should contain trace ID query parameter")
+            postRequestSent.fulfill()
         }
         _ = collect?.dispatch(dispatchesWithTrace, completion: { _ in })
         waitForDefaultTimeout()
@@ -278,15 +272,10 @@ final class CollectModuleTests: XCTestCase {
     func test_sendBatchDispatches_without_trace_id_does_not_add_query_param() {
         let postRequestSent = expectation(description: "The batch POST request is sent without trace ID")
 
-        networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _, _) = request {
-                guard let urlString = try? url.asUrl().absoluteString else {
-                    XCTFail("Could not convert to URL")
-                    return
-                }
-                XCTAssertFalse(urlString.contains("tealium_trace_id"), "Batch URL should not contain trace ID query parameter")
-                postRequestSent.fulfill()
-            }
+        mockClient.requestDidSend = { request in
+            guard let urlString = self.urlString(of: request) else { return }
+            XCTAssertFalse(urlString.contains("tealium_trace_id"), "Batch URL should not contain trace ID query parameter")
+            postRequestSent.fulfill()
         }
         _ = collect?.dispatch(stubDispatches, completion: { _ in })
         waitForDefaultTimeout()
@@ -300,16 +289,11 @@ final class CollectModuleTests: XCTestCase {
             TealiumDataKey.tealiumTraceId: ""
         ])
 
-        networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _, _) = request {
-                guard let urlString = try? url.asUrl().absoluteString else {
-                    XCTFail("Could not convert to URL")
-                    return
-                }
-                XCTAssertFalse(urlString.contains("tealium_trace_id"),
-                               "URL should not contain trace ID query parameter for empty trace ID")
-                postRequestSent.fulfill()
-            }
+        mockClient.requestDidSend = { request in
+            guard let urlString = self.urlString(of: request) else { return }
+            XCTAssertFalse(urlString.contains("tealium_trace_id"),
+                           "URL should not contain trace ID query parameter for empty trace ID")
+            postRequestSent.fulfill()
         }
         _ = collect?.dispatch([dispatchWithEmptyTrace], completion: { _ in })
         waitForDefaultTimeout()
@@ -330,16 +314,11 @@ final class CollectModuleTests: XCTestCase {
             ])
         ]
 
-        networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _, _) = request {
-                guard let urlString = try? url.asUrl().absoluteString else {
-                    XCTFail("Could not convert to URL")
-                    return
-                }
-                XCTAssertFalse(urlString.contains("tealium_trace_id"),
-                               "URL should not contain trace ID query parameter for empty trace ID")
-                postRequestSent.fulfill()
-            }
+        mockClient.requestDidSend = { request in
+            guard let urlString = self.urlString(of: request) else { return }
+            XCTAssertFalse(urlString.contains("tealium_trace_id"),
+                           "URL should not contain trace ID query parameter for empty trace ID")
+            postRequestSent.fulfill()
         }
         _ = collect?.dispatch(dispatchesWithEmptyTrace, completion: { _ in })
         waitForDefaultTimeout()
@@ -366,18 +345,13 @@ final class CollectModuleTests: XCTestCase {
             ])
         ]
 
-        networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _, _) = request {
-                guard let urlString = try? url.asUrl().absoluteString else {
-                    XCTFail("Could not convert to URL")
-                    return
-                }
-                XCTAssertTrue(urlString.contains("tealium_trace_id=\(traceId)"),
-                              "Batch URL should contain the first available trace ID")
-                XCTAssertFalse(urlString.contains("second-trace-999"),
-                               "Batch URL should not contain the second trace ID")
-                postRequestSent.fulfill()
-            }
+        mockClient.requestDidSend = { request in
+            guard let urlString = self.urlString(of: request) else { return }
+            XCTAssertTrue(urlString.contains("tealium_trace_id=\(traceId)"),
+                          "Batch URL should contain the first available trace ID")
+            XCTAssertFalse(urlString.contains("second-trace-999"),
+                           "Batch URL should not contain the second trace ID")
+            postRequestSent.fulfill()
         }
         _ = collect?.dispatch(dispatchesWithMixedTrace, completion: { _ in })
         waitForDefaultTimeout()
@@ -390,7 +364,7 @@ final class CollectModuleTests: XCTestCase {
             return
         }
         let customConfig = CollectModuleConfiguration(configuration: ["url": customUrl.absoluteString])
-        let customCollect = CollectModule(networkHelper: networkHelper,
+        let customCollect = CollectModule(networkClient: mockClient,
                                           configuration: customConfig,
                                           logger: nil)
 
@@ -402,18 +376,13 @@ final class CollectModuleTests: XCTestCase {
             TealiumDataKey.tealiumTraceId: traceId
         ])
 
-        networkHelper.requests.subscribeOnce { request in
-            if case let .post(url, _, _) = request {
-                guard let urlString = try? url.asUrl().absoluteString else {
-                    XCTFail("Could not convert to URL")
-                    return
-                }
-                XCTAssertTrue(urlString.contains("existing=param"),
-                              "URL should preserve existing query parameters")
-                XCTAssertTrue(urlString.contains("tealium_trace_id=\(traceId)"),
-                              "URL should contain trace ID query parameter")
-                postRequestSent.fulfill()
-            }
+        mockClient.requestDidSend = { request in
+            guard let urlString = self.urlString(of: request) else { return }
+            XCTAssertTrue(urlString.contains("existing=param"),
+                          "URL should preserve existing query parameters")
+            XCTAssertTrue(urlString.contains("tealium_trace_id=\(traceId)"),
+                          "URL should contain trace ID query parameter")
+            postRequestSent.fulfill()
         }
         _ = customCollect?.dispatch([dispatchWithTrace], completion: { _ in })
         waitForDefaultTimeout()

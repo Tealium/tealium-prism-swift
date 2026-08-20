@@ -24,6 +24,22 @@ public protocol NetworkClient {
     func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> any Disposable
 
     /**
+     * Builds the given `RequestBuilder` and sends the resulting `URLRequest`, completing with a `NetworkResult`.
+     *
+     * Building happens in the client, so a malformed URL or any other build failure completes with
+     * `.failure(.unknown)` and returns an already-disposed `Disposable` — the completion is *always* called.
+     * This is the preferred entry point for custom (e.g. gzipped) requests: build with `RequestBuilder`
+     * and hand the builder here.
+     *
+     * - Parameters:
+     *    - request: the `RequestBuilder` describing the request to build and send.
+     *    - completion: the block called once the request is completed, or immediately with a failure if it can't be built.
+     *
+     * - Returns: the `Disposable` that can be used to cancel the request.
+     */
+    func sendRequest(_ request: RequestBuilder, completion: @escaping (NetworkResult) -> Void) -> any Disposable
+
+    /**
      * Creates a new `NetworkClient` from this instance which will use a specific logger.
      *
      * - parameter logger: The logger that will be used for this instance
@@ -32,6 +48,7 @@ public protocol NetworkClient {
     func newClient(withLogger logger: LoggerProtocol) -> Self
 }
 
+// TODO: move this class to Internal
 /**
  * An HTTP client that sends `URLRequest`s via a `URLSession`.
  *
@@ -43,9 +60,9 @@ public protocol NetworkClient {
  * as it's configured with sensible defaults and using one `URLSession` comes with a series of optimizations.
  * If you need to create a new instance make sure to start from a `default` configuration and only add new interceptors to the default ones.
  */
-public class HTTPClient: NetworkClient {
+class HTTPClient: NetworkClient {
     /// The shared instance created with the default configuration
-    public static let shared: HTTPClient = HTTPClient(logger: nil)
+    static let shared: HTTPClient = HTTPClient(logger: nil)
     let session: URLSession
     private let queue: TealiumQueue
     let interceptorManager: InterceptorManagerProtocol
@@ -56,7 +73,7 @@ public class HTTPClient: NetworkClient {
      *
      * - Parameter configuration: the `NetworkConfiguration` used to instantiate the client.
      */
-    convenience public init(configuration: NetworkConfiguration = .default, logger: LoggerProtocol?) {
+    convenience init(configuration: NetworkConfiguration = .default, logger: LoggerProtocol?) {
         let operationQueue = OperationQueue()
         operationQueue.underlyingQueue = configuration.queue.dispatchQueue
         let interceptorManager = configuration.interceptorManager
@@ -75,11 +92,28 @@ public class HTTPClient: NetworkClient {
         self.logger = logger
     }
 
-    public func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> any Disposable {
+    func sendRequest(_ request: RequestBuilder, completion: @escaping (NetworkResult) -> Void) -> any Disposable {
+        do {
+            logger?.trace(category: LogCategory.httpClient, "Building request\n\(request)")
+            let urlRequest = try request.build()
+            logger?.trace(category: LogCategory.httpClient, "Built request \(urlRequest)")
+            return sendRequest(urlRequest, completion: completion)
+        } catch {
+            logger?.error(category: LogCategory.httpClient, "Failed to build request\n\(request)")
+            completion(.failure(.unknown(error)))
+            return Disposables.disposed()
+        }
+    }
+
+    func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> any Disposable {
+        logger?.trace(category: LogCategory.httpClient, "Sending request \(request)")
         let signposterInterval = TealiumSignpostInterval(signposter: .httpClient, name: "Interceptable Request")
             .begin("\(request)")
-        return self.sendRetryableRequest(request) { result in
+        return self.sendRetryableRequest(request) { [weak self] result in
             signposterInterval.end("\(result)")
+            self?.logger?.log(level: result.logLevel(),
+                              category: LogCategory.httpClient,
+                              "Completed request \(request): \(result.shortDescription())")
             completion(result)
         }
     }
@@ -117,20 +151,15 @@ public class HTTPClient: NetworkClient {
     }
 
     private func sendBasicRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> URLSessionDataTask {
-        logger?.trace(category: LogCategory.httpClient,
-                      "Sending request \(request)")
         let signposterInterval = TealiumSignpostInterval(signposter: .httpClient, name: "Request")
             .begin("\(request)")
-        return session.send(request) { [weak self] result in
+        return session.send(request) { result in
             signposterInterval.end("\(result)")
-            self?.logger?.log(level: result.logLevel(),
-                              category: LogCategory.httpClient,
-                              "Completed request \(request): \(result.shortDescription())")
             completion(result)
         }
     }
 
-    public func newClient(withLogger logger: LoggerProtocol) -> Self {
+    func newClient(withLogger logger: LoggerProtocol) -> Self {
         // swiftlint:disable:next explicit_init
         Self.init(session: session,
                   queue: queue,

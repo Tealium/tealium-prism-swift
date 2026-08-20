@@ -24,6 +24,7 @@ class MockContext: TealiumContext {
          databaseProvider: DatabaseProviderProtocol = mockDbProvider,
          logger: LoggerProtocol? = nil,
          networkHelper: NetworkHelperProtocol = MockNetworkHelper(),
+         networkClient: NetworkClient = MockNetworkClient(result: .success(.successful())),
          activityListener: ApplicationStatusListener = ApplicationStatusListener.shared,
          queue: TealiumQueue = TealiumQueue.worker,
          visitorId: ObservableState<String> = mockVisitorId) {
@@ -56,6 +57,7 @@ class MockContext: TealiumContext {
                    moduleStoreProvider: moduleStoreProvider,
                    logger: logger,
                    networkHelper: networkHelper,
+                   networkClient: networkClient,
                    activityListener: activityListener,
                    queue: queue,
                    visitorId: visitorId,

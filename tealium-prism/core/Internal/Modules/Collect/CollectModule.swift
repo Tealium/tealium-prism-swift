@@ -16,14 +16,14 @@ class CollectModule: Dispatcher {
     let id: String
     let dispatchLimit = 10
     let batcher = CollectBatcher()
-    let networkHelper: NetworkHelperProtocol
+    let networkClient: NetworkClient
     let logger: LoggerProtocol?
     var configuration: CollectModuleConfiguration
 
     /// Generic `Dispatcher` initializer called by the `CollectModule.Factory`.
     required convenience init?(moduleId: String, context: TealiumContext, moduleConfiguration: DataObject) {
         self.init(moduleId: moduleId,
-                  networkHelper: context.networkHelper,
+                  networkClient: context.networkClient,
                   configuration: CollectModuleConfiguration(configuration: moduleConfiguration,
                                                             logger: context.logger),
                   logger: context.logger)
@@ -31,14 +31,14 @@ class CollectModule: Dispatcher {
 
     /// Internal initializer called by the generic one and by the tests.
     init?(moduleId: String = Modules.Types.collect,
-          networkHelper: NetworkHelperProtocol,
+          networkClient: NetworkClient,
           configuration: CollectModuleConfiguration?,
           logger: LoggerProtocol?) {
         guard let configuration else {
             return nil
         }
         self.id = moduleId
-        self.networkHelper = networkHelper
+        self.networkClient = networkClient
         self.configuration = configuration
         self.logger = logger
     }
@@ -91,13 +91,7 @@ class CollectModule: Dispatcher {
         var data = event.payload
         batcher.applyProfileOverride(configuration.overrideProfile, to: &data)
         let urlWithTrace = urlWithTraceId(baseUrl: configuration.url, dispatches: [event])
-        return networkHelper.post(url: urlWithTrace, body: data) { result in
-            if case .failure(.cancelled) = result {
-                completion([])
-                return
-            }
-            completion([event])
-        }
+        return send(url: urlWithTrace, body: data, dispatches: [event], completion: completion)
     }
 
     /**
@@ -113,12 +107,26 @@ class CollectModule: Dispatcher {
             return Disposables.disposed()
         }
         let urlForPost = urlWithTraceId(baseUrl: configuration.batchUrl, dispatches: events)
-        return networkHelper.post(url: urlForPost, body: batchData) { result in
+        return send(url: urlForPost, body: batchData, dispatches: events, completion: completion)
+    }
+
+    /**
+     * Sends the given JSON body as a **gzipped** POST through the `NetworkClient`, completing with the
+     * `dispatches` that were sent (or an empty array if the request was cancelled).
+     *
+     * Compression is explicit here: unlike `NetworkHelper`, Collect opts into gzip because the Tealium
+     * Collect endpoint supports it.
+     */
+    private func send(url: URL,
+                      body: DataObject,
+                      dispatches: [Dispatch],
+                      completion: @escaping ([Dispatch]) -> Void) -> any Disposable {
+        networkClient.sendRequest(.makePOST(url: url, json: body).gzip()) { result in
             if case .failure(.cancelled) = result {
                 completion([])
                 return
             }
-            completion(events)
+            completion(dispatches)
         }
     }
 

@@ -146,6 +146,7 @@ custom_categories:
       - regex: HTTP
       - regex: Interceptor
       - regex: Refresh
+      - RequestBuilder
       - regex: Resource
       - regex: Retry
       - regex: URL

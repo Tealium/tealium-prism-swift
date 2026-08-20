@@ -14,18 +14,21 @@ import XCTest
 
 final class HTTPClientTests: XCTestCase {
     private let queue = TealiumQueue(label: "testQueue", qos: .userInteractive)
-    lazy var config: NetworkConfiguration = NetworkConfiguration(sessionConfiguration: NetworkConfiguration.defaultUrlSessionConfiguration,
-                                                                 interceptors: [],
-                                                                 interceptorManagerFactory: MockInterceptorManager.self,
-                                                                 queue: queue)
+    lazy var config: NetworkConfiguration = {
+        var config = NetworkConfiguration(sessionConfiguration: NetworkConfiguration.defaultUrlSessionConfiguration,
+                                          interceptors: [],
+                                          interceptorManagerFactory: MockInterceptorManager.self,
+                                          queue: queue)
+        config.sessionConfiguration.protocolClasses = [URLProtocolMock.self]
+        return config
+    }()
     var interceptorManager: MockInterceptorManager {
         // swiftlint:disable:next force_cast
         client.interceptorManager as! MockInterceptorManager
     }
-    lazy var client: HTTPClient = {
-        config.sessionConfiguration.protocolClasses = [URLProtocolMock.self]
-        return HTTPClient(configuration: config, logger: nil)
-    }()
+    lazy var client = HTTPClient(configuration: config, logger: nil)
+    let mockLogger = MockLogger()
+    lazy var loggingClient = HTTPClient(configuration: config, logger: mockLogger)
 
     override func tearDown() {
         URLProtocolMock.reset()
@@ -164,8 +167,7 @@ final class HTTPClientTests: XCTestCase {
         let expectCancelled = expectation(description: "Request will complete with a cancel error immediately")
         let expectSucceeded = expectation(description: "Request will complete with success and will happen after the first task completed with the cancel")
         mockSuccess(delay: 10)
-        let queue = TealiumQueue.worker
-        XCTAssertFalse(queue.isOnQueue())
+        XCTAssertFalse(TealiumQueue.worker.isOnQueue())
         let task = client.sendRequest(URLRequest()) { result in
             dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
             XCTAssertResultIsFailure(result) { error in
@@ -182,6 +184,54 @@ final class HTTPClientTests: XCTestCase {
             }
         }
         wait(for: [expectCancelled, expectSucceeded], timeout: Self.longTimeout, enforceOrder: true)
+    }
+
+    func test_sendRequest_with_builder_builds_sends_and_logs_build_traces_and_completion() {
+        let buildingLogged = expectation(description: "Building request trace is logged")
+        let builtLogged = expectation(description: "Built request trace is logged")
+        let completedLogged = expectation(description: "Completed request is logged")
+        let requestCompleted = expectation(description: "Request completes successfully")
+        mockSuccess()
+        _ = mockLogger.handler.onLogged.subscribe { event in
+            guard event.category == LogCategory.httpClient else { return }
+            if event.level == .trace, event.message.hasPrefix("Building request") {
+                buildingLogged.fulfill()
+            } else if event.level == .trace, event.message.hasPrefix("Built request") {
+                builtLogged.fulfill()
+            } else if event.message.hasPrefix("Completed request") {
+                completedLogged.fulfill()
+            }
+        }
+        _ = loggingClient.sendRequest(RequestBuilder.makePOST(url: "https://www.tealium.com", json: ["key": "value"])) { result in
+            XCTAssertResultIsSuccess(result)
+            requestCompleted.fulfill()
+        }
+        waitForLongTimeout()
+    }
+
+    func test_sendRequest_with_malformed_url_completes_with_unknown_failure_and_disposed_disposable() {
+        var receivedError: NetworkError?
+        let disposable = client.sendRequest(RequestBuilder.makePOST(url: "", json: [:])) { result in
+            if case let .failure(error) = result {
+                receivedError = error
+            }
+        }
+        guard case .unknown = receivedError else {
+            XCTFail("Expected .unknown failure, got \(String(describing: receivedError))")
+            return
+        }
+        XCTAssertTrue(disposable.isDisposed)
+    }
+
+    func test_sendRequest_with_build_failure_logs_an_error() {
+        let errorLogged = expectation(description: "Build failure is logged as an error")
+        _ = mockLogger.handler.onLogged.subscribe { event in
+            guard event.category == LogCategory.httpClient, event.level == .error else { return }
+            XCTAssertTrue(event.message.hasPrefix("Failed to build request"))
+            errorLogged.fulfill()
+        }
+        _ = loggingClient.sendRequest(RequestBuilder.makePOST(url: "", json: [:])) { _ in }
+        waitForLongTimeout()
     }
 
     @discardableResult
@@ -210,10 +260,6 @@ final class HTTPClientTests: XCTestCase {
             mockDelay(delay)
         }
         return URLProtocolMock.reply.peak()
-    }
-
-    private func mockWithList(_ list: [MockReply.Response]) {
-        URLProtocolMock.replyingWith(.list(list))
     }
 }
 #endif

@@ -19,7 +19,10 @@ public struct ObjectResponse<T> {
 /// A result type for object responses.
 public typealias ObjectResult<T> = Result<ObjectResponse<T>, NetworkError>
 
-/// Protocol defining methods for common network operations.
+/// Protocol defining methods for common, **uncompressed** network operations.
+///
+/// Implementations are a short-circuit for standard requests only; bodies are never compressed.
+/// For gzip or otherwise customized requests, use `NetworkClient` with a `RequestBuilder`.
 public protocol NetworkHelperProtocol {
     /**
      * Just sends a GET request to the `NetworkClient`
@@ -54,11 +57,14 @@ public protocol NetworkHelperProtocol {
                                      completion: @escaping (ObjectResult<T>) -> Void) -> any Disposable
 
     /**
-     * Sends a POST request to the `NetworkClient`with a gzipped JSON body.
+     * Sends a POST request to the `NetworkClient` with an **uncompressed** JSON body.
+     *
+     * The body is never gzipped. For gzip compression, build a `RequestBuilder` with `gzip()` and
+     * send it through `NetworkClient`.
      *
      * - Parameters:
      *    - url: the `URLConvertible` instance to build the `URL` to send
-     *    - body: the `DataObject` to be sent as a gzipped JSON data
+     *    - body: the `DataObject` to be sent as uncompressed JSON data
      *    - additionalHeaders: optional dictionary of additional headers to add to the request
      *    - completion: the block that is executed when the request is completed with the `NetworkResult`
      *
@@ -137,11 +143,14 @@ public extension NetworkHelperProtocol {
     }
 
     /**
-     * Sends a POST request to the `NetworkClient`with a gzipped JSON body.
+     * Sends a POST request to the `NetworkClient` with an **uncompressed** JSON body.
+     *
+     * The body is never gzipped. For gzip compression, build a `RequestBuilder` with `gzip()` and
+     * send it through `NetworkClient`.
      *
      * - Parameters:
      *    - url: the `URLConvertible` instance to build the `URL` to send
-     *    - body: the `DataObject` to be sent as a gzipped JSON data
+     *    - body: the `DataObject` to be sent as uncompressed JSON data
      *    - completion: the block that is executed when the request is completed with the `NetworkResult`
      *
      * - Returns: the `Disposable` to cancel the in flight operation.

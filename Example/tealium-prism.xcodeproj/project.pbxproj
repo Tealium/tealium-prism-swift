@@ -1646,6 +1646,25 @@
 		D5EF2DFC2C1731BC00F7BC40 /* MockCMPIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EF2DFB2C1731BC00F7BC40 /* MockCMPIntegration.swift */; };
 		D8D9A8B713B6496C439431DD /* Pods_LifecycleTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E8C36B03477CF2635A3840E4 /* Pods_LifecycleTests_iOS.framework */; };
 		E361BCD87EDFB48F9149440C /* Pods_MomentsAPITests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC6CADB50814D2DD14E91632 /* Pods_MomentsAPITests_macOS.framework */; };
+		E514CF893034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF8A3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF8B3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF8C3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF8D3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF8E3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF8F3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF903034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF913034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF923034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF933034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF943034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF953034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF963034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF973034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF983034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF993034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF9A3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
+		E514CF9B3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
 		E51687B22FFBA5450016C5DA /* DataItem+JSONStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */; };
 		E51687B32FFBA5450016C5DA /* DataItem+JSONStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */; };
 		E51687B42FFBA5450016C5DA /* DataItem+JSONStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */; };
@@ -2535,6 +2554,7 @@
 		DC0D7EDBD3533E3C50791B1C /* tealium-prism.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "tealium-prism.podspec"; path = "../tealium-prism.podspec"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		DC75CF09E77D0B23BF3F1193 /* Pods-EndToEndTests_watchOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EndToEndTests_watchOS.debug.xcconfig"; path = "Target Support Files/Pods-EndToEndTests_watchOS/Pods-EndToEndTests_watchOS.debug.xcconfig"; sourceTree = "<group>"; };
 		E176CE58B150E719A80BC8D4 /* Pods_ExtensionsTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ExtensionsTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+GunzippedJSON.swift"; sourceTree = "<group>"; };
 		E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataItem+JSONStringTests.swift"; sourceTree = "<group>"; };
 		E8C36B03477CF2635A3840E4 /* Pods_LifecycleTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LifecycleTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA426159A769372703C45EB3 /* Pods_MomentsAPITests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MomentsAPITests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -2901,6 +2921,7 @@
 		150410E92A6EBC5700B91F30 /* TestHelpers */ = {
 			isa = PBXGroup;
 			children = (
+				E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */,
 				ECF92FBD2F74519D00A5AE06 /* XCTestCase+AssertNoEmissionAfterDisposal.swift */,
 				F533C86F2F730833007871E7 /* MockBackgroundTaskStarter.swift */,
 				F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */,
@@ -6362,6 +6383,7 @@
 				ECDE37E92E0EF9C5008F89E1 /* XCTAssert+ObservedValue.swift in Sources */,
 				ECF92FB72F72F13500A5AE06 /* BarrierScopeTests.swift in Sources */,
 				87AF54862C8217EE00F1C114 /* XCTAssert+NSNull.swift in Sources */,
+				E514CF983034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				87EE77042D78799C00BB1D77 /* Condition+EndsWithTests.swift in Sources */,
 				876F79822C53A4AD008BC13B /* ModuleSettingsBuilderTests.swift in Sources */,
 				87BB63C82DE4B8C5008CA9C2 /* ConsentSettingsBuilderTests.swift in Sources */,
@@ -6566,6 +6588,7 @@
 				8702A3742E266EEA001C9743 /* MockNetworkHelper.swift in Sources */,
 				8702A3752E266EEA001C9743 /* MockDispatchManager.swift in Sources */,
 				8702A3762E266EEA001C9743 /* XCTAssert+BoolOptional.swift in Sources */,
+				E514CF933034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				87A40AC42E99695F005D92CC /* NotificationCenter+PostApplicationNotification.swift in Sources */,
 				8702A3772E266EEA001C9743 /* MockConsentManager.swift in Sources */,
 				8702A3782E266EEA001C9743 /* MockBarrier.swift in Sources */,
@@ -6630,6 +6653,7 @@
 				8709E6AA2EF1A7A3008025C8 /* MockQueueManager.swift in Sources */,
 				ECAD80562F5B383300B34935 /* LowercaseTransformerTests.swift in Sources */,
 				ECAD80572F5B383300B34935 /* LowercaseSettingsBuilderTests.swift in Sources */,
+				E514CF9B3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				8709E6AB2EF1A7A3008025C8 /* MockContext.swift in Sources */,
 				8709E6AC2EF1A7A3008025C8 /* MockDebouncer.swift in Sources */,
 				8709E6AD2EF1A7A3008025C8 /* XCTAssert+Errors.swift in Sources */,
@@ -6694,6 +6718,7 @@
 				8709E6F82EF1A7A6008025C8 /* MockQueueManager.swift in Sources */,
 				ECAD805C2F5B383300B34935 /* LowercaseTransformerTests.swift in Sources */,
 				ECAD805D2F5B383300B34935 /* LowercaseSettingsBuilderTests.swift in Sources */,
+				E514CF8E3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				8709E6F92EF1A7A6008025C8 /* MockContext.swift in Sources */,
 				8709E6FA2EF1A7A6008025C8 /* MockDebouncer.swift in Sources */,
 				8709E6FB2EF1A7A6008025C8 /* XCTAssert+Errors.swift in Sources */,
@@ -6758,6 +6783,7 @@
 				8709E7462EF1A7A8008025C8 /* MockQueueManager.swift in Sources */,
 				ECAD805A2F5B383300B34935 /* LowercaseTransformerTests.swift in Sources */,
 				ECAD805B2F5B383300B34935 /* LowercaseSettingsBuilderTests.swift in Sources */,
+				E514CF8F3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				8709E7472EF1A7A8008025C8 /* MockContext.swift in Sources */,
 				8709E7482EF1A7A8008025C8 /* MockDebouncer.swift in Sources */,
 				8709E7492EF1A7A8008025C8 /* XCTAssert+Errors.swift in Sources */,
@@ -6822,6 +6848,7 @@
 				8709E7942EF1A7AA008025C8 /* MockQueueManager.swift in Sources */,
 				ECAD80582F5B383300B34935 /* LowercaseTransformerTests.swift in Sources */,
 				ECAD80592F5B383300B34935 /* LowercaseSettingsBuilderTests.swift in Sources */,
+				E514CF963034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				8709E7952EF1A7AA008025C8 /* MockContext.swift in Sources */,
 				8709E7962EF1A7AA008025C8 /* MockDebouncer.swift in Sources */,
 				8709E7972EF1A7AA008025C8 /* XCTAssert+Errors.swift in Sources */,
@@ -6900,6 +6927,7 @@
 				878C49CC2E26919A00DA3155 /* XCTAssert+BoolOptional.swift in Sources */,
 				878C49CD2E26919A00DA3155 /* MockConsentManager.swift in Sources */,
 				87A40AC22E99695F005D92CC /* NotificationCenter+PostApplicationNotification.swift in Sources */,
+				E514CF913034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				87F0EA622E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */,
 				878C49CE2E26919A00DA3155 /* MockBarrier.swift in Sources */,
 				878C49CF2E26919A00DA3155 /* XCTAssert+EqualDictionaries.swift in Sources */,
@@ -6962,6 +6990,7 @@
 				878C4A052E2691D300DA3155 /* XCTAssert+BoolOptional.swift in Sources */,
 				878C4A062E2691D300DA3155 /* MockConsentManager.swift in Sources */,
 				87A40AC72E99695F005D92CC /* NotificationCenter+PostApplicationNotification.swift in Sources */,
+				E514CF993034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				87F0EA632E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */,
 				878C4A072E2691D300DA3155 /* MockBarrier.swift in Sources */,
 				878C4A082E2691D300DA3155 /* XCTAssert+EqualDictionaries.swift in Sources */,
@@ -7223,6 +7252,7 @@
 				87A409372E97F06E005D92CC /* MappingParametersTests.swift in Sources */,
 				87A409382E97F06E005D92CC /* SDKSettingsTests.swift in Sources */,
 				87A409392E97F06E005D92CC /* DeepLinkHandlerWrapperTests.swift in Sources */,
+				E514CF893034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				87A4093A2E97F06E005D92CC /* BarrierManagerTests.swift in Sources */,
 				87A4093B2E97F06E005D92CC /* Condition+StartsWithTests.swift in Sources */,
 				F533C8722F730833007871E7 /* MockBackgroundTaskStarter.swift in Sources */,
@@ -7293,6 +7323,7 @@
 				87A40AC02E99695F005D92CC /* NotificationCenter+PostApplicationNotification.swift in Sources */,
 				87A409952E98FFD9005D92CC /* MultipleInstancesSettingsBuilder.swift in Sources */,
 				87A409962E98FFD9005D92CC /* MockBarrier.swift in Sources */,
+				E514CF903034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				87A409972E98FFD9005D92CC /* XCTAssert+EqualDictionaries.swift in Sources */,
 				87A409982E98FFD9005D92CC /* MockModulesRepository.swift in Sources */,
 				87A409992E98FFD9005D92CC /* MockDatabaseHelper.swift in Sources */,
@@ -7335,6 +7366,7 @@
 				87A409CD2E9900CE005D92CC /* XCTAssert+NSNull.swift in Sources */,
 				87A409CE2E9900CE005D92CC /* MockSessionManager.swift in Sources */,
 				87A409CF2E9900CE005D92CC /* MockCMPIntegration.swift in Sources */,
+				E514CF923034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				87A409D02E9900CE005D92CC /* MockDatabaseHelper.swift in Sources */,
 				87A409D12E9900CE005D92CC /* MockQueueMetrics.swift in Sources */,
 				87A409D22E9900CE005D92CC /* MockDispatchManager.swift in Sources */,
@@ -7409,6 +7441,7 @@
 				87A40A192E9900D1005D92CC /* XCTAssert+NSNull.swift in Sources */,
 				87A40A1A2E9900D1005D92CC /* MockSessionManager.swift in Sources */,
 				87A40A1B2E9900D1005D92CC /* MockCMPIntegration.swift in Sources */,
+				E514CF8C3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				87A40A1C2E9900D1005D92CC /* MockDatabaseHelper.swift in Sources */,
 				87A40A1D2E9900D1005D92CC /* MockQueueMetrics.swift in Sources */,
 				87A40A1E2E9900D1005D92CC /* MockDispatchManager.swift in Sources */,
@@ -7483,6 +7516,7 @@
 				87A40A652E9900D5005D92CC /* XCTAssert+NSNull.swift in Sources */,
 				87A40A662E9900D5005D92CC /* MockSessionManager.swift in Sources */,
 				87A40A672E9900D5005D92CC /* MockCMPIntegration.swift in Sources */,
+				E514CF943034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				87A40A682E9900D5005D92CC /* MockDatabaseHelper.swift in Sources */,
 				87A40A692E9900D5005D92CC /* MockQueueMetrics.swift in Sources */,
 				87A40A6A2E9900D5005D92CC /* MockDispatchManager.swift in Sources */,
@@ -7776,6 +7810,7 @@
 				87FC086E2D94133500E1041D /* SDKSettingsTests.swift in Sources */,
 				ECAB835B2DAFFFA600B2CF64 /* DeepLinkHandlerWrapperTests.swift in Sources */,
 				87A05D002DBA2F6800D280F4 /* BarrierManagerTests.swift in Sources */,
+				E514CF953034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				87EE76FE2D78785900BB1D77 /* Condition+StartsWithTests.swift in Sources */,
 				87FC08722D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift in Sources */,
 				F533C8712F730833007871E7 /* MockBackgroundTaskStarter.swift in Sources */,
@@ -8045,6 +8080,7 @@
 				87BA6E0D2C6A47AF00784784 /* MockNetworkClient.swift in Sources */,
 				87A05CFC2DBA2F6800D280F4 /* BarrierManagerTests.swift in Sources */,
 				87EE76F92D78773000BB1D77 /* Condition+NotContainsTests.swift in Sources */,
+				E514CF9A3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				87FC08732D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift in Sources */,
 				EC2AF5DC2DE778BE004AE72F /* DeviceDataProviderTvOSTests.swift in Sources */,
 				F533C8792F730833007871E7 /* MockBackgroundTaskStarter.swift in Sources */,
@@ -8245,6 +8281,7 @@
 				EC3B93352F59B00E00EC18C2 /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				EC3B93362F59B00E00EC18C2 /* DeinitTester.swift in Sources */,
 				EC3B93372F59B00E00EC18C2 /* SubscriptionRetainCycleHelper.swift in Sources */,
+				E514CF8A3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				EC3B93382F59B00E00EC18C2 /* XCTAssert+BoolOptional.swift in Sources */,
 				EC3B93392F59B00E00EC18C2 /* XCTAssert+Errors.swift in Sources */,
 				EC3B933A2F59B00E00EC18C2 /* XCTAssert+ObservedValue.swift in Sources */,
@@ -8287,6 +8324,7 @@
 				EC1AA4C62CCF9FEC00D1D9D1 /* XCTAssert+NSNull.swift in Sources */,
 				87DBB5A22E5361A90064C0DE /* MockSessionManager.swift in Sources */,
 				EC1AA4C72CCF9FEC00D1D9D1 /* MockCMPIntegration.swift in Sources */,
+				E514CF973034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				EC1AA4C82CCF9FEC00D1D9D1 /* MockDatabaseHelper.swift in Sources */,
 				EC8EF8802E1810A000DB89C5 /* MockQueueMetrics.swift in Sources */,
 				87FC087E2D94532000E1041D /* MockDispatchManager.swift in Sources */,
@@ -8346,6 +8384,7 @@
 				EC3B93A62F59EAB400EC18C2 /* MockBarrier.swift in Sources */,
 				EC3B93A72F59EAB400EC18C2 /* NotificationCenter+PostApplicationNotification.swift in Sources */,
 				EC3B93A82F59EAB400EC18C2 /* XCTestCase+WaitForDefaultTimeout.swift in Sources */,
+				E514CF8B3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				EC3B93A92F59EAB400EC18C2 /* MockConsentManager.swift in Sources */,
 				EC3B93AA2F59EAB400EC18C2 /* AnyCodable+Equatable.swift in Sources */,
 				EC3B93AB2F59EAB400EC18C2 /* MockConfig.swift in Sources */,
@@ -8430,6 +8469,7 @@
 				EC3B944B2F59F53200EC18C2 /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				EC3B944C2F59F53200EC18C2 /* DeinitTester.swift in Sources */,
 				EC3B944D2F59F53200EC18C2 /* SubscriptionRetainCycleHelper.swift in Sources */,
+				E514CF8D3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */,
 				EC3B944E2F59F53200EC18C2 /* XCTAssert+BoolOptional.swift in Sources */,
 				EC3B944F2F59F53200EC18C2 /* XCTAssert+Errors.swift in Sources */,
 				EC3B94502F59F53200EC18C2 /* XCTAssert+ObservedValue.swift in Sources */,

@@ -36,8 +36,11 @@ public class TealiumContext {
     /// Categories should be static strings that identify the component (e.g., "NetworkModule", "TraceModule")
     /// rather than dynamic values like user data or timestamps.
     public let logger: LoggerProtocol?
-    /// Helper for network operations.
+    /// Helper for standard, uncompressed network operations.
     public let networkHelper: NetworkHelperProtocol
+    /// The network client for sending requests — the entry point for custom (e.g. gzipped) requests
+    /// built with a `RequestBuilder` or a `URLRequest`.
+    public let networkClient: NetworkClient
     /// Listener for application lifecycle events.
     public let activityListener: ApplicationStatusListener
     /// Queue for SDK operations.
@@ -62,6 +65,7 @@ public class TealiumContext {
          moduleStoreProvider: ModuleStoreProvider,
          logger: LoggerProtocol?,
          networkHelper: NetworkHelperProtocol,
+         networkClient: NetworkClient,
          activityListener: ApplicationStatusListener,
          queue: TealiumQueue,
          visitorId: ObservableState<String>,
@@ -79,6 +83,7 @@ public class TealiumContext {
         self.moduleStoreProvider = moduleStoreProvider
         self.logger = logger
         self.networkHelper = networkHelper
+        self.networkClient = networkClient
         self.activityListener = activityListener
         self.queue = queue
         self.visitorId = visitorId

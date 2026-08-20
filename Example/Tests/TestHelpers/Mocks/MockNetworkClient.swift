@@ -23,7 +23,10 @@ class MockNetworkClient: NetworkClient {
         requestDidSend?(request)
         let subscription = Subscription { }
         delayBlock {
-            guard !subscription.isDisposed else { return }
+            guard !subscription.isDisposed else {
+                completion(.failure(.cancelled))
+                return
+            }
             let result = self.resultMap[request.url?.absoluteString ?? ""] ?? self.result
             completion(result)
         }
@@ -36,6 +39,15 @@ class MockNetworkClient: NetworkClient {
 
     func removeInterceptor(_ interceptor: RequestInterceptor) {
         interceptors.removeAll(where: { $0 === interceptor })
+    }
+
+    func sendRequest(_ request: RequestBuilder, completion: @escaping (NetworkResult) -> Void) -> any Disposable {
+        do {
+            return sendRequest(try request.build(), completion: completion)
+        } catch {
+            completion(.failure(.unknown(error)))
+            return Disposables.disposed()
+        }
     }
 
     func newClient(withLogger logger: any LoggerProtocol) -> Self {
