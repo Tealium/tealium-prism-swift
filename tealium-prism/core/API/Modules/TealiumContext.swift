@@ -42,8 +42,12 @@ public class TealiumContext {
     public let activityListener: ApplicationStatusListener
     /// Queue for SDK operations.
     public let queue: TealiumQueue
-    /// Observable visitor ID.
-    public let visitorId: ObservableState<String>
+    /// Storage for the visitor ID: read, reset, clear, and observe.
+    ///
+    /// - Note: Exposed here (like `dataLayer`) so any `Module`, including this SDK's `VisitorIdProviderModule`,
+    /// can reach it without going through `TealiumImpl`. As with `dataLayer`, this means any custom `Module`
+    /// built on top of this context can also reset or clear the visitor ID, not just observe it.
+    public let visitorIdStorage: VisitorIdStorage
     /// Metrics for queue status monitoring.
     public let queueMetrics: QueueMetrics
     /// Monitor for connectivity.
@@ -64,7 +68,7 @@ public class TealiumContext {
          networkHelper: NetworkHelperProtocol,
          activityListener: ApplicationStatusListener,
          queue: TealiumQueue,
-         visitorId: ObservableState<String>,
+         visitorIdStorage: VisitorIdStorage,
          queueMetrics: QueueMetrics,
          connectivityManager: ConnectivityManagerProtocol,
          dataLayer: any DataStore) {
@@ -81,7 +85,7 @@ public class TealiumContext {
         self.networkHelper = networkHelper
         self.activityListener = activityListener
         self.queue = queue
-        self.visitorId = visitorId
+        self.visitorIdStorage = visitorIdStorage
         self.queueMetrics = queueMetrics
         self.connectivityManager = connectivityManager
         self.dataLayer = dataLayer

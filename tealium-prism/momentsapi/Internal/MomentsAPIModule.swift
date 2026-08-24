@@ -41,7 +41,7 @@ class MomentsAPIModule: BasicModule {
             environment: context.config.environment,
             configuration: configuration
         )
-        self.init(service: service, visitorId: context.visitorId, logger: context.logger, configuration: configuration)
+        self.init(service: service, visitorId: context.visitorIdStorage.visitorId, logger: context.logger, configuration: configuration)
     }
 
     init(service: MomentsAPIService,

@@ -156,5 +156,5 @@ public enum LogCategory {
     static let tealium = "Tealium"
     static let tracking = "Tracking"
     static let transformations = "Transformations"
-    static let visitorIdProvider = "VisitorIdProvider"
+    static let visitorIdStorage = "VisitorIdStorage"
 }

@@ -14,7 +14,7 @@ class TealiumImpl {
     let context: TealiumContext
     let modulesManager: ModulesManager
     let tracker: TrackerImpl
-    let visitorIdProvider: VisitorIdProvider
+    let visitorIdStorage: VisitorIdStorage
     let instanceName: String
     let loadRuleEngine: LoadRuleEngine
     let barrierCoordinator: BarrierCoordinator
@@ -105,11 +105,11 @@ class TealiumImpl {
                                   logger: logger)
         self.tracker = tracker
 
-        visitorIdProvider = VisitorIdProvider(config: config,
-                                              visitorDataStore: sharedDataStore,
-                                              logger: logger)
+        visitorIdStorage = VisitorIdStorage(config: config,
+                                            visitorDataStore: sharedDataStore,
+                                            logger: logger)
         let dataLayerStore = try storeProvider.getModuleStore(name: Modules.Types.dataLayer)
-        VisitorSwitcher.handleIdentitySwitches(visitorIdProvider: visitorIdProvider,
+        VisitorSwitcher.handleIdentitySwitches(visitorIdStorage: visitorIdStorage,
                                                onCoreSettings: coreSettings,
                                                dataLayerStore: dataLayerStore).addTo(automaticDisposer)
         self.context = TealiumContext(modulesManager: modulesManager,
@@ -125,7 +125,7 @@ class TealiumImpl {
                                       networkHelper: networkHelper,
                                       activityListener: config.appStatusListener,
                                       queue: modulesManager.queue,
-                                      visitorId: visitorIdProvider.visitorId,
+                                      visitorIdStorage: visitorIdStorage,
                                       queueMetrics: queueManager,
                                       connectivityManager: ConnectivityManager.shared.emittingOn(queue: queue),
                                       dataLayer: dataLayerStore)

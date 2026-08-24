@@ -29,6 +29,8 @@ public extension Modules {
         static public let connectivityData = "ConnectivityData"
         /// Module type identifier for TimeData module.
         static public let timeData = "TimeData"
+        /// Module type identifier for VisitorIdProvider module.
+        static public let visitorIdProvider = "VisitorIdProvider"
     }
 }
 
@@ -165,6 +167,17 @@ public extension Modules {
     static func trace(forcingSettings block: EnforcingSettings<TraceSettingsBuilder>? = { $0 }) -> some ModuleFactory {
         BasicModuleFactory<TraceModule>(moduleType: Modules.Types.trace,
                                         enforcedSettings: block?(TraceSettingsBuilder()).build())
+    }
+
+    /**
+     * Returns a factory for creating the `VisitorIdProviderModule`.
+     *
+     * This module backs `Tealium.visitorIdProvider`. It is always enabled and cannot be disabled,
+     * since it wraps core plumbing (the visitor ID) rather than a pluggable feature.
+     */
+    static func visitorIdProvider() -> some ModuleFactory {
+        BasicModuleFactory<VisitorIdProviderModule>(moduleType: Modules.Types.visitorIdProvider,
+                                                     enforcedSettings: DataObject())
     }
 
     /**

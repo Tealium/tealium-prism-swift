@@ -23,7 +23,8 @@ class ModuleRegistry {
         Modules.deviceData(forcingSettings: nil),
         Modules.tealiumData(),
         Modules.timeData(forcingSettings: nil),
-        Modules.trace(forcingSettings: nil)
+        Modules.trace(forcingSettings: nil),
+        Modules.visitorIdProvider()
     ]
 
     /// The optional modules that need to be installed alongside the Core library.

@@ -132,11 +132,12 @@ public class Tealium {
      * - returns: A `Single` onto which you can subscribe to receive the completion with the eventual error
      * or the new visitor ID.
      */
+    @available(*, deprecated, message: "Use visitorIdProvider.reset() instead.")
     @discardableResult
     public func resetVisitorId() -> SingleResult<String, TealiumError> {
         proxy.executeTask { tealium throws(TealiumError) in
             try TealiumError.wrapErrors {
-                try tealium.visitorIdProvider.resetVisitorId()
+                try tealium.visitorIdStorage.resetVisitorId()
             }
         }
     }
@@ -148,11 +149,12 @@ public class Tealium {
      * - returns: A `Single` onto which you can subscribe to receive the completion with the eventual error
      * or the new visitor ID.
      */
+    @available(*, deprecated, message: "Use visitorIdProvider.clearStored() instead.")
     @discardableResult
     public func clearStoredVisitorIds() -> SingleResult<String, TealiumError> {
         proxy.executeTask { tealium throws(TealiumError) in
             try TealiumError.wrapErrors {
-                try tealium.visitorIdProvider.clearStoredVisitorIds()
+                try tealium.visitorIdStorage.clearStoredVisitorIds()
             }
         }
     }
@@ -165,6 +167,9 @@ public class Tealium {
 
     /// Interface for accessing and manipulating the data layer.
     public private(set) lazy var dataLayer: DataLayer = DataLayerWrapper(moduleProxy: createModuleProxy())
+
+    /// Interface for reading, resetting, clearing, and observing the visitor ID.
+    public private(set) lazy var visitorIdProvider: VisitorIdProvider = VisitorIdProviderWrapper(moduleProxy: createModuleProxy())
 
     /**
      * Creates a `ModuleProxy` for the given module to allow for an easy creation of Module Wrappers.

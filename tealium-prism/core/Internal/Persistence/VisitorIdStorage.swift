@@ -1,5 +1,5 @@
 //
-//  VisitorIdProvider.swift
+//  VisitorIdStorage.swift
 //  tealium-prism
 //
 //  Created by Enrico Zannini on 09/10/24.
@@ -8,14 +8,20 @@
 
 import Foundation
 
-class VisitorIdProvider {
-    private let visitorCategory = LogCategory.visitorIdProvider
+/// Persists the visitor ID and reacts to identity changes. Renamed from `VisitorIdProvider`
+/// to free that name for the public, `Module`-backed `VisitorIdProvider` (Option B).
+///
+/// - Note: Public (with public mutating methods) because it is exposed on the public `TealiumContext`
+/// via `visitorIdStorage`, the same way `DataStore` is exposed for `dataLayer` — so that
+/// `VisitorIdProviderModule` (and, like `dataLayer`, any other `Module`) can reach it.
+public class VisitorIdStorage {
+    private let visitorCategory = LogCategory.visitorIdStorage
     private let visitorStorage: VisitorStorage
     private let logger: LoggerProtocol?
     /**
      * Observable State of the current visitor id.
      */
-    @StateSubject var visitorId: ObservableState<String>
+    @StateSubject public var visitorId: ObservableState<String>
 
     convenience init(config: TealiumConfig, visitorDataStore: any DataStore, logger: LoggerProtocol?) {
         self.init(existingVisitorId: config.existingVisitorId,
@@ -41,7 +47,7 @@ class VisitorIdProvider {
      *
      * - returns: The new anonymous visitor id.
      */
-    func resetVisitorId() throws -> String {
+    public func resetVisitorId() throws -> String {
         logger?.debug(category: visitorCategory, "Resetting current visitor id.")
         let newId = Self.generateVisitorId()
         defer { _visitorId.onNext(newId) }
@@ -52,10 +58,10 @@ class VisitorIdProvider {
     /**
      * Removes all stored visitor identifiers as hashed identities, and generates a new
      * anonymous visitor id.
-     * 
+     *
      * - returns: The new anonymous visitor id.
      */
-    func clearStoredVisitorIds() throws -> String {
+    public func clearStoredVisitorIds() throws -> String {
         logger?.debug(category: visitorCategory, "Clearing stored visitor ids.")
         let newId = Self.generateVisitorId()
         defer { _visitorId.onNext(newId) }
