@@ -101,7 +101,7 @@ final class MomentsAPIServiceTests: MomentsAPIServiceBaseTests {
         service.fetchEngineResponse(engineID: "engine", visitorID: "visitor") { result in
             XCTAssertResultIsFailure(result) { error in
                 guard case .networkError(let networkError) = error,
-                      case .unknown(let decodingError) = networkError else {
+                      case .unknown(let decodingError) = networkError.type else {
                     XCTFail("Expected networkError, got \(result)")
                     return
                 }
@@ -116,8 +116,7 @@ final class MomentsAPIServiceTests: MomentsAPIServiceBaseTests {
     func test_fetchEngineResponse_handles_network_error() {
         let expectation = expectation(description: "Fetch fails with network error")
 
-        let networkError: NetworkError = .urlError(URLError(.notConnectedToInternet))
-        mockNetworkHelper.result = .failure(networkError)
+        mockNetworkHelper.setError(.urlError(URLError(.notConnectedToInternet)))
 
         service.fetchEngineResponse(engineID: "engine", visitorID: "visitor") { result in
             XCTAssertResultIsFailure(result) { error in
@@ -208,18 +207,17 @@ final class MomentsAPIServiceTests: MomentsAPIServiceBaseTests {
     // MARK: - HTTP Error Status Code Tests
 
     func test_fetchEngineResponse_handles_http_error_status_codes() {
-        let expectation = expectation(description: "Fetch fails with \(400) error")
-        mockNetworkHelper.result = .failure(.non200Status(400))
+        let expectation = expectation(description: "Fetch fails with 400 error")
+        mockNetworkHelper.setError(.non200Status(400, nil))
 
         service.fetchEngineResponse(engineID: "engine", visitorID: "visitor") { result in
             XCTAssertResultIsFailure(result) { error in
                 // Empty data with non-2xx status results in DecodingError wrapped as networkError
-                guard case let .networkError(networkError) = error,
-                      case let .non200Status(status) = networkError else {
-                    XCTFail("Expected networkError for \(400) status, got \(error)")
+                guard case let .networkError(networkError) = error else {
+                    XCTFail("Expected networkError for 400 status, got \(error)")
                     return
                 }
-                XCTAssertEqual(status, 400)
+                XCTAssertNetworkError(networkError, is: .non200Status)
                 expectation.fulfill()
             }
         }

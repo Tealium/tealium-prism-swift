@@ -82,9 +82,11 @@ public class ConnectivityManager: ConnectivityManagerProtocol, RequestIntercepto
     public func didComplete(_ request: URLRequest, with response: NetworkResult) {
         // Here we always assume that the response is never coming from a local cache
         switch response {
-        case let .failure(.urlError(urlError)) where urlError.isClientConnectionError:
+        case let .failure(error) where error.isClientConnectionError:
             self.empiricalConnectivity.connectionFail()
-        case .failure(.non200Status), .success:
+        case .failure(let error) where error.urlResponse != nil:
+            fallthrough // swiftlint:disable:this no_fallthrough_only
+        case .success:
             self.empiricalConnectivity.connectionSuccess()
         default:
             break // Unknown

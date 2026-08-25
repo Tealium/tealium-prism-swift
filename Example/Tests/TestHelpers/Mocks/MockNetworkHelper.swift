@@ -16,6 +16,12 @@ extension ObjectResponse {
     }
 }
 
+extension NetworkError {
+    init(type: NetworkErrorType) {
+        self.init(type: type, urlResponse: nil)
+    }
+}
+
 class MockNetworkHelper: NetworkHelperProtocol {
     var result: NetworkResult = NetworkResult.success(.successful())
     var delay: Int?
@@ -31,6 +37,10 @@ class MockNetworkHelper: NetworkHelperProtocol {
     func encodeResult<T: Codable>(_ resultObject: T) throws {
         let data = try Tealium.jsonEncoder.encode(resultObject)
         result = .success(.init(data: data, urlResponse: .successful()))
+    }
+
+    func setError(_ error: NetworkErrorType) {
+        result = .failure(NetworkError(type: error))
     }
 
     private func delayBlock(_ work: @escaping () -> Void) {
@@ -52,7 +62,7 @@ class MockNetworkHelper: NetworkHelperProtocol {
         let sub = Subscription { }
         delayBlock {
             guard !sub.isDisposed else {
-                completion(.failure(.cancelled))
+                completion(.failure(NetworkError(type: .cancelled)))
                 return
             }
             self._requests.onNext(.get(url, etag, additionalHeaders))
@@ -68,7 +78,7 @@ class MockNetworkHelper: NetworkHelperProtocol {
         let sub = Subscription { }
         delayBlock {
             guard !sub.isDisposed else {
-                completion(.failure(.cancelled))
+                completion(.failure(NetworkError(type: .cancelled)))
                 return
             }
             self._requests.onNext(.post(url, body, additionalHeaders))

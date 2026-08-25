@@ -35,14 +35,14 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
     func test_executeModuleTask_completes_with_error_which_task_has_thrown() {
         let errorCaught = expectation(description: "Error caught")
         let single = moduleProxy.executeModuleTask { _ in
-            throw NetworkError.unknown(nil)
+            throw TestError.unknown
         }
         _ = single.subscribe { result in
-            guard case .underlyingError(let error) = result.getError(),
-                case .unknown = error as? NetworkError else {
+            guard case .underlyingError(let error) = result.getError() else {
                 XCTFail("Unexpected result: \(result)")
                 return
             }
+            XCTAssertTestErrorEquals(error, .unknown)
             errorCaught.fulfill()
         }
         waitOnQueue(queue: queue)
@@ -82,14 +82,14 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
     func test_executeAsyncModuleTask_completes_with_error_which_task_has_thrown() {
         let errorCaught = expectation(description: "Error caught")
         let single: SingleResult<Void, ModuleError<Error>> = moduleProxy.executeAsyncModuleTask { _, completion in
-            completion(.failure(ModuleError.underlyingError(NetworkError.unknown(nil))))
+            completion(.failure(ModuleError.underlyingError(TestError.unknown)))
         }
         _ = single.subscribe { result in
-            guard case .underlyingError(let error) = result.getError(),
-                  case .unknown = error as? NetworkError else {
+            guard case .underlyingError(let error) = result.getError() else {
                 XCTFail("Unexpected result: \(result)")
                 return
             }
+            XCTAssertTestErrorEquals(error, .unknown)
             errorCaught.fulfill()
         }
         waitOnQueue(queue: queue)

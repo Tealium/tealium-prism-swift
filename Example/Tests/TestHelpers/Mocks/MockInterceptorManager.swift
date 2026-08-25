@@ -7,29 +7,23 @@
 //
 
 import Foundation
-@testable import TealiumPrism
+@testable @preconcurrency import TealiumPrism
 
-class MockInterceptorManager: NSObject, InterceptorManagerProtocol {
-    var interceptors: [RequestInterceptor]
+final class MockInterceptorManager: InterceptorManager {
 
-    var interceptResponseBlock: (_ retryCount: Int, _ result: NetworkResult, @escaping (Bool) -> Void) -> Void = { _, _, shouldRetry in
-        shouldRetry(false)
-    }
+    private let _onInterceptResponse = Subject<NetworkResult>()
+    var onInterceptResponse: Observable<NetworkResult> { _onInterceptResponse.asObservable() }
 
-    @Subject<NetworkResult> var onInterceptResponse
+    private let _onWaitingForConnectivity = Subject<Void>()
+    var onWaitingForConnectivity: Observable<Void> { _onWaitingForConnectivity.asObservable() }
 
-    @Subject<Void> var onWaitingForConnectivity
-
-    required init(interceptors: [RequestInterceptor], queue: TealiumQueue) {
-        self.interceptors = interceptors
-    }
-
-    func interceptResult(request: URLRequest, retryCount: Int, result: NetworkResult, shouldRetry: @escaping (Bool) -> Void) {
+    override func interceptResult(request: URLRequest, retryCount: Int, result: NetworkResult, shouldRetry: @escaping (Bool) -> Void) {
         _onInterceptResponse.onNext(result)
-        interceptResponseBlock(retryCount, result, shouldRetry)
+        super.interceptResult(request: request, retryCount: retryCount, result: result, shouldRetry: shouldRetry)
     }
 
-    func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
+    override func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
         _onWaitingForConnectivity.onNext(())
+        super.urlSession(session, taskIsWaitingForConnectivity: task)
     }
 }

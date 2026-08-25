@@ -76,7 +76,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
     }
 
     func test_requestRefresh_ignores_notModified_resources() throws {
-        networkHelper.result = .failure(.non200Status(304))
+        networkHelper.setError(.non200Status(304, nil))
         let resourceLoaded = expectation(description: "Resource should not be loaded")
         resourceLoaded.isInverted = true
         let refresherError = expectation(description: "No Error should be reported")
@@ -94,12 +94,12 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
     }
 
     func test_requestRefresh_failure_is_reported_to_onRefreshError() throws {
-        networkHelper.result = .failure(.non200Status(400))
+        networkHelper.setError(.non200Status(400, nil))
         let refresherError = expectation(description: "Error should be reported")
         let refresher = try createResourceRefresher()
         refresher.onRefreshError.subscribeOnce { error in
             refresherError.fulfill()
-            XCTAssertEqual(error as? NetworkError, .non200Status(400))
+            XCTAssertNetworkError(error, is: .non200Status)
         }
         refresher.requestRefresh()
         waitForDefaultTimeout()
@@ -137,7 +137,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
     }
 
     func test_requestRefresh_causes_onLoadCompleted_after_onError_when_failure() throws {
-        networkHelper.result = .failure(.non200Status(404))
+        networkHelper.setError(.non200Status(404, nil))
         let errorEmitted = expectation(description: "Error should be emitted")
         let loadCompleted = expectation(description: "Load Completed")
         let refresher = try createResourceRefresher()
@@ -152,7 +152,7 @@ final class ResourceRefresherRequestRefreshTests: ResourceRefresherBaseTests {
     }
 
     func test_requestRefresh_causes_onLoadCompleted_when_notModified() throws {
-        networkHelper.result = .failure(.non200Status(304))
+        networkHelper.setError(.non200Status(304, nil))
         let errorNotEmitted = expectation(description: "Error should not be emitted")
         errorNotEmitted.isInverted = true
         let loadCompleted = expectation(description: "Load Completed")

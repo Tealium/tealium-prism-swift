@@ -1,5 +1,5 @@
 //
-//  NetworkError.swift
+//  NetworkErrorType.swift
 //  tealium-prism
 //
 //  Created by Enrico Zannini on 16/05/23.
@@ -27,9 +27,9 @@ extension URLError {
 /**
  * An error reported by the NetworkClient.
  */
-public enum NetworkError: Error, ErrorEnum {
-    /// A request completed with a non 2xx status code
-    case non200Status(Int)
+public enum NetworkErrorType: Error, ErrorEnum {
+    /// A request completed with a non 2xx status code and the optional data from the Body.
+    case non200Status(Int, Data?)
     /// A request was cancelled before completion
     case cancelled
     /// A `URLError` was returned by the `URLSession.dataTask` completion
@@ -44,10 +44,10 @@ public enum NetworkError: Error, ErrorEnum {
     /// Returns `true` if the error is assumed to be retriable.
     var isRetryable: Bool {
         switch self {
-        case .non200Status(let status):
-            return NetworkError.retriableHTTPStatusCodes.contains(status)
+        case .non200Status(let status, _):
+            return NetworkErrorType.retriableHTTPStatusCodes.contains(status)
         case .urlError(let urlError):
-            return NetworkError.retriableURLErrorCodes.contains(urlError.code)
+            return NetworkErrorType.retriableURLErrorCodes.contains(urlError.code)
         default:
             return false
         }
@@ -90,21 +90,4 @@ public enum NetworkError: Error, ErrorEnum {
         503,
         504
     ]
-}
-
-extension NetworkError: Equatable {
-    public static func == (lhs: NetworkError, rhs: NetworkError) -> Bool {
-        switch (lhs, rhs) {
-        case (.cancelled, .cancelled):
-            return true
-        case let (.non200Status(lhsStatus), .non200Status(rhsStatus)):
-            return lhsStatus == rhsStatus
-        case let (.urlError(lhsError), .urlError(rhsError)):
-            return lhsError.code == rhsError.code
-        case let (.unknown(lhsError), .unknown(rhsError)):
-            return lhsError?.localizedDescription == rhsError?.localizedDescription
-        default:
-            return false
-        }
-    }
 }

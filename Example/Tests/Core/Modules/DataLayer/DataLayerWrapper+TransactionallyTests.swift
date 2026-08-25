@@ -213,11 +213,10 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
     func test_completes_with_error_when_error_is_thrown() {
         let callbackCalled = expectation(description: "Transaction callback is called")
         let transactionFailure = expectation(description: "Transaction is completed with error")
-        let anError = NetworkError.unknown(nil)
         wrapper.transactionally { _, _, _ in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             callbackCalled.fulfill()
-            throw anError
+            throw TestError.unknown
         }.onFailure { error in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             transactionFailure.fulfill()
@@ -225,7 +224,7 @@ final class DataLayerWrapperTransactionallyTests: BaseDataLayerWrapperTests {
                 XCTFail("Expected underlyingError but got \(error)")
                 return
             }
-            XCTAssertEqual(error as? NetworkError, anError)
+            XCTAssertTestErrorEquals(error, .unknown)
         }
         waitOnQueue(queue: queue)
     }

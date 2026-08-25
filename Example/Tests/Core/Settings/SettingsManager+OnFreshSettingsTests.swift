@@ -49,7 +49,7 @@ final class SettingsManagerOnFreshSettingsTests: SettingsManagerTestCase {
 
     func test_failed_refresh_is_reported_with_localSettings_anyway() throws {
         let settingsEmitted = expectation(description: "Settings are emitted")
-        let manager = try setupForLocalAndRemote(codableResult: .failure(.non200Status(404)))
+        let manager = try setupForLocalAndRemote(error: .cancelled)
         manager.onFreshSettings.subscribeOnce { settings in
             XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
             settingsEmitted.fulfill()
@@ -59,7 +59,7 @@ final class SettingsManagerOnFreshSettingsTests: SettingsManagerTestCase {
 
     func test_refresh_completed_with_notModified_statusCode_is_reported_with_localSettings_anyway() throws {
         let settingsEmitted = expectation(description: "Settings are emitted")
-        let manager = try setupForLocalAndRemote(codableResult: .failure(.non200Status(304)))
+        let manager = try setupForLocalAndRemote(error: .non200Status(304, nil))
         manager.onFreshSettings.subscribeOnce { settings in
             XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
             settingsEmitted.fulfill()

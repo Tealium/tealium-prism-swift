@@ -19,8 +19,8 @@ extension URLRequest {
 }
 
 extension HTTPURLResponse {
-    static func successful(url: URL = URLRequest.defaultURL) -> HTTPURLResponse {
-        HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: nil)!
+    static func successful(url: URL = URLRequest.defaultURL, headers: [String: String]? = nil) -> HTTPURLResponse {
+        HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: headers)!
     }
 }
 // swiftlint:enable force_unwrapping
@@ -131,9 +131,9 @@ class URLProtocolMock: URLProtocol {
             }
             if let error = completionData.2 {
                 self.client?.urlProtocol(self, didFailWithError: error)
+            } else {
+                self.client?.urlProtocolDidFinishLoading(self)
             }
-            // Send the signal that we are done returning our mock response
-            self.client?.urlProtocolDidFinishLoading(self)
         }
     }
 

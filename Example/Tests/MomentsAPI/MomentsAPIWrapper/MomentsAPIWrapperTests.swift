@@ -69,7 +69,7 @@ final class MomentsAPIWrapperTests: XCTestCase {
 
     func test_fetchEngineResponse_handles_error() {
         let expectation = expectation(description: "Fetch completes with error")
-        mockNetworkHelper.result = .failure(.urlError(URLError(.notConnectedToInternet)))
+        mockNetworkHelper.setError(.urlError(URLError(.notConnectedToInternet)))
 
         _ = wrapper.fetchEngineResponse(engineID: "test-engine").subscribe { result in
             XCTAssertResultIsFailure(result) { error in
@@ -139,13 +139,13 @@ final class MomentsAPIWrapperTests: XCTestCase {
 
     func test_fetchEngineResponse_handles_http_error() {
         let expectation = expectation(description: "Fetch completes with HTTP error")
-        mockNetworkHelper.result = .failure(.non200Status(400))
+        mockNetworkHelper.setError(.non200Status(400, nil))
 
         _ = wrapper.fetchEngineResponse(engineID: "test-engine").subscribe { result in
             XCTAssertResultIsFailure(result) { error in
                 guard case let .underlyingError(underlying) = error,
                       case let .networkError(networkError) = underlying,
-                      case let .non200Status(status) = networkError else {
+                      case let .non200Status(status, _) = networkError.type else {
                     XCTFail("Expected non 200 status error, got \(result)")
                     return
                 }
@@ -169,7 +169,7 @@ final class MomentsAPIWrapperTests: XCTestCase {
             XCTAssertResultIsFailure(result) { error in
                 guard case .underlyingError(let momentsAPIError) = error,
                       case .networkError(let networkError) = momentsAPIError,
-                      case .unknown(let decodingError) = networkError else {
+                      case .unknown(let decodingError) = networkError.type else {
                     XCTFail("Expected networkError, got \(result)")
                     return
                 }

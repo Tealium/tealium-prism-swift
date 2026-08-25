@@ -20,17 +20,17 @@ public protocol InterceptorManagerProtocol: URLSessionTaskDelegate {
  * A class that handles some messages from the URLSession.
  * It forwards them to the interceptors along with some other internal network client messages.
  */
-public class InterceptorManager: NSObject, InterceptorManagerProtocol {
+class InterceptorManager: NSObject, InterceptorManagerProtocol {
     var interceptors: [RequestInterceptor]
     let queue: TealiumQueue
     /// Initializes the interceptor manager with the provided interceptors and queue.
-    public required init(interceptors: [RequestInterceptor], queue: TealiumQueue) {
+    required init(interceptors: [RequestInterceptor], queue: TealiumQueue) {
         self.interceptors = interceptors
         self.queue = queue
     }
 
     /// Called when a URL session task is waiting for connectivity.
-    public func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
+    func urlSession(_ session: URLSession, taskIsWaitingForConnectivity task: URLSessionTask) {
         TealiumSignposter.networking.event("URLSession WaitingForConnectivity",
                                            "\(task.originalRequest?.url?.absoluteString ?? "")")
         interceptors.forEach { interceptor in
@@ -49,7 +49,7 @@ public class InterceptorManager: NSObject, InterceptorManagerProtocol {
      *    - result: the `NetworkResult` returned by the client
      *    - shouldRetry: the completion block, called when it's time to retry with `true` or immediately with `false` if the request should not be retried.
      */
-    public func interceptResult(request: URLRequest, retryCount: Int, result: NetworkResult, shouldRetry: @escaping (Bool) -> Void) {
+    func interceptResult(request: URLRequest, retryCount: Int, result: NetworkResult, shouldRetry: @escaping (Bool) -> Void) {
         let interceptors = self.interceptors
         for interceptor in interceptors {
             interceptor.didComplete(request,

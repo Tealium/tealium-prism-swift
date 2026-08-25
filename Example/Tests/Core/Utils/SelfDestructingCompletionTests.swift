@@ -28,7 +28,7 @@ final class SelfDestructingCompletionTests: XCTestCase {
         let completion = SelfDestructingResultCompletion<Void, Error> { _ in
             expect.fulfill()
         }
-        let error = NetworkError.unknown(nil)
+        let error = TestError.unknown
         completion.fail(error: error)
         completion.fail(error: error)
         completion.fail(error: error)
@@ -42,9 +42,9 @@ final class SelfDestructingCompletionTests: XCTestCase {
             expect.fulfill()
         }
         completion.complete(result: .success(()))
-        completion.complete(result: .failure(NetworkError.unknown(nil)))
+        completion.complete(result: .failure(TestError.unknown))
         completion.complete(result: .success(()))
-        completion.complete(result: .failure(NetworkError.unknown(nil)))
+        completion.complete(result: .failure(TestError.unknown))
         waitForDefaultTimeout()
     }
 

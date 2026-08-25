@@ -10,7 +10,7 @@ import XCTest
 
 final class ErrorCooldownTests: XCTestCase {
     let errorCooldown = ErrorCooldown(baseInterval: 10.seconds, maxInterval: 50.seconds)
-    let error = NetworkError.non200Status(400)
+    let error = TestError.unknown
 
     func testStartsNotInCooldown() {
         XCTAssertFalse(errorCooldown.isInCooldown(lastFetch: Date()))

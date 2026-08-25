@@ -9,10 +9,6 @@
 @testable import TealiumPrism
 import XCTest
 
-enum TestError: Error {
-    case fileNotFound(named: String)
-}
-
 final class TealiumSettingsTests: TealiumBaseTests {
     override func setUp() {
         settingsFile = "local"

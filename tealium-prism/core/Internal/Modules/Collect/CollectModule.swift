@@ -122,7 +122,8 @@ class CollectModule: Dispatcher {
                       dispatches: [Dispatch],
                       completion: @escaping ([Dispatch]) -> Void) -> any Disposable {
         networkClient.sendRequest(.makePOST(url: url, json: body).gzip()) { result in
-            if case .failure(.cancelled) = result {
+            if case .failure(let error) = result,
+               case .cancelled = error.type {
                 completion([])
                 return
             }

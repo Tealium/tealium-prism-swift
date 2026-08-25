@@ -19,12 +19,16 @@ class MockNetworkClient: NetworkClient {
         self.result = result
     }
 
+    func setError(_ error: NetworkErrorType) {
+        result = .failure(NetworkError(type: error))
+    }
+
     func sendRequest(_ request: URLRequest, completion: @escaping (NetworkResult) -> Void) -> any Disposable {
         requestDidSend?(request)
         let subscription = Subscription { }
         delayBlock {
             guard !subscription.isDisposed else {
-                completion(.failure(.cancelled))
+                completion(.failure(NetworkError(type: .cancelled)))
                 return
             }
             let result = self.resultMap[request.url?.absoluteString ?? ""] ?? self.result
@@ -45,7 +49,7 @@ class MockNetworkClient: NetworkClient {
         do {
             return sendRequest(try request.build(), completion: completion)
         } catch {
-            completion(.failure(.unknown(error)))
+            completion(.failure(NetworkError(type: .unknown(error))))
             return Disposables.disposed()
         }
     }

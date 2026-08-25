@@ -127,7 +127,7 @@ public class ResourceRefresher<Resource: Codable> {
                     }
                     self.errorCooldown?.newCooldownEvent(error: nil)
                 case .failure(let error):
-                    if case let .non200Status(code) = error, code == 304 {
+                    if case let .non200Status(code, _) = error.type, code == 304 {
                         self.logger?.trace(category: LogCategory.resourceRefresher,
                                            "Resource \(id) is not modified")
                         self.errorCooldown?.newCooldownEvent(error: nil)

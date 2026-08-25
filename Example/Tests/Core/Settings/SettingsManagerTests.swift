@@ -72,7 +72,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
 
     func test_failed_refresh_doesnt_fill_merged_settings_with_remote() throws {
         addMockDispatcher()
-        let manager = try setupForLocalAndRemote(codableResult: .failure(.non200Status(404)))
+        let manager = try setupForLocalAndRemote(error: .non200Status(404, nil))
         let settings = manager.settings.value
         XCTAssertEqual(settings.modules[MockDispatcher.moduleType]?.configuration, ["key": "value"])
         XCTAssertEqual(settings.modules["localModule"]?.configuration, ["localKey": "localValue"])
@@ -135,7 +135,7 @@ final class SettingsManagerTests: SettingsManagerTestCase {
         let settingsRefreshed = expectation(description: "Settings should not be refreshed")
         settingsRefreshed.isInverted = true
         addMockDispatcher()
-        let manager = try setupForLocalAndRemote(codableResult: .failure(.non200Status(404)))
+        let manager = try setupForLocalAndRemote(error: .non200Status(404, nil))
         guard let refresher = manager.resourceRefresher else {
             XCTFail("Refresher unexpectedly found nil")
             return

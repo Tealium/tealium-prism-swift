@@ -167,7 +167,7 @@ final class NetworkHelperTests: XCTestCase {
 
     func test_getJsonAsObject_propagates_network_failure() {
         let networkCallCompleted = expectation(description: "Network Call completed")
-        mockClient.result = .failure(.non200Status(500))
+        mockClient.result = .failure(NetworkError(type: .non200Status(500, nil)))
         _ = networkHelper.getJsonAsObject(url: url) { (result: ObjectResult<MockResultObject>) in
             XCTAssertResultIsFailure(result)
             networkCallCompleted.fulfill()

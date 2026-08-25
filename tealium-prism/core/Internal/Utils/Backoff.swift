@@ -14,7 +14,7 @@ protocol BackoffPolicy {
 }
 
 /// Calculates the amount of time to backoff exponentially based on the parameters and the attempt number.
-class ExponentialBackoff: BackoffPolicy {
+struct ExponentialBackoff: BackoffPolicy {
     let exponentialBackoffBase: Double
     let exponentialBackoffScale: Double
     let maximumBackoff: Double

@@ -10,7 +10,7 @@
 import XCTest
 
 final class ConnectivityManagerTests: XCTestCase {
-    let connectionErrorResult = NetworkResult.failure(.urlError(URLError(.notConnectedToInternet)))
+    let connectionErrorResult = NetworkResult.failure(NetworkError(type: .urlError(URLError(.notConnectedToInternet))))
     let connectivityMonitor = MockConnectivityMonitor()
     let empiricalConnectivity = MockEmpiricalConnectivity()
     lazy var manager: ConnectivityManager = ConnectivityManager(queue: .main,
@@ -118,7 +118,7 @@ final class ConnectivityManagerTests: XCTestCase {
         connectivityMonitor.changeConnection(.notConnected)
         let policy = manager.shouldRetry(URLRequest(),
                                          retryCount: 0,
-                                         with: .failure(.unknown(nil)))
+                                         with: .failure(NetworkError(type: .unknown(nil))))
         XCTAssertEqual(policy, .doNotRetry)
     }
 
@@ -150,12 +150,13 @@ final class ConnectivityManagerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_did_complete_with_non200Status_error_causes_empirical_connection_success() {
+    func test_did_complete_with_urlResponse_error_causes_empirical_connection_success() {
         let empiricalConnectionSuccess = expectation(description: "Empirical connection success is reported")
         empiricalConnectivity.onConnectionSuccess.subscribeOnce {
             empiricalConnectionSuccess.fulfill()
         }
-        manager.didComplete(URLRequest(), with: .failure(.non200Status(400)))
+        manager.didComplete(URLRequest(), with: .failure(NetworkError(type: .non200Status(400, nil),
+                                                                      urlResponse: .successful())))
         waitForDefaultTimeout()
     }
 
@@ -171,7 +172,7 @@ final class ConnectivityManagerTests: XCTestCase {
         empiricalConnectivity.onConnectionFail.subscribe {
             empiricalConnectionFailure.fulfill()
         }.addTo(automaticDisposer)
-        manager.didComplete(URLRequest(), with: .failure(.urlError(URLError(.appTransportSecurityRequiresSecureConnection))))
+        manager.didComplete(URLRequest(), with: .failure(NetworkError(type: .urlError(URLError(.appTransportSecurityRequiresSecureConnection)))))
         waitForDefaultTimeout()
     }
 

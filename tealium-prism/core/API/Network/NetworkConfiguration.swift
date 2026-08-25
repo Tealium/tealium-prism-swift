@@ -31,12 +31,26 @@ public struct NetworkConfiguration {
     ///   - queue: The queue for network operations.
     public init(sessionConfiguration: URLSessionConfiguration,
                 interceptors: [RequestInterceptor],
-                interceptorManagerFactory: InterceptorManagerProtocol.Type = InterceptorManager.self,
+                interceptorManagerFactory: InterceptorManagerProtocol.Type,
                 queue: TealiumQueue) {
         self.sessionConfiguration = sessionConfiguration
         self.queue = queue
         self.interceptors = interceptors
         self.interceptorManagerFactory = interceptorManagerFactory
+    }
+
+    /// Creates a network configuration with the specified parameters and the default interceptor manager.
+    /// - Parameters:
+    ///   - sessionConfiguration: The URL session configuration to use.
+    ///   - interceptors: The request interceptors to apply.
+    ///   - queue: The queue for network operations.
+    public init(sessionConfiguration: URLSessionConfiguration,
+                interceptors: [RequestInterceptor],
+                queue: TealiumQueue) {
+        self.init(sessionConfiguration: sessionConfiguration,
+                  interceptors: interceptors,
+                  interceptorManagerFactory: InterceptorManager.self,
+                  queue: queue)
     }
 
     var interceptorManager: InterceptorManagerProtocol {

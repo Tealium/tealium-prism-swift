@@ -60,7 +60,7 @@ public protocol NetworkClient {
  * as it's configured with sensible defaults and using one `URLSession` comes with a series of optimizations.
  * If you need to create a new instance make sure to start from a `default` configuration and only add new interceptors to the default ones.
  */
-class HTTPClient: NetworkClient {
+final class HTTPClient: NetworkClient {
     /// The shared instance created with the default configuration
     static let shared: HTTPClient = HTTPClient(logger: nil)
     let session: URLSession
@@ -96,11 +96,11 @@ class HTTPClient: NetworkClient {
         do {
             logger?.trace(category: LogCategory.httpClient, "Building request\n\(request)")
             let urlRequest = try request.build()
-            logger?.trace(category: LogCategory.httpClient, "Built request \(urlRequest)")
+            logger?.trace(category: LogCategory.httpClient, "Built request\n\(urlRequest)")
             return sendRequest(urlRequest, completion: completion)
         } catch {
             logger?.error(category: LogCategory.httpClient, "Failed to build request\n\(request)")
-            completion(.failure(.unknown(error)))
+            completion(.failure(NetworkError(type: .unknown(error), urlResponse: nil)))
             return Disposables.disposed()
         }
     }
@@ -109,11 +109,12 @@ class HTTPClient: NetworkClient {
         logger?.trace(category: LogCategory.httpClient, "Sending request \(request)")
         let signposterInterval = TealiumSignpostInterval(signposter: .httpClient, name: "Interceptable Request")
             .begin("\(request)")
-        return self.sendRetryableRequest(request) { [weak self] result in
+        return self.sendRetryableRequest(request) { [logger] result in
             signposterInterval.end("\(result)")
-            self?.logger?.log(level: result.logLevel(),
-                              category: LogCategory.httpClient,
-                              "Completed request \(request): \(result.shortDescription())")
+            logger?.log(level: result.logLevel(),
+                        category: LogCategory.httpClient,
+                        "Completed request. \(result.shortDescription())")
+            logger?.trace(category: LogCategory.httpClient, "Response for request: \(request)\n\(result.longDescription())")
             completion(result)
         }
     }
@@ -124,7 +125,7 @@ class HTTPClient: NetworkClient {
         let task = self.sendBasicRequest(request) { result in
             self.interceptorManager.interceptResult(request: request, retryCount: retryCount, result: result) { [weak self] shouldRetry in
                 guard let self, !disposeContainer.isDisposed else {
-                    completion.fail(error: .cancelled)
+                    completion.fail(error: NetworkError(type: .cancelled, urlResponse: result.urlResponse))
                     return
                 }
                 if shouldRetry {
@@ -143,7 +144,7 @@ class HTTPClient: NetworkClient {
         }
         return Subscription {
             self.queue.ensureOnQueue {
-                completion.fail(error: .cancelled)
+                completion.fail(error: NetworkError(type: .cancelled, urlResponse: nil))
                 task.cancel()
                 disposeContainer.dispose()
             }

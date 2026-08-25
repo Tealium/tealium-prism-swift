@@ -27,7 +27,7 @@ class ResourceRefresherBaseTests: ResourceCacherBaseTests {
 class ResourceRefresherTests: ResourceRefresherBaseTests {
 
     func test_lastEtag_is_set_at_launch_when_previously_stored() throws {
-        networkHelper.result = .failure(.cancelled)
+        networkHelper.setError(.cancelled)
         let refresher = try createResourceRefresher()
         let inputResource = TestResourceObject(propertyString: "abc", propertyInt: 123)
         try refresher.resourceCacher.saveResource(inputResource, etag: "some_etag")
@@ -36,7 +36,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
     }
 
     func test_shouldRefresh_is_true_when_resource_is_not_cached() throws {
-        networkHelper.result = .failure(.cancelled)
+        networkHelper.setError(.cancelled)
         let refresher = try createResourceRefresher()
         XCTAssertTrue(refresher.shouldRefresh)
     }
@@ -72,7 +72,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
     }
 
     func test_shouldRefresh_is_false_during_errorCooldown() throws {
-        networkHelper.result = .failure(.non200Status(400))
+        networkHelper.setError(.non200Status(400, nil))
         let refreshError = expectation(description: "Refresh error happened")
         let refresher = try createResourceRefresher(refreshInterval: 0.seconds, errorCooldown: ErrorCooldown(baseInterval: 5.seconds, maxInterval: 10.seconds))
         refresher.onRefreshError.subscribeOnce { _ in
@@ -85,7 +85,7 @@ class ResourceRefresherTests: ResourceRefresherBaseTests {
     }
 
     func test_shouldRefresh_is_true_after_error_if_errorCooldown_is_nil() throws {
-        networkHelper.result = .failure(.non200Status(400))
+        networkHelper.setError(.non200Status(400, nil))
         let refreshError = expectation(description: "Refresh error happened")
         let refresher = try createResourceRefresher(refreshInterval: 0.seconds)
         refresher.onRefreshError.subscribeOnce { _ in

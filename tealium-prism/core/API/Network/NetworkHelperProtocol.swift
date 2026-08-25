@@ -133,10 +133,12 @@ public extension NetworkHelperProtocol {
         get(url: url, etag: etag, additionalHeaders: additionalHeaders) { result in
             completion(result.flatMap { response in
                 do {
-                    return .success(ObjectResponse(object: try Tealium.jsonDecoder.decode(T.self, from: response.data),
+                    return .success(ObjectResponse(object: try Tealium.jsonDecoder.decode(T.self,
+                                                                                          from: response.data),
                                                    urlResponse: response.urlResponse))
                 } catch {
-                    return .failure(.unknown(error))
+                    return .failure(NetworkError(type: .unknown(error),
+                                                 urlResponse: response.urlResponse))
                 }
             })
         }

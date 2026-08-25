@@ -59,7 +59,7 @@ final class SingleTests: XCTestCase {
     func test_onSuccess_is_not_called_when_result_is_unsuccessful() {
         let observerCalled = expectation(description: "Observer called")
         observerCalled.isInverted = true
-        let single = Single<Result<Int, Error>>(observable: Observables.just(.failure(NetworkError.unknown(nil))),
+        let single = Single<Result<Int, Error>>(observable: Observables.just(.failure(TestError.unknown)),
                                                 queue: .main)
 
         _ = single.onSuccess { _ in
@@ -70,14 +70,11 @@ final class SingleTests: XCTestCase {
 
     func test_onFailure_is_called_when_result_is_unsuccessful() {
         let observerCalled = expectation(description: "Observer called")
-        let single = Single<Result<Int, Error>>(observable: Observables.just(.failure(NetworkError.unknown(nil))),
+        let single = Single<Result<Int, Error>>(observable: Observables.just(.failure(TestError.unknown)),
                                                 queue: .main)
 
         _ = single.onFailure { error in
-            guard case .unknown = error as? NetworkError else {
-                XCTFail("Unexpected error: \(error)")
-                return
-            }
+            XCTAssertTestErrorEquals(error, .unknown)
             observerCalled.fulfill()
         }
         waitForDefaultTimeout()
@@ -104,31 +101,25 @@ final class SingleTests: XCTestCase {
     }
 
     func test_toAsync_throws_error_when_unsuccessful() async throws {
-        let single = Single<Result<Int, Error>>(observable: Observables.just(.failure(NetworkError.unknown(nil))),
+        let single = Single<Result<Int, Error>>(observable: Observables.just(.failure(TestError.unknown)),
                                                 queue: .main)
         do {
             _ = try await single.toAsync()
             XCTFail("Expected to throw")
         } catch {
-            guard case .unknown = error as? NetworkError else {
-                XCTFail("Unexpected error \(error)")
-                return
-            }
+            XCTAssertTestErrorEquals(error, .unknown)
         }
     }
 
     // This test only verifies that it can build with a specific Result error like NetworkError
     func test_toAsync_throws_specific_error() async throws {
-        let single = Single<Result<Int, NetworkError>>(observable: Observables.just(.failure(NetworkError.unknown(nil))),
-                                                       queue: .main)
+        let single = Single<Result<Int, TestError>>(observable: Observables.just(.failure(TestError.unknown)),
+                                                    queue: .main)
         do {
             _ = try await single.toAsync()
             XCTFail("Expected to throw")
         } catch {
-            guard case .unknown = error as? NetworkError else {
-                XCTFail("Unexpected error \(error)")
-                return
-            }
+            XCTAssertTestErrorEquals(error, .unknown)
         }
     }
 

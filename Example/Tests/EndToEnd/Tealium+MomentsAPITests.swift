@@ -79,7 +79,7 @@ final class TealiumMomentsAPITests: TealiumBaseTests {
     func test_momentsAPI_handles_network_error() throws {
         let momentsAPICompleted = expectation(description: "Moments API fetch completed")
 
-        client.result = .failure(.urlError(URLError(.notConnectedToInternet)))
+        client.setError(.urlError(URLError(.notConnectedToInternet)))
 
         config.addModule(Modules.momentsAPI(forcingSettings: { enforcedSettings in
             enforcedSettings.setRegion(.usEast)

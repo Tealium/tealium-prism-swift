@@ -76,6 +76,10 @@ class SettingsManagerTestCase: XCTestCase {
         return try getManager(url: url)
     }
 
+    func setupForLocalAndRemote(error: NetworkErrorType) throws -> SettingsManager {
+        try setupForLocalAndRemote(codableResult: .failure(NetworkError(type: error)))
+    }
+
     func setupForLocalAndRemote(codableResult: ObjectResult<DataObject>) throws -> SettingsManager {
         config.bundle = Bundle(for: type(of: self))
         switch codableResult {
