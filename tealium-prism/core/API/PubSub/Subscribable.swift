@@ -19,6 +19,7 @@ public protocol ObservableConvertible<Element> {
 
 /// A type that can be subscribed to by an `Observer` to receive elements and completion.
 public protocol Subscribable<Element> {
+    /// The type of element emitted to subscribers.
     associatedtype Element
     /// Subscribes an `Observer` to receive elements and completion.
     /// - Returns: A `Disposable` representing the subscription. Disposing it stops event delivery.
@@ -45,6 +46,7 @@ public extension Subscribable {
 }
 
 public extension ObservableConvertible where Self: Subscribable {
+    /// Returns `self` wrapped as an `Observable<Element>`.
     func asObservable() -> Observable<Element> {
         Observables.create { observer in self.subscribe(observer) }
     }

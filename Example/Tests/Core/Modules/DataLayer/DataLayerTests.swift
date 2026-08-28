@@ -34,7 +34,7 @@ private class DataLayerMock: DataLayerWrapper {
 
 final class DataLayerTests: BaseDataLayerWrapperTests {
     private lazy var dataLayerMock = DataLayerMock(moduleProxy: ModuleProxy(queue: queue,
-                                                                            onModulesManager: onManager.asObservable()))
+                                                                            onModuleManager: onManager.asObservable()))
 
     func test_put_convertible_inserts_converted_value() {
         let putCalled = expectation(description: "Put is called")

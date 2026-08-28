@@ -22,7 +22,7 @@ final class DispatchManagerMappingsTests: DispatchManagerTestCase {
             ModuleSettings(moduleType: moduleType, mappings: mappings)
         }
         _sdkSettings.add(modules: [module.moduleId: module])
-        modulesManager.updateSettings(context: context, settings: sdkSettings.value)
+        moduleManager.updateSettings(context: context, settings: sdkSettings.value)
     }
 
     func test_mappings_are_applied_to_dispatcher() {

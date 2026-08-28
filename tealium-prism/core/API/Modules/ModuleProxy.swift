@@ -16,7 +16,7 @@ import Foundation
  * developer should wrap their access to `Tealium` through a `ModuleProxy`.
  */
 public class ModuleProxy<SpecificModule: Module, Failure: Error> {
-    private let onModulesManager: Observable<ModulesManager?>
+    private let onModuleManager: Observable<ModuleManager?>
 
     /// A synchronous task that can be executed on a module.
     public typealias ModuleTask<T> = (_ module: SpecificModule) throws(Failure) -> T
@@ -32,14 +32,14 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
      *
      * - Parameters:
      *      - queue: The `TealiumQueue` onto which events need to be subscribed upon
-     *      - onModulesManager: An `Observable` that will only emit 1 `ModulesManager` when it will be created.
+     *      - onModuleManager: An `Observable` that will only emit 1 `ModuleManager` when it will be created.
      *      The event must be emitted on the same queue as the other parameter.
      */
-    init(queue: TealiumQueue, onModulesManager: Observable<ModulesManager?>) {
-        self.onModulesManager = onModulesManager
-        let onModule: Observable<Result<SpecificModule, ModuleError<Failure>>> = onModulesManager.map { manager in
+    init(queue: TealiumQueue, onModuleManager: Observable<ModuleManager?>) {
+        self.onModuleManager = onModuleManager
+        let onModule: Observable<Result<SpecificModule, ModuleError<Failure>>> = onModuleManager.map { manager in
             guard let manager else {
-                return .failure(ModuleError.objectNotFound("\(ModulesManager.self)"))
+                return .failure(ModuleError.objectNotFound("\(ModuleManager.self)"))
             }
             guard let module = manager.getModule(SpecificModule.self) else {
                 return .failure(ModuleError.moduleNotEnabled("\(SpecificModule.self)"))
@@ -57,7 +57,7 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
      * - returns: A `Subscribable` for the inner `Observable`.
      */
     public func observeModule<Other>(transform: @escaping (SpecificModule) -> Observable<Other>) -> some Subscribable<Other> {
-        onModulesManager.flatMapLatest { $0?.modules.asObservable() ?? Observables.empty() }
+        onModuleManager.flatMapLatest { $0?.modules.asObservable() ?? Observables.empty() }
             .map { $0.compactMap { $0 as? SpecificModule }.first }
             .distinct { $0 === $1 }
             .flatMapLatest { module in
@@ -93,11 +93,11 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
      * - returns: A `Subscribable` for the inner `Observable`.
      */
     public func observeModules<Other>(transform: @escaping ([SpecificModule]) -> Observable<Other>) -> any Subscribable<Other> {
-        onModulesManager.flatMapLatest { modulesManager in
-            guard let modulesManager else {
+        onModuleManager.flatMapLatest { moduleManager in
+            guard let moduleManager else {
                 return Observables.empty()
             }
-            return modulesManager.modules.asObservable()
+            return moduleManager.modules.asObservable()
                 .map { list in
                     list.compactMap { $0 as? SpecificModule }
                 }

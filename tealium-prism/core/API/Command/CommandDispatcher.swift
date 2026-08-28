@@ -44,7 +44,9 @@ open class CommandDispatcher: Dispatcher {
 
     private let commandRegistry: CommandRegistry
     private let queue: TealiumQueue
+    /// The logger used for debug and warning output from this dispatcher.
     public let logger: LoggerProtocol?
+    /// The log category string prepended to all log messages from this dispatcher.
     public let logCategory: String
 
     // MARK: - Initialization

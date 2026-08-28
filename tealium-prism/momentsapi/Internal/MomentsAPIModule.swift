@@ -35,7 +35,7 @@ class MomentsAPIModule: BasicModule {
         // Initialize service using NetworkHelper from context
         // This allows tests to inject mock helpers via config.networkClient -> TealiumImpl -> NetworkHelper
         let service = MomentsAPIService(
-            networkHelper: context.networkHelper,
+            networkHelper: context.network.networkHelper,
             account: context.config.account,
             profile: context.config.profile,
             environment: context.config.environment,

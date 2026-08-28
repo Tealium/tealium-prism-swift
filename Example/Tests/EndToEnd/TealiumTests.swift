@@ -197,44 +197,44 @@ final class TealiumTests: TealiumBaseTests {
     }
 
     func test_deepLink_wrapper_works_on_our_queue() throws {
-        let handleDeeplinkCompleted = expectation(description: "Handle deeplink completed")
+        let handleDeepLinkCompleted = expectation(description: "Handle deep link completed")
         config.addModule(Modules.deepLink())
         let teal = createTealium()
         teal.deepLink.handle(link: try "https://www.tealium.com".asUrl(), referrer: nil).subscribe { result in
             XCTAssertResultIsSuccess(result)
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
-            handleDeeplinkCompleted.fulfill()
+            handleDeepLinkCompleted.fulfill()
         }
         waitOnQueue(queue: queue)
     }
 
     func test_deepLink_wrapper_with_traceId_succeeds_if_trace_enabled() throws {
-        let handleDeeplinkCompleted = expectation(description: "Handle deeplink completed")
+        let handleDeepLinkCompleted = expectation(description: "Handle deep link completed")
         config.addModule(Modules.deepLink())
         config.addModule(Modules.trace())
         let teal = createTealium()
         teal.deepLink.handle(link: try "https://www.tealium.com?tealium_trace_id=123".asUrl(), referrer: nil).subscribe { result in
             XCTAssertResultIsSuccess(result)
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
-            handleDeeplinkCompleted.fulfill()
+            handleDeepLinkCompleted.fulfill()
         }
         waitOnQueue(queue: queue)
     }
 
     func test_deepLink_wrapper_with_traceId_fails_if_trace_disabled() throws {
-        let handleDeeplinkCompleted = expectation(description: "Handle deeplink completed")
+        let handleDeepLinkCompleted = expectation(description: "Handle deep link completed")
         config.addModule(Modules.deepLink())
         let teal = createTealium()
         teal.deepLink.handle(link: try "https://www.tealium.com?tealium_trace_id=123".asUrl(), referrer: nil).subscribe { result in
             XCTAssertResultIsFailure(result)
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
-            handleDeeplinkCompleted.fulfill()
+            handleDeepLinkCompleted.fulfill()
         }
         waitOnQueue(queue: queue)
     }
 
-    func test_deeplink_wrapper_throws_errors_if_not_enabled() throws {
-        let handleDeeplinkCompleted = expectation(description: "Handle deeplink completed")
+    func test_deep_link_wrapper_throws_errors_if_not_enabled() throws {
+        let handleDeepLinkCompleted = expectation(description: "Handle deep link completed")
         config.addModule(Modules.deepLink(forcingSettings: { enforcedSettings in
             enforcedSettings.setEnabled(false)
         }))
@@ -248,13 +248,13 @@ final class TealiumTests: TealiumBaseTests {
                 XCTAssertTrue(object == "\(DeepLinkModule.self)")
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
-            handleDeeplinkCompleted.fulfill()
+            handleDeepLinkCompleted.fulfill()
         }
         waitOnQueue(queue: queue)
     }
 
-    func test_deeplink_wrapper_throws_errors_if_not_added() throws {
-        let handleDeeplinkCompleted = expectation(description: "Handle deeplink completed")
+    func test_deep_link_wrapper_throws_errors_if_not_added() throws {
+        let handleDeepLinkCompleted = expectation(description: "Handle deep link completed")
         let teal = createTealium()
         teal.deepLink.handle(link: try "https://www.tealium.com".asUrl(), referrer: nil).subscribe { result in
             XCTAssertResultIsFailure(result) { error in
@@ -265,7 +265,7 @@ final class TealiumTests: TealiumBaseTests {
                 XCTAssertTrue(object == "\(DeepLinkModule.self)")
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
-            handleDeeplinkCompleted.fulfill()
+            handleDeepLinkCompleted.fulfill()
         }
         waitOnQueue(queue: queue)
     }
@@ -379,7 +379,7 @@ final class TealiumTests: TealiumBaseTests {
         let initializationCompleted = expectation(description: "Tealium initialization completed")
         let teal = createTealium()
         _ = teal.proxy.executeTask { impl in
-            let modules = impl.modulesManager.modules.value.map { $0.id }
+            let modules = impl.moduleManager.modules.value.map { $0.id }
             XCTAssertTrue(modules.contains("Module1"))
             XCTAssertFalse(modules.contains("Module2"))
             initializationCompleted.fulfill()

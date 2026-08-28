@@ -29,13 +29,13 @@ final class LifecycleTrackerTests: XCTestCase {
                                settingsUrl: nil)
     let databaseProvider = MockDatabaseProvider()
     let queue = TealiumQueue.main
-    lazy var modulesManager = ModulesManager(queue: queue)
+    lazy var moduleManager = ModuleManager(queue: queue)
     @StateSubject(SDKSettings())
     var sdkSettings
     var coreSettings: ObservableState<CoreSettings> {
         sdkSettings.mapState(transform: { $0.core })
     }
-    lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: modulesManager.modules, addingConsent: true),
+    lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: moduleManager.modules, addingConsent: true),
                                              queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
                                                                                  maxQueueSize: 10,
                                                                                  expiration: 1.days),
@@ -49,12 +49,12 @@ final class LifecycleTrackerTests: XCTestCase {
                                                              transformations: transformations,
                                                              queue: queue,
                                                              logger: nil)
-    lazy var tracker = TrackerImpl(modules: modulesManager.modules,
+    lazy var tracker = TrackerImpl(modules: moduleManager.modules,
                                    loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings, logger: nil),
                                    dispatchManager: dispatchManager,
                                    sessionManager: MockSessionManager(databaseProvider: databaseProvider),
                                    logger: nil)
-    lazy var context = MockContext(modulesManager: modulesManager,
+    lazy var context = MockContext(moduleManager: moduleManager,
                                    config: config,
                                    coreSettings: coreSettings,
                                    tracker: tracker,
@@ -64,7 +64,7 @@ final class LifecycleTrackerTests: XCTestCase {
     lazy var dispatchManager = getDispatchManager()
     func getDispatchManager() -> DispatchManager {
         DispatchManager(loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings, logger: nil),
-                        modulesManager: modulesManager,
+                        moduleManager: moduleManager,
                         consentManager: nil,
                         queueManager: queueManager,
                         barrierCoordinator: barrierCoordinator,
@@ -76,7 +76,7 @@ final class LifecycleTrackerTests: XCTestCase {
     override func setUp() {
         super.setUp()
         _sdkSettings.value = SDKSettings(config.getEnforcedSDKSettings())
-        modulesManager.updateSettings(context: context, settings: sdkSettings.value)
+        moduleManager.updateSettings(context: context, settings: sdkSettings.value)
     }
 
     override func tearDown() {
@@ -86,7 +86,7 @@ final class LifecycleTrackerTests: XCTestCase {
     func test_launch_gets_dispatched_on_application_start_and_conatains_appData_collector_data() {
         let gotDispatched = expectation(description: "Launch has been dispatched")
         let eventContainsAppData = expectation(description: "Launch event contains app data")
-        modulesManager.getModule(MockDispatcher.self)?.onDispatch.subscribeOnce { dispatches in
+        moduleManager.getModule(MockDispatcher.self)?.onDispatch.subscribeOnce { dispatches in
             let dispatch = dispatches[0]
             XCTAssertEqual(dispatch.name, "launch")
             gotDispatched.fulfill()

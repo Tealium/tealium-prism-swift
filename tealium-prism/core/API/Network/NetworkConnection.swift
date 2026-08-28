@@ -26,7 +26,8 @@ public enum NetworkConnection: Equatable {
     /// Always default until the monitored connectivity says otherwise
     case unknown
 
-    var type: ConnectionType? {
+    /// The ``ConnectionType`` of the current connection, or `nil` when not connected.
+    public var type: ConnectionType? {
         if case .connected(let type) = self {
             return type
         }
@@ -44,7 +45,8 @@ public enum NetworkConnection: Equatable {
         }
     }
 
-    var isConnected: Bool {
+    /// Whether the device currently has an available connection.
+    public var isConnected: Bool {
         self.type != nil
     }
 }

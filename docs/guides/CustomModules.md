@@ -145,13 +145,13 @@ public class CustomModuleFactory: ModuleFactory {
 
 ## Sending Network Requests
 
-Modules that need to talk to the network (most commonly custom `Dispatcher`s) do so through the `TealiumContext` they are initialized with. Two entry points are available, both already wired with the SDK's logging, tracing, retry, and interceptor logic:
+Modules that need to talk to the network (most commonly custom `Dispatcher`s) do so through the `NetworkUtilities` exposed on the `TealiumContext` as `context.network`. Two entry points are available, both already wired with the SDK's logging, tracing, retry, and interceptor logic:
 
-- **`context.networkClient`** — the primary entry point for any non-standard request. Build a request with `RequestBuilder` and hand the builder to `sendRequest(_:completion:)`; the client builds it for you, logs the outcome, and always calls the completion (a malformed URL or build failure completes with `.failure(.unknown)` and returns an already-disposed `Disposable`). Request bodies are **uncompressed by default** — opt into gzip only for endpoints that support it, via `gzip()`.
+- **`context.network.networkClient`** — the primary entry point for any non-standard request. Build a request with `RequestBuilder` and hand the builder to `sendRequest(_:completion:)`; the client builds it for you, logs the outcome, and always calls the completion (a malformed URL or build failure completes with `.failure(.unknown)` and returns an already-disposed `Disposable`). Request bodies are **uncompressed by default** — opt into gzip only for endpoints that support it, via `gzip()`.
 
   ```swift
   // Uncompressed POST (safe for arbitrary endpoints)
-  let disposable = context.networkClient.sendRequest(
+  let disposable = context.network.networkClient.sendRequest(
       RequestBuilder.makePOST(url: endpoint, json: payload)
           .header("Bearer \(token)", forField: "Authorization")
   ) { result in
@@ -162,17 +162,17 @@ Modules that need to talk to the network (most commonly custom `Dispatcher`s) do
   }
 
   // Opt into gzip compression when the endpoint supports it
-  _ = context.networkClient.sendRequest(
+  _ = context.network.networkClient.sendRequest(
       RequestBuilder.makePOST(url: endpoint, json: payload).gzip()
   ) { _ in }
   ```
 
   You can also pass a fully-formed `URLRequest` to `sendRequest(_:completion:)` if you need complete control over the request.
 
-- **`context.networkHelper`** — a convenience short-circuit for standard, **uncompressed** GET/POST requests. Use it when you don't need custom headers, compression, or a hand-built `URLRequest`. For gzip or any customized request, use `context.networkClient` with a `RequestBuilder` instead.
+- **`context.network.networkHelper`** — a convenience short-circuit for standard, **uncompressed** GET/POST requests. Use it when you don't need custom headers, compression, or a hand-built `URLRequest`. For gzip or any customized request, use `context.network.networkClient` with a `RequestBuilder` instead.
 
   ```swift
-  _ = context.networkHelper.post(url: endpoint, body: payload) { result in
+  _ = context.network.networkHelper.post(url: endpoint, body: payload) { result in
       // handle result
   }
   ```

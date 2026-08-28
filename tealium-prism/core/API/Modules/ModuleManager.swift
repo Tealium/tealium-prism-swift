@@ -1,5 +1,5 @@
 //
-//  ModulesManager.swift
+//  ModuleManager.swift
 //  tealium-prism
 //
 //  Created by Enrico Zannini on 20/01/23.
@@ -9,7 +9,7 @@
 import Foundation
 
 /// Manages the lifecycle and configuration of modules within the Tealium SDK.
-public class ModulesManager {
+public class ModuleManager {
     private typealias SettingsFactoryPair = (moduleSettings: ModuleSettings, factory: any ModuleFactory)
     @StateSubject var modules: ObservableState<[Module]>
     let queue: TealiumQueue

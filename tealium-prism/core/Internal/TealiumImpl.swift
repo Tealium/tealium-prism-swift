@@ -12,7 +12,7 @@ class TealiumImpl {
     let settingsManager: SettingsManager
     let automaticDisposer = AutomaticDisposer()
     let context: TealiumContext
-    let modulesManager: ModulesManager
+    let moduleManager: ModuleManager
     let tracker: TrackerImpl
     let visitorIdProvider: VisitorIdProvider
     let instanceName: String
@@ -22,7 +22,7 @@ class TealiumImpl {
 
     // swiftlint:disable:next function_body_length
     init(_ config: TealiumConfig, queue: TealiumQueue) throws {
-        self.modulesManager = ModulesManager(queue: queue)
+        self.moduleManager = ModuleManager(queue: queue)
         var config = config
         Self.addMandatoryAndRemoveDuplicateModules(from: &config)
         Self.addMandatoryAndRemoveDuplicateBarriers(from: &config)
@@ -61,18 +61,18 @@ class TealiumImpl {
                                             logger: logger)
         self.sessionManager = sessionManager
         let queueManager = QueueManager(
-            processors: Self.queueProcessors(from: modulesManager.modules,
+            processors: Self.queueProcessors(from: moduleManager.modules,
                                              addingConsent: config.cmpAdapter != nil),
             queueRepository: SQLQueueRepository(dbProvider: storeProvider.databaseProvider,
                                                 maxQueueSize: coreSettings.value.maxQueueSize,
                                                 expiration: coreSettings.value.queueExpiration),
             coreSettings: coreSettings,
             logger: logger)
-        let transformers = modulesManager.modules
+        let transformers = moduleManager.modules
             .mapState { $0.compactMap { $0 as? Transformer } }
         let transformerCoordinator = Self.transformerCoordinator(transformers: transformers,
                                                                  sdkSettings: settingsManager.settings,
-                                                                 queue: modulesManager.queue,
+                                                                 queue: moduleManager.queue,
                                                                  logger: logger)
         let barrierManager = BarrierManager(sdkBarrierSettings: settingsManager.settings.mapState { $0.barriers })
         barrierCoordinator = BarrierCoordinator(onScopedBarriers: barrierManager.onScopedBarriers,
@@ -84,21 +84,21 @@ class TealiumImpl {
         let mappingsEngine = MappingsEngine(mappings: mappings)
 
         let consentManager = ConsentIntegrationManager(queueManager: queueManager,
-                                                       modules: modulesManager.modules,
+                                                       modules: moduleManager.modules,
                                                        consentSettings: settingsManager.settings.mapState { $0.consent },
                                                        queue: queue,
                                                        cmpAdapter: config.cmpAdapter,
                                                        logger: logger)
 
         let dispatchManager = DispatchManager(loadRuleEngine: loadRuleEngine,
-                                              modulesManager: modulesManager,
+                                              moduleManager: moduleManager,
                                               consentManager: consentManager,
                                               queueManager: queueManager,
                                               barrierCoordinator: barrierCoordinator,
                                               transformerCoordinator: transformerCoordinator,
                                               mappingsEngine: mappingsEngine,
                                               logger: logger)
-        let tracker = TrackerImpl(modules: modulesManager.modules,
+        let tracker = TrackerImpl(modules: moduleManager.modules,
                                   loadRuleEngine: loadRuleEngine,
                                   dispatchManager: dispatchManager,
                                   sessionManager: sessionManager,
@@ -112,23 +112,23 @@ class TealiumImpl {
         VisitorSwitcher.handleIdentitySwitches(visitorIdProvider: visitorIdProvider,
                                                onCoreSettings: coreSettings,
                                                dataLayerStore: dataLayerStore).addTo(automaticDisposer)
-        self.context = TealiumContext(modulesManager: modulesManager,
+        let network = NetworkUtilities(networkHelper: networkHelper,
+                                       networkClient: client,
+                                       connectivityManager: ConnectivityManager.shared.emittingOn(queue: queue))
+        self.context = TealiumContext(moduleManager: moduleManager,
                                       sessionRegistry: sessionManager,
                                       config: config,
                                       coreSettings: coreSettings,
                                       tracker: tracker,
                                       barrierRegistrar: barrierManager,
                                       transformerRegistrar: transformerCoordinator,
-                                      databaseProvider: storeProvider.databaseProvider,
                                       moduleStoreProvider: storeProvider,
                                       logger: logger,
-                                      networkHelper: networkHelper,
-                                      networkClient: client,
-                                      activityListener: config.appStatusListener,
-                                      queue: modulesManager.queue,
+                                      network: network,
+                                      applicationStatusListener: config.appStatusListener,
+                                      queue: moduleManager.queue,
                                       visitorId: visitorIdProvider.visitorId,
                                       queueMetrics: queueManager,
-                                      connectivityManager: ConnectivityManager.shared.emittingOn(queue: queue),
                                       dataLayer: dataLayerStore)
         self.instanceName = "\(config.account)-\(config.profile)"
         barrierManager.initializeBarriers(factories: config.barriers, context: context)
@@ -150,7 +150,7 @@ class TealiumImpl {
     private func updateSettings(context: TealiumContext, settings: SDKSettings) {
         TealiumSignpostInterval(signposter: .settings, name: "Module Updates")
             .signpostedWork {
-                modulesManager.updateSettings(context: context, settings: settings)
+                moduleManager.updateSettings(context: context, settings: settings)
             }
     }
 
@@ -167,7 +167,7 @@ class TealiumImpl {
     func shutdown() {
         guard !isShutdown else { return }
         automaticDisposer.dispose()
-        modulesManager.shutdown()
+        moduleManager.shutdown()
         tracker.dispatchManager.stopDispatchLoop()
         sessionManager.shutdown()
         let instanceName = self.instanceName // Avoid capturing self in @escaping autoclosure

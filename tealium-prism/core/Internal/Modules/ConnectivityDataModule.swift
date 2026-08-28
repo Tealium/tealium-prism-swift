@@ -14,7 +14,7 @@ class ConnectivityDataModule: BasicModule, Collector {
     let id = Modules.Types.connectivityData
 
     required convenience init?(context: TealiumContext, moduleConfiguration: DataObject) {
-        self.init(manager: context.connectivityManager)
+        self.init(manager: context.network.connectivityManager)
     }
 
     init(manager: ConnectivityManagerProtocol) {

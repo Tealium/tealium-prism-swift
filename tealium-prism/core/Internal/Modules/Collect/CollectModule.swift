@@ -23,7 +23,7 @@ class CollectModule: Dispatcher {
     /// Generic `Dispatcher` initializer called by the `CollectModule.Factory`.
     required convenience init?(moduleId: String, context: TealiumContext, moduleConfiguration: DataObject) {
         self.init(moduleId: moduleId,
-                  networkClient: context.networkClient,
+                  networkClient: context.network.networkClient,
                   configuration: CollectModuleConfiguration(configuration: moduleConfiguration,
                                                             logger: context.logger),
                   logger: context.logger)

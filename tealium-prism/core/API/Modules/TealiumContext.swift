@@ -20,12 +20,10 @@ public class TealiumContext {
     public let barrierRegistrar: BarrierRegistrar
     /// Registrar for registering/unregistering additional data transformations.
     public let transformerRegistrar: TransformerRegistrar
-    /// Provider for database connections.
-    public let databaseProvider: DatabaseProviderProtocol
     /// Provider for module-specific data stores.
     public let moduleStoreProvider: ModuleStoreProvider
     /// Manager for module lifecycle and configuration.
-    public let modulesManager: ModulesManager
+    public let moduleManager: ModuleManager
     /// Registry for session management.
     public let sessionRegistry: SessionRegistry
     /// Logger for SDK messages, if configured.
@@ -36,59 +34,48 @@ public class TealiumContext {
     /// Categories should be static strings that identify the component (e.g., "NetworkModule", "TraceModule")
     /// rather than dynamic values like user data or timestamps.
     public let logger: LoggerProtocol?
-    /// Helper for standard, uncompressed network operations.
-    public let networkHelper: NetworkHelperProtocol
-    /// The network client for sending requests — the entry point for custom (e.g. gzipped) requests
-    /// built with a `RequestBuilder` or a `URLRequest`.
-    public let networkClient: NetworkClient
+    /// Networking utilities (network client, helper and connectivity manager).
+    public let network: NetworkUtilities
     /// Listener for application lifecycle events.
-    public let activityListener: ApplicationStatusListener
+    public let applicationStatusListener: ApplicationStatusListener
     /// Queue for SDK operations.
     public let queue: TealiumQueue
     /// Observable visitor ID.
     public let visitorId: ObservableState<String>
     /// Metrics for queue status monitoring.
     public let queueMetrics: QueueMetrics
-    /// Monitor for connectivity.
-    public let connectivityManager: ConnectivityManagerProtocol
     /// The `DataStore` for the `DataLayer`
     public let dataLayer: any DataStore
 
-    init(modulesManager: ModulesManager,
+    init(moduleManager: ModuleManager,
          sessionRegistry: SessionRegistry,
          config: TealiumConfig,
          coreSettings: ObservableState<CoreSettings>,
          tracker: Tracker,
          barrierRegistrar: BarrierRegistrar,
          transformerRegistrar: TransformerRegistrar,
-         databaseProvider: DatabaseProviderProtocol,
          moduleStoreProvider: ModuleStoreProvider,
          logger: LoggerProtocol?,
-         networkHelper: NetworkHelperProtocol,
-         networkClient: NetworkClient,
-         activityListener: ApplicationStatusListener,
+         network: NetworkUtilities,
+         applicationStatusListener: ApplicationStatusListener,
          queue: TealiumQueue,
          visitorId: ObservableState<String>,
          queueMetrics: QueueMetrics,
-         connectivityManager: ConnectivityManagerProtocol,
          dataLayer: any DataStore) {
-        self.modulesManager = modulesManager
+        self.moduleManager = moduleManager
         self.sessionRegistry = sessionRegistry
         self.config = config
         self.barrierRegistrar = barrierRegistrar
         self.transformerRegistrar = transformerRegistrar
         self.coreSettings = coreSettings
         self.tracker = tracker
-        self.databaseProvider = databaseProvider
         self.moduleStoreProvider = moduleStoreProvider
         self.logger = logger
-        self.networkHelper = networkHelper
-        self.networkClient = networkClient
-        self.activityListener = activityListener
+        self.network = network
+        self.applicationStatusListener = applicationStatusListener
         self.queue = queue
         self.visitorId = visitorId
         self.queueMetrics = queueMetrics
-        self.connectivityManager = connectivityManager
         self.dataLayer = dataLayer
     }
 }

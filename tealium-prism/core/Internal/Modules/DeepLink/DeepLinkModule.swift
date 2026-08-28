@@ -12,7 +12,7 @@ class DeepLinkModule: BasicModule, Collector {
     let version: String = TealiumConstants.libraryVersion
     let dataStore: any DataStore
     private let tracker: Tracker
-    private let modulesManager: ModulesManager
+    private let moduleManager: ModuleManager
     private var configuration: DeepLinkModuleConfiguration
     private let onOpenUrl: Observable<(URL, Referrer?)>?
     private let disposer = AutomaticDisposer()
@@ -30,7 +30,7 @@ class DeepLinkModule: BasicModule, Collector {
         #endif
         self.init(dataStore: dataStore,
                   tracker: context.tracker,
-                  modulesManager: context.modulesManager,
+                  moduleManager: context.moduleManager,
                   configuration: DeepLinkModuleConfiguration(configuration: moduleConfiguration),
                   onOpenUrl: onOpenUrl,
                   logger: context.logger)
@@ -38,13 +38,13 @@ class DeepLinkModule: BasicModule, Collector {
 
     init(dataStore: any DataStore,
          tracker: Tracker,
-         modulesManager: ModulesManager,
+         moduleManager: ModuleManager,
          configuration: DeepLinkModuleConfiguration,
          onOpenUrl: Observable<(URL, Referrer?)>? = nil,
          logger: LoggerProtocol? = nil) {
         self.dataStore = dataStore
         self.tracker = tracker
-        self.modulesManager = modulesManager
+        self.moduleManager = moduleManager
         self.configuration = configuration
         self.onOpenUrl = onOpenUrl
         self.logger = logger
@@ -52,7 +52,7 @@ class DeepLinkModule: BasicModule, Collector {
     }
 
     func getTrace() throws(ModuleError<Error>) -> TraceModule {
-        guard let trace: TraceModule = modulesManager.getModule() else {
+        guard let trace: TraceModule = moduleManager.getModule() else {
             throw .moduleNotEnabled("\(TraceModule.self)")
         }
         return trace

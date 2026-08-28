@@ -10,14 +10,14 @@
 import XCTest
 
 final class TealiumDataModuleTests: XCTestCase {
-    let modulesManager = ModulesManager(queue: TealiumQueue.main)
+    let moduleManager = ModuleManager(queue: TealiumQueue.main)
     let config = TealiumDataModuleTests.getConfig(source: "mock_source")
-    lazy var context = MockContext(modulesManager: modulesManager, config: config)
+    lazy var context = MockContext(moduleManager: moduleManager, config: config)
     lazy var collector = TealiumDataModule(context: context,
                                            moduleConfiguration: [:])
     lazy var data = collector.collect(DispatchContext(source: .application, initialData: [:]))
     override func setUp() {
-        modulesManager.updateSettings(context: context, settings: SDKSettings(config.getEnforcedSDKSettings()))
+        moduleManager.updateSettings(context: context, settings: SDKSettings(config.getEnforcedSDKSettings()))
     }
 
     static func getConfig(source: String?) -> TealiumConfig {
@@ -41,7 +41,7 @@ final class TealiumDataModuleTests: XCTestCase {
 
     func test_collect_doesnt_contain_source_when_nil() {
         let config = Self.getConfig(source: nil)
-        context = MockContext(modulesManager: modulesManager, config: config)
+        context = MockContext(moduleManager: moduleManager, config: config)
         XCTAssertFalse(data.keys.contains("tealium_datasource"),
                        "tealium_datasource should not be present in the collected data")
     }

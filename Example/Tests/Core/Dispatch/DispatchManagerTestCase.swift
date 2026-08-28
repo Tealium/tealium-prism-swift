@@ -12,7 +12,7 @@ import XCTest
 class DispatchManagerTestCase: XCTestCase {
 
     var allDispatchers: [String] {
-        modulesManager.modules.value
+        moduleManager.modules.value
             .filter { $0 is Dispatcher }
             .map { $0.id }
     }
@@ -43,7 +43,7 @@ class DispatchManagerTestCase: XCTestCase {
                                     settingsUrl: nil)
     let databaseProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
-    lazy var modulesManager = ModulesManager(queue: queue)
+    lazy var moduleManager = ModuleManager(queue: queue)
     lazy var _sdkSettings = StateSubject(SDKSettings(config.getEnforcedSDKSettings()))
     var sdkSettings: ObservableState<SDKSettings> {
         _sdkSettings.asObservableState()
@@ -51,7 +51,7 @@ class DispatchManagerTestCase: XCTestCase {
     var coreSettings: ObservableState<CoreSettings> {
         sdkSettings.mapState(transform: { $0.core })
     }
-    lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: modulesManager.modules, addingConsent: true),
+    lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: moduleManager.modules, addingConsent: true),
                                              queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
                                                                                  maxQueueSize: 10,
                                                                                  expiration: 1.days),
@@ -67,7 +67,7 @@ class DispatchManagerTestCase: XCTestCase {
                                                              transformations: transformations,
                                                              queue: .main,
                                                              logger: nil)
-    lazy var context = MockContext(modulesManager: modulesManager,
+    lazy var context = MockContext(moduleManager: moduleManager,
                                    config: config,
                                    coreSettings: coreSettings,
                                    barrierRegistrar: barrierManager,
@@ -82,7 +82,7 @@ class DispatchManagerTestCase: XCTestCase {
 
     func getDispatchManager() -> DispatchManager {
         DispatchManager(loadRuleEngine: loadRuleEngine,
-                        modulesManager: modulesManager,
+                        moduleManager: moduleManager,
                         consentManager: consentManager,
                         queueManager: queueManager,
                         barrierCoordinator: barrierCoordinator,
@@ -92,17 +92,17 @@ class DispatchManagerTestCase: XCTestCase {
     }
 
     var module1: MockDispatcher1? {
-        modulesManager.modules.value.compactMap { $0 as? MockDispatcher1 }.first
+        moduleManager.modules.value.compactMap { $0 as? MockDispatcher1 }.first
     }
 
     var module2: MockDispatcher2? {
-        modulesManager.modules.value.compactMap { $0 as? MockDispatcher2 }.first
+        moduleManager.modules.value.compactMap { $0 as? MockDispatcher2 }.first
     }
 
     override func setUp() {
         super.setUp()
-        modulesManager.updateSettings(context: context,
-                                      settings: sdkSettings.value)
+        moduleManager.updateSettings(context: context,
+                                     settings: sdkSettings.value)
     }
 
     override func tearDown() {
@@ -112,11 +112,11 @@ class DispatchManagerTestCase: XCTestCase {
     func disableModule<T: Module>(module: T?) {
         guard let module = module else { return }
         _sdkSettings.add(modules: [module.id: ModuleSettings(moduleId: module.id, moduleType: module.id, enabled: false)])
-        modulesManager.updateSettings(context: context, settings: sdkSettings.value)
+        moduleManager.updateSettings(context: context, settings: sdkSettings.value)
     }
 
     func enableModule(_ moduleType: String) {
         _sdkSettings.add(modules: [moduleType: ModuleSettings(moduleType: moduleType, enabled: true)])
-        modulesManager.updateSettings(context: context, settings: sdkSettings.value)
+        moduleManager.updateSettings(context: context, settings: sdkSettings.value)
     }
 }

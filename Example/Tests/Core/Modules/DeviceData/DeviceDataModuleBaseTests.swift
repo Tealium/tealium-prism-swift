@@ -13,14 +13,14 @@ class DeviceDataModuleBaseTests: XCTestCase {
     let dbProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
     let networkHelper = MockNetworkHelper()
-    lazy var manager = ModulesManager(queue: queue)
-    lazy var onManager = ReplaySubject<ModulesManager?>(manager)
+    lazy var manager = ModuleManager(queue: queue)
+    lazy var onManager = ReplaySubject<ModuleManager?>(manager)
     lazy var config: TealiumConfig = mockConfig
     lazy var transformerCoordinator = TransformerCoordinator(transformers: .constant([]),
                                                              transformations: .constant([]),
                                                              queue: queue,
                                                              logger: nil)
-    lazy var context = MockContext(modulesManager: manager,
+    lazy var context = MockContext(moduleManager: manager,
                                    config: config,
                                    transformerRegistrar: transformerCoordinator,
                                    databaseProvider: dbProvider,

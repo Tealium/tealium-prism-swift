@@ -79,7 +79,7 @@ extension BatchingBarrier {
         }
 
         func create(context: TealiumContext, configuration: DataObject) -> BatchingBarrier {
-            let dispatchers = context.modulesManager.modules.mapState { modules in
+            let dispatchers = context.moduleManager.modules.mapState { modules in
                 modules.compactMap { $0 as? Dispatcher }
             }
             return BatchingBarrier(queueMetrics: context.queueMetrics, dispatchers: dispatchers, configuration: configuration)

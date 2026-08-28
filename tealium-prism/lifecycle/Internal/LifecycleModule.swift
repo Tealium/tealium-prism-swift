@@ -45,7 +45,7 @@ class LifecycleModule: BasicModule {
 
     convenience init(context: TealiumContext, configuration: LifecycleConfiguration, service: LifecycleService) {
         self.init(tracker: context.tracker,
-                  onApplicationStatus: context.activityListener.onApplicationStatus,
+                  onApplicationStatus: context.applicationStatusListener.onApplicationStatus,
                   configuration: configuration,
                   service: service,
                   logger: context.logger)

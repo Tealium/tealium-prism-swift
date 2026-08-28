@@ -15,14 +15,13 @@ class ConsentIntegrationManagerBaseTests: XCTestCase {
     var allDispatchersIds: [String] {
         allDispatchers.map { $0.id }
     }
-    lazy var modulesManager = ModulesManager(queue: TealiumQueue.worker,
-                                             initialModules: allDispatchers)
-
+    lazy var moduleManager = ModuleManager(queue: TealiumQueue.worker,
+                                           initialModules: allDispatchers)
     @StateSubject(CoreSettings())
     var coreSettings
     lazy var queueManager = buildQueueManager()
     func buildQueueManager() -> MockQueueManager {
-        let processors = TealiumImpl.queueProcessors(from: modulesManager.modules,
+        let processors = TealiumImpl.queueProcessors(from: moduleManager.modules,
                                                      addingConsent: true)
         let repository = SQLQueueRepository(dbProvider: databaseProvider,
                                             maxQueueSize: 10,
@@ -57,7 +56,7 @@ class ConsentIntegrationManagerBaseTests: XCTestCase {
                                                    cmpAdapter: cmpAdapter,
                                                    queue: .main)
         return ConsentIntegrationManager(queueManager: queueManager,
-                                         modules: modulesManager.modules,
+                                         modules: moduleManager.modules,
                                          consentSettings: consentSettings,
                                          cmpSelector: cmpSelector,
                                          logger: nil)

@@ -16,6 +16,7 @@ import Foundation
 /// - After `onComplete()`, no further `onNext` calls will be made.
 /// - `onComplete()` is NOT called upon external disposal — only on natural upstream termination.
 public protocol Observer<Element> {
+    /// The type of element this observer receives.
     associatedtype Element
     /// Called when the upstream source emits a new element.
     func onNext(_ element: Element)

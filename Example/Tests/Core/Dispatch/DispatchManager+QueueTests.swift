@@ -41,7 +41,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
 
     func test_events_are_dispatched_in_ordered_batches() {
         disableModule(module: module1)
-        XCTAssertEqual(modulesManager.modules.value.count, 1)
+        XCTAssertEqual(moduleManager.modules.value.count, 1)
         let eventsAreDispatched = expectation(description: "Events are dispatched in batches 10 times")
         eventsAreDispatched.expectedFulfillmentCount = 10
         var count = 0
@@ -93,7 +93,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
                                       enabled: true,
                                       configuration: ["split_dispatches": true])
         _sdkSettings.add(modules: [module.id: settings])
-        modulesManager.updateSettings(context: context, settings: sdkSettings.value)
+        moduleManager.updateSettings(context: context, settings: sdkSettings.value)
         queueManager.storeDispatches(createDispatches(amount: 3), enqueueingFor: allDispatchers)
         let deletedEvents = expectation(description: "Deleted all 3 events separately")
         deletedEvents.expectedFulfillmentCount = 3

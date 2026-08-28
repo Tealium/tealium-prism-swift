@@ -19,12 +19,19 @@ import Foundation
 public class RequestBuilder {
     /// HTTP methods supported by RequestBuilder.
     public enum HTTPMethod: String {
+        /// HTTP GET method.
         case get = "GET"
+        /// HTTP POST method.
         case post = "POST"
+        /// HTTP PUT method.
         case put = "PUT"
+        /// HTTP PATCH method.
         case patch = "PATCH"
+        /// HTTP DELETE method.
         case delete = "DELETE"
+        /// HTTP HEAD method.
         case head = "HEAD"
+        /// HTTP OPTIONS method.
         case options = "OPTIONS"
     }
 

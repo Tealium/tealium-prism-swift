@@ -29,12 +29,12 @@ class DispatchManager: DispatchManagerProtocol {
     private let transformerCoordinator: TransformerCoordinator
 
     private var dispatchers: [Dispatcher] {
-        modulesManager?.modules.value.compactMap { $0 as? Dispatcher } ?? []
+        moduleManager?.modules.value.compactMap { $0 as? Dispatcher } ?? []
     }
     private var onDispatchers: Observable<[Dispatcher]> {
-        modulesManager?.modules.map { moduleList in moduleList.compactMap { $0 as? Dispatcher } } ?? Observables.just([])
+        moduleManager?.modules.map { moduleList in moduleList.compactMap { $0 as? Dispatcher } } ?? Observables.just([])
     }
-    private weak var modulesManager: ModulesManager?
+    private weak var moduleManager: ModuleManager?
     private let queueManager: QueueManagerProtocol
     private let consentManager: ConsentManager?
     private let logger: LoggerProtocol?
@@ -42,7 +42,7 @@ class DispatchManager: DispatchManagerProtocol {
     private let loadRuleEngine: LoadRuleEngine
     private let mappingsEngine: MappingsEngine
     init(loadRuleEngine: LoadRuleEngine,
-         modulesManager: ModulesManager,
+         moduleManager: ModuleManager,
          consentManager: ConsentManager?,
          queueManager: QueueManagerProtocol,
          barrierCoordinator: BarrierCoordinator,
@@ -50,7 +50,7 @@ class DispatchManager: DispatchManagerProtocol {
          mappingsEngine: MappingsEngine,
          logger: LoggerProtocol?) {
         self.loadRuleEngine = loadRuleEngine
-        self.modulesManager = modulesManager
+        self.moduleManager = moduleManager
         self.consentManager = consentManager
         self.queueManager = queueManager
         self.barrierCoordinator = barrierCoordinator

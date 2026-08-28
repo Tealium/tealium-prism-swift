@@ -11,10 +11,10 @@
 private let mockDbProvider = MockDatabaseProvider()
 private let queue = TealiumQueue.worker
 private let mockVisitorId = ObservableState(valueProvider: "visitorId", subscriptionHandler: { _ in Subscription {} })
-let mockContext = MockContext(modulesManager: ModulesManager(queue: queue), config: mockConfig)
+let mockContext = MockContext(moduleManager: ModuleManager(queue: queue), config: mockConfig)
 
 class MockContext: TealiumContext {
-    init(modulesManager: ModulesManager,
+    init(moduleManager: ModuleManager,
          sessionRegistry: SessionRegistry? = nil,
          config: TealiumConfig = mockConfig,
          coreSettings: ObservableState<CoreSettings> = .constant(CoreSettings()),
@@ -25,7 +25,7 @@ class MockContext: TealiumContext {
          logger: LoggerProtocol? = nil,
          networkHelper: NetworkHelperProtocol = MockNetworkHelper(),
          networkClient: NetworkClient = MockNetworkClient(result: .success(.successful())),
-         activityListener: ApplicationStatusListener = ApplicationStatusListener.shared,
+         applicationStatusListener: ApplicationStatusListener = ApplicationStatusListener.shared,
          queue: TealiumQueue = TealiumQueue.worker,
          visitorId: ObservableState<String> = mockVisitorId) {
         let transformerRegistrar = transformerRegistrar ?? TransformerCoordinator(
@@ -35,7 +35,7 @@ class MockContext: TealiumContext {
             logger: nil
         )
         let queueManager = MockQueueManager(
-            processors: TealiumImpl.queueProcessors(from: modulesManager.modules, addingConsent: true),
+            processors: TealiumImpl.queueProcessors(from: moduleManager.modules, addingConsent: true),
             queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
                                                 maxQueueSize: 10,
                                                 expiration: 1.days),
@@ -46,23 +46,22 @@ class MockContext: TealiumContext {
             databaseProvider: databaseProvider,
             modulesRepository: SQLModulesRepository(dbProvider: databaseProvider)
            )
-        super.init(modulesManager: modulesManager,
+        super.init(moduleManager: moduleManager,
                    sessionRegistry: MockSessionManager(databaseProvider: databaseProvider),
                    config: config,
                    coreSettings: coreSettings,
                    tracker: tracker,
                    barrierRegistrar: barrierRegistrar,
                    transformerRegistrar: transformerRegistrar,
-                   databaseProvider: databaseProvider,
                    moduleStoreProvider: moduleStoreProvider,
                    logger: logger,
-                   networkHelper: networkHelper,
-                   networkClient: networkClient,
-                   activityListener: activityListener,
+                   network: NetworkUtilities(networkHelper: networkHelper,
+                                             networkClient: networkClient,
+                                             connectivityManager: MockConnectivityManager(queue: queue)),
+                   applicationStatusListener: applicationStatusListener,
                    queue: queue,
                    visitorId: visitorId,
                    queueMetrics: queueManager,
-                   connectivityManager: MockConnectivityManager(queue: queue),
                    dataLayer: try! moduleStoreProvider.getModuleStore(name: Modules.Types.dataLayer)) // swiftlint:disable:this force_try
     }
 }

@@ -17,8 +17,8 @@ The TealiumData module collects the following information:
 | Library Name | `tealium_library_name` | Name of the Tealium library | SDK constant |
 | Library Version | `tealium_library_version` | Version of the Tealium library | SDK constant |
 | Visitor ID | `tealium_visitor_id` | Unique visitor identifier | Visitor ID provider |
-| Enabled Modules | `enabled_modules` | List of enabled module IDs | Modules manager |
-| Enabled Modules Versions | `enabled_modules_versions` | List of enabled module versions | Modules manager |
+| Enabled Modules | `enabled_modules` | List of enabled module IDs | Module manager |
+| Enabled Modules Versions | `enabled_modules_versions` | List of enabled module versions | Module manager |
 | Random | `tealium_random` | Random 16-digit number for event deduplication | Generated per event |
 
 ## Installation/Configuration

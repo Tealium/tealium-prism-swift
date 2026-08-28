@@ -8,7 +8,6 @@
 
 import Foundation
 
-// TODO: move this class to Internal
 /// A convenience helper for standard, **uncompressed** network requests.
 ///
 /// This is a thin short-circuit over `NetworkClient`: bodies are never compressed and no logging

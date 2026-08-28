@@ -52,7 +52,7 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
         guard let module1 = module1 else { return }
         module1.delay = 0
         disableModule(module: module2)
-        XCTAssertEqual(modulesManager.modules.value.count, 1)
+        XCTAssertEqual(moduleManager.modules.value.count, 1)
         let firstEventIsDispatched = expectation(description: "First event is dispatched")
         let maximumInflightCountReached = expectation(description: "Maximum number of events inflight is reached")
         maximumInflightCountReached.assertForOverFulfill = false
@@ -74,7 +74,7 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
         guard let module1 = module1 else { return }
         module1.dispatchLimit = DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER + 10
         disableModule(module: module2)
-        XCTAssertEqual(modulesManager.modules.value.count, 1)
+        XCTAssertEqual(moduleManager.modules.value.count, 1)
         let firstEventIsDispatched = expectation(description: "First event is dispatched")
         queueManager.storeDispatches(createDispatches(amount: DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER + 10), enqueueingFor: allDispatchers)
         _ = module1.onDispatch.subscribeOnce { dispatches in

@@ -35,7 +35,7 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
     required convenience init?(context: TealiumContext, moduleConfiguration: DataObject) {
         self.init(deviceDataProvider: DeviceDataProvider(),
                   configuration: DeviceDataModuleConfiguration(configuration: moduleConfiguration),
-                  networkHelper: context.networkHelper,
+                  networkHelper: context.network.networkHelper,
                   storeProvider: context.moduleStoreProvider,
                   transformerRegistrar: context.transformerRegistrar,
                   queue: context.queue,

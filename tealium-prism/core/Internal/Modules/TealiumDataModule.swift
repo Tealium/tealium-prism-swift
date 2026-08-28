@@ -34,7 +34,7 @@ class TealiumDataModule: BasicModule, Collector {
     }
 
     func collect(_ dispatchContext: DispatchContext) -> DataObject {
-        let modules = context.modulesManager.modules.value
+        let modules = context.moduleManager.modules.value
         return [
             TealiumDataKey.enabledModules: modules.map { $0.id },
             TealiumDataKey.enabledModulesVersions: modules.map { $0.version },

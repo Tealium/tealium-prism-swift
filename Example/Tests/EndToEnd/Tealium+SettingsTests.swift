@@ -57,7 +57,7 @@ final class TealiumSettingsTests: TealiumBaseTests {
                 XCTFail("Tealium Implementation not created")
                 return
             }
-            XCTAssertFalse(impl.modulesManager.modules.value.contains { $0 is MockDispatcher1 },
+            XCTAssertFalse(impl.moduleManager.modules.value.contains { $0 is MockDispatcher1 },
                            "Modules must not contain the disabled modules")
             tealiumImplInitialized.fulfill()
         }
@@ -78,13 +78,13 @@ final class TealiumSettingsTests: TealiumBaseTests {
                 XCTFail("Tealium Implementation not created")
                 return
             }
-            XCTAssertTrue(impl.modulesManager.modules.value.contains { $0 is MockDispatcher1 },
+            XCTAssertTrue(impl.moduleManager.modules.value.contains { $0 is MockDispatcher1 },
                           "Modules initially contains the module to be disabled")
             guard let completeSettingsRequest else {
                 XCTFail("Network Request for Settings should already be performed")
                 return
             }
-            impl.modulesManager.modules.updates().subscribeOnce { modules in
+            impl.moduleManager.modules.updates().subscribeOnce { modules in
                 XCTAssertFalse(modules.contains { $0 is MockDispatcher1 },
                                "Modules must not contain the disabled modules after the settings update")
                 modulesListUpdated.fulfill()
@@ -109,13 +109,13 @@ final class TealiumSettingsTests: TealiumBaseTests {
                 XCTFail("Tealium Implementation not created")
                 return
             }
-            XCTAssertFalse(impl.modulesManager.modules.value.contains { $0 is MockDispatcher2 },
+            XCTAssertFalse(impl.moduleManager.modules.value.contains { $0 is MockDispatcher2 },
                            "Modules initially must not contain the module to is disabled")
             guard let completeSettingsRequest else {
                 XCTFail("Network Request for Settings should already be performed")
                 return
             }
-            impl.modulesManager.modules.updates().subscribeOnce { modules in
+            impl.moduleManager.modules.updates().subscribeOnce { modules in
                 XCTAssertTrue(modules.contains { $0 is MockDispatcher2 },
                               "Modules must contain the re-enabled modules after the settings update")
                 modulesListUpdated.fulfill()

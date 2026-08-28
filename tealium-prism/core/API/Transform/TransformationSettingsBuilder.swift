@@ -64,7 +64,9 @@ open class TransformationSettingsBuilder {
         return self
     }
 
-    // Do not use
+    /// For internal use only. Sets the raw configuration `DataObject` on the builder; ignored if empty.
+    /// - Parameter configuration: The configuration `DataObject` to apply.
+    /// - Returns: The builder instance for method chaining.
     @discardableResult
     public func _setConfiguration(_ configuration: DataObject) -> Self {
         if !configuration.keys.isEmpty {

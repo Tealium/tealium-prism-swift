@@ -12,19 +12,19 @@ import XCTest
 final class MomentsAPIWrapperTests: XCTestCase {
     let queue = TealiumQueue.worker
     let mockNetworkHelper = MockNetworkHelper()
-    lazy var manager = ModulesManager(queue: queue)
-    lazy var onManager = ReplaySubject<ModulesManager?>(manager)
+    lazy var manager = ModuleManager(queue: queue)
+    lazy var onManager = ReplaySubject<ModuleManager?>(manager)
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = MomentsAPIWrapper(
         moduleProxy: ModuleProxy<MomentsAPIModule, MomentsAPIError>(
             queue: queue,
-            onModulesManager: onManager.asObservable()
+            onModuleManager: onManager.asObservable()
         )
     )
 
     func context() -> TealiumContext {
         MockContext(
-            modulesManager: manager,
+            moduleManager: manager,
             config: config,
             networkHelper: mockNetworkHelper
         )
@@ -88,12 +88,12 @@ final class MomentsAPIWrapperTests: XCTestCase {
         let expectation = expectation(description: "Fetch reports module not enabled")
 
         // Create a new manager without the module
-        let managerWithoutModule = ModulesManager(queue: queue)
-        let onManagerWithoutModule = ReplaySubject<ModulesManager?>(managerWithoutModule)
+        let managerWithoutModule = ModuleManager(queue: queue)
+        let onManagerWithoutModule = ReplaySubject<ModuleManager?>(managerWithoutModule)
         let wrapperWithoutModule = MomentsAPIWrapper(
             moduleProxy: ModuleProxy<MomentsAPIModule, MomentsAPIError>(
                 queue: queue,
-                onModulesManager: onManagerWithoutModule.asObservable()
+                onModuleManager: onManagerWithoutModule.asObservable()
             )
         )
 

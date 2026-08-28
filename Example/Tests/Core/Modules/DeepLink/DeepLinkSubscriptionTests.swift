@@ -14,10 +14,10 @@ final class DeepLinkSubscriptionTests: DeepLinkBaseTests {
 
     func test_deep_link_is_handled_by_module_when_url_is_emitted() throws {
         let context = context()
-        let deeplinkDataStore = try context.moduleStoreProvider.getModuleStore(name: DeepLinkModule.moduleType)
-        deepLink = DeepLinkModule(dataStore: deeplinkDataStore,
+        let deepLinkDataStore = try context.moduleStoreProvider.getModuleStore(name: DeepLinkModule.moduleType)
+        deepLink = DeepLinkModule(dataStore: deepLinkDataStore,
                                   tracker: context.tracker,
-                                  modulesManager: context.modulesManager,
+                                  moduleManager: context.moduleManager,
                                   configuration: DeepLinkModuleConfiguration(configuration: [:]),
                                   onOpenUrl: onOpenUrl)
         let urlString = "https://tealium.com"
@@ -32,12 +32,12 @@ final class DeepLinkSubscriptionTests: DeepLinkBaseTests {
         let errorLogged = expectation(description: "Error logged")
         config.modules = [] // remove trace module so that we catch an error when trying to get trace
         let context = context()
-        let deeplinkDataStore = try context.moduleStoreProvider.getModuleStore(name: DeepLinkModule.moduleType)
+        let deepLinkDataStore = try context.moduleStoreProvider.getModuleStore(name: DeepLinkModule.moduleType)
         manager.updateSettings(context: context, settings: SDKSettings([:]))
         let logger = MockLogger()
-        deepLink = DeepLinkModule(dataStore: deeplinkDataStore,
+        deepLink = DeepLinkModule(dataStore: deepLinkDataStore,
                                   tracker: context.tracker,
-                                  modulesManager: context.modulesManager,
+                                  moduleManager: context.moduleManager,
                                   configuration: DeepLinkModuleConfiguration(configuration: [:]),
                                   onOpenUrl: onOpenUrl,
                                   logger: logger)

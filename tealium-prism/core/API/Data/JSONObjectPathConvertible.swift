@@ -10,5 +10,6 @@ import Foundation
 
 /// Protocol for types that can be expressed as a `JSONObjectPath`.
 public protocol JSONObjectPathConvertible {
+    /// The `JSONObjectPath` representation of this value.
     var path: JSONObjectPath { get }
 }

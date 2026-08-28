@@ -19,6 +19,8 @@ open class SyncCommand: Command {
 
     public let name: String
 
+    /// Creates a synchronous command with the given name.
+    /// - Parameter name: The name used to identify and route this command in a `CommandRegistry`.
     public init(name: String) {
         self.name = name
     }

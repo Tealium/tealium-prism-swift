@@ -28,8 +28,8 @@ public class Tealium {
     /// The key that identifies the underlying instance. Equal to the `TealiumConfig.key` used to create it.
     public let key: String
 
-    /// Observable for the modules manager.
-    private let onModulesManager: Observable<ModulesManager?>
+    /// Observable for the module manager.
+    private let onModuleManager: Observable<ModuleManager?>
 
     /// Queue for Tealium operations.
     let queue: TealiumQueue
@@ -73,9 +73,9 @@ public class Tealium {
         self.key = key
         self.queue = queue
         self.onShutdown = onShutdown
-        onModulesManager = onTealiumImplementation.map { result in
+        onModuleManager = onTealiumImplementation.map { result in
             if case .success(let implementation) = result {
-                return implementation.modulesManager
+                return implementation.moduleManager
             } else {
                 return nil
             }
@@ -197,7 +197,7 @@ public class Tealium {
      * - Returns: The `ModuleProxy` for the given module.
      */
     public func createModuleProxy<T: Module, E: Error>(for module: T.Type = T.self) -> ModuleProxy<T, E> {
-        ModuleProxy(queue: queue, onModulesManager: onModulesManager)
+        ModuleProxy(queue: queue, onModuleManager: onModuleManager)
     }
 
     /**

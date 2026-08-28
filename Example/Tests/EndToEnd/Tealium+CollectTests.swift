@@ -242,7 +242,7 @@ final class TealiumCollectTests: TealiumBaseTests {
         let initializationCompleted = expectation(description: "Tealium initialization completed")
         let teal = createTealium()
         _ = teal.proxy.executeTask { impl in
-            let modules = impl.modulesManager.modules.value.map { $0.id }
+            let modules = impl.moduleManager.modules.value.map { $0.id }
             XCTAssertTrue(modules.contains("Collect"))
             XCTAssertTrue(modules.contains("Collect2"))
             initializationCompleted.fulfill()
@@ -263,7 +263,7 @@ final class TealiumCollectTests: TealiumBaseTests {
         let initializationCompleted = expectation(description: "Tealium initialization completed")
         let teal = createTealium()
         _ = teal.proxy.executeTask { impl in
-            let modules = impl.modulesManager.modules.value.map { $0.id }
+            let modules = impl.moduleManager.modules.value.map { $0.id }
             for module in modules where module == "Collect" {
                 initializationCompleted.fulfill()
             }
