@@ -226,4 +226,16 @@ final class MappingsEngineTests: XCTestCase {
             "dest_key": DataItem(value: ["1", "2", "3", "someConstant", [1, 2, 3]])
         ])
     }
+
+    func test_map_operation_overwrites_existing_array_index_without_shifting() {
+        let result = engine.map(dispatch: dispatch, mappings: [
+            MappingOperation(destination: "dest",
+                             parameters: MappingParameters(reference: "array", filter: nil, mapTo: nil)),
+            MappingOperation(destination: JSONPath["dest"][1],
+                             parameters: MappingParameters(reference: "key", filter: nil, mapTo: nil))
+        ])
+        XCTAssertEqual(result.payload, [
+            "dest": ["1", "value", "3"]
+        ])
+    }
 }

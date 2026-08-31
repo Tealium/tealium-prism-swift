@@ -1673,6 +1673,10 @@
 		E5DD0EAB30388E2F001BFA30 /* URLSession+TealiumTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DD0EA930388E2F001BFA30 /* URLSession+TealiumTests.swift */; };
 		E5DD0EAC30388E2F001BFA30 /* URLSession+TealiumTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DD0EA930388E2F001BFA30 /* URLSession+TealiumTests.swift */; };
 		E5DD0EAD30388E2F001BFA30 /* URLSession+TealiumTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DD0EA930388E2F001BFA30 /* URLSession+TealiumTests.swift */; };
+		E5DD0EB630458570001BFA30 /* Array+DataItemInternalsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DD0EB530458570001BFA30 /* Array+DataItemInternalsTests.swift */; };
+		E5DD0EB730458570001BFA30 /* Array+DataItemInternalsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DD0EB530458570001BFA30 /* Array+DataItemInternalsTests.swift */; };
+		E5DD0EB830458570001BFA30 /* Array+DataItemInternalsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DD0EB530458570001BFA30 /* Array+DataItemInternalsTests.swift */; };
+		E5DD0EB930458570001BFA30 /* Array+DataItemInternalsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DD0EB530458570001BFA30 /* Array+DataItemInternalsTests.swift */; };
 		E8A72A684223BC129B831984 /* MockConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15BBB2892B07E362009D4CB5 /* MockConfig.swift */; };
 		E93A0D40784A02ECE27FEF89 /* Pods_JavaScriptTransformerTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2981DEB9FDDBF4D8D4256E95 /* Pods_JavaScriptTransformerTests_macOS.framework */; };
 		EC0D84EB2D6F671D00436087 /* ConnectivityDataModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0D84EA2D6F671D00436087 /* ConnectivityDataModuleTests.swift */; };
@@ -2565,6 +2569,7 @@
 		E514CF9C3035A7BB009A0A54 /* ModuleManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleManagerTests.swift; sourceTree = "<group>"; };
 		E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataItem+JSONStringTests.swift"; sourceTree = "<group>"; };
 		E5DD0EA930388E2F001BFA30 /* URLSession+TealiumTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLSession+TealiumTests.swift"; sourceTree = "<group>"; };
+		E5DD0EB530458570001BFA30 /* Array+DataItemInternalsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+DataItemInternalsTests.swift"; sourceTree = "<group>"; };
 		E8C36B03477CF2635A3840E4 /* Pods_LifecycleTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LifecycleTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EA426159A769372703C45EB3 /* Pods_MomentsAPITests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_MomentsAPITests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		EC0D84EA2D6F671D00436087 /* ConnectivityDataModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConnectivityDataModuleTests.swift; sourceTree = "<group>"; };
@@ -3686,6 +3691,7 @@
 		D54BC0072C78C34F003687C7 /* Data */ = {
 			isa = PBXGroup;
 			children = (
+				E5DD0EB530458570001BFA30 /* Array+DataItemInternalsTests.swift */,
 				E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */,
 				ECF92FA92F69831A00A5AE06 /* ValueSourceTests.swift */,
 				EC8CF8E92F3CCFCB00812410 /* LenientConvertersTests.swift */,
@@ -6330,6 +6336,7 @@
 				08BD03262D356BBB00FA2E2E /* CollectModuleFactoryTests.swift in Sources */,
 				08BD03272D356BBB00FA2E2E /* CollectSettingsBuilderTests.swift in Sources */,
 				87EE76DC2D7867F500BB1D77 /* Condition+IsEmptyTests.swift in Sources */,
+				E5DD0EB830458570001BFA30 /* Array+DataItemInternalsTests.swift in Sources */,
 				D54BC0022C78C01A003687C7 /* QueueManagerTests.swift in Sources */,
 				15DEFB992B0CBE1B000585FF /* MockBarrier.swift in Sources */,
 				15C0DCBB2B0CF45D0007F6BE /* Operators+CombineLatestTests.swift in Sources */,
@@ -7254,6 +7261,7 @@
 				EC1230EC2F2BBD5B00C24060 /* StringContainerTests.swift in Sources */,
 				87A4092E2E97F06E005D92CC /* MockNetworkClient.swift in Sources */,
 				87A4092F2E97F06E005D92CC /* Rule+DataInputConvertibleTests.swift in Sources */,
+				E5DD0EB930458570001BFA30 /* Array+DataItemInternalsTests.swift in Sources */,
 				87A409302E97F06E005D92CC /* Condition+ConverterTests.swift in Sources */,
 				87A409312E97F06E005D92CC /* MappingsEngineTests.swift in Sources */,
 				87A409322E97F06E005D92CC /* Operators+MergeTests.swift in Sources */,
@@ -7814,6 +7822,7 @@
 				EC1230EE2F2BBD5B00C24060 /* StringContainerTests.swift in Sources */,
 				87FC08572D91ADF300E1041D /* Rule+DataInputConvertibleTests.swift in Sources */,
 				87EE774F2D81B16A00BB1D77 /* Condition+ConverterTests.swift in Sources */,
+				E5DD0EB630458570001BFA30 /* Array+DataItemInternalsTests.swift in Sources */,
 				871237E02DD621DF0007C2CD /* MappingsEngineTests.swift in Sources */,
 				87BA6D922C6A470C00784784 /* Operators+MergeTests.swift in Sources */,
 				D54BBFF52C78C01A003687C7 /* DispatchManager+DispatchersListTests.swift in Sources */,
@@ -8086,6 +8095,7 @@
 				EC1230EF2F2BBD5B00C24060 /* StringContainerTests.swift in Sources */,
 				871237DE2DD621DF0007C2CD /* MappingsEngineTests.swift in Sources */,
 				87BA6E0B2C6A47AF00784784 /* MockBackoff.swift in Sources */,
+				E5DD0EB730458570001BFA30 /* Array+DataItemInternalsTests.swift in Sources */,
 				87BA6E0C2C6A47AF00784784 /* StateSubjectTests.swift in Sources */,
 				87EE76D92D78670400BB1D77 /* Condition+IsDefinedTests.swift in Sources */,
 				87AF54702C7E389C00F1C114 /* TimeFrameTests.swift in Sources */,

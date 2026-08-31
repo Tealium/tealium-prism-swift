@@ -9,6 +9,7 @@
 @testable import TealiumPrism
 import XCTest
 
+// swiftlint:disable type_body_length
 /// These tests are mainly used to showcase how the dictionary input can be used
 final class DataObjectTests: XCTestCase {
 
@@ -435,6 +436,42 @@ final class DataObjectTests: XCTestCase {
         XCTAssertEqual(dataObject, ["container": [["property": "value"]]])
     }
 
+    func test_buildPath_overwrites_existing_array_index() {
+        var dataObject: DataObject = [
+            "container": [
+                "array": ["1", "2", "3"]
+            ]
+        ]
+        dataObject.buildPath(JSONPath["container"]["array"][1], andSet: DataItem(value: "X"))
+        XCTAssertEqual(dataObject, ["container": [
+            "array": ["1", "X", "3"]
+        ]])
+    }
+
+    func test_buildPath_overwrites_first_array_index() {
+        var dataObject: DataObject = [
+            "container": [
+                "array": ["1", "2", "3"]
+            ]
+        ]
+        dataObject.buildPath(JSONPath["container"]["array"][0], andSet: DataItem(value: "NEW"))
+        XCTAssertEqual(dataObject, ["container": [
+            "array": ["NEW", "2", "3"]
+        ]])
+    }
+
+    func test_buildPath_merges_into_existing_array_index_object_in_place() {
+        var dataObject: DataObject = [
+            "container": [
+                "array": [["k": "a"], ["k": "b"]]
+            ]
+        ]
+        dataObject.buildPath(JSONPath["container"]["array"][0]["k2"], andSet: DataItem(value: "v"))
+        XCTAssertEqual(dataObject, ["container": [
+            "array": [["k": "a", "k2": "v"], ["k": "b"]]
+        ]])
+    }
+
     // MARK: - init(jsonObject:)
 
     func test_init_jsonObject_simple_dictionary() throws {
@@ -518,3 +555,4 @@ final class DataObjectTests: XCTestCase {
         XCTAssertEqual(metadata?.get(key: "nested_bool"), false)
     }
 }
+// swiftlint:enable type_body_length

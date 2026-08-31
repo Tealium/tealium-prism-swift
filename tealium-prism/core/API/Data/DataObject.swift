@@ -148,13 +148,13 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
      * Sets the item in the `DataObject` by following the `JSONObjectPath` and recursively creating the required containers.
      *
      * In case the `DataObject` contains already the nested object or array as expressed in the `JSONObjectPath`
-     * it will insert the new item in those objects or arrays.
+     * it will set the new item at that location, overwriting any existing value.
      * The missing containers will, instead, be automatically be created by this method.
-     * In case an array is not big enough to insert an item at the given index, nil items will be put until we reach the required capacity.
+     * In case an array is not big enough to set an item at the given index, nil items will be put until we reach the required capacity.
      *
      * - Parameters:
      *      - path: The `JSONObjectPath` that expresses the (eventually nested) location in which to put the item
-     *      - item: The item to insert at the provided location
+     *      - item: The item to set at the provided location
      */
     mutating public func buildPath(_ path: JSONObjectPath, andSet item: DataItem) {
         var components = path.components

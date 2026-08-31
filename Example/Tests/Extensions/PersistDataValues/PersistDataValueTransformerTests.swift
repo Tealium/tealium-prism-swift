@@ -209,4 +209,27 @@ final class PersistDataValueTransformerTests: ExtensionsBaseTests {
         }
         waitForDefaultTimeout()
     }
+
+    func test_applyTransformation_overwrites_existing_array_index_in_data_layer_without_growing() throws {
+        // Seed both the persisted data layer and the payload with an existing array.
+        try dataLayer.buildPath(
+            JSONPath["tags"],
+            andSet: DataItem(value: ["a", "b", "c"]),
+            expiry: .session
+        )
+        let dispatch = Dispatch(name: "test", data: ["tags": ["a", "b", "c"]])
+        let settings = try makeSettings(PersistDataValueSettingsBuilder(id: "test")
+            .persistConstant("X", to: .path(JSONPath["tags"][1]))
+            .setExpiryPolicy(.session)
+            .setUpdatePolicy(.allowUpdate))
+
+        let expectation = expectation(description: "Existing array index is replaced, not shifted")
+        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { [weak self] result in
+            let persisted: [String?]? = self?.dataLayer.extractArray(path: JSONPath["tags"])
+            XCTAssertEqual(persisted, ["a", "X", "c"])
+            XCTAssertEqual(result?.payload.getArray(key: "tags"), ["a", "X", "c"])
+            expectation.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
 }
