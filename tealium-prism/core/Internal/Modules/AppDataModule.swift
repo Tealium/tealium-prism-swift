@@ -47,8 +47,8 @@ extension AppDataCollection {
         return bundle.infoDictionary?[kCFBundleVersionKey as String] as? String
     }
 
-    /// Returns current app process memory usage in megabytes (e.g. `"42.00MB"`).
-    static func appMemoryUsage() -> String {
+    /// Returns current app process memory usage in whole megabytes.
+    static func appMemoryUsage() -> Int64 {
         var info = mach_task_basic_info()
         let integerCount = MemoryLayout<mach_task_basic_info>.size / MemoryLayout<integer_t>.size
         var count = mach_msg_type_number_t(integerCount)
@@ -57,8 +57,8 @@ extension AppDataCollection {
                 task_info(mach_task_self_, task_flavor_t(MACH_TASK_BASIC_INFO), $0, &count)
             }
         }
-        guard kerr == KERN_SUCCESS else { return TealiumConstants.unknown }
-        return String(format: "%0.2fMB", Double(info.resident_size) / ByteUnit.megabyte)
+        guard kerr == KERN_SUCCESS else { return 0 }
+        return Int64(info.resident_size) / ByteUnit.megabyte
     }
 }
 
@@ -133,6 +133,6 @@ public extension TealiumDataKey {
     /// Key for the app version, representing the user-facing version of the app.
     static let appVersion = "app_version"
 
-    /// Key for current memory used by the app process, in megabytes (e.g. `"42.00MB"`).
+    /// Key for current memory used by the app process, in whole megabytes (e.g. `42`).
     static let appMemoryUsage = "app_memory_usage"
 }

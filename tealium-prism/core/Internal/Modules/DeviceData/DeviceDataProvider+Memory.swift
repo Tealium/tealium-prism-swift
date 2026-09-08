@@ -13,8 +13,8 @@ private let HOST_VM_INFO64_COUNT: mach_msg_type_number_t =
 UInt32(MemoryLayout<vm_statistics64_data_t>.size / MemoryLayout<integer_t>.size)
 
 extension DeviceDataProvider {
-    /// - Returns: `[String: String]` containing current device memory usage info
-    var memoryUsage: [String: String] {
+    /// - Returns: `[String: Int64]` containing current device memory usage info, in whole megabytes
+    var memoryUsage: [String: Int64] {
         let pageSize = vm_kernel_page_size
         let machHost = mach_host_self()
         var size = HOST_VM_INFO64_COUNT
@@ -27,21 +27,21 @@ extension DeviceDataProvider {
         let data = hostInfo.move()
         hostInfo.deallocate()
 
-        let physical = Double(ProcessInfo.processInfo.physicalMemory) / ByteUnit.megabyte
-        let free = Double(data.free_count) * Double(pageSize) / ByteUnit.megabyte
-        let active = Double(data.active_count) * Double(pageSize) / ByteUnit.megabyte
-        let inactive = Double(data.inactive_count) * Double(pageSize) / ByteUnit.megabyte
-        let wired = Double(data.wire_count) * Double(pageSize) / ByteUnit.megabyte
+        let physical = Int64(ProcessInfo.processInfo.physicalMemory) / ByteUnit.megabyte
+        let free = Int64(data.free_count) * Int64(pageSize) / ByteUnit.megabyte
+        let active = Int64(data.active_count) * Int64(pageSize) / ByteUnit.megabyte
+        let inactive = Int64(data.inactive_count) * Int64(pageSize) / ByteUnit.megabyte
+        let wired = Int64(data.wire_count) * Int64(pageSize) / ByteUnit.megabyte
         // Result of the compression. This is what you see in Activity Monitor
-        let compressed = Double(data.compressor_page_count) * Double(pageSize) / ByteUnit.megabyte
+        let compressed = Int64(data.compressor_page_count) * Int64(pageSize) / ByteUnit.megabyte
 
         return [
-            DeviceDataKey.memoryActive: String(format: "%0.2fMB", active),
-            DeviceDataKey.memoryCompressed: String(format: "%0.2fMB", compressed),
-            DeviceDataKey.memoryFree: String(format: "%0.2fMB", free),
-            DeviceDataKey.memoryInactive: String(format: "%0.2fMB", inactive),
-            DeviceDataKey.memoryWired: String(format: "%0.2fMB", wired),
-            DeviceDataKey.physicalMemory: String(format: "%0.2fMB", physical),
+            DeviceDataKey.memoryActive: active,
+            DeviceDataKey.memoryCompressed: compressed,
+            DeviceDataKey.memoryFree: free,
+            DeviceDataKey.memoryInactive: inactive,
+            DeviceDataKey.memoryWired: wired,
+            DeviceDataKey.physicalMemory: physical,
         ]
     }
 }

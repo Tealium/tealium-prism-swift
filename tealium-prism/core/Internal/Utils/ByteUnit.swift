@@ -7,5 +7,5 @@
 //
 
 enum ByteUnit {
-    static let megabyte: Double = 1_048_576
+    static let megabyte: Int64 = 1_048_576
 }

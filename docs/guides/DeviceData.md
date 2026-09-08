@@ -30,12 +30,12 @@ The DeviceData module collects the following information:
 | Resolution | `device_resolution` | Physical screen resolution | Screen info |
 | Logical Resolution | `device_logical_resolution` | Logical screen resolution | Screen info |
 | **Memory Data (Optional)** | | | |
-| Memory Active | `memory_active` | Active memory | System info |
-| Memory Free | `memory_free` | Free memory | System info |
-| Memory Inactive | `memory_inactive` | Inactive memory | System info |
-| Memory Compressed | `memory_compressed` | Compressed memory | System info |
-| Memory Wired | `memory_wired` | Wired memory | System info |
-| Physical Memory | `memory_physical` | Total physical memory | System info |
+| Memory Active | `memory_active` | Active memory in whole megabytes | System info |
+| Memory Free | `memory_free` | Free memory in whole megabytes | System info |
+| Memory Inactive | `memory_inactive` | Inactive memory in whole megabytes | System info |
+| Memory Compressed | `memory_compressed` | Compressed memory in whole megabytes | System info |
+| Memory Wired | `memory_wired` | Wired memory in whole megabytes | System info |
+| Physical Memory | `memory_physical` | Total physical memory in whole megabytes | System info |
 
 ## Installation/Configuration
 
