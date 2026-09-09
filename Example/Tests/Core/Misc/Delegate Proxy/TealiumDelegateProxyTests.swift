@@ -8,11 +8,6 @@
 @testable import TealiumPrism
 import XCTest
 
-enum SceneDelegateProxyError: Error {
-    case sceneDelegateNotFound
-    case appDelegateNotFound
-}
-
 class BaseProxyTests: XCTestCase {
     static var testNumber = 0
     let queue = TealiumQueue.worker
@@ -20,32 +15,8 @@ class BaseProxyTests: XCTestCase {
 
     override func tearDown() {
         disposer.dispose()
-    }
-    func sendOpenUrlEvent(urlString: String) throws {
-        let url = try urlString.asUrl()
-        if TealiumDelegateProxy.sceneEnabled {
-            guard let scene = UIApplication.shared.connectedScenes.first,
-                  let sceneDelegate = scene.delegate else {
-                throw SceneDelegateProxyError.sceneDelegateNotFound
-            }
-            sceneDelegate.scene?(scene, openURLContexts: Set<UIOpenURLContext>([MockOpenUrlContext(url: url)]))
-        } else {
-            guard let appDelegate = UIApplication.shared.delegate else {
-                throw SceneDelegateProxyError.appDelegateNotFound
-            }
-            _ = appDelegate.application?(UIApplication.shared, open: url, options: [:])
-        }
-    }
-
-    func sendContinueUserActivityEvent(urlString: String) throws {
-        let url = try urlString.asUrl()
-        let activity = NSUserActivity(activityType: NSUserActivityTypeBrowsingWeb)
-        activity.webpageURL = url
-        if TealiumDelegateProxy.sceneEnabled {
-            UIApplication.shared.manualSceneContinueUserActivity(activity)
-        } else {
-            UIApplication.shared.manualContinueUserActivity(activity)
-        }
+        // Some tests replace it, so restore the default one for whatever runs next.
+        TealiumDelegateProxy.configuration = .init()
     }
 }
 

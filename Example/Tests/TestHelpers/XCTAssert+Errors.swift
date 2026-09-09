@@ -27,6 +27,20 @@ func XCTAssertTestErrorEquals(
     XCTAssertEqual(testError, other, file: file, line: line)
 }
 
+func XCTAssertModuleShutdown(
+    _ error: Error,
+    module expectedModule: String,
+    file: StaticString = #filePath,
+    line: UInt = #line
+) {
+    guard let moduleError = error as? ModuleError<Error>,
+          case .moduleShutdown(let module) = moduleError else {
+        XCTFail("Expected ModuleError.moduleShutdown but got \(error)", file: file, line: line)
+        return
+    }
+    XCTAssertEqual(module, expectedModule, file: file, line: line)
+}
+
 func XCTAssertNetworkError(
     _ networkError: NetworkError,
     equalsURLErrorWith underlyingError: Error?,

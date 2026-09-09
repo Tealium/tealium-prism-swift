@@ -60,4 +60,35 @@ final class DeepLinkHandlerWrapperTests: XCTestCase {
         wrapper.handle(link: link)
         waitOnQueue(queue: queue)
     }
+
+    func test_handle_fails_with_moduleNotEnabled_when_trace_is_not_enabled() throws {
+        let handled = expectation(description: "Handling completed")
+        let link = try "https://tealium.com?tealium_trace_id=123".asUrl()
+        wrapper.handle(link: link).subscribe { result in
+            XCTAssertResultIsFailure(result) { error in
+                guard case .moduleNotEnabled(let module) = error else {
+                    XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
+                    return
+                }
+                XCTAssertEqual(module, "\(TraceModule.self)")
+            }
+            handled.fulfill()
+        }
+        waitOnQueue(queue: queue)
+    }
+
+    /// The module reports a `ModuleError` already, so the wrapper hands it over untouched.
+    func test_handle_fails_with_moduleShutdown_when_the_module_is_shut_down() throws {
+        let handled = expectation(description: "Handling completed")
+        let link = try "https://tealium.com?tealium_trace_id=123".asUrl()
+        // Shut the module down without a settings pass, so the wrapper still reaches it.
+        manager.getModule(DeepLinkModule.self)?.shutdown()
+        wrapper.handle(link: link).subscribe { result in
+            XCTAssertResultIsFailure(result) { error in
+                XCTAssertModuleShutdown(error, module: "\(DeepLinkModule.self)")
+            }
+            handled.fulfill()
+        }
+        waitOnQueue(queue: queue)
+    }
 }

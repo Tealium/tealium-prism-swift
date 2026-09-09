@@ -418,4 +418,46 @@ final class OperatorsFlatMapTests: XCTestCase {
         // Back to 1: inner removed itself
         XCTAssertEqual(container.count, 1)
     }
+
+    /// A `filter` placed before `flatMapLatest` can only ever OPEN a gate, never close it:
+    /// a filtered-out element produces no emission at all, and `flatMapLatest` disposes its inner
+    /// subscription only while handling a new upstream element. The inner observable therefore keeps
+    /// emitting with the previously captured element.
+    func test_flatMapLatest_after_filter_keeps_inner_alive_when_the_predicate_starts_failing() {
+        let gate = Subject<Bool>()
+        let inner = Subject<Int>()
+        var received = [Int]()
+        let subscription = gate.asObservable()
+            .filter { $0 }
+            .flatMapLatest { _ in inner.asObservable() }
+            .subscribe { received.append($0) }
+
+        gate.onNext(true)   // Gate opens: inner is subscribed.
+        inner.onNext(1)
+        gate.onNext(false)  // Filtered out: no emission reaches flatMapLatest, so nothing is disposed.
+        inner.onNext(2)
+
+        XCTAssertEqual(received, [1, 2],
+                       "A filtered-out element must not be expected to tear down the inner subscription")
+        subscription.dispose()
+    }
+
+    /// The gate shape that does work: emit the closed state and map it to an empty observable,
+    /// so `flatMapLatest` receives an element and disposes the previous inner subscription.
+    func test_flatMapLatest_with_a_closed_value_disposes_the_inner_subscription() {
+        let gate = Subject<Bool>()
+        let inner = Subject<Int>()
+        var received = [Int]()
+        let subscription = gate.asObservable()
+            .flatMapLatest { open in open ? inner.asObservable() : Observables.empty() }
+            .subscribe { received.append($0) }
+
+        gate.onNext(true)
+        inner.onNext(1)
+        gate.onNext(false)  // Emitted: flatMapLatest disposes the inner subscription.
+        inner.onNext(2)
+
+        XCTAssertEqual(received, [1])
+        subscription.dispose()
+    }
 }

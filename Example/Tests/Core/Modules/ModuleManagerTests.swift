@@ -22,6 +22,7 @@ final class ModuleManagerTests: XCTestCase {
                                     settingsUrl: nil)
     let databaseProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
+    let disposer = AutomaticDisposer()
     lazy var moduleManager = ModuleManager(queue: queue)
     lazy var transformerCoordinator = TransformerCoordinator(transformers: .constant([]),
                                                              transformations: .constant([]),
@@ -324,6 +325,122 @@ final class ModuleManagerTests: XCTestCase {
         let initializedModules = moduleManager.modules.value
         XCTAssertEqual(initializedModules.map { $0.id },
                        ["\(baseModuleID)-1", "\(baseModuleID)-2", MockDispatcher1.moduleType])
+    }
+
+    // MARK: observeModule
+
+    func test_observeModule_does_not_emit_before_the_modules_are_created() {
+        var emissions = [MockDispatcher1?]()
+        moduleManager.observeModule(MockDispatcher1.self)
+            .subscribe { emissions.append($0) }
+            .addTo(disposer)
+        queue.dispatchQueue.sync { }
+        XCTAssertTrue(emissions.isEmpty, "A premature nil would read as \"the module is disabled\"")
+    }
+
+    func test_observeModule_emits_the_module_once_the_modules_are_created() {
+        var emissions = [MockDispatcher1?]()
+        moduleManager.observeModule(MockDispatcher1.self)
+            .subscribe { emissions.append($0) }
+            .addTo(disposer)
+        moduleManager.updateSettings(context: context, settings: SDKSettings(config.getEnforcedSDKSettings()))
+        queue.dispatchQueue.sync { }
+        XCTAssertEqual(emissions.count, 1)
+        XCTAssertIdentical(emissions.first.flatMap { $0 }, module1)
+    }
+
+    func test_observeModule_emits_immediately_when_the_manager_is_preloaded() {
+        let preloaded = MockDispatcher1()
+        let manager = ModuleManager(queue: queue, initialModules: [preloaded])
+        var emissions = [MockDispatcher1?]()
+        manager.observeModule(MockDispatcher1.self)
+            .subscribe { emissions.append($0) }
+            .addTo(disposer)
+        queue.dispatchQueue.sync { }
+        // Modules provided upfront are an answer already: there is no settings pass to wait for.
+        XCTAssertIdentical(emissions.first.flatMap { $0 }, preloaded)
+    }
+
+    func test_observeModule_emits_nil_when_a_pass_creates_no_module_of_that_type() {
+        var emissions = [MockDispatcher1?]()
+        moduleManager.observeModule(MockDispatcher1.self)
+            .subscribe { emissions.append($0) }
+            .addTo(disposer)
+        // An empty pass means nothing was configured, which is an answer: the module is not enabled.
+        moduleManager.updateSettings(context: context, settings: SDKSettings([:]))
+        queue.dispatchQueue.sync { }
+        XCTAssertEqual(emissions.count, 1)
+        XCTAssertNil(emissions.first.flatMap { $0 })
+    }
+
+    func test_observeModule_replays_the_last_known_module_to_a_late_subscriber() {
+        moduleManager.updateSettings(context: context, settings: SDKSettings(config.getEnforcedSDKSettings()))
+        var emissions = [MockDispatcher1?]()
+        moduleManager.observeModule(MockDispatcher1.self)
+            .subscribe { emissions.append($0) }
+            .addTo(disposer)
+        queue.dispatchQueue.sync { }
+        XCTAssertIdentical(emissions.first.flatMap { $0 }, module1)
+    }
+
+    /**
+     * A module created by a pass must not be told what the previous pass knew: back then the modules
+     * of this pass really didn't exist, which is the answer the gate exists to withhold.
+     */
+    func test_observeModule_does_not_replay_an_earlier_pass_to_a_module_created_by_a_later_one() {
+        // Static state, so it is this test's job to leave it clean for the next one.
+        addTeardownBlock { ObservingModule.emissions = [] }
+        config.addModule(ObservingModule.factory())
+        // On the Tealium queue, as in production: a lookup started by a module of the running pass
+        // subscribes synchronously, which is what exposes the answer of the previous pass.
+        queue.dispatchQueue.sync {
+            // First pass: nothing is created, so its answer is "MockDispatcher1 is not enabled".
+            moduleManager.updateSettings(context: context, settings: SDKSettings([:]))
+            // Second pass: creates both the observer and the module it is looking for.
+            moduleManager.updateSettings(context: context, settings: SDKSettings(config.getEnforcedSDKSettings()))
+        }
+        XCTAssertEqual(ObservingModule.emissions.count, 1)
+        XCTAssertIdentical(ObservingModule.emissions.first.flatMap { $0 }, module1)
+    }
+
+    func test_observeModule_emits_nil_after_shutdown() {
+        moduleManager.updateSettings(context: context, settings: SDKSettings(config.getEnforcedSDKSettings()))
+        var emissions = [MockDispatcher1?]()
+        moduleManager.observeModule(MockDispatcher1.self)
+            .subscribe { emissions.append($0) }
+            .addTo(disposer)
+        // The subscription is established on the queue, so let it receive the module first.
+        queue.dispatchQueue.sync { }
+        moduleManager.shutdown()
+        queue.dispatchQueue.sync { }
+        // Anything waiting for a module has to be released instead of waiting for a module forever.
+        XCTAssertEqual(emissions.count, 2)
+        XCTAssertNil(emissions.last.flatMap { $0 })
+    }
+}
+
+/**
+ * Looks up another module from its `init`, the way `DeepLinkModule` resolves the Trace module when a
+ * deep link is replayed to it while the pass that creates it is still running.
+ */
+private class ObservingModule: MockModule {
+
+    override class var moduleType: String { "observing" }
+    /// What `observeModule` told the modules created by a pass, in order.
+    static var emissions = [MockDispatcher1?]()
+    private let disposables = Disposables.automatic()
+
+    required init?(moduleId: String = ObservingModule.moduleType,
+                   context: TealiumContext,
+                   moduleConfiguration: DataObject) {
+        super.init(moduleId: Self.moduleType, context: context, moduleConfiguration: moduleConfiguration)
+        context.moduleManager.observeModule(MockDispatcher1.self)
+            .subscribe { Self.emissions.append($0) }
+            .addTo(disposables)
+    }
+
+    required init(moduleId: String = MockModule.moduleType) {
+        fatalError("init(moduleId:) has not been implemented")
     }
 }
 

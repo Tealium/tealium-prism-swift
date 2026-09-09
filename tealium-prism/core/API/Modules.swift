@@ -116,8 +116,7 @@ public extension Modules {
      * Omitting this parameter will initialize the module with its default settings.
      */
     static func deepLink(forcingSettings block: EnforcingSettings<DeepLinkSettingsBuilder>? = { $0 }) -> some ModuleFactory {
-        BasicModuleFactory<DeepLinkModule>(moduleType: Modules.Types.deepLink,
-                                           enforcedSettings: block?(DeepLinkSettingsBuilder()).build())
+        DeepLinkModuleFactory(enforcedSettings: block?(DeepLinkSettingsBuilder()).build())
     }
 
     /**

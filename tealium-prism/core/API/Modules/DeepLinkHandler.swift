@@ -9,8 +9,8 @@
 import Foundation
 
 /**
- The `Referrer` allows the `DeepLinkHandler` to track the origin of a deep link, whether it came from a URL or another app.
- This can be passed as an optional parameter to the `handle(link:referrer:)` method for further processing.
+ * The `Referrer` allows the `DeepLinkHandler` to track the origin of a deep link, whether it came from a URL or another app.
+ * This can be passed as an optional parameter to the `handle(link:referrer:)` method for further processing.
  */
 public enum Referrer {
     /// The deep link came from a URL.
@@ -36,17 +36,27 @@ public enum Referrer {
 }
 
 /**
- The `DeepLinkHandler` is responsible for tracking incoming deep links,
- managing attribution, and handling trace parameters when present in the URL.
- - Attention: The handler is automatically called on iOS unless explicitly disabled.
+ * The `DeepLinkHandler` is responsible for tracking incoming deep links,
+ * managing attribution, and handling trace parameters when present in the URL.
+ *
+ * - Attention: The handler is automatically called on iOS unless explicitly disabled.
  */
 public protocol DeepLinkHandler {
     /**
-     Handles a deep link for various purposes, such as attribution or trace management.
-     - Parameters:
-        - link: The `URL` representing the deep link to be handled.
-        - referrer: An optional `Referrer` indicating the source of the deep link (e.g., a URL or app identifier).
-     - Returns: A `Single` containing a `Result` that indicates success (`Void`) or failure (`Error`).
+     * Handles a deep link for various purposes, such as attribution or trace management.
+     *
+     * A link carrying a `tealium_trace_id`, with deep link trace enabled, needs the Trace module, so its result
+     * may only arrive once the SDK has loaded its settings and created its modules. This is what lets a deep link
+     * that launched the app join the trace it requests, instead of failing because the modules did not exist yet.
+     *
+     * The failure is a `ModuleError.moduleNotEnabled` when the DeepLink or the Trace module is not enabled, a
+     * `ModuleError.moduleShutdown` when the DeepLink module was shut down before the link could be handled, or a
+     * `ModuleError.underlyingError` wrapping whatever else stopped the handling.
+     *
+     * - Parameters:
+     *   - link: The `URL` representing the deep link to be handled.
+     *   - referrer: An optional `Referrer` indicating the source of the deep link (e.g., a URL or app identifier).
+     * - Returns: A `Single` containing a `Result` that indicates success (`Void`) or failure (`Error`).
      */
     @discardableResult
     func handle(link: URL, referrer: Referrer?) -> SingleResult<Void, ModuleError<Error>>

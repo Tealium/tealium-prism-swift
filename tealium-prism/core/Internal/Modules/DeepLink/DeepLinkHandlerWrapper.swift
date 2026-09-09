@@ -17,8 +17,9 @@ public class DeepLinkHandlerWrapper: DeepLinkHandler {
 
     @discardableResult
     public func handle(link: URL, referrer: Referrer? = nil) -> SingleResult<Void, ModuleError<Error>> {
-        moduleProxy.executeModuleTask { module in
-            try module.handle(link: link, referrer: referrer)
+        // Asynchronous: handling can have to wait for the Trace module to be created.
+        moduleProxy.executeAsyncModuleTask { module, completion in
+            module.handle(link: link, referrer: referrer, completion: completion)
         }
     }
 }

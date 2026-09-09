@@ -30,12 +30,47 @@ class DeepLinkBaseTests: XCTestCase {
     let dispatchContext = DispatchContext(source: .application, initialData: [:])
     let testTraceId = "testTraceId"
 
+    /// The Trace module held by the manager, which the deep link module resolves asynchronously.
+    var trace: TraceModule? {
+        manager.getModule()
+    }
+
+    /// The id of the trace currently joined, or `nil` when no trace is active.
+    var joinedTraceId: String? {
+        trace?.collect(dispatchContext).get(key: TealiumDataKey.tealiumTraceId)
+    }
+
     override func setUp() {
         config.modules = [Modules.trace()]
         let context = context()
         manager.updateSettings(context: context, settings: SDKSettings(config.getEnforcedSDKSettings()))
-        deepLink = DeepLinkModule(context: context,
-                                  moduleConfiguration: [:])
+        deepLink = makeDeepLink(context: context)
+    }
+
+    /// Creates the module through its factory, the only way it comes into existence in production.
+    func makeDeepLink(context: TealiumContext,
+                      configuration: DataObject = [:],
+                      onOpenUrl: Observable<(URL, Referrer?)>? = nil) -> DeepLinkModule? {
+        DeepLinkModuleFactory(enforcedSettings: nil, onOpenUrl: onOpenUrl)
+            .create(moduleId: DeepLinkModule.moduleType, context: context, moduleConfiguration: configuration)
+    }
+
+    /**
+     * Handles the link and waits for the handling to complete.
+     *
+     * Handling a link that requests a trace is asynchronous: it resolves the Trace module through
+     * `ModuleManager.observeModule`, which delivers on the Tealium queue.
+     */
+    func handleAndWait(link: URL,
+                       referrer: Referrer? = nil,
+                       file: StaticString = #filePath,
+                       line: UInt = #line) {
+        let handled = expectation(description: "Deep link handled")
+        deepLink.handle(link: link, referrer: referrer) { result in
+            XCTAssertResultIsSuccess(result, file: file, line: line)
+            handled.fulfill()
+        }
+        wait(for: [handled], timeout: Self.defaultTimeout)
     }
 
     func updateSettings(_ builder: DeepLinkSettingsBuilder) {

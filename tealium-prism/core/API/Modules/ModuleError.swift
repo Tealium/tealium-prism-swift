@@ -14,6 +14,9 @@ public enum ModuleError<SomeError: Error>: ErrorEnum, ErrorWrapping {
     case objectNotFound(_ object: String)
     /// The requested module is not enabled.
     case moduleNotEnabled(_ module: String)
+    /// The module named by this error has been shut down, either together with the `Tealium` instance or by a settings
+    /// update that disabled it. Operations of that module that were still pending at that point fail with this error.
+    case moduleShutdown(_ module: String)
     /// The module failed to perform a specific operation.
     case underlyingError(_ error: SomeError)
 }

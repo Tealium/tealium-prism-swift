@@ -130,6 +130,10 @@ tealium.deepLink.handle(link: url, referrer: .fromUrl(referrerUrl)).subscribe { 
 }
 ```
 
+> **⚠️ Note:** A deep link that carries a `tealium_trace_id` needs the Trace module, so its result may only be delivered once the SDK has loaded its settings and created its modules. This is what lets a deep link that *launches* the app - the QR Trace case - join the requested trace, instead of failing because the modules did not exist yet.
+
+The result is a failure when the DeepLink or the Trace module is not enabled, or when the DeepLink module is shut down before the link could be handled.
+
 See more on the interface definition below.
 
 # DeepLinkHandler

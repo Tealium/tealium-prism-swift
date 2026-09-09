@@ -41,7 +41,10 @@ public class TealiumDelegateProxy: NSProxy {
     /**
      * If autotracking of deep link is enabled it returns a subscribable to register on.
      *
-     * The subscribable always emits on the `TealiumQueue.worker`.
+     * New deep links are always emitted on the `TealiumQueue.worker`. A deep link that arrived
+     * before the subscription, typically the one that launched the app, is instead replayed
+     * **synchronously while subscribing**, on whatever thread subscribes - so a subscriber must not
+     * assume that its handler only ever runs after it finished setting itself up.
      */
     public static var onOpenUrl: Observable<(URL, Referrer?)>? {
         guard configuration.isAutotrackingDeepLinkEnabled else {
