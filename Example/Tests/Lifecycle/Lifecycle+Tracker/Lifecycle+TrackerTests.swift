@@ -64,7 +64,7 @@ final class LifecycleTrackerTests: XCTestCase {
     lazy var dispatchManager = getDispatchManager()
     func getDispatchManager() -> DispatchManager {
         DispatchManager(loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings, logger: nil),
-                        moduleManager: moduleManager,
+                        modules: moduleManager.modules,
                         consentManager: nil,
                         queueManager: queueManager,
                         barrierCoordinator: barrierCoordinator,

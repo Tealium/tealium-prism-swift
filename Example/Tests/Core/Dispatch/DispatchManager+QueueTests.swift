@@ -62,7 +62,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
         disableModule(module: module1)
         let eventsAreDequeued = expectation(description: "Events are dequeued only once in a batch")
         queueManager.storeDispatches(createDispatches(amount: 2), enqueueingFor: allDispatchers)
-        _ = queueManager.onDequeueRequest.subscribe {
+        _ = queueManager.onDequeueRequest.subscribe { _ in
             eventsAreDequeued.fulfill()
         }
         _ = dispatchManager
@@ -75,7 +75,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
         let eventsAreDequeued = expectation(description: "Events are dequeued Maximum number of times, not more")
         eventsAreDequeued.expectedFulfillmentCount = DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER
         queueManager.storeDispatches(createDispatches(amount: DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER + 10), enqueueingFor: allDispatchers)
-        _ = queueManager.onDequeueRequest.subscribe {
+        _ = queueManager.onDequeueRequest.subscribe { _ in
             eventsAreDequeued.fulfill()
         }
         _ = dispatchManager

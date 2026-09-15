@@ -54,7 +54,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_closing_a_barrier_doesnt_cancel_inProgress_dispatches() {
+    func test_closing_a_barrier_does_not_cancel_inProgress_dispatches() {
         disableModule(module: module2)
         guard let module = module1 else {
             XCTFail("module1 not found")
@@ -79,7 +79,7 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         let eventsAreDequeued = expectation(description: "Events are flushed until queue is empty or limit is reached when a barrier is open. Closing the barrier only stops future flushes")
         eventsAreDequeued.expectedFulfillmentCount = 2
         queueManager.storeDispatches(createDispatches(amount: 5), enqueueingFor: allDispatchers)
-        _ = queueManager.onDequeueRequest.subscribe {
+        _ = queueManager.onDequeueRequest.subscribe { _ in
             eventsAreDequeued.fulfill()
         }
         _ = dispatchManager

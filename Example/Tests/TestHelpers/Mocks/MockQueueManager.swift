@@ -10,12 +10,12 @@ import Foundation
 @testable import TealiumPrism
 
 class MockQueueManager: QueueManager {
-    @Subject<Void> var onDequeueRequest
+    @Subject<String> var onDequeueRequest
     @Subject<([String], String)> var onDeleteRequest
     @Subject<String> var onDeleteAllRequest
     @Subject<([Dispatch], [String])> var onStoreRequest
     override func dequeueDispatches(for processor: String, limit: Int?) -> [Dispatch] {
-        _onDequeueRequest.onNext()
+        _onDequeueRequest.onNext(processor)
         return super.dequeueDispatches(for: processor, limit: limit)
     }
 

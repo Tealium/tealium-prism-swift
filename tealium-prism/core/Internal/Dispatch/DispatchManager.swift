@@ -29,12 +29,24 @@ class DispatchManager: DispatchManagerProtocol {
     private let transformerCoordinator: TransformerCoordinator
 
     private var dispatchers: [Dispatcher] {
-        moduleManager?.modules.value.compactMap { $0 as? Dispatcher } ?? []
+        modules.value.compactMap { $0 as? Dispatcher }
     }
+    /// The active `Dispatcher`s, re-emitted whenever the module list changes.
+    ///
+    /// `distinct` collapses emissions that leave the dispatcher list unchanged (e.g. a non-dispatcher module was
+    /// updated, or settings were re-published without touching the dispatchers). Without it, every module change
+    /// would tear down and rebuild every per-dispatcher dequeue loop in `startDispatchLoop`. The comparison is by
+    /// instance identity and order, not by `id`:
+    /// - by identity (`===`), because `updateConfiguration` mutates a module in place and returns the same instance,
+    ///   so a dispatcher that was genuinely replaced (a new instance, even with the same `id`) must still be rebuilt;
+    /// - order-sensitive, because dispatcher order is significant, so a reorder must not be collapsed. The `count`
+    ///   guard is required because `zip` stops at the shorter array (`[A]` vs `[A, B]` would otherwise match).
     private var onDispatchers: Observable<[Dispatcher]> {
-        moduleManager?.modules.map { moduleList in moduleList.compactMap { $0 as? Dispatcher } } ?? Observables.just([])
+        modules.map { moduleList in
+            moduleList.compactMap { $0 as? Dispatcher }
+        }.distinct { $0.count == $1.count && zip($0, $1).allSatisfy { $0 === $1 } }
     }
-    private weak var moduleManager: ModuleManager?
+    private let modules: ObservableState<[Module]>
     private let queueManager: QueueManagerProtocol
     private let consentManager: ConsentManager?
     private let logger: LoggerProtocol?
@@ -42,7 +54,7 @@ class DispatchManager: DispatchManagerProtocol {
     private let loadRuleEngine: LoadRuleEngine
     private let mappingsEngine: MappingsEngine
     init(loadRuleEngine: LoadRuleEngine,
-         moduleManager: ModuleManager,
+         modules: ObservableState<[Module]>,
          consentManager: ConsentManager?,
          queueManager: QueueManagerProtocol,
          barrierCoordinator: BarrierCoordinator,
@@ -50,7 +62,7 @@ class DispatchManager: DispatchManagerProtocol {
          mappingsEngine: MappingsEngine,
          logger: LoggerProtocol?) {
         self.loadRuleEngine = loadRuleEngine
-        self.moduleManager = moduleManager
+        self.modules = modules
         self.consentManager = consentManager
         self.queueManager = queueManager
         self.barrierCoordinator = barrierCoordinator
@@ -93,37 +105,56 @@ class DispatchManager: DispatchManagerProtocol {
     }
 
     private var managerContainer = AutomaticDisposer()
+    private var started: Bool {
+        managerContainer.count > 0
+    }
 
     func stopDispatchLoop() {
         managerContainer = AutomaticDisposer()
     }
 
+    /// Starts the loop that, for every active `Dispatcher`, dequeues its events, transforms them and sends them.
+    ///
+    /// The chain is deliberately split around the outer `flatMapLatest`:
+    /// - The per-dispatcher chain (barrier state → dequeue loop) is nested *inside* the `flatMapLatest`. When
+    ///   `onDispatchers` emits a new list, `flatMapLatest` disposes the previous inner, tearing down the dequeue
+    ///   loops of *all* dispatchers. This removes the loops of disabled dispatchers (otherwise they keep dequeuing
+    ///   and never deallocate) and prevents stacking a second loop onto surviving ones (which would dequeue past
+    ///   the per-dispatcher inflight limit).
+    /// - `transformAndDispatch` is chained *after* the `flatMapLatest`, not nested inside it, so events already
+    ///   handed to a dispatcher are not cancelled when the list changes: they run to completion.
+    ///
+    /// The trade-off is that surviving dispatchers also have their dequeue loop restarted on every list change.
+    /// That is safe because `dequeueDispatches` excludes events already marked inflight, so nothing is sent twice;
+    /// the `distinct` on `onDispatchers` limits these restarts to the changes that actually alter the list.
     func startDispatchLoop() {
-        onDispatchers.flatMapLatest { dispatchers in
+        guard !started else { return }
+        onDispatchers.flatMapLatest { [weak self, coordinator = barrierCoordinator] dispatchers in
             Observables.from(dispatchers)
-        }.flatMap { [weak self, coordinator = barrierCoordinator] dispatcher in
-            coordinator.onBarriersState(for: dispatcher.id)
-                .flatMapLatest { [weak self] barriersState -> Observable<DispatchSplit> in
-                    guard let self else { return Observables.empty() }
-                    self.debugLog("BarrierState changed for \(dispatcher.id): \(barriersState)")
-                    if barriersState == .open {
-                        return self.startConsentedDequeueLoop(for: dispatcher)
-                    } else {
-                        return Observables.empty()
-                    }
+                .flatMap { [weak self] dispatcher in
+                    coordinator.onBarriersState(for: dispatcher.id)
+                        .flatMapLatest { [weak self] barriersState -> Observable<DispatchSplit> in
+                            guard let self else { return Observables.empty() }
+                            self.debugLog("BarrierState changed for \(dispatcher.id): \(barriersState)")
+                            if barriersState == .open {
+                                return self.startConsentedDequeueLoop(for: dispatcher)
+                            } else {
+                                return Observables.empty()
+                            }
+                        }.map { (dispatcher, $0) }
                 }
-                .flatMap { [weak self] dispatchSplit -> Observable<(Dispatcher, [Dispatch])> in
-                    guard let self else {
-                        return Observables.empty()
-                    }
-                    if !dispatchSplit.unsuccessful.isEmpty {
-                        self.debugLog("Dispatches discarded due to consent \(dispatchSplit.unsuccessful.shortDescription())")
-                    }
-                    return self.transformAndDispatch(dispatches: dispatchSplit.successful, for: dispatcher)
-                        .startWith(dispatchSplit.unsuccessful)
-                        .filter { !$0.isEmpty }
-                        .map { (dispatcher, $0) }
-                }
+        }
+        .flatMap { [weak self] dispatcher, dispatchSplit -> Observable<(Dispatcher, [Dispatch])> in
+            guard let self else {
+                return Observables.empty()
+            }
+            if !dispatchSplit.unsuccessful.isEmpty {
+                self.debugLog("Dispatches discarded due to consent \(dispatchSplit.unsuccessful.shortDescription())")
+            }
+            return self.transformAndDispatch(dispatches: dispatchSplit.successful, for: dispatcher)
+                .startWith(dispatchSplit.unsuccessful)
+                .filter { !$0.isEmpty }
+                .map { (dispatcher, $0) }
         }
         .subscribe { [weak self] dispatcher, processedDispatches in
             self?.queueManager.deleteDispatches(processedDispatches.map { $0.id }, for: dispatcher.id)

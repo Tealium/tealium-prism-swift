@@ -97,6 +97,8 @@ class MockDispatcher: MockModule, Dispatcher {
 
     @Subject<[Dispatch]> var onDispatch
 
+    @Subject<Void> var onDeinit
+
     func dispatch(_ data: [Dispatch], completion: @escaping ([Dispatch]) -> Void) -> any Disposable {
         let subscription = Subscription { }
         let completion: ([Dispatch]) -> Void = { data in
@@ -118,6 +120,10 @@ class MockDispatcher: MockModule, Dispatcher {
             completion(data)
         }
         return subscription
+    }
+
+    deinit {
+        _onDeinit.onNext()
     }
 }
 

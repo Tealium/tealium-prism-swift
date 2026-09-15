@@ -80,9 +80,9 @@ class DispatchManagerTestCase: XCTestCase {
     lazy var mappingsEngine = MappingsEngine(mappings: sdkSettings
         .mapState { $0.modules.compactMapValues { $0.mappings } })
 
-    func getDispatchManager() -> DispatchManager {
+    func getDispatchManager(modules: ObservableState<[Module]>? = nil) -> DispatchManager {
         DispatchManager(loadRuleEngine: loadRuleEngine,
-                        moduleManager: moduleManager,
+                        modules: modules ?? moduleManager.modules,
                         consentManager: consentManager,
                         queueManager: queueManager,
                         barrierCoordinator: barrierCoordinator,

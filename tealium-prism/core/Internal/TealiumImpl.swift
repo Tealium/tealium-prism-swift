@@ -91,7 +91,7 @@ class TealiumImpl {
                                                        logger: logger)
 
         let dispatchManager = DispatchManager(loadRuleEngine: loadRuleEngine,
-                                              moduleManager: moduleManager,
+                                              modules: moduleManager.modules,
                                               consentManager: consentManager,
                                               queueManager: queueManager,
                                               barrierCoordinator: barrierCoordinator,
