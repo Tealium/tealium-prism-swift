@@ -97,9 +97,9 @@ struct ContentView: View {
                                     }.navigationTitle("DataLayer")
                                 }
                             }.tealiumButtonUI()
-                            NavigationLink("Moments API") {
+                            NavigationLink("Context API") {
                                 if let teal = TealiumHelper.shared.teal {
-                                    MomentsAPIView(viewModel: MomentsAPIViewModel(moments: teal.momentsAPI()))
+                                    ContextAPIView(viewModel: ContextAPIViewModel(contextAPI: teal.contextAPI()))
                                 }
                             }.tealiumButtonUI()
                         }

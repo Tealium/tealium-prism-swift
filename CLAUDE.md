@@ -22,7 +22,7 @@ cd Example && pod install         # Install CocoaPods for Example project
 ```
 
 Available test schemes (each with `_iOS`, `_tvOS`, `_macOS`, `_watchOS` suffixes):
-- `CoreTests`, `EndToEndTests`, `LifecycleTests`, `MomentsAPITests`, `ExtensionsTests`
+- `CoreTests`, `EndToEndTests`, `LifecycleTests`, `ContextAPITests`, `ExtensionsTests`
 - `JavaScriptTransformerTests` (`_iOS`, `_tvOS`, `_macOS` only — unavailable on watchOS)
 - iOS-only: `DelegateProxyTests_iOS`
 
@@ -58,7 +58,7 @@ Five modules in `tealium-prism/`, each split into `API/` (public interfaces) and
 | **extensions/** | Transformers | SetDataValues, PersistDataValue, Lowercase transformers |
 | **jstransformer/** | Transformer | JavaScript-based payload transformation (unavailable on watchOS) |
 | **lifecycle/** | Collector | App lifecycle events (launch, wake, sleep) with crash/update detection |
-| **momentsapi/** | Module | Visitor profile data from Tealium AudienceStream |
+| **contextapi/** | Module | Visitor profile data from Tealium AudienceStream |
 
 ### Plugin System
 Module protocol hierarchy:

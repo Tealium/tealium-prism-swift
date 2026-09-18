@@ -3,7 +3,7 @@ modules:
   - TealiumPrismExtensions
   - TealiumPrismJavaScriptTransformer
   - TealiumPrismLifecycle
-  - TealiumPrismMomentsAPI
+  - TealiumPrismContextAPI
 title: TealiumPrism
 author: Tealium
 author_url: https://www.tealium.com
@@ -30,11 +30,11 @@ custom_categories:
       - AppData
       - Collect
       - ConnectivityData
+      - ContextAPI
       - DataLayer
       - DeepLinkHandler
       - DeviceData
       - Lifecycle
-      - MomentsAPI
       - TealiumData
       - TimeData
       - Trace
@@ -52,6 +52,10 @@ custom_categories:
     children:
       - regex: ^Consent
       - regex: CMP
+  - name: ContextAPI Module
+    children:
+      - EngineResponse
+      - regex: ^ContextAPI
   - name: DataLayer Module
     children:
       - regex: ^DataLayer
@@ -65,10 +69,6 @@ custom_categories:
   - name: Lifecycle Module
     children:
       - regex: ^Lifecycle
-  - name: MomentsAPI Module
-    children:
-      - regex: ^MomentsAPI
-      - EngineResponse
   - name: TealiumData Module
     children:
       - regex: ^TealiumData(?!Key)

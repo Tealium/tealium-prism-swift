@@ -5,7 +5,7 @@ paths:
 
 # Test Infrastructure
 
-Tests live in `Example/Tests/`, organized by module: `Core/`, `EndToEnd/`, `Lifecycle/`, `MomentsAPI/`, `Extensions/`, `JavaScriptTransformer/`. Test plans are in `Example/Tests/TestPlans/`.
+Tests live in `Example/Tests/`, organized by module: `Core/`, `EndToEnd/`, `Lifecycle/`, `ContextAPI/`, `Extensions/`, `JavaScriptTransformer/`. Test plans are in `Example/Tests/TestPlans/`.
 
 **Before writing tests, check `Example/Tests/TestHelpers/`** — it already holds the shared assertions and mocks. Reuse what's there instead of writing new helpers or inline workarounds. It contains:
 - **Custom assertions** — `XCTAssert+*.swift` files, e.g. `XCTAssert+NSNull` (`XCTAssertNSNull`/`XCTAssertNotNSNull`), `XCTAssert+EqualDictionaries`, `XCTAssert+Errors`, `XCTAssert+ObservedValue`, `XCTAssert+Result`, `XCTAssert+BoolOptional`, `XCTAssert+NaN`.

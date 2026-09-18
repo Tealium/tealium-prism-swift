@@ -13,8 +13,8 @@ let package = Package(
             name: "TealiumPrismLifecycle",
             targets: ["TealiumPrismLifecycle", "TealiumPrismLifecycleObjC"]),
         .library(
-            name: "TealiumPrismMomentsAPI",
-            targets: ["TealiumPrismMomentsAPI", "TealiumPrismMomentsAPIObjC"]),
+            name: "TealiumPrismContextAPI",
+            targets: ["TealiumPrismContextAPI", "TealiumPrismContextAPIObjC"]),
         .library(
             name: "TealiumPrismExtensions",
             targets: ["TealiumPrismExtensions", "TealiumPrismExtensionsObjC"]),
@@ -52,16 +52,16 @@ let package = Package(
             path: "tealium-prism/lifecycle/Internal/ObjC/"
         ),
         .target(
-            name: "TealiumPrismMomentsAPI",
+            name: "TealiumPrismContextAPI",
             dependencies: ["TealiumPrismCore"],
-            path: "tealium-prism/momentsapi/",
+            path: "tealium-prism/contextapi/",
             exclude: ["Internal/ObjC/"],
-            swiftSettings: [.define("momentsapi")]
+            swiftSettings: [.define("contextapi")]
         ),
         .target(
-            name: "TealiumPrismMomentsAPIObjC",
-            dependencies: ["TealiumPrismMomentsAPI"],
-            path: "tealium-prism/momentsapi/Internal/ObjC/"
+            name: "TealiumPrismContextAPIObjC",
+            dependencies: ["TealiumPrismContextAPI"],
+            path: "tealium-prism/contextapi/Internal/ObjC/"
         ),
         .target(
             name: "TealiumPrismExtensions",

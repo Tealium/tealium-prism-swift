@@ -43,7 +43,7 @@ jobs:
         scheme:
             - TealiumPrismCore
             - TealiumPrismLifecycle
-            - TealiumPrismMomentsAPI
+            - TealiumPrismContextAPI
             - TealiumPrismExtensions
             - TealiumPrismJavaScriptTransformer
         destination:
@@ -73,7 +73,7 @@ jobs:
             - ExtensionsTests_iOS
             - JavaScriptTransformerTests_iOS
             - EndToEndTests_iOS
-            - MomentsAPITests_iOS
+            - ContextAPITests_iOS
         destination:
             - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
     steps:
@@ -92,7 +92,7 @@ jobs:
             - CoreTests_tvOS
             - EndToEndTests_tvOS
             - LifecycleTests_tvOS
-            - MomentsAPITests_tvOS
+            - ContextAPITests_tvOS
             - ExtensionsTests_tvOS
             - JavaScriptTransformerTests_tvOS
         destination:
@@ -113,7 +113,7 @@ jobs:
             - CoreTests_macOS
             - EndToEndTests_macOS
             - LifecycleTests_macOS
-            - MomentsAPITests_macOS
+            - ContextAPITests_macOS
             - ExtensionsTests_macOS
             - JavaScriptTransformerTests_macOS
         destination:
@@ -134,7 +134,7 @@ jobs:
             - CoreTests_watchOS
             - EndToEndTests_watchOS
             - LifecycleTests_watchOS
-            - MomentsAPITests_watchOS
+            - ContextAPITests_watchOS
             - ExtensionsTests_watchOS
         destination:
             - "platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)"

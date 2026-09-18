@@ -31,9 +31,9 @@ Pod::Spec.new do |s|
       lifecycle.dependency "tealium-prism/Core"
     end
 
-  s.subspec "MomentsAPI" do |momentsapi|
-      momentsapi.source_files = "tealium-prism/momentsapi/**/*.{swift,h,m}"
-      momentsapi.dependency "tealium-prism/Core"
+  s.subspec "ContextAPI" do |contextapi|
+      contextapi.source_files = "tealium-prism/contextapi/**/*.{swift,h,m}"
+      contextapi.dependency "tealium-prism/Core"
     end
 
   s.subspec "Extensions" do |extensions|

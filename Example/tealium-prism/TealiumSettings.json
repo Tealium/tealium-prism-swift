@@ -37,10 +37,10 @@
         "Lifecycle": {
             "module_type": "Lifecycle"
         },
-        "MomentsAPI": {
-            "module_type": "MomentsAPI",
+        "ContextAPI": {
+            "module_type": "ContextAPI",
             "configuration": {
-                "moments_api_region": "us-east-1"
+                "context_api_region": "us-east-1"
             }
         }
     }

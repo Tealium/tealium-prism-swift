@@ -5,7 +5,7 @@ Multi-platform Swift SDK (iOS 13+, tvOS 13+, watchOS 7+, macOS 10.15+) — modul
 
 ## Architecture
 - `core/API/` — Public protocols and types. `core/Internal/` — Implementation details.
-- `lifecycle/`, `momentsapi/` — Additional modules with the same API/Internal split.
+- `lifecycle/`, `contextapi/` — Additional modules with the same API/Internal split.
 - Vendor dispatchers are separate SPM packages depending on TealiumPrismCore.
 - **Critical**: `Internal/` types must not be `public` unless required for ObjC bridging.
 

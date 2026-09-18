@@ -23,7 +23,7 @@
       "target" : {
         "containerPath" : "container:tealium-prism.xcodeproj",
         "identifier" : "9E19FD382EBD634100FB205A",
-        "name" : "MomentsAPITests_iOS"
+        "name" : "ContextAPITests_iOS"
       }
     },
     {
