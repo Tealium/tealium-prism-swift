@@ -14,7 +14,7 @@ final class LifecycleWrapperTests: XCTestCase {
     let queue = TealiumQueue.worker
     let tracker = MockTracker()
     let autoDisposer = AutomaticDisposer()
-    lazy var manager = ModuleManager(queue: queue)
+    let manager = ModuleManager()
     lazy var onManager = ReplaySubject<ModuleManager?>(manager)
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = LifecycleWrapper(moduleProxy: ModuleProxy(queue: queue,

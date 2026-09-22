@@ -28,25 +28,12 @@ class DispatchManager: DispatchManagerProtocol {
     private let barrierCoordinator: BarrierCoordinator
     private let transformerCoordinator: TransformerCoordinator
 
-    private var dispatchers: [Dispatcher] {
-        modules.value.compactMap { $0 as? Dispatcher }
-    }
-    /// The active `Dispatcher`s, re-emitted whenever the module list changes.
-    ///
-    /// `distinct` collapses emissions that leave the dispatcher list unchanged (e.g. a non-dispatcher module was
-    /// updated, or settings were re-published without touching the dispatchers). Without it, every module change
-    /// would tear down and rebuild every per-dispatcher dequeue loop in `startDispatchLoop`. The comparison is by
-    /// instance identity and order, not by `id`:
-    /// - by identity (`===`), because `updateConfiguration` mutates a module in place and returns the same instance,
-    ///   so a dispatcher that was genuinely replaced (a new instance, even with the same `id`) must still be rebuilt;
-    /// - order-sensitive, because dispatcher order is significant, so a reorder must not be collapsed. The `count`
-    ///   guard is required because `zip` stops at the shorter array (`[A]` vs `[A, B]` would otherwise match).
-    private var onDispatchers: Observable<[Dispatcher]> {
-        modules.map { moduleList in
-            moduleList.compactMap { $0 as? Dispatcher }
-        }.distinct { $0.count == $1.count && zip($0, $1).allSatisfy { $0 === $1 } }
-    }
-    private let modules: ObservableState<[Module]>
+    /**
+     * The active `Dispatcher`s, re-emitted whenever the module list changes only when they are ready.
+     *
+     * The dequeue loop is rebuilt on every emission, so it relies on the source de-duplicating by identity.
+     */
+    private let onDispatchers: Observable<[Dispatcher]>
     private let queueManager: QueueManagerProtocol
     private let consentManager: ConsentManager?
     private let logger: LoggerProtocol?
@@ -54,7 +41,7 @@ class DispatchManager: DispatchManagerProtocol {
     private let loadRuleEngine: LoadRuleEngine
     private let mappingsEngine: MappingsEngine
     init(loadRuleEngine: LoadRuleEngine,
-         modules: ObservableState<[Module]>,
+         onDispatchers: Observable<[Dispatcher]>,
          consentManager: ConsentManager?,
          queueManager: QueueManagerProtocol,
          barrierCoordinator: BarrierCoordinator,
@@ -62,7 +49,7 @@ class DispatchManager: DispatchManagerProtocol {
          mappingsEngine: MappingsEngine,
          logger: LoggerProtocol?) {
         self.loadRuleEngine = loadRuleEngine
-        self.modules = modules
+        self.onDispatchers = onDispatchers
         self.consentManager = consentManager
         self.queueManager = queueManager
         self.barrierCoordinator = barrierCoordinator
@@ -97,9 +84,17 @@ class DispatchManager: DispatchManagerProtocol {
                 let result = consentManager.applyConsent(to: transformed)
                 onTrackResult(result)
             } else {
-                let dispatchersIds = dispatchers.map { $0.id }
-                self.queueManager.storeDispatches([transformed], enqueueingFor: dispatchersIds)
-                onTrackResult(.accepted(transformed, info: "Enqueued for processors: \(dispatchersIds)"))
+                // Enqueue the transformed `Dispatch` for the enabled and ready `Dispatcher`s.
+                self.onDispatchers.subscribeOnce { [queueManager] dispatchers in
+                    let dispatchersIds = dispatchers.map { $0.id }
+                    guard !dispatchersIds.isEmpty else {
+                        // Storing for no processor at all would drop the dispatch silently.
+                        onTrackResult(.dropped(transformed, reason: "No dispatcher is enabled."))
+                        return
+                    }
+                    queueManager.storeDispatches([transformed], enqueueingFor: dispatchersIds)
+                    onTrackResult(.accepted(transformed, info: "Enqueued for processors: \(dispatchersIds)"))
+                }
             }
         }
     }
@@ -126,7 +121,8 @@ class DispatchManager: DispatchManagerProtocol {
     ///
     /// The trade-off is that surviving dispatchers also have their dequeue loop restarted on every list change.
     /// That is safe because `dequeueDispatches` excludes events already marked inflight, so nothing is sent twice;
-    /// the `distinct` on `onDispatchers` limits these restarts to the changes that actually alter the list.
+    /// the source (`ModuleManager.observeModules`) only re-emits when the dispatcher list changes by instance
+    /// identity or order, which limits these restarts to the changes that actually alter the list.
     func startDispatchLoop() {
         guard !started else { return }
         onDispatchers.flatMapLatest { [weak self, coordinator = barrierCoordinator] dispatchers in
@@ -256,7 +252,7 @@ class DispatchManager: DispatchManagerProtocol {
         to dispatcher: Dispatcher,
         onProcessed: @escaping ([Dispatch]) -> Void,
         completion: @escaping (@autoclosure @escaping () -> String) -> Void
-    ) -> Disposable {
+    ) -> any Disposable {
         let container = DisposableContainer()
         let dispatchInterval = beginInterval("Dispatch", with: dispatcher.id)
         container.onDispose {

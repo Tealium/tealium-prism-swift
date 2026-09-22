@@ -7,17 +7,20 @@
 //
 
 class TrackerImpl: Tracker {
-    let modules: ObservableState<[Module]>
+    /**
+     * The `Collector`s of the modules, emitting only once they are ready.
+     */
+    let onCollectors: Observable<[Collector]>
     let dispatchManager: DispatchManagerProtocol
     let sessionManager: SessionManager
     let logger: LoggerProtocol?
     let loadRuleEngine: LoadRuleEngine
-    init(modules: ObservableState<[Module]>,
+    init(onCollectors: Observable<[Collector]>,
          loadRuleEngine: LoadRuleEngine,
          dispatchManager: DispatchManagerProtocol,
          sessionManager: SessionManager,
          logger: LoggerProtocol?) {
-        self.modules = modules
+        self.onCollectors = onCollectors
         self.loadRuleEngine = loadRuleEngine
         self.dispatchManager = dispatchManager
         self.sessionManager = sessionManager
@@ -37,11 +40,11 @@ class TrackerImpl: Tracker {
         logger?.trace(category: LogCategory.tealium, "Event data: \(trackable.payload)")
         let dispatchContext = DispatchContext(source: source, initialData: trackable.payload)
         var trackable = trackable
-        modules.filter { !$0.isEmpty }
-            .subscribeOnce { [weak self] modules in
+        onCollectors
+            .subscribeOnce { [weak self] collectors in
                 guard let self else { return }
                 sessionManager.registerDispatch(&trackable)
-                modules.compactMap { $0 as? Collector }
+                collectors
                     .filter { self.loadRuleEngine.rulesAllow(dispatch: trackable, forModule: $0) }
                     .forEach { collector in
                         TealiumSignpostInterval(signposter: .tracking, name: "Collecting")

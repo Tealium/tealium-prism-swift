@@ -25,13 +25,16 @@ struct BatchingBarrierConfiguration {
 class BatchingBarrier: ConfigurableBarrier {
     static var id: String = "BatchingBarrier"
     private let queueMetrics: QueueMetrics
-    private let dispatchers: ObservableState<[Dispatcher]>
+    /**
+     * The active `Dispatcher`s, emitting only once the modules are ready.
+     */
+    private let onDispatchers: Observable<[Dispatcher]>
     @StateSubject(1)
     private var batchSize: ObservableState<Int?>
 
-    init(queueMetrics: QueueMetrics, dispatchers: ObservableState<[Dispatcher]>, configuration: DataObject) {
+    init(queueMetrics: QueueMetrics, onDispatchers: Observable<[Dispatcher]>, configuration: DataObject) {
         self.queueMetrics = queueMetrics
-        self.dispatchers = dispatchers
+        self.onDispatchers = onDispatchers
         _batchSize.value = BatchingBarrierConfiguration(dataObject: configuration).batchSize
     }
 
@@ -49,7 +52,7 @@ class BatchingBarrier: ConfigurableBarrier {
     }
 
     private func dispatcherBatchSize(_ dispatcherId: String) -> Observable<Int> {
-        batchSize.combineLatest(dispatchers)
+        batchSize.combineLatest(onDispatchers)
             .map { configuredBatchSize, dispatchers in
                 let dispatchLimit = dispatchers.first(where: { $0.id == dispatcherId })?.dispatchLimit
                 guard let dispatchLimit else {
@@ -79,10 +82,9 @@ extension BatchingBarrier {
         }
 
         func create(context: TealiumContext, configuration: DataObject) -> BatchingBarrier {
-            let dispatchers = context.moduleManager.modules.mapState { modules in
-                modules.compactMap { $0 as? Dispatcher }
-            }
-            return BatchingBarrier(queueMetrics: context.queueMetrics, dispatchers: dispatchers, configuration: configuration)
+            BatchingBarrier(queueMetrics: context.queueMetrics,
+                            onDispatchers: context.moduleManager.observeModules { $0 as? Dispatcher },
+                            configuration: configuration)
         }
 
         func defaultScope() -> BarrierScope {

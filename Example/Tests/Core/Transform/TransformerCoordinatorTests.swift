@@ -34,7 +34,7 @@ final class TransformerCoordinatorTests: XCTestCase {
     var transformationsCount = 0
     var expectedTransformations: [Int] = []
     lazy var allTransformationsAreApplied = expectation(description: "All transformations are applied")
-    lazy var coordinator = TransformerCoordinator(transformers: transformers.asObservableState(),
+    lazy var coordinator = TransformerCoordinator(onTransformers: transformers.asObservableState(),
                                                   transformations: transformations,
                                                   queue: TealiumQueue.worker,
                                                   logger: logger)
@@ -355,5 +355,42 @@ final class TransformerCoordinatorTests: XCTestCase {
         coordinator.unregisterTransformation(duplicated)
         XCTAssertFalse(coordinator.getTransformations(for: .dispatcher(id: "new"))
             .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
+    }
+}
+
+/**
+ * An unresolved `transformerId` is silently passed over, sending the dispatch on untransformed, so the
+ * transformers must not be read before the modules that implement them have been created.
+ */
+final class TransformerCoordinatorReadinessTests: XCTestCase {
+    @ReplaySubject<[Transformer]> var onTransformers
+    let transformer = MockTransformer1 { transformation, dispatch, _ in
+        var dispatch = dispatch
+        dispatch.enrich(data: ["applied": transformation.id])
+        return dispatch
+    }
+    @StateSubject([TransformationSettings(id: "transformation1",
+                                          transformerId: MockTransformer1.moduleType,
+                                          scope: .afterCollectors)])
+    var transformations: ObservableState<[TransformationSettings]>
+    lazy var coordinator = TransformerCoordinator(onTransformers: onTransformers,
+                                                  transformations: transformations,
+                                                  queue: TealiumQueue.worker,
+                                                  logger: nil)
+
+    func test_transform_applies_the_transformation_arriving_with_the_transformers() {
+        var transformed: Dispatch?
+        coordinator.transform(dispatch: Dispatch(name: "event"), for: .afterCollectors) { transformed = $0 }
+        XCTAssertNil(transformed, "Nothing may be reported before the transformers are known")
+        _onTransformers.onNext([transformer])
+        XCTAssertEqual(transformed?.payload.get(key: "applied"), "transformation1")
+    }
+
+    func test_transform_reports_the_untransformed_dispatch_when_no_transformer_implements_it() {
+        var transformed: Dispatch?
+        _onTransformers.onNext([])
+        coordinator.transform(dispatch: Dispatch(name: "event"), for: .afterCollectors) { transformed = $0 }
+        XCTAssertNotNil(transformed, "No transformer enabled is an answer: the dispatch goes on as it is")
+        XCTAssertFalse(transformed?.payload.keys.contains("applied") ?? true)
     }
 }

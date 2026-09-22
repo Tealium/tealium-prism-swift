@@ -91,7 +91,7 @@ final class DeepLinkModuleTests: DeepLinkBaseTests {
     func test_handle_fails_when_trace_is_not_enabled() throws {
         let handled = expectation(description: "Handling completed")
         config.modules = [] // no trace module: the failure must be reported, not swallowed
-        let manager = ModuleManager(queue: queue)
+        let manager = ModuleManager()
         let moduleContext = MockContext(moduleManager: manager,
                                         config: config,
                                         tracker: tracker,
@@ -115,7 +115,7 @@ final class DeepLinkModuleTests: DeepLinkBaseTests {
     /// A pending lookup must fail rather than leave its caller waiting forever.
     func test_handle_fails_when_shut_down_while_waiting_for_the_trace_module() throws {
         let handled = expectation(description: "Handling completed")
-        let manager = ModuleManager(queue: queue) // no settings pass: the lookup stays pending
+        let manager = ModuleManager() // no settings pass: the lookup stays pending
         let moduleContext = MockContext(moduleManager: manager,
                                         config: config,
                                         tracker: tracker,
@@ -136,7 +136,7 @@ final class DeepLinkModuleTests: DeepLinkBaseTests {
     /// Releasing the module counts as a shutdown for whatever it left pending.
     func test_handle_fails_when_the_module_is_released_while_waiting_for_the_trace_module() throws {
         let handled = expectation(description: "Handling completed")
-        let manager = ModuleManager(queue: queue) // no settings pass: the lookup stays pending
+        let manager = ModuleManager() // no settings pass: the lookup stays pending
         let moduleContext = MockContext(moduleManager: manager,
                                         config: config,
                                         tracker: tracker,

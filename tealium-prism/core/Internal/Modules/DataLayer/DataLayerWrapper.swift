@@ -14,8 +14,8 @@ class DataLayerWrapper: DataLayer {
     private let moduleProxy: ModuleProxy<DataLayerModule, Error>
     init(moduleProxy: ModuleProxy<DataLayerModule, Error>) {
         self.moduleProxy = moduleProxy
-        onDataUpdated = moduleProxy.observeModule(\.dataStore.onDataUpdated)
-        onDataRemoved = moduleProxy.observeModule(\.dataStore.onDataRemoved)
+        onDataUpdated = moduleProxy.observeModule(transform: \.dataStore.onDataUpdated)
+        onDataRemoved = moduleProxy.observeModule(transform: \.dataStore.onDataRemoved)
     }
 
     @discardableResult

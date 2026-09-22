@@ -10,7 +10,7 @@
 import XCTest
 
 final class TealiumDataModuleTests: XCTestCase {
-    let moduleManager = ModuleManager(queue: TealiumQueue.main)
+    let moduleManager = ModuleManager()
     let config = TealiumDataModuleTests.getConfig(source: "mock_source")
     lazy var context = MockContext(moduleManager: moduleManager, config: config)
     lazy var collector = TealiumDataModule(context: context,

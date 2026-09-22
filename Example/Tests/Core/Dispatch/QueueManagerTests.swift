@@ -19,7 +19,7 @@ final class QueueManagerTests: XCTestCase {
     lazy var queueRepository = SQLQueueRepository(dbProvider: dbProvider,
                                                   maxQueueSize: coreSettings.value.maxQueueSize,
                                                   expiration: coreSettings.value.queueExpiration)
-    lazy var queueManager = QueueManager(processors: TealiumImpl.queueProcessors(from: modules, addingConsent: true),
+    lazy var queueManager = QueueManager(processors: TealiumImpl.queueProcessors(from: modules.map { $0.compactMap { $0 as? Dispatcher } }, addingConsent: true),
                                          queueRepository: queueRepository,
                                          coreSettings: coreSettings,
                                          logger: nil)
@@ -49,6 +49,20 @@ final class QueueManagerTests: XCTestCase {
         }
         _modules.value.removeFirst()
         waitForDefaultTimeout()
+    }
+
+    /**
+     * A teardown clears the modules, which would otherwise read as "these processors are gone" and
+     * delete the dispatches that are still waiting to be sent to them on the next launch.
+     */
+    func test_shutdown_stops_deleting_the_dispatches_of_the_processors_that_go_away() {
+        let dispatch = Dispatch(name: "some_event")
+        let modulesIds = modules.value.map { $0.id }
+        XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch], enqueueingFor: modulesIds))
+        queueManager.shutdown()
+        _modules.value = []
+        XCTAssertEqual(queueRepository.getQueuedDispatches(for: modulesIds[0], limit: nil).count, 1)
+        XCTAssertEqual(queueRepository.getQueuedDispatches(for: modulesIds[1], limit: nil).count, 1)
     }
 
     func test_storeDispatches_stores_a_dispatch_per_each_processor() {

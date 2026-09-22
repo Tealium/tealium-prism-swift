@@ -13,7 +13,7 @@ final class TraceWrapperTests: XCTestCase {
     let dbProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
     let tracker = MockTracker()
-    lazy var manager = ModuleManager(queue: queue)
+    let manager = ModuleManager()
     lazy var onManager = ReplaySubject<ModuleManager?>(manager)
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = TraceWrapper(moduleProxy: ModuleProxy(queue: queue,

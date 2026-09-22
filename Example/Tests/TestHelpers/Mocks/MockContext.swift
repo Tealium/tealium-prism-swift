@@ -11,7 +11,7 @@
 private let mockDbProvider = MockDatabaseProvider()
 private let queue = TealiumQueue.worker
 private let mockVisitorId = ObservableState(valueProvider: "visitorId", subscriptionHandler: { _ in Subscription {} })
-let mockContext = MockContext(moduleManager: ModuleManager(queue: queue), config: mockConfig)
+let mockContext = MockContext(moduleManager: ModuleManager(), config: mockConfig)
 
 class MockContext: TealiumContext {
     init(moduleManager: ModuleManager,
@@ -29,13 +29,13 @@ class MockContext: TealiumContext {
          queue: TealiumQueue = TealiumQueue.worker,
          visitorId: ObservableState<String> = mockVisitorId) {
         let transformerRegistrar = transformerRegistrar ?? TransformerCoordinator(
-            transformers: .constant([]),
+            onTransformers: Observables.just([]),
             transformations: .constant([]),
             queue: queue,
             logger: nil
         )
         let queueManager = MockQueueManager(
-            processors: TealiumImpl.queueProcessors(from: moduleManager.modules, addingConsent: true),
+            processors: TealiumImpl.queueProcessors(from: moduleManager.observeModules { $0 as? Dispatcher }, addingConsent: true),
             queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
                                                 maxQueueSize: 10,
                                                 expiration: 1.days),

@@ -28,6 +28,18 @@ class QueueManager: QueueManagerProtocol {
         }.addTo(disposer)
     }
 
+    /**
+     * Stops reacting to configuration changes, leaving the queued dispatches untouched.
+     *
+     * The queues outlive the instance, so this must be called before the configuration is torn down:
+     * a teardown that reaches `deleteQueues(forProcessorsNotIn:)`, or the `maxQueueSize` handling,
+     * would read as a configuration whose processors have no owner any more, and would delete the
+     * dispatches that are still waiting to be sent.
+     */
+    func shutdown() {
+        disposer.dispose()
+    }
+
     private func handleSettingsUpdate(_ settings: CoreSettings) {
         let affectedProcessors = calculateProcessorDeletions {
             do {

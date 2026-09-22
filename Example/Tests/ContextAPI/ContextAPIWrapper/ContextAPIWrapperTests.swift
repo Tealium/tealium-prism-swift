@@ -12,7 +12,7 @@ import XCTest
 final class ContextAPIWrapperTests: XCTestCase {
     let queue = TealiumQueue.worker
     let mockNetworkHelper = MockNetworkHelper()
-    lazy var manager = ModuleManager(queue: queue)
+    let manager = ModuleManager()
     lazy var onManager = ReplaySubject<ModuleManager?>(manager)
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = ContextAPIWrapper(
@@ -88,7 +88,8 @@ final class ContextAPIWrapperTests: XCTestCase {
         let expectation = expectation(description: "Fetch reports module not enabled")
 
         // Create a new manager without the module
-        let managerWithoutModule = ModuleManager(queue: queue)
+        let managerWithoutModule = ModuleManager()
+        managerWithoutModule.mockReady()
         let onManagerWithoutModule = ReplaySubject<ModuleManager?>(managerWithoutModule)
         let wrapperWithoutModule = ContextAPIWrapper(
             moduleProxy: ModuleProxy<ContextAPIModule, ContextAPIError>(

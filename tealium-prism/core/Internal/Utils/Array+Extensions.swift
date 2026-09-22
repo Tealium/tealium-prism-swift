@@ -23,8 +23,13 @@ extension Array {
     }
 
     func diff<T: Equatable>(_ other: Self, by key: KeyPath<Element, T>) -> Self {
+        diff(other) { $0[keyPath: key] == $1[keyPath: key] }
+    }
+
+    /// Returns the elements of `self` for which no element of `other` satisfies `comparator`.
+    func diff(_ other: Self, by comparator: (Element, Element) -> Bool) -> Self {
         filter { element in
-            !other.contains(where: { $0[keyPath: key] == element[keyPath: key] })
+            !other.contains(where: { comparator(element, $0) })
         }
     }
 

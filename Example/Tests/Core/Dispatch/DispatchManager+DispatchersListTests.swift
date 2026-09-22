@@ -245,38 +245,6 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    // Without `distinct` on `onDispatchers`, every `modules` emission would tear down and rebuild every
-    // dispatcher's dequeue loop — including changes that don't affect dispatchers at all (e.g. a
-    // non-dispatcher module was added or configured).
-    func test_adding_a_non_dispatcher_module_does_not_rebuild_dispatch_chains() throws {
-        let moduleId = "module_id"
-        let module1 = MockDispatcher1(moduleId: moduleId)
-        let modulesSubject = StateSubject<[Module]>([module1])
-
-        // Phase 1: confirm the chain is up. subscribeOnce so any extra startup dequeues
-        // (from async barrier-coordinator callbacks) don't pollute phase 2.
-        let chainStarted = expectation(description: "dequeue loop fired on barrier open")
-        _ = queueManager.onDequeueRequest.subscribeOnce { processor in
-            if processor == moduleId {
-                chainStarted.fulfill()
-            }
-        }
-        let localDispatchManager = getDispatchManager(modules: modulesSubject.asObservableState())
-        defer { localDispatchManager.stopDispatchLoop() }
-        wait(for: [chainStarted], timeout: Self.defaultTimeout)
-
-        // Phase 2: adding a non-dispatcher must not trigger another dequeue.
-        let spuriousRebuild = expectation(description: "chain was spuriously rebuilt")
-        spuriousRebuild.isInverted = true
-        _ = queueManager.onDequeueRequest.subscribeOnce { processor in
-            if processor == moduleId {
-                spuriousRebuild.fulfill()
-            }
-        }
-        modulesSubject.value = [module1, MockCollector()]
-        wait(for: [spuriousRebuild], timeout: Self.defaultTimeout)
-    }
-
     // A dispatcher replaced by a new instance with the same `id` must have its chain rebuilt so that
     // dispatches reach the new instance. This is why `distinct` uses instance identity (`===`) rather
     // than `id` equality: `updateConfiguration` mutates a module in place and returns the same instance,
@@ -285,7 +253,7 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
         let originalId = "someId"
         let original = MockDispatcher1(moduleId: originalId)
         let modulesSubject = StateSubject<[Module]>([original])
-        let localDispatchManager = getDispatchManager(modules: modulesSubject.asObservableState())
+        let localDispatchManager = getDispatchManager(onDispatchers: onDispatchers(from: modulesSubject.asObservableState()))
         defer { localDispatchManager.stopDispatchLoop() }
 
         let replacement = MockDispatcher1(moduleId: originalId) // same id, different instance
@@ -305,4 +273,85 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
         wait(for: [replacementReceived, originalDidNotReceive], timeout: Self.defaultTimeout)
     }
 
+}
+
+/**
+ * The dispatchers are read synchronously out of `modules.value`, after the transformations have run.
+ *
+ * `QueueManager.storeDispatches` no-ops on an empty processors list, and `ModuleManager` only
+ * publishes the modules at the end of a settings pass, so that read can answer with nobody at all,
+ * or with the dispatchers of the previous pass.
+ */
+final class DispatchManagerDispatchersReadinessTests: DispatchManagerTestCase {
+
+    func test_track_reports_dropped_when_no_dispatcher_is_enabled() {
+        let tracked = expectation(description: "Track result reported")
+        disableModule(module: module1)
+        disableModule(module: module2)
+        XCTAssertTrue(allDispatchers.isEmpty, "Precondition: the configuration enables no dispatcher")
+        dispatchManager.track(Dispatch(name: "someEvent")) { result in
+            XCTAssertTrackResultIsDropped(result)
+            tracked.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+}
+
+/**
+ * A module created by a settings pass can track while that pass is still running, and the pass has not
+ * published its modules yet - so the dispatchers read at that moment are the previous pass's ones.
+ */
+final class DispatchManagerTrackDuringUpdateTests: DispatchManagerTestCase {
+    let updatingManager = ModuleManager()
+    lazy var updatingConfig = TealiumConfig(account: "test",
+                                            profile: "test",
+                                            environment: "dev",
+                                            modules: [MockDispatcher1.factory(),
+                                                      MockDispatcher2.factory(),
+                                                      CallbackOnInitModule.factory()],
+                                            settingsFile: nil,
+                                            settingsUrl: nil)
+    lazy var updatingContext = MockContext(moduleManager: updatingManager,
+                                           config: updatingConfig,
+                                           coreSettings: coreSettings,
+                                           barrierRegistrar: barrierManager,
+                                           transformerRegistrar: transformerCoordinator,
+                                           databaseProvider: databaseProvider,
+                                           queue: queue)
+    lazy var managerUnderUpdate = getDispatchManager(onDispatchers: updatingManager.observeModules { $0 as? Dispatcher })
+
+    private func settings(enabling enabled: [String], disabling disabled: [String] = []) -> SDKSettings {
+        var modules = enabled.reduce(into: [String: ModuleSettings]()) { result, moduleType in
+            result[moduleType] = ModuleSettings(moduleType: moduleType)
+        }
+        for moduleType in disabled {
+            modules[moduleType] = ModuleSettings(moduleType: moduleType, enabled: false)
+        }
+        return SDKSettings(modules: modules)
+    }
+
+    func test_track_does_not_enqueue_for_the_dispatchers_of_the_previous_pass() {
+        addTeardownBlock { [managerUnderUpdate] in
+            CallbackOnInitModule.onInit = nil
+            managerUnderUpdate.stopDispatchLoop()
+        }
+        // First pass: MockDispatcher1 is the only dispatcher.
+        updatingManager.updateSettings(context: updatingContext,
+                                       settings: settings(enabling: [MockDispatcher1.moduleType]))
+        var storedFor = [[String]]()
+        _ = queueManager.onStoreRequest.subscribe { _, processors in
+            storedFor.append(processors)
+        }
+        // Second pass: MockDispatcher1 is replaced by MockDispatcher2, and the module created by this
+        // same pass tracks an event while the pass is still running.
+        CallbackOnInitModule.onInit = { [managerUnderUpdate] in
+            managerUnderUpdate.track(Dispatch(name: "someEvent"))
+        }
+        updatingManager.updateSettings(context: updatingContext,
+                                       settings: settings(enabling: [MockDispatcher2.moduleType,
+                                                                     CallbackOnInitModule.moduleType],
+                                                          disabling: [MockDispatcher1.moduleType]))
+        XCTAssertEqual(storedFor, [[MockDispatcher2.moduleType]],
+                       "The dispatch must reach the dispatchers of the pass that is running, not the previous ones")
+    }
 }

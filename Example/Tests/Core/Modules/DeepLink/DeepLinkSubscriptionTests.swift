@@ -78,7 +78,7 @@ final class DeepLinkSubscriptionTests: DeepLinkBaseTests {
     func test_deep_link_joins_trace_when_url_arrives_before_modules_are_published() throws {
         config.modules = [Modules.trace()]
         // A manager whose first settings pass hasn't run yet, unlike the one built by the base setUp.
-        let manager = ModuleManager(queue: queue)
+        let manager = ModuleManager()
         let moduleContext = MockContext(moduleManager: manager,
                                         config: config,
                                         tracker: tracker,
@@ -112,7 +112,7 @@ final class DeepLinkSubscriptionTests: DeepLinkBaseTests {
      * created in production, and no earlier pass has run.
      */
     func test_deep_link_joins_trace_when_url_arrives_before_the_first_settings_pass() throws {
-        let manager = ModuleManager(queue: queue)
+        let manager = ModuleManager()
         // The deep link arrives while the SDK has not been created yet.
         let link = try "tealium://launch?tealium_trace_id=\(testTraceId)".asUrl()
         config.modules = [Modules.trace(), DeepLinkModuleFactory(enforcedSettings: [:], onOpenUrl: onOpenUrl)]
@@ -136,7 +136,7 @@ final class DeepLinkSubscriptionTests: DeepLinkBaseTests {
      * earlier pass must not be replayed to it - back then Trace really wasn't enabled.
      */
     func test_deep_link_joins_trace_when_url_arrives_between_two_settings_passes() throws {
-        let manager = ModuleManager(queue: queue)
+        let manager = ModuleManager()
         let link = try "tealium://launch?tealium_trace_id=\(testTraceId)".asUrl()
         // On the Tealium queue, as in production: the module of the second pass subscribes while that
         // pass runs, so it would be handed the answer of the first pass if it were still cached.

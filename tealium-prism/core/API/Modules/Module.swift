@@ -18,7 +18,12 @@ public protocol Module: AnyObject {
     static var canBeDisabled: Bool { get }
     /// The unique type identifier for this module kind, shared across all instances of the same module type.
     static var moduleType: String { get }
-    /// Updates the configuration and, if the configuration is valid, return the same class otherwise return nil and the module is considered disabled.
+    /**
+     * Updates the configuration for this module.
+     *
+     * Return `self` to keep this instance with the new configuration.
+     * Return `nil` if the configuration is invalid, in which case the module is disabled and shut down.
+     */
     func updateConfiguration(_ configuration: DataObject) -> Self?
     /// Called when a previously created module needs to shut down, to allow it to perform some final cleanup before removing it form the available modules.
     func shutdown()

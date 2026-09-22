@@ -14,7 +14,7 @@ final class BatchingBarrierTests: XCTestCase {
     @StateSubject([MockDispatcher1(), MockDispatcher2()]) // dispatch limits: 1, 3
     var dispatchers: ObservableState<[Dispatcher]>
     var testBatchSize: Int = 1
-    lazy var barrier: BatchingBarrier = .init(queueMetrics: queueMetrics, dispatchers: dispatchers, configuration: [
+    lazy var barrier: BatchingBarrier = .init(queueMetrics: queueMetrics, onDispatchers: dispatchers, configuration: [
         BatchingBarrierConfiguration.Keys.batchSize: testBatchSize
     ])
 
@@ -24,6 +24,38 @@ final class BatchingBarrierTests: XCTestCase {
             XCTAssertEqual(state, .open)
             barrierOpen.fulfill()
         }
+        waitForDefaultTimeout()
+    }
+
+    /**
+     * A dispatcher missing from the list falls back to a batch size of 1, so a premature answer would
+     * open the barrier on the first event instead of waiting for the dispatcher's own `dispatchLimit`.
+     */
+    func test_onState_does_not_emit_before_the_dispatchers_are_known() {
+        let onDispatchers = ReplaySubject<[Dispatcher]>()
+        let barrier = BatchingBarrier(queueMetrics: queueMetrics,
+                                      onDispatchers: onDispatchers.asObservable(),
+                                      configuration: [:])
+        let stateEmitted = expectation(description: "Barrier state must not be reported yet")
+        stateEmitted.isInverted = true
+        barrier.onState(for: MockDispatcher2.moduleType).subscribeOnce { _ in
+            stateEmitted.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_onState_uses_the_dispatchLimit_of_the_dispatchers_that_arrive_after_the_subscription() {
+        let onDispatchers = ReplaySubject<[Dispatcher]>()
+        let barrier = BatchingBarrier(queueMetrics: queueMetrics,
+                                      onDispatchers: onDispatchers.asObservable(),
+                                      configuration: [:])
+        let barrierClosed = expectation(description: "Barrier should be closed")
+        // Queue size 1, and MockDispatcher2 batches up to 3: a batch size of 1 would open it instead.
+        barrier.onState(for: MockDispatcher2.moduleType).subscribeOnce { state in
+            XCTAssertEqual(state, .closed)
+            barrierClosed.fulfill()
+        }
+        onDispatchers.onNext([MockDispatcher1(), MockDispatcher2()])
         waitForDefaultTimeout()
     }
 

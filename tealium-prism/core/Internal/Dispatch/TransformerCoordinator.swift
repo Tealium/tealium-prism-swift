@@ -17,7 +17,10 @@ import Foundation
  * and then are sent to the transformers.
  */
 class TransformerCoordinator: TransformerRegistrar {
-    private var transformers: ObservableState<[Transformer]>
+    /**
+     * The registered `Transformer`s, emitting only once the modules are ready.
+     */
+    private let onTransformers: Observable<[Transformer]>
     /// The `TransformationSettings` defined in the `SDKSettings`.
     private let transformations: ObservableState<[TransformationSettings]>
     /// The `TransformationSettings` added internally by other modules.
@@ -29,11 +32,11 @@ class TransformerCoordinator: TransformerRegistrar {
     private let logger: LoggerProtocol?
     typealias TransformationCompletion = (Dispatch?) -> Void
     typealias DispatchesTransformationCompletion = ([Dispatch]) -> Void
-    init(transformers: ObservableState<[Transformer]>,
+    init(onTransformers: Observable<[Transformer]>,
          transformations: ObservableState<[TransformationSettings]>,
          queue: TealiumQueue,
          logger: LoggerProtocol?) {
-        self.transformers = transformers
+        self.onTransformers = onTransformers
         self.transformations = transformations
         self.queue = queue
         self.logger = logger
@@ -66,10 +69,18 @@ class TransformerCoordinator: TransformerRegistrar {
      * Transforms a single `Dispatch`, intended to be mainly used on a dispatch after it's been enriched by the collectors.
      */
     func transform(dispatch: Dispatch, for scope: DispatchScope, completion: @escaping TransformationCompletion) {
-        recursiveSerialApply(transformations: getTransformations(for: scope),
-                             to: dispatch,
-                             scope: scope,
-                             completion: completion)
+        // Asynchronously apply the transformations from the transformers when they are ready.
+        onTransformers.subscribeOnce { [weak self] transformers in
+            guard let self else {
+                completion(dispatch)
+                return
+            }
+            self.recursiveSerialApply(transformers: transformers,
+                                      transformations: self.getTransformations(for: scope),
+                                      to: dispatch,
+                                      scope: scope,
+                                      completion: completion)
+        }
     }
 
     /**
@@ -90,7 +101,11 @@ class TransformerCoordinator: TransformerRegistrar {
             }
     }
 
-    private func recursiveSerialApply(transformations: [TransformationSettings], to dispatch: Dispatch?, scope: DispatchScope, completion: @escaping TransformationCompletion) {
+    private func recursiveSerialApply(transformers: [Transformer],
+                                      transformations: [TransformationSettings],
+                                      to dispatch: Dispatch?,
+                                      scope: DispatchScope,
+                                      completion: @escaping TransformationCompletion) {
         guard !transformations.isEmpty, let dispatch = dispatch else {
             completion(dispatch)
             return
@@ -98,16 +113,28 @@ class TransformerCoordinator: TransformerRegistrar {
         var transformations = transformations
         let transformation = transformations.removeFirst()
         guard match(transformation: transformation, dispatch: dispatch) else {
-            recursiveSerialApply(transformations: transformations, to: dispatch, scope: scope, completion: completion)
+            recursiveSerialApply(transformers: transformers,
+                                 transformations: transformations,
+                                 to: dispatch,
+                                 scope: scope,
+                                 completion: completion)
             return
         }
-        apply(singleTransformation: transformation, to: dispatch, scope: scope) { [weak self] newDispatch in
-            self?.recursiveSerialApply(transformations: transformations, to: newDispatch, scope: scope, completion: completion)
+        apply(transformers: transformers, singleTransformation: transformation, to: dispatch, scope: scope) { [weak self] newDispatch in
+            self?.recursiveSerialApply(transformers: transformers,
+                                       transformations: transformations,
+                                       to: newDispatch,
+                                       scope: scope,
+                                       completion: completion)
         }
     }
 
-    private func apply(singleTransformation transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping TransformationCompletion) {
-        guard let transformer = transformers.value.first(where: { $0.id == transformation.transformerId }) else {
+    private func apply(transformers: [Transformer],
+                       singleTransformation transformation: TransformationSettings,
+                       to dispatch: Dispatch,
+                       scope: DispatchScope,
+                       completion: @escaping TransformationCompletion) {
+        guard let transformer = transformers.first(where: { $0.id == transformation.transformerId }) else {
             completion(dispatch)
             return
         }

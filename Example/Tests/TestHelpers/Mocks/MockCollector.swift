@@ -29,3 +29,14 @@ class MockCollector: MockModule, Collector {
         return dispatchContext.initialData + dataToAdd
     }
 }
+
+// No `moduleType` override: `MockModule.factory()` derives it from the class name, and a settings
+// key has to match the factory's.
+class MockCollector2: MockCollector {
+    required init(moduleId: String = MockCollector2.moduleType) {
+        super.init(moduleId: moduleId)
+    }
+    required init?(moduleId: String, context: TealiumContext, moduleConfiguration: DataObject) {
+        super.init(moduleId: moduleId, context: context, moduleConfiguration: moduleConfiguration)
+    }
+}

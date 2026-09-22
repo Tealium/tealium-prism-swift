@@ -221,6 +221,27 @@ final class LifecycleModuleSubscriptionTests: LifecycleModuleBaseTests {
         waitForDefaultTimeout()
     }
 
+    func test_shutdown_stops_tracking_application_status_changes() {
+        let launchTracked = expectation(description: "Launch event is tracked")
+        tracker.onTrack.subscribeOnce { dispatch in
+            XCTAssertEqual(dispatch.name, "launch")
+            launchTracked.fulfill()
+        }
+        publishApplicationStatus(ApplicationStatus(type: .initialized))
+        waitForDefaultTimeout()
+
+        module.shutdown()
+
+        let trackedAfterShutdown = expectation(description: "No event should be tracked after shutdown")
+        trackedAfterShutdown.isInverted = true
+        tracker.onTrack.subscribe { _ in
+            trackedAfterShutdown.fulfill()
+        }.addTo(autoDisposer)
+        publishApplicationStatus(ApplicationStatus(type: .backgrounded))
+        publishApplicationStatus(ApplicationStatus(type: .foregrounded))
+        waitForDefaultTimeout()
+    }
+
     func test_events_not_tracked_when_autotracking_disabled_in_settings() {
             updateSettings(LifecycleSettingsBuilder().setAutoTrackingEnabled(false))
         let launchTracked = expectation(description: "Launch should not be tracked")

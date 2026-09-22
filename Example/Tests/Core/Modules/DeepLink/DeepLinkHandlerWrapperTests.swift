@@ -12,7 +12,7 @@ import XCTest
 final class DeepLinkHandlerWrapperTests: XCTestCase {
     let dbProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
-    lazy var manager = ModuleManager(queue: queue)
+    let manager = ModuleManager()
     lazy var onManager = ReplaySubject<ModuleManager?>(manager)
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = DeepLinkHandlerWrapper(moduleProxy: ModuleProxy(queue: queue,
@@ -35,14 +35,18 @@ final class DeepLinkHandlerWrapperTests: XCTestCase {
         let moduleCalledWithParams = expectation(description: "Module's method called with correct params")
         let referrer: Referrer = .app("com.test.app")
         let link = try "https://tealium.com".asUrl()
-        manager.getModule(DeepLinkModule.self)?.dataStore.onDataUpdated.subscribe { data in
-            guard data.get(key: TealiumDataKey.deepLinkURL) == "https://tealium.com",
-                  data.get(key: TealiumDataKey.deepLinkReferrerApp) == "com.test.app" else {
-                XCTFail("Invalid deep link URL")
-                return
-            }
-            moduleCalledWithParams.fulfill()
-        }.addTo(disposer)
+        manager.observeModule(DeepLinkModule.self)
+            .compactMap(\.self)
+            .flatMap(\.dataStore.onDataUpdated)
+            .subscribeOn(queue)
+            .subscribe { data in
+                guard data.get(key: TealiumDataKey.deepLinkURL) == "https://tealium.com",
+                      data.get(key: TealiumDataKey.deepLinkReferrerApp) == "com.test.app" else {
+                    XCTFail("Invalid deep link URL")
+                    return
+                }
+                moduleCalledWithParams.fulfill()
+            }.addTo(disposer)
         wrapper.handle(link: link, referrer: referrer)
         waitOnQueue(queue: queue)
     }
@@ -50,13 +54,17 @@ final class DeepLinkHandlerWrapperTests: XCTestCase {
     func test_handle_calls_module_method_without_referrer() throws {
         let moduleCalledWithParams = expectation(description: "Module's method called with correct params")
         let link = try "https://tealium.com".asUrl()
-        manager.getModule(DeepLinkModule.self)?.dataStore.onDataUpdated.subscribe { data in
-            guard data.get(key: TealiumDataKey.deepLinkURL) == "https://tealium.com" else {
-                XCTFail("Invalid deep link URL")
-                return
-            }
-            moduleCalledWithParams.fulfill()
-        }.addTo(disposer)
+        manager.observeModule(DeepLinkModule.self)
+            .compactMap(\.self)
+            .flatMap(\.dataStore.onDataUpdated)
+            .subscribeOn(queue)
+            .subscribe { data in
+                guard data.get(key: TealiumDataKey.deepLinkURL) == "https://tealium.com" else {
+                    XCTFail("Invalid deep link URL")
+                    return
+                }
+                moduleCalledWithParams.fulfill()
+            }.addTo(disposer)
         wrapper.handle(link: link)
         waitOnQueue(queue: queue)
     }

@@ -9,6 +9,9 @@
 @testable import TealiumPrism
 import XCTest
 
+// Exercises `ModuleManager`'s readiness gate (MT-2154) through the real `LifecycleModule`, not
+// Lifecycle's event logic - Lifecycle is the shipped module that tracks from its own init, which
+// is what makes it a useful stand-in for a module tracking mid-settings-pass.
 final class LifecycleTrackerTests: XCTestCase {
 
     @StateSubject([TransformationSettings(id: "transformation1",
@@ -21,21 +24,23 @@ final class LifecycleTrackerTests: XCTestCase {
                                modules: [
                                 MockDispatcher.factory(),
                                 Modules.lifecycle(forcingSettings: { enforcedSettings in
-                                    enforcedSettings.setEnabled(true)
+                                    enforcedSettings.setEnabled(true).setOrder(0)
                                 }),
-                                Modules.appData()
+                                Modules.appData(forcingSettings: { enforcedSettings in
+                                    enforcedSettings.setOrder(1)
+                                })
                                ],
                                settingsFile: "",
                                settingsUrl: nil)
     let databaseProvider = MockDatabaseProvider()
     let queue = TealiumQueue.main
-    lazy var moduleManager = ModuleManager(queue: queue)
+    let moduleManager = ModuleManager()
     @StateSubject(SDKSettings())
     var sdkSettings
     var coreSettings: ObservableState<CoreSettings> {
         sdkSettings.mapState(transform: { $0.core })
     }
-    lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: moduleManager.modules, addingConsent: true),
+    lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: moduleManager.observeModules { $0 as? Dispatcher }, addingConsent: true),
                                              queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
                                                                                  maxQueueSize: 10,
                                                                                  expiration: 1.days),
@@ -45,11 +50,11 @@ final class LifecycleTrackerTests: XCTestCase {
                                                      onApplicationStatus: config.appStatusListener.onApplicationStatus,
                                                      queueMetrics: queueManager,
                                                      queue: queue)
-    lazy var transformerCoordinator = TransformerCoordinator(transformers: .constant([]),
+    lazy var transformerCoordinator = TransformerCoordinator(onTransformers: Observables.just([]),
                                                              transformations: transformations,
                                                              queue: queue,
                                                              logger: nil)
-    lazy var tracker = TrackerImpl(modules: moduleManager.modules,
+    lazy var tracker = TrackerImpl(onCollectors: moduleManager.observeModules { $0 as? Collector },
                                    loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings, logger: nil),
                                    dispatchManager: dispatchManager,
                                    sessionManager: MockSessionManager(databaseProvider: databaseProvider),
@@ -64,7 +69,7 @@ final class LifecycleTrackerTests: XCTestCase {
     lazy var dispatchManager = getDispatchManager()
     func getDispatchManager() -> DispatchManager {
         DispatchManager(loadRuleEngine: LoadRuleEngine(sdkSettings: sdkSettings, logger: nil),
-                        modules: moduleManager.modules,
+                        onDispatchers: moduleManager.observeModules { $0 as? Dispatcher },
                         consentManager: nil,
                         queueManager: queueManager,
                         barrierCoordinator: barrierCoordinator,
@@ -83,16 +88,21 @@ final class LifecycleTrackerTests: XCTestCase {
         dispatchManager.stopDispatchLoop()
     }
 
-    func test_launch_gets_dispatched_on_application_start_and_conatains_appData_collector_data() {
+    // Launch is tracked synchronously from `LifecycleModule.init`, because
+    // `ApplicationStatusListener.onApplicationStatus` is a `ReplaySubject` seeded with `.initialized`;
+    // the appVersion assertion holds only because `TrackerImpl.track` waits for the settings pass to
+    // complete before collecting.
+    func test_launch_gets_dispatched_on_application_start_and_contains_appData_collector_data() {
         let gotDispatched = expectation(description: "Launch has been dispatched")
         let eventContainsAppData = expectation(description: "Launch event contains app data")
-        moduleManager.getModule(MockDispatcher.self)?.onDispatch.subscribeOnce { dispatches in
-            let dispatch = dispatches[0]
-            XCTAssertEqual(dispatch.name, "launch")
-            gotDispatched.fulfill()
-            XCTAssertNotNil(dispatch.payload.getDataItem(key: TealiumDataKey.appVersion))
-            eventContainsAppData.fulfill()
-        }
+        moduleManager.observeModule(MockDispatcher.self).compactMap { $0 }.flatMapLatest(\.onDispatch)
+            .subscribeOnce { dispatches in
+                let dispatch = dispatches[0]
+                XCTAssertEqual(dispatch.name, "launch")
+                gotDispatched.fulfill()
+                XCTAssertNotNil(dispatch.payload.getDataItem(key: TealiumDataKey.appVersion))
+                eventContainsAppData.fulfill()
+            }
         waitForLongTimeout()
     }
 }

@@ -37,14 +37,18 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
      */
     init(queue: TealiumQueue, onModuleManager: Observable<ModuleManager?>) {
         self.onModuleManager = onModuleManager
-        let onModule: Observable<Result<SpecificModule, ModuleError<Failure>>> = onModuleManager.map { manager in
+        let onModule: Observable<Result<SpecificModule, ModuleError<Failure>>> = onModuleManager.flatMap { manager in
             guard let manager else {
-                return .failure(ModuleError.objectNotFound("\(ModuleManager.self)"))
+                return Observables.just(.failure(ModuleError.objectNotFound("\(ModuleManager.self)")))
             }
-            guard let module = manager.getModule(SpecificModule.self) else {
-                return .failure(ModuleError.moduleNotEnabled("\(SpecificModule.self)"))
-            }
-            return .success(module)
+            return manager.observeModule(SpecificModule.self)
+                .first()
+                .map { module in
+                    guard let module else {
+                        return .failure(ModuleError.moduleNotEnabled("\(SpecificModule.self)"))
+                    }
+                    return .success(module)
+                }
         }
         self.asyncProxy = AsyncProxy(queue: queue,
                                      onObject: onModule)
@@ -57,28 +61,19 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
      * - returns: A `Subscribable` for the inner `Observable`.
      */
     public func observeModule<Other>(transform: @escaping (SpecificModule) -> Observable<Other>) -> some Subscribable<Other> {
-        onModuleManager.flatMapLatest { $0?.modules.asObservable() ?? Observables.empty() }
-            .map { $0.compactMap { $0 as? SpecificModule }.first }
-            .distinct { $0 === $1 }
-            .flatMapLatest { module in
-                guard let module else {
-                    return Observables.empty()
-                }
-                return transform(module)
+        onModuleManager.flatMapLatest { moduleManager -> Observable<SpecificModule?> in
+            guard let moduleManager else {
+                return Observables.empty()
             }
-            .subscribeOn(asyncProxy.queue)
-    }
-
-    /**
-     * Observe an observable of the `Module` regardless of if the `Module` is currently enabled or not.
-     *
-     * - parameter keyPath: The `KeyPath` to the `Observable` inside of the `Module`.
-     * - returns: A `Subscribable` for the inner `Observable`.
-     */
-    public func observeModule<Other>(_ keyPath: KeyPath<SpecificModule, Observable<Other>>) -> some Subscribable<Other> {
-        observeModule { module in
-            module[keyPath: keyPath]
+            return moduleManager.observeModule(SpecificModule.self)
         }
+        .flatMapLatest { module in
+            guard let module else {
+                return Observables.empty()
+            }
+            return transform(module)
+        }
+        .subscribeOn(asyncProxy.queue)
     }
 
     /**
@@ -97,15 +92,7 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
             guard let moduleManager else {
                 return Observables.empty()
             }
-            return moduleManager.modules.asObservable()
-                .map { list in
-                    list.compactMap { $0 as? SpecificModule }
-                }
-                .distinct {
-                    $0.elementsEqual($1) { oldModule, newModule in
-                        oldModule === newModule
-                    }
-                }
+            return moduleManager.observeModules { $0 as? SpecificModule }
                 .flatMapLatest(transform)
         }.subscribeOn(asyncProxy.queue)
     }

@@ -183,3 +183,27 @@ class MockDispatcher3: MockDispatcher {
         }
     }
 }
+
+/**
+ * Calls back from its `init`, the way a module reaches the rest of the SDK while the settings pass
+ * that creates it is still running - as `DeepLinkModule` does when it resolves the Trace module.
+ *
+ * `ModuleManager` publishes the modules only at the end of a pass, so this is the seam that exposes
+ * what anything reading them synchronously is answered with mid-pass.
+ *
+ * `onInit` is static, like `MockDispatcher.onDispatch`, so reset it from an `addTeardownBlock`.
+ */
+class CallbackOnInitModule: MockModule {
+    // No `moduleType` override: `MockModule.factory()` derives it from the class name, and a settings
+    // key has to match the factory's.
+    static var onInit: (() -> Void)?
+
+    required init(moduleId: String = CallbackOnInitModule.moduleType) {
+        super.init(moduleId: moduleId)
+    }
+
+    required init?(moduleId: String, context: TealiumContext, moduleConfiguration: DataObject) {
+        super.init(moduleId: moduleId, context: context, moduleConfiguration: moduleConfiguration)
+        Self.onInit?()
+    }
+}

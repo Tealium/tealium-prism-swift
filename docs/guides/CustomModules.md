@@ -143,6 +143,54 @@ public class CustomModuleFactory: ModuleFactory {
 }
 ```
 
+## Reaching Other Modules
+
+A module reaches the other modules through the `ModuleManager` exposed on the `TealiumContext` as `context.moduleManager`.
+
+These lookups are asynchronous, and there is deliberately no synchronous alternative, because of *when* a module is created. 
+The modules of a settings pass are created one at a time, so when your `init` runs the module you are looking for may not exist yet. 
+A synchronous answer at that point couldn't tell "that module is not enabled" from "that module hasn't been created yet", so instead of handing back a premature `nil`, these methods withhold the answer until the pass has created every module.
+
+- **`getModule(completion:)`** — a one-shot lookup of a concrete module type, for when you need the module once, at a specific moment.
+
+  ```swift
+  context.moduleManager.getModule { (other: OtherCustomModule?) in
+      // Called once, after the modules have been created
+  }.addTo(disposer)
+  ```
+
+- **`observeModule(_:)`** — the same lookup, followed over time. Use it when the module can come and go: a settings update can enable or disable it, and each change is emitted.
+
+  ```swift
+  context.moduleManager.observeModule(OtherCustomModule.self)
+      .subscribe { [weak self] other in self?.other = other }
+      .addTo(disposer)
+  ```
+
+- **A transformation, with `observeModule(_:)`, `observeModules(_:)` or `getModule(transform:completion:)`** — the only way to reach a module you can't name as a concrete type: one that you only know through a protocol you declare, or one of several instances. The block is applied to every module in `ModuleSettings.order`; the single-module variants stop at the first one returning a non-`nil` value, while `observeModules` collects them all.
+
+  ```swift
+  class MyCustomModule: BasicModule {
+      private var provider: MyDataProviding?
+      private let disposer = Disposables.automatic()
+
+      required init?(context: TealiumContext, moduleConfiguration: DataObject) {
+          context.moduleManager.observeModule { $0 as? MyDataProviding }
+              .subscribe { [weak self] provider in self?.provider = provider }
+              .addTo(disposer)
+      }
+  }
+  ```
+
+Two behaviours are worth spelling out, as neither is visible from the signatures:
+
+- Once one of these has started emitting, a `nil` (or an empty array) means **the module is not enabled**. It never means "not created yet".
+- After the SDK has been shut down you get a `nil` (or an empty array) as well, rather than a lookup that never resolves.
+
+The transformation variants re-emit only when the set of modules whose transformation succeeded changes, by identity or order. A value that varies over time for the same module is not re-emitted — observe it through the module itself.
+
+Subscribe to all of these from the Tealium queue. Your module already runs on it, so inside a module there is nothing to do; to consume them from another queue, chain `subscribeOn(_:)` with the Tealium queue from `TealiumContext.queue` eventually followed by `observeOn(_:)` with yours.
+
 ## Sending Network Requests
 
 Modules that need to talk to the network (most commonly custom `Dispatcher`s) do so through the `NetworkUtilities` exposed on the `TealiumContext` as `context.network`. Two entry points are available, both already wired with the SDK's logging, tracing, retry, and interceptor logic:
@@ -182,6 +230,7 @@ Dispose the returned `Disposable` to cancel an in-flight request; the completion
 ## Best Practices
 
 - **Module Type Constants**: Define module type constants in `Modules.Types` for consistency
+- **Other Modules**: Never assume the other modules exist while your `init` runs — resolve them through `context.moduleManager`, which withholds the answer until the modules of the current settings pass have been created
 - **Validation**: Always validate required configuration in your module's initializer
 - **Return nil**: Return `nil` from the initializer if required configuration is missing or invalid
 - **Settings Builders**: Use `ModuleSettingsBuilder` subclasses for type-safe configuration

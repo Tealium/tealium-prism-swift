@@ -25,22 +25,24 @@ extension TealiumImpl {
                                    modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
     }
 
-    static func transformerCoordinator(transformers: ObservableState<[Transformer]>,
+    static func transformerCoordinator(onTransformers: Observable<[Transformer]>,
                                        sdkSettings: ObservableState<SDKSettings>,
                                        queue: TealiumQueue,
                                        logger: LoggerProtocol) -> TransformerCoordinator {
         let transformations = sdkSettings.mapState { $0.transformations.map { $0.value } }
-        return TransformerCoordinator(transformers: transformers,
+        return TransformerCoordinator(onTransformers: onTransformers,
                                       transformations: transformations,
                                       queue: queue,
                                       logger: logger)
     }
 
-    static func queueProcessors(from modules: ObservableState<[Module]>, addingConsent: Bool) -> Observable<[String]> {
-        modules.filter { !$0.isEmpty }
-            .map { modules in modules
-                    .filter { $0 is Dispatcher }
-                    .map { $0.id } + (addingConsent ? [ConsentIntegrationManager.id] : [])
+    /**
+     * The ids of the queues the dispatches have to be stored for.
+     */
+    static func queueProcessors(from onDispatchers: Observable<[Dispatcher]>, addingConsent: Bool) -> Observable<[String]> {
+        onDispatchers
+            .map { dispatchers in
+                dispatchers.map { $0.id } + (addingConsent ? [ConsentIntegrationManager.id] : [])
             }.distinct()
     }
 }

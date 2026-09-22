@@ -13,7 +13,7 @@ class DeepLinkBaseTests: XCTestCase {
     let dbProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
     let tracker = MockTracker()
-    lazy var manager = ModuleManager(queue: queue)
+    let manager = ModuleManager()
     lazy var onManager = ReplaySubject<ModuleManager?>(manager)
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = TraceWrapper(moduleProxy: ModuleProxy(queue: queue,
@@ -59,7 +59,7 @@ class DeepLinkBaseTests: XCTestCase {
      * Handles the link and waits for the handling to complete.
      *
      * Handling a link that requests a trace is asynchronous: it resolves the Trace module through
-     * `ModuleManager.observeModule`, which delivers on the Tealium queue.
+     * `ModuleManager.observeModule`, which only answers once a modules pass has run.
      */
     func handleAndWait(link: URL,
                        referrer: Referrer? = nil,

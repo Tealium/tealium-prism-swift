@@ -43,7 +43,7 @@ class DispatchManagerTestCase: XCTestCase {
                                     settingsUrl: nil)
     let databaseProvider = MockDatabaseProvider()
     let queue = TealiumQueue.worker
-    lazy var moduleManager = ModuleManager(queue: queue)
+    let moduleManager = ModuleManager()
     lazy var _sdkSettings = StateSubject(SDKSettings(config.getEnforcedSDKSettings()))
     var sdkSettings: ObservableState<SDKSettings> {
         _sdkSettings.asObservableState()
@@ -51,7 +51,7 @@ class DispatchManagerTestCase: XCTestCase {
     var coreSettings: ObservableState<CoreSettings> {
         sdkSettings.mapState(transform: { $0.core })
     }
-    lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: moduleManager.modules, addingConsent: true),
+    lazy var queueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: moduleManager.observeModules { $0 as? Dispatcher }, addingConsent: true),
                                              queueRepository: SQLQueueRepository(dbProvider: databaseProvider,
                                                                                  maxQueueSize: 10,
                                                                                  expiration: 1.days),
@@ -63,7 +63,7 @@ class DispatchManagerTestCase: XCTestCase {
                                                      queueMetrics: queueManager,
                                                      flushDebounceMilliseconds: 0,
                                                      queue: .main)
-    lazy var transformerCoordinator = TransformerCoordinator(transformers: transformers.asObservableState(),
+    lazy var transformerCoordinator = TransformerCoordinator(onTransformers: transformers.asObservableState(),
                                                              transformations: transformations,
                                                              queue: .main,
                                                              logger: nil)
@@ -80,15 +80,22 @@ class DispatchManagerTestCase: XCTestCase {
     lazy var mappingsEngine = MappingsEngine(mappings: sdkSettings
         .mapState { $0.modules.compactMapValues { $0.mappings } })
 
-    func getDispatchManager(modules: ObservableState<[Module]>? = nil) -> DispatchManager {
+    func getDispatchManager(onDispatchers: Observable<[Dispatcher]>? = nil) -> DispatchManager {
         DispatchManager(loadRuleEngine: loadRuleEngine,
-                        modules: modules ?? moduleManager.modules,
+                        onDispatchers: onDispatchers ?? moduleManager.observeModules { $0 as? Dispatcher },
                         consentManager: consentManager,
                         queueManager: queueManager,
                         barrierCoordinator: barrierCoordinator,
                         transformerCoordinator: transformerCoordinator,
                         mappingsEngine: mappingsEngine,
                         logger: nil)
+    }
+
+    /// The dispatchers of a hand-driven modules list, the way `ModuleManager.observeModules` provides them:
+    /// re-emitted only when the list changes by instance identity or order.
+    func onDispatchers(from modules: ObservableState<[Module]>) -> Observable<[Dispatcher]> {
+        modules.map { $0.compactMap { $0 as? Dispatcher } }
+            .distinct { $0.count == $1.count && $0.elementsEqual($1, by: ===) }
     }
 
     var module1: MockDispatcher1? {

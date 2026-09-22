@@ -11,14 +11,14 @@ import XCTest
 
 final class TealiumImplementationTests: XCTestCase {
 
-    @StateSubject([])
-    var modules: ObservableState<[Module]>
+    /// Stands in for `ModuleManager.observeModules`, which is what feeds the processors in production.
+    @ReplaySubject<[Dispatcher]> var onDispatchers
 
-    private func makeImplementation() throws -> TealiumImpl {
+    private func makeImplementation(modules: [any ModuleFactory] = []) throws -> TealiumImpl {
         var config = TealiumConfig(account: "mockAccount",
                                    profile: "mockProfile",
                                    environment: "mockEnv",
-                                   modules: [],
+                                   modules: modules,
                                    settingsFile: nil,
                                    settingsUrl: nil) { builder in
             builder.setMinLogLevel(.silent)
@@ -46,10 +46,15 @@ final class TealiumImplementationTests: XCTestCase {
         XCTAssertTrue(instance.isShutdown)
     }
 
-    func test_queueProcessors_doesnt_emit_when_modules_empty() {
-        let queueProcessorsDoesntEmit = expectation(description: "QueueProcessors doesn't emit for empty modules")
+    /**
+     * Every emission makes the queue delete the queues of the processors that are not in the list, so
+     * nothing may be emitted until the modules are ready. That gate lives in `ModuleManager` now,
+     * and this only has to not emit an answer of its own before the dispatchers arrive.
+     */
+    func test_queueProcessors_doesnt_emit_until_the_dispatchers_do() {
+        let queueProcessorsDoesntEmit = expectation(description: "QueueProcessors doesn't emit before the dispatchers")
         queueProcessorsDoesntEmit.isInverted = true
-        TealiumImpl.queueProcessors(from: modules, addingConsent: false)
+        TealiumImpl.queueProcessors(from: onDispatchers, addingConsent: false)
             .subscribeOnce { _ in
                 queueProcessorsDoesntEmit.fulfill()
             }
@@ -57,35 +62,53 @@ final class TealiumImplementationTests: XCTestCase {
     }
 
     func test_queueProcessors_emits_all_dispatchers() {
-        _modules.value = [MockDispatcher1(), MockDispatcher2()]
+        let dispatchers = [MockDispatcher1(), MockDispatcher2()]
+        _onDispatchers.onNext(dispatchers)
         let queueProcessorsEmits = expectation(description: "QueueProcessors emits processors")
-        TealiumImpl.queueProcessors(from: modules, addingConsent: false)
+        TealiumImpl.queueProcessors(from: onDispatchers, addingConsent: false)
             .subscribeOnce { processors in
-                XCTAssertEqual(processors, self.modules.value.map { $0.id })
+                XCTAssertEqual(processors, dispatchers.map { $0.id })
                 queueProcessorsEmits.fulfill()
             }
         waitForDefaultTimeout()
     }
 
-    func test_queueProcessors_skips_all_non_dispatchers() {
-        _modules.value = [MockDispatcher1(), MockDispatcher2(), MockModule()]
+    /// No dispatcher enabled is an answer, unlike no emission at all: those queues have no owner left.
+    func test_queueProcessors_emits_only_the_consent_manager_when_no_dispatcher_is_enabled() {
+        _onDispatchers.onNext([])
         let queueProcessorsEmits = expectation(description: "QueueProcessors emits processors")
-        TealiumImpl.queueProcessors(from: modules, addingConsent: false)
+        TealiumImpl.queueProcessors(from: onDispatchers, addingConsent: true)
             .subscribeOnce { processors in
-                XCTAssertEqual(processors, self.modules.value.prefix(2).map { $0.id })
+                XCTAssertEqual(processors, ["consent"])
                 queueProcessorsEmits.fulfill()
             }
         waitForDefaultTimeout()
     }
 
     func test_queueProcessors_emits_consent_manager() {
-        _modules.value = [MockDispatcher1(), MockDispatcher2()]
+        let dispatchers = [MockDispatcher1(), MockDispatcher2()]
+        _onDispatchers.onNext(dispatchers)
         let queueProcessorsEmits = expectation(description: "QueueProcessors emits processors")
-        TealiumImpl.queueProcessors(from: modules, addingConsent: true)
+        TealiumImpl.queueProcessors(from: onDispatchers, addingConsent: true)
             .subscribeOnce { processors in
-                XCTAssertEqual(processors, self.modules.value.map { $0.id } + ["consent"])
+                XCTAssertEqual(processors, dispatchers.map { $0.id } + ["consent"])
                 queueProcessorsEmits.fulfill()
             }
         waitForDefaultTimeout()
+    }
+    /**
+     * A shutdown is not a configuration change: clearing the modules must not reach the queue, or the
+     * dispatches still waiting for their dispatcher would be deleted instead of being sent next launch.
+     */
+    func test_shutdown_does_not_delete_the_dispatches_left_in_the_queue() throws {
+        let instance = try makeImplementation(modules: [MockDispatcher.factory()])
+        let processor = try XCTUnwrap(instance.moduleManager.modules.value
+            .compactMap { $0 as? Dispatcher }
+            .first?.id)
+        // Nothing may dequeue the dispatch before the shutdown.
+        instance.tracker.dispatchManager.stopDispatchLoop()
+        instance.queueManager.storeDispatches([Dispatch(name: "event")], enqueueingFor: [processor])
+        instance.shutdown()
+        XCTAssertEqual(instance.queueManager.peekDispatches(for: processor, limit: nil).count, 1)
     }
 }

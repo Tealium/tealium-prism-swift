@@ -273,7 +273,7 @@ final class BarrierCoordinatorFlushTests: XCTestCase {
         queueMetrics.setQueueSize(2)
         let dispatcher = MockDispatcher2()
         let batchingBarrier = BatchingBarrier(queueMetrics: queueMetrics,
-                                              dispatchers: .constant([dispatcher]), configuration: BatchingBarrierSettingsBuilder().setBatchSize(10)._configurationObject)
+                                              onDispatchers: Observables.just([dispatcher]), configuration: BatchingBarrierSettingsBuilder().setBatchSize(10)._configurationObject)
         let connectivityBarrier = MockConnectivityBarrier()
 
         _barriers.value = [
