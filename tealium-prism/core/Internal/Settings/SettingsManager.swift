@@ -39,8 +39,11 @@ class SettingsManager {
                 settingsToMerge.append(settings)
             }
         }
-        self.programmaticSettings = config.getEnforcedSDKSettings()
-        logger.trace(category: LogCategory.settingsManager, "Settings loaded from config:\n\(self.programmaticSettings)")
+        let programmaticSettings = config.getEnforcedSDKSettings()
+        self.programmaticSettings = programmaticSettings
+        // Log the local, not `self.programmaticSettings`: the escaping log message would capture a partially
+        // initialized `self`, left dangling if this init throws below.
+        logger.trace(category: LogCategory.settingsManager, "Settings loaded from config:\n\(programmaticSettings)")
         settingsToMerge.append(programmaticSettings)
         let mergedSettings = Self.merge(orderedSettings: settingsToMerge)
         logger.debug(category: LogCategory.settingsManager,

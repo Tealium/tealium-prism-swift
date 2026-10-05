@@ -17,6 +17,7 @@ import Foundation
  */
 public class ModuleProxy<SpecificModule: Module, Failure: Error> {
     private let onModuleManager: Observable<ModuleManager?>
+    private let onModuleManagerResult: Observable<Result<ModuleManager, TealiumError>>
 
     /// A synchronous task that can be executed on a module.
     public typealias ModuleTask<T> = (_ module: SpecificModule) throws(Failure) -> T
@@ -32,48 +33,97 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
      *
      * - Parameters:
      *      - queue: The `TealiumQueue` onto which events need to be subscribed upon
-     *      - onModuleManager: An `Observable` that will only emit 1 `ModuleManager` when it will be created.
-     *      The event must be emitted on the same queue as the other parameter.
+     *      - onModuleManager: An `Observable` that emits the result of the `Tealium` initialization: either the
+     *      `ModuleManager` once it's created, or the `TealiumError` if initialization failed or the instance was
+     *      shut down. The event must be emitted on the same queue as the other parameter.
      */
-    init(queue: TealiumQueue, onModuleManager: Observable<ModuleManager?>) {
-        self.onModuleManager = onModuleManager
-        let onModule: Observable<Result<SpecificModule, ModuleError<Failure>>> = onModuleManager.flatMap { manager in
-            guard let manager else {
-                return Observables.just(.failure(ModuleError.objectNotFound("\(ModuleManager.self)")))
-            }
-            return manager.observeModule(SpecificModule.self)
-                .first()
-                .map { module in
-                    guard let module else {
-                        return .failure(ModuleError.moduleNotEnabled("\(SpecificModule.self)"))
+    init(queue: TealiumQueue, onModuleManager: Observable<Result<ModuleManager, TealiumError>>) {
+        self.onModuleManagerResult = onModuleManager
+        self.onModuleManager = onModuleManager.map { try? $0.get() }
+        let onModule: Observable<Result<SpecificModule, ModuleError<Failure>>> = onModuleManager.flatMapLatest { managerResult in
+            switch managerResult {
+            case let .success(manager):
+                return manager.observeModule(SpecificModule.self)
+                    .first()
+                    .map { module in
+                        guard let module else {
+                            return .failure(ModuleError.moduleNotEnabled("\(SpecificModule.self)"))
+                        }
+                        return .success(module)
                     }
-                    return .success(module)
-                }
+            case let .failure(error):
+                return Observables.just(.failure(ModuleError.tealiumError(error)))
+            }
         }
         self.asyncProxy = AsyncProxy(queue: queue,
                                      onObject: onModule)
     }
 
     /**
-     * Observe an observable of the `Module` regardless of if the `Module` is currently enabled or not.
+     * Observes an `Observable` derived from the `Module`, re-deriving it as the module's availability changes.
+     *
+     * Use this for state streams, where subscribers must know when the module is unavailable. For event streams,
+     * use [`observeModule(transform:)`](doc:ModuleProxy/observeModule(transform:)) instead.
+     *
+     * The stream emits nothing until the `ModuleManager` is ready. Once it is, it emits `.success` with the
+     * value produced by `transform` while the module is enabled, and `.failure` with
+     * [`ModuleError.moduleNotEnabled(_:)`](doc:ModuleError/moduleNotEnabled(_:)) while the module is disabled
+     * or missing - switching back to `.success` if the module is re-enabled. If the `Tealium` instance failed
+     * to initialize, or is later shut down, this emits a single `.failure` with
+     * [`ModuleError.tealiumError(_:)`](doc:ModuleError/tealiumError(_:)) and then completes.
+     *
+     * Values the module emits while the `Tealium` instance is shutting down are not delivered: the terminal
+     * [`ModuleError.tealiumError(_:)`](doc:ModuleError/tealiumError(_:)) is the last value a subscriber receives.
+     *
+     * - parameter transform: The transformation that maps the `Module` to one of its `Observable`s.
+     * - returns: A `Subscribable` for the transformed `Result`.
+     */
+    public func observeModuleResult<Other>(
+        transform: @escaping (SpecificModule) -> Observable<Other>
+    ) -> some Subscribable<Result<Other, ModuleError<Failure>>> {
+        transformedModuleResults(transform: transform)
+            .subscribeOn(asyncProxy.queue)
+    }
+
+    /// The `Module` availability with `transform` applied: the transformed values as `.success` while the module is
+    /// available, its unavailability as a `.failure`. Shared by `observeModuleResult` and `observeModule`.
+    private func transformedModuleResults<Other>(
+        transform: @escaping (SpecificModule) -> Observable<Other>
+    ) -> Observable<Result<Other, ModuleError<Failure>>> {
+        onModuleManagerResult.flatMapLatest { managerResult -> Observable<Result<Other, ModuleError<Failure>>> in
+            switch managerResult {
+            case let .success(manager):
+                return manager.observeModule(SpecificModule.self)
+                    .flatMapLatest { module -> Observable<Result<Other, ModuleError<Failure>>> in
+                        guard let module else {
+                            return Observables.just(.failure(.moduleNotEnabled("\(SpecificModule.self)")))
+                        }
+                        return transform(module).map { .success($0) }
+                    }
+            case let .failure(error):
+                return Observables.just(.failure(.tealiumError(error)))
+            }
+        }
+    }
+
+    /**
+     * Observes an `Observable` derived from the `Module`, re-deriving it as the module's availability changes.
+     *
+     * Use this for event streams: it emits only while the module is enabled, stays silent while it is disabled
+     * or missing, and completes when the `Tealium` instance fails to initialize or is shut down. For state streams,
+     * where subscribers must know the module is unavailable, use
+     * [`observeModuleResult(transform:)`](doc:ModuleProxy/observeModuleResult(transform:)) instead.
+     *
+     * Values the module emits while the `Tealium` instance is shutting down are not delivered: the completion is
+     * the last event a subscriber receives.
      *
      * - parameter transform: The transformation that maps the `Module` to one of it's `Observable`s.
      * - returns: A `Subscribable` for the inner `Observable`.
      */
     public func observeModule<Other>(transform: @escaping (SpecificModule) -> Observable<Other>) -> some Subscribable<Other> {
-        onModuleManager.flatMapLatest { moduleManager -> Observable<SpecificModule?> in
-            guard let moduleManager else {
-                return Observables.empty()
-            }
-            return moduleManager.observeModule(SpecificModule.self)
-        }
-        .flatMapLatest { module in
-            guard let module else {
-                return Observables.empty()
-            }
-            return transform(module)
-        }
-        .subscribeOn(asyncProxy.queue)
+        transformedModuleResults(transform: transform)
+            .compactMap { try? $0.get() }
+            .subscribeOn(asyncProxy.queue)
     }
 
     /**
@@ -99,6 +149,9 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
 
     /**
      * Retrieves the `Module`, providing it in the `completion`.
+     *
+     * The `completion` receives `nil` whenever the module isn't available. Use `executeModuleTask { $0 }` to get
+     * the `ModuleError` that explains why.
      *
      * - parameter completion: The block of code to receive the `Module` in, if present, or nil.
      */
@@ -129,6 +182,8 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
      *     }
      * }
      * ```
+     *
+     * Fails with a `ModuleError` if the task can't be run or fails: see `ModuleError` for the meaning of each case.
      *
      * - Parameters:
      *   - task: the task to be executed if module is enabled
@@ -185,6 +240,9 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
      *     }
      * }
      * ```
+     *
+     * Fails with a `ModuleError` if the task can't be run or fails: see `ModuleError` for the meaning of each case.
+     *
      * - Parameters:
      *   - task: the task to be executed if module is enabled
      * - Returns: the `Single` with the `Result`.

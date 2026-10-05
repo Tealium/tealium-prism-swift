@@ -17,6 +17,9 @@
 public class TealiumInstanceManager {
     let queue: TealiumQueue
     var instances = [String: TealiumComponents]()
+    /// The keys of the instances currently being shut down, used to defer re-entrant `create`, `shutdown(_:)` and `get` calls.
+    @StateSubject<Set<String>>([])
+    var shuttingDownKeys
     init(queue: TealiumQueue = .worker) {
         self.queue = queue
     }
@@ -51,8 +54,8 @@ public class TealiumInstanceManager {
         let teal = Tealium(key: config.key,
                            queue: queue,
                            onTealiumImplementation: proxySubject.asObservable(),
-                           onShutdown: { [weak self] key in self?.shutdown(key) })
-        queue.ensureOnQueue { [weak self] in
+                           onShutdown: { [weak self] impl in self?.shutdown(impl, forKey: config.key) })
+        whenNotShuttingDown(config.key) { [weak self] in
             guard let self else { return }
             if let components = instances[config.key] {
                 components.instance.context
@@ -68,6 +71,21 @@ public class TealiumInstanceManager {
             }
         }
         return teal
+    }
+
+    /**
+     * Runs `block` on `queue` once no instance with the given `key` is shutting down.
+     *
+     * Calls made re-entrantly from a shutdown subscriber are deferred until the teardown finishes, otherwise a
+     * `create` would start a new implementation while the old one is still tearing down, and a `shutdown(_:)` or
+     * `get` would run before the deferred `create` and miss the instance it creates. Deferred blocks for the same
+     * `key` run in call order.
+     */
+    private func whenNotShuttingDown(_ key: String, _ block: @escaping () -> Void) {
+        queue.ensureOnQueue { [shuttingDownKeys = _shuttingDownKeys] in
+            _ = shuttingDownKeys.asObservable().first { !$0.contains(key) }
+                .subscribe { _ in block() }
+        }
     }
 
     /**
@@ -92,20 +110,27 @@ public class TealiumInstanceManager {
             completion?(.success(proxy))
         } catch {
             proxySubject.onNext(.failure(error))
+            proxySubject.onComplete()
             completion?(.failure(error))
         }
     }
 
     /**
-     * Shuts down the given `Tealium` instance.
+     * Shuts down the implementation the given `Tealium` is bound to.
      *
      * After calling this method, no further input will be processed and future method calls to the
      * instance will fail with `TealiumError.instanceShutdown`.
      *
+     * Only the implementation that the given `Tealium` is bound to is shut down: if it was already shut down,
+     * or if a different instance has since been created with the same key, this method does nothing.
+     *
      * - Parameter tealium: The `Tealium` instance to shut down.
      */
     public func shutdown(_ tealium: Tealium) {
-        shutdown(tealium.key)
+        tealium.proxy.getProxiedObject { [weak self, key = tealium.key] impl in
+            guard let impl else { return }
+            self?.shutdown(impl, forKey: key)
+        }
     }
 
     /**
@@ -114,18 +139,50 @@ public class TealiumInstanceManager {
      * After calling this method, no further input will be processed and future method calls to the
      * instance will fail with `TealiumError.instanceShutdown`.
      *
+     * This shuts down whichever instance is currently stored for the `key`.
+     *
      * - Parameter key: The key that identifies the `Tealium` instance, as provided by `TealiumConfig.key`.
      */
     public func shutdown(_ key: String) {
-        queue.ensureOnQueue { [weak self] in
-            guard let components = self?.instances.removeValue(forKey: key) else { return }
-            components.instance.shutdown()
-            // Propagate the shutdown to any live proxies so their subsequent calls fail with
-            // `TealiumError.instanceShutdown`, then complete the subject: `onComplete` tears down all
-            // proxy bridge subscriptions from the source side and signals downstream operators.
-            components.instanceSubject.onNext(.failure(InstanceShutdownError()))
-            components.instanceSubject.onComplete()
+        whenNotShuttingDown(key) { [weak self] in
+            guard let self,
+                let components = instances[key] else { return }
+            shutdown(components, forKey: key)
         }
+    }
+
+    /**
+     * Shuts down the given `impl` only if it's still the implementation stored for the `key`.
+     *
+     * This prevents a stale `Tealium` from shutting down a replacement created later with the same key.
+     *
+     * Unlike `shutdown(_ key:)`, this doesn't wait for a same-key shutdown in progress: until it finishes no
+     * instance is stored for the `key`, and a `Tealium` created in the meantime only provides its `impl` once its
+     * deferred `create` has run.
+     */
+    private func shutdown(_ impl: TealiumImpl, forKey key: String) {
+        queue.ensureOnQueue { [weak self] in
+            guard let self,
+                let components = instances[key],
+                components.instance === impl else { return }
+            shutdown(components, forKey: key)
+        }
+    }
+
+    /// Removes the given `components` from the stored instances and tears them down. Must be called on `queue`.
+    private func shutdown(_ components: TealiumComponents, forKey key: String) {
+        instances.removeValue(forKey: key)
+        _shuttingDownKeys.value.insert(key)
+        // Propagate the shutdown to any live proxies so their subsequent calls fail with
+        // `TealiumError.instanceShutdown`, then complete the subject: `onComplete` tears down all
+        // proxy bridge subscriptions from the source side and signals downstream operators.
+        // This must happen before `instance.shutdown()`: tearing down the instance first would empty
+        // the module manager's module list, which would reach `ModuleProxy` observers as a transient
+        // `moduleNotEnabled` instead of the terminal `tealiumError(.instanceShutdown)`.
+        components.instanceSubject.onNext(.failure(InstanceShutdownError()))
+        components.instanceSubject.onComplete()
+        components.instance.shutdown()
+        _shuttingDownKeys.value.remove(key)
     }
 
     /**
@@ -147,7 +204,7 @@ public class TealiumInstanceManager {
      *      - completion: The block to receive the `Tealium` instance on, if found.
      */
     public func get(_ key: String, completion: @escaping (Tealium?) -> Void) {
-        queue.ensureOnQueue { [weak self] in
+        whenNotShuttingDown(key) { [weak self] in
             completion(self?.instances[key]?.proxy)
         }
     }

@@ -28,8 +28,8 @@ public class Tealium {
     /// The key that identifies the underlying instance. Equal to the `TealiumConfig.key` used to create it.
     public let key: String
 
-    /// Observable for the module manager.
-    private let onModuleManager: Observable<ModuleManager?>
+    /// Observable for the module manager, or the `TealiumError` if initialization failed or the instance was shut down.
+    private let onModuleManager: Observable<Result<ModuleManager, TealiumError>>
 
     /// Queue for Tealium operations.
     let queue: TealiumQueue
@@ -37,8 +37,9 @@ public class Tealium {
     /// The proxy used to access `TealiumImpl` from the right thread.
     let proxy: AsyncProxy<TealiumImpl, TealiumError>
 
-    /// Callback invoked when `shutdown()` is called, routing the request to the manager that created this instance.
-    private let onShutdown: (String) -> Void
+    /// Callback invoked with the implementation this `Tealium` is bound to when `shutdown()` is called,
+    /// routing the request to the manager that created this instance.
+    private let onShutdown: (TealiumImpl) -> Void
 
     /**
      * Creates a new Tealium instance with the provided configuration.
@@ -64,28 +65,24 @@ public class Tealium {
      *   - key: The key that identifies the underlying instance.
      *   - queue: The queue on which all operations are performed.
      *   - onTealiumImplementation: An observable that emits the Tealium `ImplementationResult`.
-     *   - onShutdown: A callback invoked with the `key` when `shutdown()` is called.
+     *   - onShutdown: A callback invoked with the bound `TealiumImpl` when `shutdown()` is called.
      */
     init(key: String,
          queue: TealiumQueue,
          onTealiumImplementation: ImplementationObservable,
-         onShutdown: @escaping (String) -> Void = { _ in }) {
+         onShutdown: @escaping (TealiumImpl) -> Void = { _ in }) {
         self.key = key
         self.queue = queue
         self.onShutdown = onShutdown
-        onModuleManager = onTealiumImplementation.map { result in
-            if case .success(let implementation) = result {
-                return implementation.moduleManager
-            } else {
-                return nil
+        let onTealiumImpl: Observable<Result<TealiumImpl, TealiumError>> = onTealiumImplementation.map { result in
+            result.mapError { error in
+                error is InstanceShutdownError ? .instanceShutdown : .initializationError(error)
             }
         }
-        proxy = AsyncProxy(queue: queue,
-                           onObject: onTealiumImplementation.map { result in
-                               result.mapError { error in
-                                   error is InstanceShutdownError ? .instanceShutdown : .initializationError(error)
-                               }
-                           })
+        onModuleManager = onTealiumImpl.map { result in
+            result.map(\.moduleManager)
+        }
+        proxy = AsyncProxy(queue: queue, onObject: onTealiumImpl)
     }
 
     /**
@@ -219,9 +216,15 @@ public class Tealium {
      * After calling this method, no further input will be processed and any subsequent method call on this
      * instance will fail with `TealiumError.instanceShutdown`. The instance is also removed from the
      * `TealiumInstanceManager`, so `TealiumInstanceManager.get(_:completion:)` will no longer return it.
+     *
+     * Only the implementation this `Tealium` is bound to is shut down: if it was already shut down, or if a
+     * different instance has since been created with the same key, this method does nothing.
      */
     public func shutdown() {
-        onShutdown(key)
+        proxy.getProxiedObject { [onShutdown] impl in
+            guard let impl else { return }
+            onShutdown(impl)
+        }
     }
 
     deinit {

@@ -13,7 +13,7 @@ final class ContextAPIWrapperTests: XCTestCase {
     let queue = TealiumQueue.worker
     let mockNetworkHelper = MockNetworkHelper()
     let manager = ModuleManager()
-    lazy var onManager = ReplaySubject<ModuleManager?>(manager)
+    lazy var onManager = ReplaySubject<Result<ModuleManager, TealiumError>>(.success(manager))
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = ContextAPIWrapper(
         moduleProxy: ModuleProxy<ContextAPIModule, ContextAPIError>(
@@ -90,7 +90,7 @@ final class ContextAPIWrapperTests: XCTestCase {
         // Create a new manager without the module
         let managerWithoutModule = ModuleManager()
         managerWithoutModule.mockReady()
-        let onManagerWithoutModule = ReplaySubject<ModuleManager?>(managerWithoutModule)
+        let onManagerWithoutModule = ReplaySubject<Result<ModuleManager, TealiumError>>(.success(managerWithoutModule))
         let wrapperWithoutModule = ContextAPIWrapper(
             moduleProxy: ModuleProxy<ContextAPIModule, ContextAPIError>(
                 queue: queue,

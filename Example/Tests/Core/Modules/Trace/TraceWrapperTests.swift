@@ -14,7 +14,7 @@ final class TraceWrapperTests: XCTestCase {
     let queue = TealiumQueue.worker
     let tracker = MockTracker()
     let manager = ModuleManager()
-    lazy var onManager = ReplaySubject<ModuleManager?>(manager)
+    lazy var onManager = ReplaySubject<Result<ModuleManager, TealiumError>>(.success(manager))
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = TraceWrapper(moduleProxy: ModuleProxy(queue: queue,
                                                              onModuleManager: onManager.asObservable()))
