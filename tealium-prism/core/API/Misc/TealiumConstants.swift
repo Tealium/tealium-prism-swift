@@ -52,7 +52,7 @@ public extension TealiumDataKey {
     static let libraryVersion = "tealium_library_version"
     /// The data source identifier.
     static let dataSource = "tealium_datasource"
-    /// An `Int64` value containing the time, measured in seconds, since midnight 01-01-1970, in which the session was started.
+    /// An `Int64` value containing the time, measured in milliseconds, since midnight 01-01-1970, in which the session was started.
     static let sessionId = "tealium_session_id"
     /// A `Boolean` value of `true` to indicate that this event was the first event of a new session.
     static let isNewSession = "is_new_session"

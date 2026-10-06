@@ -114,6 +114,8 @@ final class TealiumCollectTests: TealiumBaseTests {
                 XCTAssertNotNil(events[0]["tealium_session_id"])
                 XCTAssertEqual(events[0]["tealium_session_id"] as? Int64,
                                events[1]["tealium_session_id"] as? Int64)
+                XCTAssertEqual(events[0]["tealium_session_id"] as? Int64,
+                               events[0]["tealium_timestamp_epoch_milliseconds"] as? Int64)
                 XCTAssertEqual(events[0]["_dc_ttl_"] as? Int64, 5.minutes.inMilliseconds())
                 XCTAssertEqual(events[1]["_dc_ttl_"] as? Int64, 5.minutes.inMilliseconds())
             }

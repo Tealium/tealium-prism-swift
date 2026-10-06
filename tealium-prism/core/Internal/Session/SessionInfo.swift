@@ -13,7 +13,7 @@ struct SessionInfo {
     let eventCount: Int
 
     static func new(timestamp: Int64) -> Self {
-        SessionInfo(sessionId: timestamp / 1000,
+        SessionInfo(sessionId: timestamp,
                     lastEventTimeMilliseconds: timestamp,
                     eventCount: 1)
     }

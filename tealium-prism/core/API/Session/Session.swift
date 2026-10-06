@@ -11,7 +11,7 @@
  *
  * - Parameters:
  *  - status: The status of this session
- *  - sessionId: Unique session id, typically the time in seconds at the time the session started
+ *  - sessionId: Unique session id, typically the time in milliseconds at the time the session started
  *  - lastEventTimeMilliseconds: The time in milliseconds of the latest event of this session.
  *  - eventCount: The number of events that have occurred in this session
  */

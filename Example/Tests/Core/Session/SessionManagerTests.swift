@@ -172,6 +172,7 @@ final class SessionManagerTests: XCTestCase {
         var dispatch3 = Dispatch(payload: [:], id: "3", timestamp: timestamp + 1000)
         sessionManager.registerDispatch(&dispatch3)
         waitForDefaultTimeout()
+        XCTAssertEqual(reportedSessions.first?.sessionId, timestamp)
     }
 
     func test_registerDispatch_updates_dispatch() {
