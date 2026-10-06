@@ -22,13 +22,13 @@ private class DataLayerMock: DataLayerWrapper {
         return super.put(key: key, value: value, expiry: expiry)
     }
 
-    override func put(data: DataObject, expiry: Expiry) -> SingleResult<Void, ModuleError<Error>> {
-        for key in data.keys {
-            if let dataItem = data.getDataItem(key: key) {
+    override func putAll(dataObject: DataObject, expiry: Expiry) -> SingleResult<Void, ModuleError<Error>> {
+        for key in dataObject.keys {
+            if let dataItem = dataObject.getDataItem(key: key) {
                 _onPut.onNext(Put(key: key, value: dataItem.toDataInput(), expiry: expiry))
             }
         }
-        return super.put(data: data, expiry: expiry)
+        return super.putAll(dataObject: dataObject, expiry: expiry)
     }
 }
 
@@ -66,13 +66,13 @@ final class DataLayerTests: BaseDataLayerWrapperTests {
         waitForDefaultTimeout()
     }
 
-    func test_put_data_uses_forever_default_expiry() throws {
+    func test_putAll_uses_forever_default_expiry() throws {
         let putCalled = expectation(description: "Put is called")
         dataLayerMock.onPut.subscribeOnce { put in
             XCTAssertEqual(put.expiry, .forever)
             putCalled.fulfill()
         }
-        dataLayerMock.put(data: ["key": "value"])
+        dataLayerMock.putAll(dataObject: ["key": "value"])
         waitForDefaultTimeout()
     }
 }

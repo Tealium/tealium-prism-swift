@@ -32,9 +32,9 @@ class DataLayerWrapper: DataLayer {
     }
 
     @discardableResult
-    func put(data: DataObject, expiry: Expiry) -> SingleResult<Void, ModuleError<Error>> {
+    func putAll(dataObject: DataObject, expiry: Expiry) -> SingleResult<Void, ModuleError<Error>> {
         moduleProxy.executeModuleTask { module in
-            try module.put(data: data, expiry: expiry)
+            try module.putAll(dataObject: dataObject, expiry: expiry)
         }
     }
 

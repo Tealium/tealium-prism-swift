@@ -24,9 +24,9 @@ class DataLayerModule: BasicModule {
         self.dataStore = dataStore
     }
 
-    func put(data: DataObject, expiry: Expiry) throws {
+    func putAll(dataObject: DataObject, expiry: Expiry) throws {
         try dataStore.edit()
-            .putAll(dataObject: data, expiry: expiry)
+            .putAll(dataObject: dataObject, expiry: expiry)
             .commit()
     }
 

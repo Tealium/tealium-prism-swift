@@ -71,7 +71,7 @@ final class DataLayerWrapperTests: BaseDataLayerWrapperTests {
     func test_put_and_remove_multiple_values() {
         let completionCalled = expectation(description: "Completion is called")
         completionCalled.expectedFulfillmentCount = 2
-        wrapper.put(data: ["key1": "value1", "key2": "value2"])
+        wrapper.putAll(dataObject: ["key1": "value1", "key2": "value2"])
         wrapper.get(key: "key1", as: String.self).onSuccess { value in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertEqual(value, "value1")
@@ -102,7 +102,7 @@ final class DataLayerWrapperTests: BaseDataLayerWrapperTests {
     func test_clear_removes_all_values() {
         let completionCalled = expectation(description: "Completion is called")
         completionCalled.expectedFulfillmentCount = 2
-        wrapper.put(data: ["key1": "value1", "key2": "value2"])
+        wrapper.putAll(dataObject: ["key1": "value1", "key2": "value2"])
         wrapper.get(key: "key1", as: String.self).onSuccess { value in
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertEqual(value, "value1")
@@ -138,7 +138,7 @@ final class DataLayerWrapperTests: BaseDataLayerWrapperTests {
             XCTAssertEqual(data, dataObject)
             eventEmitted.fulfill()
         }
-        wrapper.put(data: dataObject)
+        wrapper.putAll(dataObject: dataObject)
         waitOnQueue(queue: queue)
     }
 
@@ -150,7 +150,7 @@ final class DataLayerWrapperTests: BaseDataLayerWrapperTests {
             XCTAssertEqual(keys, ["key1", "key2"])
             eventEmitted.fulfill()
         }
-        wrapper.put(data: dataObject)
+        wrapper.putAll(dataObject: dataObject)
         wrapper.remove(keys: ["key1", "key2"])
         waitOnQueue(queue: queue)
     }

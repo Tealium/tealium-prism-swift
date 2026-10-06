@@ -98,12 +98,12 @@ public protocol DataLayer {
      * Adds all key-value pairs from the `DataObject` into the storage.
      *
      * - Parameters:
-     *      - data: A `DataObject` containing the key-value pairs to be stored.
+     *      - dataObject: A `DataObject` containing the key-value pairs to be stored.
      *      - expiry: The time frame for this data to remain stored.
      * - Returns: A `Single` onto which you can subscribe to receive the completion with the eventual error in case of failure.
      */
     @discardableResult
-    func put(data: DataObject, expiry: Expiry) -> SingleResult<Void, ModuleError<Error>>
+    func putAll(dataObject: DataObject, expiry: Expiry) -> SingleResult<Void, ModuleError<Error>>
 
     /**
      * Adds a single key-value pair into the `DataLayer`.
@@ -357,11 +357,11 @@ public extension DataLayer {
      * Expiration is `forever` by default.
      *
      * - Parameters:
-     *      - data: A `DataObject` containing the key-value pairs to be stored.
+     *      - dataObject: A `DataObject` containing the key-value pairs to be stored.
      */
     @discardableResult
-    func put(data: DataObject) -> SingleResult<Void, ModuleError<Error>> {
-        self.put(data: data, expiry: .forever)
+    func putAll(dataObject: DataObject) -> SingleResult<Void, ModuleError<Error>> {
+        self.putAll(dataObject: dataObject, expiry: .forever)
     }
 
     /**

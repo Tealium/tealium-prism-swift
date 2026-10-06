@@ -13,8 +13,8 @@ extension DataLayerModule {
     func put(key: String, value: DataInput) throws {
         try self.put(key: key, value: value, expiry: .forever)
     }
-    func put(data: DataObject) throws {
-        try self.put(data: data, expiry: .forever)
+    func putAll(dataObject: DataObject) throws {
+        try self.putAll(dataObject: dataObject, expiry: .forever)
     }
 }
 
@@ -40,7 +40,7 @@ final class DataLayerModuleTests: XCTestCase {
     }
 
     func test_put_and_remove_multiple_values() throws {
-        try dataLayerModule.put(data: ["key1": "value1", "key2": "value2"])
+        try dataLayerModule.putAll(dataObject: ["key1": "value1", "key2": "value2"])
         XCTAssertEqual(dataLayerModule.get(key: "key1"), "value1")
         XCTAssertEqual(dataLayerModule.get(key: "key2"), "value2")
         try dataLayerModule.remove(keys: ["key1", "key2"])
@@ -49,7 +49,7 @@ final class DataLayerModuleTests: XCTestCase {
     }
 
     func test_clear_removes_all_values() throws {
-        try dataLayerModule.put(data: ["key1": "value1", "key2": "value2"])
+        try dataLayerModule.putAll(dataObject: ["key1": "value1", "key2": "value2"])
         let dispatchContext = DispatchContext(source: .module(DataLayerModule.self), initialData: Dispatch(name: "datalayer").payload)
         XCTAssertFalse(dataLayerModule.collect(dispatchContext).asDictionary().isEmpty, "DataLayer is not empty before remove all")
         try dataLayerModule.clear()
@@ -58,14 +58,14 @@ final class DataLayerModuleTests: XCTestCase {
 
     func test_collect_returns_all_data() throws {
         try dataLayerModule.put(key: "key0", value: "value0")
-        try dataLayerModule.put(data: ["key1": "value1", "key2": "value2"])
+        try dataLayerModule.putAll(dataObject: ["key1": "value1", "key2": "value2"])
         let dispatchContext = DispatchContext(source: .module(DataLayerModule.self), initialData: Dispatch(name: "datalayer").payload)
         XCTAssertEqual(dataLayerModule.collect(dispatchContext), ["key0": "value0", "key1": "value1", "key2": "value2"])
     }
 
     func test_getAll_returns_all_data() throws {
         try dataLayerModule.put(key: "key0", value: "value0")
-        try dataLayerModule.put(data: ["key1": "value1", "key2": "value2"])
+        try dataLayerModule.putAll(dataObject: ["key1": "value1", "key2": "value2"])
         XCTAssertEqual(dataLayerModule.getAll(), ["key0": "value0", "key1": "value1", "key2": "value2"])
     }
 }
