@@ -29,6 +29,8 @@ public extension Modules {
         static public let connectivityData = "ConnectivityData"
         /// Module type identifier for TimeData module.
         static public let timeData = "TimeData"
+        /// Module type identifier for VisitorId module.
+        static public let visitorId = "VisitorId"
     }
 }
 
@@ -164,6 +166,22 @@ public extension Modules {
     static func trace(forcingSettings block: EnforcingSettings<TraceSettingsBuilder>? = { $0 }) -> some ModuleFactory {
         BasicModuleFactory<TraceModule>(moduleType: Modules.Types.trace,
                                         enforcedSettings: block?(TraceSettingsBuilder()).build())
+    }
+
+    /**
+     * Returns a factory for creating the `VisitorIdModule`.
+     *
+     * The `VisitorIdModule` is added by default to every `Tealium` instance and is enabled unless it is
+     * explicitly disabled by Local, Remote or programmatic settings. Disabling it removes the visitor ID from
+     * the events and makes every ``VisitorIdManager`` operation fail.
+     *
+     * - parameter block: A block used to provide programmatic settings. See `EnforcingSettings`.
+     * Pass `nil` to initialize this module only when some Local or Remote settings are provided.
+     * Omitting this parameter will initialize the module with its default settings.
+     */
+    static func visitorId(forcingSettings block: EnforcingSettings<VisitorIdSettingsBuilder>? = { $0 }) -> some ModuleFactory {
+        BasicModuleFactory<VisitorIdModule>(moduleType: Modules.Types.visitorId,
+                                            enforcedSettings: block?(VisitorIdSettingsBuilder()).build())
     }
 
     /**

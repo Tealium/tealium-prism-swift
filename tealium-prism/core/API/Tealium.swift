@@ -142,39 +142,6 @@ public class Tealium {
         }
     }
 
-    /**
-     * Resets the current visitor ID to a new anonymous one.
-     *
-     * Note. the new anonymous ID will be associated to any identity currently set.
-     *
-     * - returns: A `Single` onto which you can subscribe to receive the completion with the eventual error
-     * or the new visitor ID.
-     */
-    @discardableResult
-    public func resetVisitorId() -> SingleResult<String, TealiumError> {
-        proxy.executeTask { tealium throws(TealiumError) in
-            try TealiumError.wrapErrors {
-                try tealium.visitorIdProvider.resetVisitorId()
-            }
-        }
-    }
-
-    /**
-     * Removes all stored visitor identifiers as hashed identities, and generates a new
-     * anonymous visitor ID.
-     *
-     * - returns: A `Single` onto which you can subscribe to receive the completion with the eventual error
-     * or the new visitor ID.
-     */
-    @discardableResult
-    public func clearStoredVisitorIds() -> SingleResult<String, TealiumError> {
-        proxy.executeTask { tealium throws(TealiumError) in
-            try TealiumError.wrapErrors {
-                try tealium.visitorIdProvider.clearStoredVisitorIds()
-            }
-        }
-    }
-
     /// Manager for trace-related functionality.
     public private(set) lazy var trace: Trace = TraceWrapper(moduleProxy: createModuleProxy())
 
@@ -183,6 +150,9 @@ public class Tealium {
 
     /// Interface for accessing and manipulating the data layer.
     public private(set) lazy var dataLayer: DataLayer = DataLayerWrapper(moduleProxy: createModuleProxy())
+
+    /// Visitor ID operations and Visitor Switching state. See ``VisitorIdManager``.
+    public private(set) lazy var visitorId: any VisitorIdManager = VisitorIdManagerWrapper(moduleProxy: createModuleProxy())
 
     /**
      * Creates a `ModuleProxy` for the given module to allow for an easy creation of Module Wrappers.

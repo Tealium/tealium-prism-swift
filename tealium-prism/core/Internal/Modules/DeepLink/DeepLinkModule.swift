@@ -76,10 +76,10 @@ class DeepLinkModule: Collector {
             completion(Self.wrappingErrors { try handleDeepLink(link: link, referrer: referrer, queryItems: queryItems) })
             return
         }
-        onTraceModule { [weak self] traceResult in
+        onTraceModule { [weak self, id] traceResult in
             completion(Self.wrappingErrors {
                 // Released without a shutdown: there is no module left to handle the link with.
-                guard let self else { throw ModuleError<Error>.moduleShutdown("\(DeepLinkModule.self)") }
+                guard let self else { throw ModuleError<Error>.moduleShutdown(id) }
                 // Join first: the deep link event has to land inside the trace.
                 try self.applyTrace(traceResult.get(), traceId: traceId, queryItems: queryItems)
                 try self.handleDeepLink(link: link, referrer: referrer, queryItems: queryItems)
@@ -111,8 +111,8 @@ class DeepLinkModule: Collector {
     private func onTraceModule(_ completion: @escaping (Result<TraceModule, ModuleError<Error>>) -> Void) {
         let pending = Disposables.composite()
         // Disposed by shutdown, which fails the lookups that are never going to resolve.
-        Disposables.subscription {
-            completion(.failure(.moduleShutdown("\(DeepLinkModule.self)")))
+        Disposables.subscription { [id] in
+            completion(.failure(.moduleShutdown(id)))
         }.addTo(pending)
         traceSubscriptions.add(pending)
         // Already shut down: `add` disposed `pending`, so the guard above already failed this lookup.
@@ -122,7 +122,7 @@ class DeepLinkModule: Collector {
                 // Drops the shutdown guard: removing does not dispose, so it can no longer fire.
                 self?.traceSubscriptions.remove(pending)
                 guard let trace else {
-                    completion(.failure(.moduleNotEnabled("\(TraceModule.self)")))
+                    completion(.failure(.moduleNotEnabled(TraceModule.moduleType)))
                     return
                 }
                 completion(.success(trace))

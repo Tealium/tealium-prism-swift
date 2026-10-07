@@ -32,13 +32,16 @@ final class ContextAPIWrapperTests: XCTestCase {
 
     override func setUp() {
         super.setUp()
-        config.modules = [Modules.contextAPI()]
+        // ContextAPI reads the visitor ID from the VisitorId module through the ModuleManager
+        config.modules = [Modules.contextAPI(), Modules.visitorId()]
         let contextAPISettings = ModuleSettings(
             moduleType: ContextAPIModule.moduleType,
             configuration: [ContextAPIConfiguration.Keys.region: ContextAPIRegion.AWSRegion.usEast1]
         )
+        let visitorIdSettings = ModuleSettings(moduleType: Modules.Types.visitorId)
         manager.updateSettings(context: context(), settings: SDKSettings(modules: [
-            contextAPISettings.moduleId: contextAPISettings
+            contextAPISettings.moduleId: contextAPISettings,
+            visitorIdSettings.moduleId: visitorIdSettings
         ]))
     }
 
@@ -104,7 +107,7 @@ final class ContextAPIWrapperTests: XCTestCase {
                     XCTFail("Expected moduleNotEnabled error, got \(error)")
                     return
                 }
-                XCTAssertTrue(module == "\(ContextAPIModule.self)")
+                XCTAssertEqual(module, ContextAPIModule.moduleType)
                 expectation.fulfill()
             }
         }
@@ -126,13 +129,56 @@ final class ContextAPIWrapperTests: XCTestCase {
 
         _ = wrapper.fetchEngineResponse(engineID: "test-engine").subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                guard case .moduleNotEnabled(let module) = error,
-                      module == "\(ContextAPIModule.self)" else {
+                guard case .moduleNotEnabled(let module) = error else {
                     XCTFail("Expected moduleNotEnabled error, got \(result)")
                     return
                 }
+                XCTAssertEqual(module, ContextAPIModule.moduleType)
                 expectation.fulfill()
             }
+        }
+
+        waitOnQueue(queue: queue)
+    }
+
+    /// The module reports a `ModuleError` already, so the wrapper hands it over untouched.
+    func test_fetchEngineResponse_reports_moduleNotEnabled_when_visitorId_module_disabled() {
+        let expectation = expectation(description: "Fetch reports VisitorId not enabled")
+
+        let contextAPISettings = ModuleSettings(
+            moduleType: ContextAPIModule.moduleType,
+            configuration: [ContextAPIConfiguration.Keys.region: ContextAPIRegion.AWSRegion.usEast1]
+        )
+        let visitorIdSettings = ModuleSettings(moduleType: Modules.Types.visitorId, enabled: false)
+        manager.updateSettings(context: context(), settings: SDKSettings(modules: [
+            contextAPISettings.moduleId: contextAPISettings,
+            visitorIdSettings.moduleId: visitorIdSettings
+        ]))
+
+        _ = wrapper.fetchEngineResponse(engineID: "test-engine").subscribe { result in
+            XCTAssertResultIsFailure(result) { error in
+                guard case .moduleNotEnabled(let module) = error else {
+                    XCTFail("Expected moduleNotEnabled error, got \(error)")
+                    return
+                }
+                XCTAssertEqual(module, Modules.Types.visitorId)
+                expectation.fulfill()
+            }
+        }
+
+        waitOnQueue(queue: queue)
+    }
+
+    func test_fetchEngineResponse_reports_moduleShutdown_when_module_is_shut_down() {
+        let expectation = expectation(description: "Fetch reports module shutdown")
+        // Shut the module down without a settings pass, so the wrapper still reaches it.
+        manager.getModule(ContextAPIModule.self)?.shutdown()
+
+        _ = wrapper.fetchEngineResponse(engineID: "test-engine").subscribe { result in
+            XCTAssertResultIsFailure(result) { error in
+                XCTAssertContextAPIShutdown(error)
+            }
+            expectation.fulfill()
         }
 
         waitOnQueue(queue: queue)

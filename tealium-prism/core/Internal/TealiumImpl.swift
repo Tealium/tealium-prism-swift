@@ -14,7 +14,6 @@ class TealiumImpl {
     let context: TealiumContext
     let moduleManager: ModuleManager
     let tracker: TrackerImpl
-    let visitorIdProvider: VisitorIdProvider
     let instanceName: String
     let loadRuleEngine: LoadRuleEngine
     let barrierCoordinator: BarrierCoordinator
@@ -105,13 +104,7 @@ class TealiumImpl {
                                   logger: logger)
         self.tracker = tracker
 
-        visitorIdProvider = VisitorIdProvider(config: config,
-                                              visitorDataStore: sharedDataStore,
-                                              logger: logger)
         let dataLayerStore = try storeProvider.getModuleStore(name: Modules.Types.dataLayer)
-        VisitorSwitcher.handleIdentitySwitches(visitorIdProvider: visitorIdProvider,
-                                               onCoreSettings: coreSettings,
-                                               dataLayerStore: dataLayerStore).addTo(automaticDisposer)
         let network = NetworkUtilities(networkHelper: networkHelper,
                                        networkClient: client,
                                        connectivityManager: ConnectivityManager.shared.emittingOn(queue: queue))
@@ -127,7 +120,6 @@ class TealiumImpl {
                                       network: network,
                                       applicationStatusListener: config.appStatusListener,
                                       queue: queue,
-                                      visitorId: visitorIdProvider.visitorId,
                                       queueMetrics: queueManager,
                                       dataLayer: dataLayerStore)
         self.instanceName = "\(config.account)-\(config.profile)"

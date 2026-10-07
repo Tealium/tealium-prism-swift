@@ -157,26 +157,75 @@ final class TealiumTests: TealiumBaseTests {
         waitOnQueue(queue: queue)
     }
 
-    func test_resetVisitorId_completes_on_our_queue() {
-        let resetCompleted = expectation(description: "Reset visitorId completed")
+    func test_visitorId_regenerate_completes_on_our_queue() {
+        let regenerateCompleted = expectation(description: "Regenerate visitorId completed")
         let teal = createTealium()
-        teal.resetVisitorId().subscribe { result in
+        teal.visitorId.regenerate().subscribe { result in
             XCTAssertResultIsSuccess(result)
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
-            resetCompleted.fulfill()
+            regenerateCompleted.fulfill()
         }
         waitOnQueue(queue: queue)
     }
 
-    func test_clearStoredVisitorIds_completes_on_our_queue() {
-        let clearCompleted = expectation(description: "Clear completed")
+    func test_visitorId_eraseLocalHistory_completes_on_our_queue() {
+        let eraseCompleted = expectation(description: "Erase local history completed")
         let teal = createTealium()
-        teal.clearStoredVisitorIds().subscribe { result in
+        teal.visitorId.eraseLocalHistory().subscribe { result in
             XCTAssertResultIsSuccess(result)
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
-            clearCompleted.fulfill()
+            eraseCompleted.fulfill()
         }
         waitOnQueue(queue: queue)
+    }
+
+    func test_track_payload_contains_visitorId_when_visitorId_module_is_enabled_by_default() {
+        let dispatched = expectation(description: "The Dispatch is dispatched to the dispatcher")
+        config.addModule(MockDispatcher.factory())
+        let teal = createTealium()
+        MockDispatcher.onDispatch.subscribeOnce { dispatches in
+            dispatched.fulfill()
+            guard let dispatch = dispatches.first else {
+                XCTFail("Expected one dispatch")
+                return
+            }
+            XCTAssertTrue(dispatch.payload.keys.contains(TealiumDataKey.visitorId))
+        }
+        teal.track("Event")
+        waitForLongTimeout()
+    }
+
+    func test_track_payload_lacks_visitorId_when_visitorId_module_is_disabled() {
+        let dispatched = expectation(description: "The Dispatch is dispatched to the dispatcher")
+        config.addModule(MockDispatcher.factory())
+        config.addModule(Modules.visitorId(forcingSettings: { $0.setEnabled(false) }))
+        let teal = createTealium()
+        MockDispatcher.onDispatch.subscribeOnce { dispatches in
+            dispatched.fulfill()
+            guard let dispatch = dispatches.first else {
+                XCTFail("Expected one dispatch")
+                return
+            }
+            XCTAssertFalse(dispatch.payload.keys.contains(TealiumDataKey.visitorId))
+        }
+        teal.track("Event")
+        waitForLongTimeout()
+    }
+
+    func test_visitorId_current_fails_with_moduleNotEnabled_when_visitorId_module_is_disabled() {
+        let currentCompleted = expectation(description: "Current visitorId completed")
+        config.addModule(Modules.visitorId(forcingSettings: { $0.setEnabled(false) }))
+        let teal = createTealium()
+        teal.visitorId.current().subscribe { result in
+            XCTAssertResultIsFailure(result) { error in
+                guard case .moduleNotEnabled = error else {
+                    XCTFail("Expected moduleNotEnabled, got \(error)")
+                    return
+                }
+            }
+            currentCompleted.fulfill()
+        }
+        waitForLongTimeout()
     }
 
     func test_dataLayer_wrapper_works_on_our_queue() {
@@ -245,7 +294,7 @@ final class TealiumTests: TealiumBaseTests {
                     XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(object == "\(DeepLinkModule.self)")
+                XCTAssertEqual(object, DeepLinkModule.moduleType)
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             handleDeepLinkCompleted.fulfill()
@@ -262,7 +311,7 @@ final class TealiumTests: TealiumBaseTests {
                     XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(object == "\(DeepLinkModule.self)")
+                XCTAssertEqual(object, DeepLinkModule.moduleType)
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             handleDeepLinkCompleted.fulfill()
@@ -294,7 +343,7 @@ final class TealiumTests: TealiumBaseTests {
                     XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(object == "\(TraceModule.self)")
+                XCTAssertEqual(object, TraceModule.moduleType)
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             joinTraceCompleted.fulfill()
@@ -311,7 +360,7 @@ final class TealiumTests: TealiumBaseTests {
                     XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(object == "\(TraceModule.self)")
+                XCTAssertEqual(object, TraceModule.moduleType)
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             joinTraceCompleted.fulfill()

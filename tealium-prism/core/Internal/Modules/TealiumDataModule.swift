@@ -38,7 +38,6 @@ class TealiumDataModule: BasicModule, Collector {
         return [
             TealiumDataKey.enabledModules: modules.map { $0.id },
             TealiumDataKey.enabledModulesVersions: modules.map { $0.version },
-            TealiumDataKey.visitorId: context.visitorId.value,
             TealiumDataKey.random: random
         ] + baseData
     }

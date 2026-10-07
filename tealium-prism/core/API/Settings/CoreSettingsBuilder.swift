@@ -37,12 +37,6 @@ public class CoreSettingsBuilder {
         return self
     }
 
-    /// Sets the `visitorIdentityKey` to be looked at in the `DataLayer` to perform automatic visitor switching.
-    public func setVisitorIdentityKey(_ visitorIdentityKey: String) -> Self {
-        dataObject.set(visitorIdentityKey, key: Keys.visitorIdentityKey)
-        return self
-    }
-
     /// Sets the length of time of inactivity before a session should be considered expired, and a new one started.
     public func setSessionTimeout(_ sessionTimeout: TimeFrame) -> Self {
         dataObject.set(sessionTimeout.inSeconds(), key: Keys.sessionTimeout)

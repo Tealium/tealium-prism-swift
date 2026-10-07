@@ -21,10 +21,31 @@ class ContentViewModel: ObservableObject {
     }
 }
 
+class VisitorIdViewModel: ObservableObject {
+    @Published var visitorId: String = ""
+    private let disposables: CompositeDisposable = Disposables.automatic()
+
+    init() {
+        // Switch to the new instance's visitor ID on every Stop/Start, so the shut down instance isn't kept.
+        TealiumHelper.shared.onTeal
+            .flatMapLatest { teal -> Observable<String> in
+                guard let teal else { return Observables.just("") }
+                return Observables.create { observer in teal.visitorId.subscribe(observer) }
+                    .compactMap { try? $0.get() }
+            }
+            .subscribe { [weak self] visitorId in
+                DispatchQueue.main.async {
+                    self?.visitorId = visitorId
+                }
+            }.addTo(disposables)
+    }
+}
+
 struct ContentView: View {
     @State private var traceId: String = ""
     @State private var tealiumStarted: Bool = true
     @StateObject private var model = ContentViewModel()
+    @StateObject private var visitorIdModel = VisitorIdViewModel()
 
     var body: some View {
         NavigationView {
@@ -68,14 +89,16 @@ struct ContentView: View {
                             NavigationLink("Login (VisitorId)") {
                                 ScrollView {
                                     VStack(spacing: 16) {
+                                        Text("Visitor ID: \(visitorIdModel.visitorId)")
+                                            .font(.footnote)
                                         TealiumTextField($model.email, placeholder: "Enter email") {
                                             applyEmail()
                                         }
-                                        TealiumTextButton(title: "Clear Stored Visitor IDs") {
-                                            TealiumHelper.shared.teal?.clearStoredVisitorIds()
+                                        TealiumTextButton(title: "Erase Local History") {
+                                            TealiumHelper.shared.teal?.visitorId.eraseLocalHistory()
                                         }
-                                        TealiumTextButton(title: "Reset Visitor ID") {
-                                            TealiumHelper.shared.teal?.resetVisitorId()
+                                        TealiumTextButton(title: "Regenerate Visitor ID") {
+                                            TealiumHelper.shared.teal?.visitorId.regenerate()
                                         }
                                     }
                                 }.navigationTitle("Login")

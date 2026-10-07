@@ -36,7 +36,7 @@ final class TealiumLifecycleTests: TealiumBaseTests {
                     XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(module == "\(LifecycleModule.self)")
+                XCTAssertEqual(module, LifecycleModule.moduleType)
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             lifecycleEventCompleted.fulfill()
@@ -53,7 +53,7 @@ final class TealiumLifecycleTests: TealiumBaseTests {
                     XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(module == "\(LifecycleModule.self)")
+                XCTAssertEqual(module, LifecycleModule.moduleType)
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             lifecycleEventCompleted.fulfill()

@@ -50,7 +50,7 @@ final class TealiumContextAPITests: TealiumBaseTests {
                     XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(module == "\(ContextAPIModule.self)")
+                XCTAssertEqual(module, ContextAPIModule.moduleType)
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             contextAPICompleted.fulfill()
@@ -68,7 +68,7 @@ final class TealiumContextAPITests: TealiumBaseTests {
                     XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertTrue(module == "\(ContextAPIModule.self)")
+                XCTAssertEqual(module, ContextAPIModule.moduleType)
             }
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             contextAPICompleted.fulfill()

@@ -10,108 +10,74 @@
 import XCTest
 
 final class VisitorSwitcherTests: XCTestCase {
-    let databaseProvider = MockDatabaseProvider()
     static let identityKey = "email"
-    let identityValue = "identityValue"
-    lazy var hashedIdentityValue: String = {
-        identityValue.sha256() ?? ""
-    }()
-    var dataStorage: VisitorStorage!
+    let databaseProvider = MockDatabaseProvider()
     lazy var modulesRepository = SQLModulesRepository(dbProvider: databaseProvider)
     lazy var storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
                                                  modulesRepository: modulesRepository)
-    lazy var provider: VisitorIdProvider = VisitorIdProvider(existingVisitorId: nil,
-                                                             visitorStorage: dataStorage,
-                                                             logger: nil)
-    var dataLayerStore: (any DataStore)?
-    @StateSubject(CoreSettings(visitorIdentityKey: VisitorSwitcherTests.identityKey))
-    var coreSettings
+    var dataLayerStore: (any DataStore)!
+    var identifiedValues: [String] = []
+    var disposable: (any Disposable)?
+
+    @StateSubject<String?>(VisitorSwitcherTests.identityKey)
+    var identityKeyState
+
     override func setUpWithError() throws {
-        let dataStore = try storeProvider.getSharedDataStore()
-        dataStorage = VisitorStorage(storage: dataStore)
         dataLayerStore = try storeProvider.getModuleStore(name: "datalayer")
-        guard let dataLayerStore else {
-            XCTFail("Can't create DataLayer Store")
-            return
+        disposable = VisitorSwitcher.handleIdentitySwitches(onIdentityKey: identityKeyState,
+                                                            dataLayerStore: dataLayerStore) { [weak self] identity in
+            self?.identifiedValues.append(identity)
         }
-        _ = VisitorSwitcher.handleIdentitySwitches(visitorIdProvider: provider,
-                                                   onCoreSettings: coreSettings.asObservable(),
-                                                   dataLayerStore: dataLayerStore)
     }
 
-    func storeIdentityInDataLayer(_ value: String, forKey key: String = VisitorSwitcherTests.identityKey, store: (any DataStore)? = nil) throws {
-        guard let store = store ?? dataLayerStore else {
-            XCTFail("Store not found")
-            return
-        }
-        try store.edit()
+    func storeIdentityInDataLayer(_ value: String, forKey key: String = VisitorSwitcherTests.identityKey) throws {
+        try dataLayerStore.edit()
             .put(key: key, value: value, expiry: .forever)
             .commit()
     }
 
-    func test_add_identity_to_dataLayer_associates_current_visitorId() throws {
-        let visitorId = provider.visitorId.value
-        try storeIdentityInDataLayer(identityValue)
-        XCTAssertEqual(dataStorage.visitorId, visitorId)
-        XCTAssertEqual(dataStorage.currentIdentity, hashedIdentityValue)
+    func test_value_present_at_identityKey_calls_identify() throws {
+        try storeIdentityInDataLayer("identityValue")
+        XCTAssertEqual(identifiedValues, ["identityValue"])
     }
 
-    func test_add_two_identities_to_dataLayer_creates_new_visitorId_associated_with_new_identity() throws {
-        let initialVisitorId = provider.visitorId.value
-        try storeIdentityInDataLayer(identityValue)
-        XCTAssertEqual(dataStorage.visitorId, initialVisitorId)
-        XCTAssertEqual(dataStorage.currentIdentity, hashedIdentityValue)
+    func test_value_changing_at_identityKey_calls_identify_again() throws {
+        try storeIdentityInDataLayer("identityValue")
         try storeIdentityInDataLayer("otherIdentity")
-        XCTAssertNotEqual(dataStorage.visitorId, initialVisitorId)
-        XCTAssertEqual(dataStorage.currentIdentity, "otherIdentity".sha256())
+        XCTAssertEqual(identifiedValues, ["identityValue", "otherIdentity"])
     }
 
-    func test_switch_to_old_identity_returns_to_old_visitorId() throws {
-        let initialVisitorId = provider.visitorId.value
-        try storeIdentityInDataLayer(identityValue)
-        XCTAssertEqual(dataStorage.visitorId, initialVisitorId)
-        XCTAssertEqual(dataStorage.currentIdentity, hashedIdentityValue)
-        try storeIdentityInDataLayer("otherIdentity")
-        XCTAssertNotEqual(dataStorage.visitorId, initialVisitorId)
-        try storeIdentityInDataLayer(identityValue)
-        XCTAssertEqual(dataStorage.visitorId, initialVisitorId)
-        XCTAssertEqual(dataStorage.currentIdentity, hashedIdentityValue)
-    }
-
-    func test_remove_current_identity_doesnt_switch_visitorId() throws {
-        let initialVisitorId = provider.visitorId.value
-        try storeIdentityInDataLayer(identityValue)
-        XCTAssertEqual(dataStorage.visitorId, initialVisitorId)
-        XCTAssertEqual(dataStorage.currentIdentity, hashedIdentityValue)
-        guard let store = dataLayerStore else {
-            XCTFail("Store not found")
-            return
-        }
-        try store.edit()
+    func test_removing_value_at_identityKey_does_not_call_identify_again() throws {
+        try storeIdentityInDataLayer("identityValue")
+        try dataLayerStore.edit()
             .remove(key: Self.identityKey)
             .commit()
-        XCTAssertEqual(dataStorage.visitorId, initialVisitorId)
-        XCTAssertEqual(dataStorage.currentIdentity, hashedIdentityValue)
+        XCTAssertEqual(identifiedValues, ["identityValue"])
     }
 
-    func test_change_identityKey_switches_visitorId_if_newIdentity_is_present() throws {
-        let initialVisitorId = provider.visitorId.value
-        try storeIdentityInDataLayer(identityValue)
-        XCTAssertEqual(dataStorage.visitorId, initialVisitorId)
-        XCTAssertEqual(dataStorage.currentIdentity, hashedIdentityValue)
+    func test_changing_identityKey_watches_new_key_and_calls_identify_if_value_present() throws {
+        try storeIdentityInDataLayer("identityValue")
         try storeIdentityInDataLayer("newIdentity", forKey: "newIdentityKey")
-        _coreSettings.value = CoreSettings(visitorIdentityKey: "newIdentityKey")
-        XCTAssertNotEqual(dataStorage.visitorId, initialVisitorId)
-        XCTAssertEqual(dataStorage.currentIdentity, "newIdentity".sha256())
+        _identityKeyState.value = "newIdentityKey"
+        XCTAssertEqual(identifiedValues, ["identityValue", "newIdentity"])
     }
 
-    func test_change_identityKey_doesnt_switch_identity_if_newIdentity_is_not_present() throws {
-        let initialVisitorId = provider.visitorId.value
-        try storeIdentityInDataLayer(identityValue)
-        XCTAssertEqual(dataStorage.visitorId, initialVisitorId)
-        XCTAssertEqual(dataStorage.currentIdentity, hashedIdentityValue)
-        _coreSettings.value = CoreSettings(visitorIdentityKey: "newIdentityKey")
-        XCTAssertEqual(dataStorage.visitorId, initialVisitorId)
-        XCTAssertEqual(dataStorage.currentIdentity, hashedIdentityValue)
+    func test_changing_identityKey_does_not_call_identify_if_new_key_has_no_value() throws {
+        try storeIdentityInDataLayer("identityValue")
+        _identityKeyState.value = "newIdentityKey"
+        XCTAssertEqual(identifiedValues, ["identityValue"])
+    }
+
+    func test_nil_identityKey_disables_switching() throws {
+        _identityKeyState.value = nil
+        try storeIdentityInDataLayer("identityValue")
+        XCTAssertTrue(identifiedValues.isEmpty)
+    }
+
+    func test_disposing_stops_identify_calls() throws {
+        try storeIdentityInDataLayer("identityValue")
+        disposable?.dispose()
+        try storeIdentityInDataLayer("otherIdentity")
+        XCTAssertEqual(identifiedValues, ["identityValue"])
     }
 }

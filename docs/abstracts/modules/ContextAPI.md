@@ -128,6 +128,8 @@ tealium.contextAPI().fetchEngineResponse(engineID: "your-engine-id").subscribe {
 
 The `fetchEngineResponse` method can fail with a `ModuleError`, eventually encapsulating a `ContextAPIError`. 
 
+Fetching requires the visitor ID, so it also fails with `ModuleError.moduleNotEnabled` while the VisitorId module is disabled. A request still in progress when the ContextAPI module shuts down fails with `ModuleError.moduleShutdown`.
+
 See more on the interface definition below.
 
 # ContextAPI

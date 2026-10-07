@@ -24,14 +24,8 @@ class ContextAPIWrapper: ContextAPI {
     @discardableResult
     func fetchEngineResponse(engineID: String) -> SingleResult<EngineResponse, ModuleError<ContextAPIError>> {
         moduleProxy.executeAsyncModuleTask { module, completion in
-            module.fetchEngineResponse(engineID: engineID) { result in
-                switch result {
-                case .success(let response):
-                    completion(.success(response))
-                case .failure(let error):
-                    completion(.failure(ModuleError.underlyingError(error)))
-                }
-            }
+            // The module reports a `ModuleError` already, so its result is handed over untouched.
+            module.fetchEngineResponse(engineID: engineID, completion: completion)
         }
     }
 }

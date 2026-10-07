@@ -38,6 +38,7 @@ custom_categories:
       - TealiumData
       - TimeData
       - Trace
+      - VisitorIdManager
       - CustomModules
   - name: AppData Module
     children:
@@ -78,6 +79,9 @@ custom_categories:
   - name: Trace Module
     children:
       - regex: ^Trace
+  - name: VisitorId Module
+    children:
+      - regex: ^VisitorId
   - name: Transformations
     children:
       - SetDataValues

@@ -10,7 +10,9 @@ import Foundation
 import TealiumPrism
 
 class TealiumHelper {
-    private(set) var teal: Tealium?
+    @StateSubject(nil)
+    var onTeal: ObservableState<Tealium?>
+    var teal: Tealium? { _onTeal.value }
     static let shared = TealiumHelper()
     let cmp = CustomCMP()
     var disposable: CompositeDisposable = Disposables.composite()
@@ -21,6 +23,9 @@ class TealiumHelper {
             ModuleWithExternalDependencies.Factory(otherDependencies: NSObject()),
             Modules.collect(forcingSettings: { enforcedSettings in
                 enforcedSettings.setEnabled(true)
+            }),
+            Modules.visitorId(forcingSettings: { enforcedSettings in
+                enforcedSettings.setVisitorIdentityKey("email")
             })
         ]
     }
@@ -34,7 +39,6 @@ class TealiumHelper {
                                    settingsUrl: "https://tags.tiqcdn.com/dle/tealiummobile/lib/example_settings.json",
                                    forcingSettings: { builder in
             builder.setMinLogLevel(.trace)
-                .setVisitorIdentityKey("email")
         })
 //        config.addBarrier(Barriers.batching())
         config.enableConsentIntegration(with: cmp) { enforcedConfiguration in
@@ -122,7 +126,7 @@ class TealiumHelper {
     func startTealium() {
         let teal = createTeal()
         disposable = teal.createDisposable()
-        self.teal = teal
+        _onTeal.value = teal
         teal.dataLayer.transactionally { apply, getDataItem, commit in
             apply(.put(key: "key", value: "value", expiry: .forever))
             apply(.put(key: "key2", value: "value2", expiry: .forever))
@@ -143,7 +147,7 @@ class TealiumHelper {
     func stopTealium() {
         disposable.dispose()
         self.teal?.shutdown()
-        self.teal = nil
+        _onTeal.value = nil
     }
 
     func flush() {

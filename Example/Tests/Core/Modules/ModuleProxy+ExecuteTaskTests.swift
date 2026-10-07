@@ -73,7 +73,7 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
                 XCTFail("Unexpected result: \(result)")
                 return
             }
-            XCTAssertTrue(mockModule == "\(MockModule.self)")
+            XCTAssertEqual(mockModule, MockModule.moduleType)
             errorCaught.fulfill()
         }
         waitOnQueue(queue: queue)
@@ -95,7 +95,7 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
                     XCTFail("Unexpected result: \(result)")
                     return
                 }
-                XCTAssertEqual(mockModule, "\(MockModule.self)")
+                XCTAssertEqual(mockModule, MockModule.moduleType)
                 errorCaught.fulfill()
                 self.manager.updateSettings(context: self.context(), settings: settings(moduleEnabled: true))
                 _ = self.moduleProxy.executeModuleTask { _ in }.subscribe { result in
@@ -180,7 +180,7 @@ final class ModuleProxyExecuteTaskTests: XCTestCase {
                 XCTFail("Unexpected result: \(result)")
                 return
             }
-            XCTAssertTrue(mockModule == "\(MockModule.self)")
+            XCTAssertEqual(mockModule, MockModule.moduleType)
             errorCaught.fulfill()
         }
         waitOnQueue(queue: queue)

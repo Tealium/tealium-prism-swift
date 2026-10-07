@@ -78,7 +78,7 @@ final class DeepLinkHandlerWrapperTests: XCTestCase {
                     XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertEqual(module, "\(TraceModule.self)")
+                XCTAssertEqual(module, TraceModule.moduleType)
             }
             handled.fulfill()
         }
@@ -93,7 +93,7 @@ final class DeepLinkHandlerWrapperTests: XCTestCase {
         manager.getModule(DeepLinkModule.self)?.shutdown()
         wrapper.handle(link: link).subscribe { result in
             XCTAssertResultIsFailure(result) { error in
-                XCTAssertModuleShutdown(error, module: "\(DeepLinkModule.self)")
+                XCTAssertModuleShutdown(error, module: DeepLinkModule.moduleType)
             }
             handled.fulfill()
         }

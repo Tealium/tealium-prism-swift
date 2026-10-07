@@ -17,7 +17,6 @@ public struct CoreSettings: Equatable {
         static let maxQueueSize = "max_queue_size"
         static let expirationSeconds = "expiration"
         static let refreshIntervalSeconds = "refresh_interval"
-        static let visitorIdentityKey = "visitor_identity_key"
         static let sessionTimeout = "session_timeout"
     }
     enum Defaults {
@@ -31,14 +30,12 @@ public struct CoreSettings: Equatable {
          maxQueueSize: Int? = nil,
          queueExpiration: TimeFrame? = nil,
          refreshInterval: TimeFrame? = nil,
-         visitorIdentityKey: String? = nil,
          sessionTimeout: TimeFrame? = nil) {
         self.minLogLevel = minLogLevel ?? Defaults.minLogLevel
         self.maxQueueSize = maxQueueSize ?? Defaults.maxQueueSize
         self.queueExpiration = queueExpiration ?? Defaults.queueExpiration
         self.refreshInterval = refreshInterval ?? Defaults.refreshInterval
         self.sessionTimeout = sessionTimeout ?? Defaults.sessionTimeout
-        self.visitorIdentityKey = visitorIdentityKey
     }
     /// The minimum log level for messages.
     public let minLogLevel: LogLevel.Minimum
@@ -55,7 +52,4 @@ public struct CoreSettings: Equatable {
     public let refreshInterval: TimeFrame
     /// How long before a session times out.
     public let sessionTimeout: TimeFrame
-    /// The key to look for in the data layer when identifying a user.
-    /// This setting is used to automatically control when the Tealium Visitor Id is updated.
-    public let visitorIdentityKey: String?
 }

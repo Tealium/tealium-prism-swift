@@ -53,10 +53,6 @@ final class TealiumDataModuleTests: XCTestCase {
         XCTAssertNotNil(Int(random ?? ""))
     }
 
-    func test_collect_returns_visitorId() {
-        XCTAssertEqual(data.get(key: "tealium_visitor_id"), "visitorId")
-    }
-
     func test_collect_returns_modules_names() {
         XCTAssertEqual(data.getArray(key: "enabled_modules"), [MockDispatcher.moduleType])
     }

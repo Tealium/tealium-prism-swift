@@ -10,7 +10,6 @@
 
 private let mockDbProvider = MockDatabaseProvider()
 private let queue = TealiumQueue.worker
-private let mockVisitorId = ObservableState(valueProvider: "visitorId", subscriptionHandler: { _ in Subscription {} })
 let mockContext = MockContext(moduleManager: ModuleManager(), config: mockConfig)
 
 class MockContext: TealiumContext {
@@ -26,8 +25,7 @@ class MockContext: TealiumContext {
          networkHelper: NetworkHelperProtocol = MockNetworkHelper(),
          networkClient: NetworkClient = MockNetworkClient(result: .success(.successful())),
          applicationStatusListener: ApplicationStatusListener = ApplicationStatusListener.shared,
-         queue: TealiumQueue = TealiumQueue.worker,
-         visitorId: ObservableState<String> = mockVisitorId) {
+         queue: TealiumQueue = TealiumQueue.worker) {
         let transformerRegistrar = transformerRegistrar ?? TransformerCoordinator(
             onTransformers: Observables.just([]),
             transformations: .constant([]),
@@ -60,7 +58,6 @@ class MockContext: TealiumContext {
                                              connectivityManager: MockConnectivityManager(queue: queue)),
                    applicationStatusListener: applicationStatusListener,
                    queue: queue,
-                   visitorId: visitorId,
                    queueMetrics: queueManager,
                    dataLayer: try! moduleStoreProvider.getModuleStore(name: Modules.Types.dataLayer)) // swiftlint:disable:this force_try
     }

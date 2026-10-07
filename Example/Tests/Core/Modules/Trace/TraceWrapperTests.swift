@@ -85,7 +85,7 @@ final class TraceWrapperTests: XCTestCase {
                     XCTFail("Unexpected error: \(String(describing: error))")
                     return
                 }
-                XCTAssertTrue(trace == "\(TraceModule.self)")
+                XCTAssertEqual(trace, TraceModule.moduleType)
                 errorCaught.fulfill()
             }
         }

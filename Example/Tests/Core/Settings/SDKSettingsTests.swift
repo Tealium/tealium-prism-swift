@@ -25,16 +25,14 @@ final class SDKSettingsTests: XCTestCase {
                 "log_level": "trace",
                 "max_queue_size": 37,
                 "refresh_interval": 45,
-                "expiration": 21,
-                "visitor_identity_key": "someKey"
+                "expiration": 21
             ])
         ]
         let result = SDKSettings(input)
         let expected = CoreSettings(minLogLevel: LogLevel.Minimum.trace,
                                     maxQueueSize: 37,
                                     queueExpiration: 21.seconds,
-                                    refreshInterval: 45.seconds,
-                                    visitorIdentityKey: "someKey")
+                                    refreshInterval: 45.seconds)
         XCTAssertEqual(result.core, expected)
     }
 

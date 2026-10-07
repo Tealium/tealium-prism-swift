@@ -437,15 +437,9 @@
 		877B50452DAE73C500AB8A43 /* SceneDelegateProxyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877B4F762DAE700900AB8A43 /* SceneDelegateProxyTests.swift */; };
 		877C5F652CBD4F40008D4B78 /* TealiumLoggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D64D6C2CB4157A0084F43D /* TealiumLoggerTests.swift */; };
 		877C5F662CBD4F40008D4B78 /* TealiumLoggerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D64D6C2CB4157A0084F43D /* TealiumLoggerTests.swift */; };
-		877C5F6A2CBD69F0008D4B78 /* VisitorIdProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877C5F692CBD69F0008D4B78 /* VisitorIdProviderTests.swift */; };
-		877C5F6B2CBD69F0008D4B78 /* VisitorIdProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877C5F692CBD69F0008D4B78 /* VisitorIdProviderTests.swift */; };
-		877C5F6C2CBD69F0008D4B78 /* VisitorIdProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877C5F692CBD69F0008D4B78 /* VisitorIdProviderTests.swift */; };
 		877C5F6E2CBD6C99008D4B78 /* Sha256Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877C5F6D2CBD6C99008D4B78 /* Sha256Tests.swift */; };
 		877C5F6F2CBD6C99008D4B78 /* Sha256Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877C5F6D2CBD6C99008D4B78 /* Sha256Tests.swift */; };
 		877C5F702CBD6C99008D4B78 /* Sha256Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877C5F6D2CBD6C99008D4B78 /* Sha256Tests.swift */; };
-		877C5F722CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877C5F712CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift */; };
-		877C5F732CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877C5F712CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift */; };
-		877C5F742CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877C5F712CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift */; };
 		877C5F7B2CBEA40C008D4B78 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877C5F7A2CBEA40C008D4B78 /* ContentView.swift */; };
 		877C5F7D2CBEA48E008D4B78 /* ButtonViews.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877C5F7C2CBEA48E008D4B78 /* ButtonViews.swift */; };
 		877C5F7F2CBEA4FF008D4B78 /* TealiumTextField.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877C5F7E2CBEA4FF008D4B78 /* TealiumTextField.swift */; };
@@ -668,7 +662,6 @@
 		87A408D02E97F06E005D92CC /* ObservablesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15ED5B042A60463E0027BB20 /* ObservablesTests.swift */; };
 		87A408D12E97F06E005D92CC /* SettingsManager+MergeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15F742AA2C29B6D60093DCFC /* SettingsManager+MergeTests.swift */; };
 		87A408D22E97F06E005D92CC /* DataLayerWrapper+TransactionallyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED26ED2CE509EE0086FFA4 /* DataLayerWrapper+TransactionallyTests.swift */; };
-		87A408D32E97F06E005D92CC /* VisitorIdProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877C5F692CBD69F0008D4B78 /* VisitorIdProviderTests.swift */; };
 		87A408D42E97F06E005D92CC /* DispatchManager+TrackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF982C78C018003687C7 /* DispatchManager+TrackTests.swift */; };
 		87A408D62E97F06E005D92CC /* CoreSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 876F793A2C50F637008BC13B /* CoreSettingsBuilderTests.swift */; };
 		87A408D72E97F06E005D92CC /* SubscriptionRetainCycleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1537812A2A6181BE007BCA70 /* SubscriptionRetainCycleHelper.swift */; };
@@ -687,7 +680,6 @@
 		87A408E52E97F06E005D92CC /* MappingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A05CDD2DB7F79F00D280F4 /* MappingsTests.swift */; };
 		87A408E62E97F06E005D92CC /* ConsentSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BB63C72DE4B8BE008CA9C2 /* ConsentSettingsBuilderTests.swift */; };
 		87A408E72E97F06E005D92CC /* ConsentConfigurationBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875EB3232E099C520088A05A /* ConsentConfigurationBuilderTests.swift */; };
-		87A408E82E97F06E005D92CC /* VisitorIdProvider+ThrowingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877C5F712CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift */; };
 		87A408E92E97F06E005D92CC /* DataObjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54752C7F4CCA00F1C114 /* DataObjectTests.swift */; };
 		87A408EA2E97F06E005D92CC /* Condition+EqualsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE76CE2D77443C00BB1D77 /* Condition+EqualsTests.swift */; };
 		87A408EB2E97F06E005D92CC /* URLTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875371082E2E4C2B00CDED6D /* URLTests.swift */; };
@@ -1647,6 +1639,7 @@
 		D5EF2DFC2C1731BC00F7BC40 /* MockCMPIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EF2DFB2C1731BC00F7BC40 /* MockCMPIntegration.swift */; };
 		D8D9A8B713B6496C439431DD /* Pods_LifecycleTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E8C36B03477CF2635A3840E4 /* Pods_LifecycleTests_iOS.framework */; };
 		E361BCD87EDFB48F9149440C /* Pods_ContextAPITests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC6CADB50814D2DD14E91632 /* Pods_ContextAPITests_macOS.framework */; };
+		E513E9FC30753FD70017E19E /* MockLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C358CE2AEAB008009E1CDB /* MockLogHandler.swift */; };
 		E514CF893034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
 		E514CF8A3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
 		E514CF8B3034A968009A0A54 /* Data+GunzippedJSON.swift in Sources */ = {isa = PBXBuildFile; fileRef = E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */; };
@@ -1674,6 +1667,22 @@
 		E51687B32FFBA5450016C5DA /* DataItem+JSONStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */; };
 		E51687B42FFBA5450016C5DA /* DataItem+JSONStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */; };
 		E51687B52FFBA5450016C5DA /* DataItem+JSONStringTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */; };
+		E5CDC3BE30668289007E1C53 /* VisitorIdModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3BB30668289007E1C53 /* VisitorIdModuleTests.swift */; };
+		E5CDC3BF30668289007E1C53 /* VisitorIdManagerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3B930668289007E1C53 /* VisitorIdManagerWrapperTests.swift */; };
+		E5CDC3C030668289007E1C53 /* VisitorIdModule+ThrowingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3BA30668289007E1C53 /* VisitorIdModule+ThrowingTests.swift */; };
+		E5CDC3C130668289007E1C53 /* VisitorIdSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3BC30668289007E1C53 /* VisitorIdSettingsBuilderTests.swift */; };
+		E5CDC3C230668289007E1C53 /* VisitorIdModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3BB30668289007E1C53 /* VisitorIdModuleTests.swift */; };
+		E5CDC3C330668289007E1C53 /* VisitorIdManagerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3B930668289007E1C53 /* VisitorIdManagerWrapperTests.swift */; };
+		E5CDC3C430668289007E1C53 /* VisitorIdModule+ThrowingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3BA30668289007E1C53 /* VisitorIdModule+ThrowingTests.swift */; };
+		E5CDC3C530668289007E1C53 /* VisitorIdSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3BC30668289007E1C53 /* VisitorIdSettingsBuilderTests.swift */; };
+		E5CDC3C630668289007E1C53 /* VisitorIdModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3BB30668289007E1C53 /* VisitorIdModuleTests.swift */; };
+		E5CDC3C730668289007E1C53 /* VisitorIdManagerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3B930668289007E1C53 /* VisitorIdManagerWrapperTests.swift */; };
+		E5CDC3C830668289007E1C53 /* VisitorIdModule+ThrowingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3BA30668289007E1C53 /* VisitorIdModule+ThrowingTests.swift */; };
+		E5CDC3C930668289007E1C53 /* VisitorIdSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3BC30668289007E1C53 /* VisitorIdSettingsBuilderTests.swift */; };
+		E5CDC3CA30668289007E1C53 /* VisitorIdModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3BB30668289007E1C53 /* VisitorIdModuleTests.swift */; };
+		E5CDC3CB30668289007E1C53 /* VisitorIdManagerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3B930668289007E1C53 /* VisitorIdManagerWrapperTests.swift */; };
+		E5CDC3CC30668289007E1C53 /* VisitorIdModule+ThrowingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3BA30668289007E1C53 /* VisitorIdModule+ThrowingTests.swift */; };
+		E5CDC3CD30668289007E1C53 /* VisitorIdSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5CDC3BC30668289007E1C53 /* VisitorIdSettingsBuilderTests.swift */; };
 		E5DD0EAA30388E2F001BFA30 /* URLSession+TealiumTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DD0EA930388E2F001BFA30 /* URLSession+TealiumTests.swift */; };
 		E5DD0EAB30388E2F001BFA30 /* URLSession+TealiumTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DD0EA930388E2F001BFA30 /* URLSession+TealiumTests.swift */; };
 		E5DD0EAC30388E2F001BFA30 /* URLSession+TealiumTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DD0EA930388E2F001BFA30 /* URLSession+TealiumTests.swift */; };
@@ -2492,9 +2501,7 @@
 		877B4F752DAE700900AB8A43 /* TealiumDelegateProxyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumDelegateProxyTests.swift; sourceTree = "<group>"; };
 		877B4F762DAE700900AB8A43 /* SceneDelegateProxyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegateProxyTests.swift; sourceTree = "<group>"; };
 		877B50422DAE739600AB8A43 /* DelegateProxyTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = DelegateProxyTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
-		877C5F692CBD69F0008D4B78 /* VisitorIdProviderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitorIdProviderTests.swift; sourceTree = "<group>"; };
 		877C5F6D2CBD6C99008D4B78 /* Sha256Tests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Sha256Tests.swift; sourceTree = "<group>"; };
-		877C5F712CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VisitorIdProvider+ThrowingTests.swift"; sourceTree = "<group>"; };
 		877C5F7A2CBEA40C008D4B78 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		877C5F7C2CBEA48E008D4B78 /* ButtonViews.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ButtonViews.swift; sourceTree = "<group>"; };
 		877C5F7E2CBEA4FF008D4B78 /* TealiumTextField.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TealiumTextField.swift; sourceTree = "<group>"; };
@@ -2701,6 +2708,10 @@
 		E514CF883034A968009A0A54 /* Data+GunzippedJSON.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Data+GunzippedJSON.swift"; sourceTree = "<group>"; };
 		E514CF9C3035A7BB009A0A54 /* ModuleManagerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleManagerTests.swift; sourceTree = "<group>"; };
 		E51687B12FFBA5450016C5DA /* DataItem+JSONStringTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataItem+JSONStringTests.swift"; sourceTree = "<group>"; };
+		E5CDC3B930668289007E1C53 /* VisitorIdManagerWrapperTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitorIdManagerWrapperTests.swift; sourceTree = "<group>"; };
+		E5CDC3BA30668289007E1C53 /* VisitorIdModule+ThrowingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "VisitorIdModule+ThrowingTests.swift"; sourceTree = "<group>"; };
+		E5CDC3BB30668289007E1C53 /* VisitorIdModuleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitorIdModuleTests.swift; sourceTree = "<group>"; };
+		E5CDC3BC30668289007E1C53 /* VisitorIdSettingsBuilderTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitorIdSettingsBuilderTests.swift; sourceTree = "<group>"; };
 		E5DD0EA930388E2F001BFA30 /* URLSession+TealiumTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLSession+TealiumTests.swift"; sourceTree = "<group>"; };
 		E5DD0EB530458570001BFA30 /* Array+DataItemInternalsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Array+DataItemInternalsTests.swift"; sourceTree = "<group>"; };
 		E8C36B03477CF2635A3840E4 /* Pods_LifecycleTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LifecycleTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3044,8 +3055,6 @@
 				879CC0B22CB6833F00A51BF2 /* Stores */,
 				D54BC0062C78C316003687C7 /* Repositories */,
 				D54BC0052C78C2AA003687C7 /* Database */,
-				877C5F692CBD69F0008D4B78 /* VisitorIdProviderTests.swift */,
-				877C5F712CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift */,
 				877C5F802CBFADC3008D4B78 /* VisitorSwitcherTests.swift */,
 			);
 			path = Persistence;
@@ -3711,6 +3720,7 @@
 		D54BBF7C2C78C015003687C7 /* Modules */ = {
 			isa = PBXGroup;
 			children = (
+				E5CDC3BD30668289007E1C53 /* VisitorId */,
 				E514CF9C3035A7BB009A0A54 /* ModuleManagerTests.swift */,
 				EC2AF5D12DE74557004AE72F /* DeviceData */,
 				ECAB83552DAFDD2600B2CF64 /* DeepLink */,
@@ -3852,6 +3862,17 @@
 				87D64D6C2CB4157A0084F43D /* TealiumLoggerTests.swift */,
 			);
 			path = Logger;
+			sourceTree = "<group>";
+		};
+		E5CDC3BD30668289007E1C53 /* VisitorId */ = {
+			isa = PBXGroup;
+			children = (
+				E5CDC3B930668289007E1C53 /* VisitorIdManagerWrapperTests.swift */,
+				E5CDC3BA30668289007E1C53 /* VisitorIdModule+ThrowingTests.swift */,
+				E5CDC3BB30668289007E1C53 /* VisitorIdModuleTests.swift */,
+				E5CDC3BC30668289007E1C53 /* VisitorIdSettingsBuilderTests.swift */,
+			);
+			path = VisitorId;
 			sourceTree = "<group>";
 		};
 		EC0D84E52D6F667700436087 /* ConnectivityCollector */ = {
@@ -6471,6 +6492,10 @@
 				87FC08662D92FB2C00E1041D /* LoadRuleEngineTests.swift in Sources */,
 				877C5F812CBFADC4008D4B78 /* VisitorSwitcherTests.swift in Sources */,
 				EC7FDD1A2F117BC9008A4D45 /* TealiumConfig+BarriersTests.swift in Sources */,
+				E5CDC3CA30668289007E1C53 /* VisitorIdModuleTests.swift in Sources */,
+				E5CDC3CB30668289007E1C53 /* VisitorIdManagerWrapperTests.swift in Sources */,
+				E5CDC3CC30668289007E1C53 /* VisitorIdModule+ThrowingTests.swift in Sources */,
+				E5CDC3CD30668289007E1C53 /* VisitorIdSettingsBuilderTests.swift in Sources */,
 				D54BBFD52C78C01A003687C7 /* ResourceCacherTests.swift in Sources */,
 				D54BBFBD2C78C01A003687C7 /* EmpiricalConnectivityTests.swift in Sources */,
 				874F2DE32DF88DEA004E9B1C /* ConsentInspectorTests.swift in Sources */,
@@ -6498,7 +6523,6 @@
 				877C5F6E2CBD6C99008D4B78 /* Sha256Tests.swift in Sources */,
 				D54BBFC32C78C01A003687C7 /* ErrorCooldownTests.swift in Sources */,
 				87AA174C2CEE429C003E99A8 /* DataLayerTests.swift in Sources */,
-				877C5F722CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift in Sources */,
 				157293252AB06BF50015A08D /* DataItemTests.swift in Sources */,
 				EC8EF87A2E18104D00DB89C5 /* BatchingBarrierTests.swift in Sources */,
 				EC2EA6012DB2B9E500CCB144 /* AppDataModuleTests.swift in Sources */,
@@ -6622,7 +6646,6 @@
 				15ED5B012A602DA60027BB20 /* ReplaySubjectTests.swift in Sources */,
 				87C6C23C2D528056008B91D8 /* ModulesTests.swift in Sources */,
 				87C6C23D2D528056008B91D8 /* BasicModuleFactoryTests.swift in Sources */,
-				877C5F6A2CBD69F0008D4B78 /* VisitorIdProviderTests.swift in Sources */,
 				1523CE7E2ABAFC170001D6D3 /* MockModulesRepository.swift in Sources */,
 				15AE2B862A127DD90093D154 /* XCTAssert+Result.swift in Sources */,
 				87ED26EF2CE509EE0086FFA4 /* DataLayerWrapper+TransactionallyTests.swift in Sources */,
@@ -7318,6 +7341,10 @@
 				87A408C02E97F06E005D92CC /* Operators+FilterTests.swift in Sources */,
 				87A408C12E97F06E005D92CC /* DeviceDataProviderCommonTests.swift in Sources */,
 				F5C7BE3C301A5ECF0074D81D /* NotificationCenter+observableTests.swift in Sources */,
+				E5CDC3BE30668289007E1C53 /* VisitorIdModuleTests.swift in Sources */,
+				E5CDC3BF30668289007E1C53 /* VisitorIdManagerWrapperTests.swift in Sources */,
+				E5CDC3C030668289007E1C53 /* VisitorIdModule+ThrowingTests.swift in Sources */,
+				E5CDC3C130668289007E1C53 /* VisitorIdSettingsBuilderTests.swift in Sources */,
 				87A408C22E97F06E005D92CC /* MockCollector.swift in Sources */,
 				87A408C32E97F06E005D92CC /* Sha256Tests.swift in Sources */,
 				EC7FDD062F115F5F008A4D45 /* ConnectivityBarrierSettingsBuilderTests.swift in Sources */,
@@ -7346,7 +7373,6 @@
 				87A408D02E97F06E005D92CC /* ObservablesTests.swift in Sources */,
 				87A408D12E97F06E005D92CC /* SettingsManager+MergeTests.swift in Sources */,
 				87A408D22E97F06E005D92CC /* DataLayerWrapper+TransactionallyTests.swift in Sources */,
-				87A408D32E97F06E005D92CC /* VisitorIdProviderTests.swift in Sources */,
 				87A408D42E97F06E005D92CC /* DispatchManager+TrackTests.swift in Sources */,
 				87A408D62E97F06E005D92CC /* CoreSettingsBuilderTests.swift in Sources */,
 				87A408D72E97F06E005D92CC /* SubscriptionRetainCycleHelper.swift in Sources */,
@@ -7369,7 +7395,6 @@
 				87A408E62E97F06E005D92CC /* ConsentSettingsBuilderTests.swift in Sources */,
 				9E47A8802F75E22D00DF0501 /* MockAsyncCommand.swift in Sources */,
 				87A408E72E97F06E005D92CC /* ConsentConfigurationBuilderTests.swift in Sources */,
-				87A408E82E97F06E005D92CC /* VisitorIdProvider+ThrowingTests.swift in Sources */,
 				87A408E92E97F06E005D92CC /* DataObjectTests.swift in Sources */,
 				87A408EA2E97F06E005D92CC /* Condition+EqualsTests.swift in Sources */,
 				87A408EB2E97F06E005D92CC /* URLTests.swift in Sources */,
@@ -7888,6 +7913,10 @@
 				87FC087B2D9452FD00E1041D /* MockCollector.swift in Sources */,
 				877C5F702CBD6C99008D4B78 /* Sha256Tests.swift in Sources */,
 				F5C7BE3B301A5ECF0074D81D /* NotificationCenter+observableTests.swift in Sources */,
+				E5CDC3C630668289007E1C53 /* VisitorIdModuleTests.swift in Sources */,
+				E5CDC3C730668289007E1C53 /* VisitorIdManagerWrapperTests.swift in Sources */,
+				E5CDC3C830668289007E1C53 /* VisitorIdModule+ThrowingTests.swift in Sources */,
+				E5CDC3C930668289007E1C53 /* VisitorIdSettingsBuilderTests.swift in Sources */,
 				87BA6D562C6A470C00784784 /* ObservableTests.swift in Sources */,
 				D54BBFC52C78C01A003687C7 /* ErrorCooldownTests.swift in Sources */,
 				EC7FDD0B2F115F5F008A4D45 /* ConnectivityBarrierSettingsBuilderTests.swift in Sources */,
@@ -7913,7 +7942,6 @@
 				87AC5FCF2ED89AC000F189DC /* TemplateProcessorTests.swift in Sources */,
 				AABBCCDD000000000000000F /* TemplateTests.swift in Sources */,
 				87ED26EE2CE509EE0086FFA4 /* DataLayerWrapper+TransactionallyTests.swift in Sources */,
-				877C5F6C2CBD69F0008D4B78 /* VisitorIdProviderTests.swift in Sources */,
 				D54BBFFE2C78C01A003687C7 /* DispatchManager+TrackTests.swift in Sources */,
 				87BA6D672C6A470C00784784 /* CoreSettingsBuilderTests.swift in Sources */,
 				87BA6D682C6A470C00784784 /* SubscriptionRetainCycleHelper.swift in Sources */,
@@ -7934,7 +7962,6 @@
 				87A05CDF2DB7F79F00D280F4 /* MappingsTests.swift in Sources */,
 				87BB63CA2DE4B8C5008CA9C2 /* ConsentSettingsBuilderTests.swift in Sources */,
 				875EB3262E099C520088A05A /* ConsentConfigurationBuilderTests.swift in Sources */,
-				877C5F742CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift in Sources */,
 				87AF54782C7F4CCA00F1C114 /* DataObjectTests.swift in Sources */,
 				87EE76CF2D77443C00BB1D77 /* Condition+EqualsTests.swift in Sources */,
 				9E47A8812F75E22D00DF0501 /* MockAsyncCommand.swift in Sources */,
@@ -8163,6 +8190,10 @@
 				87FC087A2D9452FD00E1041D /* MockCollector.swift in Sources */,
 				87BA6DCC2C6A47AF00784784 /* MockConsentManager.swift in Sources */,
 				F5C7BE3E301A5ECF0074D81D /* NotificationCenter+observableTests.swift in Sources */,
+				E5CDC3C230668289007E1C53 /* VisitorIdModuleTests.swift in Sources */,
+				E5CDC3C330668289007E1C53 /* VisitorIdManagerWrapperTests.swift in Sources */,
+				E5CDC3C430668289007E1C53 /* VisitorIdModule+ThrowingTests.swift in Sources */,
+				E5CDC3C530668289007E1C53 /* VisitorIdSettingsBuilderTests.swift in Sources */,
 				87BA6DCD2C6A47AF00784784 /* CoreSettingsConverterTests.swift in Sources */,
 				87BA6DCE2C6A47AF00784784 /* Operators+MapTests.swift in Sources */,
 				EC7FDD012F115F5F008A4D45 /* ConnectivityBarrierSettingsBuilderTests.swift in Sources */,
@@ -8194,7 +8225,6 @@
 				87BA6DDE2C6A47AF00784784 /* ObservablesTests.swift in Sources */,
 				87BA6DE02C6A47AF00784784 /* SettingsManager+MergeTests.swift in Sources */,
 				87ED26F02CE509EE0086FFA4 /* DataLayerWrapper+TransactionallyTests.swift in Sources */,
-				877C5F6B2CBD69F0008D4B78 /* VisitorIdProviderTests.swift in Sources */,
 				D54BBFFD2C78C01A003687C7 /* DispatchManager+TrackTests.swift in Sources */,
 				87BA6DE52C6A47AF00784784 /* CoreSettingsBuilderTests.swift in Sources */,
 				87EE77112D78856100BB1D77 /* AndTests.swift in Sources */,
@@ -8223,7 +8253,6 @@
 				ECDE37E62E0EEB73008F89E1 /* QueueManager+QueueMetricsTests.swift in Sources */,
 				EC0D84F12D6F6D7A00436087 /* NetworkConnectionTests.swift in Sources */,
 				87A40AE72E9FA8F2005D92CC /* JSONPathTests.swift in Sources */,
-				877C5F732CBE8A39008D4B78 /* VisitorIdProvider+ThrowingTests.swift in Sources */,
 				87EE77152D7887CA00BB1D77 /* MockMatchable.swift in Sources */,
 				87FC08A02D95B09C00E1041D /* SettingsManager+LoadRulesTests.swift in Sources */,
 				87AF54772C7F4CCA00F1C114 /* DataObjectTests.swift in Sources */,
@@ -8420,6 +8449,7 @@
 				9EA12C932EC696D200B23C56 /* MockContext.swift in Sources */,
 				F5AEBE682F6AC2D300EE1B69 /* MockConnectivity.swift in Sources */,
 				9EA12C942EC696D200B23C56 /* MockConfig.swift in Sources */,
+				E513E9FC30753FD70017E19E /* MockLogHandler.swift in Sources */,
 				9EA12C952EC696D200B23C56 /* MockDatabaseProvider.swift in Sources */,
 				9EA12C962EC696D200B23C56 /* MockUrlSession.swift in Sources */,
 				9EA12C972EC696D200B23C56 /* MockNetworkHelper.swift in Sources */,

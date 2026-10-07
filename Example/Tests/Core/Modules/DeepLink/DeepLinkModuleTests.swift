@@ -105,7 +105,7 @@ final class DeepLinkModuleTests: DeepLinkBaseTests {
                     XCTFail("Error should be moduleNotEnabled, but failed with \(error)")
                     return
                 }
-                XCTAssertEqual(module, "\(TraceModule.self)")
+                XCTAssertEqual(module, TraceModule.moduleType)
             }
             handled.fulfill()
         }
@@ -124,7 +124,7 @@ final class DeepLinkModuleTests: DeepLinkBaseTests {
         deepLink = makeDeepLink(context: moduleContext)
         deepLink.handle(link: try "https://tealium.com?tealium_trace_id=\(testTraceId)".asUrl()) { result in
             XCTAssertResultIsFailure(result) { error in
-                XCTAssertModuleShutdown(error, module: "\(DeepLinkModule.self)")
+                XCTAssertModuleShutdown(error, module: self.deepLink.id)
             }
             handled.fulfill()
         }
@@ -145,7 +145,7 @@ final class DeepLinkModuleTests: DeepLinkBaseTests {
         var releasable: DeepLinkModule? = makeDeepLink(context: moduleContext)
         releasable?.handle(link: try "https://tealium.com?tealium_trace_id=\(testTraceId)".asUrl()) { result in
             XCTAssertResultIsFailure(result) { error in
-                XCTAssertModuleShutdown(error, module: "\(DeepLinkModule.self)")
+                XCTAssertModuleShutdown(error, module: DeepLinkModule.moduleType)
             }
             handled.fulfill()
         }
@@ -168,7 +168,7 @@ final class DeepLinkModuleTests: DeepLinkBaseTests {
             deepLink.shutdown()
             deepLink.handle(link: link) { result in
                 XCTAssertResultIsFailure(result) { error in
-                    XCTAssertModuleShutdown(error, module: "\(DeepLinkModule.self)")
+                    XCTAssertModuleShutdown(error, module: self.deepLink.id)
                 }
                 handled.fulfill()
             }

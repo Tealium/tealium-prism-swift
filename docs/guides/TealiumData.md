@@ -16,10 +16,11 @@ The TealiumData module collects the following information:
 | Data Source | `tealium_datasource` | Data source identifier | TealiumConfig |
 | Library Name | `tealium_library_name` | Name of the Tealium library | SDK constant |
 | Library Version | `tealium_library_version` | Version of the Tealium library | SDK constant |
-| Visitor ID | `tealium_visitor_id` | Unique visitor identifier | Visitor ID provider |
 | Enabled Modules | `enabled_modules` | List of enabled module IDs | Module manager |
 | Enabled Modules Versions | `enabled_modules_versions` | List of enabled module versions | Module manager |
 | Random | `tealium_random` | Random 16-digit number for event deduplication | Generated per event |
+
+> **Note:** The visitor ID (`tealium_visitor_id`) is collected by the [VisitorId](TealiumPrismCore/Protocols/VisitorIdManager.html) module, not by TealiumData.
 
 ## Installation/Configuration
 

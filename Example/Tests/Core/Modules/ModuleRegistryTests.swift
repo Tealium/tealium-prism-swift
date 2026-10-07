@@ -31,6 +31,7 @@ class ModuleRegistryTests: XCTestCase {
         Modules.Types.tealiumData,
         Modules.Types.connectivityData,
         Modules.Types.timeData,
+        Modules.Types.visitorId,
         Modules.Types.lifecycle,
         Modules.Types.contextAPI,
         Modules.Types.setDataValuesTransformer,
@@ -38,10 +39,11 @@ class ModuleRegistryTests: XCTestCase {
         Modules.Types.lowercaseTransformer
     ] + ModuleRegistryTests.nonWatchModules
 
-    // When making a mandatory module, make sure to add them here as well
-    let mandatoryModules = [
+    // When adding non-nil enforced settings to a module (e.g. to make it enabled by default), make sure to add it here as well
+    let modulesWithEnforcedSettings = [
         Modules.Types.dataLayer,
         Modules.Types.tealiumData,
+        Modules.Types.visitorId,
         Modules.Types.setDataValuesTransformer,
         Modules.Types.persistDataValueTransformer,
         Modules.Types.lowercaseTransformer
@@ -53,11 +55,11 @@ class ModuleRegistryTests: XCTestCase {
         XCTAssertEqual(Set(defaultModules.map { $0.moduleType }), Set(installedModules))
     }
 
-    func test_only_mandatory_modules_contain_enforced_settings() {
+    func test_only_expected_modules_contain_enforced_settings() {
         let modulesWithSettings = registry.defaultModules
             .filter { !$0.getEnforcedSettings().isEmpty }
             .map { $0.moduleType }
-        XCTAssertEqual(modulesWithSettings.count, mandatoryModules.count)
-        XCTAssertEqual(Set(modulesWithSettings), Set(mandatoryModules))
+        XCTAssertEqual(modulesWithSettings.count, modulesWithEnforcedSettings.count)
+        XCTAssertEqual(Set(modulesWithSettings), Set(modulesWithEnforcedSettings))
     }
 }

@@ -362,7 +362,7 @@ final class ModuleProxyTests: XCTestCase {
             XCTFail("Expected moduleNotEnabled but got \(results[1])")
             return
         }
-        XCTAssertEqual(module, "\(ModuleWithObservable.self)")
+        XCTAssertEqual(module, ModuleWithObservable.moduleType)
         XCTAssertResultIsSuccess(results[2]) { XCTAssertEqual($0, 1) }
     }
 

@@ -47,7 +47,7 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
                     .first()
                     .map { module in
                         guard let module else {
-                            return .failure(ModuleError.moduleNotEnabled("\(SpecificModule.self)"))
+                            return .failure(ModuleError.moduleNotEnabled(SpecificModule.moduleType))
                         }
                         return .success(module)
                     }
@@ -96,7 +96,7 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
                 return manager.observeModule(SpecificModule.self)
                     .flatMapLatest { module -> Observable<Result<Other, ModuleError<Failure>>> in
                         guard let module else {
-                            return Observables.just(.failure(.moduleNotEnabled("\(SpecificModule.self)")))
+                            return Observables.just(.failure(.moduleNotEnabled(SpecificModule.moduleType)))
                         }
                         return transform(module).map { .success($0) }
                     }
