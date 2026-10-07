@@ -18,10 +18,14 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
     private let logger: LoggerProtocol?
     private let dataStore: (any DataStore)?
     private var resourceRefresher: ResourceRefresher<DataObject>?
+    private var modelInfoSubscription: Disposable?
     private var transformerRegistrar: TransformerRegistrar
     private let onModelInfo = ReplaySubject<DataObject?>()
     private let constantData: [String: DataInput]
     private let queue: TealiumQueue
+    /// How long events wait for the first device-names download before getting the fallback model info.
+    private let modelInfoTimeoutMs: Int
+    static let defaultModelInfoTimeoutMs = 2000
     static let moduleType: String = Modules.Types.deviceData
     var id: String { Self.moduleType }
 
@@ -48,7 +52,8 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
          storeProvider: ModuleStoreProvider,
          transformerRegistrar: TransformerRegistrar,
          queue: TealiumQueue,
-         logger: LoggerProtocol?) {
+         logger: LoggerProtocol?,
+         modelInfoTimeoutMs: Int = DeviceDataModule.defaultModelInfoTimeoutMs) {
         self.deviceDataProvider = deviceDataProvider
         self.configuration = configuration
         self.networkHelper = networkHelper
@@ -57,6 +62,7 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
         self.transformerRegistrar.registerTransformation(TransformationSettings(id: "model-info-and-orientation", transformerId: Self.moduleType, scope: .afterCollectors))
         self.queue = queue
         self.logger = logger
+        self.modelInfoTimeoutMs = modelInfoTimeoutMs
         self.constantData = deviceDataProvider.getConstantData()
 #if os(iOS)
         if configuration.batteryReportingEnabled {
@@ -75,6 +81,13 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
         return self
     }
 
+    func shutdown() {
+        modelInfoSubscription?.dispose()
+        modelInfoSubscription = nil
+        // its deinit cancels any in-flight download
+        resourceRefresher = nil
+    }
+
     func saveModelInfo(_ modelInfo: DataObject, dataStore: any DataStore) {
         try? dataStore.edit()
             .clear() // to clear the cache of ResourceCacher too
@@ -82,17 +95,30 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
             .commit()
     }
 
+    /// The keys `saveModelInfo` writes.
+    static let modelInfoKeys = [DeviceDataKey.deviceType, DeviceDataKey.deviceModel, DeviceDataKey.device, DeviceDataKey.modelVariant]
+
     func readModelInfo(dataStore: any DataStore) -> DataObject? {
-        let modelInfo = dataStore.getAll()
+        // The same store also caches the downloaded device-names file, so read back only the model keys.
+        let stored = dataStore.getAll()
+        let modelInfo = DataObject(compacting: Dictionary(uniqueKeysWithValues: Self.modelInfoKeys.map { ($0, stored.getDataItem(key: $0)) }))
         guard modelInfo.count > 0 else {
             return nil
         }
         return modelInfo
     }
 
+    /// Whether real model info was emitted, as opposed to nothing yet or the `nil` fallback.
+    private var hasModelInfo: Bool {
+        if case .some(.some) = onModelInfo.last() {
+            return true
+        }
+        return false
+    }
+
     func updateResourceRefresher() -> ResourceRefresher<DataObject>? {
-        // check that we don't have model info yet
-        guard self.onModelInfo.last() == nil else {
+        // check that we don't have real model info yet (a fallback can still be replaced)
+        guard !hasModelInfo else {
             return nil
         }
         // without datastore emit nil
@@ -111,11 +137,11 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
             self.onModelInfo.onNext(nil)
             return nil
         }
-        // init refresher (subscribe observers, start refreshing) and return it
+        // init refresher (subscribe observers, start refreshing) and return it, or nil if the cached file already had the model info
         return _prepareRefresher(dataStore: dataStore, url: url)
     }
 
-    private func _prepareRefresher(dataStore: any DataStore, url: URL) -> ResourceRefresher<DataObject> {
+    private func _prepareRefresher(dataStore: any DataStore, url: URL) -> ResourceRefresher<DataObject>? {
         let refresher = ResourceRefresher<DataObject>(networkHelper: networkHelper,
                                                       resourceCacher: ResourceCacher(dataStore: dataStore,
                                                                                      fileName: "device-models"),
@@ -123,15 +149,25 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
                                                                                     url: url,
                                                                                     refreshInterval: 1.days),
                                                       logger: logger)
-        refresher.onLatestResource.subscribeOnce { [weak self] resource in
-            let modelData = self?.deviceDataProvider.getModelInfo(from: resource)
-            if let modelData {
-                self?.saveModelInfo(modelData, dataStore: dataStore)
+        modelInfoSubscription?.dispose()
+        // emits the cached file first, then every download, until one contains this device
+        modelInfoSubscription = refresher.onLatestResource
+            .map { [deviceDataProvider] in deviceDataProvider.getModelInfo(from: $0) }
+            // with nothing cached, don't hold events on a download that can retry indefinitely
+            .merge(Observables.just(DataObject?.none).delay(modelInfoTimeoutMs, on: queue))
+            .takeWhile({ $0 == nil }, inclusive: true)
+            .subscribe { [weak self] modelData in
+                if let modelData {
+                    self?.saveModelInfo(modelData, dataStore: dataStore)
+                }
+                self?.onModelInfo.onNext(modelData)
             }
-            self?.onModelInfo.onNext(modelData)
-        }
         refresher.onRefreshError.subscribeOnce { [weak self] _ in
             self?.onModelInfo.onNext(nil)
+        }
+        // the cached file already had this device, no need to download it again or keep the refresher
+        guard !hasModelInfo else {
+            return nil
         }
         refresher.requestRefresh()
         return refresher
