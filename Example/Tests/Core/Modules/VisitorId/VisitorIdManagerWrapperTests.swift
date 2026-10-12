@@ -9,28 +9,10 @@
 @testable import TealiumPrism
 import XCTest
 
-final class VisitorIdManagerWrapperTests: XCTestCase {
-    static let identityKey = "email"
-    let dbProvider = MockDatabaseProvider()
-    let queue = TealiumQueue.worker
-    let manager = ModuleManager()
-    lazy var onManager = ReplaySubject<Result<ModuleManager, TealiumError>>(.success(manager))
-    lazy var config: TealiumConfig = mockConfig
-    lazy var sharedContext = MockContext(moduleManager: manager,
-                                         config: config,
-                                         databaseProvider: dbProvider,
-                                         queue: queue)
-    lazy var wrapper = VisitorIdManagerWrapper(moduleProxy: ModuleProxy(queue: queue,
-                                                                        onModuleManager: onManager.asObservable()))
-
-    func settings(enabled: Bool) -> SDKSettings {
-        SDKSettings(modules: [VisitorIdModule.moduleType: ModuleSettings(moduleType: VisitorIdModule.moduleType,
-                                                                         enabled: enabled)])
-    }
-
+final class VisitorIdManagerWrapperTests: VisitorIdManagerWrapperBaseTests {
     override func setUp() {
-        config.modules = [Modules.visitorId(forcingSettings: { $0.setVisitorIdentityKey(Self.identityKey) })]
-        manager.updateSettings(context: sharedContext, settings: SDKSettings(config.getEnforcedSDKSettings()))
+        super.setUp()
+        createModule()
     }
 
     // MARK: - current / regenerate / eraseLocalHistory when enabled

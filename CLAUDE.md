@@ -38,8 +38,8 @@ Tests use Fastlane `scan` under the hood (`skip_build: true`, derived data in `.
 
 ### Linting
 ```bash
-./scripts/lint.sh --config_file .swiftlint.yml       # Source code
-./scripts/lint.sh --config_file .swiftlint_test.yml   # Test code
+./scripts/lint.sh --config_file ../.swiftlint.yml       # Source code
+./scripts/lint.sh --config_file ../.swiftlint_test.yml   # Test code
 ```
 
 ### Documentation

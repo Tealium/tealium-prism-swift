@@ -31,8 +31,8 @@ final class VisitorStorageTests: XCTestCase {
         XCTAssertNil(storage.visitorId)
     }
 
-    func test_visitorId_returns_visitorId_after_changeVisitor() throws {
-        try storage.changeVisitor("aVisitor")
+    func test_visitorId_returns_visitorId_after_changeVisitor_with_nil_identity() throws {
+        try storage.changeVisitor("aVisitor", withIdentity: nil)
         XCTAssertEqual(storage.visitorId, "aVisitor")
     }
 
@@ -45,8 +45,8 @@ final class VisitorStorageTests: XCTestCase {
         XCTAssertNil(storage.ownerIdentity)
     }
 
-    func test_ownerIdentity_is_null_after_changeVisitor() throws {
-        try storage.changeVisitor("aVisitor")
+    func test_ownerIdentity_is_null_after_changeVisitor_with_nil_identity() throws {
+        try storage.changeVisitor("aVisitor", withIdentity: nil)
         XCTAssertNil(storage.ownerIdentity)
     }
 
@@ -64,11 +64,18 @@ final class VisitorStorageTests: XCTestCase {
         XCTAssertEqual(storage.ownerIdentity, "anotherIdentity")
     }
 
-    func test_changeVisitor_replaces_visitorId_and_associates_identity_with_current_visitorId() throws {
+    func test_changeVisitor_withIdentity_sets_owner_and_map() throws {
         try storage.changeVisitor("aVisitor", withIdentity: "anIdentity")
+        XCTAssertEqual(storage.ownerIdentity, "anIdentity")
         XCTAssertEqual(storage.getKnownVisitorId(identity: "anIdentity"), "aVisitor")
-        try storage.changeVisitor("newVisitor")
-        XCTAssertEqual(storage.getKnownVisitorId(identity: "anIdentity"), "newVisitor")
+    }
+
+    func test_changeVisitor_withIdentity_nil_removes_ownerIdentity_and_leaves_identity_rows_untouched() throws {
+        try storage.changeVisitor("aVisitor", withIdentity: "anIdentity")
+        try storage.changeVisitor("newVisitor", withIdentity: nil)
+        XCTAssertNil(storage.ownerIdentity)
+        XCTAssertEqual(storage.visitorId, "newVisitor")
+        XCTAssertEqual(storage.getKnownVisitorId(identity: "anIdentity"), "aVisitor")
     }
 
     func test_getKnownVisitorId_returns_previous_visitorIds() throws {
@@ -85,7 +92,7 @@ final class VisitorStorageTests: XCTestCase {
     // MARK: - Row layout
 
     func test_visitorId_is_stored_under_the_visitor_id_key() throws {
-        try storage.changeVisitor("aVisitor")
+        try storage.changeVisitor("aVisitor", withIdentity: nil)
         XCTAssertEqual(dataStore.get(key: "visitor_id"), "aVisitor")
     }
 
@@ -110,11 +117,11 @@ final class VisitorStorageTests: XCTestCase {
 
     // MARK: - eraseIdentities
 
-    func test_eraseIdentities_removes_identities_and_ownerIdentity_and_sets_new_visitorId() throws {
+    func test_eraseIdentities_withIdentity_nil_removes_identities_and_ownerIdentity_and_sets_new_visitorId() throws {
         try storage.changeVisitor("aVisitor1", withIdentity: "anIdentity1")
         try storage.changeVisitor("aVisitor2", withIdentity: "anIdentity2")
         try storage.changeVisitor("aVisitor3", withIdentity: "anIdentity3")
-        try storage.eraseIdentities(settingNewVisitorId: "newVisitor")
+        try storage.eraseIdentities(settingNewVisitorId: "newVisitor", withIdentity: nil)
         XCTAssertNil(storage.getKnownVisitorId(identity: "anIdentity1"))
         XCTAssertNil(storage.getKnownVisitorId(identity: "anIdentity2"))
         XCTAssertNil(storage.getKnownVisitorId(identity: "anIdentity3"))
@@ -122,12 +129,23 @@ final class VisitorStorageTests: XCTestCase {
         XCTAssertEqual(storage.visitorId, "newVisitor")
     }
 
+    func test_eraseIdentities_withIdentity_sets_owner_and_leaves_exactly_one_map_row_even_when_already_mapped() throws {
+        try storage.changeVisitor("oldVisitor", withIdentity: "anIdentity")
+        try storage.changeVisitor("aVisitor2", withIdentity: "anIdentity2")
+        try storage.eraseIdentities(settingNewVisitorId: "newVisitor", withIdentity: "anIdentity")
+        XCTAssertEqual(storage.ownerIdentity, "anIdentity")
+        XCTAssertEqual(storage.getKnownVisitorId(identity: "anIdentity"), "newVisitor")
+        XCTAssertNil(storage.getKnownVisitorId(identity: "anIdentity2"))
+        let identityRows = dataStore.keys().filter { $0.hasPrefix(VisitorStorage.Keys.identityPrefix) }
+        XCTAssertEqual(identityRows, [VisitorStorage.Keys.identity("anIdentity")])
+    }
+
     func test_eraseIdentities_keeps_unrelated_rows_put_in_the_same_store() throws {
         try storage.changeVisitor("aVisitor", withIdentity: "anIdentity")
         try dataStore.edit()
             .put(key: "unrelated_key", value: "unrelated_value", expiry: .forever)
             .commit()
-        try storage.eraseIdentities(settingNewVisitorId: "newVisitor")
+        try storage.eraseIdentities(settingNewVisitorId: "newVisitor", withIdentity: nil)
         XCTAssertEqual(dataStore.get(key: "unrelated_key"), "unrelated_value")
         let keys = dataStore.keys()
         XCTAssertFalse(keys.contains { $0.hasPrefix(VisitorStorage.Keys.identityPrefix) })

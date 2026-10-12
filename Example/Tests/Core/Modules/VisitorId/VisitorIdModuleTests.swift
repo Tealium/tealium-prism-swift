@@ -13,6 +13,7 @@ final class VisitorIdModuleTests: XCTestCase {
     static let identityKey = "email"
     let databaseProvider = MockDatabaseProvider()
     let identityValue = "identityValue"
+    let identityValueB = "identityValueB"
     lazy var hashedIdentityValue: String = {
         identityValue.sha256() ?? ""
     }()
@@ -20,6 +21,7 @@ final class VisitorIdModuleTests: XCTestCase {
     var visitorIdentityKey: String? = VisitorIdModuleTests.identityKey
     var visitorStorage: VisitorStorage!
     var dataLayerStore: (any DataStore)!
+    var modulesRepository: SQLModulesRepository!
     lazy var module: VisitorIdModule = VisitorIdModule(visitorStorage: visitorStorage,
                                                        existingVisitorId: existingVisitorId,
                                                        dataLayer: dataLayerStore,
@@ -27,7 +29,7 @@ final class VisitorIdModuleTests: XCTestCase {
                                                        logger: nil)
 
     override func setUpWithError() throws {
-        let modulesRepository = SQLModulesRepository(dbProvider: databaseProvider)
+        modulesRepository = SQLModulesRepository(dbProvider: databaseProvider)
         let storeProvider = ModuleStoreProvider(databaseProvider: databaseProvider,
                                                 modulesRepository: modulesRepository)
         visitorStorage = VisitorStorage(storage: try storeProvider.getModuleStore(name: Modules.Types.visitorId))
@@ -38,6 +40,31 @@ final class VisitorIdModuleTests: XCTestCase {
         try dataLayerStore.edit()
             .put(key: key, value: value, expiry: .forever)
             .commit()
+    }
+
+    func removeIdentityFromDataLayer(forKey key: String = VisitorIdModuleTests.identityKey) throws {
+        try dataLayerStore.edit()
+            .remove(key: key)
+            .commit()
+    }
+
+    /// Writes an identity that expires shortly, then waits past its expiry: reads treat it as absent, but no
+    /// removal is emitted until `deleteExpired` runs (only on restart or session change).
+    func storeIdentityInDataLayerAndWaitForItsExpiry(_ value: String, forKey key: String = VisitorIdModuleTests.identityKey) throws {
+        try dataLayerStore.edit()
+            .put(key: key, value: value, expiry: .after(50.milliseconds.after(date: Date())))
+            .commit()
+        let expired = expectation(description: "Identity expires")
+        expired.isInverted = true
+        waitForDefaultTimeout()
+    }
+
+    func hashed(_ identity: String) -> String {
+        guard let hashedIdentity = identity.sha256() else {
+            XCTFail("Failed to hash \(identity)")
+            return ""
+        }
+        return hashedIdentity
     }
 
     // MARK: - collect
@@ -55,7 +82,7 @@ final class VisitorIdModuleTests: XCTestCase {
     }
 
     func test_init_with_existingVisitorId_and_already_stored_id_ignores_existingVisitorId() throws {
-        try visitorStorage.changeVisitor("stored")
+        try visitorStorage.changeVisitor("stored", withIdentity: nil)
         existingVisitorId = "existing"
         XCTAssertEqual(module.visitorId.value, "stored")
     }
@@ -96,7 +123,7 @@ final class VisitorIdModuleTests: XCTestCase {
     }
 
     func test_regenerate_changes_visitorId_for_current_identity() throws {
-        module.identify(identity: identityValue)
+        try storeIdentityInDataLayer(identityValue)
         let oldId = module.visitorId.value
         let oldIdentity = visitorStorage.ownerIdentity
         XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), oldId)
@@ -107,12 +134,158 @@ final class VisitorIdModuleTests: XCTestCase {
         XCTAssertEqual(visitorStorage.ownerIdentity, oldIdentity)
     }
 
-    func test_regenerate_after_identity_is_removed_from_dataLayer_keeps_it_as_owner_of_the_new_visitorId() throws {
+    func test_regenerate_after_identity_is_removed_from_dataLayer_leaves_new_visitorId_unowned_and_map_untouched() throws {
         _ = module
         try storeIdentityInDataLayer(identityValue)
-        try dataLayerStore.edit()
-            .remove(key: Self.identityKey)
-            .commit()
+        let oldId = module.visitorId.value
+        try removeIdentityFromDataLayer()
+        let newId = try module.regenerate()
+        XCTAssertNil(visitorStorage.ownerIdentity)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), oldId)
+        XCTAssertEqual(module.visitorId.value, newId)
+    }
+
+    func test_regenerate_after_identity_expired_but_not_yet_deleted_leaves_new_visitorId_unowned_and_map_untouched() throws {
+        _ = module
+        let oldId = module.visitorId.value
+        try storeIdentityInDataLayerAndWaitForItsExpiry(identityValue)
+        let newId = try module.regenerate()
+        XCTAssertNil(visitorStorage.ownerIdentity)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), oldId)
+        XCTAssertEqual(module.visitorId.value, newId)
+    }
+
+    // MARK: - Case tests (ticket MT-2237 table)
+
+    func test_case_B_logout_regenerate_login_as_other_identity_logout_regenerate_login_as_original_identity() throws {
+        try storeIdentityInDataLayer(identityValue) // A in -> V1
+        let visitorIdForA = module.visitorId.value
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+
+        try removeIdentityFromDataLayer() // A out
+        XCTAssertEqual(module.visitorId.value, visitorIdForA)
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+
+        let visitorIdAfterFirstRegenerate = try module.regenerate() // V2, owner nil, map[A]==V1
+        XCTAssertEqual(module.visitorId.value, visitorIdAfterFirstRegenerate)
+        XCTAssertNil(visitorStorage.ownerIdentity)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+
+        try storeIdentityInDataLayer(identityValueB) // B in -> V stays V2, owner B, map[B]==V2
+        XCTAssertEqual(module.visitorId.value, visitorIdAfterFirstRegenerate)
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashed(identityValueB))
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashed(identityValueB)), visitorIdAfterFirstRegenerate)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA) // map[A] untouched
+
+        try removeIdentityFromDataLayer() // B out
+        XCTAssertEqual(module.visitorId.value, visitorIdAfterFirstRegenerate)
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashed(identityValueB))
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashed(identityValueB)), visitorIdAfterFirstRegenerate)
+
+        let visitorIdAfterSecondRegenerate = try module.regenerate() // V3, owner nil
+        XCTAssertEqual(module.visitorId.value, visitorIdAfterSecondRegenerate)
+        XCTAssertNil(visitorStorage.ownerIdentity)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA) // map[A] untouched
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashed(identityValueB)), visitorIdAfterFirstRegenerate) // map[B] untouched
+
+        try storeIdentityInDataLayer(identityValue) // A in -> V1, owner A
+        XCTAssertEqual(module.visitorId.value, visitorIdForA)
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+    }
+
+    func test_case_C_logout_regenerate_login_as_original_identity_restores_its_visitorId() throws {
+        try storeIdentityInDataLayer(identityValue) // A in -> V1
+        let visitorIdForA = module.visitorId.value
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+
+        try removeIdentityFromDataLayer() // A out
+        XCTAssertEqual(module.visitorId.value, visitorIdForA)
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+
+        let regeneratedVisitorId = try module.regenerate() // V2, owner nil
+        XCTAssertEqual(module.visitorId.value, regeneratedVisitorId)
+        XCTAssertNil(visitorStorage.ownerIdentity)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+        XCTAssertNotEqual(visitorIdForA, regeneratedVisitorId)
+
+        try storeIdentityInDataLayer(identityValue) // A in -> V1, owner A, map[A]==V1
+        XCTAssertEqual(module.visitorId.value, visitorIdForA)
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+        // regenerate() with no identity present never writes a map association for the abandoned id.
+    }
+
+    func test_case_A_logout_then_different_identity_login_mints_new_visitorId() throws {
+        try storeIdentityInDataLayer(identityValue) // A in -> V1
+        let visitorIdForA = module.visitorId.value
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+
+        try removeIdentityFromDataLayer() // A out
+        XCTAssertEqual(module.visitorId.value, visitorIdForA)
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+
+        try storeIdentityInDataLayer(identityValueB) // B in -> new V2 (!= V1), owner B
+        let visitorIdForB = module.visitorId.value
+        XCTAssertNotEqual(visitorIdForB, visitorIdForA)
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashed(identityValueB))
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashed(identityValueB)), visitorIdForB)
+    }
+
+    func test_case_D_regenerate_while_identity_present_rebinds_it_to_the_new_visitorId() throws {
+        try storeIdentityInDataLayer(identityValue) // A in -> V1
+        let visitorIdForA = module.visitorId.value
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+
+        let newId = try module.regenerate() // V2, owner A, map[A]==V2
+        XCTAssertEqual(module.visitorId.value, newId)
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), newId)
+        XCTAssertNotEqual(newId, visitorIdForA)
+    }
+
+    func test_case_H_regenerate_before_any_login_then_identity_adopts_the_new_visitorId() throws {
+        let newId = try module.regenerate() // V2, owner nil
+        XCTAssertEqual(module.visitorId.value, newId)
+        XCTAssertNil(visitorStorage.ownerIdentity)
+        XCTAssertNil(visitorStorage.getKnownVisitorId(identity: hashed(identityValueB)))
+
+        try storeIdentityInDataLayer(identityValueB) // B in -> V2, owner B, map[B]==V2
+        XCTAssertEqual(module.visitorId.value, newId)
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashed(identityValueB))
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashed(identityValueB)), newId)
+    }
+
+    func test_logout_then_relogin_without_regenerate_restores_identity_as_owner() throws {
+        try storeIdentityInDataLayer(identityValue) // A in -> V1
+        let visitorIdForA = module.visitorId.value
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+
+        try removeIdentityFromDataLayer() // A out
+        XCTAssertEqual(module.visitorId.value, visitorIdForA)
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+
+        try storeIdentityInDataLayer(identityValue) // A in -> V1, owner A
+        XCTAssertEqual(module.visitorId.value, visitorIdForA)
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), visitorIdForA)
+    }
+
+    // MARK: - Ordering
+
+    func test_regenerate_right_after_init_observes_identity_seeded_from_dataLayer() throws {
+        // Written before `module` is first touched, as on a relaunch with the user still logged in.
+        try storeIdentityInDataLayer(identityValue)
         let newId = try module.regenerate()
         XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
         XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), newId)
@@ -147,58 +320,93 @@ final class VisitorIdModuleTests: XCTestCase {
         XCTAssertEqual(initialIdentityHashed, visitorStorage.ownerIdentity)
     }
 
-    func test_identify_to_blank_identity_does_nothing() {
+    func test_identify_to_blank_identity_leaves_storage_untouched() {
         module.identify(identity: identityValue)
         let initialId = module.visitorId.value
         let initialIdentityHashed = visitorStorage.ownerIdentity
+
         module.identify(identity: "")
         module.identify(identity: "   ")
+
         XCTAssertEqual(initialId, module.visitorId.value)
         XCTAssertEqual(initialIdentityHashed, visitorStorage.ownerIdentity)
     }
 
-    func test_identify_to_old_identity_that_has_same_visitor_only_changes_the_identity() throws {
-        module.identify(identity: identityValue)
-        let oldVisitorId = module.visitorId.value
-        guard let newVisitorHashed = "newVisitor".sha256() else {
-            XCTFail("Failed to hash newVisitor")
-            return
+    func test_identify_stores_a_switch_that_failed_to_be_stored_when_the_identity_is_written_again() throws {
+        let visitorStore = try ModuleStoreProvider(databaseProvider: databaseProvider,
+                                                   modulesRepository: modulesRepository)
+            .getModuleStore(name: Modules.Types.visitorId)
+        let failOnceStorage = FailOnceVisitorStorage(storage: visitorStore)
+        visitorStorage = failOnceStorage
+        try visitorStorage.changeVisitor("V1", withIdentity: hashed(identityValue)) // A known with V1
+        try visitorStorage.changeVisitor("V0", withIdentity: hashed(identityValueB)) // B owns the current V0
+        _ = module
+
+        failOnceStorage.failNextChangeVisitor = true
+        try storeIdentityInDataLayer(identityValue) // A in -> V1 used in memory, not stored
+        XCTAssertEqual(module.visitorId.value, "V1")
+        XCTAssertEqual(visitorStorage.visitorId, "V0")
+
+        try storeIdentityInDataLayer(identityValue) // A again -> V1 stored, so it is kept on relaunch
+        XCTAssertEqual(visitorStorage.visitorId, "V1")
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashed(identityValue))
+    }
+
+    /// Fails the next `changeVisitor` once, as a transient storage error would, then stores as usual.
+    final class FailOnceVisitorStorage: VisitorStorage {
+        var failNextChangeVisitor = false
+
+        override func changeVisitor(_ visitorId: String, withIdentity identity: String?) throws {
+            if failNextChangeVisitor {
+                failNextChangeVisitor = false
+                throw ThrowingVisitorStorage.AnError()
+            }
+            try super.changeVisitor(visitorId, withIdentity: identity)
         }
-        try visitorStorage.changeVisitor(module.visitorId.value, withIdentity: newVisitorHashed)
-        XCTAssertEqual(visitorStorage.ownerIdentity, newVisitorHashed)
-        XCTAssertEqual(module.visitorId.value, oldVisitorId)
-        module.identify(identity: identityValue)
-        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
-        XCTAssertEqual(module.visitorId.value, oldVisitorId)
     }
 
     // MARK: - eraseLocalHistory
 
-    func test_eraseLocalHistory_resets_visitorId_and_clears_knownVisitorIds() throws {
-        module.identify(identity: identityValue)
+    func test_eraseLocalHistory_clears_other_known_identities_but_reassociates_the_present_one() throws {
+        // A previously-seen identity, unrelated to what's in the data layer now.
+        try visitorStorage.changeVisitor("otherVisitor", withIdentity: "previousOwner")
+        try storeIdentityInDataLayer(identityValue)
         let initialVisitorId = module.visitorId.value
-        guard let initialIdentity = visitorStorage.ownerIdentity else {
-            XCTFail("Missing initial identity")
-            return
-        }
-        XCTAssertNotNil(visitorStorage.getKnownVisitorId(identity: initialIdentity))
+        XCTAssertNotNil(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue))
 
         let newId = try module.eraseLocalHistory()
         XCTAssertNotEqual(initialVisitorId, newId)
-        XCTAssertNil(visitorStorage.ownerIdentity)
-        XCTAssertNil(visitorStorage.getKnownVisitorId(identity: initialIdentity))
+        XCTAssertNil(visitorStorage.getKnownVisitorId(identity: "previousOwner"))
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), newId)
     }
 
-    func test_eraseLocalHistory_then_rewriting_same_identity_in_dataLayer_associates_it_with_new_visitorId() throws {
-        try skip("MT-2237: VisitorSwitcher dedups identities, so rewriting the erased identity is not relinked in-session")
+    func test_eraseLocalHistory_reassociates_identity_present_in_dataLayer_with_new_visitorId() throws {
         _ = module
         try storeIdentityInDataLayer(identityValue)
         let newId = try module.eraseLocalHistory()
-        // Same session as the first write: the identity must be linked again, as it would be after a relaunch.
-        try storeIdentityInDataLayer(identityValue)
+        // Re-associated immediately: no need to rewrite the key.
         XCTAssertEqual(module.visitorId.value, newId)
         XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
         XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), newId)
+    }
+
+    func test_eraseLocalHistory_with_no_identity_present_leaves_new_visitorId_unowned() throws {
+        try storeIdentityInDataLayer(identityValue)
+        try removeIdentityFromDataLayer()
+        let newId = try module.eraseLocalHistory()
+        XCTAssertNil(visitorStorage.ownerIdentity)
+        XCTAssertNil(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue))
+        XCTAssertEqual(module.visitorId.value, newId)
+    }
+
+    func test_eraseLocalHistory_after_identity_expired_but_not_yet_deleted_leaves_new_visitorId_unowned() throws {
+        _ = module
+        try storeIdentityInDataLayerAndWaitForItsExpiry(identityValue)
+        let newId = try module.eraseLocalHistory()
+        XCTAssertNil(visitorStorage.ownerIdentity)
+        XCTAssertNil(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue))
+        XCTAssertEqual(module.visitorId.value, newId)
     }
 
     // MARK: - Visitor Switching driven by the data layer
@@ -232,11 +440,22 @@ final class VisitorIdModuleTests: XCTestCase {
     func test_removing_identity_key_from_dataLayer_does_not_switch_visitorId() throws {
         let initialVisitorId = module.visitorId.value
         try storeIdentityInDataLayer(identityValue)
-        try dataLayerStore.edit()
-            .remove(key: Self.identityKey)
-            .commit()
+        try removeIdentityFromDataLayer()
         XCTAssertEqual(visitorStorage.visitorId, initialVisitorId)
         XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), initialVisitorId)
+    }
+
+    func test_identityKey_expiry_does_not_switch_visitorId() throws {
+        let initialVisitorId = module.visitorId.value
+        try storeIdentityInDataLayer(identityValue)
+        try dataLayerStore.edit()
+            .put(key: Self.identityKey, value: identityValue, expiry: .after(1.seconds.before(date: Date())))
+            .commit()
+        modulesRepository.deleteExpired(expiry: .restart)
+        XCTAssertEqual(visitorStorage.visitorId, initialVisitorId)
+        XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
+        XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), initialVisitorId)
     }
 
     func test_init_with_identity_already_in_dataLayer_associates_it_with_current_visitorId() throws {

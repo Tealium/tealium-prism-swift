@@ -18,6 +18,7 @@ class VisitorIdModule: BasicModule, Collector, VisitorIdProvider {
     let version: String = TealiumConstants.libraryVersion
 
     private let visitorStorage: VisitorStorage
+    private let dataLayer: any DataStore
     private let logger: LoggerProtocol?
     private let disposables: CompositeDisposable = Disposables.automatic()
 
@@ -53,6 +54,7 @@ class VisitorIdModule: BasicModule, Collector, VisitorIdProvider {
          configuration: VisitorIdConfiguration,
          logger: LoggerProtocol?) {
         self.visitorStorage = visitorStorage
+        self.dataLayer = dataLayer
         self.logger = logger
         let visitorId = Self.getOrCreateVisitorId(visitorStorage: visitorStorage,
                                                   existingVisitorId: existingVisitorId)
@@ -83,7 +85,8 @@ class VisitorIdModule: BasicModule, Collector, VisitorIdProvider {
     /**
      * Regenerates the current visitor id as a new anonymous one.
      *
-     * Note. the new anonymous id will be associated to the identity that owns the current visitor id, if any.
+     * The identity present in the data layer at the time of the call, if any, takes ownership of the
+     * new id and its stored association is updated. If no identity is present, the new id is unowned.
      *
      * - returns: The new anonymous visitor id.
      */
@@ -91,7 +94,7 @@ class VisitorIdModule: BasicModule, Collector, VisitorIdProvider {
         logger?.debug(category: LogCategory.visitorId, "Regenerating current visitor id.")
         let newId = Self.generateVisitorId()
         defer { _visitorId.onNext(newId) }
-        try visitorStorage.changeVisitor(newId)
+        try visitorStorage.changeVisitor(newId, withIdentity: identityInDataLayer())
         return newId
     }
 
@@ -99,68 +102,85 @@ class VisitorIdModule: BasicModule, Collector, VisitorIdProvider {
      * Erases all stored identity associations, as hashed identities and their visitor ids, and generates a new
      * anonymous visitor id.
      *
+     * If an identity is present in the data layer at the time of the call, it is immediately re-associated
+     * with the new visitor id, so one new association may exist afterwards.
+     *
      * - returns: The new anonymous visitor id.
      */
     func eraseLocalHistory() throws -> String {
         logger?.debug(category: LogCategory.visitorId, "Erasing stored identity associations.")
         let newId = Self.generateVisitorId()
         defer { _visitorId.onNext(newId) }
-        try visitorStorage.eraseIdentities(settingNewVisitorId: newId)
+        try visitorStorage.eraseIdentities(settingNewVisitorId: newId, withIdentity: identityInDataLayer())
         return newId
     }
 
     /**
-     * Notifies that the identity has changed.
+     * Reads the identity currently present in the data layer at the configured key.
      *
-     * When no identity currently owns the visitor id, then this `identity` should be associated with the current
-     * visitor id.
+     * Read at call time rather than cached from data layer events, as no event is published when
+     * a value expires until it is actually deleted.
+     *
+     * - returns: The SHA-256 of the identity present in the data layer, or `nil` if none is present.
+     */
+    private func identityInDataLayer() -> String? {
+        guard let key = visitorIdentityKey.value,
+              let identity: String = dataLayer.get(key: key),
+              !identity.isBlank else {
+            return nil
+        }
+        return identity.sha256()
+    }
+
+    /**
+     * Notifies that an identity has been written to the data layer.
+     *
+     * A blank `identity` is ignored. So is the identity that already owns the current visitor id, as its
+     * association is then already up to date.
+     *
+     * Otherwise, when no identity currently owns the visitor id, then this `identity` should be associated
+     * with the current visitor id.
      *
      * When the `identity` has been seen before, then the visitor id should be updated to the
      * one previously associated with this `identity`.
      *
      * - Parameters:
-     *   - identity: The new identity of the user.
+     *   - identity: The identity written at the configured key.
      */
     func identify(identity: String) {
-        let oldIdentity = visitorStorage.ownerIdentity
         guard !identity.isBlank,
-              let hashedNewIdentity = identity.sha256(),
-              hashedNewIdentity != oldIdentity else {
+              let hashedIdentity = identity.sha256(),
+              hashedIdentity != visitorStorage.ownerIdentity else {
             return
         }
 
         logger?.debug(category: LogCategory.visitorId, "Identity change has been detected.")
 
         // check for known matching visitor id
-        let knownVisitorId = visitorStorage.getKnownVisitorId(identity: hashedNewIdentity)
+        let knownVisitorId = visitorStorage.getKnownVisitorId(identity: hashedIdentity)
         if let knownVisitorId {
-            if knownVisitorId != visitorId.value {
-                handleExistingIdentity(knownVisitorId: knownVisitorId, identity: hashedNewIdentity)
-            } else {
-                handleChangedIdentity(identity: hashedNewIdentity)
-            }
-        } else if oldIdentity == nil {
-            handleFirstIdentity(identity: hashedNewIdentity)
+            // Writes the full association even when `knownVisitorId` already matches the current visitor id.
+            // That case is reached after `changeVisitor` throws: this method updates `visitorId` in memory
+            // before the write is confirmed, so a retry of the same identity sees `knownVisitorId == visitorId.value`.
+            // If that retry wrote only the owner, a persistently failing store would leave `visitor_id` wrong
+            // forever, since nothing else revisits this identity to retry the full write.
+            handleExistingIdentity(knownVisitorId: knownVisitorId, identity: hashedIdentity)
+        } else if visitorStorage.ownerIdentity == nil {
+            handleFirstIdentity(identity: hashedIdentity)
         } else {
-            handleNewIdentity(identity: hashedNewIdentity)
+            handleNewIdentity(identity: hashedIdentity)
         }
     }
 
     private func handleExistingIdentity(knownVisitorId: String, identity: String) {
-        logger?.debug(category: LogCategory.visitorId,
-                      "Identity has been seen before; setting known visitor id.")
-        changeVisitor(knownVisitorId, withIdentity: identity)
-    }
-
-    private func handleChangedIdentity(identity: String) {
-        logger?.debug(category: LogCategory.visitorId,
-                      "Identity has been seen before; but visitor id has not changed.")
-        do {
-            try visitorStorage.changeIdentity(identity: identity)
-        } catch {
-            logger?.error(category: LogCategory.visitorId,
-                          "Failed to change identity to \(identity)\nError: \(error)")
+        if knownVisitorId == visitorId.value {
+            logger?.debug(category: LogCategory.visitorId,
+                          "Identity has been seen before and already uses the current visitor id; storing it as owner.")
+        } else {
+            logger?.debug(category: LogCategory.visitorId,
+                          "Identity has been seen before; setting known visitor id.")
         }
+        changeVisitor(knownVisitorId, withIdentity: identity)
     }
 
     private func handleFirstIdentity(identity: String) {
@@ -179,14 +199,10 @@ class VisitorIdModule: BasicModule, Collector, VisitorIdProvider {
     private func changeVisitor(_ visitorId: String, withIdentity identity: String? = nil) {
         defer { _visitorId.onNextIfChanged(visitorId) }
         do {
-            if let identity {
-                try visitorStorage.changeVisitor(visitorId, withIdentity: identity)
-            } else {
-                try visitorStorage.changeVisitor(visitorId)
-            }
+            try visitorStorage.changeVisitor(visitorId, withIdentity: identity)
         } catch {
             logger?.error(category: LogCategory.visitorId,
-                          "Failed to change visitor to \(visitorId)\(identity.map { " and identity " + $0 } ?? "")\nError: \(error)")
+                          "Failed to change visitor.\nError: \(error)")
         }
     }
 

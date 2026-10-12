@@ -16,15 +16,7 @@ class ThrowingVisitorStorage: VisitorStorage {
         self.storage = storage
         super.init(storage: storage)
     }
-    override func changeVisitor(_ visitorId: String) throws {
-        throw AnError()
-    }
-
-    override func changeVisitor(_ visitorId: String, withIdentity identity: String) throws {
-        throw AnError()
-    }
-
-    override func changeIdentity(identity: String) throws {
+    override func changeVisitor(_ visitorId: String, withIdentity identity: String?) throws {
         throw AnError()
     }
 
@@ -32,7 +24,7 @@ class ThrowingVisitorStorage: VisitorStorage {
         return nil
     }
 
-    override func eraseIdentities(settingNewVisitorId newVisitorId: String) throws {
+    override func eraseIdentities(settingNewVisitorId newVisitorId: String, withIdentity identity: String?) throws {
         throw AnError()
     }
 }

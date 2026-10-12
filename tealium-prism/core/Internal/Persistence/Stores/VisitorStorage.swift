@@ -52,51 +52,27 @@ class VisitorStorage {
     }
 
     /**
-     * Sets the [`VisitorStorage.visitorId`](doc:VisitorStorage/visitorId) to the provided `visitorId`. It does not update the `ownerIdentity`.
+     * Sets the [`VisitorStorage.visitorId`](doc:VisitorStorage/visitorId) to the provided `visitorId`.
      *
-     * Also stores an entry associating `ownerIdentity` to `visitorId` such that a previous `visitorId`
-     * can be retrieved using `getKnownVisitorId` providing the same identity.
+     * With a non-`nil` `identity`, also sets the [`VisitorStorage.ownerIdentity`](doc:VisitorStorage/ownerIdentity)
+     * to `identity` and stores an entry associating `identity` to `visitorId`, such that `visitorId`
+     * can later be retrieved using `getKnownVisitorId` providing the same `identity`.
      *
-     * - Parameters:
-     *   - visitorId: The visitor id to store as the current visitor id.
-     */
-    func changeVisitor(_ visitorId: String) throws {
-        try storage.edit()
-            .setVisitorId(visitorId)
-            .associateVisitor(visitorId, withIdentity: ownerIdentity)
-            .commit()
-    }
-
-    /**
-     * Sets the [`VisitorStorage.visitorId`](doc:VisitorStorage/visitorId) to the provided `visitorId` and sets the
-     * [`VisitorStorage.ownerIdentity`](doc:VisitorStorage/ownerIdentity) to the provided `identity`.
-     *
-     * Also stores an entry associating `identity` to `visitorId` such that a previous `visitorId`
-     * can be retrieved using `getKnownVisitorId` providing the same `identity`.
+     * With a `nil` `identity`, removes the `ownerIdentity` so the new `visitorId` is unowned; any
+     * existing `identity.*` association rows are left untouched.
      *
      * - Parameters:
      *   - visitorId: The visitor id to store as the current visitor id.
-     *   - identity: The identity to store as the owner identity, and to associate with the `visitorId`.
+     *   - identity: The identity to store as the owner identity, and to associate with the `visitorId`, or `nil` to leave the new `visitorId` unowned.
      */
-    func changeVisitor(_ visitorId: String, withIdentity identity: String) throws {
-        try storage.edit()
-            .setVisitorId(visitorId)
-            .setOwnerIdentity(identity)
+    func changeVisitor(_ visitorId: String, withIdentity identity: String?) throws {
+        let editor = storage.edit().setVisitorId(visitorId)
+        guard let identity else {
+            try editor.removeOwnerIdentity().commit()
+            return
+        }
+        try editor.setOwnerIdentity(identity)
             .associateVisitor(visitorId, withIdentity: identity)
-            .commit()
-    }
-
-    /**
-     * Sets the [`VisitorStorage.ownerIdentity`](doc:VisitorStorage/ownerIdentity) to the provided `identity`.
-     *
-     * It does not create any associations between the `ownerIdentity` and the `visitorId`.
-     *
-     * - Parameters:
-     *   - identity: The identity to change to.
-     */
-    func changeIdentity(identity: String) throws {
-        try storage.edit()
-            .setOwnerIdentity(identity)
             .commit()
     }
 
@@ -108,18 +84,31 @@ class VisitorStorage {
     }
 
     /**
-     * Erases every stored identity association and the `ownerIdentity`, and replaces the `visitorId` with the `newVisitorId`.
+     * Erases every stored identity association and the `ownerIdentity`, replaces the `visitorId` with the
+     * `newVisitorId`, then (with a non-`nil` `identity`) sets the `ownerIdentity` to `identity` and
+     * associates `identity` with the `newVisitorId`.
      *
-     * Any other entry of the underlying storage is left untouched.
+     * Any other entry of the underlying storage is left untouched. Applied as a single commit.
      *
      * - Parameters:
      *   - newVisitorId: the replacement visitor to save after erasing.
+     *   - identity: the identity to re-associate with `newVisitorId`, or `nil` to leave it unowned.
      */
-    func eraseIdentities(settingNewVisitorId newVisitorId: String) throws {
-        let identityKeys = storage.keys().filter { $0.hasPrefix(Keys.identityPrefix) }
-        try storage.edit()
-            .remove(keys: identityKeys + [Keys.ownerIdentity])
+    func eraseIdentities(settingNewVisitorId newVisitorId: String, withIdentity identity: String?) throws {
+        let survivingIdentityKey = identity.map(Keys.identity)
+        let identityKeysToRemove = storage.keys().filter {
+            $0.hasPrefix(Keys.identityPrefix) && $0 != survivingIdentityKey
+        }
+        let keysToRemove = identity == nil ? identityKeysToRemove + [Keys.ownerIdentity] : identityKeysToRemove
+        let editor = storage.edit()
+            .remove(keys: keysToRemove)
             .setVisitorId(newVisitorId)
+        guard let identity else {
+            try editor.commit()
+            return
+        }
+        try editor.setOwnerIdentity(identity)
+            .associateVisitor(newVisitorId, withIdentity: identity)
             .commit()
     }
 }
@@ -131,6 +120,10 @@ fileprivate extension DataStoreEditor {
 
     func setOwnerIdentity(_ identity: String) -> Self {
         put(key: VisitorStorage.Keys.ownerIdentity, value: identity, expiry: .forever)
+    }
+
+    func removeOwnerIdentity() -> Self {
+        remove(key: VisitorStorage.Keys.ownerIdentity)
     }
 
     func associateVisitor(_ visitorId: String, withIdentity identity: String?) -> Self {
