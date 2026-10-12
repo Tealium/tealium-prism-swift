@@ -58,11 +58,30 @@ class SQLiteOpenHelper {
         let connection: Connection
         if let url = self.databaseUrl {
             connection = try Connection(url.path)
-            try TealiumFileManager.setIsExcludedFromBackup(to: true, for: url)
+            // `try?`, not `try`: a throw here propagates to DatabaseProvider.getPersistentDatabase,
+            // whose `catch { return nil }` silently substitutes an IN-MEMORY database and loses every
+            // unsent event at process exit. That is a strictly worse outcome, because the line above
+            // has ALREADY created the file on disk — so the fallback does not undo the backup
+            // exposure, it just orphans the same un-excluded file and drops the queue as well.
+            // Backup exclusion is a best-effort optimisation; the delivery guarantee is not.
+            try? TealiumFileManager.setIsExcludedFromBackup(to: true, for: url)
         } else {
             connection = try Connection(.inMemory)
         }
         try prepare(database: connection)
+
+        // Exclude the -wal/-shm sidecars from backup AFTER `prepare`, not before: they do not
+        // exist until `onConfigure` enables WAL and `onCreate` writes the schema, both of which
+        // happen inside `prepare`. Doing it earlier silently no-ops on a fresh install — the one
+        // launch where the database is created — leaving queued event data in iCloud backups
+        // until the second launch.
+        if let url = self.databaseUrl {
+            for suffix in ["-wal", "-shm"] {
+                let sidecar = URL(fileURLWithPath: url.path + suffix)
+                guard FileManager.default.fileExists(atPath: sidecar.path) else { continue }
+                try? TealiumFileManager.setIsExcludedFromBackup(to: true, for: sidecar)
+            }
+        }
         return connection
     }
 
@@ -72,6 +91,12 @@ class SQLiteOpenHelper {
             return
         }
         try? TealiumFileManager.deleteAtPath(path: path)
+        // The -wal and -shm sidecars must go too. In WAL mode a surviving -wal is replayed when
+        // the database is next opened, which can resurrect data from a database we were asked to
+        // delete (e.g. the unsupported-downgrade path, which deletes and recreates).
+        for suffix in ["-wal", "-shm"] {
+            try? TealiumFileManager.deleteAtPath(path: path + suffix)
+        }
     }
 
     /**

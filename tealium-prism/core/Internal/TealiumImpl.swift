@@ -19,6 +19,7 @@ class TealiumImpl {
     let barrierCoordinator: BarrierCoordinator
     let sessionManager: SessionManager
     let queueManager: QueueManager
+    private let databaseProvider: DatabaseProviderProtocol
 
     // swiftlint:disable:next function_body_length
     init(_ config: TealiumConfig, queue: TealiumQueue) throws {
@@ -26,7 +27,6 @@ class TealiumImpl {
         var config = config
         Self.addMandatoryAndRemoveDuplicateModules(from: &config)
         Self.addMandatoryAndRemoveDuplicateBarriers(from: &config)
-        let storeProvider = try Self.initModuleStoreProvider(config: config)
         let onLogLevel = ReplaySubject<LogLevel.Minimum>()
         let logger = TealiumLogger(logHandler: config.loggerType.getHandler(),
                                    onLogLevel: onLogLevel.asObservable(),
@@ -34,6 +34,8 @@ class TealiumImpl {
             .get(key: CoreSettings.Keys.minLogLevel, as: String.self)
             .flatMap { LogLevel.Minimum(from: $0) },
                                    queue: queue)
+        let storeProvider = try Self.initModuleStoreProvider(config: config, logger: logger)
+        self.databaseProvider = storeProvider.databaseProvider
         let client = config.networkClient.newClient(withLogger: logger)
         let networkHelper = NetworkHelper(networkClient: client)
         let sharedDataStore = try storeProvider.getSharedDataStore()
@@ -122,6 +124,25 @@ class TealiumImpl {
                                       queue: queue,
                                       queueMetrics: queueManager,
                                       dataLayer: dataLayerStore)
+        // Checkpoint the write-ahead log whenever the app goes to the background.
+        //
+        // This is the hook that matters in practice: `shutdown()` is frequently never called
+        // because iOS kills backgrounded apps outright, and SQLite.swift only closes the
+        // connection in `deinit`. Without this the `-wal` grows and committed frames are never
+        // folded back into the main database file — measured at 4 MB after a single 100-event
+        // burst. Backgrounding is the last reliable moment to do it.
+        //
+        // Cheap and safe to repeat: `wal_checkpoint(RESTART)` has nothing to copy once every frame
+        // is already in the database, and is a no-op entirely when the database is not in WAL mode.
+        config.appStatusListener.onApplicationStatus
+            .subscribeOn(queue)
+            .observeOn(queue)
+            .filter { $0.type == .backgrounded }
+            .subscribe { [databaseProvider = storeProvider.databaseProvider, logger] _ in
+                Self.checkpoint(databaseProvider, at: "backgrounding", logger: logger)
+            }
+            .addTo(automaticDisposer)
+
         self.instanceName = "\(config.account)-\(config.profile)"
         barrierManager.initializeBarriers(factories: config.barriers, context: context)
         logger.info(category: LogCategory.tealium, "Instance \(self.instanceName) initialized.")
@@ -165,8 +186,37 @@ class TealiumImpl {
         queueManager.shutdown()
         moduleManager.shutdown()
         sessionManager.shutdown()
+        // Fold the write-ahead log back into the main database and reset it. Runs after the
+        // dispatch loop has stopped so nothing is mid-write, and is a no-op when WAL is not in
+        // use. Strictly durability-positive: committed frames move INTO the database file.
+        Self.checkpoint(databaseProvider, at: "shutdown", logger: context.logger)
         let instanceName = self.instanceName // Avoid capturing self in @escaping autoclosure
         context.logger?.info(category: LogCategory.tealium, "Instance \(instanceName) shutting down.")
+    }
+
+    /// Checkpoints the write-ahead log and reports the result. A `busy` result means another
+    /// connection still held the log, so it was not reset and the remaining frames wait for the next
+    /// checkpoint: worth a line in a log, but nothing for either caller to act on.
+    private static func checkpoint(_ databaseProvider: DatabaseProviderProtocol,
+                                   at moment: String,
+                                   logger: LoggerProtocol?) {
+        let result: (busy: Bool, log: Int, checkpointed: Int)
+        do {
+            result = try databaseProvider.checkpoint()
+        } catch {
+            logger?.error(category: LogCategory.tealium,
+                          "WAL checkpoint at \(moment) failed: \(error)")
+            return
+        }
+        guard !result.busy else {
+            logger?.warn(category: LogCategory.tealium,
+                         "WAL checkpoint at \(moment) did not reset the log: another connection "
+                         + "held it, \(result.checkpointed) of \(result.log) frames folded back")
+            return
+        }
+        logger?.debug(category: LogCategory.tealium,
+                      "WAL checkpoint at \(moment): \(result.checkpointed) of \(result.log) "
+                      + "frames folded back, log reset")
     }
 
     deinit {

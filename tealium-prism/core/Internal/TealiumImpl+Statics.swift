@@ -19,8 +19,8 @@ extension TealiumImpl {
             .removingDuplicates(by: \.id)
     }
 
-    static func initModuleStoreProvider(config: TealiumConfig) throws -> ModuleStoreProvider {
-        let databaseProvider = try DatabaseProvider(config: config)
+    static func initModuleStoreProvider(config: TealiumConfig, logger: LoggerProtocol) throws -> ModuleStoreProvider {
+        let databaseProvider = try DatabaseProvider(config: config, logger: logger)
         return ModuleStoreProvider(databaseProvider: databaseProvider,
                                    modulesRepository: SQLModulesRepository(dbProvider: databaseProvider))
     }

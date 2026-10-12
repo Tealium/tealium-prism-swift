@@ -96,6 +96,7 @@
 		5269CC7F5C98D8D3F9165DC2 /* Pods_LifecycleTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54FF7E83E30104B69E5A37AA /* Pods_LifecycleTests_macOS.framework */; };
 		538349C1FEC29C5EDC91AA90 /* Pods_EndToEndTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3101724C366C156AD3F8FA1 /* Pods_EndToEndTests_macOS.framework */; };
 		594A50943E5C3E2D7FA6D856 /* MockQueueManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150F31EB2B221CED0067CC56 /* MockQueueManager.swift */; };
+		5A9065337ED81A764F5BE2A9 /* DatabaseProvider+WALTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 506C9C06F9A5F03444FF8C55 /* DatabaseProvider+WALTests.swift */; };
 		5FBAB5C7225D36655267CD4D /* Pods_CoreTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6DC73E2D4B3AEEF2590DBDB1 /* Pods_CoreTests_iOS.framework */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
@@ -1403,6 +1404,7 @@
 		87FC08A42D95B16B00E1041D /* SettingsManagerTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08A22D95B16B00E1041D /* SettingsManagerTestCase.swift */; };
 		87FC08A52D95B16B00E1041D /* SettingsManagerTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08A22D95B16B00E1041D /* SettingsManagerTestCase.swift */; };
 		87FEF0A42C2C43DB00340E18 /* XCTAssert+EqualDictionaries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FEF0A32C2C43DB00340E18 /* XCTAssert+EqualDictionaries.swift */; };
+		909642981A4A382EF02A6BC2 /* DatabaseProvider+WALTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 506C9C06F9A5F03444FF8C55 /* DatabaseProvider+WALTests.swift */; };
 		963C0E13F44F9AF8F5909762 /* Pods_ContextAPITests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA426159A769372703C45EB3 /* Pods_ContextAPITests_iOS.framework */; };
 		9E19FD222EBD597000FB205A /* Tealium+ContextAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E19FD202EBD597000FB205A /* Tealium+ContextAPITests.swift */; };
 		9E19FD342EBD5CA000FB205A /* ContextAPIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E19FD312EBD5CA000FB205A /* ContextAPIView.swift */; };
@@ -1554,6 +1556,8 @@
 		9EBB72DA2ED4F32100679293 /* XCTAssert+NSNull.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54852C8217EE00F1C114 /* XCTAssert+NSNull.swift */; };
 		9EBB72DB2ED4F32100679293 /* XCTAssert+NaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F8E6C12CAAD00E00F65EA1 /* XCTAssert+NaN.swift */; };
 		A67C9B8761089B240661C166 /* Pods_ContextAPITests_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC384D02B181A99B4D1514B0 /* Pods_ContextAPITests_tvOS.framework */; };
+		A19DBB30D3753AF882509A92 /* DatabaseProvider+WALTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 506C9C06F9A5F03444FF8C55 /* DatabaseProvider+WALTests.swift */; };
+		A4F584A2A6B2750C7C68BC56 /* DatabaseProvider+WALTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 506C9C06F9A5F03444FF8C55 /* DatabaseProvider+WALTests.swift */; };
 		AABBCCDD000000000000000C /* TemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDD000000000000000B /* TemplateTests.swift */; };
 		AABBCCDD000000000000000D /* TemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDD000000000000000B /* TemplateTests.swift */; };
 		AABBCCDD000000000000000E /* TemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDD000000000000000B /* TemplateTests.swift */; };
@@ -2422,6 +2426,7 @@
 		4C8633CA32EB4275B7B8FB75 /* LifecycleTests_macOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LifecycleTests_macOS-Info.plist"; sourceTree = "<group>"; };
 		4F42B1A7A11CEE9C8A46EBED /* Pods-EndToEndTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EndToEndTests_iOS.debug.xcconfig"; path = "Target Support Files/Pods-EndToEndTests_iOS/Pods-EndToEndTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		4FD20FB9C32528C29E66EAE0 /* Pods_CoreTests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CoreTests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		506C9C06F9A5F03444FF8C55 /* DatabaseProvider+WALTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "DatabaseProvider+WALTests.swift"; sourceTree = "<group>"; };
 		518315910E8B6A82D534C02B /* Pods-ExtensionsTests_macOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ExtensionsTests_macOS.debug.xcconfig"; path = "Target Support Files/Pods-ExtensionsTests_macOS/Pods-ExtensionsTests_macOS.debug.xcconfig"; sourceTree = "<group>"; };
 		54FF7E83E30104B69E5A37AA /* Pods_LifecycleTests_macOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_LifecycleTests_macOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		5599903C3F564E320833A3AD /* Pods-LifecycleTests_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-LifecycleTests_tvOS.debug.xcconfig"; path = "Target Support Files/Pods-LifecycleTests_tvOS/Pods-LifecycleTests_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
@@ -3819,6 +3824,7 @@
 				48F9CE072A5F2BBE00A7376F /* SQLiteOpenHelperTests.swift */,
 				4869569E2A3A07900014AC58 /* DatabaseHelperTests.swift */,
 				1504FE7E2AB4BB6D002C0103 /* DatabaseProviderTests.swift */,
+				506C9C06F9A5F03444FF8C55 /* DatabaseProvider+WALTests.swift */,
 			);
 			path = Database;
 			sourceTree = "<group>";
@@ -6736,6 +6742,7 @@
 				15C0DCC22B0CF5B70007F6BE /* Operators+MergeTests.swift in Sources */,
 				15694FC92A40605E00925C4B /* MockInterceptorManager.swift in Sources */,
 				685E286263E8ABB5B7BDB562 /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */,
+				A19DBB30D3753AF882509A92 /* DatabaseProvider+WALTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7520,6 +7527,7 @@
 				87A4094D2E97F06E005D92CC /* URLConvertibleTests.swift in Sources */,
 				87A4094E2E97F06E005D92CC /* DataLayerWrapperTests.swift in Sources */,
 				F837A190B3F8CA341115258E /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */,
+				5A9065337ED81A764F5BE2A9 /* DatabaseProvider+WALTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8092,6 +8100,7 @@
 				D54BBFE32C78C01A003687C7 /* URLConvertibleTests.swift in Sources */,
 				87ED26EB2CE504C80086FFA4 /* DataLayerWrapperTests.swift in Sources */,
 				B3D511395E2849778F4D0C92 /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */,
+				909642981A4A382EF02A6BC2 /* DatabaseProvider+WALTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8369,6 +8378,7 @@
 				D54BBFE22C78C01A003687C7 /* URLConvertibleTests.swift in Sources */,
 				87ED26EC2CE504C80086FFA4 /* DataLayerWrapperTests.swift in Sources */,
 				E7BB02476ABB22C5267C4BEA /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */,
+				A4F584A2A6B2750C7C68BC56 /* DatabaseProvider+WALTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
