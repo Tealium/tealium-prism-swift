@@ -79,6 +79,21 @@ class ConsentIntegrationManager: ConsentManager {
                   logger: logger)
     }
 
+    /**
+     * Consent integration is not part of the public API in the GA release, so no `CMPAdapter`
+     * can be configured. If local or remote settings still carry a `consent` section, log once and ignore it.
+     */
+    static func logIgnoredConsentSettings(_ consentSettings: ObservableState<ConsentSettings?>,
+                                          logger: TealiumLogger?) -> any Disposable {
+        consentSettings
+            .compactMap { $0 }
+            .first()
+            .subscribe { _ in
+                logger?.info(category: LogCategory.consent,
+                             "Consent settings found, but consent integration is not available in this release. The consent section is ignored.")
+            }
+    }
+
     init(queueManager: QueueManagerProtocol,
          modules: ObservableState<[Module]>,
          consentSettings: ObservableState<ConsentSettings?>,

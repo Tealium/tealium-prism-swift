@@ -468,3 +468,40 @@ final class ConsentDuringModulesUpdateTests: ConsentIntegrationManagerBaseTests 
                        "The dispatch must reach the dispatchers of the pass that is running, not the previous ones")
     }
 }
+
+final class IgnoredConsentSettingsLogTests: XCTestCase {
+    let logHandler = MockLogHandler()
+    let onLogLevel = ReplaySubject<LogLevel.Minimum>()
+    lazy var logger = TealiumLogger(logHandler: logHandler,
+                                    onLogLevel: onLogLevel.asObservable(),
+                                    forceLevel: .info,
+                                    queue: .main)
+    @StateSubject(nil)
+    var consentSettings: ObservableState<ConsentSettings?>
+    let disposer = AutomaticDisposer()
+
+    func test_logIgnoredConsentSettings_logs_once_when_consent_settings_are_present() {
+        let logged = expectation(description: "Ignored consent settings are logged exactly once")
+        logHandler.onLogged.subscribe { event in
+            XCTAssertEqual(event.category, LogCategory.consent)
+            XCTAssertEqual(event.level, .info)
+            logged.fulfill()
+        }.addTo(disposer)
+        ConsentIntegrationManager.logIgnoredConsentSettings(consentSettings, logger: logger)
+            .addTo(disposer)
+        _consentSettings.onNext(ConsentIntegrationManagerBaseTests.buildConsentSettings())
+        _consentSettings.onNext(ConsentSettings(configurations: [:]))
+        waitForExpectations(timeout: 1.0)
+    }
+
+    func test_logIgnoredConsentSettings_does_not_log_when_consent_settings_are_absent() {
+        let notLogged = expectation(description: "Nothing is logged without consent settings")
+        notLogged.isInverted = true
+        logHandler.onLogged.subscribe { _ in
+            notLogged.fulfill()
+        }.addTo(disposer)
+        ConsentIntegrationManager.logIgnoredConsentSettings(consentSettings, logger: logger)
+            .addTo(disposer)
+        waitForExpectations(timeout: 0.5)
+    }
+}

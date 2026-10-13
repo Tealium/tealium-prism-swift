@@ -90,6 +90,11 @@ class TealiumImpl {
                                                        queue: queue,
                                                        cmpAdapter: config.cmpAdapter,
                                                        logger: logger)
+        if consentManager == nil {
+            ConsentIntegrationManager.logIgnoredConsentSettings(settingsManager.settings.mapState { $0.consent },
+                                                                logger: logger)
+                .addTo(automaticDisposer)
+        }
 
         let dispatchManager = DispatchManager(loadRuleEngine: loadRuleEngine,
                                               onDispatchers: moduleManager.observeModules { $0 as? Dispatcher },

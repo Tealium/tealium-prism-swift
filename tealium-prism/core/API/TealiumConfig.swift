@@ -54,7 +54,7 @@ public struct TealiumConfig {
     var backgroundTaskStarter: BackgroundTaskStarter?
 
     /// An adapter that can convert CMP specific data to a `ConsentDecision` that the `Tealium` consent integration system can handle.
-    public var cmpAdapter: CMPAdapter?
+    var cmpAdapter: CMPAdapter?
     /// Replace with nil in tests to use in memory DB
     var databaseName: String? = "tealium"
     var appStatusListener = ApplicationStatusListener.shared
@@ -198,9 +198,11 @@ public struct TealiumConfig {
      *      - cmpAdapter: The adapter that will report the `ConsentDecision` to the SDK
      *      - block: An optional block called with a configuration builder, used to force some of the `ConsentConfiguration` properties.
      *      Properties set with this block will have precedence to local and remote settings.
+     *
+     * Not part of the public API in the GA release. Returns in a later release.
      */
-    mutating public func enableConsentIntegration(with cmpAdapter: CMPAdapter,
-                                                  forcingConfiguration block: ((_ enforcedConfiguration: ConsentConfigurationBuilder) -> ConsentConfigurationBuilder)? = nil) {
+    mutating func enableConsentIntegration(with cmpAdapter: CMPAdapter,
+                                           forcingConfiguration block: ((_ enforcedConfiguration: ConsentConfigurationBuilder) -> ConsentConfigurationBuilder)? = nil) {
         self.cmpAdapter = cmpAdapter
         if let configuration = block?(ConsentConfigurationBuilder()) {
             consentSettings = ConsentSettingsBuilder(vendorId: cmpAdapter.id)

@@ -41,14 +41,8 @@ class TealiumHelper {
             builder.setMinLogLevel(.trace)
         })
 //        config.addBarrier(Barriers.batching())
-        config.enableConsentIntegration(with: cmp) { enforcedConfiguration in
-            enforcedConfiguration.setTealiumPurposeId(CustomCMP.Purposes.tealium.rawValue)
-                .setRefireDispatcherIds([Modules.Types.collect])
-                .addPurpose(CustomCMP.Purposes.tracking.rawValue, dispatcherIds: [
-                    Modules.Types.collect,
-                    CustomDispatcher.Factory.moduleType
-                ])
-        }
+        // TealiumConfig.enableConsentIntegration is not available in the GA release.
+        // Consent gating is done server-side in EventStream; the entry point will return in a later release.
         config.setTransformation(
             SetDataValuesSettingsBuilder(id: "duplicate-tealium_event-to-some_destination")
                 .setScope(.allDispatchers)
