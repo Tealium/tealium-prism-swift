@@ -12,17 +12,24 @@ import XCTest
 
 class SQLiteOpenHelperTests: XCTestCase {
     var config = createMockConfig()
-    lazy var openHelper = SQLiteOpenHelper(version: 1,
-                                           config: config)
+    var openHelper: SQLiteOpenHelper!
 
-    func test_init_sets_right_url() throws {
-        config.databaseName = "database_name"
-        guard let url = openHelper.databaseUrl?.absoluteString else {
-            XCTFail("Database url is nil")
-            return
-        }
-        let suffix = "/tealium-prism/mock_account/mock_profile/database_name.sqlite3"
-        XCTAssertTrue(url.hasSuffix(suffix), "URL \(url) should have suffix \(suffix)")
+    override func setUpWithError() throws {
+        config.databaseName = "test"
+        openHelper = SQLiteOpenHelper(version: 1, databaseUrl: try config.databaseUrl())
+        try openHelper.deleteDatabase()
+    }
+
+    override func tearDownWithError() throws {
+        try openHelper.deleteDatabase()
+        // Only the test account's folder, not the whole `tealium-prism` one, which unsandboxed apps share on macOS.
+        try? TealiumFileManager.deleteAtPath(path: TealiumFileManager.getTealiumApplicationFolder().appendingPathComponent(config.account).path)
+    }
+
+    func test_init_keeps_the_database_url() {
+        let url = URL(fileURLWithPath: "/tmp/database_name.sqlite3")
+        XCTAssertEqual(SQLiteOpenHelper(version: 1, databaseUrl: url).databaseUrl, url)
+        XCTAssertNil(SQLiteOpenHelper(version: 1, databaseUrl: nil).databaseUrl)
     }
 
     func test_prepare_runs_all_functions_in_order() throws {
@@ -188,13 +195,22 @@ class SQLiteOpenHelperTests: XCTestCase {
     }
 
     func test_prepare_throws_when_version_is_less_than_1() {
-        let helper = SQLiteOpenHelper(version: 0, config: config)
+        let helper = SQLiteOpenHelper(version: 0, databaseUrl: nil)
         XCTAssertThrowsError(try helper.getDatabase()) { error in
             guard let databaseError = error as? DatabaseError,
                   case let .invalidDatabaseVersion(version) = databaseError else {
                 return XCTFail("Expected invalidDatabaseVersion error but got \(error)")
             }
             XCTAssertEqual(version, 0)
+        }
+    }
+
+    func test_default_onDowngrade_throws_unsupportedDowngrade() throws {
+        let connection = try Connection(.inMemory)
+        XCTAssertThrowsError(try openHelper.onDowngrade(database: connection, fromOldVersion: 2, toNewVersion: 1)) { error in
+            guard let error = error as? DatabaseError, case .unsupportedDowngrade = error else {
+                return XCTFail("Expected unsupportedDowngrade error but got \(error)")
+            }
         }
     }
 
@@ -266,7 +282,6 @@ class SQLiteOpenHelperTests: XCTestCase {
     }
 
     func test_create_and_delete_database() throws {
-        config.databaseName = "test"
         guard let path = openHelper.databaseUrl?.path else {
             XCTFail("Failed to get path for database")
             return
@@ -276,12 +291,11 @@ class SQLiteOpenHelperTests: XCTestCase {
         }
         XCTAssertNoThrow(try openHelper.getDatabase())
         XCTAssertTrue(FileManager.default.fileExists(atPath: path))
-        openHelper.deleteDatabase()
+        try openHelper.deleteDatabase()
         XCTAssertFalse(FileManager.default.fileExists(atPath: path))
     }
 
     func test_database_is_excluded_from_backup() throws {
-        config.databaseName = "test"
         _ = try openHelper.getDatabase()
         guard let url = openHelper.databaseUrl else {
             XCTFail("Invalid database url.")
@@ -289,7 +303,73 @@ class SQLiteOpenHelperTests: XCTestCase {
         }
         let isExcludedFromBackup = try url.resourceValues(forKeys: [.isExcludedFromBackupKey]).isExcludedFromBackup
         XCTAssertTrueOptional(isExcludedFromBackup)
-        openHelper.deleteDatabase()
+        try openHelper.deleteDatabase()
         XCTAssertFalse(FileManager.default.fileExists(atPath: url.path))
+    }
+
+    func test_database_files_are_excluded_from_backup_even_when_opening_the_file_throws() throws {
+        let url = try XCTUnwrap(config.databaseUrl())
+        // A directory where the database file should be makes `Connection(path)` itself throw.
+        try FileManager.default.createDirectory(at: url, withIntermediateDirectories: true)
+        var excludedPaths = [String]()
+        let helper = SQLiteOpenHelper(version: 1, databaseUrl: url, excludeFromBackup: { excludedPaths.append($0.path) })
+        XCTAssertThrowsError(try helper.getDatabase())
+        XCTAssertTrue(excludedPaths.contains(url.path))
+        try FileManager.default.removeItem(at: url)
+    }
+
+    func test_prepare_throws_the_failed_step_error_even_when_rollback_fails() {
+        let helper = MockDatabaseHelper(version: 1, onCreateCallback: { database in
+            // Ending the transaction here makes the helper's own ROLLBACK fail.
+            try database.run("ROLLBACK")
+            throw StepError()
+        })
+        XCTAssertThrowsError(try helper.getDatabase()) { error in
+            XCTAssertTrue(error is StepError, "Expected StepError, got \(error)")
+        }
+    }
+
+    // MARK: - deleteDatabase
+
+    private struct RemoveError: Error { }
+
+    func test_deleteDatabase_failing_to_remove_the_main_file_throws_and_leaves_the_sidecars() throws {
+        let path = try XCTUnwrap(config.databaseUrl()?.path)
+        var attemptedPaths = [String]()
+        let helper = SQLiteOpenHelper(version: 1, databaseUrl: try config.databaseUrl(), removeFile: {
+            attemptedPaths.append($0)
+            if $0 == path { throw RemoveError() }
+        })
+        XCTAssertThrowsError(try helper.deleteDatabase()) { error in
+            XCTAssertTrue(error is RemoveError)
+        }
+        XCTAssertEqual(attemptedPaths, [path])
+    }
+
+    func test_deleteDatabase_failing_to_remove_one_sidecar_does_not_throw_attempts_the_others_and_logs_a_warning() throws {
+        let logger = MockLogger()
+        var warnings = [String]()
+        let subscription = logger.handler.onLogged.subscribe { event in
+            if event.category == LogCategory.persistence && event.level == .warn {
+                warnings.append(event.message)
+            }
+        }
+        defer { subscription.dispose() }
+        let path = try XCTUnwrap(config.databaseUrl()?.path)
+        var attemptedPaths = [String]()
+        let helper = SQLiteOpenHelper(version: 1, databaseUrl: try config.databaseUrl(), logger: logger, removeFile: {
+            attemptedPaths.append($0)
+            if $0 == path + "-shm" { throw RemoveError() }
+        })
+        XCTAssertNoThrow(try helper.deleteDatabase())
+        XCTAssertEqual(attemptedPaths, [path, path + "-wal", path + "-shm", path + "-journal"])
+        XCTAssertEqual(warnings, [
+            "The database file was deleted, but some of its sidecar files could not be removed; SQLite discards them next to the new file. test.sqlite3-shm: RemoveError()"
+        ])
+    }
+
+    func test_deleteDatabase_ignores_files_that_do_not_exist() throws {
+        XCTAssertFalse(FileManager.default.fileExists(atPath: try XCTUnwrap(openHelper.databaseUrl?.path)))
+        XCTAssertNoThrow(try openHelper.deleteDatabase())
     }
 }

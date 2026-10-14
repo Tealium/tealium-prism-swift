@@ -8,7 +8,6 @@
 
 import Foundation
 import SQLite
-import SQLite3
 
 /**
  * A helper class to manage database creation and version management.
@@ -22,26 +21,42 @@ import SQLite3
  */
 class SQLiteOpenHelper {
 
+    /// The database file, or `nil` for an in-memory database.
     let databaseUrl: URL?
     let version: Int
+    let logger: LoggerProtocol?
+    private let excludeFromBackup: (URL) throws -> Void
+    private let removeFile: (String) throws -> Void
+
+    /// The file removal `deleteDatabase()` uses unless another one is injected.
+    static let defaultRemoveFile: (String) throws -> Void = { try TealiumFileManager.deleteAtPath(path: $0) }
+
+    /// The backup exclusion `getDatabase()` uses unless another one is injected.
+    static let defaultExcludeFromBackup: (URL) throws -> Void = { try TealiumFileManager.setIsExcludedFromBackup(to: true, for: $0) }
+
+    /// The files SQLite keeps next to the database, excluded from backup and deleted with it. `-journal` never exists in WAL mode.
+    static let sidecarSuffixes = ["-wal", "-shm", "-journal"]
 
     /**
      * Creates a new `SQLiteOpenHelper`
      *
      *  - Parameters:
      *     - version: the current version of the DB, used to compare with the stored version and perform upgrades/downgrades
-     *     - config: the configuration used to get the correct DB for account/profile
+     *     - databaseUrl: the location of the database file, or `nil` for an in-memory database
+     *     - logger: the logger used to report non-fatal problems with the database, such as a failed backup exclusion
+     *     - excludeFromBackup: excludes the file at the given URL from backups, called on the database files by `getDatabase()`
+     *     - removeFile: removes the file at the given path, used by `deleteDatabase()`
      */
-    init(version: Int, config: TealiumConfig?) {
+    init(version: Int,
+         databaseUrl: URL?,
+         logger: LoggerProtocol? = nil,
+         excludeFromBackup: @escaping (URL) throws -> Void = SQLiteOpenHelper.defaultExcludeFromBackup,
+         removeFile: @escaping (String) throws -> Void = SQLiteOpenHelper.defaultRemoveFile) {
         self.version = version
-        guard let config,
-              let databaseName = config.databaseName else {
-            databaseUrl = nil
-            return
-        }
-        databaseUrl = TealiumFileManager.getApplicationFileUrl(for: config.account,
-                                                               profile: config.profile,
-                                                               fileName: "\(databaseName).sqlite3")
+        self.databaseUrl = databaseUrl
+        self.logger = logger
+        self.excludeFromBackup = excludeFromBackup
+        self.removeFile = removeFile
     }
 
     /**
@@ -55,47 +70,75 @@ class SQLiteOpenHelper {
      * before returning the connection.
      */
     func getDatabase() throws -> Connection {
-        let connection: Connection
-        if let url = self.databaseUrl {
-            connection = try Connection(url.path)
-            // `try?`, not `try`: a throw here propagates to DatabaseProvider.getPersistentDatabase,
-            // whose `catch { return nil }` silently substitutes an IN-MEMORY database and loses every
-            // unsent event at process exit. That is a strictly worse outcome, because the line above
-            // has ALREADY created the file on disk — so the fallback does not undo the backup
-            // exposure, it just orphans the same un-excluded file and drops the queue as well.
-            // Backup exclusion is a best-effort optimisation; the delivery guarantee is not.
-            try? TealiumFileManager.setIsExcludedFromBackup(to: true, for: url)
-        } else {
-            connection = try Connection(.inMemory)
+        guard let url = databaseUrl else {
+            let connection = try Connection(.inMemory)
+            try prepare(database: connection)
+            return connection
         }
+        // Best-effort, as a failed exclusion must not cost the file. Runs after `prepare`, which creates -wal/-shm, and even when
+        // opening the file or `prepare` throws, since the files stay on disk either way.
+        defer { excludeExistingFilesFromBackup([url.path] + Self.sidecarSuffixes.map { url.path + $0 }) }
+        let connection = try Connection(url.path)
         try prepare(database: connection)
-
-        // Exclude the -wal/-shm sidecars from backup AFTER `prepare`, not before: they do not
-        // exist until `onConfigure` enables WAL and `onCreate` writes the schema, both of which
-        // happen inside `prepare`. Doing it earlier silently no-ops on a fresh install — the one
-        // launch where the database is created — leaving queued event data in iCloud backups
-        // until the second launch.
-        if let url = self.databaseUrl {
-            for suffix in ["-wal", "-shm"] {
-                let sidecar = URL(fileURLWithPath: url.path + suffix)
-                guard FileManager.default.fileExists(atPath: sidecar.path) else { continue }
-                try? TealiumFileManager.setIsExcludedFromBackup(to: true, for: sidecar)
-            }
-        }
         return connection
     }
 
-    /// Deletes the database from disk, if present.
-    func deleteDatabase() {
+    /// Excludes from backup every file in `paths` that exists, and logs one warning for those that fail.
+    private func excludeExistingFilesFromBackup(_ paths: [String]) {
+        var failures = [(file: String, error: Error)]()
+        for path in paths where FileManager.default.fileExists(atPath: path) {
+            let url = URL(fileURLWithPath: path)
+            do {
+                try excludeFromBackup(url)
+            } catch {
+                failures.append((url.lastPathComponent, error))
+            }
+        }
+        guard !failures.isEmpty else { return }
+        logger?.warn(category: LogCategory.persistence,
+                     "The database files could not be excluded from backup; they are used anyway and the exclusion is retried on the next launch."
+                     + Self.describe(failures))
+    }
+
+    /// Lists each failed file with its error, as appended to the warnings.
+    private static func describe(_ failures: [(file: String, error: Error)]) -> String {
+        failures.map { " \($0.file): \($0.error)" }.joined(separator: ";")
+    }
+
+    /// Deletes the database and its sidecar files from disk, if present.
+    ///
+    /// A sidecar that can't be removed is logged as a warning, not thrown: SQLite discards it next to the new file.
+    ///
+    /// - Throws: the error removing the main file, only if it fails for any reason other than the file
+    /// not existing. The main file is then still on disk, and the sidecars are left untouched.
+    func deleteDatabase() throws {
         guard let path = self.databaseUrl?.path else {
             return
         }
-        try? TealiumFileManager.deleteAtPath(path: path)
-        // The -wal and -shm sidecars must go too. In WAL mode a surviving -wal is replayed when
-        // the database is next opened, which can resurrect data from a database we were asked to
-        // delete (e.g. the unsupported-downgrade path, which deletes and recreates).
-        for suffix in ["-wal", "-shm"] {
-            try? TealiumFileManager.deleteAtPath(path: path + suffix)
+        // The main file goes first, as removing the -wal or -journal of a database still on disk can corrupt it.
+        // The same files as Android's SQLiteDatabase.deleteDatabase, except the -mj* super-journals this SDK never creates.
+        // Android (Kotlin): returns a `deleted` Boolean and logs "No database file was deleted"; Swift throws only when the main file
+        // stays, warns about sidecars, and has no nothing-deleted log, since the recreate path only runs right after opening the file.
+        try removeIgnoringMissingFile(path)
+        var sidecarFailures = [(file: String, error: Error)]()
+        for suffix in Self.sidecarSuffixes {
+            do {
+                try removeIgnoringMissingFile(path + suffix)
+            } catch {
+                sidecarFailures.append((URL(fileURLWithPath: path + suffix).lastPathComponent, error))
+            }
+        }
+        guard !sidecarFailures.isEmpty else { return }
+        logger?.warn(category: LogCategory.persistence,
+                     "The database file was deleted, but some of its sidecar files could not be removed; SQLite discards them next to the new file."
+                     + Self.describe(sidecarFailures))
+    }
+
+    private func removeIgnoringMissingFile(_ path: String) throws {
+        do {
+            try removeFile(path)
+        } catch let error as NSError where error.isNoSuchFile {
+            return
         }
     }
 
@@ -177,25 +220,49 @@ class SQLiteOpenHelper {
             throw DatabaseError.invalidDatabaseVersion(version)
         }
         try onConfigure(database: database)
-        let storedVersion: Int = Int(database.userVersion ?? 0)
+        // Not `Connection.userVersion`, whose getter turns a failed read into version 0 and so into `onCreate`.
+        // `PRAGMA user_version` always returns a row, so a missing value is an error too.
+        // Android (Kotlin): the platform deletes and recreates a file whose header is corrupt; Swift throws here and keeps
+        // the file, falling back to memory, until MT-2271 routes corruption.
+        guard let stored = try database.scalar("PRAGMA user_version") as? Int64 else {
+            throw MissingUserVersionError()
+        }
+        let storedVersion = Int(stored)
         if storedVersion != version {
-            try database.transaction {
+            // The connection is local to `getDatabase()` until it returns, so nothing interleaves between BEGIN and COMMIT.
+            // Android (Kotlin): records `initializationFailure`, as the platform `SQLiteOpenHelper`'s `endTransaction` can mask the
+            // callback's exception; Swift owns the transaction and throws the real cause directly.
+            try database.run("BEGIN DEFERRED TRANSACTION")
+            do {
                 if storedVersion == 0 {
                     try onCreate(database: database)
+                } else if storedVersion < version {
+                    try onUpgrade(database: database, fromOldVersion: storedVersion, toNewVersion: version)
                 } else {
-                    if storedVersion < version {
-                        try onUpgrade(database: database,
-                                      fromOldVersion: storedVersion,
-                                      toNewVersion: version)
-                    } else if storedVersion > version {
-                        try onDowngrade(database: database,
-                                        fromOldVersion: storedVersion,
-                                        toNewVersion: version)
-                    }
+                    try onDowngrade(database: database, fromOldVersion: storedVersion, toNewVersion: version)
                 }
-                database.userVersion = UserVersion(version)
+                // Not `Connection.userVersion`, whose setter ignores a failed write. Inside the transaction,
+                // so a failed stamp rolls the changes back.
+                try database.run("PRAGMA user_version = \(version)")
+                try database.run("COMMIT TRANSACTION")
+            } catch {
+                // The real cause is thrown, not ROLLBACK's error. ROLLBACK usually fails because SQLite already rolled back
+                // (after SQLITE_FULL or SQLITE_IOERR), and closing the connection rolls back anything still open.
+                _ = try? database.run("ROLLBACK TRANSACTION")
+                throw error
             }
         }
         try self.onOpen(database: database)
+    }
+}
+
+/// `PRAGMA user_version` returned no integer, which SQLite never does for a readable database.
+struct MissingUserVersionError: Error { }
+
+private extension NSError {
+    /// Whether this error says that the file to remove doesn't exist.
+    var isNoSuchFile: Bool {
+        (domain == NSCocoaErrorDomain && code == NSFileNoSuchFileError)
+            || (domain == NSPOSIXErrorDomain && code == Int(ENOENT))
     }
 }

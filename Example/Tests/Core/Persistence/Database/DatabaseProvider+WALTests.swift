@@ -12,15 +12,15 @@ import XCTest
 /// Coverage for the write-ahead-logging configuration and the checkpoint.
 ///
 /// These exist because the pragmas are easy to break silently: a throw out of `onConfigure`
-/// propagates to `DatabaseProvider`'s `catch { return nil }`, which substitutes an IN-MEMORY
-/// database with no logging at all — the SDK would keep running and lose every unsent event at app
-/// exit. Nothing in the suite noticed that before.
+/// propagates to `DatabaseProvider`'s catch-all, which substitutes an IN-MEMORY database — the SDK
+/// would keep running and lose every unsent event at app exit. Nothing in the suite noticed that before.
 final class DatabaseProviderWALTests: XCTestCase {
     var path = ""
     var config = mockConfig
 
     override func setUp() {
-        path = (try? TealiumFileManager.getTealiumApplicationFolder().path) ?? ""
+        // Only the test account's folder, not the whole `tealium-prism` one, which unsandboxed apps share on macOS.
+        path = (try? TealiumFileManager.getTealiumApplicationFolder().appendingPathComponent(config.account).path) ?? ""
         try? TealiumFileManager.deleteAtPath(path: path)
     }
 
@@ -32,7 +32,7 @@ final class DatabaseProviderWALTests: XCTestCase {
 
     func test_persistent_database_uses_WAL_journal_mode() throws {
         config.databaseName = "tealium"
-        let database = try XCTUnwrap(DatabaseProvider.getPersistentDatabase(config: config))
+        let database = try DatabaseProvider.openDatabase(config: config)
 
         let mode = try XCTUnwrap(try database.scalar("PRAGMA journal_mode") as? String)
         XCTAssertEqual(mode.lowercased(), "wal",
@@ -42,7 +42,7 @@ final class DatabaseProviderWALTests: XCTestCase {
 
     func test_persistent_database_uses_synchronous_NORMAL() throws {
         config.databaseName = "tealium"
-        let database = try XCTUnwrap(DatabaseProvider.getPersistentDatabase(config: config))
+        let database = try DatabaseProvider.openDatabase(config: config)
 
         // 1 == NORMAL. Under WAL this can only lose the most recent commit on OS crash or power
         // loss, never on app termination, where the log survives and is replayed on next open.
@@ -186,15 +186,21 @@ final class DatabaseProviderWALTests: XCTestCase {
 
     // MARK: - Sidecars
 
-    func test_deleteDatabase_removes_the_wal_and_shm_sidecars() throws {
+    func test_deleteDatabase_removes_every_sidecar() throws {
         config.databaseName = "tealium"
-        let helper = DatabaseHelper(config: config)
+        let helper = DatabaseHelper(databaseUrl: try config.databaseUrl())
         _ = try helper.getDatabase()
 
         let databasePath = try XCTUnwrap(helper.databaseUrl?.path)
-        helper.deleteDatabase()
+        // WAL mode never creates a rollback journal, so one is staged to prove it is removed too.
+        XCTAssertTrue(FileManager.default.createFile(atPath: databasePath + "-journal", contents: Data()))
+        for suffix in ["-wal", "-shm", "-journal"] {
+            XCTAssertTrue(FileManager.default.fileExists(atPath: databasePath + suffix),
+                          "The \(suffix) file must exist before deleteDatabase() for this test to prove anything.")
+        }
+        try helper.deleteDatabase()
 
-        for suffix in ["", "-wal", "-shm"] {
+        for suffix in ["", "-wal", "-shm", "-journal"] {
             XCTAssertFalse(FileManager.default.fileExists(atPath: databasePath + suffix),
                            "deleteDatabase() must remove the \(suffix.isEmpty ? "database" : suffix) "
                            + "file; a stranded sidecar leaves queued event data on disk.")
@@ -207,13 +213,9 @@ final class DatabaseProviderWALTests: XCTestCase {
     /// resolved. Throws when the file cannot be read, so a missing `-wal` fails the test instead of
     /// passing as an empty log.
     private func walSize() throws -> Int {
-        try TealiumFileManager
-            .getApplicationFileUrl(for: config.account,
-                                   profile: config.profile,
-                                   fileName: "tealium.sqlite3")
-            .map { $0.path.appending("-wal") }
-            .flatMap {
-                try FileManager.default.attributesOfItem(atPath: $0)[.size] as? Int
-            } ?? 0
+        let url = try TealiumFileManager.getApplicationFileUrl(for: config.account,
+                                                               profile: config.profile,
+                                                               fileName: "tealium.sqlite3")
+        return try FileManager.default.attributesOfItem(atPath: url.path.appending("-wal"))[.size] as? Int ?? 0
     }
 }

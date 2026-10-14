@@ -14,19 +14,25 @@ import SQLite
  */
 class DatabaseHelper: SQLiteOpenHelper {
 
-    /// The list of all upgrades since version 1
-    static var databaseUpgrades: [DatabaseUpgrade] = [
-    ]
-
     /// The current version of the DB implemented in the codebase
-    static var DATABASE_VERSION = 1
+    static let DATABASE_VERSION = 1
+    /// The oldest stored version that can still be upgraded. A file below it is deleted and recreated instead.
+    static let MIN_SUPPORTED_VERSION = 1
 
-    private let logger: LoggerProtocol?
+    private let upgrades: [DatabaseUpgrade]
 
-    init(config: TealiumConfig?, logger: LoggerProtocol? = nil) {
-        self.logger = logger
-        super.init(version: DatabaseHelper.DATABASE_VERSION,
-                   config: config)
+    init(databaseUrl: URL?,
+         logger: LoggerProtocol? = nil,
+         version: Int = DatabaseHelper.DATABASE_VERSION,
+         upgrades: [DatabaseUpgrade] = Upgrades.all,
+         excludeFromBackup: @escaping (URL) throws -> Void = SQLiteOpenHelper.defaultExcludeFromBackup,
+         removeFile: @escaping (String) throws -> Void = SQLiteOpenHelper.defaultRemoveFile) {
+        self.upgrades = upgrades
+        super.init(version: version,
+                   databaseUrl: databaseUrl,
+                   logger: logger,
+                   excludeFromBackup: excludeFromBackup,
+                   removeFile: removeFile)
     }
 
     override func onConfigure(database: Connection) throws {
@@ -45,14 +51,12 @@ class DatabaseHelper: SQLiteOpenHelper {
         // replayed on next open. That is a strictly smaller exposure than the queue already
         // has when the process is killed with events in flight.
         //
-        // NOTE: `deleteDatabase()` must remove the -wal and -shm sidecar files as well, or a
-        // stale WAL can resurrect data from a database that was meant to be deleted.
+        // NOTE: `deleteDatabase()` also removes the -wal, -shm and -journal sidecars; see the comment there.
         //
         // NON-THROWING BY DESIGN. A throw out of onConfigure propagates through
-        // SQLiteOpenHelper.prepare() to DatabaseProvider.getPersistentDatabase, whose
-        // `catch { return nil }` then makes init fall back to an IN-MEMORY database — silently,
-        // as DatabaseProvider does no logging. The SDK would keep running on a process-lifetime
-        // queue and lose every unsent event at app exit.
+        // SQLiteOpenHelper.prepare() to DatabaseProvider.openDatabase, whose
+        // catch-all then makes init fall back to an IN-MEMORY database. The fallback is logged, but
+        // the SDK would keep running on a process-lifetime queue and lose every unsent event at app exit.
         //
         // That is reachable in production: enabling WAL must create the -shm file, which can fail
         // with SQLITE_CANTOPEN under Data Protection on a background launch before first unlock.
@@ -64,7 +68,13 @@ class DatabaseHelper: SQLiteOpenHelper {
         _ = try? database.execute("PRAGMA busy_timeout = 3000")
         // Lowercased defensively: the returned casing is not contractual, and a mismatch here
         // would silently disable WAL's pragmas while logging a spurious error.
-        let journalMode = ((try? database.scalar("PRAGMA journal_mode = WAL")) as? String)?.lowercased()
+        var journalMode: String?
+        var journalModeError: Error?
+        do {
+            journalMode = (try database.scalar("PRAGMA journal_mode = WAL") as? String)?.lowercased()
+        } catch {
+            journalModeError = error
+        }
 
         if journalMode == "wal" {
             // ONLY under WAL. `synchronous=NORMAL` is safe here because the log is append-only and
@@ -100,8 +110,9 @@ class DatabaseHelper: SQLiteOpenHelper {
         // Silent degradation is the thing worth avoiding: the SDK keeps working correctly, just
         // with slower writes.
         if journalMode != "wal" && journalMode != "memory" {
-            logger?.error(category: LogCategory.startup,
-                          "Could not enable WAL journal mode (got \(journalMode ?? "nil")); database still works, writes will be slower")
+            let cause = journalModeError.map { ". Error: \($0)" } ?? ""
+            logger?.error(category: LogCategory.persistence,
+                          "Could not enable WAL journal mode (got \(journalMode ?? "nil")); if the database opens, it uses the rollback journal instead\(cause)")
         }
     }
 
@@ -118,14 +129,42 @@ class DatabaseHelper: SQLiteOpenHelper {
         _ = try database.run(QueueSchema.getTriggerToRemoveProcessedDispatches())
     }
 
+    /// Runs every registered step from `oldVersion` to `newVersion`, in order.
+    ///
+    /// - Throws: `UnsupportedSchemaVersionError` if `oldVersion` is below `MIN_SUPPORTED_VERSION`, or
+    /// `DatabaseUpgradeError` if the steps aren't exactly one per version, in order, or if a step fails.
+    /// Every error except a step failure is thrown before any step runs.
     override func onUpgrade(database: Connection, fromOldVersion oldVersion: Int, toNewVersion newVersion: Int) throws {
-        try getDatabaseUpgrades(oldVersion: oldVersion).forEach {
-            try $0.upgrade(database)
+        guard oldVersion >= Self.MIN_SUPPORTED_VERSION else {
+            throw UnsupportedSchemaVersionError.belowMinimum(stored: oldVersion)
+        }
+        let steps = Upgrades.since(old: oldVersion, new: newVersion, upgrades: upgrades)
+        try Self.requireContiguousChain(steps, oldVersion, newVersion)
+        for step in steps {
+            do {
+                try step.upgrade(database)
+            } catch {
+                throw DatabaseUpgradeError(targetVersion: step.targetVersion, underlying: error)
+            }
         }
     }
 
-    func getDatabaseUpgrades(oldVersion: Int, upgrades: [DatabaseUpgrade] = DatabaseHelper.databaseUpgrades) -> [DatabaseUpgrade] {
-        return upgrades.filter { oldVersion < $0.version }
-            .sorted(by: { $0.version < $1.version })
+    /// Throws unless the versions of `steps` are exactly `old + 1 ... new`, in order.
+    ///
+    /// Only called by `onUpgrade`, which only runs when `old < new`.
+    private static func requireContiguousChain(_ steps: [DatabaseUpgrade], _ old: Int, _ new: Int) throws {
+        let expected = old < new ? Array(old + 1 ... new) : []
+        let registered = steps.map { $0.targetVersion }
+        guard registered != expected else {
+            return
+        }
+        let brokenVersion = expected.first { version in registered.filter { $0 == version }.count != 1 } ?? new
+        throw DatabaseUpgradeError(targetVersion: brokenVersion,
+                                   underlying: DatabaseUpgradeError.BrokenChain(old: old, new: new, expected: expected, registered: registered))
+    }
+
+    /// Rejects the downgrade with the stored and current versions, so the provider can delete and recreate the file.
+    override func onDowngrade(database: Connection, fromOldVersion oldVersion: Int, toNewVersion newVersion: Int) throws {
+        throw UnsupportedSchemaVersionError.newer(stored: oldVersion, current: newVersion)
     }
 }

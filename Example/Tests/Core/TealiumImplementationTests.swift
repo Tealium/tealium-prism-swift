@@ -28,6 +28,41 @@ final class TealiumImplementationTests: XCTestCase {
         return try TealiumImpl(config, queue: .worker)
     }
 
+    func test_init_logs_an_error_when_initialization_fails() throws {
+        let logHandler = MockLogHandler()
+        var config = TealiumConfig(account: "mockAccount",
+                                   profile: "mockProfile",
+                                   environment: "mockEnv",
+                                   modules: [],
+                                   settingsFile: nil,
+                                   settingsUrl: "")
+        config.loggerType = .custom(logHandler)
+        config.databaseName = "tealium"
+        config.networkClient = MockNetworkClient(result: .success(.successful()))
+        // The database file location cannot be created.
+        try blockAccountFolder(config.account)
+        let errorLogged = expectation(description: "Initialization failure is logged")
+        let locationLogged = expectation(description: "File location failure is logged")
+        let subscription = logHandler.onLogged.subscribe { event in
+            guard event.level == .error else { return }
+            if event.category == LogCategory.tealium && event.message.contains("Tealium initialization failed") {
+                errorLogged.fulfill()
+            }
+            if event.category == LogCategory.persistence
+                && event.message.contains("the database file location could not be created") {
+                locationLogged.fulfill()
+            }
+        }
+        // On the worker queue, as TealiumInstanceManager does: the logger is released when init throws.
+        XCTAssertThrowsError(try TealiumQueue.worker.dispatchQueue.sync { try TealiumImpl(config, queue: .worker) }) { error in
+            guard case .invalidUrl(let url)? = error as? ConversionError, "\(url)" == "" else {
+                return XCTFail("Expected ConversionError.invalidUrl for the empty settings URL but got \(error)")
+            }
+        }
+        waitForDefaultTimeout()
+        subscription.dispose()
+    }
+
     func test_isShutdown_is_false_before_shutdown() throws {
         let instance = try makeImplementation()
         XCTAssertFalse(instance.isShutdown)

@@ -12,17 +12,15 @@ import Foundation
 public class TealiumFileManager {
 
     /// Returns the file url under application support/tealium-prism/account/profile/fileName
-    public static func getApplicationFileUrl(for account: String, profile: String, fileName: String) -> URL? {
-        do {
-            let fullDirectory = try getTealiumApplicationFolder()
-                .appendingPathComponent(account)
-                .appendingPathComponent(profile)
-            // According to docs there's no need to check for intermediate directories
-            try FileManager.default.createDirectory(at: fullDirectory, withIntermediateDirectories: true)
-            return fullDirectory.appendingPathComponent(fileName)
-        } catch {
-            return nil
-        }
+    ///
+    /// - Throws: The underlying error if the application support folder or the account/profile directory cannot be created.
+    public static func getApplicationFileUrl(for account: String, profile: String, fileName: String) throws -> URL {
+        let fullDirectory = try getTealiumApplicationFolder()
+            .appendingPathComponent(account)
+            .appendingPathComponent(profile)
+        // According to docs there's no need to check for intermediate directories
+        try FileManager.default.createDirectory(at: fullDirectory, withIntermediateDirectories: true)
+        return fullDirectory.appendingPathComponent(fileName)
     }
 
     /// Returns the tealium-prism folder under the application support directory.

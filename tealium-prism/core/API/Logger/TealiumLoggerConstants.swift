@@ -148,6 +148,7 @@ public enum LogCategory {
     static let httpClient = "HTTPClient"
     static let loadRules = "LoadRules"
     static let networkHelper = "NetworkHelper"
+    static let persistence = "Persistence"
     static let queueManager = "QueueManager"
     static let resourceRefresher = "ResourceRefresher"
     static let settingsManager = "SettingsManager"

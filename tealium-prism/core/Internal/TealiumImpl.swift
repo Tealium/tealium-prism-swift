@@ -34,15 +34,26 @@ class TealiumImpl {
             .get(key: CoreSettings.Keys.minLogLevel, as: String.self)
             .flatMap { LogLevel.Minimum(from: $0) },
                                    queue: queue)
-        let storeProvider = try Self.initModuleStoreProvider(config: config, logger: logger)
-        self.databaseProvider = storeProvider.databaseProvider
+        let storeProvider: ModuleStoreProvider
+        let sharedDataStore: any DataStore
+        let settingsManager: SettingsManager
         let client = config.networkClient.newClient(withLogger: logger)
         let networkHelper = NetworkHelper(networkClient: client)
-        let sharedDataStore = try storeProvider.getSharedDataStore()
-        let settingsManager = try SettingsManager(config: config,
+        do {
+            storeProvider = try Self.initModuleStoreProvider(config: config, logger: logger)
+            sharedDataStore = try storeProvider.getSharedDataStore()
+            settingsManager = try SettingsManager(config: config,
                                                   dataStore: sharedDataStore,
                                                   networkHelper: networkHelper,
                                                   logger: logger)
+        } catch {
+            // Without a settings manager nothing would ever publish a log level, so the logs queued
+            // so far would never be flushed. Publish one so the failure itself is visible.
+            logger.error(category: LogCategory.tealium, "Tealium initialization failed: \(error)")
+            onLogLevel.onNext(.error)
+            throw error
+        }
+        self.databaseProvider = storeProvider.databaseProvider
         settingsManager.startRefreshing(onActivity: config.appStatusListener
             .onApplicationStatus
             .subscribeOn(queue)
@@ -209,17 +220,17 @@ class TealiumImpl {
         do {
             result = try databaseProvider.checkpoint()
         } catch {
-            logger?.error(category: LogCategory.tealium,
+            logger?.error(category: LogCategory.persistence,
                           "WAL checkpoint at \(moment) failed: \(error)")
             return
         }
         guard !result.busy else {
-            logger?.warn(category: LogCategory.tealium,
+            logger?.warn(category: LogCategory.persistence,
                          "WAL checkpoint at \(moment) did not reset the log: another connection "
                          + "held it, \(result.checkpointed) of \(result.log) frames folded back")
             return
         }
-        logger?.debug(category: LogCategory.tealium,
+        logger?.debug(category: LogCategory.persistence,
                       "WAL checkpoint at \(moment): \(result.checkpointed) of \(result.log) "
                       + "frames folded back, log reset")
     }

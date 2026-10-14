@@ -76,6 +76,10 @@
 		15ED5B052A60463E0027BB20 /* ObservablesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15ED5B042A60463E0027BB20 /* ObservablesTests.swift */; };
 		15F518172BECD6E4002689C7 /* TealiumImplementationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15F518162BECD6E4002689C7 /* TealiumImplementationTests.swift */; };
 		15F742AB2C29B6D60093DCFC /* SettingsManager+MergeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15F742AA2C29B6D60093DCFC /* SettingsManager+MergeTests.swift */; };
+		1B02E489B0BA0DAC49383715 /* UpgradesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 619B118D92E44337C4CC57AE /* UpgradesTests.swift */; };
+		A1B2C3D4E5F60718293A4B61 /* TestUpgrade.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* TestUpgrade.swift */; };
+		09C14DFDCC0E51B30FE955AE /* XCTestCase+StageDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73C920A07375549A8BC1702 /* XCTestCase+StageDatabase.swift */; };
+		93A0852906C0D217F0D2BDFC /* FrozenSchemas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9E669A45BC571F192F7231 /* FrozenSchemas.swift */; };
 		1D09F83EDBED644885EFB119 /* Pods_ExtensionsTests_watchOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DB2C565583DEFA1E5C7DD7A /* Pods_ExtensionsTests_watchOS.framework */; };
 		21A0936D01518472686FAAD6 /* XCTestCase+DelegateProxyEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A723C7F5CA4BAFF1232CAA58 /* XCTestCase+DelegateProxyEvents.swift */; };
 		23AF5F2AAE78185B2FC1A4FC /* MockUrlSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AE2B832A127D280093D154 /* MockUrlSession.swift */; };
@@ -92,6 +96,10 @@
 		486956A72A5DE5660014AC58 /* TealiumFileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486956A62A5DE5660014AC58 /* TealiumFileManagerTests.swift */; };
 		48F9CE082A5F2BBE00A7376F /* SQLiteOpenHelperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F9CE072A5F2BBE00A7376F /* SQLiteOpenHelperTests.swift */; };
 		48F9CE0A2A5F2BDA00A7376F /* MockDatabaseHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F9CE092A5F2BDA00A7376F /* MockDatabaseHelper.swift */; };
+		4C8009BAB4081F8825CD65C5 /* UpgradesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 619B118D92E44337C4CC57AE /* UpgradesTests.swift */; };
+		A1B2C3D4E5F60718293A4B62 /* TestUpgrade.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* TestUpgrade.swift */; };
+		08DC31B5818DC0A532608CD8 /* XCTestCase+StageDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73C920A07375549A8BC1702 /* XCTestCase+StageDatabase.swift */; };
+		33B9B0019E49BA90B9111E07 /* FrozenSchemas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9E669A45BC571F192F7231 /* FrozenSchemas.swift */; };
 		4E8AA2A7BA74C21EBF736EB1 /* Pods_ContextAPITests_watchOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6F88855524B085D1A499E24 /* Pods_ContextAPITests_watchOS.framework */; };
 		5269CC7F5C98D8D3F9165DC2 /* Pods_LifecycleTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54FF7E83E30104B69E5A37AA /* Pods_LifecycleTests_macOS.framework */; };
 		538349C1FEC29C5EDC91AA90 /* Pods_EndToEndTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3101724C366C156AD3F8FA1 /* Pods_EndToEndTests_macOS.framework */; };
@@ -110,6 +118,10 @@
 		67365DAE3866F872E5DBE146 /* Pods_EndToEndTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F386AEACFA32C0448DB6FF23 /* Pods_EndToEndTests_iOS.framework */; };
 		685E286263E8ABB5B7BDB562 /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256E12CF23928C14098E3697 /* ModuleManagerTests+ShutdownOnRemoval.swift */; };
 		723D6C6932BF8E1FDDFD3EE5 /* Pods_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A0C2AFB27903D5281B27D8 /* Pods_Example_iOS.framework */; };
+		72E36F0B94E2D71CCA966BFD /* UpgradesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 619B118D92E44337C4CC57AE /* UpgradesTests.swift */; };
+		A1B2C3D4E5F60718293A4B63 /* TestUpgrade.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* TestUpgrade.swift */; };
+		F1F964DE1ABE05650F6CC5DB /* XCTestCase+StageDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73C920A07375549A8BC1702 /* XCTestCase+StageDatabase.swift */; };
+		3D492A1A82E73FB4CCC96FC2 /* FrozenSchemas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9E669A45BC571F192F7231 /* FrozenSchemas.swift */; };
 		7A71FEFA14AC6D13A9F8ABE1 /* Pods_EndToEndTests_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70704F0540BEEBF878360EA5 /* Pods_EndToEndTests_tvOS.framework */; };
 		7B22CE2E1BED1BF79D546D40 /* Pods_CoreTests_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1EF3EC1D0FC036F0A44C28A /* Pods_CoreTests_tvOS.framework */; };
 		7D302414BA1126F2E53DB635 /* Pods_CoreTests_watchOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6BADBD9FFFDE7841DF3D8BDA /* Pods_CoreTests_watchOS.framework */; };
@@ -1567,6 +1579,10 @@
 		BE24F3FF94CE3680880BDCFF /* Tealium+DeepLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20C50F55549A5910DAE0E90 /* Tealium+DeepLinkTests.swift */; };
 		C50A8F3026E500B179786149 /* MockNetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158C1AFA2B04F80200FF02E6 /* MockNetworkHelper.swift */; };
 		D0E39FD25B0B0ED5560D5164 /* UIApplication+ManualContinueActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = C9DDA94461A9AFA779E2E26E /* UIApplication+ManualContinueActivity.m */; };
+		D4B90E3B43F91DAABF855D6C /* UpgradesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 619B118D92E44337C4CC57AE /* UpgradesTests.swift */; };
+		A1B2C3D4E5F60718293A4B64 /* TestUpgrade.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60718293A4B5C /* TestUpgrade.swift */; };
+		7867DD65D80E67CA0FA4A48D /* XCTestCase+StageDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73C920A07375549A8BC1702 /* XCTestCase+StageDatabase.swift */; };
+		82777AEE67BD2B33BA7896F6 /* FrozenSchemas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9E669A45BC571F192F7231 /* FrozenSchemas.swift */; };
 		D54BBFB42C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF7D2C78C015003687C7 /* TransformerCoordinatorTests.swift */; };
 		D54BBFB52C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF7D2C78C015003687C7 /* TransformerCoordinatorTests.swift */; };
 		D54BBFB62C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF7D2C78C015003687C7 /* TransformerCoordinatorTests.swift */; };
@@ -2448,6 +2464,10 @@
 		607FACDF1AFB9204008FA782 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = Base; path = Base.lproj/LaunchScreen.xib; sourceTree = "<group>"; };
 		607FACE51AFB9204008FA782 /* CoreTests_iOS.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CoreTests_iOS.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		60BB2531B77B619E8E9C9EB0 /* Pods-CoreTests_macOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoreTests_macOS.release.xcconfig"; path = "Target Support Files/Pods-CoreTests_macOS/Pods-CoreTests_macOS.release.xcconfig"; sourceTree = "<group>"; };
+		619B118D92E44337C4CC57AE /* UpgradesTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = UpgradesTests.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60718293A4B5C /* TestUpgrade.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = TestUpgrade.swift; sourceTree = "<group>"; };
+		D73C920A07375549A8BC1702 /* XCTestCase+StageDatabase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTestCase+StageDatabase.swift"; sourceTree = "<group>"; };
+		0A9E669A45BC571F192F7231 /* FrozenSchemas.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FrozenSchemas.swift; sourceTree = "<group>"; };
 		6BADBD9FFFDE7841DF3D8BDA /* Pods_CoreTests_watchOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CoreTests_watchOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6DC73E2D4B3AEEF2590DBDB1 /* Pods_CoreTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_CoreTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		6F027FAC4CC1C4A5D8B28008 /* Pods_EndToEndTests_watchOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EndToEndTests_watchOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -3118,6 +3138,8 @@
 				87AF54852C8217EE00F1C114 /* XCTAssert+NSNull.swift */,
 				87F8E6C12CAAD00E00F65EA1 /* XCTAssert+NaN.swift */,
 				87EE775A2D81D9A200BB1D77 /* XCTestCase+JSONFromBundle.swift */,
+				D73C920A07375549A8BC1702 /* XCTestCase+StageDatabase.swift */,
+				0A9E669A45BC571F192F7231 /* FrozenSchemas.swift */,
 				F17208B563F8B27772A7A3B8 /* DelegateProxy */,
 			);
 			path = TestHelpers;
@@ -3134,6 +3156,7 @@
 				87FC08782D9452FD00E1041D /* MockCollector.swift */,
 				87EE77132D7887CA00BB1D77 /* MockMatchable.swift */,
 				1597DC7C2A446B1400C394D3 /* MockBackoff.swift */,
+				A1B2C3D4E5F60718293A4B5C /* TestUpgrade.swift */,
 				15DEFB982B0CBE1B000585FF /* MockBarrier.swift */,
 				15BBB2892B07E362009D4CB5 /* MockConfig.swift */,
 				158A82362A39F5750028FD7C /* MockConnectivity.swift */,
@@ -3835,6 +3858,7 @@
 				4869569E2A3A07900014AC58 /* DatabaseHelperTests.swift */,
 				1504FE7E2AB4BB6D002C0103 /* DatabaseProviderTests.swift */,
 				506C9C06F9A5F03444FF8C55 /* DatabaseProvider+WALTests.swift */,
+				619B118D92E44337C4CC57AE /* UpgradesTests.swift */,
 			);
 			path = Database;
 			sourceTree = "<group>";
@@ -6757,6 +6781,10 @@
 				15694FC92A40605E00925C4B /* MockInterceptorManager.swift in Sources */,
 				685E286263E8ABB5B7BDB562 /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */,
 				A19DBB30D3753AF882509A92 /* DatabaseProvider+WALTests.swift in Sources */,
+				72E36F0B94E2D71CCA966BFD /* UpgradesTests.swift in Sources */,
+				A1B2C3D4E5F60718293A4B61 /* TestUpgrade.swift in Sources */,
+				09C14DFDCC0E51B30FE955AE /* XCTestCase+StageDatabase.swift in Sources */,
+				93A0852906C0D217F0D2BDFC /* FrozenSchemas.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7544,6 +7572,10 @@
 				87A4094E2E97F06E005D92CC /* DataLayerWrapperTests.swift in Sources */,
 				F837A190B3F8CA341115258E /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */,
 				5A9065337ED81A764F5BE2A9 /* DatabaseProvider+WALTests.swift in Sources */,
+				D4B90E3B43F91DAABF855D6C /* UpgradesTests.swift in Sources */,
+				A1B2C3D4E5F60718293A4B62 /* TestUpgrade.swift in Sources */,
+				08DC31B5818DC0A532608CD8 /* XCTestCase+StageDatabase.swift in Sources */,
+				33B9B0019E49BA90B9111E07 /* FrozenSchemas.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8119,6 +8151,10 @@
 				87ED26EB2CE504C80086FFA4 /* DataLayerWrapperTests.swift in Sources */,
 				B3D511395E2849778F4D0C92 /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */,
 				909642981A4A382EF02A6BC2 /* DatabaseProvider+WALTests.swift in Sources */,
+				1B02E489B0BA0DAC49383715 /* UpgradesTests.swift in Sources */,
+				A1B2C3D4E5F60718293A4B63 /* TestUpgrade.swift in Sources */,
+				F1F964DE1ABE05650F6CC5DB /* XCTestCase+StageDatabase.swift in Sources */,
+				3D492A1A82E73FB4CCC96FC2 /* FrozenSchemas.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8399,6 +8435,10 @@
 				87ED26EC2CE504C80086FFA4 /* DataLayerWrapperTests.swift in Sources */,
 				E7BB02476ABB22C5267C4BEA /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */,
 				A4F584A2A6B2750C7C68BC56 /* DatabaseProvider+WALTests.swift in Sources */,
+				4C8009BAB4081F8825CD65C5 /* UpgradesTests.swift in Sources */,
+				A1B2C3D4E5F60718293A4B64 /* TestUpgrade.swift in Sources */,
+				7867DD65D80E67CA0FA4A48D /* XCTestCase+StageDatabase.swift in Sources */,
+				82777AEE67BD2B33BA7896F6 /* FrozenSchemas.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
