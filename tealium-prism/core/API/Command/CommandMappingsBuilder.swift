@@ -43,10 +43,4 @@ open class CommandMappingsBuilder<
     public func mapConstant(_ value: DataInput, to destination: Destination) -> ConstantOptions {
         mapConstant(value, to: destination.path)
     }
-
-    /// Keeps a typed destination (source and destination are the same).
-    @discardableResult
-    public func keep(_ destination: Destination) -> VariableOptions {
-        keep(destination.path)
-    }
 }

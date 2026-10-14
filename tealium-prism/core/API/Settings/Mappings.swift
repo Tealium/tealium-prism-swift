@@ -33,8 +33,17 @@ public class MappingsBuilder {
 }
 
 /**
- * The `Mappings` builder is used to build up key/destination mappings used when optionally
- * translating the full `Dispatch` payload to just the relevant data for any given `Dispatcher`.
+ * The `Mappings` builder is used to build up key/destination mappings that are applied on top of the
+ * full `Dispatch` payload before it is sent to a given `Dispatcher`.
+ *
+ * Keys that are not mapped to are kept as they are, while a mapped destination replaces any existing value.
+ * The only exception is the root "command_name" key, where mapped values (constants or variables) are appended
+ * to any value already there, flattening arrays one level, so that multiple commands can be collected
+ * (e.g. an existing `["a"]` with a mapped `["b", ["c"]]` gives `["a", "b", ["c"]]`).
+ * If a parent along the destination path holds a value of a different type (e.g. a string where an object
+ * is needed, or an object where an array is needed), it is replaced.
+ * Sources are always read from the original payload, so mappings don't chain.
+ * Derived values should be computed with a dispatcher-scoped transformation, which runs before mappings.
  *
  * Use the `mapFrom` method to supply the required source "key" and "destination" key, as
  * well as any optional "path" entries required to access keys in nested object.
@@ -62,19 +71,7 @@ public class MappingsBuilder {
  *                  to: JSONPath["path"]["to"]["destination"])
  * ```
  *
- * Use the `keep` utility method to create a mapping where the source `key` is the same as the `destination`.
- *
- * Simple usage for keys in the top level `DataObject` would look like so:
- * ```swift
- * mappings.keep("source")
- * ```
- *
- * More complex versions requiring accessing keys that exist in nested objects would look like so:
- * ```swift
- * mappings.keep(JSONPath["path"]["to"][0]["source"])
- * ```
- *
- * The `mapFrom` and `keep` methods return a `VariableOptions` that allows for setting optional properties relevant to a mapping
+ * The `mapFrom` method returns a `VariableOptions` that allows for setting optional properties relevant to a mapping
  * like a `ifValueEquals(:)`, to only perform the mapping if the value is equal to some specific string.
  *
  *
@@ -95,7 +92,7 @@ public class MappingsBuilder {
 open class Mappings {
     var mappingsList: [MappingsBuilder] = []
 
-    /// Creates an empty `Mappings` instance. Add operations with `mapFrom`, `keep`, or `mapConstant`.
+    /// Creates an empty `Mappings` instance. Add operations with `mapFrom` or `mapConstant`.
     required public init() { }
 
     /// Builds and returns an array of `MappingOperation` instances.
@@ -233,28 +230,6 @@ public extension Mappings {
     }
 
     /**
-     * Adds a mapping where the `key` is both the source and destination of the mapping.
-     *
-     * - Parameter key: The key to take the value from and also the destination to place it in the mapped payload.
-     * - Returns: A `VariableOptions` mapping operation builder.
-     */
-    @discardableResult
-    func keep(_ key: String) -> VariableOptions {
-        keep(.key(key))
-    }
-
-    /**
-     * Adds a mapping where the `path` is both the source and destination of the mapping.
-     *
-     * - Parameter path: The path to take the value from and also the destination to place it in the mapped payload.
-     * - Returns: A `VariableOptions` mapping operation builder.
-     */
-    @discardableResult
-    func keep(_ path: JSONObjectPath) -> VariableOptions {
-        keep(.path(path))
-    }
-
-    /**
      * Adds a mapping where the value to map is given by the constant `value` and will be mapped to
      * the given `destination` located/stored at some configured level of nesting as defined by
      * the `JSONObjectPath`.
@@ -272,8 +247,7 @@ public extension Mappings {
 
     /**
      * Adds a mapping where the value to map is given by the constant `value` and will be mapped to
-     * the given `destination` located/stored in the root of the data layer..
-     *
+     * the given `destination` located/stored in the root of the data layer.
      *
      * - Parameters:
      *      - parameter value: The constant value to map to the given destination.
@@ -288,6 +262,9 @@ public extension Mappings {
     /**
      * Adds a mapping where the value to map is given by the constant `name` and will be mapped to
      * the "command_name" key located in the root of the data layer.
+     *
+     * Command names are always appended to any command already in "command_name", whether it was in the
+     * original payload or mapped by a previous mapping, so multiple commands can be collected.
      *
      * - Parameter name: The command name to map to the "command_name" property key.
      * - Returns: A `CommandOptions` mapping operation builder.
@@ -309,9 +286,5 @@ public extension Mappings {
         let builder = ConstantOptions(constant: value, destination: destination)
         mappingsList.append(builder)
         return builder
-    }
-
-    private func keep(_ reference: ReferenceContainer) -> VariableOptions {
-        mapFrom(reference, to: reference)
     }
 }

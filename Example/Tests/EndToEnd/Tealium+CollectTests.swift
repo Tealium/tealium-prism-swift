@@ -133,9 +133,6 @@ final class TealiumCollectTests: TealiumBaseTests {
     func test_collect_sends_mapped_event() {
         config.addModule(Modules.collect(forcingSettings: { enforcedSettings in
             enforcedSettings.setMappings { mappings in
-                mappings.keep("tealium_account")
-                mappings.keep("tealium_profile")
-                mappings.keep("tealium_visitor_id")
                 mappings.mapFrom("tealium_event", to: "event_name")
             }
         }))
@@ -144,12 +141,11 @@ final class TealiumCollectTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             httpRequestSent.fulfill()
             Self.decodeBody(request.httpBody) { body in
-                XCTAssertEqual(body, [
-                    "tealium_account": "mockAccount",
-                    "tealium_profile": "mockProfile",
-                    "tealium_visitor_id": body["tealium_visitor_id"],
-                    "event_name": "Event"
-                ])
+                XCTAssertEqual(body["event_name"] as? String, "Event")
+                XCTAssertEqual(body["tealium_event"] as? String, "Event")
+                XCTAssertEqual(body["tealium_account"] as? String, "mockAccount")
+                XCTAssertEqual(body["tealium_profile"] as? String, "mockProfile")
+                XCTAssertNotNil(body["tealium_visitor_id"])
             }
         }
 

@@ -66,15 +66,6 @@ final class MappingsTests: XCTestCase {
         XCTAssertEqual(operation.parameters.mapTo?.value.getDataDictionary()?.mapValues({ $0.toDataInput() }), mapToValue)
     }
 
-    func test_keep_creates_same_key_and_destination() {
-        let builder = Mappings()
-        builder.keep("source")
-        let operation = builder.build()[0]
-
-        XCTAssertEqual(operation.parameters.reference?.path, JSONPath["source"])
-        XCTAssertEqual(operation.destination.path, JSONPath["source"])
-    }
-
     func test_mapCommand_creates_command_mapping() {
         let commandName = "track_purchase"
         let builder = Mappings()

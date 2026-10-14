@@ -110,7 +110,8 @@ final class TealiumTests: TealiumBaseTests {
             dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             dispatched.fulfill()
             XCTAssertEqual(dispatches.count, 1)
-            XCTAssertEqual(dispatches.first?.payload, ["mapped_event": "Event"])
+            XCTAssertEqual(dispatches.first?.payload.getDataItem(key: "mapped_event")?.get(), "Event")
+            XCTAssertEqual(dispatches.first?.payload.getDataItem(key: "tealium_event")?.get(), "Event")
         }
         teal.track("Event")
         waitForLongTimeout()

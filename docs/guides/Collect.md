@@ -162,6 +162,8 @@ The Collect module uses the `CollectSettingsBuilder` for configuration. This is 
 - `RuleModuleSettingsBuilder.setRules(_:)`
 - `DispatcherSettingsBuilder.setMappings(_:)`
 
+Mappings are applied on top of the full dispatch payload: keys that are not mapped are sent unchanged, while a mapped destination replaces any existing value. Sources are always read from the original payload, so one mapping cannot read the result of another. Derived values should be computed with a dispatcher-scoped transformation, which runs before mappings.
+
 ### Collect-specific methods:
 
 - `CollectSettingsBuilder.setUrl(_:)`

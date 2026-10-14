@@ -20,7 +20,7 @@ class CommandRegistry {
     init(commands: [Command]) {
         var dict: [String: Command] = [:]
         for command in commands {
-            dict[Self.normalize(command.name)] = command
+            dict[CommandRegistry.normalize(command.name)] = command
         }
         self.commands = dict
     }
@@ -33,7 +33,7 @@ class CommandRegistry {
     ///   - completion: Called with `nil` on success or a `CommandError` on failure.
     /// - Returns: A `Disposable` that cancels the command's in-progress work when disposed.
     func execute(commandName: String, payload: DataObject, completion: @escaping (CommandError?) -> Void) -> any Disposable {
-        let normalizedName = Self.normalize(commandName)
+        let normalizedName = CommandRegistry.normalize(commandName)
 
         guard let command = commands[normalizedName] else {
             completion(.commandNotFound(commandName))
@@ -43,7 +43,9 @@ class CommandRegistry {
         return command.execute(payload: payload, completion: completion)
     }
 
-    private static func normalize(_ name: String) -> String {
+    /// The form of a command name used to match command names: trimmed of whitespace and lowercased.
+    /// Used by the registry lookup and by `Dispatch.getCommands()` to remove duplicates.
+    static func normalize(_ name: String) -> String {
         name.trimmingCharacters(in: .whitespaces).lowercased()
     }
 }

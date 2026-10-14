@@ -18,7 +18,6 @@ struct MappingParameters {
     /// The (optional) value that the variable needs to be equal to, if we want to apply the mapping.
     let filter: StringContainer?
     /// If provided, it is the (optional) value that needs to be put in the destination instead of the value at the key.
-    /// If the destination already contains something, it will insert all the items in a flattened array and put it in the array.
     let mapTo: ValueContainer?
 
     init(reference: ReferenceContainer?, filter: StringContainer?, mapTo: ValueContainer?) {

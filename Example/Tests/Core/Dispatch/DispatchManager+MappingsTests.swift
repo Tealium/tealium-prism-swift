@@ -33,7 +33,8 @@ final class DispatchManagerMappingsTests: DispatchManagerTestCase {
         module1?.onDispatch.subscribeOnce { dispatches in
             XCTAssertGreaterThan(dispatches.count, 0)
             for dispatch in dispatches {
-                XCTAssertEqual(dispatch.payload, ["destination": "someConstant"])
+                XCTAssertEqual(dispatch.payload.getDataItem(key: "destination")?.get(), "someConstant")
+                XCTAssertEqual(dispatch.payload.getDataItem(key: "tealium_event")?.get(), "someEvent")
             }
             dispatchReceived.fulfill()
         }

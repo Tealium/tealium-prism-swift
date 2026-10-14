@@ -52,6 +52,23 @@ final class CommandDispatcherTests: XCTestCase {
         XCTAssertTrue(command2.executeCalled)
     }
 
+    func test_dispatch_executes_duplicated_command_once() {
+        let command = MockSyncCommand(name: "logevent")
+        let dispatcher = CommandDispatcher(
+            id: "test", version: "1.0", commands: [command], logCategory: "test", queue: queue, logger: nil
+        )
+        let completed = expectation(description: "dispatch completed")
+
+        let dispatch = Dispatch(name: "event", data: [TealiumDataKey.commandName: ["logevent", " LogEvent", "logevent"]])
+
+        _ = dispatcher.dispatch([dispatch]) { _ in
+            completed.fulfill()
+        }
+
+        waitForExpectations(timeout: 1)
+        XCTAssertEqual(command.executeCallCount, 1)
+    }
+
     func test_dispatch_with_no_commands_still_completes() {
         let dispatcher = CommandDispatcher(
             id: "test", version: "1.0", commands: [], logCategory: "test", queue: queue, logger: nil

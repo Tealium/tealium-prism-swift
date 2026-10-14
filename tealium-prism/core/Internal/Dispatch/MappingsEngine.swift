@@ -23,6 +23,8 @@ extension MappingOperation {
 }
 
 class MappingsEngine {
+    private static let commandNamePath = JSONPath[TealiumDataKey.commandName]
+
     private let mappings: ObservableState<[String: [MappingOperation]]>
 
     init(mappings: ObservableState<[String: [MappingOperation]]>) {
@@ -42,13 +44,17 @@ class MappingsEngine {
     }
 
     /**
-     * Remaps the `dispatch` according to the provided `mappings`.
+     * Applies the `mappings` on top of the `dispatch` payload.
      *
-     * The `mappings` describe which keys and values to take from the `Dispatch.payload` and place into a new
-     * `DataObject` that will replace the data inside the `dispatch`, which is returned.
+     * Keys and values that are not described in the `mappings` are kept as they are, while any value
+     * already present at a mapped destination is replaced by the mapped value.
+     * The only exception is the root "command_name" key: mapped values are always appended to any value already there
+     * (from the original payload or from an earlier mapping), flattening arrays one level, so that multiple commands can be collected
+     * (e.g. an existing `["a"]` with a mapped `["b", ["c"]]` gives `["a", "b", ["c"]]`).
      *
-     * The returned `Dispatch` will have a payload built from an empty `DataObject`, such that keys/values
-     * that are not described in the `mappings` will be lost.
+     * Sources and filters are always read from the original `Dispatch.payload`, so mappings don't chain:
+     * a mapping can't read the result of another mapping.
+     * An empty list of `mappings` leaves the payload unchanged.
      *
      * - Parameters:
      *      - dispatch: The incoming `Dispatch` whose payload is expected to be mapped to the resulting `Dispatch`
@@ -56,7 +62,7 @@ class MappingsEngine {
      */
     func map(dispatch: Dispatch, mappings: [MappingOperation]) -> Dispatch {
         var dispatch = dispatch
-        var result = DataObject()
+        var result = dispatch.payload
         for mapping in mappings {
             applyMapping(mapping, from: dispatch.payload, to: &result)
         }
@@ -64,21 +70,22 @@ class MappingsEngine {
         return dispatch
     }
 
-    private func applyMapping(_ mapping: MappingOperation, from payload: DataObject, to result: inout DataObject) {
+    private func applyMapping(_ mapping: MappingOperation,
+                              from payload: DataObject,
+                              to result: inout DataObject) {
         guard let mapped = getMappedValue(payload: payload, mapping: mapping) else {
             return
         }
-        let shouldCombineResults = mapping.mapTo != nil
+        let path = mapping.destination.path
         let itemToInsert: DataItem
-        if shouldCombineResults, let itemToReplace = result.extractDataItem(path: mapping.destination.path) {
+        if path == Self.commandNamePath, let itemToReplace = result.extractDataItem(path: path) {
             var array = itemToReplace.getDataArray() ?? [itemToReplace]
-            array.append(mapped)
+            array.append(contentsOf: mapped.getDataArray() ?? [mapped])
             itemToInsert = DataItem(converting: array)
         } else {
             itemToInsert = mapped
         }
-        result.buildPath(mapping.destination.path,
-                         andSet: itemToInsert)
+        result.buildPath(path, andSet: itemToInsert)
     }
 
     private func getMappedValue(payload: DataObject, mapping: MappingOperation) -> DataItem? {

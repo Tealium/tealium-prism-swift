@@ -89,14 +89,14 @@ open class DispatcherSettingsBuilder<M: Mappings>: ModuleSettingsBuilder, RuleMo
      * Set the mappings for this module.
      *
      * Mappings will only be used if the module is a `Dispatcher`.
-     * When defined only mapped variables will be passed to the `Dispatcher`.
+     * Mappings are applied on top of the full payload: unmapped variables are passed through unchanged,
+     * while mapped destinations replace any existing value.
      *
      * Basic usage is very simple:
      * ```swift
      * DispatcherSettingsBuilder().setMappings { mappings in
      *     mappings.mapFrom("input1", to: "destination1")
      *     mappings.mapConstant("value", to: "destination2")
-     *     mappings.keep("input2")
      * }
      * ```
      *
@@ -108,7 +108,6 @@ open class DispatcherSettingsBuilder<M: Mappings>: ModuleSettingsBuilder, RuleMo
      *             .ifValueEquals("value")
      *     mappings.mapConstant("value", to: JSONPath["resultContainer"]["destination"])
      *             .ifValueIn(JSONPath["container"]["input2"], equals: "targetValue")
-     *     mappings.keep(JSONPath["container"]["inputToMapAsIs"])
      * }
      * ```
      * - parameter mappingsSetup: A closure that configures the `Mappings` instance to be applied to each `Dispatch` before sending it to the `Dispatcher`.
