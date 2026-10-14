@@ -15,7 +15,7 @@ import SQLite
 class DatabaseHelper: SQLiteOpenHelper {
 
     /// The current version of the DB implemented in the codebase
-    static let DATABASE_VERSION = 1
+    static let DATABASE_VERSION = 2
     /// The oldest stored version that can still be upgraded. A file below it is deleted and recreated instead.
     static let MIN_SUPPORTED_VERSION = 1
 

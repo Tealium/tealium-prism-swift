@@ -18,4 +18,9 @@ class MockDatabaseProvider: DatabaseProviderProtocol {
         }
         self.database = database
     }
+
+    /// Wraps an existing connection, e.g. an upgraded database file.
+    init(database: Connection) {
+        self.database = database
+    }
 }

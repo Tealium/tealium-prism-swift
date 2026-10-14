@@ -37,11 +37,15 @@ enum FrozenSchemas {
             "        END"
         ].joined(separator: "\n")
     ]
+
+    /// Version 2 comes from `V1ToV2`, which moves data only, so its shape is version 1's.
+    /// A version that changes the shape writes its snapshot out in full.
+    static let v2 = v1
     // swiftlint:enable line_length identifier_name
 
     /// The frozen snapshot of `version`, if there is one.
     static func snapshot(for version: Int) -> [String: String]? {
-        [1: v1][version]
+        [1: v1, 2: v2][version]
     }
 
     /// The statements that create the frozen schema of `version` on an empty database: tables first, then indexes, then triggers,

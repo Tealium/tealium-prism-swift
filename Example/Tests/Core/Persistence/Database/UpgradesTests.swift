@@ -129,4 +129,23 @@ final class UpgradesTests: XCTestCase {
         XCTAssertEqual(try schemaObjects(of: connection), FrozenSchemas.v1)
         XCTAssertEqual(try connection.scalar("PRAGMA user_version") as? Int64, 1)
     }
+
+    func test_staged_version1_database_keeps_seeded_rows() throws {
+        var config = createMockConfig()
+        config.databaseName = "seeded-v1-\(UUID().uuidString)"
+        let rows = [
+            StoredRow(module: "shared", key: "a", value: "\"abc\"", expiry: -1),
+            StoredRow(module: "shared", key: "b", value: "\"def\"", expiry: 1234)
+        ]
+        let path = try stageVersion1Database(config: config, rows: rows)
+        addTeardownBlock {
+            for candidate in [path] + SQLiteOpenHelper.sidecarSuffixes.map({ path + $0 }) {
+                try? FileManager.default.removeItem(atPath: candidate)
+            }
+        }
+        XCTAssertEqual(try storedRows(atPath: path), rows)
+        let connection = try Connection(path, readonly: true)
+        XCTAssertEqual(try schemaObjects(of: connection), FrozenSchemas.v1)
+        XCTAssertEqual(try storedState(atPath: path).userVersion, 1)
+    }
 }
