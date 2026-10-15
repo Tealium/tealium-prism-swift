@@ -140,16 +140,7 @@ class TealiumImpl {
                                       queue: queue,
                                       queueMetrics: queueManager,
                                       dataLayer: dataLayerStore)
-        // Checkpoint the write-ahead log whenever the app goes to the background.
-        //
-        // This is the hook that matters in practice: `shutdown()` is frequently never called
-        // because iOS kills backgrounded apps outright, and SQLite.swift only closes the
-        // connection in `deinit`. Without this the `-wal` grows and committed frames are never
-        // folded back into the main database file — measured at 4 MB after a single 100-event
-        // burst. Backgrounding is the last reliable moment to do it.
-        //
-        // Cheap and safe to repeat: `wal_checkpoint(RESTART)` has nothing to copy once every frame
-        // is already in the database, and is a no-op entirely when the database is not in WAL mode.
+        // Checkpoint on background: iOS often kills a backgrounded app without shutdown().
         config.appStatusListener.onApplicationStatus
             .subscribeOn(queue)
             .observeOn(queue)
@@ -202,17 +193,13 @@ class TealiumImpl {
         queueManager.shutdown()
         moduleManager.shutdown()
         sessionManager.shutdown()
-        // Fold the write-ahead log back into the main database and reset it. Runs after the
-        // dispatch loop has stopped so nothing is mid-write, and is a no-op when WAL is not in
-        // use. Strictly durability-positive: committed frames move INTO the database file.
+        // After the dispatch loop has stopped, so nothing is mid-write.
         Self.checkpoint(databaseProvider, at: "shutdown", logger: context.logger)
         let instanceName = self.instanceName // Avoid capturing self in @escaping autoclosure
         context.logger?.info(category: LogCategory.tealium, "Instance \(instanceName) shutting down.")
     }
 
-    /// Checkpoints the write-ahead log and reports the result. A `busy` result means another
-    /// connection still held the log, so it was not reset and the remaining frames wait for the next
-    /// checkpoint: worth a line in a log, but nothing for either caller to act on.
+    /// Checkpoints the write-ahead log and logs the result.
     private static func checkpoint(_ databaseProvider: DatabaseProviderProtocol,
                                    at moment: String,
                                    logger: LoggerProtocol?) {
@@ -230,6 +217,7 @@ class TealiumImpl {
                          + "held it, \(result.checkpointed) of \(result.log) frames folded back")
             return
         }
+        guard result.log >= 0 else { return } // not in WAL, e.g. the in-memory fallback
         logger?.debug(category: LogCategory.persistence,
                       "WAL checkpoint at \(moment): \(result.checkpointed) of \(result.log) "
                       + "frames folded back, log reset")

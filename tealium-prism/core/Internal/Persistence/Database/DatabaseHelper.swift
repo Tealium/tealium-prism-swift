@@ -38,36 +38,15 @@ class DatabaseHelper: SQLiteOpenHelper {
     override func onConfigure(database: Connection) throws {
         database.foreignKeys = true
 
-        // Write-ahead logging instead of SQLite's default rollback journal.
+        // Write-ahead logging. deleteDatabase() also removes the -wal, -shm and -journal.
         //
-        // In the default DELETE/FULL configuration every commit costs a flat ~45KB of disk
-        // writes regardless of payload — journal create, journal write, journal fsync, db
-        // write, db fsync, journal unlink — so writing a few hundred bytes of module names
-        // still costs 45KB. WAL appends to a log and, with synchronous=NORMAL, skips the
-        // per-commit fsync.
+        // Never throws: DatabaseProvider would fall back to an in-memory database and lose unsent
+        // events at app exit. Enabling WAL can fail, e.g. creating the -shm under Data Protection
+        // before first unlock, and then the database keeps the rollback journal.
         //
-        // `synchronous=NORMAL` under WAL can only lose the most recent commit(s) on an OS
-        // crash or power loss — never on app termination, where the WAL survives and is
-        // replayed on next open. That is a strictly smaller exposure than the queue already
-        // has when the process is killed with events in flight.
-        //
-        // NOTE: `deleteDatabase()` also removes the -wal, -shm and -journal sidecars; see the comment there.
-        //
-        // NON-THROWING BY DESIGN. A throw out of onConfigure propagates through
-        // SQLiteOpenHelper.prepare() to DatabaseProvider.openDatabase, whose
-        // catch-all then makes init fall back to an IN-MEMORY database. The fallback is logged, but
-        // the SDK would keep running on a process-lifetime queue and lose every unsent event at app exit.
-        //
-        // That is reachable in production: enabling WAL must create the -shm file, which can fail
-        // with SQLITE_CANTOPEN under Data Protection on a background launch before first unlock.
-        // Failing to enable WAL costs us a disk optimisation; losing the queue breaks the
-        // delivery guarantee. So degrade to the rollback journal rather than propagate.
-        //
-        // busy_timeout is set FIRST because the WAL conversion briefly takes an exclusive lock and
-        // can return SQLITE_BUSY — it should benefit from the timeout rather than precede it.
+        // busy_timeout first, as the WAL conversion briefly takes an exclusive lock.
         _ = try? database.execute("PRAGMA busy_timeout = 3000")
-        // Lowercased defensively: the returned casing is not contractual, and a mismatch here
-        // would silently disable WAL's pragmas while logging a spurious error.
+        // Lowercased: the returned casing is not contractual.
         var journalMode: String?
         var journalModeError: Error?
         do {
@@ -77,38 +56,14 @@ class DatabaseHelper: SQLiteOpenHelper {
         }
 
         if journalMode == "wal" {
-            // ONLY under WAL. `synchronous=NORMAL` is safe here because the log is append-only and
-            // committed frames survive a process kill. In the rollback journal it is NOT equivalent:
-            // the journal may not be fully synced before the database pages are overwritten, which
-            // risks a CORRUPT database on power loss, not merely a lost commit. So if the WAL
-            // conversion failed we must leave `synchronous` at its default FULL — degrading to a
-            // slower journal is the intended fallback; degrading durability is not.
+            // NORMAL only under WAL: with the rollback journal it can corrupt the database on power loss.
             _ = try? database.execute("PRAGMA synchronous = NORMAL")
-            // Android's framework values, adopted here for parity: AOSP applies a 512KB
-            // journal_size_limit and a 100-page wal_autocheckpoint to every connection it opens, so
-            // matching them gives the same log growth and the same checkpoint cadence on both SDKs
-            // for the same event stream.
-            //
-            // They replace numbers that only restated Apple's compiled defaults. libsqlite3 is
-            // built with SQLITE_DEFAULT_JOURNAL_SIZE_LIMIT=32768 and SQLITE_DEFAULT_WAL_SYNCHRONOUS=1,
-            // so the previous 32768 limit and the NORMAL line above are what a fresh connection
-            // already reads. The branch still matters: it keeps NORMAL off a rollback journal.
-            //
-            // The two work as a pair. journal_size_limit does not bound growth, it truncates the
-            // file back to the limit at the next WAL reset; wal_autocheckpoint is what bounds growth
-            // in between. 100 pages of frames is ~412KB, just under the 512KB limit, so the log
-            // settles around there instead of the 4MB a 100-event burst reached under Apple's
-            // 1000-page default.
-            //
-            // Both are meaningless outside WAL, so they belong in this branch too.
+            // Android's framework values, for parity: the same log growth and checkpoint cadence.
             _ = try? database.execute("PRAGMA journal_size_limit = 524288")
             _ = try? database.execute("PRAGMA wal_autocheckpoint = 100")
         }
 
-        // "memory" is the expected answer for an in-memory database, so both are healthy.
-        //
-        // Silent degradation is the thing worth avoiding: the SDK keeps working correctly, just
-        // with slower writes.
+        // "memory" is the expected answer for an in-memory database.
         if journalMode != "wal" && journalMode != "memory" {
             let cause = journalModeError.map { ". Error: \($0)" } ?? ""
             logger?.error(category: LogCategory.persistence,

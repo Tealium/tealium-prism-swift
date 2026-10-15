@@ -146,4 +146,54 @@ final class TealiumImplementationTests: XCTestCase {
         instance.shutdown()
         XCTAssertEqual(instance.queueManager.peekDispatches(for: processor, limit: nil).count, 1)
     }
+
+    func test_backgrounded_checkpoints_the_database() throws {
+        let checkpointed = expectation(description: "The background checkpoint is logged")
+        try backgroundImplementation(databaseName: "tealium") { message in
+            if message.hasPrefix("WAL checkpoint at backgrounding:") {
+                checkpointed.fulfill()
+            }
+        }
+    }
+
+    func test_backgrounded_does_not_log_a_checkpoint_for_an_in_memory_database() throws {
+        let checkpointLogged = expectation(description: "No checkpoint is logged without WAL")
+        checkpointLogged.isInverted = true
+        try backgroundImplementation(databaseName: nil) { message in
+            if message.hasPrefix("WAL checkpoint at backgrounding") {
+                checkpointLogged.fulfill()
+            }
+        }
+    }
+
+    /// Starts an implementation with debug logs, sends the app to the background, and hands every
+    /// persistence log message to `onPersistenceLog` until the expectations are met.
+    private func backgroundImplementation(databaseName: String?, onPersistenceLog: @escaping (String) -> Void) throws {
+        let logHandler = MockLogHandler()
+        let notificationCenter = NotificationCenter()
+        var config = TealiumConfig(account: "walCheckpointAccount",
+                                   profile: "mockProfile",
+                                   environment: "mockEnv",
+                                   modules: [],
+                                   settingsFile: nil,
+                                   settingsUrl: nil) { builder in
+            builder.setMinLogLevel(.debug)
+        }
+        config.loggerType = .custom(logHandler)
+        config.databaseName = databaseName
+        config.networkClient = MockNetworkClient(result: .success(.successful()))
+        config.appStatusListener = ApplicationStatusListener(notificationCenter: notificationCenter)
+        let accountPath = try TealiumFileManager.getTealiumApplicationFolder().appendingPathComponent(config.account).path
+        try? TealiumFileManager.deleteAtPath(path: accountPath)
+        addTeardownBlock { try? TealiumFileManager.deleteAtPath(path: accountPath) }
+        let subscription = logHandler.onLogged.subscribe { event in
+            guard event.category == LogCategory.persistence else { return }
+            onPersistenceLog(event.message)
+        }
+        let instance = try TealiumQueue.worker.dispatchQueue.sync { try TealiumImpl(config, queue: .worker) }
+        notificationCenter.postResignActiveNotification()
+        waitForDefaultTimeout()
+        subscription.dispose()
+        TealiumQueue.worker.dispatchQueue.sync { instance.shutdown() }
+    }
 }
