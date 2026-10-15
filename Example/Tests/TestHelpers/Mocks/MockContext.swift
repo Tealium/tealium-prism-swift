@@ -24,6 +24,7 @@ class MockContext: TealiumContext {
          logger: LoggerProtocol? = nil,
          networkHelper: NetworkHelperProtocol = MockNetworkHelper(),
          networkClient: NetworkClient = MockNetworkClient(result: .success(.successful())),
+         connectivityManager: ConnectivityManagerProtocol? = nil,
          applicationStatusListener: ApplicationStatusListener = ApplicationStatusListener.shared,
          queue: TealiumQueue = TealiumQueue.worker) {
         let transformerRegistrar = transformerRegistrar ?? TransformerCoordinator(
@@ -55,7 +56,7 @@ class MockContext: TealiumContext {
                    logger: logger,
                    network: NetworkUtilities(networkHelper: networkHelper,
                                              networkClient: networkClient,
-                                             connectivityManager: MockConnectivityManager(queue: queue)),
+                                             connectivityManager: connectivityManager ?? MockConnectivityManager(queue: queue)),
                    applicationStatusListener: applicationStatusListener,
                    queue: queue,
                    queueMetrics: queueManager,

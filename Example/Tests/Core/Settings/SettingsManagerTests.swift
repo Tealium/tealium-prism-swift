@@ -260,3 +260,20 @@ final class SettingsManagerTests: SettingsManagerTestCase {
                        .and([.just(Condition(variable: "variable", operator: .isDefined, filter: nil))]))
     }
 }
+
+final class SettingsManagerNetworkHelperTests: XCTestCase {
+    func test_makeNetworkHelper_derives_the_client_once_with_the_settings_interceptors_and_retry_limit() throws {
+        let client = MockNetworkClient(result: .success(.successful()))
+        let connectivityManager = MockConnectivityManager(queue: .worker)
+        _ = SettingsManager.makeNetworkHelper(client: client, connectivityManager: connectivityManager)
+        XCTAssertEqual(client.additionalInterceptors.count, 1, "The client should be derived exactly once")
+        XCTAssertEqual(client.additionalMaxRetryCounts, [10])
+        let interceptors = try XCTUnwrap(client.additionalInterceptors.first)
+        XCTAssertEqual(interceptors.count, 2)
+        let retryInterceptor = try XCTUnwrap(interceptors.first as? RetryableErrorInterceptor)
+        XCTAssertEqual(retryInterceptor.maxAttempts, 3)
+        XCTAssertEqual(retryInterceptor.maxDelay, 2)
+        let connectivityInterceptor = try XCTUnwrap(interceptors.last as? ConnectivityRetryInterceptor)
+        XCTAssertIdentical(connectivityInterceptor.connectivityManager as AnyObject, connectivityManager)
+    }
+}

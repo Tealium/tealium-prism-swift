@@ -46,4 +46,42 @@ public protocol NetworkClient {
      * - returns: A new `NetworkClient` instance.
      */
     func newClient(withLogger logger: LoggerProtocol) -> Self
+
+    /**
+     * Creates a new `NetworkClient` from this instance which will also use the given interceptors.
+     *
+     * The new client uses the same transport (`URLSession`) as this instance. Its interceptor list is
+     * this instance's interceptors followed by the given ones:
+     * - The given interceptors come after this instance's, so they are consulted first for retry decisions
+     *   (see `RequestInterceptor.shouldRetry(_:consecutiveRetryCount:with:)`).
+     * - `onAttemptResult` is called on all the interceptors in list order.
+     *
+     * This instance is unaffected: its requests keep going only through its own interceptors.
+     *
+     * - Parameters:
+     *    - interceptors: The interceptors to add after this instance's interceptors.
+     *    - maxRetryCount: the maximum number of retries of a request, whichever interceptor proposes them.
+     *    `nil` means no limit. Not inherited from this instance.
+     * - returns: A new `NetworkClient` instance.
+     */
+    func newClient(withAdditionalInterceptors interceptors: [RequestInterceptor], maxRetryCount: Int?) -> Self
+}
+
+public extension NetworkClient {
+    /**
+     * Creates a `NetworkHelperProtocol` that sends every request through this client.
+     *
+     * Typically used with a client derived with `newClient(withAdditionalInterceptors:)`,
+     * to use the helper API with custom retry behavior.
+     *
+     * - Returns: a new `NetworkHelperProtocol` that sends its requests through this client.
+     */
+    func makeNetworkHelper() -> NetworkHelperProtocol {
+        NetworkHelper(networkClient: self)
+    }
+
+    /// Same as `newClient(withAdditionalInterceptors:maxRetryCount:)`, with no limit on the number of retries.
+    func newClient(withAdditionalInterceptors interceptors: [RequestInterceptor]) -> Self {
+        newClient(withAdditionalInterceptors: interceptors, maxRetryCount: nil)
+    }
 }

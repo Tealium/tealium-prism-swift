@@ -15,6 +15,10 @@ class MockNetworkClient: NetworkClient {
     var resultMap: [String: NetworkResult] = [:]
     var requestDidSend: ((URLRequest) -> Void)?
     var delayBlock: (@escaping () -> Void) -> Void = { block in block() }
+    /// Every array received by `newClient(withAdditionalInterceptors:maxRetryCount:)`, in call order.
+    private(set) var additionalInterceptors: [[RequestInterceptor]] = []
+    /// Every `maxRetryCount` received by `newClient(withAdditionalInterceptors:maxRetryCount:)`, in call order.
+    private(set) var additionalMaxRetryCounts: [Int?] = []
     init(result: NetworkResult) {
         self.result = result
     }
@@ -56,5 +60,11 @@ class MockNetworkClient: NetworkClient {
 
     func newClient(withLogger logger: any LoggerProtocol) -> Self {
         self
+    }
+
+    func newClient(withAdditionalInterceptors interceptors: [RequestInterceptor], maxRetryCount: Int?) -> Self {
+        additionalInterceptors.append(interceptors)
+        additionalMaxRetryCounts.append(maxRetryCount)
+        return self
     }
 }

@@ -100,8 +100,21 @@ final class ConnectivityBarrierTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_isFlushable_emits_false_when_connection_unknown() {
+    func test_isFlushable_emits_true_when_connection_unknown_and_empirical_available() {
+        let flushable = expectation(description: "isFlushable should emit true")
+        manager.mockConnectivityMonitor.changeConnection(.unknown)
+        manager.mockEmpiricalConnectivity.changeConnectionAvailable(true)
+        barrier.isFlushable.subscribeOnce { isFlushable in
+            XCTAssertTrue(isFlushable)
+            flushable.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_isFlushable_emits_false_when_connection_unknown_and_empirical_unavailable() {
         let notFlushable = expectation(description: "isFlushable should emit false")
+        manager.mockConnectivityMonitor.changeConnection(.unknown)
+        manager.mockEmpiricalConnectivity.changeConnectionAvailable(false)
         barrier.isFlushable.subscribeOnce { isFlushable in
             XCTAssertFalse(isFlushable)
             notFlushable.fulfill()
@@ -109,12 +122,24 @@ final class ConnectivityBarrierTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_isFlushable_emits_false_when_not_connected() {
+    func test_isFlushable_emits_false_when_not_connected_even_if_empirical_available() {
         let notFlushable = expectation(description: "isFlushable should emit false")
+        manager.mockEmpiricalConnectivity.changeConnectionAvailable(true)
         manager.mockConnectivityMonitor.changeConnection(.notConnected)
         barrier.isFlushable.subscribeOnce { isFlushable in
             XCTAssertFalse(isFlushable)
             notFlushable.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_isFlushable_emits_true_on_cellular_when_wifi_only_enabled() {
+        let flushable = expectation(description: "isFlushable should emit true")
+        configuration.set(true, key: ConnectivityBarrierConfiguration.Keys.wifiOnly)
+        manager.mockConnectivityMonitor.changeConnection(.connected(.cellular))
+        barrier.isFlushable.subscribeOnce { isFlushable in
+            XCTAssertTrue(isFlushable)
+            flushable.fulfill()
         }
         waitForDefaultTimeout()
     }

@@ -9,14 +9,6 @@
 @testable import TealiumPrism
 import XCTest
 
-/// A minimal stub of a `VisitorIdProvider`, standing in for the `VisitorIdModule`.
-private final class StubVisitorIdProvider: VisitorIdProvider {
-    @StateSubject var visitorId: ObservableState<String>
-    init(visitorId: String) {
-        _visitorId = StateSubject(visitorId)
-    }
-}
-
 class ContextAPIModuleBaseTests: XCTestCase {
     let account = "testAccount"
     let profile = "testProfile"
@@ -24,7 +16,7 @@ class ContextAPIModuleBaseTests: XCTestCase {
     let mockNetworkHelper = MockNetworkHelper()
     var configuration = ContextAPIConfiguration(region: .usEast, referrer: nil)
     /// Set to `nil` to simulate visitor ID handling being disabled.
-    var visitorIdProvider: VisitorIdProvider? = StubVisitorIdProvider(visitorId: "testVisitorId")
+    var visitorIdProvider: VisitorIdProvider? = MockVisitorIdModule(visitorId: "testVisitorId")
     var logger: LoggerProtocol?
     lazy var service = ContextAPIService(networkHelper: mockNetworkHelper,
                                          account: account,

@@ -19,7 +19,7 @@ public protocol ConnectivityManagerProtocol {
 /**
  * A manager that handles system connectivity monitor and empirical connectivity monitor to establish when connectivity is actually available or not on the device.
  *
- * The default behavior would be to always assume that connectivity is available until system monitor or empirical connectivity result unavailable or unknown.
+ * See `connectionAssumedAvailable` for how the two are combined.
  */
 public class ConnectivityManager: ConnectivityManagerProtocol, RequestInterceptor {
     static let defaultQueue = TealiumQueue.worker
@@ -45,8 +45,7 @@ public class ConnectivityManager: ConnectivityManagerProtocol, RequestIntercepto
                 case .connected:
                     Observables.just(true)
                 case .notConnected:
-                    empiricalConnectivity.onEmpiricalConnectionAvailable
-                        .takeWhile({ $0 }, inclusive: true)
+                    Observables.just(false)
                 case .unknown:
                     empiricalConnectivity.onEmpiricalConnectionAvailable
                 }
@@ -56,11 +55,10 @@ public class ConnectivityManager: ConnectivityManagerProtocol, RequestIntercepto
             .addTo(automaticDisposer)
     }
 
-    public func waitingForConnectivity(_ task: URLSessionTask) {
-        self.empiricalConnectivity.connectionFail()
-    }
-
-    /// Returns `true` if either monitored or empirical connectivity result available
+    /**
+     * Shortcut for `connectionAssumedAvailable.value`.
+     * It is `false` whenever the system monitor reports no connection, whatever the empirical connectivity says.
+     */
     public var isConnectionAssumedAvailable: Bool {
         connectionAssumedAvailable.value
     }
@@ -73,15 +71,19 @@ public class ConnectivityManager: ConnectivityManagerProtocol, RequestIntercepto
     /**
      * An observable that emits `true` when connection is assumed to be available and `false` when it's assumed to be unavailable.
      *
-     * The internal behavior is to merge the information from the system connectivity monitor and the result of network requests
-     * and only report as unavailable when both do so or if empirical is unavailable and the monitored one is unknown.
+     * The internal behavior is to merge the information from the system connectivity monitor and the result of network requests:
+     * connected reports as available, not connected reports as unavailable, and unknown follows the empirical connectivity result.
      */
     @StateSubject(true)
     public var connectionAssumedAvailable
 
-    public func didComplete(_ request: URLRequest, with response: NetworkResult) {
-        // Here we always assume that the response is never coming from a local cache
-        switch response {
+    /**
+     * Feeds `EmpiricalConnectivity` from the result of every request attempt.
+     *
+     * Here we always assume that the response is never coming from a local cache.
+     */
+    public func onAttemptResult(_ request: URLRequest, retryCount: Int, with result: NetworkResult) {
+        switch result {
         case let .failure(error) where error.isClientConnectionError:
             self.empiricalConnectivity.connectionFail()
         case .failure(let error) where error.urlResponse != nil:
@@ -93,17 +95,9 @@ public class ConnectivityManager: ConnectivityManagerProtocol, RequestIntercepto
         }
     }
 
-    public func shouldRetry(_ request: URLRequest, retryCount: Int, with response: NetworkResult) -> RetryPolicy {
-        switch response {
-        case .failure(let error) where error.isRetryable && !isConnectionAssumedAvailable:
-            return .afterEvent(
-                connectionAssumedAvailable
-                    .filter { $0 }
-                    .map { _ in }
-            )
-        default:
-            return .doNotRetry
-        }
+    /// Never retries: the `ConnectivityManager` only observes the completed requests.
+    public func shouldRetry(_ request: URLRequest, consecutiveRetryCount: Int, with response: NetworkResult) -> RetryPolicy {
+        .doNotRetry
     }
 
     func emittingOn(queue: TealiumQueue) -> ConnectivityManagerProtocol {

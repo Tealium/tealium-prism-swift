@@ -41,10 +41,10 @@ class ContextAPIModule: BasicModule {
                                  "Context API module cannot be created: region is required but missing from configuration")
             return nil
         }
-        // Initialize service using NetworkHelper from context
-        // This allows tests to inject mock helpers via config.networkClient -> TealiumImpl -> NetworkHelper
+        // Bounded retries with the default `RetryableErrorInterceptor`; never waits for connectivity.
+        let client = context.network.networkClient.newClient(withAdditionalInterceptors: [RetryableErrorInterceptor()])
         let service = ContextAPIService(
-            networkHelper: context.network.networkHelper,
+            networkHelper: client.makeNetworkHelper(),
             account: context.config.account,
             profile: context.config.profile,
             environment: context.config.environment,

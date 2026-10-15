@@ -38,13 +38,15 @@ class TealiumImpl {
         let sharedDataStore: any DataStore
         let settingsManager: SettingsManager
         let client = config.networkClient.newClient(withLogger: logger)
-        let networkHelper = NetworkHelper(networkClient: client)
+        let networkHelper = client.makeNetworkHelper()
+        let connectivityManager = ConnectivityManager.shared.emittingOn(queue: queue)
         do {
             storeProvider = try Self.initModuleStoreProvider(config: config, logger: logger)
             sharedDataStore = try storeProvider.getSharedDataStore()
             settingsManager = try SettingsManager(config: config,
                                                   dataStore: sharedDataStore,
-                                                  networkHelper: networkHelper,
+                                                  client: client,
+                                                  connectivityManager: connectivityManager,
                                                   logger: logger)
         } catch {
             // Without a settings manager nothing would ever publish a log level, so the logs queued
@@ -125,7 +127,7 @@ class TealiumImpl {
         let dataLayerStore = try storeProvider.getModuleStore(name: Modules.Types.dataLayer)
         let network = NetworkUtilities(networkHelper: networkHelper,
                                        networkClient: client,
-                                       connectivityManager: ConnectivityManager.shared.emittingOn(queue: queue))
+                                       connectivityManager: connectivityManager)
         self.context = TealiumContext(moduleManager: moduleManager,
                                       sessionRegistry: sessionManager,
                                       config: config,

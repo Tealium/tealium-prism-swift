@@ -22,8 +22,9 @@ class CollectModule: Dispatcher {
 
     /// Generic `Dispatcher` initializer called by the `CollectModule.Factory`.
     required convenience init?(moduleId: String, context: TealiumContext, moduleConfiguration: DataObject) {
+        let interceptors = Self.networkInterceptors(connectivityManager: context.network.connectivityManager)
         self.init(moduleId: moduleId,
-                  networkClient: context.network.networkClient,
+                  networkClient: context.network.networkClient.newClient(withAdditionalInterceptors: interceptors),
                   configuration: CollectModuleConfiguration(configuration: moduleConfiguration,
                                                             logger: context.logger),
                   logger: context.logger)
@@ -41,6 +42,22 @@ class CollectModule: Dispatcher {
         self.networkClient = networkClient
         self.configuration = configuration
         self.logger = logger
+    }
+
+    /**
+     * The interceptors added to the shared network client to retry the Collect requests.
+     *
+     * Retryable failures wait for connectivity while the connection is assumed unavailable,
+     * otherwise they are retried with a jittered exponential backoff, capped at 150 seconds.
+     * HTTP 429 responses use a slower base delay, and there is no cap on the number of attempts, so Collect never gives up on retryable failures.
+     * A `Retry-After` header is a minimum wait and is honored even when longer than 150 seconds,
+     * because giving up would drop the dispatches.
+     */
+    static func networkInterceptors(connectivityManager: ConnectivityManagerProtocol) -> [RequestInterceptor] {
+        [
+            RetryableErrorInterceptor(maxAttempts: nil, maxDelay: 150, longRetryAfter: .wait),
+            ConnectivityRetryInterceptor(connectivityManager: connectivityManager)
+        ]
     }
 
     /// Method that will be called automatically when new configuration is provided.

@@ -22,6 +22,11 @@ extension HTTPURLResponse {
     static func successful(url: URL = URLRequest.defaultURL, headers: [String: String]? = nil) -> HTTPURLResponse {
         HTTPURLResponse(url: url, statusCode: 200, httpVersion: nil, headerFields: headers)!
     }
+
+    /// A response with the given `status` and `headers`, for the default URL.
+    static func mock(status: Int, headers: [String: String]? = nil) -> HTTPURLResponse? {
+        HTTPURLResponse(url: URLRequest.defaultURL, statusCode: status, httpVersion: nil, headerFields: headers)
+    }
 }
 // swiftlint:enable force_unwrapping
 
@@ -52,7 +57,7 @@ enum MockReply {
             if responses.count > 0 {
                 let response = responses.removeFirst()
                 responses.append(response)
-                self = .list(responses)
+                self = .loop(responses)
                 return response
             }
         case .keyed(let dict):
@@ -120,6 +125,20 @@ class URLProtocolMock: URLProtocol {
         waiting = waitingBlock
     }
 
+    /// Records the date of every request, calls `onRequest` with the request's number (starting from 1) and then lets the
+    /// request proceed immediately. `onRequest` runs on the URL loading thread.
+    ///
+    /// - Returns: the recorder, whose `dates` contain the date at which each request was sent.
+    @discardableResult
+    static func recordingRequests(onRequest: @escaping (_ requestNumber: Int) -> Void = { _ in }) -> RequestRecorder {
+        let recorder = RequestRecorder()
+        delaying { completion in
+            onRequest(recorder.record())
+            completion()
+        }
+        return recorder
+    }
+
     override func startLoading() {
         URLProtocolMock.waiting {
             let completionData = URLProtocolMock.reply.popNext(self.request)
@@ -144,5 +163,25 @@ class URLProtocolMock: URLProtocol {
     static func reset() {
         waiting = { callback in callback() }
         reply = .always((nil, nil, nil))
+    }
+}
+
+/// Collects the dates of the requests received by `URLProtocolMock`, see `URLProtocolMock.recordingRequests(onRequest:)`.
+final class RequestRecorder {
+    private let lock = NSLock()
+    private var recordedDates = [Date]()
+
+    var dates: [Date] {
+        lock.lock()
+        defer { lock.unlock() }
+        return recordedDates
+    }
+
+    /// Records a request and returns its number, starting from 1.
+    fileprivate func record() -> Int {
+        lock.lock()
+        defer { lock.unlock() }
+        recordedDates.append(Date())
+        return recordedDates.count
     }
 }

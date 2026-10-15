@@ -7,6 +7,10 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		9CADEE90E7C9DAB425945AB2 /* MockVisitorIdModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656058AAA40548FEBDECD6A9 /* MockVisitorIdModule.swift */; };
+		F913DB3120DB5F70EC12EFFD /* MockVisitorIdModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656058AAA40548FEBDECD6A9 /* MockVisitorIdModule.swift */; };
+		2D058DC9F276CBDFB3752F4E /* MockVisitorIdModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656058AAA40548FEBDECD6A9 /* MockVisitorIdModule.swift */; };
+		9751172ED3CD281790A31C78 /* MockVisitorIdModule.swift in Sources */ = {isa = PBXBuildFile; fileRef = 656058AAA40548FEBDECD6A9 /* MockVisitorIdModule.swift */; };
 		01AAC514FA0FCFCCA2478C3B /* MockSessionManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87DBB5A02E5361A90064C0DE /* MockSessionManager.swift */; };
 		08A7773D2D2FF0A8005F7229 /* TimeDataModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08A777392D2FE617005F7229 /* TimeDataModuleTests.swift */; };
 		08BD03232D356BBB00FA2E2E /* CollectModuleConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08BD031D2D356BB500FA2E2E /* CollectModuleConfigurationTests.swift */; };
@@ -46,7 +50,6 @@
 		155C0F212C072AA0009630FC /* CreateDispatches.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155C0F202C072AA0009630FC /* CreateDispatches.swift */; };
 		155D36342A66AE1300788363 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
 		155F91542A791E2F007A3548 /* XCTAssert+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155F91532A791E2F007A3548 /* XCTAssert+Errors.swift */; };
-		15694FC92A40605E00925C4B /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		1569B3CB2B1F754800262108 /* RetainCycleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1569B3CA2B1F754800262108 /* RetainCycleHelper.swift */; };
 		157293252AB06BF50015A08D /* DataItemTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 157293242AB06BF50015A08D /* DataItemTests.swift */; };
 		158A82372A39F5750028FD7C /* MockConnectivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158A82362A39F5750028FD7C /* MockConnectivity.swift */; };
@@ -72,6 +75,7 @@
 		15C0DCC82B0CF6530007F6BE /* Operators+StartsWithTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C0DCC72B0CF6530007F6BE /* Operators+StartsWithTests.swift */; };
 		15C0DCCA2B0CF6730007F6BE /* Operators+IgnoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C0DCC92B0CF6730007F6BE /* Operators+IgnoreTests.swift */; };
 		15C358CF2AEAB008009E1CDB /* MockLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C358CE2AEAB008009E1CDB /* MockLogHandler.swift */; };
+		15CE1B8D44D014EABCE7CFC9 /* ConnectivityRetryInterceptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A9A0F2B7A42C409411B8843 /* ConnectivityRetryInterceptorTests.swift */; };
 		15D7C1B42AB1E60B0034DE1B /* SQLKeyValueRepositoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15D7C1B32AB1E60B0034DE1B /* SQLKeyValueRepositoryTests.swift */; };
 		15DEFB992B0CBE1B000585FF /* MockBarrier.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15DEFB982B0CBE1B000585FF /* MockBarrier.swift */; };
 		15ED5AFF2A6021BD0027BB20 /* DeinitTester.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15ED5AFE2A6021BD0027BB20 /* DeinitTester.swift */; };
@@ -80,17 +84,23 @@
 		15F518172BECD6E4002689C7 /* TealiumImplementationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15F518162BECD6E4002689C7 /* TealiumImplementationTests.swift */; };
 		15F742AB2C29B6D60093DCFC /* SettingsManager+MergeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15F742AA2C29B6D60093DCFC /* SettingsManager+MergeTests.swift */; };
 		1B02E489B0BA0DAC49383715 /* UpgradesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 619B118D92E44337C4CC57AE /* UpgradesTests.swift */; };
+		1791EFB8C3291F816684312E /* ConnectivityRetryInterceptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A9A0F2B7A42C409411B8843 /* ConnectivityRetryInterceptorTests.swift */; };
 		1D09F83EDBED644885EFB119 /* Pods_ExtensionsTests_watchOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0DB2C565583DEFA1E5C7DD7A /* Pods_ExtensionsTests_watchOS.framework */; };
 		21A0936D01518472686FAAD6 /* XCTestCase+DelegateProxyEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A723C7F5CA4BAFF1232CAA58 /* XCTestCase+DelegateProxyEvents.swift */; };
+		226FF9F1637068D99E8B13CD /* RetryContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71E0C24A1F763E63CCA3A540 /* RetryContextTests.swift */; };
 		23AF5F2AAE78185B2FC1A4FC /* MockUrlSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AE2B832A127D280093D154 /* MockUrlSession.swift */; };
 		27C0D9BD411EE908F5EE534E /* Pods_CoreTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 4FD20FB9C32528C29E66EAE0 /* Pods_CoreTests_macOS.framework */; };
 		289691EB79F2097E06FCF25E /* Version1VisitorFixture.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA9C993AE536FD532C556B2A /* Version1VisitorFixture.swift */; };
 		2D9F6A4AE9CA1563A3DFB3B4 /* Pods_LifecycleTests_watchOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 075F7976F41B99DED6A60C35 /* Pods_LifecycleTests_watchOS.framework */; };
 		33B9B0019E49BA90B9111E07 /* FrozenSchemas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9E669A45BC571F192F7231 /* FrozenSchemas.swift */; };
 		37CD9368BC14B9CC3123B740 /* SchemaV1Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDEBD2B6C744E616EF4D13A3 /* SchemaV1Tests.swift */; };
+		3491DA1F73EA41105F7DECE9 /* RetryableErrorInterceptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22DEF638AE8F2902933EE9EE /* RetryableErrorInterceptorTests.swift */; };
+		38E78C075E9BCF30F2BE50DC /* BackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC8007B306841AEB551E888 /* BackoffTests.swift */; };
 		399E69CAB0521C3482FA62DA /* XCTestCase+WaitForDefaultTimeout.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875007BD2C5D225F00ED1AA4 /* XCTestCase+WaitForDefaultTimeout.swift */; };
 		3D492A1A82E73FB4CCC96FC2 /* FrozenSchemas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9E669A45BC571F192F7231 /* FrozenSchemas.swift */; };
 		3F424FC055CEDBA94591D781 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
+		425B6B25884317CC4C718657 /* ConnectivityRetryInterceptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A9A0F2B7A42C409411B8843 /* ConnectivityRetryInterceptorTests.swift */; };
+		426D5BEFB975DDBB2907B570 /* RetryableErrorInterceptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22DEF638AE8F2902933EE9EE /* RetryableErrorInterceptorTests.swift */; };
 		42E875F0C97733A1187ADBEC /* MockTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150F31ED2B221D090067CC56 /* MockTracker.swift */; };
 		476374B537EE655175A8C2EC /* Pods_LifecycleTests_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = CCAC0075CF5870E0FFE971CE /* Pods_LifecycleTests_tvOS.framework */; };
 		4865806A2940F3AD0016722E /* TealiumSettings.json in Resources */ = {isa = PBXBuildFile; fileRef = 486580692940F3AD0016722E /* TealiumSettings.json */; };
@@ -102,28 +112,34 @@
 		48F9CE0A2A5F2BDA00A7376F /* MockDatabaseHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F9CE092A5F2BDA00A7376F /* MockDatabaseHelper.swift */; };
 		498067CC1ED80F7A56994F77 /* SchemaV1Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDEBD2B6C744E616EF4D13A3 /* SchemaV1Tests.swift */; };
 		4C8009BAB4081F8825CD65C5 /* UpgradesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 619B118D92E44337C4CC57AE /* UpgradesTests.swift */; };
+		49D30B8340E41FE061F02BA7 /* RetryContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71E0C24A1F763E63CCA3A540 /* RetryContextTests.swift */; };
 		4E8AA2A7BA74C21EBF736EB1 /* Pods_ContextAPITests_watchOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F6F88855524B085D1A499E24 /* Pods_ContextAPITests_watchOS.framework */; };
 		5269CC7F5C98D8D3F9165DC2 /* Pods_LifecycleTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 54FF7E83E30104B69E5A37AA /* Pods_LifecycleTests_macOS.framework */; };
 		538349C1FEC29C5EDC91AA90 /* Pods_EndToEndTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = C3101724C366C156AD3F8FA1 /* Pods_EndToEndTests_macOS.framework */; };
+		56FBCFC7E12F4E58AB879A96 /* ContextAPIModuleRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B57C6F05872735926B2663 /* ContextAPIModuleRetryTests.swift */; };
 		594A50943E5C3E2D7FA6D856 /* MockQueueManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150F31EB2B221CED0067CC56 /* MockQueueManager.swift */; };
 		5A9065337ED81A764F5BE2A9 /* DatabaseProvider+WALTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 506C9C06F9A5F03444FF8C55 /* DatabaseProvider+WALTests.swift */; };
 		5FBAB5C7225D36655267CD4D /* Pods_CoreTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6DC73E2D4B3AEEF2590DBDB1 /* Pods_CoreTests_iOS.framework */; };
+		5FF086D528A1280E91FF9B12 /* ContextAPIModuleRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B57C6F05872735926B2663 /* ContextAPIModuleRetryTests.swift */; };
 		607FACD61AFB9204008FA782 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 607FACD51AFB9204008FA782 /* AppDelegate.swift */; };
 		607FACDB1AFB9204008FA782 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 607FACD91AFB9204008FA782 /* Main.storyboard */; };
 		607FACDD1AFB9204008FA782 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDC1AFB9204008FA782 /* Images.xcassets */; };
 		607FACE01AFB9204008FA782 /* LaunchScreen.xib in Resources */ = {isa = PBXBuildFile; fileRef = 607FACDE1AFB9204008FA782 /* LaunchScreen.xib */; };
 		60C8E57CA1AFF5948C90AC5D /* XCTestCase+DelegateProxyEvents.swift in Sources */ = {isa = PBXBuildFile; fileRef = A723C7F5CA4BAFF1232CAA58 /* XCTestCase+DelegateProxyEvents.swift */; };
 		61EC220952F78A3500C1C0E3 /* Pods_ExtensionsTests_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 42047CA8190B507199EAE75F /* Pods_ExtensionsTests_tvOS.framework */; };
+		628E68379E30A7734A9A97D5 /* ConnectivityRetryInterceptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1A9A0F2B7A42C409411B8843 /* ConnectivityRetryInterceptorTests.swift */; };
 		6294282730017BEE27A42759 /* Pods_JavaScriptTransformerTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 229493203B7BFC5116937566 /* Pods_JavaScriptTransformerTests_iOS.framework */; };
 		639B90919371EF44D543FB8A /* MockDatabaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1523CE7F2ABAFC400001D6D3 /* MockDatabaseProvider.swift */; };
 		644937015ECF13D6409FE953 /* Pods_DelegateProxyTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 21BF73A92852E0BBB3CCDF99 /* Pods_DelegateProxyTests_iOS.framework */; };
 		67365DAE3866F872E5DBE146 /* Pods_EndToEndTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F386AEACFA32C0448DB6FF23 /* Pods_EndToEndTests_iOS.framework */; };
 		685E286263E8ABB5B7BDB562 /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256E12CF23928C14098E3697 /* ModuleManagerTests+ShutdownOnRemoval.swift */; };
+		695F02833067C94C4A8561C1 /* BackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC8007B306841AEB551E888 /* BackoffTests.swift */; };
 		723D6C6932BF8E1FDDFD3EE5 /* Pods_Example_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D6A0C2AFB27903D5281B27D8 /* Pods_Example_iOS.framework */; };
 		72E36F0B94E2D71CCA966BFD /* UpgradesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 619B118D92E44337C4CC57AE /* UpgradesTests.swift */; };
 		7867DD65D80E67CA0FA4A48D /* XCTestCase+StageDatabase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D73C920A07375549A8BC1702 /* XCTestCase+StageDatabase.swift */; };
 		7A71FEFA14AC6D13A9F8ABE1 /* Pods_EndToEndTests_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 70704F0540BEEBF878360EA5 /* Pods_EndToEndTests_tvOS.framework */; };
 		7B22CE2E1BED1BF79D546D40 /* Pods_CoreTests_tvOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1EF3EC1D0FC036F0A44C28A /* Pods_CoreTests_tvOS.framework */; };
+		7BEDC9376481B295AC7F6F5E /* RetryContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71E0C24A1F763E63CCA3A540 /* RetryContextTests.swift */; };
 		7D302414BA1126F2E53DB635 /* Pods_CoreTests_watchOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 6BADBD9FFFDE7841DF3D8BDA /* Pods_CoreTests_watchOS.framework */; };
 		82777AEE67BD2B33BA7896F6 /* FrozenSchemas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9E669A45BC571F192F7231 /* FrozenSchemas.swift */; };
 		87011C622E0D6C220067D2BF /* ConsentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87011C612E0D6C220067D2BF /* ConsentView.swift */; };
@@ -145,7 +161,6 @@
 		8702A3682E266EEA001C9743 /* MockMatchable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE77132D7887CA00BB1D77 /* MockMatchable.swift */; };
 		8702A3692E266EEA001C9743 /* MockQueueManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150F31EB2B221CED0067CC56 /* MockQueueManager.swift */; };
 		8702A36A2E266EEA001C9743 /* XCTAssert+NaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F8E6C12CAAD00E00F65EA1 /* XCTAssert+NaN.swift */; };
-		8702A36B2E266EEA001C9743 /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		8702A36C2E266EEA001C9743 /* MockUrlSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AE2B832A127D280093D154 /* MockUrlSession.swift */; };
 		8702A36D2E266EEA001C9743 /* CreateDispatches.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155C0F202C072AA0009630FC /* CreateDispatches.swift */; };
 		8702A36E2E266EEA001C9743 /* RetainCycleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1569B3CA2B1F754800262108 /* RetainCycleHelper.swift */; };
@@ -216,7 +231,6 @@
 		8709E6AC2EF1A7A3008025C8 /* MockDebouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1535DC0C2A38B90600CDDD44 /* MockDebouncer.swift */; };
 		8709E6AD2EF1A7A3008025C8 /* XCTAssert+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155F91532A791E2F007A3548 /* XCTAssert+Errors.swift */; };
 		8709E6AE2EF1A7A3008025C8 /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
-		8709E6B02EF1A7A3008025C8 /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		8709E6B12EF1A7A3008025C8 /* MockInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */; };
 		8709E6B32EF1A7A3008025C8 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
 		8709E6B52EF1A7A3008025C8 /* RetainCycleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1569B3CA2B1F754800262108 /* RetainCycleHelper.swift */; };
@@ -262,7 +276,6 @@
 		8709E6FA2EF1A7A6008025C8 /* MockDebouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1535DC0C2A38B90600CDDD44 /* MockDebouncer.swift */; };
 		8709E6FB2EF1A7A6008025C8 /* XCTAssert+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155F91532A791E2F007A3548 /* XCTAssert+Errors.swift */; };
 		8709E6FC2EF1A7A6008025C8 /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
-		8709E6FE2EF1A7A6008025C8 /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		8709E6FF2EF1A7A6008025C8 /* MockInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */; };
 		8709E7012EF1A7A6008025C8 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
 		8709E7032EF1A7A6008025C8 /* RetainCycleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1569B3CA2B1F754800262108 /* RetainCycleHelper.swift */; };
@@ -308,7 +321,6 @@
 		8709E7482EF1A7A8008025C8 /* MockDebouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1535DC0C2A38B90600CDDD44 /* MockDebouncer.swift */; };
 		8709E7492EF1A7A8008025C8 /* XCTAssert+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155F91532A791E2F007A3548 /* XCTAssert+Errors.swift */; };
 		8709E74A2EF1A7A8008025C8 /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
-		8709E74C2EF1A7A8008025C8 /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		8709E74D2EF1A7A8008025C8 /* MockInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */; };
 		8709E74F2EF1A7A8008025C8 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
 		8709E7512EF1A7A8008025C8 /* RetainCycleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1569B3CA2B1F754800262108 /* RetainCycleHelper.swift */; };
@@ -354,7 +366,6 @@
 		8709E7962EF1A7AA008025C8 /* MockDebouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1535DC0C2A38B90600CDDD44 /* MockDebouncer.swift */; };
 		8709E7972EF1A7AA008025C8 /* XCTAssert+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155F91532A791E2F007A3548 /* XCTAssert+Errors.swift */; };
 		8709E7982EF1A7AA008025C8 /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
-		8709E79A2EF1A7AA008025C8 /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		8709E79B2EF1A7AA008025C8 /* MockInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */; };
 		8709E79D2EF1A7AA008025C8 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
 		8709E79F2EF1A7AA008025C8 /* RetainCycleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1569B3CA2B1F754800262108 /* RetainCycleHelper.swift */; };
@@ -486,7 +497,6 @@
 		878C49BE2E26919A00DA3155 /* MockMatchable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE77132D7887CA00BB1D77 /* MockMatchable.swift */; };
 		878C49BF2E26919A00DA3155 /* MockQueueManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150F31EB2B221CED0067CC56 /* MockQueueManager.swift */; };
 		878C49C02E26919A00DA3155 /* XCTAssert+NaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F8E6C12CAAD00E00F65EA1 /* XCTAssert+NaN.swift */; };
-		878C49C12E26919A00DA3155 /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		878C49C22E26919A00DA3155 /* MockUrlSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AE2B832A127D280093D154 /* MockUrlSession.swift */; };
 		878C49C32E26919A00DA3155 /* CreateDispatches.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155C0F202C072AA0009630FC /* CreateDispatches.swift */; };
 		878C49C42E26919A00DA3155 /* RetainCycleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1569B3CA2B1F754800262108 /* RetainCycleHelper.swift */; };
@@ -529,7 +539,6 @@
 		878C49F72E2691D300DA3155 /* MockMatchable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE77132D7887CA00BB1D77 /* MockMatchable.swift */; };
 		878C49F82E2691D300DA3155 /* MockQueueManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150F31EB2B221CED0067CC56 /* MockQueueManager.swift */; };
 		878C49F92E2691D300DA3155 /* XCTAssert+NaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F8E6C12CAAD00E00F65EA1 /* XCTAssert+NaN.swift */; };
-		878C49FA2E2691D300DA3155 /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		878C49FB2E2691D300DA3155 /* MockUrlSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AE2B832A127D280093D154 /* MockUrlSession.swift */; };
 		878C49FC2E2691D300DA3155 /* CreateDispatches.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155C0F202C072AA0009630FC /* CreateDispatches.swift */; };
 		878C49FD2E2691D300DA3155 /* RetainCycleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1569B3CA2B1F754800262108 /* RetainCycleHelper.swift */; };
@@ -791,7 +800,6 @@
 		87A409492E97F06E005D92CC /* CollectSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 08BD031C2D356BB500FA2E2E /* CollectSettingsBuilderTests.swift */; };
 		87A4094A2E97F06E005D92CC /* DispatchManager+MappingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871237E12DD644160007C2CD /* DispatchManager+MappingsTests.swift */; };
 		87A4094B2E97F06E005D92CC /* Operator+CallbackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 875370F82E2E31EC00CDED6D /* Operator+CallbackTests.swift */; };
-		87A4094C2E97F06E005D92CC /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		87A4094D2E97F06E005D92CC /* URLConvertibleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF8E2C78C017003687C7 /* URLConvertibleTests.swift */; };
 		87A4094E2E97F06E005D92CC /* DataLayerWrapperTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87ED26E92CE504C80086FFA4 /* DataLayerWrapperTests.swift */; };
 		87A409532E97F06E005D92CC /* NestedMixedConditionRule.json in Resources */ = {isa = PBXBuildFile; fileRef = 87EE77562D81D6C300BB1D77 /* NestedMixedConditionRule.json */; };
@@ -818,7 +826,6 @@
 		87A409822E98FFD9005D92CC /* MockMatchable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE77132D7887CA00BB1D77 /* MockMatchable.swift */; };
 		87A409832E98FFD9005D92CC /* MockQueueManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150F31EB2B221CED0067CC56 /* MockQueueManager.swift */; };
 		87A409842E98FFD9005D92CC /* XCTAssert+NaN.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87F8E6C12CAAD00E00F65EA1 /* XCTAssert+NaN.swift */; };
-		87A409852E98FFD9005D92CC /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		87A409862E98FFD9005D92CC /* MockUrlSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15AE2B832A127D280093D154 /* MockUrlSession.swift */; };
 		87A409872E98FFD9005D92CC /* CreateDispatches.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155C0F202C072AA0009630FC /* CreateDispatches.swift */; };
 		87A409882E98FFD9005D92CC /* RetainCycleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1569B3CA2B1F754800262108 /* RetainCycleHelper.swift */; };
@@ -902,7 +909,6 @@
 		87A409EA2E9900CE005D92CC /* XCTAssert+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155F91532A791E2F007A3548 /* XCTAssert+Errors.swift */; };
 		87A409EB2E9900CE005D92CC /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
 		87A409EC2E9900CE005D92CC /* LifecycleConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC454C812CF4CDCB000CD849 /* LifecycleConfigurationTests.swift */; };
-		87A409ED2E9900CE005D92CC /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		87A409EE2E9900CE005D92CC /* MockInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */; };
 		87A409EF2E9900CE005D92CC /* UpdateLaunchSleepLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC454C722CEF4D33000CD849 /* UpdateLaunchSleepLaunchTests.swift */; };
 		87A409F02E9900CE005D92CC /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
@@ -965,7 +971,6 @@
 		87A40A362E9900D1005D92CC /* XCTAssert+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155F91532A791E2F007A3548 /* XCTAssert+Errors.swift */; };
 		87A40A372E9900D1005D92CC /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
 		87A40A382E9900D1005D92CC /* LifecycleConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC454C812CF4CDCB000CD849 /* LifecycleConfigurationTests.swift */; };
-		87A40A392E9900D1005D92CC /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		87A40A3A2E9900D1005D92CC /* MockInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */; };
 		87A40A3B2E9900D1005D92CC /* UpdateLaunchSleepLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC454C722CEF4D33000CD849 /* UpdateLaunchSleepLaunchTests.swift */; };
 		87A40A3C2E9900D1005D92CC /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
@@ -1028,7 +1033,6 @@
 		87A40A822E9900D5005D92CC /* XCTAssert+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155F91532A791E2F007A3548 /* XCTAssert+Errors.swift */; };
 		87A40A832E9900D5005D92CC /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
 		87A40A842E9900D5005D92CC /* LifecycleConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC454C812CF4CDCB000CD849 /* LifecycleConfigurationTests.swift */; };
-		87A40A852E9900D5005D92CC /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		87A40A862E9900D5005D92CC /* MockInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */; };
 		87A40A872E9900D5005D92CC /* UpdateLaunchSleepLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC454C722CEF4D33000CD849 /* UpdateLaunchSleepLaunchTests.swift */; };
 		87A40A882E9900D5005D92CC /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
@@ -1164,7 +1168,6 @@
 		87BA6D8E2C6A470C00784784 /* StateSubjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155396E22B0B793000ED973A /* StateSubjectTests.swift */; };
 		87BA6D8F2C6A470C00784784 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
 		87BA6D922C6A470C00784784 /* Operators+MergeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C0DCC12B0CF5B70007F6BE /* Operators+MergeTests.swift */; };
-		87BA6D972C6A470C00784784 /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		87BA6D9C2C6A470C00784784 /* localSettings.json in Resources */ = {isa = PBXBuildFile; fileRef = 870557342C47C9A30010BA89 /* localSettings.json */; };
 		87BA6DA92C6A47AF00784784 /* TealiumFileManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 486956A62A5DE5660014AC58 /* TealiumFileManagerTests.swift */; };
 		87BA6DAC2C6A47AF00784784 /* MockTransformer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15BBA9CA2B16360D00677037 /* MockTransformer.swift */; };
@@ -1230,7 +1233,6 @@
 		87BA6E0C2C6A47AF00784784 /* StateSubjectTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155396E22B0B793000ED973A /* StateSubjectTests.swift */; };
 		87BA6E0D2C6A47AF00784784 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
 		87BA6E102C6A47AF00784784 /* Operators+MergeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C0DCC12B0CF5B70007F6BE /* Operators+MergeTests.swift */; };
-		87BA6E152C6A47AF00784784 /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		87BA6E1A2C6A47AF00784784 /* localSettings.json in Resources */ = {isa = PBXBuildFile; fileRef = 870557342C47C9A30010BA89 /* localSettings.json */; };
 		87BB63C82DE4B8C5008CA9C2 /* ConsentSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BB63C72DE4B8BE008CA9C2 /* ConsentSettingsBuilderTests.swift */; };
 		87BB63C92DE4B8C5008CA9C2 /* ConsentSettingsBuilderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87BB63C72DE4B8BE008CA9C2 /* ConsentSettingsBuilderTests.swift */; };
@@ -1419,6 +1421,8 @@
 		87FEF0A42C2C43DB00340E18 /* XCTAssert+EqualDictionaries.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FEF0A32C2C43DB00340E18 /* XCTAssert+EqualDictionaries.swift */; };
 		909642981A4A382EF02A6BC2 /* DatabaseProvider+WALTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 506C9C06F9A5F03444FF8C55 /* DatabaseProvider+WALTests.swift */; };
 		93A0852906C0D217F0D2BDFC /* FrozenSchemas.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0A9E669A45BC571F192F7231 /* FrozenSchemas.swift */; };
+		899FF1A80B4F5ACEB0A6B132 /* ContextAPIModuleRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B57C6F05872735926B2663 /* ContextAPIModuleRetryTests.swift */; };
+		90A8B343A18AD15F07D7C9A4 /* BackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC8007B306841AEB551E888 /* BackoffTests.swift */; };
 		963C0E13F44F9AF8F5909762 /* Pods_ContextAPITests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EA426159A769372703C45EB3 /* Pods_ContextAPITests_iOS.framework */; };
 		9E19FD222EBD597000FB205A /* Tealium+ContextAPITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E19FD202EBD597000FB205A /* Tealium+ContextAPITests.swift */; };
 		9E19FD342EBD5CA000FB205A /* ContextAPIView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E19FD312EBD5CA000FB205A /* ContextAPIView.swift */; };
@@ -1584,11 +1588,14 @@
 		AABBCCDD000000000000000E /* TemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDD000000000000000B /* TemplateTests.swift */; };
 		AABBCCDD000000000000000F /* TemplateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AABBCCDD000000000000000B /* TemplateTests.swift */; };
 		ADCCE3EC2366F27BFA2E68BD /* MockContext.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A1631A2DCA079D00F6EA3F /* MockContext.swift */; };
+		AF908B536E4B2424F07C6AA9 /* ContextAPIModuleRetryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E0B57C6F05872735926B2663 /* ContextAPIModuleRetryTests.swift */; };
 		B3D511395E2849778F4D0C92 /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256E12CF23928C14098E3697 /* ModuleManagerTests+ShutdownOnRemoval.swift */; };
 		BE24F3FF94CE3680880BDCFF /* Tealium+DeepLinkTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A20C50F55549A5910DAE0E90 /* Tealium+DeepLinkTests.swift */; };
+		C325065D25E16925E1433651 /* RetryContextTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 71E0C24A1F763E63CCA3A540 /* RetryContextTests.swift */; };
 		C50A8F3026E500B179786149 /* MockNetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158C1AFA2B04F80200FF02E6 /* MockNetworkHelper.swift */; };
 		C6EC1328166493CC27741B1F /* Version1VisitorFixture.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA9C993AE536FD532C556B2A /* Version1VisitorFixture.swift */; };
 		CEB39074A7210080C03AB01B /* V1ToV2Tests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B3ED406F41145842284FA246 /* V1ToV2Tests.swift */; };
+		C7FF5610CE42759EDB0EA87D /* BackoffTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = FBC8007B306841AEB551E888 /* BackoffTests.swift */; };
 		D0E39FD25B0B0ED5560D5164 /* UIApplication+ManualContinueActivity.m in Sources */ = {isa = PBXBuildFile; fileRef = C9DDA94461A9AFA779E2E26E /* UIApplication+ManualContinueActivity.m */; };
 		D4B90E3B43F91DAABF855D6C /* UpgradesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 619B118D92E44337C4CC57AE /* UpgradesTests.swift */; };
 		D54BBFB42C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF7D2C78C015003687C7 /* TransformerCoordinatorTests.swift */; };
@@ -1666,6 +1673,7 @@
 		D58EE2DD2C74CDDE00FBDF94 /* ApplicationStatusListenerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D58EE2DC2C74CDDE00FBDF94 /* ApplicationStatusListenerTests.swift */; };
 		D5EF2DFC2C1731BC00F7BC40 /* MockCMPIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EF2DFB2C1731BC00F7BC40 /* MockCMPIntegration.swift */; };
 		D8D9A8B713B6496C439431DD /* Pods_LifecycleTests_iOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E8C36B03477CF2635A3840E4 /* Pods_LifecycleTests_iOS.framework */; };
+		DA6F8C7BEC529059378A5A99 /* RetryableErrorInterceptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22DEF638AE8F2902933EE9EE /* RetryableErrorInterceptorTests.swift */; };
 		E361BCD87EDFB48F9149440C /* Pods_ContextAPITests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = EC6CADB50814D2DD14E91632 /* Pods_ContextAPITests_macOS.framework */; };
 		E513E9FC30753FD70017E19E /* MockLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C358CE2AEAB008009E1CDB /* MockLogHandler.swift */; };
 		E513E9FF3077E02E0017E19E /* VisitorIdManagerWrapperOrderingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E513E9FE3077E02E0017E19E /* VisitorIdManagerWrapperOrderingTests.swift */; };
@@ -1729,6 +1737,7 @@
 		E5DD0EB930458570001BFA30 /* Array+DataItemInternalsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = E5DD0EB530458570001BFA30 /* Array+DataItemInternalsTests.swift */; };
 		E7BB02476ABB22C5267C4BEA /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 256E12CF23928C14098E3697 /* ModuleManagerTests+ShutdownOnRemoval.swift */; };
 		E8A72A684223BC129B831984 /* MockConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15BBB2892B07E362009D4CB5 /* MockConfig.swift */; };
+		E8B4C41181D231B8B95336F5 /* RetryableErrorInterceptorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 22DEF638AE8F2902933EE9EE /* RetryableErrorInterceptorTests.swift */; };
 		E93A0D40784A02ECE27FEF89 /* Pods_JavaScriptTransformerTests_macOS.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 2981DEB9FDDBF4D8D4256E95 /* Pods_JavaScriptTransformerTests_macOS.framework */; };
 		EC0D84EB2D6F671D00436087 /* ConnectivityDataModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0D84EA2D6F671D00436087 /* ConnectivityDataModuleTests.swift */; };
 		EC0D84EC2D6F671D00436087 /* ConnectivityDataModuleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC0D84EA2D6F671D00436087 /* ConnectivityDataModuleTests.swift */; };
@@ -1772,7 +1781,6 @@
 		EC1AA4D02CCF9FEC00D1D9D1 /* MockQueueManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150F31EB2B221CED0067CC56 /* MockQueueManager.swift */; };
 		EC1AA4D12CCF9FEC00D1D9D1 /* MockDebouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1535DC0C2A38B90600CDDD44 /* MockDebouncer.swift */; };
 		EC1AA4D22CCF9FEC00D1D9D1 /* XCTAssert+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155F91532A791E2F007A3548 /* XCTAssert+Errors.swift */; };
-		EC1AA4D32CCF9FEC00D1D9D1 /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		EC1AA4D42CCF9FEC00D1D9D1 /* MockInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */; };
 		EC1AA4D52CCF9FEC00D1D9D1 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
 		EC1AA4D62CCF9FEC00D1D9D1 /* RetainCycleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1569B3CA2B1F754800262108 /* RetainCycleHelper.swift */; };
@@ -1839,7 +1847,6 @@
 		EC3B93512F59B03E00EC18C2 /* MockDatabaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1523CE7F2ABAFC400001D6D3 /* MockDatabaseProvider.swift */; };
 		EC3B93522F59B03E00EC18C2 /* MockDebouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1535DC0C2A38B90600CDDD44 /* MockDebouncer.swift */; };
 		EC3B93532F59B03E00EC18C2 /* MockInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */; };
-		EC3B93542F59B03E00EC18C2 /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		EC3B93552F59B03E00EC18C2 /* MockLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C358CE2AEAB008009E1CDB /* MockLogHandler.swift */; };
 		EC3B93562F59B03E00EC18C2 /* MockModulesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1523CE7D2ABAFC170001D6D3 /* MockModulesRepository.swift */; };
 		EC3B93572F59B03E00EC18C2 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
@@ -1888,7 +1895,6 @@
 		EC3B93CA2F59EAB400EC18C2 /* MockDebouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1535DC0C2A38B90600CDDD44 /* MockDebouncer.swift */; };
 		EC3B93CB2F59EAB400EC18C2 /* XCTAssert+Errors.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155F91532A791E2F007A3548 /* XCTAssert+Errors.swift */; };
 		EC3B93CC2F59EAB400EC18C2 /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
-		EC3B93CD2F59EAB400EC18C2 /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		EC3B93D02F59EAB400EC18C2 /* MockInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */; };
 		EC3B93D12F59EAB400EC18C2 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
 		EC3B93D22F59EAB400EC18C2 /* RetainCycleHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1569B3CA2B1F754800262108 /* RetainCycleHelper.swift */; };
@@ -1919,7 +1925,6 @@
 		EC3B94392F59F53200EC18C2 /* MockDatabaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1523CE7F2ABAFC400001D6D3 /* MockDatabaseProvider.swift */; };
 		EC3B943A2F59F53200EC18C2 /* MockDebouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1535DC0C2A38B90600CDDD44 /* MockDebouncer.swift */; };
 		EC3B943B2F59F53200EC18C2 /* MockInterceptor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */; };
-		EC3B943C2F59F53200EC18C2 /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		EC3B943D2F59F53200EC18C2 /* MockLogHandler.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15C358CE2AEAB008009E1CDB /* MockLogHandler.swift */; };
 		EC3B943E2F59F53200EC18C2 /* MockModulesRepository.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1523CE7D2ABAFC170001D6D3 /* MockModulesRepository.swift */; };
 		EC3B943F2F59F53200EC18C2 /* MockNetworkClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 155D36332A66AE1300788363 /* MockNetworkClient.swift */; };
@@ -2228,7 +2233,6 @@
 		F55BA0A730583F5700FDE38A /* MockCMPIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EF2DFB2C1731BC00F7BC40 /* MockCMPIntegration.swift */; };
 		F55BA0A830583F5700FDE38A /* MockQueueManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 150F31EB2B221CED0067CC56 /* MockQueueManager.swift */; };
 		F55BA0A930583F5700FDE38A /* MockNetworkHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158C1AFA2B04F80200FF02E6 /* MockNetworkHelper.swift */; };
-		F55BA0AA30583F5700FDE38A /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		F55BA0AB30583F5700FDE38A /* MockBackoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7C2A446B1400C394D3 /* MockBackoff.swift */; };
 		F55BA0AC30583F5700FDE38A /* MockCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08782D9452FD00E1041D /* MockCollector.swift */; };
 		F55BA0AD30583F5700FDE38A /* MockMatchable.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87EE77132D7887CA00BB1D77 /* MockMatchable.swift */; };
@@ -2247,7 +2251,6 @@
 		F55BA0BA30583F5700FDE38A /* MockConsentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A223882B19F00600191132 /* MockConsentManager.swift */; };
 		F55BA0BB30583F5700FDE38A /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
 		F55BA0BC30583F5700FDE38A /* MockCMPIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EF2DFB2C1731BC00F7BC40 /* MockCMPIntegration.swift */; };
-		F55BA0BD30583F5700FDE38A /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		F55BA0BE30583F5700FDE38A /* MockBackoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7C2A446B1400C394D3 /* MockBackoff.swift */; };
 		F55BA0BF30583F5700FDE38A /* MockBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF30522DC244A4007A1A42 /* MockBundle.swift */; };
 		F55BA0C030583F5700FDE38A /* MockCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08782D9452FD00E1041D /* MockCollector.swift */; };
@@ -2265,7 +2268,6 @@
 		F55BA0CC30583F5700FDE38A /* MockConsentManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15A223882B19F00600191132 /* MockConsentManager.swift */; };
 		F55BA0CD30583F5700FDE38A /* StubModuleFactory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B687D2E322CDA00DC1B4E /* StubModuleFactory.swift */; };
 		F55BA0CE30583F5700FDE38A /* MockCMPIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EF2DFB2C1731BC00F7BC40 /* MockCMPIntegration.swift */; };
-		F55BA0CF30583F5700FDE38A /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		F55BA0D030583F5700FDE38A /* MockBackoff.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1597DC7C2A446B1400C394D3 /* MockBackoff.swift */; };
 		F55BA0D130583F5700FDE38A /* MockBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF30522DC244A4007A1A42 /* MockBundle.swift */; };
 		F55BA0D230583F5700FDE38A /* MockCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08782D9452FD00E1041D /* MockCollector.swift */; };
@@ -2287,7 +2289,6 @@
 		F55BA0E230583F5F00FDE38A /* MockCollector.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87FC08782D9452FD00E1041D /* MockCollector.swift */; };
 		F55BA0E330583F5F00FDE38A /* MockBundle.swift in Sources */ = {isa = PBXBuildFile; fileRef = ECBF30522DC244A4007A1A42 /* MockBundle.swift */; };
 		F55BA0E430583F5F00FDE38A /* MockDatabaseHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48F9CE092A5F2BDA00A7376F /* MockDatabaseHelper.swift */; };
-		F55BA0E530583F5F00FDE38A /* MockInterceptorManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 15694FC82A40605E00925C4B /* MockInterceptorManager.swift */; };
 		F55BA0E630583F5F00FDE38A /* MockDebouncer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1535DC0C2A38B90600CDDD44 /* MockDebouncer.swift */; };
 		F55BA0E730583F5F00FDE38A /* MockQueueMetrics.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC8EF87D2E1810A000DB89C5 /* MockQueueMetrics.swift */; };
 		F55BA0E830583F5F00FDE38A /* MockCMPIntegration.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5EF2DFB2C1731BC00F7BC40 /* MockCMPIntegration.swift */; };
@@ -2390,7 +2391,6 @@
 		155C0F202C072AA0009630FC /* CreateDispatches.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CreateDispatches.swift; sourceTree = "<group>"; };
 		155D36332A66AE1300788363 /* MockNetworkClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockNetworkClient.swift; sourceTree = "<group>"; };
 		155F91532A791E2F007A3548 /* XCTAssert+Errors.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTAssert+Errors.swift"; sourceTree = "<group>"; };
-		15694FC82A40605E00925C4B /* MockInterceptorManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockInterceptorManager.swift; sourceTree = "<group>"; };
 		1569B3CA2B1F754800262108 /* RetainCycleHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RetainCycleHelper.swift; sourceTree = "<group>"; };
 		157293242AB06BF50015A08D /* DataItemTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataItemTests.swift; sourceTree = "<group>"; };
 		158A82362A39F5750028FD7C /* MockConnectivity.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockConnectivity.swift; sourceTree = "<group>"; };
@@ -2404,6 +2404,7 @@
 		15AB12972BD7B5C300AF1A08 /* SQLQueueRepositoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SQLQueueRepositoryTests.swift; sourceTree = "<group>"; };
 		15AE2B832A127D280093D154 /* MockUrlSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockUrlSession.swift; sourceTree = "<group>"; };
 		15AE2B852A127DD90093D154 /* XCTAssert+Result.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "XCTAssert+Result.swift"; sourceTree = "<group>"; };
+		656058AAA40548FEBDECD6A9 /* MockVisitorIdModule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockVisitorIdModule.swift; sourceTree = "<group>"; };
 		15BBA9CA2B16360D00677037 /* MockTransformer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockTransformer.swift; sourceTree = "<group>"; };
 		15BBB2892B07E362009D4CB5 /* MockConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockConfig.swift; sourceTree = "<group>"; };
 		15C0DCB82B0CF3F10007F6BE /* Operators+FlatMapTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Operators+FlatMapTests.swift"; sourceTree = "<group>"; };
@@ -2427,10 +2428,12 @@
 		1A13728D373A4BAD9B12BE42 /* LifecycleTests_tvOS-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "LifecycleTests_tvOS-Info.plist"; sourceTree = "<group>"; };
 		1A50FDCCCFE4A2F31B6BCED5 /* Pods-EndToEndTests_watchOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EndToEndTests_watchOS.release.xcconfig"; path = "Target Support Files/Pods-EndToEndTests_watchOS/Pods-EndToEndTests_watchOS.release.xcconfig"; sourceTree = "<group>"; };
 		1A581B41FEBD76C29D72E2E2 /* Pods-EndToEndTests_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EndToEndTests_tvOS.release.xcconfig"; path = "Target Support Files/Pods-EndToEndTests_tvOS/Pods-EndToEndTests_tvOS.release.xcconfig"; sourceTree = "<group>"; };
+		1A9A0F2B7A42C409411B8843 /* ConnectivityRetryInterceptorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ConnectivityRetryInterceptorTests.swift; sourceTree = "<group>"; };
 		1AE93BA8881B67290BC66946 /* Pods-EndToEndTests_watchOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EndToEndTests_watchOS.debug.xcconfig"; path = "Target Support Files/Pods-EndToEndTests_watchOS/Pods-EndToEndTests_watchOS.debug.xcconfig"; sourceTree = "<group>"; };
 		1EC7D4C8D120A40BF0A4C3FE /* Pods-CoreTests_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoreTests_tvOS.release.xcconfig"; path = "Target Support Files/Pods-CoreTests_tvOS/Pods-CoreTests_tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		21BF73A92852E0BBB3CCDF99 /* Pods_DelegateProxyTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_DelegateProxyTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		229493203B7BFC5116937566 /* Pods_JavaScriptTransformerTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_JavaScriptTransformerTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
+		22DEF638AE8F2902933EE9EE /* RetryableErrorInterceptorTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RetryableErrorInterceptorTests.swift; sourceTree = "<group>"; };
 		2456B65EE7953311CF305CA1 /* Pods_JavaScriptTransformerTests_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_JavaScriptTransformerTests_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		2544EB381D4AC1994F2C4525 /* Pods-ExtensionsTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ExtensionsTests_iOS.debug.xcconfig"; path = "Target Support Files/Pods-ExtensionsTests_iOS/Pods-ExtensionsTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		256E12CF23928C14098E3697 /* ModuleManagerTests+ShutdownOnRemoval.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = "ModuleManagerTests+ShutdownOnRemoval.swift"; sourceTree = "<group>"; };
@@ -2483,6 +2486,7 @@
 		6F027FAC4CC1C4A5D8B28008 /* Pods_EndToEndTests_watchOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EndToEndTests_watchOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		70704F0540BEEBF878360EA5 /* Pods_EndToEndTests_tvOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EndToEndTests_tvOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		709AD9F8A50556956BCE9E21 /* Pods-EndToEndTests_watchOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EndToEndTests_watchOS.release.xcconfig"; path = "Target Support Files/Pods-EndToEndTests_watchOS/Pods-EndToEndTests_watchOS.release.xcconfig"; sourceTree = "<group>"; };
+		71E0C24A1F763E63CCA3A540 /* RetryContextTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = RetryContextTests.swift; sourceTree = "<group>"; };
 		7C305CEE3B84C2376B3E69BA /* README.md */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = net.daringfireball.markdown; name = README.md; path = ../README.md; sourceTree = "<group>"; };
 		82093A6526606A32FD1E15B1 /* Pods-CoreTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-CoreTests_iOS.debug.xcconfig"; path = "Target Support Files/Pods-CoreTests_iOS/Pods-CoreTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
 		87011C612E0D6C220067D2BF /* ConsentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConsentView.swift; sourceTree = "<group>"; };
@@ -2752,6 +2756,7 @@
 		DB0B49FCF911CE6AD48D0756 /* Pods-ContextAPITests_tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ContextAPITests_tvOS.release.xcconfig"; path = "Target Support Files/Pods-ContextAPITests_tvOS/Pods-ContextAPITests_tvOS.release.xcconfig"; sourceTree = "<group>"; };
 		DC0D7EDBD3533E3C50791B1C /* tealium-prism.podspec */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text; name = "tealium-prism.podspec"; path = "../tealium-prism.podspec"; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		DC75CF09E77D0B23BF3F1193 /* Pods-EndToEndTests_watchOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EndToEndTests_watchOS.debug.xcconfig"; path = "Target Support Files/Pods-EndToEndTests_watchOS/Pods-EndToEndTests_watchOS.debug.xcconfig"; sourceTree = "<group>"; };
+		E0B57C6F05872735926B2663 /* ContextAPIModuleRetryTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = ContextAPIModuleRetryTests.swift; sourceTree = "<group>"; };
 		E176CE58B150E719A80BC8D4 /* Pods_ExtensionsTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ExtensionsTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E513E9FD3077E02E0017E19E /* VisitorIdManagerWrapperBaseTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitorIdManagerWrapperBaseTests.swift; sourceTree = "<group>"; };
 		E513E9FE3077E02E0017E19E /* VisitorIdManagerWrapperOrderingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisitorIdManagerWrapperOrderingTests.swift; sourceTree = "<group>"; };
@@ -2877,6 +2882,7 @@
 		F6F88855524B085D1A499E24 /* Pods_ContextAPITests_watchOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_ContextAPITests_watchOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F7D7D4FF07D6DB970EEC8C8F /* Pods-EndToEndTests_tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EndToEndTests_tvOS.debug.xcconfig"; path = "Target Support Files/Pods-EndToEndTests_tvOS/Pods-EndToEndTests_tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		FB74DC55348907351E2A4A18 /* Pods-EndToEndTests_iOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-EndToEndTests_iOS.debug.xcconfig"; path = "Target Support Files/Pods-EndToEndTests_iOS/Pods-EndToEndTests_iOS.debug.xcconfig"; sourceTree = "<group>"; };
+		FBC8007B306841AEB551E888 /* BackoffTests.swift */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = sourcecode.swift; path = BackoffTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -3180,13 +3186,13 @@
 				1523CE7F2ABAFC400001D6D3 /* MockDatabaseProvider.swift */,
 				1535DC0C2A38B90600CDDD44 /* MockDebouncer.swift */,
 				1597DC7A2A446ADA00C394D3 /* MockInterceptor.swift */,
-				15694FC82A40605E00925C4B /* MockInterceptorManager.swift */,
 				15C358CE2AEAB008009E1CDB /* MockLogHandler.swift */,
 				1523CE7D2ABAFC170001D6D3 /* MockModulesRepository.swift */,
 				155D36332A66AE1300788363 /* MockNetworkClient.swift */,
 				158C1AFA2B04F80200FF02E6 /* MockNetworkHelper.swift */,
 				15AE2B832A127D280093D154 /* MockUrlSession.swift */,
 				15BBA9CA2B16360D00677037 /* MockTransformer.swift */,
+				656058AAA40548FEBDECD6A9 /* MockVisitorIdModule.swift */,
 				15A223862B19EFE600191132 /* MockDispatcher.swift */,
 				15A223882B19F00600191132 /* MockConsentManager.swift */,
 				150F31EB2B221CED0067CC56 /* MockQueueManager.swift */,
@@ -3602,6 +3608,7 @@
 				875371082E2E4C2B00CDED6D /* URLTests.swift */,
 				87AC5FD52ED9EE9C00F189DC /* DataItemFormatterTests.swift */,
 				F575554A2F7EDA490066BAED /* LazyConstantTests.swift */,
+				FBC8007B306841AEB551E888 /* BackoffTests.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -3663,6 +3670,7 @@
 				9E19FD242EBD5A8200FB205A /* ContextAPIModuleBaseTests.swift */,
 				9E19FD252EBD5A8200FB205A /* ContextAPIModuleFetchTests.swift */,
 				9E19FD262EBD5A8200FB205A /* ContextAPIModuleTests.swift */,
+				E0B57C6F05872735926B2663 /* ContextAPIModuleRetryTests.swift */,
 			);
 			path = ContextAPIModule;
 			sourceTree = "<group>";
@@ -3814,6 +3822,7 @@
 				D54BBF812C78C017003687C7 /* EmpiricalConnectivityTests.swift */,
 				EC0D84EE2D6F6D7A00436087 /* NetworkConnectionTests.swift */,
 				F5CBDCAD2F7694F900D6A8E2 /* ConnectivityManagerWrapperTests.swift */,
+				1A9A0F2B7A42C409411B8843 /* ConnectivityRetryInterceptorTests.swift */,
 			);
 			path = Connectivity;
 			sourceTree = "<group>";
@@ -3835,6 +3844,8 @@
 				D54BBF8D2C78C017003687C7 /* RetryPolicyTests.swift */,
 				D54BBF8E2C78C017003687C7 /* URLConvertibleTests.swift */,
 				F5BE57D830372A1C00FA0C7C /* NetworkResultTests.swift */,
+				22DEF638AE8F2902933EE9EE /* RetryableErrorInterceptorTests.swift */,
+				71E0C24A1F763E63CCA3A540 /* RetryContextTests.swift */,
 			);
 			path = Network;
 			sourceTree = "<group>";
@@ -6796,7 +6807,6 @@
 				87C6C2332D528028008B91D8 /* TealiumDataModuleTests.swift in Sources */,
 				F538CEE030053FC9004AB31B /* JustTests.swift in Sources */,
 				15C0DCC22B0CF5B70007F6BE /* Operators+MergeTests.swift in Sources */,
-				15694FC92A40605E00925C4B /* MockInterceptorManager.swift in Sources */,
 				685E286263E8ABB5B7BDB562 /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */,
 				A19DBB30D3753AF882509A92 /* DatabaseProvider+WALTests.swift in Sources */,
 				72E36F0B94E2D71CCA966BFD /* UpgradesTests.swift in Sources */,
@@ -6806,6 +6816,10 @@
 				A45BEE7770091055925CB471 /* SchemaV1Tests.swift in Sources */,
 				F31AE880C86359609E20D079 /* V1ToV2Tests.swift in Sources */,
 				F66DB5AE9C0CF2E477988532 /* Version1VisitorFixture.swift in Sources */,
+				15CE1B8D44D014EABCE7CFC9 /* ConnectivityRetryInterceptorTests.swift in Sources */,
+				DA6F8C7BEC529059378A5A99 /* RetryableErrorInterceptorTests.swift in Sources */,
+				90A8B343A18AD15F07D7C9A4 /* BackoffTests.swift in Sources */,
+				7BEDC9376481B295AC7F6F5E /* RetryContextTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -6835,7 +6849,6 @@
 				8702A3682E266EEA001C9743 /* MockMatchable.swift in Sources */,
 				8702A3692E266EEA001C9743 /* MockQueueManager.swift in Sources */,
 				8702A36A2E266EEA001C9743 /* XCTAssert+NaN.swift in Sources */,
-				8702A36B2E266EEA001C9743 /* MockInterceptorManager.swift in Sources */,
 				8702A36C2E266EEA001C9743 /* MockUrlSession.swift in Sources */,
 				F55BA08930583E1300FDE38A /* ModuleManager+getModule.swift in Sources */,
 				873B687C2E3114F900DC1B4E /* Tealium+CollectTests.swift in Sources */,
@@ -6927,7 +6940,6 @@
 				8709E6AC2EF1A7A3008025C8 /* MockDebouncer.swift in Sources */,
 				8709E6AD2EF1A7A3008025C8 /* XCTAssert+Errors.swift in Sources */,
 				8709E6AE2EF1A7A3008025C8 /* StubModuleFactory.swift in Sources */,
-				8709E6B02EF1A7A3008025C8 /* MockInterceptorManager.swift in Sources */,
 				EC9910712F44CB6E00C41C96 /* SetDataValuesSettingsBuilderTests.swift in Sources */,
 				8709E6B12EF1A7A3008025C8 /* MockInterceptor.swift in Sources */,
 				8709E6B32EF1A7A3008025C8 /* MockNetworkClient.swift in Sources */,
@@ -6994,7 +7006,6 @@
 				8709E6FA2EF1A7A6008025C8 /* MockDebouncer.swift in Sources */,
 				8709E6FB2EF1A7A6008025C8 /* XCTAssert+Errors.swift in Sources */,
 				8709E6FC2EF1A7A6008025C8 /* StubModuleFactory.swift in Sources */,
-				8709E6FE2EF1A7A6008025C8 /* MockInterceptorManager.swift in Sources */,
 				EC99106D2F44CB6E00C41C96 /* SetDataValuesSettingsBuilderTests.swift in Sources */,
 				8709E6FF2EF1A7A6008025C8 /* MockInterceptor.swift in Sources */,
 				8709E7012EF1A7A6008025C8 /* MockNetworkClient.swift in Sources */,
@@ -7061,7 +7072,6 @@
 				8709E7482EF1A7A8008025C8 /* MockDebouncer.swift in Sources */,
 				8709E7492EF1A7A8008025C8 /* XCTAssert+Errors.swift in Sources */,
 				8709E74A2EF1A7A8008025C8 /* StubModuleFactory.swift in Sources */,
-				8709E74C2EF1A7A8008025C8 /* MockInterceptorManager.swift in Sources */,
 				EC99106F2F44CB6E00C41C96 /* SetDataValuesSettingsBuilderTests.swift in Sources */,
 				8709E74D2EF1A7A8008025C8 /* MockInterceptor.swift in Sources */,
 				8709E74F2EF1A7A8008025C8 /* MockNetworkClient.swift in Sources */,
@@ -7128,7 +7138,6 @@
 				8709E7962EF1A7AA008025C8 /* MockDebouncer.swift in Sources */,
 				8709E7972EF1A7AA008025C8 /* XCTAssert+Errors.swift in Sources */,
 				8709E7982EF1A7AA008025C8 /* StubModuleFactory.swift in Sources */,
-				8709E79A2EF1A7AA008025C8 /* MockInterceptorManager.swift in Sources */,
 				EC9910732F44CB6E00C41C96 /* SetDataValuesSettingsBuilderTests.swift in Sources */,
 				8709E79B2EF1A7AA008025C8 /* MockInterceptor.swift in Sources */,
 				8709E79D2EF1A7AA008025C8 /* MockNetworkClient.swift in Sources */,
@@ -7171,7 +7180,6 @@
 				F55BA0A730583F5700FDE38A /* MockCMPIntegration.swift in Sources */,
 				F55BA0A830583F5700FDE38A /* MockQueueManager.swift in Sources */,
 				F55BA0A930583F5700FDE38A /* MockNetworkHelper.swift in Sources */,
-				F55BA0AA30583F5700FDE38A /* MockInterceptorManager.swift in Sources */,
 				F55BA0AB30583F5700FDE38A /* MockBackoff.swift in Sources */,
 				F55BA0AC30583F5700FDE38A /* MockCollector.swift in Sources */,
 				F55BA0AD30583F5700FDE38A /* MockMatchable.swift in Sources */,
@@ -7214,7 +7222,6 @@
 				878C49BE2E26919A00DA3155 /* MockMatchable.swift in Sources */,
 				878C49BF2E26919A00DA3155 /* MockQueueManager.swift in Sources */,
 				878C49C02E26919A00DA3155 /* XCTAssert+NaN.swift in Sources */,
-				878C49C12E26919A00DA3155 /* MockInterceptorManager.swift in Sources */,
 				878C49C22E26919A00DA3155 /* MockUrlSession.swift in Sources */,
 				ECF92FA32F64598D00A5AE06 /* Tealium+JavaScriptTransformerTests.swift in Sources */,
 				878C49C32E26919A00DA3155 /* CreateDispatches.swift in Sources */,
@@ -7278,7 +7285,6 @@
 				878C49F72E2691D300DA3155 /* MockMatchable.swift in Sources */,
 				878C49F82E2691D300DA3155 /* MockQueueManager.swift in Sources */,
 				878C49F92E2691D300DA3155 /* XCTAssert+NaN.swift in Sources */,
-				878C49FA2E2691D300DA3155 /* MockInterceptorManager.swift in Sources */,
 				878C49FB2E2691D300DA3155 /* MockUrlSession.swift in Sources */,
 				ECF92FA22F64598D00A5AE06 /* Tealium+JavaScriptTransformerTests.swift in Sources */,
 				878C49FC2E2691D300DA3155 /* CreateDispatches.swift in Sources */,
@@ -7588,7 +7594,6 @@
 				87A4094A2E97F06E005D92CC /* DispatchManager+MappingsTests.swift in Sources */,
 				87A4094B2E97F06E005D92CC /* Operator+CallbackTests.swift in Sources */,
 				E5DD0EAB30388E2F001BFA30 /* URLSession+TealiumTests.swift in Sources */,
-				87A4094C2E97F06E005D92CC /* MockInterceptorManager.swift in Sources */,
 				87A4094D2E97F06E005D92CC /* URLConvertibleTests.swift in Sources */,
 				87A4094E2E97F06E005D92CC /* DataLayerWrapperTests.swift in Sources */,
 				F837A190B3F8CA341115258E /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */,
@@ -7600,6 +7605,10 @@
 				498067CC1ED80F7A56994F77 /* SchemaV1Tests.swift in Sources */,
 				A1E8CE54699A856B2366EE60 /* V1ToV2Tests.swift in Sources */,
 				C6EC1328166493CC27741B1F /* Version1VisitorFixture.swift in Sources */,
+				425B6B25884317CC4C718657 /* ConnectivityRetryInterceptorTests.swift in Sources */,
+				3491DA1F73EA41105F7DECE9 /* RetryableErrorInterceptorTests.swift in Sources */,
+				C7FF5610CE42759EDB0EA87D /* BackoffTests.swift in Sources */,
+				C325065D25E16925E1433651 /* RetryContextTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -7628,7 +7637,6 @@
 				87A409822E98FFD9005D92CC /* MockMatchable.swift in Sources */,
 				87A409832E98FFD9005D92CC /* MockQueueManager.swift in Sources */,
 				87A409842E98FFD9005D92CC /* XCTAssert+NaN.swift in Sources */,
-				87A409852E98FFD9005D92CC /* MockInterceptorManager.swift in Sources */,
 				87A409862E98FFD9005D92CC /* MockUrlSession.swift in Sources */,
 				87A409872E98FFD9005D92CC /* CreateDispatches.swift in Sources */,
 				87A409882E98FFD9005D92CC /* RetainCycleHelper.swift in Sources */,
@@ -7725,7 +7733,6 @@
 				87A409EA2E9900CE005D92CC /* XCTAssert+Errors.swift in Sources */,
 				87A409EB2E9900CE005D92CC /* StubModuleFactory.swift in Sources */,
 				87A409EC2E9900CE005D92CC /* LifecycleConfigurationTests.swift in Sources */,
-				87A409ED2E9900CE005D92CC /* MockInterceptorManager.swift in Sources */,
 				87A409EE2E9900CE005D92CC /* MockInterceptor.swift in Sources */,
 				87A409EF2E9900CE005D92CC /* UpdateLaunchSleepLaunchTests.swift in Sources */,
 				87A409F02E9900CE005D92CC /* MockNetworkClient.swift in Sources */,
@@ -7802,7 +7809,6 @@
 				87A40A362E9900D1005D92CC /* XCTAssert+Errors.swift in Sources */,
 				87A40A372E9900D1005D92CC /* StubModuleFactory.swift in Sources */,
 				87A40A382E9900D1005D92CC /* LifecycleConfigurationTests.swift in Sources */,
-				87A40A392E9900D1005D92CC /* MockInterceptorManager.swift in Sources */,
 				87A40A3A2E9900D1005D92CC /* MockInterceptor.swift in Sources */,
 				87A40A3B2E9900D1005D92CC /* UpdateLaunchSleepLaunchTests.swift in Sources */,
 				87A40A3C2E9900D1005D92CC /* MockNetworkClient.swift in Sources */,
@@ -7879,7 +7885,6 @@
 				87A40A822E9900D5005D92CC /* XCTAssert+Errors.swift in Sources */,
 				87A40A832E9900D5005D92CC /* StubModuleFactory.swift in Sources */,
 				87A40A842E9900D5005D92CC /* LifecycleConfigurationTests.swift in Sources */,
-				87A40A852E9900D5005D92CC /* MockInterceptorManager.swift in Sources */,
 				87A40A862E9900D5005D92CC /* MockInterceptor.swift in Sources */,
 				87A40A872E9900D5005D92CC /* UpdateLaunchSleepLaunchTests.swift in Sources */,
 				87A40A882E9900D5005D92CC /* MockNetworkClient.swift in Sources */,
@@ -8170,7 +8175,6 @@
 				871237E22DD644160007C2CD /* DispatchManager+MappingsTests.swift in Sources */,
 				875370FB2E2E31EC00CDED6D /* Operator+CallbackTests.swift in Sources */,
 				E5DD0EAA30388E2F001BFA30 /* URLSession+TealiumTests.swift in Sources */,
-				87BA6D972C6A470C00784784 /* MockInterceptorManager.swift in Sources */,
 				D54BBFE32C78C01A003687C7 /* URLConvertibleTests.swift in Sources */,
 				87ED26EB2CE504C80086FFA4 /* DataLayerWrapperTests.swift in Sources */,
 				B3D511395E2849778F4D0C92 /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */,
@@ -8182,6 +8186,10 @@
 				A791ABDE2E0740BCB3E0EB76 /* SchemaV1Tests.swift in Sources */,
 				0F9D3FE84F3A333EDE20FABC /* V1ToV2Tests.swift in Sources */,
 				289691EB79F2097E06FCF25E /* Version1VisitorFixture.swift in Sources */,
+				1791EFB8C3291F816684312E /* ConnectivityRetryInterceptorTests.swift in Sources */,
+				426D5BEFB975DDBB2907B570 /* RetryableErrorInterceptorTests.swift in Sources */,
+				38E78C075E9BCF30F2BE50DC /* BackoffTests.swift in Sources */,
+				49D30B8340E41FE061F02BA7 /* RetryContextTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8457,7 +8465,6 @@
 				871237E32DD644160007C2CD /* DispatchManager+MappingsTests.swift in Sources */,
 				875370FA2E2E31EC00CDED6D /* Operator+CallbackTests.swift in Sources */,
 				E5DD0EAD30388E2F001BFA30 /* URLSession+TealiumTests.swift in Sources */,
-				87BA6E152C6A47AF00784784 /* MockInterceptorManager.swift in Sources */,
 				D54BBFE22C78C01A003687C7 /* URLConvertibleTests.swift in Sources */,
 				87ED26EC2CE504C80086FFA4 /* DataLayerWrapperTests.swift in Sources */,
 				E7BB02476ABB22C5267C4BEA /* ModuleManagerTests+ShutdownOnRemoval.swift in Sources */,
@@ -8469,6 +8476,10 @@
 				37CD9368BC14B9CC3123B740 /* SchemaV1Tests.swift in Sources */,
 				CEB39074A7210080C03AB01B /* V1ToV2Tests.swift in Sources */,
 				F49974F2477EAF9A0C674244 /* Version1VisitorFixture.swift in Sources */,
+				628E68379E30A7734A9A97D5 /* ConnectivityRetryInterceptorTests.swift in Sources */,
+				E8B4C41181D231B8B95336F5 /* RetryableErrorInterceptorTests.swift in Sources */,
+				695F02833067C94C4A8561C1 /* BackoffTests.swift in Sources */,
+				226FF9F1637068D99E8B13CD /* RetryContextTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8476,6 +8487,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9751172ED3CD281790A31C78 /* MockVisitorIdModule.swift in Sources */,
 				9E19FD402EBD66CA00FB205A /* ContextAPISettingsBuilderTests.swift in Sources */,
 				9E19FD412EBD66CA00FB205A /* ContextAPIModuleTests.swift in Sources */,
 				9E19FD422EBD66CA00FB205A /* ContextAPIModuleBaseTests.swift in Sources */,
@@ -8490,7 +8502,6 @@
 				F55BA0BA30583F5700FDE38A /* MockConsentManager.swift in Sources */,
 				F55BA0BB30583F5700FDE38A /* StubModuleFactory.swift in Sources */,
 				F55BA0BC30583F5700FDE38A /* MockCMPIntegration.swift in Sources */,
-				F55BA0BD30583F5700FDE38A /* MockInterceptorManager.swift in Sources */,
 				F55BA0BE30583F5700FDE38A /* MockBackoff.swift in Sources */,
 				F55BA0BF30583F5700FDE38A /* MockBundle.swift in Sources */,
 				F55BA0C030583F5700FDE38A /* MockCollector.swift in Sources */,
@@ -8522,6 +8533,7 @@
 				42E875F0C97733A1187ADBEC /* MockTracker.swift in Sources */,
 				ECDF4B4EEBACEF0ECE4C905A /* MockModulesRepository.swift in Sources */,
 				399E69CAB0521C3482FA62DA /* XCTestCase+WaitForDefaultTimeout.swift in Sources */,
+				AF908B536E4B2424F07C6AA9 /* ContextAPIModuleRetryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8529,6 +8541,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2D058DC9F276CBDFB3752F4E /* MockVisitorIdModule.swift in Sources */,
 				9EA12C8A2EC696D200B23C56 /* ContextAPISettingsBuilderTests.swift in Sources */,
 				9EA12C8B2EC696D200B23C56 /* ContextAPIModuleTests.swift in Sources */,
 				9EA12C8C2EC696D200B23C56 /* ContextAPIModuleBaseTests.swift in Sources */,
@@ -8558,6 +8571,7 @@
 				9EA12C9A2EC696D200B23C56 /* MockTracker.swift in Sources */,
 				9EA12C9B2EC696D200B23C56 /* MockModulesRepository.swift in Sources */,
 				9EA12C9C2EC696D200B23C56 /* XCTestCase+WaitForDefaultTimeout.swift in Sources */,
+				5FF086D528A1280E91FF9B12 /* ContextAPIModuleRetryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8565,6 +8579,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F913DB3120DB5F70EC12EFFD /* MockVisitorIdModule.swift in Sources */,
 				9EA12CA92EC696D500B23C56 /* ContextAPISettingsBuilderTests.swift in Sources */,
 				9EA12CAA2EC696D500B23C56 /* ContextAPIModuleTests.swift in Sources */,
 				9EA12CAB2EC696D500B23C56 /* ContextAPIModuleBaseTests.swift in Sources */,
@@ -8581,7 +8596,6 @@
 				F55BA0CC30583F5700FDE38A /* MockConsentManager.swift in Sources */,
 				F55BA0CD30583F5700FDE38A /* StubModuleFactory.swift in Sources */,
 				F55BA0CE30583F5700FDE38A /* MockCMPIntegration.swift in Sources */,
-				F55BA0CF30583F5700FDE38A /* MockInterceptorManager.swift in Sources */,
 				F55BA0D030583F5700FDE38A /* MockBackoff.swift in Sources */,
 				F55BA0D130583F5700FDE38A /* MockBundle.swift in Sources */,
 				F55BA0D230583F5700FDE38A /* MockCollector.swift in Sources */,
@@ -8611,6 +8625,7 @@
 				9EA12CB92EC696D500B23C56 /* MockTracker.swift in Sources */,
 				9EA12CBA2EC696D500B23C56 /* MockModulesRepository.swift in Sources */,
 				9EA12CBB2EC696D500B23C56 /* XCTestCase+WaitForDefaultTimeout.swift in Sources */,
+				899FF1A80B4F5ACEB0A6B132 /* ContextAPIModuleRetryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8618,6 +8633,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				9CADEE90E7C9DAB425945AB2 /* MockVisitorIdModule.swift in Sources */,
 				9EA12CC82EC696D600B23C56 /* ContextAPISettingsBuilderTests.swift in Sources */,
 				9EA12CC92EC696D600B23C56 /* ContextAPIModuleTests.swift in Sources */,
 				9EA12CCA2EC696D600B23C56 /* ContextAPIModuleBaseTests.swift in Sources */,
@@ -8651,7 +8667,6 @@
 				F55BA0E230583F5F00FDE38A /* MockCollector.swift in Sources */,
 				F55BA0E330583F5F00FDE38A /* MockBundle.swift in Sources */,
 				F55BA0E430583F5F00FDE38A /* MockDatabaseHelper.swift in Sources */,
-				F55BA0E530583F5F00FDE38A /* MockInterceptorManager.swift in Sources */,
 				F55BA0E630583F5F00FDE38A /* MockDebouncer.swift in Sources */,
 				F55BA0E730583F5F00FDE38A /* MockQueueMetrics.swift in Sources */,
 				F55BA0E830583F5F00FDE38A /* MockCMPIntegration.swift in Sources */,
@@ -8664,6 +8679,7 @@
 				9EA12CD82EC696D600B23C56 /* MockTracker.swift in Sources */,
 				9EA12CD92EC696D600B23C56 /* MockModulesRepository.swift in Sources */,
 				9EA12CDA2EC696D600B23C56 /* XCTestCase+WaitForDefaultTimeout.swift in Sources */,
+				56FBCFC7E12F4E58AB879A96 /* ContextAPIModuleRetryTests.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -8686,7 +8702,6 @@
 				EC3B93512F59B03E00EC18C2 /* MockDatabaseProvider.swift in Sources */,
 				EC3B93522F59B03E00EC18C2 /* MockDebouncer.swift in Sources */,
 				EC3B93532F59B03E00EC18C2 /* MockInterceptor.swift in Sources */,
-				EC3B93542F59B03E00EC18C2 /* MockInterceptorManager.swift in Sources */,
 				EC3B93552F59B03E00EC18C2 /* MockLogHandler.swift in Sources */,
 				EC3B93562F59B03E00EC18C2 /* MockModulesRepository.swift in Sources */,
 				EC3B93572F59B03E00EC18C2 /* MockNetworkClient.swift in Sources */,
@@ -8783,7 +8798,6 @@
 				EC1AA4D22CCF9FEC00D1D9D1 /* XCTAssert+Errors.swift in Sources */,
 				873B68832E322CDE00DC1B4E /* StubModuleFactory.swift in Sources */,
 				EC454C822CF4CDCB000CD849 /* LifecycleConfigurationTests.swift in Sources */,
-				EC1AA4D32CCF9FEC00D1D9D1 /* MockInterceptorManager.swift in Sources */,
 				EC1AA4D42CCF9FEC00D1D9D1 /* MockInterceptor.swift in Sources */,
 				EC454C732CEF4D33000CD849 /* UpdateLaunchSleepLaunchTests.swift in Sources */,
 				EC1AA4D52CCF9FEC00D1D9D1 /* MockNetworkClient.swift in Sources */,
@@ -8846,7 +8860,6 @@
 				EC3B93CA2F59EAB400EC18C2 /* MockDebouncer.swift in Sources */,
 				EC3B93CB2F59EAB400EC18C2 /* XCTAssert+Errors.swift in Sources */,
 				EC3B93CC2F59EAB400EC18C2 /* StubModuleFactory.swift in Sources */,
-				EC3B93CD2F59EAB400EC18C2 /* MockInterceptorManager.swift in Sources */,
 				EC3B93D02F59EAB400EC18C2 /* MockInterceptor.swift in Sources */,
 				EC3B93D12F59EAB400EC18C2 /* MockNetworkClient.swift in Sources */,
 				EC3B93D22F59EAB400EC18C2 /* RetainCycleHelper.swift in Sources */,
@@ -8880,7 +8893,6 @@
 				EC3B94392F59F53200EC18C2 /* MockDatabaseProvider.swift in Sources */,
 				EC3B943A2F59F53200EC18C2 /* MockDebouncer.swift in Sources */,
 				EC3B943B2F59F53200EC18C2 /* MockInterceptor.swift in Sources */,
-				EC3B943C2F59F53200EC18C2 /* MockInterceptorManager.swift in Sources */,
 				EC3B943D2F59F53200EC18C2 /* MockLogHandler.swift in Sources */,
 				EC3B943E2F59F53200EC18C2 /* MockModulesRepository.swift in Sources */,
 				EC3B943F2F59F53200EC18C2 /* MockNetworkClient.swift in Sources */,

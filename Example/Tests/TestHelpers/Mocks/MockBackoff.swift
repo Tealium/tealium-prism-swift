@@ -9,9 +9,12 @@
 import Foundation
 @testable import TealiumPrism
 
-class MockBackoff: BackoffPolicy {
+extension Backoff {
+    /// Uses the retry count, in seconds, as the delay.
+    static let retryCount = Backoff { Double($0) }
 
-    func backoff(forAttempt number: Int) -> Double {
-        return Double(number)
+    /// Always returns `delay`, regardless of the retry count.
+    static func fixed(_ delay: TimeInterval) -> Backoff {
+        Backoff { _ in delay }
     }
 }

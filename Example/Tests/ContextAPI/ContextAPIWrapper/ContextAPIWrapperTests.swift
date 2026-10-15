@@ -11,7 +11,7 @@ import XCTest
 
 final class ContextAPIWrapperTests: XCTestCase {
     let queue = TealiumQueue.worker
-    let mockNetworkHelper = MockNetworkHelper()
+    let mockNetworkClient = MockNetworkClient(result: .success(.successful()))
     let manager = ModuleManager()
     lazy var onManager = ReplaySubject<Result<ModuleManager, TealiumError>>(.success(manager))
     lazy var config: TealiumConfig = mockConfig
@@ -26,7 +26,7 @@ final class ContextAPIWrapperTests: XCTestCase {
         MockContext(
             moduleManager: manager,
             config: config,
-            networkHelper: mockNetworkHelper
+            networkClient: mockNetworkClient
         )
     }
 
@@ -56,7 +56,8 @@ final class ContextAPIWrapperTests: XCTestCase {
             metrics: nil,
             properties: ["segment": "premium"]
         )
-        try mockNetworkHelper.encodeResult(mockResponse)
+        mockNetworkClient.result = .success(NetworkResponse(data: try Tealium.jsonEncoder.encode(mockResponse),
+                                                            urlResponse: .successful()))
 
         _ = wrapper.fetchEngineResponse(engineID: "test-engine").subscribe { result in
             XCTAssertResultIsSuccess(result) { response in
@@ -72,7 +73,7 @@ final class ContextAPIWrapperTests: XCTestCase {
 
     func test_fetchEngineResponse_handles_error() {
         let expectation = expectation(description: "Fetch completes with error")
-        mockNetworkHelper.setError(.urlError(URLError(.notConnectedToInternet)))
+        mockNetworkClient.setError(.urlError(URLError(.notConnectedToInternet)))
 
         _ = wrapper.fetchEngineResponse(engineID: "test-engine").subscribe { result in
             XCTAssertResultIsFailure(result) { error in
@@ -186,7 +187,7 @@ final class ContextAPIWrapperTests: XCTestCase {
 
     func test_fetchEngineResponse_handles_http_error() {
         let expectation = expectation(description: "Fetch completes with HTTP error")
-        mockNetworkHelper.setError(.non200Status(400, nil))
+        mockNetworkClient.setError(.non200Status(400, nil))
 
         _ = wrapper.fetchEngineResponse(engineID: "test-engine").subscribe { result in
             XCTAssertResultIsFailure(result) { error in
@@ -210,7 +211,7 @@ final class ContextAPIWrapperTests: XCTestCase {
             data: Data("invalid json".utf8),
             urlResponse: .successful()
         )
-        mockNetworkHelper.result = .success(networkResponse)
+        mockNetworkClient.result = .success(networkResponse)
 
         _ = wrapper.fetchEngineResponse(engineID: "test-engine").subscribe { result in
             XCTAssertResultIsFailure(result) { error in

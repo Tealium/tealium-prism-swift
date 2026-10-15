@@ -193,7 +193,7 @@ Subscribe to all of these from the Tealium queue. Your module already runs on it
 
 ## Sending Network Requests
 
-Modules that need to talk to the network (most commonly custom `Dispatcher`s) do so through the `NetworkUtilities` exposed on the `TealiumContext` as `context.network`. Two entry points are available, both already wired with the SDK's logging, tracing, retry, and interceptor logic:
+Modules that need to talk to the network (most commonly custom `Dispatcher`s) do so through the `NetworkUtilities` exposed on the `TealiumContext` as `context.network`. Two entry points are available, both wired with the SDK's logging and tracing. Each makes a **single attempt** per request and never retries it. To retry, derive a client with `newClient(withAdditionalInterceptors:maxRetryCount:)` using a `RetryableErrorInterceptor` and/or a `ConnectivityRetryInterceptor`, and call `makeNetworkHelper()` on it for the helper API:
 
 - **`context.network.networkClient`** — the primary entry point for any non-standard request. Build a request with `RequestBuilder` and hand the builder to `sendRequest(_:completion:)`; the client builds it for you, logs the outcome, and always calls the completion (a malformed URL or build failure completes with `.failure(.unknown)` and returns an already-disposed `Disposable`). Request bodies are **uncompressed by default** — opt into gzip only for endpoints that support it, via `gzip()`.
 

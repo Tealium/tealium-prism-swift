@@ -27,7 +27,7 @@ declare -a SCHEMES=(
     "JavaScriptTransformerTests_tvOS"
     "JavaScriptTransformerTests_macOS"
 )
-IOS_DESTINATION='platform=iOS Simulator,name=iPhone 16 Pro'
+IOS_DESTINATION='platform=iOS Simulator,name=iPhone 17 Pro'
 TVOS_DESTINATION='platform=tvOS Simulator,name=Apple TV'
 MACOS_DESTINATION='platform=macOS'
 WATCHOS_DESTINATION='platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)'

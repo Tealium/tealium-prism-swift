@@ -174,4 +174,20 @@ final class NetworkHelperTests: XCTestCase {
         }
         waitForDefaultTimeout()
     }
+
+    func test_makeNetworkHelper_sends_requests_through_the_client() {
+        let derivedClient = MockNetworkClient(result: .success(.successful()))
+        let derivedRequestSent = expectation(description: "The request is sent through the derived client")
+        derivedClient.requestDidSend = { request in
+            XCTAssertEqual(request.url?.absoluteString, "https://tealium.com")
+            derivedRequestSent.fulfill()
+        }
+        let completed = expectation(description: "The request completes")
+        let helper = derivedClient.makeNetworkHelper()
+        _ = helper.get(url: "https://tealium.com", etag: nil, additionalHeaders: nil) { result in
+            XCTAssertNotNil(try? result.get())
+            completed.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
 }

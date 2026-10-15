@@ -22,6 +22,18 @@ class SettingsManager {
     private var refreshing = false
     let config: TealiumConfig
 
+    convenience init(config: TealiumConfig,
+                     dataStore: any DataStore,
+                     client: NetworkClient,
+                     connectivityManager: ConnectivityManagerProtocol,
+                     logger: LoggerProtocol) throws {
+        try self.init(config: config,
+                      dataStore: dataStore,
+                      networkHelper: Self.makeNetworkHelper(client: client,
+                                                            connectivityManager: connectivityManager),
+                      logger: logger)
+    }
+
     init(config: TealiumConfig, dataStore: any DataStore, networkHelper: NetworkHelperProtocol, logger: LoggerProtocol) throws {
         self.logger = logger
         self.config = config
@@ -61,6 +73,31 @@ class SettingsManager {
                                                  parameters: refreshParameters,
                                                  logger: logger)
         }
+    }
+
+    /// The interceptors of the settings client.
+    private static func settingsInterceptors(connectivityManager: ConnectivityManagerProtocol) -> [RequestInterceptor] {
+        [
+            RetryableErrorInterceptor(maxAttempts: 3, maxDelay: 2),
+            ConnectivityRetryInterceptor(connectivityManager: connectivityManager)
+        ]
+    }
+
+    /// The maximum number of retries of a settings fetch, whichever interceptor proposes them.
+    static let settingsMaxRetryCount = 10
+
+    /**
+     * Derives the settings client from `client` and wraps it in a helper.
+     *
+     * Retryable failures wait for connectivity while the connection is assumed unavailable, otherwise they are
+     * retried quickly, up to 3 attempts in a row. Waiting for connectivity restarts that count. At most
+     * `settingsMaxRetryCount` retries are made per fetch. The `ErrorCooldown` of the `ResourceRefresher` then decides
+     * when to start the next refresh.
+     */
+    static func makeNetworkHelper(client: NetworkClient, connectivityManager: ConnectivityManagerProtocol) -> NetworkHelperProtocol {
+        client.newClient(withAdditionalInterceptors: settingsInterceptors(connectivityManager: connectivityManager),
+                         maxRetryCount: settingsMaxRetryCount)
+            .makeNetworkHelper()
     }
 
     /// Settings that emit only after we tried to refresh them at launch.

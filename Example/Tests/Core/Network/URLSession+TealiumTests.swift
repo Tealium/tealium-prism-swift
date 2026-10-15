@@ -98,7 +98,6 @@ final class URLSessionTealiumTests: XCTestCase {
     lazy var config: NetworkConfiguration = {
         var config = NetworkConfiguration(sessionConfiguration: NetworkConfiguration.defaultUrlSessionConfiguration,
                                           interceptors: [],
-                                          interceptorManagerFactory: MockInterceptorManager.self,
                                           queue: queue)
         config.sessionConfiguration.protocolClasses = [URLProtocolMock.self]
         return config

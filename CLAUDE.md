@@ -77,6 +77,8 @@ Modules are registered via `ModuleFactory` instances passed to `TealiumConfig.ad
 ### Networking
 Modules reach the network through `context.network` (`NetworkUtilities`, a `public final class`). It exposes `networkClient` (`NetworkClient` — build requests with `RequestBuilder`; uncompressed by default, opt into gzip via `.gzip()`), `networkHelper` (`NetworkHelperProtocol` — convenience GET/POST), and `connectivityManager` (`ConnectivityManagerProtocol` - `connectionAssumedAvailable` and `connection` observables). Public network API lives in `core/API/Network/`.
 
+`networkClient` and `networkHelper` make a single attempt per request. A consumer that needs retries derives its own client with `newClient(withAdditionalInterceptors:maxRetryCount:)` and the interceptors in `core/API/Network/Interceptors/`, then calls `makeNetworkHelper()` on it for the helper API. The built-in stacks are in `CollectModule.networkInterceptors`, `SettingsManager.makeNetworkHelper` and `ContextAPIModule`; the retry rules are documented on the interceptors.
+
 ### Event Pipeline
 ```
 track() → TrackerImpl

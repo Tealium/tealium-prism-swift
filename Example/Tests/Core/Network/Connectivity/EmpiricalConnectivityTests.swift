@@ -110,14 +110,16 @@ final class EmpiricalConnectivityTests: XCTestCase {
     }
 
     func test_increasing_numberOfFailedConsecutiveTimeouts_increases_the_connectivity_timeout() {
-        let empiricalConnectivity = EmpiricalConnectivity(backoffPolicy: MockBackoff(), debouncer: debouncer)
+        let empiricalConnectivity = EmpiricalConnectivity(backoff: .retryCount, debouncer: debouncer)
         let timeoutOnZeroFailures = empiricalConnectivity.timeoutInterval()
         empiricalConnectivity.numberOfFailedConsecutiveTimeouts = 5
         XCTAssertGreaterThan(empiricalConnectivity.timeoutInterval(), timeoutOnZeroFailures)
     }
 
-    func test_connectivity_timeout_adds_1_to_numberOfFailedConsecutiveTimeouts() {
-        let empiricalConnectivity = EmpiricalConnectivity(backoffPolicy: MockBackoff(), debouncer: debouncer)
-        XCTAssertEqual(empiricalConnectivity.timeoutInterval(), 1)
+    func test_connectivity_timeout_uses_numberOfFailedConsecutiveTimeouts_as_retry_count() {
+        let empiricalConnectivity = EmpiricalConnectivity(backoff: .retryCount, debouncer: debouncer)
+        XCTAssertEqual(empiricalConnectivity.timeoutInterval(), 0)
+        empiricalConnectivity.numberOfFailedConsecutiveTimeouts = 3
+        XCTAssertEqual(empiricalConnectivity.timeoutInterval(), 3)
     }
 }

@@ -12,19 +12,18 @@ import Foundation
  * An HTTP client that sends `URLRequest`s via a `URLSession`.
  *
  * `URLRequest`s are sent as is and are retried according to the `RequestInterceptor`s logic when necessary.
- * `RequestInterceptor`s are also notified of other events concerning the request lifecycle.
- * Some of these events are related to the `HTTPClient` logic and some are just `URLSessionDelegate` events being forwarded.
+ * The client notifies the `RequestInterceptor`s of each request's result and asks them whether to retry it.
  *
  * You should almost never create a new instance of this class but rather use the `shared` instance,
  * as it's configured with sensible defaults and using one `URLSession` comes with a series of optimizations.
- * If you need to create a new instance make sure to start from a `default` configuration and only add new interceptors to the default ones.
+ * If you only need additional interceptors, derive a client with `newClient(withAdditionalInterceptors:)` instead of creating a new instance.
  */
 final class HTTPClient: NetworkClient {
     /// The shared instance created with the default configuration
     static let shared: HTTPClient = HTTPClient(logger: nil)
     let session: URLSession
     private let queue: TealiumQueue
-    let interceptorManager: InterceptorManagerProtocol
+    let interceptorManager: InterceptorManager
     private let logger: LoggerProtocol?
 
     /**
@@ -37,14 +36,14 @@ final class HTTPClient: NetworkClient {
         operationQueue.underlyingQueue = configuration.queue.dispatchQueue
         let interceptorManager = configuration.interceptorManager
         self.init(session: URLSession(configuration: configuration.sessionConfiguration,
-                                      delegate: interceptorManager,
+                                      delegate: nil,
                                       delegateQueue: operationQueue),
                   queue: configuration.queue,
                   interceptorManager: interceptorManager,
                   logger: logger)
     }
 
-    required init(session: URLSession, queue: TealiumQueue, interceptorManager: InterceptorManagerProtocol, logger: LoggerProtocol?) {
+    required init(session: URLSession, queue: TealiumQueue, interceptorManager: InterceptorManager, logger: LoggerProtocol?) {
         self.session = session
         self.queue = queue
         self.interceptorManager = interceptorManager
@@ -78,27 +77,27 @@ final class HTTPClient: NetworkClient {
         }
     }
 
-    private func sendRetryableRequest(_ request: URLRequest, retryCount: Int = 0, completion: @escaping (NetworkResult) -> Void) -> any Disposable {
+    private func sendRetryableRequest(_ request: URLRequest, context: RetryContext = .initial, completion: @escaping (NetworkResult) -> Void) -> any Disposable {
         let completion = SelfDestructingResultCompletion(completion: completion)
         let disposeContainer = DisposableContainer()
         let task = self.sendBasicRequest(request) { result in
-            self.interceptorManager.interceptResult(request: request, retryCount: retryCount, result: result) { [weak self] shouldRetry in
+            self.interceptorManager.interceptResult(request: request, context: context, result: result) { [weak self] retryContext in
                 guard let self, !disposeContainer.isDisposed else {
                     completion.fail(error: NetworkError(type: .cancelled, urlResponse: result.urlResponse))
                     return
                 }
-                if shouldRetry {
-                    let newRetryCount = retryCount + 1
-                    TealiumSignposter.httpClient.event("Retry", "\(newRetryCount)")
-                    self.logger?.trace(category: LogCategory.httpClient,
-                                       "Retrying request \(request) Retry count: \(newRetryCount)")
-                    self.sendRetryableRequest(request,
-                                              retryCount: newRetryCount,
-                                              completion: completion.complete)
-                    .addTo(disposeContainer)
-                } else {
+                // `nil` means the interceptors decided not to retry: this result is final.
+                guard let retryContext else {
                     completion.complete(result: result)
+                    return
                 }
+                TealiumSignposter.httpClient.event("Retry", "\(retryContext.retryCount)")
+                self.logger?.trace(category: LogCategory.httpClient,
+                                   "Retrying request \(request) Retry count: \(retryContext.retryCount)")
+                self.sendRetryableRequest(request,
+                                          context: retryContext,
+                                          completion: completion.complete)
+                .addTo(disposeContainer)
             }
         }
         return Subscription {
@@ -125,5 +124,14 @@ final class HTTPClient: NetworkClient {
                   queue: queue,
                   interceptorManager: interceptorManager,
                   logger: logger)
+    }
+
+    func newClient(withAdditionalInterceptors interceptors: [RequestInterceptor], maxRetryCount: Int?) -> Self {
+        // Derived clients share the session, and therefore its connection pool.
+        // swiftlint:disable:next explicit_init
+        return Self.init(session: session,
+                         queue: queue,
+                         interceptorManager: interceptorManager.newManager(withAdditionalInterceptors: interceptors, maxRetryCount: maxRetryCount),
+                         logger: logger)
     }
 }

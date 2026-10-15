@@ -21,6 +21,10 @@ final class CollectModuleTests: XCTestCase {
         Dispatch(name: "event2", data: [TealiumDataKey.account: "account", TealiumDataKey.profile: "profile"])
     ]
 
+    override func tearDown() {
+        URLProtocolMock.reset()
+    }
+
     private func urlString(of request: URLRequest, file: StaticString = #filePath, line: UInt = #line) -> String? {
         guard let urlString = request.url?.absoluteString else {
             XCTFail("Could not convert to URL", file: file, line: line)
@@ -202,6 +206,74 @@ final class CollectModuleTests: XCTestCase {
         configuration = nil
         XCTAssertNil(collect)
     }
+
+    func test_context_init_derives_the_client_with_uncapped_retries_and_connectivity_retries() throws {
+        let context = MockContext(moduleManager: ModuleManager(), networkClient: mockClient)
+        let collectFromContext = CollectModule(moduleId: Modules.Types.collect, context: context, moduleConfiguration: [:])
+        XCTAssertNotNil(collectFromContext)
+        XCTAssertEqual(mockClient.additionalInterceptors.count, 1, "The client should be derived exactly once")
+        let interceptors = try XCTUnwrap(mockClient.additionalInterceptors.first)
+        XCTAssertEqual(interceptors.count, 2)
+        let retryInterceptor = try XCTUnwrap(interceptors.first as? RetryableErrorInterceptor)
+        XCTAssertNil(retryInterceptor.maxAttempts)
+        XCTAssertEqual(retryInterceptor.maxDelay, 150)
+        XCTAssertEqual(retryInterceptor.longRetryAfter, .wait)
+        XCTAssertEqual(mockClient.additionalMaxRetryCounts, [nil], "Collect should not limit the total retries")
+        let connectivityInterceptor = try XCTUnwrap(interceptors.last as? ConnectivityRetryInterceptor)
+        XCTAssertIdentical(connectivityInterceptor.connectivityManager as AnyObject,
+                           context.network.connectivityManager as AnyObject)
+    }
+
+    /// The first interceptor of the network stack Collect derives its client with.
+    private func collectRetryInterceptor() throws -> RetryableErrorInterceptor {
+        let interceptors = CollectModule.networkInterceptors(connectivityManager: MockConnectivityManager(queue: .worker))
+        return try XCTUnwrap(interceptors.first as? RetryableErrorInterceptor)
+    }
+
+    private func throttledFailure(retryAfter: String) -> NetworkResult {
+        .failure(NetworkError(type: .non200Status(429, nil),
+                              urlResponse: .mock(status: 429, headers: ["Retry-After": retryAfter])))
+    }
+
+    func test_retry_interceptor_honors_a_retry_after_within_the_max_delay() throws {
+        let interceptor = try collectRetryInterceptor()
+        let policy = interceptor.shouldRetry(URLRequest(), consecutiveRetryCount: 0, with: throttledFailure(retryAfter: "1"))
+        XCTAssertEqual(delay(of: policy), 1)
+    }
+
+    func test_retry_interceptor_waits_for_a_retry_after_above_the_max_delay() throws {
+        let interceptor = try collectRetryInterceptor()
+        let policy = interceptor.shouldRetry(URLRequest(), consecutiveRetryCount: 0, with: throttledFailure(retryAfter: "500"))
+        XCTAssertEqual(delay(of: policy), 500)
+    }
+
+// URLProtocolMock seems not to be working on watchos
+#if !os(watchOS)
+    func test_collect_from_context_retries_a_transient_failure_once_and_completes() {
+        let queue = TealiumQueue(label: "collectTestQueue")
+        let networkConfiguration = NetworkConfiguration(sessionConfiguration: NetworkConfiguration.defaultUrlSessionConfiguration,
+                                                        interceptors: NetworkConfiguration.defaultInterceptors,
+                                                        queue: queue)
+        networkConfiguration.sessionConfiguration.protocolClasses = [URLProtocolMock.self]
+        URLProtocolMock.reply = .list([
+            (Data(), .mock(status: 503), nil),
+            (Data(), .successful(), nil)
+        ])
+        let requestSent = expectation(description: "The request is sent twice")
+        requestSent.expectedFulfillmentCount = 2
+        URLProtocolMock.recordingRequests { _ in requestSent.fulfill() }
+        let context = MockContext(moduleManager: ModuleManager(),
+                                  networkClient: HTTPClient(configuration: networkConfiguration, logger: nil))
+        let collectFromContext = CollectModule(moduleId: Modules.Types.collect, context: context, moduleConfiguration: [:])
+        let dispatchCompleted = expectation(description: "The dispatch completes after the retry")
+        _ = collectFromContext?.dispatch([stubDispatches[0]], completion: { dispatches in
+            XCTAssertEqual(dispatches.map { $0.id }, [self.stubDispatches[0].id])
+            dispatchCompleted.fulfill()
+        })
+        // The jittered retry can wait up to 0.1s on top of two URLSession round trips, more than the default timeout
+        wait(for: [requestSent, dispatchCompleted], timeout: Self.longTimeout)
+    }
+#endif
 
     func test_updateSettings_changes_collectSettings() {
         let updatedCollect = collect?.updateConfiguration(["url": "customUrl"])

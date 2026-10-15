@@ -17,15 +17,10 @@ final class HTTPClientTests: XCTestCase {
     lazy var config: NetworkConfiguration = {
         var config = NetworkConfiguration(sessionConfiguration: NetworkConfiguration.defaultUrlSessionConfiguration,
                                           interceptors: [],
-                                          interceptorManagerFactory: MockInterceptorManager.self,
                                           queue: queue)
         config.sessionConfiguration.protocolClasses = [URLProtocolMock.self]
         return config
     }()
-    var interceptorManager: MockInterceptorManager {
-        // swiftlint:disable:next force_cast
-        client.interceptorManager as! MockInterceptorManager
-    }
     lazy var client = HTTPClient(configuration: config, logger: nil)
     let mockLogger = MockLogger()
     lazy var loggingClient = HTTPClient(configuration: config, logger: mockLogger)
@@ -34,8 +29,17 @@ final class HTTPClientTests: XCTestCase {
         URLProtocolMock.reset()
     }
 
-    func test_url_session_has_interceptor_as_delegate() {
-        XCTAssertIdentical(client.session.delegate, client.interceptorManager)
+    /// Builds an `HTTPClient` on `URLProtocolMock` whose `InterceptorManager` is seeded with `interceptors` up front.
+    private func makeClient(interceptors: [RequestInterceptor]) -> HTTPClient {
+        let config = NetworkConfiguration(sessionConfiguration: NetworkConfiguration.defaultUrlSessionConfiguration,
+                                          interceptors: interceptors,
+                                          queue: queue)
+        config.sessionConfiguration.protocolClasses = [URLProtocolMock.self]
+        return HTTPClient(configuration: config, logger: nil)
+    }
+
+    func test_url_session_has_no_delegate() {
+        XCTAssertNil(client.session.delegate)
     }
 
     func test_url_session_has_queue_as_delegate_queue() {
@@ -86,16 +90,16 @@ final class HTTPClientTests: XCTestCase {
     func test_succeeded_request_is_sent_to_intercept_response() {
         let expect = expectation(description: "Request will be sent to the interceptor")
         let predictedResponse = mockSuccess()
-        interceptorManager.onInterceptResponse.subscribeOnce { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
+        let client = makeClient(interceptors: [MockInterceptor(onAttemptResult: { _, _, result in
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertResultIsSuccess(result) { value in
                 XCTAssertEqual(value.data, predictedResponse.0)
                 XCTAssertEqual(value.urlResponse.statusCode, predictedResponse.1?.statusCode)
                 expect.fulfill()
             }
-        }
+        })])
         _ = client.sendRequest(URLRequest()) { _ in
-            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
         }
         waitForLongTimeout()
     }
@@ -103,15 +107,15 @@ final class HTTPClientTests: XCTestCase {
     func test_failed_request_is_sent_to_intercept_response() {
         let expect = expectation(description: "Request will be sent to the interceptor")
         let predictedResponse = mockFailure()
-        interceptorManager.onInterceptResponse.subscribeOnce { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
+        let client = makeClient(interceptors: [MockInterceptor(onAttemptResult: { _, _, result in
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertResultIsFailure(result) { error in
                 XCTAssertNetworkError(error, equalsURLErrorWith: predictedResponse.2)
                 expect.fulfill()
             }
-        }
+        })])
         _ = client.sendRequest(URLRequest()) { _ in
-            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
         }
         waitForLongTimeout()
     }
@@ -123,7 +127,7 @@ final class HTTPClientTests: XCTestCase {
         let expect = expectation(description: "Send request completion is called in the end only once")
         var currentRetryCount = -1
         let predictedResponse = mockSuccess()
-        interceptorManager.interceptors.append(MockInterceptor(shouldRetry: { _, retryCount, _ in
+        let client = makeClient(interceptors: [MockInterceptor(shouldRetry: { _, retryCount, _ in
             defer { expectRetry.fulfill() }
             XCTAssertEqual(currentRetryCount + 1, retryCount)
             currentRetryCount = retryCount
@@ -132,9 +136,9 @@ final class HTTPClientTests: XCTestCase {
             } else {
                 return .afterEvent(Observables.just(()))
             }
-        }))
+        })])
         _ = client.sendRequest(URLRequest()) { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertResultIsSuccess(result) { value in
                 XCTAssertEqual(value.data, predictedResponse.0)
                 XCTAssertEqual(value.urlResponse.statusCode, predictedResponse.1?.statusCode)
@@ -144,21 +148,44 @@ final class HTTPClientTests: XCTestCase {
         waitForLongTimeout()
     }
 
-    func test_retryable_errors_are_retried_by_default() {
-        config = .default
-        config.interceptorManagerFactory = MockInterceptorManager.self
+    func test_onAttemptResult_receives_incrementing_retryCount_for_each_attempt() {
+        let expectAttempts = expectation(description: "onAttemptResult is called once per attempt")
+        expectAttempts.expectedFulfillmentCount = 3
+        let expectCompletion = expectation(description: "Send request completion is called")
+        var receivedRetryCounts = [Int]()
+        _ = mockSuccess()
+        let client = makeClient(interceptors: [MockInterceptor(onAttemptResult: { _, retryCount, _ in
+            receivedRetryCounts.append(retryCount)
+            expectAttempts.fulfill()
+        }, shouldRetry: { _, consecutiveRetryCount, _ in
+            consecutiveRetryCount < 2 ? .afterDelay(0) : .doNotRetry
+        })])
+        _ = client.sendRequest(URLRequest()) { _ in
+            expectCompletion.fulfill()
+        }
+        waitForDefaultTimeout()
+        XCTAssertEqual(receivedRetryCounts, [0, 1, 2])
+    }
+
+    func test_retryable_errors_are_not_retried_by_default() {
+        config = NetworkConfiguration(sessionConfiguration: NetworkConfiguration.defaultUrlSessionConfiguration,
+                                      interceptors: NetworkConfiguration.defaultInterceptors,
+                                      queue: queue)
         config.sessionConfiguration.protocolClasses = [URLProtocolMock.self]
         URLProtocolMock.reply = .list([
-            (nil, nil, URLError(.networkConnectionLost)),
-            (Data(), HTTPURLResponse(), nil)
+            (Data(), .mock(status: 429), nil),
+            (Data(), .successful(), nil)
         ])
-        let requestCompleted = expectation(description: "DefaultInterceptor should retry after first retriable error and succeed the subsequent request")
+        let requests = URLProtocolMock.recordingRequests()
+        let requestCompleted = expectation(description: "Request completes with a failure without being retried")
         _ = client.sendRequest(URLRequest()) { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
-            XCTAssertResultIsSuccess(result)
+            XCTAssertResultIsFailure(result) { error in
+                XCTAssertEqual(error.urlResponse?.statusCode, 429)
+            }
             requestCompleted.fulfill()
         }
         waitForLongTimeout()
+        XCTAssertEqual(requests.dates.count, 1)
     }
 
     func test_retries_get_cancelled_when_dataTask_is_disposed() {
@@ -166,12 +193,12 @@ final class HTTPClientTests: XCTestCase {
         expectRetry.assertForOverFulfill = false
         let expect = expectation(description: "Request will complete with a cancel error")
         mockFailure()
-        interceptorManager.interceptors.append(MockInterceptor(shouldRetry: { _, _, _ in
+        let client = makeClient(interceptors: [MockInterceptor(shouldRetry: { _, _, _ in
             expectRetry.fulfill()
             return .afterDelay(1)
-        }))
+        })])
         let task = client.sendRequest(URLRequest()) { result in
-            dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
+            dispatchPrecondition(condition: .onQueue(self.queue.dispatchQueue))
             XCTAssertResultIsFailure(result) { error in
                 XCTAssertNetworkError(error, is: .cancelled)
                 expect.fulfill()
@@ -260,6 +287,56 @@ final class HTTPClientTests: XCTestCase {
         }
         _ = loggingClient.sendRequest(RequestBuilder.makePOST(url: "", json: [:])) { _ in }
         waitForLongTimeout()
+    }
+
+    func test_derived_client_shares_session_and_delegate_queue_and_uses_a_new_manager() {
+        let derived = client.newClient(withAdditionalInterceptors: [MockInterceptor()])
+        XCTAssertIdentical(derived.session, client.session)
+        XCTAssertNil(derived.session.delegate)
+        XCTAssertIdentical(derived.session.delegateQueue.underlyingQueue, self.config.queue.dispatchQueue)
+        XCTAssertNotIdentical(derived.interceptorManager, client.interceptorManager)
+    }
+
+    func test_client_with_new_logger_shares_session_and_manager() {
+        let derived = client.newClient(withLogger: mockLogger)
+        XCTAssertIdentical(derived.session, client.session)
+        XCTAssertIdentical(derived.interceptorManager, client.interceptorManager)
+    }
+
+    func test_derived_client_with_retrying_interceptor_retries_while_parent_does_not() {
+        mockFailure()
+        let parentRequestSent = expectation(description: "Parent client sends the request only once")
+        let parentCompleted = expectation(description: "Parent request completes with a failure")
+        countRequests(parentRequestSent)
+        _ = client.sendRequest(URLRequest()) { result in
+            XCTAssertResultIsFailure(result)
+            parentCompleted.fulfill()
+        }
+        wait(for: [parentRequestSent, parentCompleted], timeout: Self.longTimeout)
+
+        let derived = client.newClient(withAdditionalInterceptors: [
+            MockInterceptor(shouldRetry: { _, retryCount, _ in
+                retryCount == 0 ? .afterDelay(0) : .doNotRetry
+            })
+        ])
+        let derivedRequestSent = expectation(description: "Derived client sends the request twice")
+        derivedRequestSent.expectedFulfillmentCount = 2
+        let derivedCompleted = expectation(description: "Derived request completes with a failure after one retry")
+        countRequests(derivedRequestSent)
+        _ = derived.sendRequest(URLRequest()) { result in
+            XCTAssertResultIsFailure(result)
+            derivedCompleted.fulfill()
+        }
+        wait(for: [derivedRequestSent, derivedCompleted], timeout: Self.longTimeout)
+    }
+
+    func test_derived_client_passes_maxRetryCount_to_its_interceptor_manager() {
+        let derived = client.newClient(withAdditionalInterceptors: [MockInterceptor()], maxRetryCount: 2)
+        XCTAssertEqual(derived.interceptorManager.maxRetryCount, 2)
+    }
+
+    private func countRequests(_ requestSent: XCTestExpectation) {
+        URLProtocolMock.recordingRequests { _ in requestSent.fulfill() }
     }
 
     @discardableResult

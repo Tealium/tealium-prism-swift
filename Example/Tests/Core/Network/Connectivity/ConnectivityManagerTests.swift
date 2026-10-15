@@ -39,12 +39,29 @@ final class ConnectivityManagerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_connectivity_is_still_connected_after_connection_monitor_down() {
+    func test_connectivity_is_unavailable_after_connection_monitor_down_even_if_empirical_is_available() {
+        let connectionAssumedAvailableEvent = expectation(description: "Event is returned")
+        empiricalConnectivity.changeConnectionAvailable(true)
+        connectivityMonitor.changeConnection(.notConnected)
+        XCTAssertFalse(manager.isConnectionAssumedAvailable)
+        manager.connectionAssumedAvailable.subscribeOnce { available in
+            XCTAssertFalse(available)
+            connectionAssumedAvailableEvent.fulfill()
+        }
+        waitForDefaultTimeout()
+    }
+
+    func test_connectivity_follows_empirical_when_monitor_goes_back_to_unknown() {
         let connectionAssumedAvailableEvent = expectation(description: "Event is returned")
         connectivityMonitor.changeConnection(.notConnected)
+        XCTAssertFalse(manager.isConnectionAssumedAvailable)
+        empiricalConnectivity.changeConnectionAvailable(true)
+        connectivityMonitor.changeConnection(.unknown)
         XCTAssertTrue(manager.isConnectionAssumedAvailable)
+        empiricalConnectivity.changeConnectionAvailable(false)
+        XCTAssertFalse(manager.isConnectionAssumedAvailable)
         manager.connectionAssumedAvailable.subscribeOnce { available in
-            XCTAssertTrue(available)
+            XCTAssertFalse(available)
             connectionAssumedAvailableEvent.fulfill()
         }
         waitForDefaultTimeout()
@@ -104,63 +121,35 @@ final class ConnectivityManagerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_should_retry_returns_doNotRetry_on_connection_assumed_available() {
-        XCTAssertTrue(manager.isConnectionAssumedAvailable)
-        let policy = manager.shouldRetry(URLRequest(),
-                                         retryCount: 0,
-                                         with: connectionErrorResult)
-        XCTAssertEqual(policy, .doNotRetry)
-    }
-
-    func test_should_retry_returns_doNotRetry_on_connection_assumed_available_but_unretyable_error() {
-        XCTAssertTrue(manager.isConnectionAssumedAvailable)
-        empiricalConnectivity.changeConnectionAvailable(false)
-        connectivityMonitor.changeConnection(.notConnected)
-        let policy = manager.shouldRetry(URLRequest(),
-                                         retryCount: 0,
-                                         with: .failure(NetworkError(type: .unknown(nil))))
-        XCTAssertEqual(policy, .doNotRetry)
-    }
-
-    func test_should_retry_returns_afterEvent_on_connection_assumed_unavailable() {
-        empiricalConnectivity.changeConnectionAvailable(false)
-        connectivityMonitor.changeConnection(.notConnected)
-        XCTAssertFalse(manager.isConnectionAssumedAvailable)
-        let policy = manager.shouldRetry(URLRequest(),
-                                         retryCount: 0,
-                                         with: connectionErrorResult)
-        XCTAssertEqual(policy, .afterEvent(Observables.just(())))
-    }
-
-    func test_did_complete_with_connection_error_causes_empirical_connection_failure() {
+    func test_onAttemptResult_with_connection_error_causes_empirical_connection_failure() {
         let empiricalConnectionFailure = expectation(description: "Empirical connection failure is reported")
         empiricalConnectivity.onConnectionFail.subscribeOnce {
             empiricalConnectionFailure.fulfill()
         }
-        manager.didComplete(URLRequest(), with: connectionErrorResult)
+        manager.onAttemptResult(URLRequest(), retryCount: 0, with: connectionErrorResult)
         waitForDefaultTimeout()
     }
 
-    func test_did_complete_with_success_causes_empirical_connection_success() {
+    func test_onAttemptResult_with_success_causes_empirical_connection_success() {
         let empiricalConnectionSuccess = expectation(description: "Empirical connection success is reported")
         empiricalConnectivity.onConnectionSuccess.subscribeOnce {
             empiricalConnectionSuccess.fulfill()
         }
-        manager.didComplete(URLRequest(), with: .success(.successful()))
+        manager.onAttemptResult(URLRequest(), retryCount: 0, with: .success(.successful()))
         waitForDefaultTimeout()
     }
 
-    func test_did_complete_with_urlResponse_error_causes_empirical_connection_success() {
+    func test_onAttemptResult_with_urlResponse_error_causes_empirical_connection_success() {
         let empiricalConnectionSuccess = expectation(description: "Empirical connection success is reported")
         empiricalConnectivity.onConnectionSuccess.subscribeOnce {
             empiricalConnectionSuccess.fulfill()
         }
-        manager.didComplete(URLRequest(), with: .failure(NetworkError(type: .non200Status(400, nil),
-                                                                      urlResponse: .successful())))
+        manager.onAttemptResult(URLRequest(), retryCount: 0, with: .failure(NetworkError(type: .non200Status(400, nil),
+                                                                                         urlResponse: .successful())))
         waitForDefaultTimeout()
     }
 
-    func test_did_complete_with_non_connection_error_causes_nothing() {
+    func test_onAttemptResult_with_non_connection_error_causes_nothing() {
         let empiricalConnectionSuccess = expectation(description: "Empirical connection success should not be reported")
         empiricalConnectionSuccess.isInverted = true
         let empiricalConnectionFailure = expectation(description: "Empirical connection failure should not be reported")
@@ -172,31 +161,10 @@ final class ConnectivityManagerTests: XCTestCase {
         empiricalConnectivity.onConnectionFail.subscribe {
             empiricalConnectionFailure.fulfill()
         }.addTo(automaticDisposer)
-        manager.didComplete(URLRequest(), with: .failure(NetworkError(type: .urlError(URLError(.appTransportSecurityRequiresSecureConnection)))))
+        manager.onAttemptResult(URLRequest(),
+                                retryCount: 0,
+                                with: .failure(NetworkError(type: .urlError(URLError(.appTransportSecurityRequiresSecureConnection)))))
         waitForDefaultTimeout()
     }
 
-    func test_waiting_for_connectivity_causes_empirical_connection_failure() {
-        let empiricalConnectionFailure = expectation(description: "Empirical connection failure is reported")
-        empiricalConnectivity.onConnectionFail.subscribeOnce {
-            empiricalConnectionFailure.fulfill()
-        }
-        let task = URLSession.shared.dataTask(with: URLRequest())
-        manager.waitingForConnectivity(task)
-        waitForDefaultTimeout()
-    }
-}
-
-extension TealiumPrism.RetryPolicy: Swift.Equatable {
-    /// Only for comparing during tests
-    public static func == (lhs: RetryPolicy, rhs: RetryPolicy) -> Bool {
-        switch (lhs, rhs) {
-        case (.doNotRetry, .doNotRetry),
-            (.afterEvent, .afterEvent),
-            (.afterDelay, .afterDelay):
-            return true
-        default:
-            return false
-        }
-    }
 }

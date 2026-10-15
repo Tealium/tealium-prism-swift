@@ -33,7 +33,7 @@ class ConnectivityBarrier: ConfigurableBarrier {
     }
 
     var isFlushable: Observable<Bool> {
-        connectionManager.connection.mapState { $0.isConnected }
+        connectionManager.connectionAssumedAvailable.asObservable()
     }
 
     /** `dispatcherId` is ignored for ConnectivityBarrier */
