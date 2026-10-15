@@ -24,17 +24,19 @@ class LowercaseTransformer: Transformer, BasicModule {
 
     init() {}
 
+    @discardableResult
     func applyTransformation(
         _ transformation: TransformationSettings,
         to dispatch: Dispatch,
         scope: DispatchScope,
         completion: @escaping (Dispatch?) -> Void
-    ) {
+    ) -> any Disposable {
         guard let configuration = LowercaseConfiguration(dataObject: transformation.configuration) else {
             completion(dispatch)
-            return
+            return Disposables.disposed()
         }
         completion(applyTransformation(configuration, to: dispatch))
+        return Disposables.disposed()
     }
 
     private func applyTransformation(

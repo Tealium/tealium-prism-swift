@@ -200,9 +200,10 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
             .observeOn(queue)
     }
 
-    func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) {
+    @discardableResult
+    func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) -> any Disposable {
         let model = DeviceDataProvider.basicModel
-        onModelInfo.asObservable()
+        return onModelInfo.asObservable()
             .combineLatest(onMainThreadData())
             .subscribeOnce { deviceModelData, mainThreadData in
                 let modelData = deviceModelData ?? [

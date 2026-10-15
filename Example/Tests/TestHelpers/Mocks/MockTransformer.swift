@@ -42,7 +42,7 @@ class MockTransformer: Transformer {
     typealias TransformationBlock = (TransformationSettings, Dispatch, DispatchScope) -> Dispatch?
     var transformation: TransformationBlock
     var delay: Int?
-    var queue = DispatchQueue.main
+    var queue = TealiumQueue.main
     init(moduleId: String = MockTransformer.moduleType,
          transformation: @escaping TransformationBlock = { _, dispatch, _ in dispatch },
          delay milliseconds: Int? = nil) {
@@ -51,13 +51,17 @@ class MockTransformer: Transformer {
         self.delay = milliseconds
     }
 
-    func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) {
+    @discardableResult
+    func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) -> any Disposable {
+        let subscription = Disposables.composite(queue: queue)
         if let delay = delay {
-            queue.asyncAfter(deadline: .now() + .milliseconds(delay)) {
+            queue.dispatchQueue.asyncAfter(deadline: .now() + .milliseconds(delay)) {
+                guard !subscription.isDisposed else { return }
                 completion(self.transformation(transformation, dispatch, scope))
             }
         } else {
             completion(self.transformation(transformation, dispatch, scope))
         }
+        return subscription
     }
 }

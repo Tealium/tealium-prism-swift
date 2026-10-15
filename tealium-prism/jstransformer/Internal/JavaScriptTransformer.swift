@@ -49,13 +49,14 @@ class JavaScriptTransformer: Transformer, BasicModule {
         // setupNetworkHelper() — re-enable when async/await or promises are properly supported
     }
 
-    func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) {
+    @discardableResult
+    func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) -> any Disposable {
         let completion = SelfDestructingCompletion(completion: completion)
         guard let code = transformation.configuration.get(key: "js_code", as: String.self),
               !StringUtils.isBlank(code),
               let serializedPayload = try? dispatch.payload.serialize() else {
             completion.complete(result: dispatch)
-            return
+            return Disposables.disposed()
         }
         jsContext.exceptionHandler = { [logger] _, value in
             guard let error = value?.toString() else {
@@ -90,11 +91,12 @@ class JavaScriptTransformer: Transformer, BasicModule {
         guard let jsPayload,
               let dataObject = try? DataObject(jsonString: jsPayload.toString()) else {
             completion.complete(result: nil)
-            return
+            return Disposables.disposed()
         }
         var updatedDispatch = dispatch
         updatedDispatch.replace(payload: dataObject)
         completion.complete(result: updatedDispatch)
+        return Disposables.disposed()
     }
 }
 

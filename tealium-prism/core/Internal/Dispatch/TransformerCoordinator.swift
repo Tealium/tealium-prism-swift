@@ -138,7 +138,8 @@ class TransformerCoordinator: TransformerRegistrar {
             completion(dispatch)
             return
         }
-        return transformer.applyTransformation(transformation, to: dispatch, scope: scope, completion: completion)
+        // TODO: hold this Disposable and dispose it on cancel. Dropping completions that arrive after dispose is the coordinator's job, not the transformer's; today TealiumDispatchGroup and DispatchManager.transformAndDispatch do it.
+        _ = transformer.applyTransformation(transformation, to: dispatch, scope: scope, completion: completion)
     }
 
     func registerTransformation(_ transformation: TransformationSettings) {

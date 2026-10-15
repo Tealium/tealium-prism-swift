@@ -32,17 +32,19 @@ class PersistDataValueTransformer: Transformer, BasicModule {
         self.dataLayer = dataLayer
     }
 
+    @discardableResult
     func applyTransformation(
         _ transformation: TransformationSettings,
         to dispatch: Dispatch,
         scope: DispatchScope,
         completion: @escaping (Dispatch?) -> Void
-    ) {
+    ) -> any Disposable {
         guard let config = PersistDataValueConfiguration(dataObject: transformation.configuration) else {
             completion(dispatch)
-            return
+            return Disposables.disposed()
         }
         applyTransformation(config, to: dispatch, completion: completion)
+        return Disposables.disposed()
     }
 
     private func applyTransformation(_ config: PersistDataValueConfiguration,

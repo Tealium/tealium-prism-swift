@@ -22,12 +22,14 @@ class SetDataValuesTransformer: Transformer, BasicModule {
 
     init() { }
 
-    func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) {
+    @discardableResult
+    func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) -> any Disposable {
         guard let configuration = SetDataValuesConfiguration(dataObject: transformation.configuration) else {
             completion(dispatch)
-            return
+            return Disposables.disposed()
         }
         completion(applyTransformation(configuration, to: dispatch))
+        return Disposables.disposed()
     }
 
     private func applyTransformation(_ config: SetDataValuesConfiguration,

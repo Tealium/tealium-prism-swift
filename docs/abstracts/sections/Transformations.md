@@ -82,9 +82,9 @@ class MyCustomTransformer: Transformer {
     let version: String = "1.0.0"
     
     func applyTransformation(_ transformation: TransformationSettings,
-                           to dispatch: Dispatch,
-                           scope: DispatchScope,
-                           completion: @escaping (Dispatch?) -> Void) {
+                             to dispatch: Dispatch,
+                             scope: DispatchScope,
+                             completion: @escaping (Dispatch?) -> Void) -> any Disposable {
         // Access transformation configuration
         let enableEnrichment: Bool = transformation.configuration.get(key: "enable_enrichment") ?? true
         // Modify the dispatch
@@ -96,6 +96,8 @@ class MyCustomTransformer: Transformer {
         completion(modifiedDispatch)
         // Or return nil to drop the dispatch entirely
         // completion(nil)
+        // Nothing to cancel: this transformer completes synchronously
+        return Disposables.disposed()
     }
 }
 ```
