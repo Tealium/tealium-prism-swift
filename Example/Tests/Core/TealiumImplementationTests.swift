@@ -167,7 +167,7 @@ final class TealiumImplementationTests: XCTestCase {
     }
 
     /// Starts an implementation with debug logs, sends the app to the background, and hands every
-    /// persistence log message to `onPersistenceLog` until the expectations are met.
+    /// persistence log message to `onPersistenceLog` until the worker queue has handled the backgrounding.
     private func backgroundImplementation(databaseName: String?, onPersistenceLog: @escaping (String) -> Void) throws {
         let logHandler = MockLogHandler()
         let notificationCenter = NotificationCenter()
@@ -190,10 +190,35 @@ final class TealiumImplementationTests: XCTestCase {
             guard event.category == LogCategory.persistence else { return }
             onPersistenceLog(event.message)
         }
-        let instance = try TealiumQueue.worker.dispatchQueue.sync { try TealiumImpl(config, queue: .worker) }
+        var instance: TealiumImpl?
+        var initError: Error?
+        let initialized = expectation(description: "The implementation is initialized")
+        TealiumQueue.worker.ensureOnQueue {
+            do {
+                instance = try TealiumImpl(config, queue: .worker)
+            } catch {
+                initError = error
+            }
+            initialized.fulfill()
+        }
+        wait(for: [initialized], timeout: Self.longTimeout)
+        if let initError {
+            throw initError
+        }
         notificationCenter.postResignActiveNotification()
+        // The checkpoint and its log finish before this worker-queue marker.
+        let backgroundHandled = expectation(description: "The worker handled backgrounding")
+        TealiumQueue.worker.ensureOnQueue {
+            backgroundHandled.fulfill()
+        }
+        wait(for: [backgroundHandled], timeout: Self.longTimeout)
         waitForDefaultTimeout()
         subscription.dispose()
-        TealiumQueue.worker.dispatchQueue.sync { instance.shutdown() }
+        let shutDown = expectation(description: "The implementation is shut down")
+        TealiumQueue.worker.ensureOnQueue {
+            instance?.shutdown()
+            shutDown.fulfill()
+        }
+        wait(for: [shutDown], timeout: Self.longTimeout)
     }
 }
