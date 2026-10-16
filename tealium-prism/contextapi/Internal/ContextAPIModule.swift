@@ -41,8 +41,8 @@ class ContextAPIModule: BasicModule {
                                  "Context API module cannot be created: region is required but missing from configuration")
             return nil
         }
-        // Bounded retries with the default `RetryableErrorInterceptor`; never waits for connectivity.
-        let client = context.network.networkClient.newClient(withAdditionalInterceptors: [RetryableErrorInterceptor()])
+        // Bounded retries with the default `RequestInterceptors.retryWithBackoff()`; never waits for connectivity.
+        let client = context.network.networkClient.newClient(withAdditionalInterceptors: [RequestInterceptors.retryWithBackoff()])
         let service = ContextAPIService(
             networkHelper: client.makeNetworkHelper(),
             account: context.config.account,

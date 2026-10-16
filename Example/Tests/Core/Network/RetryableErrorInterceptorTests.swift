@@ -15,13 +15,13 @@ final class RetryableErrorInterceptorTests: XCTestCase {
 
     func interceptor(maxAttempts: Int?,
                      maxDelay: TimeInterval = 20,
-                     longRetryAfter: RetryableErrorInterceptor.LongRetryAfter = .giveUp,
+                     retryAfterAboveMaxDelay: RetryAfterAboveMaxDelay = .giveUp,
                      now: @escaping () -> Date = { Date() }) -> RetryableErrorInterceptor {
         RetryableErrorInterceptor(maxAttempts: maxAttempts,
                                   maxDelay: maxDelay,
                                   transientBackoff: .fixed(transientDelay),
                                   throttlingBackoff: .fixed(throttlingDelay),
-                                  longRetryAfter: longRetryAfter,
+                                  retryAfterAboveMaxDelay: retryAfterAboveMaxDelay,
                                   now: now)
     }
 
@@ -154,8 +154,8 @@ final class RetryableErrorInterceptorTests: XCTestCase {
         XCTAssertEqual(shouldRetry(interceptor, with: try failure(status: 429, headers: ["Retry-After": "500"])), .doNotRetry)
     }
 
-    func test_retry_after_above_maxDelay_is_waited_when_longRetryAfter_is_wait() throws {
-        let interceptor = interceptor(maxAttempts: nil, maxDelay: 20, longRetryAfter: .wait)
+    func test_retry_after_above_maxDelay_is_waited_when_retryAfterAboveMaxDelay_is_wait() throws {
+        let interceptor = interceptor(maxAttempts: nil, maxDelay: 20, retryAfterAboveMaxDelay: .wait)
         XCTAssertEqual(delay(of: shouldRetry(interceptor, with: try failure(status: 503, headers: ["Retry-After": "21"]))), 21)
         XCTAssertEqual(delay(of: shouldRetry(interceptor, with: try failure(status: 429, headers: ["Retry-After": "500"]))), 500)
     }
@@ -211,9 +211,9 @@ final class RetryableErrorInterceptorTests: XCTestCase {
         XCTAssertEqual(shouldRetry(interceptor, with: try failure(status: 503, headers: headers)), .doNotRetry)
     }
 
-    func test_retry_after_http_date_above_maxDelay_is_waited_when_longRetryAfter_is_wait() throws {
+    func test_retry_after_http_date_above_maxDelay_is_waited_when_retryAfterAboveMaxDelay_is_wait() throws {
         let headers = ["Retry-After": retryDateHeader, "Date": httpDate(-500)]
-        let interceptor = interceptor(maxAttempts: nil, maxDelay: 20, longRetryAfter: .wait)
+        let interceptor = interceptor(maxAttempts: nil, maxDelay: 20, retryAfterAboveMaxDelay: .wait)
         XCTAssertEqual(delay(of: shouldRetry(interceptor, with: try failure(status: 503, headers: headers))), 500)
     }
 
@@ -259,7 +259,7 @@ final class RetryableErrorInterceptorTests: XCTestCase {
         let interceptor = RetryableErrorInterceptor()
         XCTAssertEqual(interceptor.maxAttempts, 3)
         XCTAssertEqual(interceptor.maxDelay, 20)
-        XCTAssertEqual(interceptor.longRetryAfter, .giveUp)
+        XCTAssertEqual(interceptor.retryAfterAboveMaxDelay, .giveUp)
     }
 
     func test_collect_interceptors_first_interceptor_uses_full_jitter_delays() throws {

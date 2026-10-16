@@ -29,7 +29,7 @@ final class ContextAPIModuleRetryTests: XCTestCase {
         let retryInterceptor = try XCTUnwrap(interceptors.first as? RetryableErrorInterceptor)
         XCTAssertEqual(retryInterceptor.maxAttempts, 3)
         XCTAssertEqual(retryInterceptor.maxDelay, 20)
-        XCTAssertEqual(retryInterceptor.longRetryAfter, .giveUp)
+        XCTAssertEqual(retryInterceptor.retryAfterAboveMaxDelay, .giveUp)
         XCTAssertEqual(client.additionalMaxRetryCounts, [nil], "Context API should not limit the total retries")
     }
 

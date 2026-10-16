@@ -217,7 +217,7 @@ final class CollectModuleTests: XCTestCase {
         let retryInterceptor = try XCTUnwrap(interceptors.first as? RetryableErrorInterceptor)
         XCTAssertNil(retryInterceptor.maxAttempts)
         XCTAssertEqual(retryInterceptor.maxDelay, 150)
-        XCTAssertEqual(retryInterceptor.longRetryAfter, .wait)
+        XCTAssertEqual(retryInterceptor.retryAfterAboveMaxDelay, .wait)
         XCTAssertEqual(mockClient.additionalMaxRetryCounts, [nil], "Collect should not limit the total retries")
         let connectivityInterceptor = try XCTUnwrap(interceptors.last as? ConnectivityRetryInterceptor)
         XCTAssertIdentical(connectivityInterceptor.connectivityManager as AnyObject,

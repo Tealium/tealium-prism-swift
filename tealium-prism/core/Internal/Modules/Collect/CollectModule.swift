@@ -55,8 +55,8 @@ class CollectModule: Dispatcher {
      */
     static func networkInterceptors(connectivityManager: ConnectivityManagerProtocol) -> [RequestInterceptor] {
         [
-            RetryableErrorInterceptor(maxAttempts: nil, maxDelay: 150, longRetryAfter: .wait),
-            ConnectivityRetryInterceptor(connectivityManager: connectivityManager)
+            RequestInterceptors.retryWithBackoff(maxAttempts: nil, maxDelay: 150, retryAfterAboveMaxDelay: .wait),
+            RequestInterceptors.retryWhenConnected(connectivityManager: connectivityManager)
         ]
     }
 

@@ -8,32 +8,12 @@
 
 import Foundation
 
-/**
- * A `RequestInterceptor` that retries retryable failures with a full-jitter exponential backoff, and decides when to give up.
- *
- * - A failure is retryable when its `NetworkErrorType.isRetryable` is `true`, for example HTTP 429 and 503, or a lost connection.
- * - The `n`-th retry in a row proposed by this interceptor, counting from 0, waits a random delay between 0 and
- *   `min(maxDelay, base * 2^n)`. `base` is `throttlingBaseDelay` for HTTP 429 and `transientBaseDelay` otherwise.
- * - A `Retry-After` header is a minimum wait: the delay is the larger of the header and the backoff. The header can be a
- *   number of seconds or an HTTP date in the IMF-fixdate format, measured against the response's `Date` header when present
- *   so a skewed device clock doesn't matter. Other formats are ignored. A header above `maxDelay` makes the interceptor give
- *   up or wait for it in full, depending on `longRetryAfter`.
- * - `maxAttempts` counts consecutive attempts, including the one that just failed. The count, and with it the backoff,
- *   restarts when another interceptor proposed the last retry, for example after waiting for connectivity.
- *   To limit the total retries of a request, derive the client with a `maxRetryCount`.
- */
-public class RetryableErrorInterceptor: RequestInterceptor {
-    /// What to do when a `Retry-After` header asks for longer than `maxDelay`.
-    public enum LongRetryAfter {
-        /// Stop retrying: the request completes with the throttled response.
-        case giveUp
-        /// Wait as long as the server asked, even beyond `maxDelay`.
-        case wait
-    }
-
+/// Implementation of `RequestInterceptors.retryWithBackoff(maxAttempts:transientBaseDelay:throttlingBaseDelay:maxDelay:retryAfterAboveMaxDelay:)`,
+/// see its documentation for the retry rules.
+class RetryableErrorInterceptor: RequestInterceptor {
     let maxAttempts: Int?
     let maxDelay: TimeInterval
-    let longRetryAfter: LongRetryAfter
+    let retryAfterAboveMaxDelay: RetryAfterAboveMaxDelay
     private let transientBackoff: Backoff
     private let throttlingBackoff: Backoff
     private let now: () -> Date
@@ -50,42 +30,45 @@ public class RetryableErrorInterceptor: RequestInterceptor {
      * Creates a `RetryableErrorInterceptor`.
      *
      * - Parameters:
-     *    - maxAttempts: the maximum number of consecutive attempts. `nil` means there is no cap.
+     *    - maxAttempts: the maximum number of consecutive attempts, including the initial one. `nil` means there is no cap.
      *    - transientBaseDelay: the base delay, in seconds, for retryable failures other than HTTP 429.
      *    - throttlingBaseDelay: the base delay, in seconds, for HTTP 429 responses.
-     *    - maxDelay: the maximum delay, in seconds.
-     *    - longRetryAfter: what to do when a `Retry-After` header asks for longer than `maxDelay`.
+     *    - maxDelay: the longest backoff delay, in seconds. A `Retry-After` up to this long is waited as a minimum; a
+     *    longer one is handled per `retryAfterAboveMaxDelay`.
+     *    - retryAfterAboveMaxDelay: what to do when a `Retry-After` header asks for longer than `maxDelay`: `.giveUp`
+     *    stops proposing a retry, so another interceptor may still retry, and `.wait` waits for the full header, with no
+     *    upper bound.
      */
-    public convenience init(maxAttempts: Int? = 3,
-                            transientBaseDelay: TimeInterval = 0.1,
-                            throttlingBaseDelay: TimeInterval = 1,
-                            maxDelay: TimeInterval = 20,
-                            longRetryAfter: LongRetryAfter = .giveUp) {
+    convenience init(maxAttempts: Int? = 3,
+                     transientBaseDelay: TimeInterval = 0.1,
+                     throttlingBaseDelay: TimeInterval = 1,
+                     maxDelay: TimeInterval = 20,
+                     retryAfterAboveMaxDelay: RetryAfterAboveMaxDelay = .giveUp) {
         self.init(maxAttempts: maxAttempts,
                   maxDelay: maxDelay,
                   transientBackoff: .jitteredExponential(initialDelay: transientBaseDelay, maximum: maxDelay),
                   throttlingBackoff: .jitteredExponential(initialDelay: throttlingBaseDelay, maximum: maxDelay),
-                  longRetryAfter: longRetryAfter)
+                  retryAfterAboveMaxDelay: retryAfterAboveMaxDelay)
     }
 
     init(maxAttempts: Int?,
          maxDelay: TimeInterval,
          transientBackoff: Backoff,
          throttlingBackoff: Backoff,
-         longRetryAfter: LongRetryAfter = .giveUp,
+         retryAfterAboveMaxDelay: RetryAfterAboveMaxDelay = .giveUp,
          now: @escaping () -> Date = { Date() }) {
         self.maxAttempts = maxAttempts
         self.maxDelay = maxDelay
-        self.longRetryAfter = longRetryAfter
+        self.retryAfterAboveMaxDelay = retryAfterAboveMaxDelay
         self.transientBackoff = transientBackoff
         self.throttlingBackoff = throttlingBackoff
         self.now = now
     }
 
     /// Ignored.
-    public func onAttemptResult(_ request: URLRequest, retryCount: Int, with result: NetworkResult) { }
+    func onAttemptResult(_ request: URLRequest, retryCount: Int, with result: NetworkResult) { }
 
-    public func shouldRetry(_ request: URLRequest, consecutiveRetryCount: Int, with response: NetworkResult) -> RetryPolicy {
+    func shouldRetry(_ request: URLRequest, consecutiveRetryCount: Int, with response: NetworkResult) -> RetryPolicy {
         guard case let .failure(error) = response, error.isRetryable else {
             return .doNotRetry
         }
@@ -102,7 +85,7 @@ public class RetryableErrorInterceptor: RequestInterceptor {
         guard let retryAfter = retryAfterDelay(error.urlResponse) else {
             return .afterDelay(backoffDelay)
         }
-        if retryAfter > maxDelay, longRetryAfter == .giveUp {
+        if retryAfter > maxDelay, retryAfterAboveMaxDelay == .giveUp {
             return .doNotRetry
         }
         return .afterDelay(max(retryAfter, backoffDelay))

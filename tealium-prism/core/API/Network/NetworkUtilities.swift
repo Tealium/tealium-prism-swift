@@ -15,8 +15,8 @@ import Foundation
  * Every response still feeds the empirical connectivity of the `connectivityManager`.
  *
  * To retry failed requests, derive a client with `NetworkClient.newClient(withAdditionalInterceptors:)`,
- * adding a `RetryableErrorInterceptor` to retry retryable failures with a backoff and/or a `ConnectivityRetryInterceptor`
- * to wait for connectivity to return before retrying.
+ * adding `RequestInterceptors.retryWithBackoff()` to retry retryable failures with a backoff and/or
+ * `RequestInterceptors.retryWhenConnected(connectivityManager:)` to wait for connectivity to return before retrying.
  * Use `NetworkClient.makeNetworkHelper()` to send requests through the derived client with the `NetworkHelperProtocol` API.
  */
 public final class NetworkUtilities {

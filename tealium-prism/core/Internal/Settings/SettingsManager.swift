@@ -78,8 +78,8 @@ class SettingsManager {
     /// The interceptors of the settings client.
     private static func settingsInterceptors(connectivityManager: ConnectivityManagerProtocol) -> [RequestInterceptor] {
         [
-            RetryableErrorInterceptor(maxAttempts: 3, maxDelay: 2),
-            ConnectivityRetryInterceptor(connectivityManager: connectivityManager)
+            RequestInterceptors.retryWithBackoff(maxAttempts: 3, maxDelay: 2),
+            RequestInterceptors.retryWhenConnected(connectivityManager: connectivityManager)
         ]
     }
 

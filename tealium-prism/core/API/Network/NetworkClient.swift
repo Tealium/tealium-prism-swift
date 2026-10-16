@@ -17,7 +17,9 @@ public protocol NetworkClient {
      *
      * - Parameters:
      *    - request: the `URLRequest` that is sent in the `URLSession.dataTask`
-     *    - completion: the block that is called once the request is completed either with a success or with an unretryable error
+     *    - completion: the block that is called once the request is completed: with a success, with a failure that the interceptors
+     *    don't retry (including a retryable one once they stop retrying it, for example when `maxRetryCount` is reached),
+     *    or with a `.cancelled` error if the returned `Disposable` is disposed first
      *
      * - Returns: the `Disposable` that can be used to dispose the request and cancel the dataTask and future retries.
      */
