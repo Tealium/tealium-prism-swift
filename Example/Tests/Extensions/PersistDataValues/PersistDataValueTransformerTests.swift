@@ -30,6 +30,21 @@ final class PersistDataValueTransformerTests: ExtensionsBaseTests {
         XCTAssertEqual(transformer.version, TealiumConstants.libraryVersion)
     }
 
+    func test_applyTransformation_returns_disposed_disposable() throws {
+        let dispatch = Dispatch(name: "test", data: ["key": "VALUE"])
+        let settings = try makeSettings(PersistDataValueSettingsBuilder(id: "test")
+            .persistFrom(.key("key"), to: .key("dest_key"))
+            .setExpiryPolicy(.session)
+            .setUpdatePolicy(.allowUpdate))
+        let completion = expectation(description: "Completes exactly once")
+        let disposable = transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+            XCTAssertEqual(result?.payload.get(key: "key"), "VALUE")
+            completion.fulfill()
+        }
+        XCTAssertTrue(disposable.isDisposed)
+        waitForDefaultTimeout()
+    }
+
     func test_applyTransformation_with_invalid_configuration_completes_with_original_dispatch() {
         let dispatch = Dispatch(name: "test", data: ["key": "value"])
         let settings = TransformationSettings(
@@ -39,10 +54,11 @@ final class PersistDataValueTransformerTests: ExtensionsBaseTests {
             configuration: [:] // invalid - missing required fields
         )
         let expectation = expectation(description: "Completes with original dispatch")
-        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+        let disposable = transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload, dispatch.payload)
             expectation.fulfill()
         }
+        XCTAssertTrue(disposable.isDisposed)
         waitForDefaultTimeout()
     }
 

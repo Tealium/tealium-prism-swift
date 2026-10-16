@@ -21,6 +21,35 @@ final class LowercaseTransformerTests: ExtensionsBaseTests {
         XCTAssertEqual(transformer.version, TealiumConstants.libraryVersion)
     }
 
+    func test_applyTransformation_returns_disposed_disposable() throws {
+        let dispatch = Dispatch(name: "test", data: ["key": "VALUE"])
+        let settings = try makeSettings(LowercaseSettingsBuilder(id: "test").lowercaseAllVariables())
+        let completion = expectation(description: "Completes exactly once")
+        let disposable = transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+            XCTAssertEqual(result?.payload.get(key: "key"), "value")
+            completion.fulfill()
+        }
+        XCTAssertTrue(disposable.isDisposed)
+        waitForDefaultTimeout()
+    }
+
+    func test_applyTransformation_returns_disposed_disposable_when_configuration_is_invalid() {
+        let dispatch = Dispatch(name: "test", data: ["key": "VALUE"])
+        let settings = TransformationSettings(
+            id: "test",
+            transformerId: Modules.Types.lowercaseTransformer,
+            scope: .afterCollectors,
+            configuration: [:]
+        )
+        let completion = expectation(description: "Completes exactly once")
+        let disposable = transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+            XCTAssertEqual(result?.payload, dispatch.payload)
+            completion.fulfill()
+        }
+        XCTAssertTrue(disposable.isDisposed)
+        waitForDefaultTimeout()
+    }
+
     func test_applyTransformation_with_allVariables_lowercases_string_values() throws {
         let dispatch = Dispatch(name: "test", data: ["key1": "HELLO", "key2": "WORLD"])
         let settings = try makeSettings(LowercaseSettingsBuilder(id: "test").lowercaseAllVariables())

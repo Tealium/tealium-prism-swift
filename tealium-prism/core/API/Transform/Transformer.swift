@@ -11,16 +11,16 @@ public protocol Transformer: Module {
     /// Applies the specified `transformation` to a `Dispatch` for the `DispatchScope`
     /// in which this transformation is called.
     ///
-    /// - Threading: This method is called on the Tealium queue. `completion` must be called on the
-    ///   Tealium queue (see `TealiumContext.queue`); it may be called synchronously, before this
-    ///   method returns.
-    /// - Completion: Call `completion` exactly once, unless the returned `Disposable` has been disposed.
-    ///   Pass the transformed or unchanged dispatch for it to proceed, or `nil` to drop it and stop any
-    ///   further processing.
-    /// - Cancellation: The returned `Disposable` may be disposed to cancel the transformation. After
-    ///   that, calling `completion` is not required, and any call is ignored. Disposing after
-    ///   `completion` has been called must have no effect. Implementations with nothing to cancel,
-    ///   including synchronous ones, return `Disposables.disposed()`.
+    /// - Threading: This method is called on the Tealium queue, and the caller disposes the returned
+    ///   `Disposable` on the Tealium queue. `completion` must be called on the Tealium queue (see
+    ///   ``TealiumContext/queue``); it may be called synchronously, before this method returns.
+    /// - Completion: Call `completion` exactly once, unless the caller has disposed the returned
+    ///   `Disposable`. Pass the transformed or unchanged dispatch for it to proceed, or `nil` to drop
+    ///   it and stop any further processing.
+    /// - Cancellation: The caller may dispose the returned `Disposable` to cancel the transformation.
+    ///   After that, calling `completion` is not required, and the caller ignores any call. Disposing
+    ///   after `completion` has been called must have no effect. Implementations with nothing to
+    ///   cancel, including synchronous ones, return `Disposables.disposed()`.
     /// - Returns: A `Disposable` that cancels in-progress work, or `Disposables.disposed()` if there is
     ///   nothing to cancel.
     @discardableResult

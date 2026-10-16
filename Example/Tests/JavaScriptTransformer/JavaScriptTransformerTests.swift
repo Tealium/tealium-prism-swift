@@ -35,6 +35,20 @@ final class JavaScriptTransformerTests: XCTestCase {
         XCTAssertEqual(transformer.version, TealiumConstants.libraryVersion)
     }
 
+    // MARK: - Disposable Contract
+
+    func test_applyTransformation_returns_disposed_disposable() {
+        let dispatch = Dispatch(name: "test", data: ["key": "VALUE"])
+        let settings = buildSettings(jsCode: "payload.key = 'other'")
+        let completion = expectation(description: "Completes exactly once")
+        let disposable = transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+            XCTAssertEqual(result?.payload.get(key: "key"), "other")
+            completion.fulfill()
+        }
+        XCTAssertTrue(disposable.isDisposed)
+        waitForDefaultTimeout()
+    }
+
     // MARK: - Passthrough / Missing Config
 
     func test_applyTransformation_with_missing_js_code_completes_with_original_dispatch() {
@@ -46,10 +60,11 @@ final class JavaScriptTransformerTests: XCTestCase {
             configuration: [:]
         )
         let expectation = expectation(description: "Completes with original dispatch")
-        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+        let disposable = transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload, dispatch.payload)
             expectation.fulfill()
         }
+        XCTAssertTrue(disposable.isDisposed)
         waitForDefaultTimeout()
     }
 

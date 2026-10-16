@@ -95,6 +95,21 @@ final class DeviceDataModuleTests: DeviceDataModuleBaseTests {
         waitForDefaultTimeout()
     }
 
+    func test_applyTransformation_returns_disposed_disposable_once_completed() throws {
+        let completion = expectation(description: "Completes exactly once")
+        let dispatch = Dispatch(name: "test_event", data: [:])
+        let transformation = TransformationSettings(id: "model-info",
+                                                    transformerId: DeviceDataModule.moduleType,
+                                                    scope: .afterCollectors)
+        try networkHelper.encodeResult(modelsDataObject)
+        let disposable = deviceDataCollector.applyTransformation(transformation, to: dispatch, scope: .afterCollectors) { result in
+            XCTAssertNotNil(result)
+            completion.fulfill()
+        }
+        waitForDefaultTimeout()
+        XCTAssertTrue(disposable.isDisposed)
+    }
+
     func test_applyTransformation_skips_adding_screen_info_when_screen_reporting_disabled() throws {
         _configuration.value = [Keys.screenReportingEnabled: false]
         let transformationExpectation = expectation(description: "Transformation completed")

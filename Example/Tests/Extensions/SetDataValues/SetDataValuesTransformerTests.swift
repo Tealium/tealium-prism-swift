@@ -21,6 +21,18 @@ final class SetDataValuesTransformerTests: ExtensionsBaseTests {
         XCTAssertEqual(transformer.version, TealiumConstants.libraryVersion)
     }
 
+    func test_applyTransformation_returns_disposed_disposable() throws {
+        let dispatch = Dispatch(name: "test", data: ["key": "VALUE"])
+        let settings = try makeSettings(SetDataValuesSettingsBuilder(id: "test").setConstant("other", to: .key("key")))
+        let completion = expectation(description: "Completes exactly once")
+        let disposable = transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+            XCTAssertEqual(result?.payload.get(key: "key"), "other")
+            completion.fulfill()
+        }
+        XCTAssertTrue(disposable.isDisposed)
+        waitForDefaultTimeout()
+    }
+
     func test_applyTransformation_withInvalidConfiguration_completesWithOriginalDispatch() {
         let dispatch = Dispatch(name: "test", data: ["key": "value"])
         let settings = TransformationSettings(
@@ -30,10 +42,11 @@ final class SetDataValuesTransformerTests: ExtensionsBaseTests {
             configuration: [:] // invalid - no operations inside
         )
         let expectation = expectation(description: "Transformation completes with original dispatch when configuration is invalid")
-        transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
+        let disposable = transformer.applyTransformation(settings, to: dispatch, scope: .afterCollectors) { result in
             XCTAssertEqual(result?.payload, dispatch.payload)
             expectation.fulfill()
         }
+        XCTAssertTrue(disposable.isDisposed)
         waitForDefaultTimeout()
     }
 
