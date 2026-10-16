@@ -121,15 +121,15 @@ class TealiumHelper {
         let teal = createTeal()
         disposable = teal.createDisposable()
         _onTeal.value = teal
-        teal.dataLayer.transactionally { apply, getDataItem, commit in
-            apply(.put(key: "key", value: "value", expiry: .forever))
-            apply(.put(key: "key2", value: "value2", expiry: .forever))
-            apply(.remove(key: "key3"))
-            if let count = getDataItem("key4")?.get(as: Int.self) {
-                apply(.put(key: "key4", value: count + 1, expiry: .forever))
+        teal.dataLayer.transactionally { transaction in
+            transaction.put(key: "key", value: "value", expiry: .forever)
+            transaction.putAll(dataObject: ["key2": "value2"], expiry: .forever)
+            transaction.remove(key: "key3")
+            if let count = transaction.get(key: "key4", as: Int.self) {
+                transaction.put(key: "key4", value: count + 1, expiry: .forever)
             }
             do {
-                try commit()
+                try transaction.commit()
             } catch {
                 print(error)
             }

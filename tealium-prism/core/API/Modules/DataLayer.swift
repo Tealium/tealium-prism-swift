@@ -11,7 +11,8 @@
  *
  * You can potentially also extract data that was previously added via various getters.
  * If you want to add several read and writes in a transaction, you can use `transactionally`
- * and execute all the transaction with the provided synchronous blocks.
+ * and execute the transaction synchronously via the provided `DataStoreTransaction`, which also offers
+ * all the typed getters of `DataItemExtractor`.
  *
  * - Warning: All the blocks passed in this protocol's methods will always be run on a Tealium queue.
  */
@@ -20,76 +21,49 @@ public protocol DataLayer {
     // MARK: - Type aliases
 
     /**
-     * A block used to apply a `DataStoreEdit`.
-     *
-     * The `DataLayer` will not be changed until the transaction is committed. Applying after commit does nothing.
-     *
-     * - Parameter edit: The `DataStoreEdit` to be applied once the transaction is committed.
-     */
-    typealias Apply = (_ edit: DataStoreEdit) -> Void
-
-    /**
-     * A block to retrieve something synchronously from the `DataLayer`.
-     *
-     * Applied, but not committed, edits won't be reflected in the items returned by this block.
-     *
-     * - Parameter key: The key used to look up data in the `DataLayer`.
-     * - Returns: The `DataItem` if one was found for the provided key.
-     */
-    typealias Get = (_ key: String) -> DataItem?
-
-    /**
-     * A block used to commit the transaction. It will commit all the edits that were previously applied.
-     *
-     * Committing more than once does nothing.
-     *
-     * - Throws: An error when the transaction fails.
-     */
-    typealias Commit = () throws -> Void
-
-    /**
-     * A block that offers utility synchronous methods to perform operations on the DataLayer in a transaction.
+     * A block that receives a `DataStoreTransaction` to perform synchronous operations on the `DataLayer` in a transaction.
      *
      * - Warning: This block will always be run on a Tealium queue.
      *
-     * - Parameters:
-     *   - apply: A block that can be called to apply a `DataStoreEdit.put` or `DataStoreEdit.remove`. The `DataLayer` will not be changed until the transaction is committed. Applying after commit does nothing.
-     *   - getDataItem: A block to retrieve something synchronously from the `DataLayer`. Applied, but not committed, edits won't be reflected in the items returned by this block.
-     *   - commit: A block used to commit the transaction. It will commit all the edits that were previously applied. Committing more than once does nothing.
+     * - Parameter transaction: The `DataStoreTransaction` used to write to (`apply`, `put`, `putAll`, `remove`, `clear`), read from (`getDataItem` and all the other `DataItemExtractor` getters) and `commit` the changes to the data layer. It is only valid for the duration of the block and cannot be copied, stored, or captured by an escaping closure.
      */
-    typealias TransactionBlock = (_ apply: Apply, _ getDataItem: Get, _ commit: Commit) throws -> Void
+    typealias TransactionBlock = (_ transaction: borrowing DataStoreTransaction) throws -> Void
 
     // MARK: - Inserts
 
     /**
-     * Allows editing of the `DataLayer` using a `TransactionBlock` that provides methods to
-     * `Apply` edits, `Get` some `DataItem`s from the data layer and finally `Commit` the changes
+     * Allows editing of the `DataLayer` using a `TransactionBlock` that receives a `DataStoreTransaction` to
+     * write (`apply`, `put`, `putAll`, `remove`, `clear`), read from the data layer and finally `commit` the changes
      * in the end, all in a synchronous way.
      *
+     * Since `DataStoreTransaction` conforms to `DataItemExtractor`, all the typed getters of that protocol, such as `get(key:as:)`
+     * or `getArray(key:of:)`, are available on the transaction on top of `getDataItem(key:)`.
+     *
      * The `DataLayer` will not be changed until the transaction is committed.
-     * Applying after commit does nothing.
-     * Applied, but not committed, edits won't be reflected in the items returned by this block.
+     * Writing after commit does nothing.
+     * Applied, but not committed, edits won't be reflected in the items returned by the getters.
      * Committing more than once does nothing.
      *
      * - Warning: The block will always be run on a Tealium queue.
      *
      * Usage example:
      * ```swift
-     * teal.dataLayer.transactionally { apply, getDataItem, commit in
-     *   apply(.put(key: "key1", value: "value", expiry: .forever))
-     *   apply(.put(key: "key2", value: "value2", expiry: .untilRestart))
-     *   apply(.remove(key: "key3"))
-     *   if let count = getDataItem("key4")?.get(as: Int.self) {
-     *       apply(.put(key: "key4", value: count + 1, expiry: .forever))
+     * teal.dataLayer.transactionally { transaction in
+     *   transaction.put(key: "key1", value: "value", expiry: .forever)
+     *   transaction.apply(.put(key: "key2", value: "value2", expiry: .untilRestart))
+     *   transaction.remove(key: "key3")
+     *   if let count = transaction.get(key: "key4", as: Int.self) {
+     *       transaction.put(key: "key4", value: count + 1, expiry: .forever)
      *   }
      *   do {
-     *       try commit()
+     *       try transaction.commit()
      *   } catch {
      *       print(error)
      *   }
      * }
-     * - returns: A Single which can be used to subscribe a block of code to receive any errors that occur
      * ```
+     *
+     * - returns: A Single which can be used to subscribe a block of code to receive any errors that occur
      */
     @discardableResult
     func transactionally(execute block: @escaping TransactionBlock) -> SingleResult<Void, ModuleError<Error>>

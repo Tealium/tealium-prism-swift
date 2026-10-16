@@ -8,7 +8,7 @@
 
 import Foundation
 
-extension DataItemExtractor {
+extension DataItemExtractor where Self: ~Copyable {
     /// Internal method to extract with path components. Use `JSONPathExtractable.extractDataItem(path:)` instead.
     func extract<Root>(_ components: [JSONPathComponent<Root>]) -> DataItem? {
         guard !components.isEmpty else { return nil }

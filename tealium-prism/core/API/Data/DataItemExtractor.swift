@@ -9,7 +9,7 @@
 import Foundation
 
 /// A container of key-value pairs that can return a `DataItem` for a given `String` key.
-public protocol DataItemExtractor: JSONPathExtractable where Root == ObjectRoot {
+public protocol DataItemExtractor: JSONPathExtractable, ~Copyable where Root == ObjectRoot {
     /**
      * Returns the `DataItem` at the given key, if it was there; otherwise `nil`.
      *
@@ -25,7 +25,7 @@ extension Dictionary: DataItemExtractor, JSONPathExtractable where Key == String
     }
 }
 
-public extension DataItemExtractor {
+public extension DataItemExtractor where Self: ~Copyable {
     /**
      * Returns the data at the given key in the requested type if the conversion is possible.
      *

@@ -9,7 +9,7 @@
 import Foundation
 
 /// A generic container of items that can return a `DataItem` for a given `JSONPath`.
-public protocol JSONPathExtractable<Root> {
+public protocol JSONPathExtractable<Root>: ~Copyable {
     /// The root type that defines the starting point for JSON path extraction (if it's an object or an array).
     associatedtype Root: PathRoot
     /**
@@ -22,7 +22,7 @@ public protocol JSONPathExtractable<Root> {
     func extractDataItem(path: JSONPath<Root>) -> DataItem?
 }
 
-public extension JSONPathExtractable {
+public extension JSONPathExtractable where Self: ~Copyable {
     /**
      * Returns the data at the given path in the requested type if the conversion is possible.
      *
@@ -210,7 +210,7 @@ public extension JSONPathExtractable {
     }
 }
 
-public extension JSONPathExtractable where Self: DataItemExtractor {
+public extension JSONPathExtractable where Self: DataItemExtractor & ~Copyable {
     /**
      * Extracts a nested `DataItem` according to the given `JSONObjectPath`.
      *

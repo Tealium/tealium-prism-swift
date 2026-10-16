@@ -110,6 +110,19 @@ tealium.dataLayer.put(key: "some_key", value: "some value", expiry: .forever).su
         }
 ```
 
+## Transactions
+
+Use `transactionally` to perform several reads and writes on the `DataLayer` as a single atomic operation, via the `DataStoreTransaction` passed to the block. The transaction is only valid for the duration of the block and cannot be stored or captured, which is enforced at compile time. Changes are only applied to the `DataLayer` when `commit()` is called, and reads made through the transaction always see the current, already committed data.
+
+```swift
+tealium.dataLayer.transactionally { transaction in
+    let launches = transaction.get(key: "launch_count", as: Int.self) ?? 0
+    transaction.put(key: "launch_count", value: launches + 1, expiry: .forever)
+    transaction.remove(key: "pending_flag")
+    try transaction.commit()
+}
+```
+
 See more on the interface definition below.
 
 # DataLayer

@@ -11,6 +11,9 @@ A library to integrate the Tealium CDP into your iOS, macOS, tvOS and watchOS ap
 To run the example project, clone the repo, and run `pod install` from the Example directory first.
 
 ## Requirements
+Build tools:
+- Xcode 16 (Swift 6.0 compiler) or later
+
 Minimum OS versions:
 - iOS: 13.0
 - tvOS: 13.0

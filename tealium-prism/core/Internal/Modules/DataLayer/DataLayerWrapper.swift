@@ -21,13 +21,8 @@ class DataLayerWrapper: DataLayer {
     @discardableResult
     func transactionally(execute block: @escaping TransactionBlock) -> SingleResult<Void, ModuleError<Error>> {
         moduleProxy.executeModuleTask { module in
-            let dataStore = module.dataStore
-            let editor = dataStore.edit()
-            try block({ edit in
-                _ = editor.apply(edit: edit)
-            }, { key in
-                module.getDataItem(key: key)
-            }, { try editor.commit() })
+            let transaction = DataStoreTransaction(dataStore: module.dataStore)
+            try block(transaction)
         }
     }
 

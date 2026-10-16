@@ -91,6 +91,30 @@ final class ModuleStoreTests: XCTestCase {
         XCTAssertEqual(store.keys().sorted(), ["key1", "key2"], "The second commit should do nothing")
     }
 
+    func test_commit_with_no_edits_seals_the_editor() throws {
+        let store = try moduleStoreProvider.getModuleStore(name: "test")
+        let editor = store.edit()
+        try editor.commit()
+        try editor
+            .put(key: "key", value: "value", expiry: .forever)
+            .commit()
+        XCTAssertNil(store.getDataItem(key: "key"), "An empty commit should seal the editor, so a later put should be discarded")
+    }
+
+    func test_commit_after_a_failed_commit_does_nothing() throws {
+        let store = try moduleStoreProvider.getModuleStore(name: "test")
+        let editor = store.edit()
+        XCTAssertThrowsError(try editor.put(key: "bad", value: ThrowingDataInput(), expiry: .forever).commit())
+        var dataUpdated = false
+        store.onDataUpdated.subscribeOnce { _ in
+            dataUpdated = true
+        }
+        try editor.put(key: "key", value: "value", expiry: .forever).commit()
+        XCTAssertNil(store.getDataItem(key: "key"), "The editor should be sealed after a failed commit, so a later put should be discarded")
+        XCTAssertNil(store.getDataItem(key: "bad"))
+        XCTAssertFalse(dataUpdated, "No onDataUpdated event should be emitted after the editor is sealed by a failed commit")
+    }
+
     func test_put_notifies_onDataUpdated() throws {
         let store = try moduleStoreProvider.getModuleStore(name: "test")
         let dataUpdated = expectation(description: "onDataUpdated event is notified")
@@ -195,3 +219,7 @@ final class ModuleStoreTests: XCTestCase {
         waitForDefaultTimeout()
     }
 }
+
+/// A `DataInput` that is not `Encodable` and doesn't match any of the special-cased types in `AnyEncodable`,
+/// so serializing it always throws an `EncodingError`. Used to simulate a repository write failure.
+private struct ThrowingDataInput: DataInput {}

@@ -60,6 +60,7 @@ custom_categories:
   - name: DataLayer Module
     children:
       - regex: ^DataLayer
+      - DataStoreTransaction
   - name: DeepLinkHandler Module
     children:
       - regex: ^DeepLink

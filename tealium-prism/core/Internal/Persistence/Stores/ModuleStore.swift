@@ -118,9 +118,9 @@ class ModuleStore: DataStore {
 
         func commit() throws {
             guard !committed else { return }
+            committed = true
             let isThereSomethingToCommit = !edits.isEmpty || shouldClear
             guard isThereSomethingToCommit else { return }
-            committed = true
             var appliedEdits = [DataStoreEdit]()
             try repository.transactionally { repo in
                 if shouldClear {

@@ -17,6 +17,8 @@ class BaseDataLayerWrapperTests: XCTestCase {
     lazy var config: TealiumConfig = mockConfig
     lazy var wrapper = DataLayerWrapper(moduleProxy: ModuleProxy(queue: queue,
                                                                  onModuleManager: onManager.asObservable()))
+    var moduleFactories: [any ModuleFactory] { [Modules.dataLayer()] }
+
     func context() -> TealiumContext {
         MockContext(moduleManager: manager,
                     config: config,
@@ -25,7 +27,7 @@ class BaseDataLayerWrapperTests: XCTestCase {
     }
 
     override func setUp() {
-        config.modules = [Modules.dataLayer()]
+        config.modules = moduleFactories
         manager.updateSettings(context: context(), settings: SDKSettings(config.getEnforcedSDKSettings()))
     }
 }

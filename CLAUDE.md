@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## About
 
-Tealium Prism is a Swift SDK for integrating the Tealium CDP into iOS, macOS, tvOS, and watchOS apps. Minimum OS versions: iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 7.0. Swift tools version 5.5.
+Tealium Prism is a Swift SDK for integrating the Tealium CDP into iOS, macOS, tvOS, and watchOS apps. Minimum OS versions: iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 7.0. Swift tools version 6.0; requires the Swift 6.0 compiler (Xcode 16 or later), Swift 5 language mode.
 
 ## Commands
 
@@ -112,7 +112,7 @@ Key classes: `TrackerImpl`, `DispatchManager`, `QueueManager`, `BarrierCoordinat
 All SDK operations run on `TealiumQueue.worker` (utility QoS DispatchQueue). `TealiumQueue.ensureOnQueue()` dispatches sync if already on queue, async otherwise. Public API access is thread-safe via `AsyncProxy<TealiumImpl>` which wraps operations on the worker queue. Use `[weak self]` in observable subscriptions.
 
 ### Persistence
-SQLite via SQLite.swift (0.15.4+). Repositories: `QueueRepository`, `KeyValueRepository`, `ModulesRepository`. `DataStore` protocol with transactional `DataStoreEditor` (`put/remove/clear/commit`). Data expiration: `.forever`, `.session`, `.untilRestart`, `.after(Date)`, `.afterCustom(timeFrame)`.
+SQLite via SQLite.swift (0.15.4+). Repositories: `QueueRepository`, `KeyValueRepository`, `ModulesRepository`. `DataStore` protocol with transactional `DataStoreEditor` (`put/remove/clear/commit`). Data expiration: `.forever`, `.session`, `.untilRestart`, `.after(Date)`, `.afterCustom(timeFrame)`. `DataLayer.transactionally(execute:)` exposes this to integrators through `DataStoreTransaction`, a `~Copyable` struct passed `borrowing` to the block so it cannot outlive it.
 
 ### Reactive System (PubSub)
 `Observable<T>` (with `subscribe()`, `subscribeOnce()`, and operators like map/filter/combineLatest) plus subjects: `Subject` (property wrapper), `StateSubject` (always has a current value, emits via `publishIfChanged()`), `ReplaySubject` (replays cached elements, default cache 1). Cleanup via `Disposable`/`CompositeDisposable`/`AutomaticDisposer`.
