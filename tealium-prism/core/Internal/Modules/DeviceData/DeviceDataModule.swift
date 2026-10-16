@@ -26,6 +26,9 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
     /// How long events wait for the first device-names download before getting the fallback model info.
     private let modelInfoTimeoutMs: Int
     static let defaultModelInfoTimeoutMs = 2000
+    /// The base interval to wait after a failed device-names download before an event can trigger a new attempt.
+    private let errorCooldownBaseInterval: TimeFrame
+    static let defaultErrorCooldownBaseInterval: TimeFrame = 30.seconds
     static let moduleType: String = Modules.Types.deviceData
     var id: String { Self.moduleType }
 
@@ -36,10 +39,27 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
         }
     }
 
+    /**
+     * The interceptors added on top of the shared network client ones to retry the DeviceModel requests.
+     *
+     * Retryable failures wait for connectivity while the connection is assumed unavailable,
+     * otherwise they are retried with default backoff.
+     * HTTP 429 responses use a slower base delay.
+     * A `Retry-After` header is a minimum wait and is honored even when longer than the default delay.
+     */
+    static func networkInterceptors(connectivityManager: ConnectivityManagerProtocol) -> [RequestInterceptor] {
+        [
+            RequestInterceptors.retryWithBackoff(retryAfterAboveMaxDelay: .wait),
+            RequestInterceptors.retryWhenConnected(connectivityManager: connectivityManager)
+        ]
+    }
+
     required convenience init?(context: TealiumContext, moduleConfiguration: DataObject) {
+        let interceptors = Self.networkInterceptors(connectivityManager: context.network.connectivityManager)
         self.init(deviceDataProvider: DeviceDataProvider(),
                   configuration: DeviceDataModuleConfiguration(configuration: moduleConfiguration),
-                  networkHelper: context.network.networkHelper,
+                  networkHelper: context.network.networkClient.newClient(withAdditionalInterceptors: interceptors)
+            .makeNetworkHelper(),
                   storeProvider: context.moduleStoreProvider,
                   transformerRegistrar: context.transformerRegistrar,
                   queue: context.queue,
@@ -53,7 +73,8 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
          transformerRegistrar: TransformerRegistrar,
          queue: TealiumQueue,
          logger: LoggerProtocol?,
-         modelInfoTimeoutMs: Int = DeviceDataModule.defaultModelInfoTimeoutMs) {
+         modelInfoTimeoutMs: Int = DeviceDataModule.defaultModelInfoTimeoutMs,
+         errorCooldownBaseInterval: TimeFrame = DeviceDataModule.defaultErrorCooldownBaseInterval) {
         self.deviceDataProvider = deviceDataProvider
         self.configuration = configuration
         self.networkHelper = networkHelper
@@ -63,21 +84,34 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
         self.queue = queue
         self.logger = logger
         self.modelInfoTimeoutMs = modelInfoTimeoutMs
+        self.errorCooldownBaseInterval = errorCooldownBaseInterval
         self.constantData = deviceDataProvider.getConstantData()
-#if os(iOS)
+        #if os(iOS)
         if configuration.batteryReportingEnabled {
-            // Battery monitoring must be enabled on the main queue due to iOS thread safety requirements.
-            TealiumQueue.main.ensureOnQueue {
-                UIDevice.current.isBatteryMonitoringEnabled = true
-            }
+            self.enableBatteryMonitoring()
         }
-#endif
+        #endif
         self.resourceRefresher = updateResourceRefresher()
     }
 
+    #if os(iOS)
+    private func enableBatteryMonitoring() {
+        // Battery monitoring must be enabled on the main queue due to iOS thread safety requirements.
+        TealiumQueue.main.ensureOnQueue {
+            UIDevice.current.isBatteryMonitoringEnabled = true
+        }
+    }
+    #endif
+
     @discardableResult
     func updateConfiguration(_ configuration: DataObject) -> Self? {
-        self.configuration = DeviceDataModuleConfiguration(configuration: configuration)
+        let newConfig = DeviceDataModuleConfiguration(configuration: configuration)
+        #if os(iOS)
+        if newConfig.batteryReportingEnabled && !self.configuration.batteryReportingEnabled {
+            enableBatteryMonitoring()
+        }
+        #endif
+        self.configuration = newConfig
         return self
     }
 
@@ -147,7 +181,8 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
                                                                                      fileName: "device-models"),
                                                       parameters: RefreshParameters(id: "device-models",
                                                                                     url: url,
-                                                                                    refreshInterval: 1.days),
+                                                                                    refreshInterval: 1.days,
+                                                                                    errorCooldownBaseInterval: errorCooldownBaseInterval),
                                                       logger: logger)
         modelInfoSubscription?.dispose()
         // emits the cached file first, then every download, until one contains this device
@@ -159,6 +194,7 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
             .subscribe { [weak self] modelData in
                 if let modelData {
                     self?.saveModelInfo(modelData, dataStore: dataStore)
+                    self?.resourceRefresher = nil
                 }
                 self?.onModelInfo.onNext(modelData)
             }
@@ -170,7 +206,8 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
             return nil
         }
         refresher.requestRefresh()
-        return refresher
+        // a synchronous completion may already have found the model info
+        return hasModelInfo ? nil : refresher
     }
 
     func collect(_ dispatchContext: DispatchContext) -> DataObject {
@@ -203,6 +240,7 @@ class DeviceDataModule: Collector, Transformer, BasicModule {
     @discardableResult
     func applyTransformation(_ transformation: TransformationSettings, to dispatch: Dispatch, scope: DispatchScope, completion: @escaping (Dispatch?) -> Void) -> any Disposable {
         let model = DeviceDataProvider.basicModel
+        resourceRefresher?.requestRefresh()
         return onModelInfo.asObservable()
             .combineLatest(onMainThreadData())
             .subscribeOnce { deviceModelData, mainThreadData in

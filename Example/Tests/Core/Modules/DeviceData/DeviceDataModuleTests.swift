@@ -308,7 +308,8 @@ extension DeviceDataModuleTests {
                                                                transformerId: DeviceDataModule.moduleType,
                                                                scope: .afterCollectors)
 
-    private func makeLaunch(modelInfoTimeoutMs: Int = DeviceDataModule.defaultModelInfoTimeoutMs) -> DeviceDataModule {
+    private func makeLaunch(modelInfoTimeoutMs: Int = DeviceDataModule.defaultModelInfoTimeoutMs,
+                            errorCooldownBaseInterval: TimeFrame = DeviceDataModule.defaultErrorCooldownBaseInterval) -> DeviceDataModule {
         DeviceDataModule(deviceDataProvider: DeviceDataProvider(),
                          configuration: DeviceDataModuleConfiguration(configuration: [:]),
                          networkHelper: networkHelper,
@@ -316,7 +317,8 @@ extension DeviceDataModuleTests {
                          transformerRegistrar: transformerCoordinator,
                          queue: .main,
                          logger: context.logger,
-                         modelInfoTimeoutMs: modelInfoTimeoutMs)
+                         modelInfoTimeoutMs: modelInfoTimeoutMs,
+                         errorCooldownBaseInterval: errorCooldownBaseInterval)
     }
 
     private func deviceFile(model: String) -> DataObject {
@@ -490,6 +492,62 @@ extension DeviceDataModuleTests {
 
         assertDeviceModel("Test Device", of: module, description: "Recovered after url change")
         XCTAssertEqual(requestedUrls.last, newUrl)
+    }
+
+    func test_event_during_error_cooldown_does_not_trigger_a_new_download() throws {
+        networkHelper.setError(.urlError(URLError(.notConnectedToInternet)))
+        let module = makeLaunch()
+        XCTAssertEqual(requestedUrls.count, 1)
+
+        assertDeviceModel(DeviceDataProvider.basicModel, of: module, description: "First event completed")
+        assertDeviceModel(DeviceDataProvider.basicModel, of: module, description: "Second event completed")
+
+        XCTAssertEqual(requestedUrls.count, 1, "The error cooldown has not elapsed, so no new request is expected")
+    }
+
+    func test_event_after_error_cooldown_triggers_a_new_download_that_recovers_model_info() throws {
+        networkHelper.setError(.urlError(URLError(.notConnectedToInternet)))
+        let module = makeLaunch(errorCooldownBaseInterval: 10.milliseconds)
+        assertDeviceModel(DeviceDataProvider.basicModel, of: module, description: "Fallback applied")
+        XCTAssertEqual(requestedUrls.count, 1)
+
+        let cooldownElapsed = expectation(description: "Error cooldown elapsed")
+        DispatchQueue.main.asyncAfter(deadline: .now() + .milliseconds(100)) {
+            cooldownElapsed.fulfill()
+        }
+        wait(for: [cooldownElapsed], timeout: Self.longTimeout)
+
+        try networkHelper.encodeResult(deviceFile(model: "Test Device"))
+        assertDeviceModel("Test Device", of: module, description: "Event after cooldown completed")
+        XCTAssertEqual(requestedUrls.count, 2)
+
+        assertDeviceModel("Test Device", of: module, description: "Later event completed")
+        XCTAssertEqual(requestedUrls.count, 2)
+    }
+
+    func test_events_after_download_containing_the_device_do_not_trigger_further_downloads() throws {
+        let dataStore = try context.moduleStoreProvider.getModuleStore(name: DeviceDataModule.moduleType)
+        networkHelper.delay = 0 // Asynchronous, like a real network
+        try networkHelper.encodeResult(deviceFile(model: "Test Device"))
+        let modelSaved = expectStoreUpdate(of: DeviceDataKey.deviceModel, in: dataStore)
+        let module = makeLaunch()
+        wait(for: [modelSaved], timeout: Self.longTimeout)
+
+        assertDeviceModel("Test Device", of: module, description: "First event completed")
+        assertDeviceModel("Test Device", of: module, description: "Second event completed")
+
+        XCTAssertEqual(requestedUrls.count, 1, "Only the initial download is expected")
+    }
+
+    func test_events_after_download_missing_the_device_do_not_trigger_further_downloads() throws {
+        try networkHelper.encodeResult(fileWithoutThisDevice)
+        let module = makeLaunch()
+        XCTAssertEqual(requestedUrls.count, 1)
+
+        assertDeviceModel(DeviceDataProvider.basicModel, of: module, description: "First event completed")
+        assertDeviceModel(DeviceDataProvider.basicModel, of: module, description: "Second event completed")
+
+        XCTAssertEqual(requestedUrls.count, 1, "The cached file is fresh for the refresh interval, so no new request is expected")
     }
 
     func test_shutdown_cancels_in_flight_download() throws {

@@ -45,7 +45,7 @@ class CollectModule: Dispatcher {
     }
 
     /**
-     * The interceptors added to the shared network client to retry the Collect requests.
+     * The interceptors added on top of the shared network client ones to retry the Collect requests.
      *
      * Retryable failures wait for connectivity while the connection is assumed unavailable,
      * otherwise they are retried with a jittered exponential backoff, capped at 150 seconds.
