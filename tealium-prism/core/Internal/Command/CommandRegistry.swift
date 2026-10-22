@@ -46,6 +46,6 @@ class CommandRegistry {
     /// The form of a command name used to match command names: trimmed of whitespace and lowercased.
     /// Used by the registry lookup and by `Dispatch.getCommands()` to remove duplicates.
     static func normalize(_ name: String) -> String {
-        name.trimmingCharacters(in: .whitespaces).lowercased()
+        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 }

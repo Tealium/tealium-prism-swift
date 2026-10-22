@@ -93,7 +93,7 @@ class RetryableErrorInterceptor: RequestInterceptor {
 
     /// Returns the delay requested by the `Retry-After` header, or `nil` when it's missing or in an unsupported format.
     private func retryAfterDelay(_ urlResponse: HTTPURLResponse?) -> TimeInterval? {
-        guard let header = urlResponse?.value(forHTTPHeaderField: "Retry-After")?.trimmingCharacters(in: .whitespaces) else {
+        guard let header = urlResponse?.value(forHTTPHeaderField: "Retry-After")?.trimmingCharacters(in: .whitespacesAndNewlines) else {
             return nil
         }
         if let seconds = Int(header) {
@@ -103,7 +103,7 @@ class RetryableErrorInterceptor: RequestInterceptor {
             return nil
         }
         let referenceDate = urlResponse?.value(forHTTPHeaderField: "Date")
-            .flatMap { Self.imfFixdateFormatter.date(from: $0.trimmingCharacters(in: .whitespaces)) } ?? now()
+            .flatMap { Self.imfFixdateFormatter.date(from: $0.trimmingCharacters(in: .whitespacesAndNewlines)) } ?? now()
         return max(0, retryAfterDate.timeIntervalSince(referenceDate))
     }
 }

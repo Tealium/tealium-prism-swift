@@ -102,6 +102,19 @@ final class CommandRegistryTests: XCTestCase {
         XCTAssertTrue(errors.allSatisfy { $0 == nil })
     }
 
+    func test_execute_trims_newlines_from_command_name() {
+        let command = MockSyncCommand(name: "log")
+        let registry = CommandRegistry(commands: [command])
+
+        var errors: [CommandError?] = []
+        _ = registry.execute(commandName: "log\n", payload: [:]) { errors.append($0) }
+        _ = registry.execute(commandName: "\tLog\r\n", payload: [:]) { errors.append($0) }
+
+        XCTAssertEqual(errors.count, 2)
+        XCTAssertTrue(errors.allSatisfy { $0 == nil })
+        XCTAssertTrue(command.executeCalled)
+    }
+
     func test_execute_passes_payload_to_command() {
         let command = MockSyncCommand(name: "test")
         let registry = CommandRegistry(commands: [command])

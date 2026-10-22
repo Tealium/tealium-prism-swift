@@ -47,6 +47,6 @@ class DataItemFormatter {
     }
 
     static func number(from string: String) -> NSNumber? {
-        Self.numberFormatter.number(from: string)
+        Self.numberFormatter.number(from: string.trimmingCharacters(in: .whitespacesAndNewlines))
     }
 }

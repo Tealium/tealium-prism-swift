@@ -37,6 +37,11 @@ final class LenientConvertersTests: XCTestCase {
         XCTAssertEqual(result, 42.0)
     }
 
+    func test_doubleConverter_trims_newlines_from_strings() {
+        XCTAssertEqual(LenientConverters.double.convert(dataItem: DataItem(value: "42\n")), 42)
+        XCTAssertEqual(LenientConverters.double.convert(dataItem: DataItem(value: "\n1.5\n")), 1.5)
+    }
+
     func test_doubleConverter_returns_nil_for_invalid_string() {
         let dataItem = DataItem(value: "not a number")
         let result = LenientConverters.double.convert(dataItem: dataItem)
@@ -127,6 +132,10 @@ final class LenientConvertersTests: XCTestCase {
         let dataItem = DataItem(value: "42")
         let result = LenientConverters.int.convert(dataItem: dataItem)
         XCTAssertEqual(result, 42)
+    }
+
+    func test_intConverter_trims_newlines_from_strings() {
+        XCTAssertEqual(LenientConverters.int.convert(dataItem: DataItem(value: "42\n")), 42)
     }
 
     func test_intConverter_converts_double_string_to_int() {
@@ -258,6 +267,12 @@ final class LenientConvertersTests: XCTestCase {
             let result = LenientConverters.bool.convert(dataItem: dataItem)
             XCTAssertEqual(result, false, "Failed to convert '\(falseString)' to false")
         }
+    }
+
+    func test_boolConverter_trims_newlines_from_strings() {
+        XCTAssertTrueOptional(LenientConverters.bool.convert(dataItem: DataItem(value: "true\n")))
+        XCTAssertEqual(LenientConverters.bool.convert(dataItem: DataItem(value: "\nfalse")), false)
+        XCTAssertTrueOptional(LenientConverters.bool.convert(dataItem: DataItem(value: "\r\nyes\r\n")))
     }
 
     func test_boolConverter_converts_int_zero_to_false() {

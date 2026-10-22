@@ -53,7 +53,7 @@ struct LenientBoolConverter: DataItemConverter {
         }
         // Try string conversion with common boolean representations
         if let stringValue = dataItem.get(as: String.self) {
-            let lowercased = stringValue.lowercased().trimmingCharacters(in: .whitespaces)
+            let lowercased = stringValue.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
             switch lowercased {
             case "true", "yes", "1":
                 return true
