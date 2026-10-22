@@ -141,8 +141,6 @@ public class TealiumSignposter {
      * - Parameters:
      *    - name: the `StaticString` used to name the interval. Must be an exact match with the begin interval call
      *    - state: the `SignpostStateWrapper` returned by the begin interval call
-     *
-     * - Returns: an optional `SignpostStateWrapper` used to pass it to the `endInterval` method. Nil on iOS < 15
      */
     public func endInterval(_ name: StaticString, state: SignpostStateWrapper?) {
         if #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *), let state = state?.state() {
@@ -160,8 +158,6 @@ public class TealiumSignposter {
      *    - name: the `StaticString` used to name the interval. Must be an exact match with the begin interval call
      *    - state: the `SignpostStateWrapper` returned by the begin interval call
      *    - messageProvider: the autoclosure `String` used to describe some parameters for this end interval call
-     *
-     * - Returns: an optional `SignpostStateWrapper` used to pass it to the `endInterval` method. Nil on iOS < 15
      */
     public func endInterval(_ name: StaticString, state: SignpostStateWrapper?, _ messageProvider: @autoclosure @escaping () -> String) {
         if #available(macOS 12.0, iOS 15.0, watchOS 8.0, tvOS 15.0, *), let state = state?.state() {
