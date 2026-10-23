@@ -228,4 +228,52 @@ class DatabaseHelperTests: XCTestCase {
         XCTAssertEqual(ranSteps, [2, 3])
         try assertFileState(databasePath, userVersion: 3)
     }
+
+    // MARK: - corruptionCode
+
+    private let corruptionCodes: [Int32] = [SQLITE_CORRUPT, SQLITE_NOTADB, SQLITE_CORRUPT_VTAB, SQLITE_CORRUPT_SEQUENCE, SQLITE_CORRUPT_INDEX]
+    private let otherCodes: [Int32] = [SQLITE_IOERR, SQLITE_IOERR_READ, SQLITE_CANTOPEN, SQLITE_AUTH, SQLITE_PERM, SQLITE_BUSY, SQLITE_FULL]
+
+    private func resultForms(_ code: Int32) -> [Error] {
+        [
+            SQLite.Result.error(message: "test", code: code, statement: nil),
+            SQLite.Result.extendedError(message: "test", extendedCode: code, statement: nil)
+        ]
+    }
+
+    func test_corruptionCode_returns_the_code_for_corrupt_and_notadb_in_primary_and_extended_form() {
+        for code in corruptionCodes {
+            for error in resultForms(code) {
+                XCTAssertEqual(DatabaseHelper.corruptionCode(error), code, "\(error)")
+            }
+        }
+    }
+
+    func test_corruptionCode_is_nil_for_other_sqlite_codes() {
+        for code in otherCodes {
+            for error in resultForms(code) {
+                XCTAssertNil(DatabaseHelper.corruptionCode(error), "\(error)")
+            }
+        }
+    }
+
+    func test_corruptionCode_looks_through_DatabaseUpgradeError() {
+        for code in corruptionCodes {
+            for error in resultForms(code) {
+                let wrapped = DatabaseUpgradeError(targetVersion: 2, underlying: error)
+                XCTAssertEqual(DatabaseHelper.corruptionCode(wrapped), code, "\(error)")
+            }
+        }
+        for code in otherCodes {
+            for error in resultForms(code) {
+                let wrapped = DatabaseUpgradeError(targetVersion: 2, underlying: error)
+                XCTAssertNil(DatabaseHelper.corruptionCode(wrapped), "\(error)")
+            }
+        }
+    }
+
+    func test_corruptionCode_is_nil_for_errors_that_are_not_from_sqlite() {
+        XCTAssertNil(DatabaseHelper.corruptionCode(StepError()))
+        XCTAssertNil(DatabaseHelper.corruptionCode(DatabaseUpgradeError(targetVersion: 2, underlying: StepError())))
+    }
 }

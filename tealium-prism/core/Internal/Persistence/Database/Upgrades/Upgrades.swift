@@ -24,7 +24,7 @@ import Foundation
 /// 4. **Naming:** the step's type name is `V{N-1}ToV{N}`, optionally followed by a suffix that doesn't start with a digit.
 /// 5. **A file below `MIN_SUPPORTED_VERSION` is deleted and recreated, not upgraded.**
 /// 6. **A step doesn't catch database errors.** If it must rethrow, it throws the original error, not a
-///    replacement, so the SQLite error stays visible: MT-2271 will route corruption on it.
+///    replacement, so the SQLite error stays visible: `DatabaseProvider` recreates the file when it reports corruption.
 ///
 /// Checklist for adding a step, in this order:
 /// 1. **Snapshot the version you upgrade from.** If `SchemaV{N-1}` doesn't exist, add it in `Upgrades/` by copying

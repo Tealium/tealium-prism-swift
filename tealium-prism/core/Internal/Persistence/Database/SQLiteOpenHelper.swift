@@ -222,8 +222,6 @@ class SQLiteOpenHelper {
         try onConfigure(database: database)
         // Not `Connection.userVersion`, whose getter turns a failed read into version 0 and so into `onCreate`.
         // `PRAGMA user_version` always returns a row, so a missing value is an error too.
-        // Android (Kotlin): the platform deletes and recreates a file whose header is corrupt; Swift throws here and keeps
-        // the file, falling back to memory, until MT-2271 routes corruption.
         guard let stored = try database.scalar("PRAGMA user_version") as? Int64 else {
             throw MissingUserVersionError()
         }

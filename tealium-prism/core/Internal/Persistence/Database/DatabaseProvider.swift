@@ -51,7 +51,8 @@ public class DatabaseProvider: DatabaseProviderProtocol {
 
     /// Opens the database file configured in `config`, or an in-memory database when there is no `databaseName`.
     ///
-    /// Every failure to use the file is logged and falls back to an in-memory database for this session.
+    /// Every failure to use the file is logged. A corrupt or unsupported file is deleted and recreated once; any other failure
+    /// falls back to an in-memory database for this session.
     ///
     /// - Throws: Only if the in-memory database cannot be opened either.
     static func openDatabase(config: TealiumConfig,
@@ -69,24 +70,37 @@ public class DatabaseProvider: DatabaseProviderProtocol {
         }
         do {
             return try helper.getDatabase()
-        } catch let unsupported as UnsupportedSchemaVersionError {
-            let reason: String
-            switch unsupported {
-            case let .newer(stored, current):
-                reason = "its version \(stored) is newer than this SDK's version \(current)"
-            case let .belowMinimum(stored):
-                reason = "its version \(stored) is below the minimum supported version \(DatabaseHelper.MIN_SUPPORTED_VERSION)"
-            }
-            return try recreateDatabase(helper: helper, logger: logger, reason: reason)
-        } catch let upgrade as DatabaseUpgradeError {
-            return try fallBackToMemory(because: "the upgrade to version \(upgrade.targetVersion) failed",
-                                        fileKept: true, error: upgrade.underlying, logger: logger)
         } catch {
-            // Android (Kotlin): an SQLException or an upgrade step's exception falls back to memory, keeping the file; any other exception
-            // (e.g. the platform helper's IllegalStateException when misused) propagates and fails init. Here everything an open can throw
-            // is a storage error (SQLite.swift's or the SDK's own; programming errors crash), so it falls back to memory, keeping the file.
-            return try fallBackToMemory(because: "the database file could not be opened",
-                                        fileKept: true, error: error, logger: logger)
+            // Before the failure type: an upgrade step that hit a corrupt page has nothing to upgrade, so the file is recreated, not kept.
+            // Nothing here holds the failed connection or statement, so the file can be deleted: `getDatabase()` released the connection
+            // when it threw, and the error carries no statement.
+            if let code = DatabaseHelper.corruptionCode(error) {
+                let reason = if let upgrade = error as? DatabaseUpgradeError {
+                    "the upgrade to version \(upgrade.targetVersion) hit a corrupt file (SQLite code \(code))"
+                } else {
+                    "it is corrupt (SQLite code \(code))"
+                }
+                return try recreateDatabase(helper: helper, logger: logger, reason: reason)
+            }
+            switch error {
+            case let unsupported as UnsupportedSchemaVersionError:
+                let reason = switch unsupported {
+                case let .newer(stored, current):
+                    "its version \(stored) is newer than this SDK's version \(current)"
+                case let .belowMinimum(stored):
+                    "its version \(stored) is below the minimum supported version \(DatabaseHelper.MIN_SUPPORTED_VERSION)"
+                }
+                return try recreateDatabase(helper: helper, logger: logger, reason: reason)
+            case let upgrade as DatabaseUpgradeError:
+                return try fallBackToMemory(because: "the upgrade to version \(upgrade.targetVersion) failed",
+                                            fileKept: true, error: upgrade.underlying, logger: logger)
+            default:
+                // Every other open failure is a storage error, SQLite.swift's or the SDK's own, as in Kotlin's `SQLException` branch.
+                // Android (Kotlin): also rethrows any other exception, e.g. the platform helper's IllegalStateException when misused; Swift
+                // has no such errors to rethrow, as programming errors crash instead of throwing.
+                return try fallBackToMemory(because: "the database file could not be opened",
+                                            fileKept: true, error: error, logger: logger)
+            }
         }
     }
 
@@ -104,8 +118,8 @@ public class DatabaseProvider: DatabaseProviderProtocol {
         do {
             try helper.deleteDatabase()
         } catch {
-            // The main file is still there, so a reopen would fail again today, and after MT-2271 could succeed on a corrupt file,
-            // since opening only reads the header.
+            // The main file is still there, so a reopen would fail again, or succeed on a corrupt file, since the open reads only
+            // the header and the schema.
             // Android (Kotlin): reopens instead. There, a delete that finds nothing usually means Android already deleted the corrupt
             // file itself, so the reopen creates a fresh one.
             return try fallBackToMemory(because: "the database file could not be deleted", fileKept: true, error: error, logger: logger)

@@ -7,8 +7,15 @@
 //
 
 import SQLite
+import SQLite3
 @testable import TealiumPrism
 import XCTest
+
+// Swift doesn't import these extended result codes (composite macros in sqlite3.h), so they are defined here as the header does.
+let SQLITE_IOERR_READ = SQLITE_IOERR | (1 << 8)
+let SQLITE_CORRUPT_VTAB = SQLITE_CORRUPT | (1 << 8)
+let SQLITE_CORRUPT_SEQUENCE = SQLITE_CORRUPT | (2 << 8)
+let SQLITE_CORRUPT_INDEX = SQLITE_CORRUPT | (3 << 8)
 
 extension XCTestCase {
     /// Stages a version 1 database file for `config` holding one `module` row named "marker", and closes it.
@@ -49,6 +56,44 @@ extension XCTestCase {
         try staged?.run("PRAGMA user_version = \(userVersion ?? 1)")
         staged = nil
         return databaseUrl.path
+    }
+
+    /// Overwrites the schema page (page 1) of the database file at `path`, after the 100-byte header, so that the version is still
+    /// readable but the schema is not: SQLite reports `SQLITE_CORRUPT` as soon as it loads the schema.
+    ///
+    /// No connection may be open on the file, and a `-wal` next to it must be empty or absent, or the page would be read from there.
+    func corruptSchemaPage(atPath path: String) throws {
+        let handle = try XCTUnwrap(FileHandle(forUpdatingAtPath: path), "Could not open \(path) to corrupt it")
+        defer { try? handle.close() }
+        let pageSize = try Self.pageSize(of: handle)
+        try handle.seek(toOffset: 100)
+        handle.write(Data(repeating: 0xFF, count: pageSize - 100))
+    }
+
+    /// Overwrites the whole page `number` (1-based) of the database file at `path`, to corrupt what is stored in it.
+    ///
+    /// Same conditions as `corruptSchemaPage(atPath:)`.
+    func corruptPage(_ number: Int, atPath path: String) throws {
+        let handle = try XCTUnwrap(FileHandle(forUpdatingAtPath: path), "Could not open \(path) to corrupt it")
+        defer { try? handle.close() }
+        let pageSize = try Self.pageSize(of: handle)
+        try handle.seek(toOffset: UInt64((number - 1) * pageSize))
+        handle.write(Data(repeating: 0xFF, count: pageSize))
+    }
+
+    /// The root page of `table` in the database file at `path`, read with a fresh connection.
+    func rootPage(of table: String, atPath path: String) throws -> Int {
+        let connection = try Connection(path, readonly: true)
+        let rootPage = try connection.scalar("SELECT rootpage FROM sqlite_master WHERE name = ?", table) as? Int64
+        return Int(try XCTUnwrap(rootPage, "No table \(table) in \(path)"))
+    }
+
+    /// The page size stored in the header of the database file: 2 bytes big-endian at offset 16 (1 means 65536).
+    private static func pageSize(of handle: FileHandle) throws -> Int {
+        try handle.seek(toOffset: 16)
+        let bytes = try XCTUnwrap(try handle.read(upToCount: 2), "Could not read the page size")
+        let size = Int(bytes[bytes.startIndex]) << 8 | Int(bytes[bytes.startIndex + 1])
+        return size == 1 ? 65_536 : size
     }
 
     /// Reads the `user_version` and the `module` names of the file at `path` with a fresh connection.

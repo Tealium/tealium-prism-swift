@@ -7,6 +7,7 @@
 //
 
 import SQLite
+import SQLite3
 @testable import TealiumPrism
 import XCTest
 
@@ -242,20 +243,200 @@ final class DatabaseProviderTests: XCTestCase {
         XCTAssertEqual(state.modules, ["marker"])
     }
 
-    func test_garbage_header_fails_the_open_before_any_transaction_keeps_the_file_and_logs_the_cause() throws {
+    // MARK: - Corruption
+
+    private let garbage = Data(repeating: 0x41, count: 4096)
+    private let notADatabase = "file is not a database (code: 26)"
+
+    /// Checks that `database` is a fresh, current, file-backed database at `databasePath`.
+    private func assertRecreated(_ database: Connection,
+                                 atPath databasePath: String,
+                                 file: StaticString = #filePath,
+                                 line: UInt = #line) {
+        XCTAssertFalse(isInMemory(database), file: file, line: line)
+        XCTAssertEqual(database.userVersion.map(Int.init), DatabaseHelper.DATABASE_VERSION, file: file, line: line)
+        for table in ["dispatch", "queue", "module", "module_storage"] {
+            XCTAssertTrue(database.tableExists(tableName: table), "\(table) is missing", file: file, line: line)
+        }
+        XCTAssertEqual(try database.scalar("SELECT COUNT(*) FROM module") as? Int64, 0, file: file, line: line)
+        XCTAssertEqual(filename(of: database), databasePath, file: file, line: line)
+    }
+
+    /// Checks that the next launch opens the database file on disk without logging anything. The previous connection must be released.
+    private func assertNextLaunchOpensSilently(file: StaticString = #filePath, line: UInt = #line) throws {
+        let reopened = try open()
+        XCTAssertFalse(isInMemory(reopened.database), file: file, line: line)
+        XCTAssertEqual(reopened.errors, [], file: file, line: line)
+        XCTAssertEqual(reopened.warnings, [], file: file, line: line)
+    }
+
+    func test_garbage_header_is_deleted_and_recreated_and_logs_the_code() throws {
         config.databaseName = "tealium"
         let fileUrl = try XCTUnwrap(config.databaseUrl())
-        let garbage = Data(repeating: 0x41, count: 4096)
         XCTAssertTrue(FileManager.default.createFile(atPath: fileUrl.path, contents: garbage))
-        // A failed version read used to pass for version 0, and so for a fresh install whose `onCreate` would log `CreateError`.
+        var opened = Optional(try open())
+        XCTAssertEqual(opened?.errors, [recreateLog("it is corrupt (SQLite code 26)")])
+        assertRecreated(try XCTUnwrap(opened?.database), atPath: fileUrl.path)
+        opened = nil
+        try assertNextLaunchOpensSilently()
+    }
+
+    func test_corrupt_schema_page_at_the_current_version_is_deleted_and_recreated() throws {
+        config.databaseName = "tealium"
+        // Discarded at once, so the connection closes and the file is left at the current version.
+        _ = try DatabaseProvider.openDatabase(config: config)
+        let fileUrl = try XCTUnwrap(config.databaseUrl())
+        // The version in the header is still readable, so only `PRAGMA journal_mode = WAL`, which loads the schema, notices.
+        try corruptSchemaPage(atPath: fileUrl.path)
+        var opened = Optional(try open())
+        XCTAssertEqual(opened?.errors, [recreateLog("it is corrupt (SQLite code 11)")])
+        assertRecreated(try XCTUnwrap(opened?.database), atPath: fileUrl.path)
+        opened = nil
+        try assertNextLaunchOpensSilently()
+    }
+
+    func test_corruption_in_an_upgrade_step_deletes_and_recreates_the_file() throws {
+        config.databaseName = "tealium"
+        let databasePath = try stageVersion1Database(config: config, rows: [
+            StoredRow(module: V1ToV2.sourceModuleName, key: V1ToV2.sourceKeyVisitorId, value: "\"abc\"", expiry: -1)
+        ])
+        // Only `V1ToV2` reads module_storage, so nothing before the upgrade step touches these pages.
+        try corruptPage(try rootPage(of: "module_storage", atPath: databasePath), atPath: databasePath)
+        try corruptPage(try rootPage(of: "sqlite_autoindex_module_storage_1", atPath: databasePath), atPath: databasePath)
+        var opened = Optional(try open())
+        XCTAssertEqual(opened?.errors, [recreateLog("the upgrade to version 2 hit a corrupt file (SQLite code 11)")])
+        assertRecreated(try XCTUnwrap(opened?.database), atPath: databasePath)
+        opened = nil
+        XCTAssertEqual(try storedRows(atPath: databasePath), [])
+    }
+
+    func test_leftover_sidecars_of_a_corrupt_file_are_deleted_with_it() throws {
+        config.databaseName = "tealium"
+        let fileUrl = try XCTUnwrap(config.databaseUrl())
+        // Left over from the corrupt file, so they don't belong to the new one: a -journal could be replayed into it.
+        // Arbitrary bytes, only to tell them apart from the files SQLite creates for the new file.
+        let leftover = Data(repeating: 0x42, count: 4096)
+        XCTAssertTrue(FileManager.default.createFile(atPath: fileUrl.path, contents: garbage))
+        let sidecars = ["-journal", "-wal", "-shm"].map { fileUrl.path + $0 }
+        for sidecar in sidecars {
+            XCTAssertTrue(FileManager.default.createFile(atPath: sidecar, contents: leftover))
+        }
+        var opened = Optional(try open())
+        XCTAssertEqual(opened?.errors, [recreateLog("it is corrupt (SQLite code 26)")])
+        assertRecreated(try XCTUnwrap(opened?.database), atPath: fileUrl.path)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fileUrl.path + "-journal"))
+        for sidecar in sidecars {
+            XCTAssertNotEqual(FileManager.default.contents(atPath: sidecar), leftover, "\(sidecar) was not deleted")
+        }
+        opened = nil
+        try assertNextLaunchOpensSilently()
+    }
+
+    // MARK: - Never delete on other errors
+
+    func test_open_failures_that_are_not_corruption_use_memory_and_keep_the_file_untouched() throws {
+        // What a locked or unreadable, but healthy, file reports.
+        for code in [SQLITE_IOERR_READ, SQLITE_AUTH, SQLITE_CANTOPEN] {
+            try? TealiumFileManager.deleteAtPath(path: path)
+            config.databaseName = "tealium"
+            var healthy: Connection? = try DatabaseProvider.openDatabase(config: config)
+            try healthy?.run("INSERT INTO module (name) VALUES ('marker')")
+            healthy = nil
+            let fileUrl = try XCTUnwrap(config.databaseUrl())
+            let before = try XCTUnwrap(FileManager.default.contents(atPath: fileUrl.path))
+            let failure = SQLite.Result.error(message: "injected", code: code, statement: nil)
+            let (database, errors, _) = try open { databaseUrl, logger in
+                InjectedDatabaseHelper(databaseUrl: databaseUrl, logger: logger) { _ in failure }
+            }
+            XCTAssertTrue(isInMemory(database), "code \(code)")
+            XCTAssertEqual(errors, [fallback("the database file could not be opened", fileKept: true, errorDescription: "\(failure)")], "code \(code)")
+            XCTAssertEqual(FileManager.default.contents(atPath: fileUrl.path), before, "code \(code)")
+        }
+    }
+
+    func test_WAL_failure_that_is_not_corruption_is_logged_and_the_file_is_used() throws {
+        // A healthy file that can't switch to WAL, e.g. locked by another process.
+        for code in [SQLITE_IOERR_READ, SQLITE_AUTH, SQLITE_CANTOPEN, SQLITE_BUSY] {
+            try? TealiumFileManager.deleteAtPath(path: path)
+            config.databaseName = "tealium"
+            var healthy: Connection? = try DatabaseProvider.openDatabase(config: config)
+            try healthy?.run("INSERT INTO module (name) VALUES ('marker')")
+            healthy = nil
+            let fileUrl = try XCTUnwrap(config.databaseUrl())
+            let failure = SQLite.Result.error(message: "injected", code: code, statement: nil)
+            let (database, errors, _) = try open { databaseUrl, logger in
+                FailingWALDatabaseHelper(databaseUrl: databaseUrl, logger: logger, failure: failure)
+            }
+            XCTAssertFalse(isInMemory(database), "code \(code)")
+            XCTAssertEqual(filename(of: database), fileUrl.path, "code \(code)")
+            XCTAssertEqual(try database.scalar("SELECT COUNT(*) FROM module WHERE name = 'marker'") as? Int64, 1, "code \(code)")
+            XCTAssertEqual(errors, ["Could not enable WAL journal mode (got nil); if the database opens, it uses the rollback journal instead. Error: \(failure)"],
+                           "code \(code)")
+        }
+    }
+
+    func test_unreadable_file_is_not_deleted() throws {
+        config.databaseName = "tealium"
+        var healthy: Connection? = try DatabaseProvider.openDatabase(config: config)
+        try healthy?.run("INSERT INTO module (name) VALUES ('marker')")
+        healthy = nil
+        let fileUrl = try XCTUnwrap(config.databaseUrl())
+        let before = try XCTUnwrap(FileManager.default.contents(atPath: fileUrl.path))
+        try FileManager.default.setAttributes([.posixPermissions: 0], ofItemAtPath: fileUrl.path)
+        addTeardownBlock { try? FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: fileUrl.path) }
+        guard !FileManager.default.isReadableFile(atPath: fileUrl.path) else {
+            throw XCTSkip("This environment still reads a file with no permissions")
+        }
+        let (database, errors, _) = try open()
+        XCTAssertTrue(isInMemory(database))
+        XCTAssertTrueOptional(errors.last?.hasPrefix("Using in-memory storage for this session because"))
+        XCTAssertTrueOptional(errors.last?.contains("The database file is kept."))
+        XCTAssertFalse(errors.contains { $0.hasPrefix("Deleting and recreating") })
+        try FileManager.default.setAttributes([.posixPermissions: 0o644], ofItemAtPath: fileUrl.path)
+        XCTAssertEqual(FileManager.default.contents(atPath: fileUrl.path), before)
+    }
+
+    // MARK: - Recreate failures
+
+    func test_corrupt_file_whose_recreated_open_fails_uses_memory_without_deleting_again() throws {
+        config.databaseName = "tealium"
+        let fileUrl = try XCTUnwrap(config.databaseUrl())
+        XCTAssertTrue(FileManager.default.createFile(atPath: fileUrl.path, contents: garbage))
+        let reopenFailure = SQLite.Result.error(message: "still corrupt", code: SQLITE_CORRUPT, statement: nil)
+        var removed = [String]()
         let (database, errors, _) = try open { databaseUrl, logger in
-            FailingCreateDatabaseHelper(databaseUrl: databaseUrl, logger: logger)
+            InjectedDatabaseHelper(databaseUrl: databaseUrl, logger: logger,
+                                   removeFile: { path in
+                removed.append(path)
+                try SQLiteOpenHelper.defaultRemoveFile(path)
+            }, failure: { $0 == 2 ? reopenFailure : nil })
         }
         XCTAssertTrue(isInMemory(database))
+        XCTAssertEqual(errors.suffix(2), [
+            recreateLog("it is corrupt (SQLite code 26)"),
+            fallback("the recreated database file could not be opened", fileKept: false, errorDescription: "\(reopenFailure)")
+        ])
+        XCTAssertEqual(removed.filter { $0 == fileUrl.path }.count, 1)
+    }
+
+    func test_corrupt_file_that_cannot_be_deleted_uses_memory_keeps_the_file_and_does_not_reopen() throws {
+        struct RemoveError: Error { }
+        config.databaseName = "tealium"
+        let fileUrl = try XCTUnwrap(config.databaseUrl())
+        XCTAssertTrue(FileManager.default.createFile(atPath: fileUrl.path, contents: garbage))
+        var helper: InjectedDatabaseHelper?
+        let (database, errors, _) = try open { databaseUrl, logger in
+            let created = InjectedDatabaseHelper(databaseUrl: databaseUrl, logger: logger, removeFile: { _ in throw RemoveError() }, failure: { _ in nil })
+            helper = created
+            return created
+        }
+        XCTAssertTrue(isInMemory(database))
+        XCTAssertEqual(errors.suffix(2), [
+            recreateLog("it is corrupt (SQLite code 26)"),
+            fallback("the database file could not be deleted", fileKept: true, errorDescription: "\(RemoveError())")
+        ])
         XCTAssertEqual(FileManager.default.contents(atPath: fileUrl.path), garbage)
-        XCTAssertEqual(errors.count, 2)
-        XCTAssertEqual(errors.first, "Could not enable WAL journal mode (got nil); if the database opens, it uses the rollback journal instead. Error: file is not a database (code: 26)")
-        XCTAssertEqual(errors.last, fallback("the database file could not be opened", fileKept: true, errorDescription: "file is not a database (code: 26)"))
+        XCTAssertEqual(helper?.configureCalls, 1)
     }
 
     func test_database_below_the_minimum_version_is_deleted_and_recreated() throws {
@@ -280,5 +461,41 @@ private class FailingCreateDatabaseHelper: DatabaseHelper {
 
     override func onCreate(database: Connection) throws {
         throw CreateError()
+    }
+}
+
+/// A `DatabaseHelper` whose attempt to enable WAL fails with `failure`.
+private class FailingWALDatabaseHelper: DatabaseHelper {
+    private let failure: Error
+
+    init(databaseUrl: URL?, logger: LoggerProtocol?, failure: Error) {
+        self.failure = failure
+        super.init(databaseUrl: databaseUrl, logger: logger)
+    }
+
+    override func enableWriteAheadLog(database: Connection) throws -> String? {
+        throw failure
+    }
+}
+
+/// A `DatabaseHelper` that fails the `onConfigure` calls `failure` picks, by their 1-based number, and counts them.
+private class InjectedDatabaseHelper: DatabaseHelper {
+    private(set) var configureCalls = 0
+    private let failure: (Int) -> Error?
+
+    init(databaseUrl: URL?,
+         logger: LoggerProtocol?,
+         removeFile: @escaping (String) throws -> Void = SQLiteOpenHelper.defaultRemoveFile,
+         failure: @escaping (Int) -> Error?) {
+        self.failure = failure
+        super.init(databaseUrl: databaseUrl, logger: logger, removeFile: removeFile)
+    }
+
+    override func onConfigure(database: Connection) throws {
+        configureCalls += 1
+        if let error = failure(configureCalls) {
+            throw error
+        }
+        try super.onConfigure(database: database)
     }
 }
