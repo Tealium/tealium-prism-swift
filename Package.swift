@@ -23,7 +23,7 @@ let package = Package(
             targets: ["TealiumPrismJavaScriptTransformer", "TealiumPrismJavaScriptTransformerObjC"]),
     ],
     dependencies: [
-        .package(url: "https://github.com/stephencelis/SQLite.swift.git", from: "0.15.4")
+        .package(url: "https://github.com/stephencelis/SQLite.swift.git", .upToNextMinor(from: "0.15.4"))
     ],
     targets: [
         .target(
