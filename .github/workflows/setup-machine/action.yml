@@ -1,6 +1,12 @@
 name: Setup the machine
 description: Reusable workflow to setup the machine and XCode
 
+inputs:
+  pod-install:
+    description: "Run 'pod install' in Example (needed only by jobs using the Example workspace)"
+    required: false
+    default: 'true'
+
 runs:
   using: "composite"
   steps:
@@ -21,6 +27,7 @@ runs:
       run: bundle install
       shell: bash
     - name: Pod Install
+      if: ${{ inputs.pod-install == 'true' }}
       run: bundle exec pod install
       working-directory: Example
       shell: bash
