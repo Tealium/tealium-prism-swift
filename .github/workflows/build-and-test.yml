@@ -8,6 +8,12 @@ env:
   FASTLANE_HIDE_CHANGELOG: "1"
   FASTLANE_OPT_OUT_USAGE: "1"
 
+# PR jobs only restore the gems cache; gems-cache-seed.yml on dev writes the entry PRs restore.
+# Quirk: ruby/setup-ruby (v1.335.0) bundles @actions/cache 5.0.3, which ignores cache-mode
+# and has no restore-only input, so on a cache miss it still builds the archive (~0.4 s) and
+# then logs a refused save (no failure). Goes away once setup-ruby ships @actions/cache >= 5.2.0.
+cache-mode: read
+
 jobs:
   build_example:
     name: Example Builds | ${{ matrix.scheme }}
