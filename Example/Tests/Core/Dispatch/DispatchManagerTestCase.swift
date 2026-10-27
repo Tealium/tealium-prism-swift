@@ -88,6 +88,7 @@ class DispatchManagerTestCase: XCTestCase {
                         barrierCoordinator: barrierCoordinator,
                         transformerCoordinator: transformerCoordinator,
                         mappingsEngine: mappingsEngine,
+                        queue: .main,
                         logger: nil)
     }
 

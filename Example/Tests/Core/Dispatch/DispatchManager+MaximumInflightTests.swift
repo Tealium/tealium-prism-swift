@@ -50,10 +50,9 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
 
     func test_events_are_stopped_after_we_reach_the_maximumInflightLimit() {
         guard let module1 = module1 else { return }
-        module1.delay = 0
+        module1.delay = Int(Self.longTimeout * 2000) // Hold the completions: follow-up dequeues are asynchronous, so completions could lower the inflight count first
         disableModule(module: module2)
         XCTAssertEqual(moduleManager.modules.value.count, 1)
-        let firstEventIsDispatched = expectation(description: "First event is dispatched")
         let maximumInflightCountReached = expectation(description: "Maximum number of events inflight is reached")
         maximumInflightCountReached.assertForOverFulfill = false
         queueManager.storeDispatches(createDispatches(amount: DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER + 5), enqueueingFor: allDispatchers)
@@ -63,11 +62,23 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
                 maximumInflightCountReached.fulfill()
             }
         }
-        _ = module1.onDispatch.subscribeOnce { _ in
-            firstEventIsDispatched.fulfill()
-        }
         _ = dispatchManager
-        wait(for: [maximumInflightCountReached, firstEventIsDispatched], timeout: Self.defaultTimeout, enforceOrder: true)
+        waitForLongTimeout() // Each full batch requests the next dequeue in its own main queue block
+        drainMainQueue()
+        XCTAssertEqual(queueManager.inflightEvents.value[module1.id]?.count, DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
+        XCTAssertEqual(pendingCount(for: module1.id), 5)
+    }
+
+    private func drainMainQueue() {
+        let drained = expectation(description: "Main queue is drained")
+        DispatchQueue.main.async { drained.fulfill() }
+        wait(for: [drained], timeout: Self.longTimeout)
+    }
+
+    private func pendingCount(for processorId: String) -> Int? {
+        var count: Int?
+        _ = queueManager.onQueueSizePendingDispatch(for: processorId).subscribeOnce { count = $0 }
+        return count
     }
 
     func test_events_are_limited_by_maximumInflightLimit_when_dispatchLimit_is_higher() {

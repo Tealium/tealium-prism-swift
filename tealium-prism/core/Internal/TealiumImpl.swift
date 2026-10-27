@@ -116,6 +116,7 @@ class TealiumImpl {
                                               barrierCoordinator: barrierCoordinator,
                                               transformerCoordinator: transformerCoordinator,
                                               mappingsEngine: mappingsEngine,
+                                              queue: queue,
                                               logger: logger)
         let tracker = TrackerImpl(onCollectors: moduleManager.observeModules { $0 as? Collector },
                                   loadRuleEngine: loadRuleEngine,

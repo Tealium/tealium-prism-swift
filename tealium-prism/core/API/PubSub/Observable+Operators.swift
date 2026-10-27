@@ -226,7 +226,13 @@ public extension Observable {
      *
      * - Warning: If the underlying observable always emits a new event and the condition is always met, this will end up calling endlessly until, eventually, the app will crash for stack overflow or out of memory exceptions.
      * You need to treat the underlying observable as a recursive function and make sure there is an exit condition.
+     *
+     * - Warning: Deprecated, with known issues, so it shouldn't be relied upon:
+     *   - a source that emits synchronously on subscription resubscribes recursively, one level per emission,
+     *     and so can overflow the stack;
+     *   - disposing the subscription while an emission is being delivered downstream still resubscribes once to the source.
      */
+    @available(*, deprecated, message: "No longer used by the SDK. It will be removed in a future version.")
     func resubscribingWhile(_ isIncluded: @escaping (Element) -> Bool) -> Observable<Element> {
         ResubscribingWhileObservable(source: self, predicate: isIncluded)
     }

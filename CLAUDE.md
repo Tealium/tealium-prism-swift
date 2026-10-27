@@ -88,7 +88,7 @@ track() → TrackerImpl
   → QueueManager (SQLite-backed, per-dispatcher queues)
   → BarrierCoordinator check (open/closed per dispatcher)
   → TransformerCoordinator (dispatcher-specific scope)
-  → Dispatcher.dispatch() (max 50 inflight per dispatcher)
+  → Dispatcher.dispatch() (new batches only while < 50 inflight per dispatcher)
   → Completion → remove from queue
 ```
 

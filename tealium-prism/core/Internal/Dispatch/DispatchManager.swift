@@ -24,9 +24,15 @@ extension DispatchManagerProtocol {
  * The class containing the core logic of the library, taking `Dispatch`es from the queue, transforming and dispatching them to each individual `Dispatcher` when they are ready.
  */
 class DispatchManager: DispatchManagerProtocol {
+    /// New batches are dequeued for a `Dispatcher` only while it has fewer inflight events than this.
+    ///
+    /// This is a threshold, not a hard limit: a batch of up to `dispatchLimit` is still dequeued as a whole,
+    /// so the inflight count can exceed it by up to one batch.
     static let MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER = 50
     private let barrierCoordinator: BarrierCoordinator
     private let transformerCoordinator: TransformerCoordinator
+    /// The SDK queue the dispatch loop runs on, used to request the follow-up dequeues asynchronously.
+    private let queue: TealiumQueue
 
     /**
      * The active `Dispatcher`s, re-emitted whenever the module list changes only when they are ready.
@@ -47,6 +53,7 @@ class DispatchManager: DispatchManagerProtocol {
          barrierCoordinator: BarrierCoordinator,
          transformerCoordinator: TransformerCoordinator,
          mappingsEngine: MappingsEngine,
+         queue: TealiumQueue,
          logger: LoggerProtocol?) {
         self.loadRuleEngine = loadRuleEngine
         self.onDispatchers = onDispatchers
@@ -55,6 +62,7 @@ class DispatchManager: DispatchManagerProtocol {
         self.barrierCoordinator = barrierCoordinator
         self.transformerCoordinator = transformerCoordinator
         self.mappingsEngine = mappingsEngine
+        self.queue = queue
         self.logger = logger
         startDispatchLoop()
     }
@@ -99,46 +107,67 @@ class DispatchManager: DispatchManagerProtocol {
         }
     }
 
-    private var managerContainer = AutomaticDisposer()
-    private var started: Bool {
-        managerContainer.count > 0
-    }
+    private var dispatchLoop: AutomaticDisposer?
 
     func stopDispatchLoop() {
-        managerContainer = AutomaticDisposer()
+        dispatchLoop?.dispose()
+        dispatchLoop = nil
     }
 
-    /// Starts the loop that, for every active `Dispatcher`, dequeues its events, transforms them and sends them.
+    /// Starts the loop that, for every active `Dispatcher`, requests dequeues of its queued `Dispatch`es, dequeues them,
+    /// transforms them and hands them over to be sent.
     ///
-    /// The chain is deliberately split around the outer `flatMapLatest`:
-    /// - The per-dispatcher chain (barrier state → dequeue loop) is nested *inside* the `flatMapLatest`. When
-    ///   `onDispatchers` emits a new list, `flatMapLatest` disposes the previous inner, tearing down the dequeue
-    ///   loops of *all* dispatchers. This removes the loops of disabled dispatchers (otherwise they keep dequeuing
-    ///   and never deallocate) and prevents stacking a second loop onto surviving ones (which would dequeue past
-    ///   the per-dispatcher inflight limit).
-    /// - `transformAndDispatch` is chained *after* the `flatMapLatest`, not nested inside it, so events already
-    ///   handed to a dispatcher are not cancelled when the list changes: they run to completion.
+    /// Calling this while a loop is already running is a no-op: `stopDispatchLoop()` must be called first for a fresh
+    /// subscription to be made. A `stopDispatchLoop()` issued while the subscription is still being set up, such as from
+    /// code reacting synchronously to the first dequeue, is honored and leaves the loop stopped.
     ///
-    /// The trade-off is that surviving dispatchers also have their dequeue loop restarted on every list change.
-    /// That is safe because `dequeueDispatches` excludes events already marked inflight, so nothing is sent twice;
-    /// the source (`ModuleManager.observeModules`) only re-emits when the dispatcher list changes by instance
-    /// identity or order, which limits these restarts to the changes that actually alter the list.
+    /// Where each stage sits relative to the outer `flatMapLatest` decides what a change to the dispatcher list cancels,
+    /// so the placement is load bearing.
+    ///
+    /// Everything that decides *when* a `Dispatcher` acquires work, meaning its barrier subscription, its consent
+    /// configuration and its loop of `DequeueRequest`s, is built inside the `flatMapLatest` and is therefore disposable.
+    /// A new emission from `onDispatchers` replaces that whole set of loops at once, which gives two guarantees:
+    /// - a dispatcher that is no longer in the list has no loop, so it neither drains what is still queued for it nor
+    ///   stays alive through a subscription that outlives it;
+    /// - a dispatcher that remains in the list has exactly one loop, so new batches are dequeued for it only while it
+    ///   has fewer than `MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER` in flight, regardless of how often the list changes.
+    ///
+    /// The dequeue itself, and the work it acquires, are deliberately kept out of that scope. A dequeue can
+    /// synchronously close a barrier, remove the consent configuration or change the list, which disposes the loop that
+    /// requested it; downstream of the `flatMapLatest` such a change only stops the requests that follow, and the
+    /// dequeued batch is still sent. `transformAndDispatch` is downstream too, so dispatches already handed to a
+    /// `Dispatcher` still get to report completion.
+    ///
+    /// The cost is that surviving dispatchers are rebuilt too, since the list is replaced wholesale rather than diffed.
+    /// Repeating a dequeue is harmless, because `dequeueDispatches` never returns a dispatch that is already in flight
+    /// and so cannot send one twice. The source (`ModuleManager.observeModules`) also drops emissions that leave the
+    /// list untouched, keeping rebuilds to the changes that genuinely alter the set of dispatchers.
     func startDispatchLoop() {
-        guard !started else { return }
+        guard dispatchLoop == nil else { return }
+        // Assigned before subscribing so that a stopDispatchLoop() re-entered from within the
+        // synchronous subscribe (e.g. from code reacting synchronously to the first dequeue) is honored:
+        // by the time the subscription is added below the container is already disposed, and add() disposes it.
+        let loop = AutomaticDisposer()
+        dispatchLoop = loop
         onDispatchers.flatMapLatest { [weak self, coordinator = barrierCoordinator] dispatchers in
             Observables.from(dispatchers)
                 .flatMap { [weak self] dispatcher in
                     coordinator.onBarriersState(for: dispatcher.id)
-                        .flatMapLatest { [weak self] barriersState -> Observable<DispatchSplit> in
+                        .flatMapLatest { [weak self] barriersState -> Observable<DequeueRequest> in
                             guard let self else { return Observables.empty() }
                             self.debugLog("BarrierState changed for \(dispatcher.id): \(barriersState)")
                             if barriersState == .open {
-                                return self.startConsentedDequeueLoop(for: dispatcher)
+                                return self.startConsentedDequeueRequests(for: dispatcher)
                             } else {
                                 return Observables.empty()
                             }
-                        }.map { (dispatcher, $0) }
+                        }
                 }
+        }
+        // Dequeue outside of the `flatMapLatest`s above, so a change the dequeue triggers can't drop the dequeued batch.
+        .map { [weak self] request -> (Dispatcher, DispatchSplit) in
+            guard let self else { return (request.dispatcher, ([], [])) }
+            return (request.dispatcher, self.dequeue(request))
         }
         .flatMap { [weak self] dispatcher, dispatchSplit -> Observable<(Dispatcher, [Dispatch])> in
             guard let self else {
@@ -155,43 +184,70 @@ class DispatchManager: DispatchManagerProtocol {
         .subscribe { [weak self] dispatcher, processedDispatches in
             self?.queueManager.deleteDispatches(processedDispatches.map { $0.id }, for: dispatcher.id)
             self?.debugLog("Dispatcher: \(dispatcher.id) processed events: \(processedDispatches.shortDescription())")
-        }.addTo(self.managerContainer)
+        }.addTo(loop)
     }
 
-    private func startConsentedDequeueLoop(for dispatcher: Dispatcher) -> Observable<DispatchSplit> {
-        if let consentManager {
-            consentManager.onConfigurationSelected
-                .flatMapLatest { [weak self] configuration in
-                    guard let self, let configuration else { return Observables.empty() }
-                    // Only dequeue events after we have a valid configuration from `ConsentManager`
-                    return self.startDequeueLoop(for: dispatcher)
-                        .map { dispatches in
-                            dispatches.partitioned {
-                                $0.matchesConfiguration(configuration, forDispatcher: dispatcher.id)
-                            }
-                        }
-                }
-        } else {
-            startDequeueLoop(for: dispatcher)
-                .map { DispatchSplit(successful: $0, unsuccessful: []) }
+    /// A request to dequeue one batch for `dispatcher`, emitted by the dequeue loop while the barriers are open.
+    private struct DequeueRequest {
+        let dispatcher: Dispatcher
+        /// The consent configuration to split the batch with, `nil` when there is no consent integration.
+        let consentConfiguration: ConsentConfiguration?
+        /// Requests the next dequeue, asynchronously: called when the batch filled the dequeue limit.
+        let onFullBatch: () -> Void
+    }
+
+    private func dequeue(_ request: DequeueRequest) -> DispatchSplit {
+        let dispatcher = request.dispatcher
+        let limit = max(min(dispatcher.dispatchLimit, Self.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER), 1)
+        let dispatches = queueManager.dequeueDispatches(for: dispatcher.id, limit: limit)
+        if dispatches.count >= limit {
+            request.onFullBatch()
+        }
+        guard let consentConfiguration = request.consentConfiguration else {
+            return (dispatches, [])
+        }
+        return dispatches.partitioned {
+            $0.matchesConfiguration(consentConfiguration, forDispatcher: dispatcher.id)
         }
     }
 
-    private func startDequeueLoop(for dispatcher: Dispatcher) -> Observable<[Dispatch]> {
+    private func startConsentedDequeueRequests(for dispatcher: Dispatcher) -> Observable<DequeueRequest> {
+        if let consentManager {
+            consentManager.onConfigurationSelected
+                .flatMapLatest { [weak self] consentConfiguration in
+                    guard let self, let consentConfiguration else { return Observables.empty() }
+                    // Only dequeue events after we have a valid configuration from `ConsentManager`
+                    return self.startDequeueRequests(for: dispatcher, consentConfiguration: consentConfiguration)
+                }
+        } else {
+            startDequeueRequests(for: dispatcher, consentConfiguration: nil)
+        }
+    }
+
+    /// Emits a `DequeueRequest` on the loop start, on every enqueue for `dispatcher`, and after every full batch,
+    /// each time only once the inflight count is below the maximum.
+    ///
+    /// The request after a full batch is emitted in its own block on the SDK queue, so that draining a backlog
+    /// does not recurse, and any state change the previous dequeue triggered is handled before it.
+    private func startDequeueRequests(for dispatcher: Dispatcher, consentConfiguration: ConsentConfiguration?) -> Observable<DequeueRequest> {
         let onInflightLower = queueManager.onInflightDispatchesCount(for: dispatcher.id)
             .map { $0 < Self.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER }
             .distinct()
-        let queueManager = self.queueManager
-        return queueManager.onEnqueuedDispatchesForProcessors
-            .filter { processors in processors.contains { $0 == dispatcher.id } }
-            .startWith([])
+        let onFullBatch = Subject<Void>()
+        // Always asynchronous, even on `queue`. Once this loop is disposed, `onFullBatch` has no observer left
+        // and the late request is dropped; a new loop creates its own `onFullBatch`.
+        let request = DequeueRequest(dispatcher: dispatcher, consentConfiguration: consentConfiguration) { [queue] in
+            queue.async { onFullBatch.onNext(()) }
+        }
+        return onFullBatch.asObservable()
+            .merge(queueManager.onEnqueuedDispatchesForProcessors
+                .filter { processors in processors.contains { $0 == dispatcher.id } }
+                .map { _ in () }
+                .startWith(()))
             .flatMapLatest { _ in
                 onInflightLower
-                    .filter { $0 }
-                    .map { _ in queueManager.dequeueDispatches(for: dispatcher.id,
-                                                               limit: min(dispatcher.dispatchLimit, Self.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER))
-                    }
-                    .resubscribingWhile { $0.count >= dispatcher.dispatchLimit } // Loops the `dequeueDispatches` as long as we pull `dispatchLimit` items from the queue
+                    .first { $0 }
+                    .map { _ in request }
             }
     }
 

@@ -661,6 +661,8 @@
 		87A408A12E97F06E005D92CC /* DatabaseProviderTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1504FE7E2AB4BB6D002C0103 /* DatabaseProviderTests.swift */; };
 		87A408A22E97F06E005D92CC /* Operator+AsSingleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87908E592DA95DD800193F08 /* Operator+AsSingleTests.swift */; };
 		87A408A32E97F06E005D92CC /* DispatchManagerTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF992C78C018003687C7 /* DispatchManagerTestCase.swift */; };
+		A1C0DE012EA6D00000A1B000 /* DispatchLoopTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE012EA6D00100A1B001 /* DispatchLoopTestCase.swift */; };
+		A1C0DE022EA6D00000A1B000 /* DispatchManager+LoopStrandingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE012EA6D00100A1B002 /* DispatchManager+LoopStrandingTests.swift */; };
 		87A408A42E97F06E005D92CC /* MockConnectivity.swift in Sources */ = {isa = PBXBuildFile; fileRef = 158A82362A39F5750028FD7C /* MockConnectivity.swift */; };
 		87A408A52E97F06E005D92CC /* RepeatingTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87AF54692C7E389C00F1C114 /* RepeatingTimerTests.swift */; };
 		87A408A62E97F06E005D92CC /* MockDatabaseProvider.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1523CE7F2ABAFC400001D6D3 /* MockDatabaseProvider.swift */; };
@@ -1709,8 +1711,14 @@
 		D54BBFFD2C78C01A003687C7 /* DispatchManager+TrackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF982C78C018003687C7 /* DispatchManager+TrackTests.swift */; };
 		D54BBFFE2C78C01A003687C7 /* DispatchManager+TrackTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF982C78C018003687C7 /* DispatchManager+TrackTests.swift */; };
 		D54BBFFF2C78C01A003687C7 /* DispatchManagerTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF992C78C018003687C7 /* DispatchManagerTestCase.swift */; };
+		A1C0DE012EA6D00100A1B000 /* DispatchLoopTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE012EA6D00100A1B001 /* DispatchLoopTestCase.swift */; };
+		A1C0DE022EA6D00100A1B000 /* DispatchManager+LoopStrandingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE012EA6D00100A1B002 /* DispatchManager+LoopStrandingTests.swift */; };
 		D54BC0002C78C01A003687C7 /* DispatchManagerTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF992C78C018003687C7 /* DispatchManagerTestCase.swift */; };
+		A1C0DE012EA6D00200A1B000 /* DispatchLoopTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE012EA6D00100A1B001 /* DispatchLoopTestCase.swift */; };
+		A1C0DE022EA6D00200A1B000 /* DispatchManager+LoopStrandingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE012EA6D00100A1B002 /* DispatchManager+LoopStrandingTests.swift */; };
 		D54BC0012C78C01A003687C7 /* DispatchManagerTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF992C78C018003687C7 /* DispatchManagerTestCase.swift */; };
+		A1C0DE012EA6D00300A1B000 /* DispatchLoopTestCase.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE012EA6D00100A1B001 /* DispatchLoopTestCase.swift */; };
+		A1C0DE022EA6D00300A1B000 /* DispatchManager+LoopStrandingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1C0DE012EA6D00100A1B002 /* DispatchManager+LoopStrandingTests.swift */; };
 		D54BC0022C78C01A003687C7 /* QueueManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF9A2C78C018003687C7 /* QueueManagerTests.swift */; };
 		D54BC0032C78C01A003687C7 /* QueueManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF9A2C78C018003687C7 /* QueueManagerTests.swift */; };
 		D54BC0042C78C01A003687C7 /* QueueManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D54BBF9A2C78C018003687C7 /* QueueManagerTests.swift */; };
@@ -2869,6 +2877,8 @@
 		D54BBF972C78C018003687C7 /* DispatchManager+QueueTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DispatchManager+QueueTests.swift"; sourceTree = "<group>"; };
 		D54BBF982C78C018003687C7 /* DispatchManager+TrackTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DispatchManager+TrackTests.swift"; sourceTree = "<group>"; };
 		D54BBF992C78C018003687C7 /* DispatchManagerTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DispatchManagerTestCase.swift; sourceTree = "<group>"; };
+		A1C0DE012EA6D00100A1B001 /* DispatchLoopTestCase.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DispatchLoopTestCase.swift; sourceTree = "<group>"; };
+		A1C0DE012EA6D00100A1B002 /* DispatchManager+LoopStrandingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "DispatchManager+LoopStrandingTests.swift"; sourceTree = "<group>"; };
 		D54BBF9A2C78C018003687C7 /* QueueManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = QueueManagerTests.swift; sourceTree = "<group>"; };
 		D58EE2DC2C74CDDE00FBDF94 /* ApplicationStatusListenerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ApplicationStatusListenerTests.swift; sourceTree = "<group>"; };
 		D5EF2DFB2C1731BC00F7BC40 /* MockCMPIntegration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockCMPIntegration.swift; sourceTree = "<group>"; };
@@ -3998,6 +4008,8 @@
 				D54BBF982C78C018003687C7 /* DispatchManager+TrackTests.swift */,
 				87FC08702D94318400E1041D /* DispatchManager+TransformAndDispatchTests.swift */,
 				D54BBF992C78C018003687C7 /* DispatchManagerTestCase.swift */,
+				A1C0DE012EA6D00100A1B001 /* DispatchLoopTestCase.swift */,
+				A1C0DE012EA6D00100A1B002 /* DispatchManager+LoopStrandingTests.swift */,
 				D54BBF9A2C78C018003687C7 /* QueueManagerTests.swift */,
 				ECDE37E42E0EEB73008F89E1 /* QueueManager+QueueMetricsTests.swift */,
 				87FC08742D944BEA00E1041D /* TrackerImplTests.swift */,
@@ -7117,6 +7129,8 @@
 				EC8EF87A2E18104D00DB89C5 /* BatchingBarrierTests.swift in Sources */,
 				EC2EA6012DB2B9E500CCB144 /* AppDataModuleTests.swift in Sources */,
 				D54BBFFF2C78C01A003687C7 /* DispatchManagerTestCase.swift in Sources */,
+				A1C0DE012EA6D00100A1B000 /* DispatchLoopTestCase.swift in Sources */,
+				A1C0DE022EA6D00100A1B000 /* DispatchManager+LoopStrandingTests.swift in Sources */,
 				8765C2802EA8EB0F0022DB59 /* JSONArrayPathParseTests.swift in Sources */,
 				D54BBFE12C78C01A003687C7 /* URLConvertibleTests.swift in Sources */,
 				87451A6C2E1C29F00074EA1E /* ArrayTests.swift in Sources */,
@@ -7903,6 +7917,8 @@
 				87A408A12E97F06E005D92CC /* DatabaseProviderTests.swift in Sources */,
 				87A408A22E97F06E005D92CC /* Operator+AsSingleTests.swift in Sources */,
 				87A408A32E97F06E005D92CC /* DispatchManagerTestCase.swift in Sources */,
+				A1C0DE012EA6D00000A1B000 /* DispatchLoopTestCase.swift in Sources */,
+				A1C0DE022EA6D00000A1B000 /* DispatchManager+LoopStrandingTests.swift in Sources */,
 				87A408A42E97F06E005D92CC /* MockConnectivity.swift in Sources */,
 				87E035492EB3D24F00BE16ED /* ReferenceContainerTests.swift in Sources */,
 				87A408A52E97F06E005D92CC /* RepeatingTimerTests.swift in Sources */,
@@ -8486,6 +8502,8 @@
 				87BA6D432C6A470C00784784 /* DatabaseProviderTests.swift in Sources */,
 				87908E5A2DA95DD800193F08 /* Operator+AsSingleTests.swift in Sources */,
 				D54BC0012C78C01A003687C7 /* DispatchManagerTestCase.swift in Sources */,
+				A1C0DE012EA6D00300A1B000 /* DispatchLoopTestCase.swift in Sources */,
+				A1C0DE022EA6D00300A1B000 /* DispatchManager+LoopStrandingTests.swift in Sources */,
 				87BA6D452C6A470C00784784 /* MockConnectivity.swift in Sources */,
 				87E035482EB3D24F00BE16ED /* ReferenceContainerTests.swift in Sources */,
 				87AF546E2C7E389C00F1C114 /* RepeatingTimerTests.swift in Sources */,
@@ -8776,6 +8794,8 @@
 				87BA6DC12C6A47AF00784784 /* DatabaseProviderTests.swift in Sources */,
 				87A40ADA2E9E57EA005D92CC /* ModuleRegistryTests.swift in Sources */,
 				D54BC0002C78C01A003687C7 /* DispatchManagerTestCase.swift in Sources */,
+				A1C0DE012EA6D00200A1B000 /* DispatchLoopTestCase.swift in Sources */,
+				A1C0DE022EA6D00200A1B000 /* DispatchManager+LoopStrandingTests.swift in Sources */,
 				87BA6DC32C6A47AF00784784 /* MockConnectivity.swift in Sources */,
 				87908E5B2DA95DD800193F08 /* Operator+AsSingleTests.swift in Sources */,
 				87AF546D2C7E389C00F1C114 /* RepeatingTimerTests.swift in Sources */,

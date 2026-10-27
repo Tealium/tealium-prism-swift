@@ -36,7 +36,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
             eventsAreDispatched.fulfill()
         }
         _ = dispatchManager
-        waitForDefaultTimeout()
+        waitForLongTimeout() // Each batch is dequeued in its own main queue block
     }
 
     func test_events_are_dispatched_in_ordered_batches() {
@@ -55,7 +55,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
             eventsAreDispatched.fulfill()
         }
         _ = dispatchManager
-        waitForDefaultTimeout()
+        waitForLongTimeout() // Each batch is dequeued in its own main queue block
     }
 
     func test_pulls_from_the_queue_are_stopped_immediately_when_a_partial_batch_is_returned() {
@@ -71,15 +71,24 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
 
     func test_pulls_from_the_queue_are_stopped_immediately_when_number_of_inflight_reaches_the_maximum() {
         disableModule(module: module2)
-        module1?.delay = 2000
+        module1?.delay = Int(Self.longTimeout * 2000) // No completion can lower the inflight count while we wait
         let eventsAreDequeued = expectation(description: "Events are dequeued Maximum number of times, not more")
         eventsAreDequeued.expectedFulfillmentCount = DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER
         queueManager.storeDispatches(createDispatches(amount: DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER + 10), enqueueingFor: allDispatchers)
+        var dequeueRequests = 0 // counts empty dequeues too: none is expected past the threshold
         _ = queueManager.onDequeueRequest.subscribe { _ in
+            dequeueRequests += 1
             eventsAreDequeued.fulfill()
         }
         _ = dispatchManager
-        waitForDefaultTimeout()
+        waitForLongTimeout() // Every full batch requests the next dequeue in its own main queue block
+        let drained = expectation(description: "Main queue is drained")
+        DispatchQueue.main.async { drained.fulfill() }
+        wait(for: [drained], timeout: Self.longTimeout)
+        var queued: Int?
+        _ = queueManager.onQueueSizePendingDispatch(for: MockDispatcher1.moduleType).subscribeOnce { queued = $0 }
+        XCTAssertEqual(dequeueRequests, DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
+        XCTAssertEqual(queued, 10)
     }
 
     func test_dispatcher_completing_events_in_multiple_batches_causes_delete_of_all_batches() {

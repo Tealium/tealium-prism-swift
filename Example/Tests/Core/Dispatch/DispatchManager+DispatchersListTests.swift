@@ -146,7 +146,7 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
     // actually happen (the `dequeued` expectation); a *second* attempt then means a stale or duplicated loop survived.
     func test_changing_the_dispatchers_list_keeps_a_single_dequeue_loop_per_survivor() throws {
         let module1 = try XCTUnwrap(module1)
-        module1.dispatchLimit = 2 // > 1 so a single queued event doesn't spin the resubscribing dequeue loop
+        module1.dispatchLimit = 2 // > 1 so a single queued event isn't a full batch, which would request a follow-up dequeue
         module1.delay = 5000 // keep the dispatched event in-flight so it isn't deleted mid-measurement
         barrier.setState(.closed) // keep every dequeue loop idle until we deliberately open it
         _ = dispatchManager // starts with [module1, module2]
@@ -173,7 +173,7 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
     // and opening the barrier each loop that is alive attempts exactly one dequeue.
     func test_starting_the_dispatch_loop_twice_does_not_duplicate_it() throws {
         let module1 = try XCTUnwrap(module1)
-        module1.dispatchLimit = 2 // > 1 so a single queued event doesn't spin the resubscribing dequeue loop
+        module1.dispatchLimit = 2 // > 1 so a single queued event isn't a full batch, which would request a follow-up dequeue
         module1.delay = 5000 // keep the dispatched event in-flight so it isn't deleted mid-measurement
         barrier.setState(.closed) // keep every dequeue loop idle until we deliberately open it
         dispatchManager.startDispatchLoop() // the loop is already running since `init`: this must be a no-op
@@ -272,7 +272,6 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
         localDispatchManager.track(Dispatch(name: "someEvent"))
         wait(for: [replacementReceived, originalDidNotReceive], timeout: Self.defaultTimeout)
     }
-
 }
 
 /**

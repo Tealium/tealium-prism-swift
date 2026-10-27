@@ -75,6 +75,7 @@ final class LifecycleTrackerTests: XCTestCase {
                         barrierCoordinator: barrierCoordinator,
                         transformerCoordinator: transformerCoordinator,
                         mappingsEngine: MappingsEngine(mappings: .constant([:])),
+                        queue: queue,
                         logger: nil)
     }
 

@@ -64,11 +64,16 @@ public class TealiumQueue {
         if isOnQueue() {
             work()
         } else {
-            if enforceQoS != .unspecified {
-                dispatchQueue.async(qos: enforceQoS, flags: .enforceQoS, execute: work)
-            } else {
-                dispatchQueue.async(execute: work)
-            }
+            async(work)
+        }
+    }
+
+    /// Always dispatches the work asynchronously on the queue, even if we are currently running on that queue.
+    func async(_ work: @escaping () -> Void) {
+        if enforceQoS != .unspecified {
+            dispatchQueue.async(qos: enforceQoS, flags: .enforceQoS, execute: work)
+        } else {
+            dispatchQueue.async(execute: work)
         }
     }
 
