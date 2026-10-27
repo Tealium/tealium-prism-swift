@@ -44,17 +44,12 @@ jobs:
           fi
           ../scripts/build.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}" "${XCARGS_ARG[@]}"
   build_SPM:
-    name: SPM Builds | ${{ matrix.scheme }} | ${{ matrix.destination }}
+    name: SPM Builds | ${{ matrix.destination }}
     runs-on: 'macOS-15'
-    timeout-minutes: 60
+    timeout-minutes: 15
     strategy:
+      fail-fast: false
       matrix:
-        scheme:
-            - TealiumPrismCore
-            - TealiumPrismLifecycle
-            - TealiumPrismContextAPI
-            - TealiumPrismExtensions
-            - TealiumPrismJavaScriptTransformer
         destination:
             - "generic/platform=iOS"
             - "generic/platform=iOS Simulator"
@@ -65,12 +60,14 @@ jobs:
             - "generic/platform=watchOS Simulator"
     steps:
       - uses: actions/checkout@v4
-      - name: "Run Local Action: Setup Machine"
-        uses: ./.github/workflows/setup-machine
+      - name: Setup Xcode version
+        uses: maxim-lobanov/setup-xcode@v1
         with:
-          pod-install: 'false'
-      - name: Build - "${{ matrix.scheme }}"
-        run: scripts/build.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+          xcode-version: '16.4' # keep in sync with setup-machine/action.yml
+      - name: Log Selected XCode version
+        run: xcode-select -p && xcodebuild -version
+      - name: Build - TealiumPrism-Package
+        run: scripts/build_spm.sh "${{ matrix.destination }}"
   test_iOS:
     name: iOS Tests | ${{ matrix.scheme }}
     runs-on: 'macOS-15'
