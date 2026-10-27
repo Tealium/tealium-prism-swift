@@ -16,6 +16,7 @@ class TealiumHelper {
     static let shared = TealiumHelper()
     let cmp = CustomCMP()
     var disposable: CompositeDisposable = Disposables.composite()
+
     func createModuleFactories() -> [any ModuleFactory] {
         [
             CustomCollector.Factory(),
@@ -66,6 +67,7 @@ class TealiumHelper {
                 .setOrder(2)
         )
 
+#if !os(watchOS)
         config.setTransformation(
             JavaScriptTransformationSettingsBuilder(id: "set-js_key")
                 .setJsCode("payload.js_key = payload.tealium_event + '-JS'")
@@ -113,6 +115,7 @@ class TealiumHelper {
                 .setScope(.afterCollectors)
                 .setOrder(5)
         )
+#endif
 
         return Tealium.create(config: config)
     }

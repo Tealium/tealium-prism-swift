@@ -25,6 +25,11 @@ final class HTTPClientTests: XCTestCase {
     let mockLogger = MockLogger()
     lazy var loggingClient = HTTPClient(configuration: config, logger: mockLogger)
 
+    override static func setUp() {
+        super.setUp()
+        CustomURLProtocolWarmUp.ensureStarted()
+    }
+
     override func tearDown() {
         URLProtocolMock.reset()
     }
@@ -74,8 +79,9 @@ final class HTTPClientTests: XCTestCase {
     }
 
     func test_send_request_gets_cancelled_immediately_when_dataTask_is_disposed() {
+        let requestReceived = expectation(description: "Request is being loaded by URLProtocolMock")
         let expect = expectation(description: "Request will complete with a cancel error")
-        mockFailure(withDelay: 10)
+        holdRequests(requestReceived)
         let task = client.sendRequest(URLRequest()) { result in
             dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
             XCTAssertResultIsFailure(result) { error in
@@ -83,8 +89,9 @@ final class HTTPClientTests: XCTestCase {
                 expect.fulfill()
             }
         }
+        wait(for: [requestReceived], timeout: Self.longTimeout)
         task.dispose()
-        waitOnQueue(queue: queue)
+        waitOnQueue(queue: queue, expectations: [expect])
     }
 
     func test_succeeded_request_is_sent_to_intercept_response() {
@@ -212,7 +219,8 @@ final class HTTPClientTests: XCTestCase {
     func test_retries_get_cancelled_and_subsequent_request_completes_after_the_cancelled_one() {
         let expectCancelled = expectation(description: "Request will complete with a cancel error immediately")
         let expectSucceeded = expectation(description: "Request will complete with success and will happen after the first task completed with the cancel")
-        mockSuccess(delay: 10)
+        let requestReceived = expectation(description: "First request is being loaded by URLProtocolMock")
+        holdRequests(requestReceived)
         XCTAssertFalse(TealiumQueue.worker.isOnQueue())
         let task = client.sendRequest(URLRequest()) { result in
             dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
@@ -221,7 +229,9 @@ final class HTTPClientTests: XCTestCase {
                 expectCancelled.fulfill()
             }
         }
+        wait(for: [requestReceived], timeout: Self.longTimeout)
         task.dispose()
+        URLProtocolMock.reset()
         mockSuccess()
         _ = client.sendRequest(URLRequest()) { result in
             dispatchPrecondition(condition: .onQueue(self.config.queue.dispatchQueue))
@@ -339,31 +349,24 @@ final class HTTPClientTests: XCTestCase {
         URLProtocolMock.recordingRequests { _ in requestSent.fulfill() }
     }
 
+    /// Makes `URLProtocolMock` hold every request without ever replying, so it can only be completed by cancelling it.
+    ///
+    /// `requestReceived` is fulfilled on the URL loading thread once the mock has read its state for the request. Wait for it
+    /// before cancelling the request: a request cancelled earlier may still reach the mock after the test ended, and
+    /// race with `URLProtocolMock.reset()` or with the next test's replies.
+    private func holdRequests(_ requestReceived: XCTestExpectation) {
+        URLProtocolMock.delaying { _ in requestReceived.fulfill() }
+    }
+
     @discardableResult
-    private func mockSuccess(data: Data = Data(), headers: [String: String]? = nil, delay: Int? = nil) -> MockReply.Response {
+    private func mockSuccess(data: Data = Data(), headers: [String: String]? = nil) -> MockReply.Response {
         URLProtocolMock.succeedingWith(data: data, response: .successful(headers: headers))
-        if let delay {
-            mockDelay(delay)
-        }
         return URLProtocolMock.reply.peak()
     }
 
-    private func mockDelay(_ delay: Int) {
-        URLProtocolMock.delaying { completion in
-            if delay > 0 {
-                self.queue.dispatchQueue.asyncAfter(deadline: .now() + .milliseconds(delay), execute: completion)
-            } else {
-                self.queue.dispatchQueue.async(execute: completion)
-            }
-        }
-    }
-
     @discardableResult
-    private func mockFailure(_ error: Error = URLError(URLError.notConnectedToInternet), withDelay delay: Int? = nil) -> MockReply.Response {
+    private func mockFailure(_ error: Error = URLError(URLError.notConnectedToInternet)) -> MockReply.Response {
         URLProtocolMock.failingWith(error: error)
-        if let delay {
-            mockDelay(delay)
-        }
         return URLProtocolMock.reply.peak()
     }
 }

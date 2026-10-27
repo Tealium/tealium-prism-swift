@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
+import Combine
 import SwiftUI
 import TealiumPrism
 
@@ -60,34 +61,31 @@ struct ContextAPIView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                TealiumTextField($viewModel.engineId, 
-                                placeholder: "Enter Engine ID")
-                TealiumTextButton(title: "Fetch Engine Response") {
-                    viewModel.saveEngineId()
-                    viewModel.fetchEngineResponse()
-                }
-                .disabled(viewModel.isLoading)
-                
-                if viewModel.isLoading {
-                    ProgressView()
-                        .padding()
-                }
-                
-                if let errorMessage = viewModel.errorMessage {
-                    Text(errorMessage)
-                        .foregroundColor(.red)
-                        .padding()
-                }
-                
-                if let response = viewModel.engineResponse {
-                    ContextAPIResponseView(response: response)
-                }
+        VStack(spacing: 16) {
+            TealiumTextField($viewModel.engineId,
+                             placeholder: "Enter Engine ID",
+                             applyButtonText: "Fetch Engine Response") {
+                viewModel.saveEngineId()
+                viewModel.fetchEngineResponse()
             }
-            .padding()
+            .disabled(viewModel.isLoading)
+
+            if viewModel.isLoading {
+                ProgressView()
+                    .padding()
+            }
+            
+            if let errorMessage = viewModel.errorMessage {
+                Text(errorMessage)
+                    .foregroundColor(.red)
+                    .padding()
+            }
+
+            if let response = viewModel.engineResponse {
+                ContextAPIResponseView(response: response)
+            }
         }
-        .navigationTitle("Context API")
+        .padding()
     }
 }
 
@@ -160,7 +158,7 @@ struct ContextAPIDataRow: View {
         }
         .padding()
         .frame(maxWidth: .infinity, alignment: .leading)
-        .background(Color(.systemGray6))
+        .background(Color.gray.opacity(0.2))
         .cornerRadius(8)
     }
 }

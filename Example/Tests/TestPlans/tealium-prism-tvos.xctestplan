@@ -1,0 +1,59 @@
+{
+  "configurations" : [
+    {
+      "id" : "26E37B95-E738-4259-B635-446548F05383",
+      "name" : "Configuration",
+      "options" : {
+        "threadSanitizerEnabled" : true
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "8709E6CA2EF1A7A6008025C8",
+        "name" : "ExtensionsTests_tvOS"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "878C49E72E2691D300DA3155",
+        "name" : "EndToEndTests_tvOS"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "87BA6DA42C6A47AF00784784",
+        "name" : "CoreTests_tvOS"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "87A409BB2E9900CE005D92CC",
+        "name" : "LifecycleTests_tvOS"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "9EA12C872EC696D200B23C56",
+        "name" : "ContextAPITests_tvOS"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "EC3B93A32F59EAB400EC18C2",
+        "name" : "JavaScriptTransformerTests_tvOS"
+      }
+    }
+  ],
+  "version" : 1
+}

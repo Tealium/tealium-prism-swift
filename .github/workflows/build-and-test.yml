@@ -21,17 +21,28 @@ jobs:
     timeout-minutes: 60
     strategy:
       matrix:
-        scheme:
-            - Example_iOS
-        destination: 
-            - "generic/platform=iOS Simulator"
+        include:
+          - scheme: Example_iOS
+            destination: "generic/platform=iOS Simulator"
+          - scheme: Example_tvOS
+            destination: "generic/platform=tvOS Simulator"
+          - scheme: Example_macOS
+            destination: "generic/platform=macOS"
+            xcargs: "CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO"
+          - scheme: "Example_watchOS Watch App"
+            destination: "generic/platform=watchOS Simulator"
     steps:
       - uses: actions/checkout@v4
       - name: "Run Local Action: Setup Machine"
         uses: ./.github/workflows/setup-machine
       - name: Build - "${{ matrix.scheme }}"
         working-directory: Example
-        run: ../scripts/build.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+        run: |
+          XCARGS_ARG=()
+          if [ -n "${{ matrix.xcargs }}" ]; then
+            XCARGS_ARG=(--xcargs "${{ matrix.xcargs }}")
+          fi
+          ../scripts/build.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}" "${XCARGS_ARG[@]}"
   build_SPM:
     name: SPM Builds | ${{ matrix.scheme }} | ${{ matrix.destination }}
     runs-on: 'macOS-15'

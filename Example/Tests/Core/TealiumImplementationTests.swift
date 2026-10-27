@@ -28,6 +28,18 @@ final class TealiumImplementationTests: XCTestCase {
         return try TealiumImpl(config, queue: .worker)
     }
 
+    /**
+     * Creates an implementation, runs `body` with it and releases it, all on the worker queue.
+     *
+     * `TealiumImpl` is confined to the worker queue, as `TealiumInstanceManager` uses it: creating, using or releasing it
+     * on another thread (`deinit` calls `shutdown()`) races with its own subscriptions on the worker queue.
+     */
+    private func withImplementation(modules: [any ModuleFactory] = [], _ body: (TealiumImpl) throws -> Void) throws {
+        try TealiumQueue.worker.dispatchQueue.sync {
+            try body(makeImplementation(modules: modules))
+        }
+    }
+
     func test_init_logs_an_error_when_initialization_fails() throws {
         let logHandler = MockLogHandler()
         var config = TealiumConfig(account: "mockAccount",
@@ -64,21 +76,24 @@ final class TealiumImplementationTests: XCTestCase {
     }
 
     func test_isShutdown_is_false_before_shutdown() throws {
-        let instance = try makeImplementation()
-        XCTAssertFalse(instance.isShutdown)
+        try withImplementation { instance in
+            XCTAssertFalse(instance.isShutdown)
+        }
     }
 
     func test_isShutdown_is_true_after_shutdown() throws {
-        let instance = try makeImplementation()
-        instance.shutdown()
-        XCTAssertTrue(instance.isShutdown)
+        try withImplementation { instance in
+            instance.shutdown()
+            XCTAssertTrue(instance.isShutdown)
+        }
     }
 
     func test_shutdown_can_be_called_multiple_times() throws {
-        let instance = try makeImplementation()
-        instance.shutdown()
-        instance.shutdown()
-        XCTAssertTrue(instance.isShutdown)
+        try withImplementation { instance in
+            instance.shutdown()
+            instance.shutdown()
+            XCTAssertTrue(instance.isShutdown)
+        }
     }
 
     /**
@@ -136,15 +151,16 @@ final class TealiumImplementationTests: XCTestCase {
      * dispatches still waiting for their dispatcher would be deleted instead of being sent next launch.
      */
     func test_shutdown_does_not_delete_the_dispatches_left_in_the_queue() throws {
-        let instance = try makeImplementation(modules: [MockDispatcher.factory()])
-        let processor = try XCTUnwrap(instance.moduleManager.modules.value
-            .compactMap { $0 as? Dispatcher }
-            .first?.id)
-        // Nothing may dequeue the dispatch before the shutdown.
-        instance.tracker.dispatchManager.stopDispatchLoop()
-        instance.queueManager.storeDispatches([Dispatch(name: "event")], enqueueingFor: [processor])
-        instance.shutdown()
-        XCTAssertEqual(instance.queueManager.peekDispatches(for: processor, limit: nil).count, 1)
+        try withImplementation(modules: [MockDispatcher.factory()]) { instance in
+            let processor = try XCTUnwrap(instance.moduleManager.modules.value
+                .compactMap { $0 as? Dispatcher }
+                .first?.id)
+            // Nothing may dequeue the dispatch before the shutdown.
+            instance.tracker.dispatchManager.stopDispatchLoop()
+            instance.queueManager.storeDispatches([Dispatch(name: "event")], enqueueingFor: [processor])
+            instance.shutdown()
+            XCTAssertEqual(instance.queueManager.peekDispatches(for: processor, limit: nil).count, 1)
+        }
     }
 
     func test_backgrounded_checkpoints_the_database() throws {

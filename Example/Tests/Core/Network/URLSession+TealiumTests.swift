@@ -104,6 +104,11 @@ final class URLSessionTealiumTests: XCTestCase {
     }()
     lazy var client = HTTPClient(configuration: config, logger: nil)
 
+    override static func setUp() {
+        super.setUp()
+        CustomURLProtocolWarmUp.ensureStarted()
+    }
+
     override func tearDown() {
         URLProtocolMock.reset()
     }

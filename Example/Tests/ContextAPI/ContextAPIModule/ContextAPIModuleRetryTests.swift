@@ -35,6 +35,11 @@ final class ContextAPIModuleRetryTests: XCTestCase {
 
 // URLProtocolMock seems not to be working on watchos
 #if !os(watchOS)
+    override static func setUp() {
+        super.setUp()
+        CustomURLProtocolWarmUp.ensureStarted()
+    }
+
     func test_throttled_request_with_retry_after_above_max_delay_fails_after_one_request() {
         URLProtocolMock.reply = .always((Data(), .mock(status: 429, headers: ["Retry-After": "120"]), nil))
         fetchEngineResponse(expectedRequests: 1) { result in
