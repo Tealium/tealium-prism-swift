@@ -12,7 +12,7 @@ import Foundation
 /// Registered in `CommandRegistry` with O(1) lookup by name.
 public protocol Command {
     /// Command name used for routing by `CommandRegistry`.
-    /// The registry normalizes names by trimming whitespace and lowercasing before lookup,
+    /// The registry matches commands by their name trimmed of whitespace and lowercased,
     /// so implementations should provide a logical, case-insensitive name without leading/trailing whitespace.
     var name: String { get }
 

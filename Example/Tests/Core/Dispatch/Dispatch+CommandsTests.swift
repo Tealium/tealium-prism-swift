@@ -41,7 +41,14 @@ final class DispatchCommandsTests: XCTestCase {
         let dispatch = Dispatch(name: "event", data: [
             TealiumDataKey.commandName: [" LogEvent ", "setuserid", "logevent", "SETUSERID", "other"]
         ])
-        XCTAssertEqual(dispatch.getCommands(), [" LogEvent ", "setuserid", "other"])
+        XCTAssertEqual(dispatch.getCommands(), ["logevent", "setuserid", "other"])
+    }
+
+    func test_getCommands_returns_normalized_names() {
+        let dispatch = Dispatch(name: "event", data: [
+            TealiumDataKey.commandName: ["LogEvent", "  setuserid  ", "\tOther\t", "\tLog_Out\r\n"]
+        ])
+        XCTAssertEqual(dispatch.getCommands(), ["logevent", "setuserid", "other", "log_out"])
     }
 
     func test_getCommands_skips_blank_commands() {
@@ -69,7 +76,7 @@ final class DispatchCommandsTests: XCTestCase {
         let dispatch = Dispatch(name: "event", data: [
             TealiumDataKey.commandName: ["logevent\n", "LogEvent", "other"]
         ])
-        XCTAssertEqual(dispatch.getCommands(), ["logevent\n", "other"])
+        XCTAssertEqual(dispatch.getCommands(), ["logevent", "other"])
     }
 
     func test_getCommands_preserves_order() {

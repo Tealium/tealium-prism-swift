@@ -28,14 +28,12 @@ class CommandRegistry {
     /// Execute a command by name.
     ///
     /// - Parameters:
-    ///   - commandName: The name of the command to execute (normalized internally).
+    ///   - commandName: The name of the command to execute. It must already be normalized, as returned by `Dispatch.getCommands()`.
     ///   - payload: The data to pass to the command.
     ///   - completion: Called with `nil` on success or a `CommandError` on failure.
     /// - Returns: A `Disposable` that cancels the command's in-progress work when disposed.
     func execute(commandName: String, payload: DataObject, completion: @escaping (CommandError?) -> Void) -> any Disposable {
-        let normalizedName = CommandRegistry.normalize(commandName)
-
-        guard let command = commands[normalizedName] else {
+        guard let command = commands[commandName] else {
             completion(.commandNotFound(commandName))
             return Disposables.disposed()
         }
@@ -44,7 +42,7 @@ class CommandRegistry {
     }
 
     /// The form of a command name used to match command names: trimmed of whitespace and lowercased.
-    /// Used by the registry lookup and by `Dispatch.getCommands()` to remove duplicates.
+    /// Applied to `Command.name` at registration and by `Dispatch.getCommands()`.
     static func normalize(_ name: String) -> String {
         name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }

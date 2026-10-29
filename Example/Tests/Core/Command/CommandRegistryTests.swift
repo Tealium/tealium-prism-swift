@@ -59,6 +59,17 @@ final class CommandRegistryTests: XCTestCase {
         XCTAssertTrue(newCommand.executeCalled)
     }
 
+    func test_init_normalizes_command_name_to_lowercase() {
+        let command = MockSyncCommand(name: "My_Command")
+        let registry = CommandRegistry(commands: [command])
+
+        var error: CommandError?
+        _ = registry.execute(commandName: "my_command", payload: [:]) { error = $0 }
+
+        XCTAssertNil(error)
+        XCTAssertTrue(command.executeCalled)
+    }
+
     // MARK: - Execution Tests
 
     func test_execute_unknown_command_calls_completion_with_error() {
@@ -73,46 +84,6 @@ final class CommandRegistryTests: XCTestCase {
             return
         }
         XCTAssertEqual(name, "unknown")
-    }
-
-    func test_execute_normalizes_command_name_to_lowercase() {
-        let command = MockSyncCommand(name: "test")
-        let registry = CommandRegistry(commands: [command])
-
-        let payload: DataObject = [:]
-
-        var errors: [CommandError?] = []
-        _ = registry.execute(commandName: "TEST", payload: payload) { errors.append($0) }
-        _ = registry.execute(commandName: "Test", payload: payload) { errors.append($0) }
-        _ = registry.execute(commandName: "TeSt", payload: payload) { errors.append($0) }
-
-        XCTAssertTrue(errors.allSatisfy { $0 == nil })
-    }
-
-    func test_execute_trims_whitespace_from_command_name() {
-        let command = MockSyncCommand(name: "test")
-        let registry = CommandRegistry(commands: [command])
-
-        let payload: DataObject = [:]
-
-        var errors: [CommandError?] = []
-        _ = registry.execute(commandName: "  test  ", payload: payload) { errors.append($0) }
-        _ = registry.execute(commandName: "\ttest\t", payload: payload) { errors.append($0) }
-
-        XCTAssertTrue(errors.allSatisfy { $0 == nil })
-    }
-
-    func test_execute_trims_newlines_from_command_name() {
-        let command = MockSyncCommand(name: "log")
-        let registry = CommandRegistry(commands: [command])
-
-        var errors: [CommandError?] = []
-        _ = registry.execute(commandName: "log\n", payload: [:]) { errors.append($0) }
-        _ = registry.execute(commandName: "\tLog\r\n", payload: [:]) { errors.append($0) }
-
-        XCTAssertEqual(errors.count, 2)
-        XCTAssertTrue(errors.allSatisfy { $0 == nil })
-        XCTAssertTrue(command.executeCalled)
     }
 
     func test_execute_passes_payload_to_command() {
