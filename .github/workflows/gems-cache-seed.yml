@@ -14,14 +14,18 @@ on:
     - cron: '17 5 * * 1,4'
   workflow_dispatch:
 
+permissions:
+  contents: read
+
 env:
   BUNDLE_WITHOUT: docs     # must match build-and-test.yml
 
 jobs:
   seed:
-    runs-on: macOS-15      # same label as build-and-test.yml
+    runs-on: macos-15      # same label as build-and-test.yml
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: "Run Local Action: Setup Machine"
         uses: ./.github/workflows/setup-machine
         with:

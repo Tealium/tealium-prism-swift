@@ -157,4 +157,4 @@ SQLite via SQLite.swift (0.15.4+). Repositories: `QueueRepository`, `KeyValueRep
 
 ## CI/CD
 
-GitHub Actions in `.github/workflows/`: `build-and-test.yml` and `lint.yml` run on pull requests; `docs.yml` on push to `main`; `deploy.yml` on release publish. Machine setup is via the `setup-machine` composite action, except the SPM build jobs, which set up Xcode inline and run `scripts/build_spm.sh` (no Ruby). Test jobs run on OS 18.5.
+GitHub Actions in `.github/workflows/`: `build-and-test.yml` and `lint.yml` run on pull requests; `docs.yml` on push to `main`; `deploy.yml` on release publish. Machine setup is via the `setup-machine` composite action, which selects Xcode through the `setup-xcode` composite action; the SPM build jobs use only `setup-xcode` and run `scripts/build_spm.sh` (no Ruby). Test jobs run on OS 18.5.

@@ -2,11 +2,15 @@ name: Lint
 
 on: [pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   SwiftLint:
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Lint Source
         uses: norio-nomura/action-swiftlint@3.2.1
         with: 
@@ -18,7 +22,8 @@ jobs:
   validate_versions:
     name: Validate versions
     runs-on: macos-15
+    timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: Validate Versions
         run: scripts/validate_versions.sh
