@@ -39,9 +39,13 @@ class SQLModulesRepository: ModulesRepository {
     }
 
     func deleteExpired(expiry: ExpirationRequest) {
+        deleteExpired(expiry: expiry, date: Date())
+    }
+
+    /// Deletes the data matching `expiry` or whose time-based expiry has passed at `date`.
+    func deleteExpired(expiry: ExpirationRequest, date: Date) {
         let interval = TealiumSignpostInterval(signposter: signposter, name: "Delete Expired").begin("\(expiry)")
         defer { interval.end() }
-        let date = Date()
         guard let rows = try? database.prepare(ModuleStorageSchema.getExpired(request: expiry, date: date)) else {
             return
         }

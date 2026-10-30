@@ -36,9 +36,9 @@ class VisitorSwitcher {
             .distinct()
             .flatMapLatest { key -> Observable<String> in
                 guard let key else { return Observables.empty() }
-                // Re-read the store, as the event payload may not be the value actually present: a put whose
-                // expiry has already passed is still published, and a transaction's removals are published
-                // before its updates regardless of edit order.
+                // Read the identity from dataLayerStore instead of the event payload: if another subscriber commits
+                // to the data layer while this transaction's events are being delivered, its nested update arrives
+                // first and this payload is stale.
                 return dataLayerStore.onDataUpdated
                     .filter { $0.keys.contains(key) }
                     .map { _ in dataLayerStore.get(key: key) }

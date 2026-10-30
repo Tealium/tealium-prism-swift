@@ -449,10 +449,11 @@ final class VisitorIdModuleTests: XCTestCase {
     func test_identityKey_expiry_does_not_switch_visitorId() throws {
         let initialVisitorId = module.visitorId.value
         try storeIdentityInDataLayer(identityValue)
+        let currentDate = Date()
         try dataLayerStore.edit()
-            .put(key: Self.identityKey, value: identityValue, expiry: .after(1.seconds.before(date: Date())))
+            .put(key: Self.identityKey, value: identityValue, expiry: .after(1.seconds.after(date: currentDate)))
             .commit()
-        modulesRepository.deleteExpired(expiry: .restart)
+        modulesRepository.deleteExpired(expiry: .restart, date: 2.seconds.after(date: currentDate))
         XCTAssertEqual(visitorStorage.visitorId, initialVisitorId)
         XCTAssertEqual(visitorStorage.ownerIdentity, hashedIdentityValue)
         XCTAssertEqual(visitorStorage.getKnownVisitorId(identity: hashedIdentityValue), initialVisitorId)

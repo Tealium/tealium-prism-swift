@@ -58,12 +58,13 @@ class ModuleStorageSchema {
         table.where(self.moduleId == moduleId && nonExpired())
     }
 
+    // `nonExpired()` and `expired(request:date:)` must agree with `Expiry.isExpired(at:)`: a time-based expiry is expired when `expiry <= now`.
     private static func nonExpired() -> Expression<Bool> {
         expiry < 0 || expiry > Date().unixTimeMilliseconds
     }
 
     private static func expired(request: ExpirationRequest, date: Date) -> Expression<Bool> {
-        expiry == request.expiryTime || expiry < date.unixTimeMilliseconds && expiry > 0
+        expiry == request.expiryTime || (expiry >= 0 && expiry <= date.unixTimeMilliseconds)
     }
 
     static func getKeys(moduleId: Int64) -> QueryType {
