@@ -35,6 +35,7 @@ class DispatchManagerTestCase: XCTestCase {
     lazy var transformers = StateSubject<[Transformer]>([transformer])
     lazy var onBarriers: Observable<[ScopedBarrier]> = Observables.just([(barrier, BarrierScope.all)])
     let barrier = MockBarrier()
+    let applicationStatusListener = ApplicationStatusListener.mock(queue: .main)
     lazy var config = TealiumConfig(account: "test",
                                     profile: "test",
                                     environment: "dev",
@@ -59,7 +60,7 @@ class DispatchManagerTestCase: XCTestCase {
                                              logger: nil)
     let barrierManager = BarrierManager(sdkBarrierSettings: .constant([:]))
     lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: onBarriers,
-                                                     onApplicationStatus: config.appStatusListener.onApplicationStatus,
+                                                     onApplicationStatus: applicationStatusListener.onApplicationStatus,
                                                      queueMetrics: queueManager,
                                                      flushDebounceMilliseconds: 0,
                                                      queue: .main)

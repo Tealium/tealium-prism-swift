@@ -34,6 +34,7 @@ final class LifecycleTrackerTests: XCTestCase {
                                settingsUrl: nil)
     let databaseProvider = MockDatabaseProvider()
     let queue = TealiumQueue.main
+    lazy var applicationStatusListener = ApplicationStatusListener.mock(queue: queue)
     let moduleManager = ModuleManager()
     @StateSubject(SDKSettings())
     var sdkSettings
@@ -47,7 +48,7 @@ final class LifecycleTrackerTests: XCTestCase {
                                              coreSettings: coreSettings,
                                              logger: nil)
     lazy var barrierCoordinator = BarrierCoordinator(onScopedBarriers: Observables.just([]),
-                                                     onApplicationStatus: config.appStatusListener.onApplicationStatus,
+                                                     onApplicationStatus: applicationStatusListener.onApplicationStatus,
                                                      queueMetrics: queueManager,
                                                      queue: queue)
     lazy var transformerCoordinator = TransformerCoordinator(onTransformers: Observables.just([]),
@@ -65,6 +66,7 @@ final class LifecycleTrackerTests: XCTestCase {
                                    tracker: tracker,
                                    transformerRegistrar: transformerCoordinator,
                                    databaseProvider: databaseProvider,
+                                   applicationStatusListener: applicationStatusListener,
                                    queue: queue)
     lazy var dispatchManager = getDispatchManager()
     func getDispatchManager() -> DispatchManager {
