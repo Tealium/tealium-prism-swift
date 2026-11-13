@@ -9,6 +9,9 @@
 import Foundation
 
 /// Defines the positions during event processing that can be extended.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum DispatchScope: RawRepresentable, Codable, Equatable {
     public typealias RawValue = String
 

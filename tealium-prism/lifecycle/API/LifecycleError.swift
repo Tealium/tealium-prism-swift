@@ -11,6 +11,9 @@ import TealiumPrismCore
 #endif
 
 /// An error from the `Lifecycle` module.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum LifecycleError: Error, ErrorEnum, ErrorWrapping {
     /// Lifecycle auto-tracking is enabled, cannot manually track lifecycle event.
     case manualTrackNotAllowed

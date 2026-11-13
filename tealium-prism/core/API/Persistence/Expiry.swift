@@ -9,6 +9,9 @@
 import Foundation
 
 /// The expiration type of some persisted value.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum Expiry: Equatable {
     /// Expires when the session ends.
     case session

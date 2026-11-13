@@ -9,6 +9,9 @@
 import Foundation
 
 /// An error caused when trying to use a `Module`.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum ModuleError<SomeError: Error>: ErrorEnum, ErrorWrapping {
     /// The module isn't found when the operation is about to start, either because it's disabled in the
     /// current settings or because it was never added to the `TealiumConfig`. No work was started, so

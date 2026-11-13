@@ -9,6 +9,9 @@
 import Foundation
 
 /// Errors that can occur during database operations.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum DatabaseError: ErrorEnum, ErrorWrapping {
     /// A database was created with version lower than 1
     case invalidDatabaseVersion(_ version: Int)

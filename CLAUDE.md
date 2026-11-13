@@ -6,6 +6,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 Tealium Prism is a Swift SDK for integrating the Tealium CDP into iOS, macOS, tvOS, and watchOS apps. Minimum OS versions: iOS 13.0, tvOS 13.0, macOS 10.15, watchOS 7.0. Swift tools version 6.0; requires the Swift 6.0 compiler (Xcode 16 or later), Swift 5 language mode.
 
+**Release status:** 0.7.0 (2026-10-16) is the first public, General Availability release; earlier versions were pre-releases. Releases are published from `Tealium/tealium-prism-swift` (the podspec's `s.source`). The public API is now in customers' hands, so a breaking change to it affects integrators and must be called out for the release notes. Some features are deliberately kept internal in GA and return in a later release — currently consent integration (see Consent).
+
 ## Commands
 
 ### Setup
@@ -82,17 +84,32 @@ Modules reach the network through `context.network` (`NetworkUtilities`, a `publ
 ### Event Pipeline
 ```
 track() → TrackerImpl
+  → Consent gate: drop if the "tealium" purpose is explicitly blocked (no collection happens)
+  → SessionManager.registerDispatch
   → Collectors run in series (filtered by LoadRules)
-  → TransformerCoordinator (afterCollectors scope)
-  → ConsentManager check (drop if "tealium" purpose blocked)
-  → QueueManager (SQLite-backed, per-dispatcher queues)
-  → BarrierCoordinator check (open/closed per dispatcher)
-  → TransformerCoordinator (dispatcher-specific scope)
-  → Dispatcher.dispatch() (new batches only while < 50 inflight per dispatcher)
-  → Completion → remove from queue
+→ DispatchManager.track
+  → Consent gate again (consent may have changed while collecting)
+  → TransformerCoordinator (.afterCollectors scope; a transformer returning nil drops the event)
+  → With consent integration (not in GA, see Consent): ConsentManager.applyConsent
+      no decision/configuration yet, or "tealium" implicitly not consented → consent queue
+      explicitly blocked → dropped
+      consented → purposes added to the payload → enqueued for the dispatchers (+ consent queue if refire is enabled)
+  → Without it: QueueManager stores the event for every enabled dispatcher (dropped if there are none)
+  → TrackResult is reported here: `accepted` means enqueued, not sent
+
+Dispatch loop, per dispatcher:
+  → BarrierCoordinator: dequeue only while the dispatcher's barriers are open
+  → QueueManager dequeue: batches of min(dispatchLimit, 50); new batches only while < 50 inflight
+      with consent integration: only once a ConsentConfiguration is selected; events not matching it are discarded
+  → TransformerCoordinator (.dispatcher(id:) scope)
+  → LoadRules for the dispatcher (failing events are removed from its queue)
+  → MappingsEngine (the dispatcher's mappings)
+  → Dispatcher.dispatch() → completion → remove from queue
 ```
 
-Key classes: `TrackerImpl`, `DispatchManager`, `QueueManager`, `BarrierCoordinator`, `TransformerCoordinator`.
+Consent is checked *before* collection only for a final "no" (explicitly blocked). A pending decision doesn't stop collection: the event is collected at track time (timestamps, session, device and app state can't be rebuilt later) and parked in the consent queue until the user decides.
+
+Key classes: `TrackerImpl`, `DispatchManager`, `QueueManager`, `BarrierCoordinator`, `TransformerCoordinator`, `ConsentIntegrationManager`, `MappingsEngine`.
 
 ### Data Types
 - `DataObject` - Dictionary wrapper `[String: DataInput]` with deep merging, path building, literal syntax
@@ -104,7 +121,7 @@ Key classes: `TrackerImpl`, `DispatchManager`, `QueueManager`, `BarrierCoordinat
 
 **Settings merge priority** (lowest to highest): local JSON (`settingsFile`) → remote URL (`settingsUrl`) → programmatic (`TealiumConfig` builders).
 
-**SDKSettings** structure: `core` (CoreSettings), `modules`, `loadRules`, `transformations`, `barriers`, `consent`.
+**SDKSettings** structure: `core` (CoreSettings), `modules`, `loadRules`, `transformations`, `barriers`, `consent` (ignored in GA, see Consent).
 
 **CoreSettings** defaults: `maxQueueSize` 100, `queueExpiration` 1 day, `refreshInterval` 15 min, `sessionTimeout` 5 min.
 
@@ -129,10 +146,12 @@ SQLite via SQLite.swift (0.15.4+). Repositories: `QueueRepository`, `KeyValueRep
 `TransformationSettingsBuilder.build()` returns `DataObject` — pass the builder directly to `TealiumConfig.setTransformation(_:)`, no need to call `build()` yourself.
 
 ### Load Rules
-`Rule<Item>` is an indirect enum: `.and([Rule])`, `.or([Rule])`, `.not(Rule)`, `.just(Item)`. `Condition` has `variable` (ReferenceContainer), `operator` (isDefined, equals, contains, regex, etc.), and optional `filter`. Applied via `LoadRuleEngine` to filter which collectors run per dispatch.
+`Rule<Item>` is an indirect enum: `.and([Rule])`, `.or([Rule])`, `.not(Rule)`, `.just(Item)`. `Condition` has `variable` (ReferenceContainer), `operator` (isDefined, equals, contains, regex, etc.), and optional `filter`. Applied via `LoadRuleEngine` to filter which collectors run per dispatch, and again per dispatcher after its dispatcher-scoped transformations (events that fail are removed from that dispatcher's queue).
 
 ### Consent
-`ConsentDecision` with `.implicit`/`.explicit` type and `purposes: Set<String>`. CMP integration via `CMPAdapter` protocol registered on `TealiumConfig.enableConsentIntegration()`. Dispatches dropped if "tealium" purpose is blocked.
+`ConsentDecision` with `.implicit`/`.explicit` type and `purposes: Set<String>`. CMP integration is via the public `CMPAdapter` protocol, registered with `TealiumConfig.enableConsentIntegration(with:forcingConfiguration:)`.
+
+**Not public in GA:** `enableConsentIntegration` is internal in 0.7.0 ("Returns in a later release"), so customers can't configure a CMP. As a result `consentManager` is `nil`, the consent gates in the Event Pipeline always pass, `applyConsent` never runs, and a `consent` section in local or remote settings is ignored with a single log (`ConsentIntegrationManager.logIgnoredConsentSettings`). The implementation (`ConsentIntegrationManager`, consent queue, refire) stays in the codebase and under test.
 
 ### Session Management
 `Session` tracks `status` (started/resumed/ended), `sessionId`, `lastEventTimeMilliseconds`, `eventCount`. `SessionManager` updates on each `track()` call.

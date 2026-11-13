@@ -12,6 +12,9 @@ import Foundation
 ///
 /// These errors represent validation failures and missing required parameters.
 /// All errors provide descriptive messages for centralized logging in dispatchers.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum CommandError: ErrorEnum, ErrorWrapping {
 
     // MARK: - Missing Parameters

@@ -13,6 +13,9 @@ import TealiumPrismCore
 
 /// Defines how a persisted value should behave when a value already exists at the destination.
 /// Use this to control whether a new value can overwrite an existing one.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum UpdatePolicy: String, Equatable {
     /// Subsequent persist operations are allowed to overwrite any existing value
     /// at the destination with the latest value.

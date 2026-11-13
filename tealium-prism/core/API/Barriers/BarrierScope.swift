@@ -15,6 +15,9 @@
 /// A `Barrier` scoped to `all` will be checked for its state for every dispatcher before dispatching events to it.
 /// A `Barrier` scoped to `dispatchers` will only be checked for its state before dispatching events to
 /// the dispatchers identified by the provided `dispatcherIds`.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum BarrierScope: Equatable {
 
     /// Applies to all dispatchers.
