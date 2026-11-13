@@ -1510,9 +1510,13 @@
 		9E36A23A2EC6A67A00DA1EE7 /* ContextAPITests_tvOS.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 9E36A2232EC6A67A00DA1EE7 /* ContextAPITests_tvOS.xctestplan */; };
 		9E36A23B2EC6A67A00DA1EE7 /* ContextAPITests_watchOS.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 9E36A2242EC6A67A00DA1EE7 /* ContextAPITests_watchOS.xctestplan */; };
 		9E36A23C2EC6A67A00DA1EE7 /* ContextAPITests_macOS.xctestplan in Resources */ = {isa = PBXBuildFile; fileRef = 9E36A2222EC6A67A00DA1EE7 /* ContextAPITests_macOS.xctestplan */; };
+		AA0000022F75E15D00DF0501 /* CommandErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000012F75E15D00DF0501 /* CommandErrorTests.swift */; };
 		9E47A8712F75E15D00DF0501 /* SyncCommandTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E47A86F2F75E15D00DF0501 /* SyncCommandTests.swift */; };
+		AA0000032F75E15D00DF0501 /* CommandErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000012F75E15D00DF0501 /* CommandErrorTests.swift */; };
 		9E47A8732F75E15D00DF0501 /* SyncCommandTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E47A86F2F75E15D00DF0501 /* SyncCommandTests.swift */; };
+		AA0000042F75E15D00DF0501 /* CommandErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000012F75E15D00DF0501 /* CommandErrorTests.swift */; };
 		9E47A8752F75E15D00DF0501 /* SyncCommandTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E47A86F2F75E15D00DF0501 /* SyncCommandTests.swift */; };
+		AA0000052F75E15D00DF0501 /* CommandErrorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = AA0000012F75E15D00DF0501 /* CommandErrorTests.swift */; };
 		9E47A8772F75E15D00DF0501 /* SyncCommandTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E47A86F2F75E15D00DF0501 /* SyncCommandTests.swift */; };
 		9E47A87E2F75E22D00DF0501 /* MockAsyncCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E47A87D2F75E22D00DF0501 /* MockAsyncCommand.swift */; };
 		9E47A87F2F75E22D00DF0501 /* MockAsyncCommand.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9E47A87D2F75E22D00DF0501 /* MockAsyncCommand.swift */; };
@@ -2819,6 +2823,7 @@
 		9E36A2222EC6A67A00DA1EE7 /* ContextAPITests_macOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = ContextAPITests_macOS.xctestplan; sourceTree = "<group>"; };
 		9E36A2232EC6A67A00DA1EE7 /* ContextAPITests_tvOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = ContextAPITests_tvOS.xctestplan; sourceTree = "<group>"; };
 		9E36A2242EC6A67A00DA1EE7 /* ContextAPITests_watchOS.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = ContextAPITests_watchOS.xctestplan; sourceTree = "<group>"; };
+		AA0000012F75E15D00DF0501 /* CommandErrorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandErrorTests.swift; sourceTree = "<group>"; };
 		9E47A86F2F75E15D00DF0501 /* SyncCommandTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SyncCommandTests.swift; sourceTree = "<group>"; };
 		9E47A87D2F75E22D00DF0501 /* MockAsyncCommand.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockAsyncCommand.swift; sourceTree = "<group>"; };
 		9E9BBB5C2F6C5C0500171995 /* Dispatch+CommandsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dispatch+CommandsTests.swift"; sourceTree = "<group>"; };
@@ -3888,6 +3893,7 @@
 			children = (
 				9EA6EAD52F76C1F20089955B /* CommandDispatcherTests.swift */,
 				9E47A87D2F75E22D00DF0501 /* MockAsyncCommand.swift */,
+				AA0000012F75E15D00DF0501 /* CommandErrorTests.swift */,
 				9E47A86F2F75E15D00DF0501 /* SyncCommandTests.swift */,
 				9EA9B26A2F71A51B008CA1C6 /* CommandRegistryTests.swift */,
 				9EA9B26B2F71A51B008CA1C6 /* MockSyncCommand.swift */,
@@ -7303,6 +7309,7 @@
 				1532E7D92B1F49A70071327A /* Operators+TakeWhileTests.swift in Sources */,
 				EC8CF8ED2F3CCFCB00812410 /* LenientConvertersTests.swift in Sources */,
 				EC7FDCFC2F115F5F008A4D45 /* ConnectivityBarrierSettingsBuilderTests.swift in Sources */,
+				AA0000052F75E15D00DF0501 /* CommandErrorTests.swift in Sources */,
 				9E47A8772F75E15D00DF0501 /* SyncCommandTests.swift in Sources */,
 				EC7FDCFD2F115F5F008A4D45 /* BarrierSettingsBuilderTests.swift in Sources */,
 				EC7FDCFE2F115F5F008A4D45 /* BarrierFactoryTests.swift in Sources */,
@@ -8083,6 +8090,7 @@
 				EC7BFE8A2F1551A100584B42 /* BarrierRegistryTests.swift in Sources */,
 				87AC5FD72ED9EE9C00F189DC /* DataItemFormatterTests.swift in Sources */,
 				87A409232E97F06E005D92CC /* InterceptorManagerTests.swift in Sources */,
+				AA0000022F75E15D00DF0501 /* CommandErrorTests.swift in Sources */,
 				9E47A8712F75E15D00DF0501 /* SyncCommandTests.swift in Sources */,
 				EC6248FB2EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift in Sources */,
 				ECBCF9DB2ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift in Sources */,
@@ -8667,6 +8675,7 @@
 				EC7BFE892F1551A100584B42 /* BarrierRegistryTests.swift in Sources */,
 				87AC5FD82ED9EE9C00F189DC /* DataItemFormatterTests.swift in Sources */,
 				87EE77022D78791500BB1D77 /* Condition+NotStartsWithTests.swift in Sources */,
+				AA0000032F75E15D00DF0501 /* CommandErrorTests.swift in Sources */,
 				9E47A8732F75E15D00DF0501 /* SyncCommandTests.swift in Sources */,
 				EC6248FC2EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift in Sources */,
 				ECBCF9DA2ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift in Sources */,
@@ -8962,6 +8971,7 @@
 				EC7BFE872F1551A100584B42 /* BarrierRegistryTests.swift in Sources */,
 				87AC5FD92ED9EE9C00F189DC /* DataItemFormatterTests.swift in Sources */,
 				87BA6E062C6A47AF00784784 /* DeinitTester.swift in Sources */,
+				AA0000042F75E15D00DF0501 /* CommandErrorTests.swift in Sources */,
 				9E47A8752F75E15D00DF0501 /* SyncCommandTests.swift in Sources */,
 				EC6248F92EDA18F3006ACAA6 /* TraceSettingsBuilderTests.swift in Sources */,
 				ECBCF9DC2ED9AB070006EEE0 /* TraceModuleConfigurationTests.swift in Sources */,

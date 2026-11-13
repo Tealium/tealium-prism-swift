@@ -22,6 +22,12 @@ public enum CommandError: ErrorEnum, ErrorWrapping {
     /// Required parameter exists but has invalid type.
     case invalidParameterType(parameter: String, expectedType: String)
 
+    /// Parameter has the right type but its value is not acceptable.
+    ///
+    /// `reason` states what is accepted (for example `expected one of granted, denied`) and must not
+    /// include the received value: command errors are logged and values can be personal data.
+    case invalidParameterValue(parameter: String, reason: String)
+
     /// Required parameter is empty when non-empty value expected.
     case emptyParameter(String)
 
@@ -35,7 +41,9 @@ public enum CommandError: ErrorEnum, ErrorWrapping {
 
     // MARK: - Validation Errors
 
-    /// No valid parameters found when at least one expected.
+    /// None of the payload's parameters were usable by the command.
+    ///
+    /// When `expected` is not empty, its entries are listed in the message.
     case noValidParameters(expected: [String])
 
     // MARK: - Command Registry Errors
@@ -59,6 +67,9 @@ public enum CommandError: ErrorEnum, ErrorWrapping {
         case let .invalidParameterType(parameter, expectedType):
             return "Invalid type for '\(parameter)' - expected \(expectedType)"
 
+        case let .invalidParameterValue(parameter, reason):
+            return "Invalid value for '\(parameter)' - \(reason)"
+
         case .emptyParameter(let param):
             return "Parameter '\(param)' is empty"
 
@@ -69,6 +80,9 @@ public enum CommandError: ErrorEnum, ErrorWrapping {
             return "Array length mismatch: '\(array1)' has \(count1) items, '\(array2)' has \(count2) items"
 
         case .noValidParameters(let expected):
+            guard !expected.isEmpty else {
+                return "No valid parameter found."
+            }
             return "No valid parameter found. Expected one of: \(expected.map { "'\($0)'" }.joined(separator: ", "))"
 
         case .commandNotFound(let commandName):
