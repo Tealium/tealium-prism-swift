@@ -93,14 +93,21 @@ class DispatchManager: DispatchManagerProtocol {
                 onTrackResult(result)
             } else {
                 // Enqueue the transformed `Dispatch` for the enabled and ready `Dispatcher`s.
-                self.onDispatchers.subscribeOnce { [queueManager] dispatchers in
+                self.onDispatchers.subscribeOnce { [queueManager, logger] dispatchers in
                     let dispatchersIds = dispatchers.map { $0.id }
                     guard !dispatchersIds.isEmpty else {
                         // Storing for no processor at all would drop the dispatch silently.
                         onTrackResult(.dropped(transformed, reason: "No dispatcher is enabled."))
                         return
                     }
-                    queueManager.storeDispatches([transformed], enqueueingFor: dispatchersIds)
+                    do {
+                        try queueManager.storeDispatches([transformed], enqueueingFor: dispatchersIds)
+                    } catch {
+                        logger?.error(category: LogCategory.dispatchManager,
+                                      "Failed to persist dispatch \(transformed.logDescription()) for processors \(dispatchersIds): \(error)")
+                        onTrackResult(.dropped(transformed, reason: "Failed to persist dispatch to the queue."))
+                        return
+                    }
                     onTrackResult(.accepted(transformed, info: "Enqueued for processors: \(dispatchersIds)"))
                 }
             }

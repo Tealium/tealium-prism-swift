@@ -157,7 +157,7 @@ final class TealiumImplementationTests: XCTestCase {
                 .first?.id)
             // Nothing may dequeue the dispatch before the shutdown.
             instance.tracker.dispatchManager.stopDispatchLoop()
-            instance.queueManager.storeDispatches([Dispatch(name: "event")], enqueueingFor: [processor])
+            try instance.queueManager.storeDispatches([Dispatch(name: "event")], enqueueingFor: [processor])
             instance.shutdown()
             XCTAssertEqual(instance.queueManager.peekDispatches(for: processor, limit: nil).count, 1)
         }

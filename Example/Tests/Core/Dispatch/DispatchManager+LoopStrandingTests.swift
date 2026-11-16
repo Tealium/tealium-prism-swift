@@ -68,11 +68,11 @@ final class DispatchManagerLoopStrandingTests: DispatchLoopTestCase {
     // MARK: - Consent
 
     /// The first consent configuration starts a dequeue that closes the `BatchingBarrier` from within itself.
-    func test_batching_barrier_closing_during_the_first_consented_dequeue_does_not_strand_the_dequeued_dispatches() {
+    func test_batching_barrier_closing_during_the_first_consented_dequeue_does_not_strand_the_dequeued_dispatches() throws {
         setUpLoop(dispatchLimit: 10, consent: true) { [batchingBarrier(batchSize: 10)] }
         start()
         publishConsent(nil)
-        store(15)
+        try store(15)
         XCTAssertEqual(inflight, 0, "Nothing is dequeued without a consent configuration")
         expectCompletedDispatches(10)
         publishConsent(Self.consentConfiguration)
@@ -82,7 +82,7 @@ final class DispatchManagerLoopStrandingTests: DispatchLoopTestCase {
 
     /// Removing the consent configuration during a dequeue doesn't strand the dequeued batch,
     /// and the rest is sent once a configuration is published again.
-    func test_consent_configuration_removed_during_a_dequeue_does_not_strand_the_dequeued_dispatches() {
+    func test_consent_configuration_removed_during_a_dequeue_does_not_strand_the_dequeued_dispatches() throws {
         setUpLoop(dispatchLimit: 10, consent: true)
         start()
         publishConsent(Self.consentConfiguration)
@@ -90,7 +90,7 @@ final class DispatchManagerLoopStrandingTests: DispatchLoopTestCase {
             self.publishConsent(nil)
         }
         expectCompletedDispatches(10)
-        store(25)
+        try store(25)
         waitForLongTimeout()
         assertSettled(sent: 10, queued: 15)
         expectCompletedDispatches(15)
@@ -102,14 +102,14 @@ final class DispatchManagerLoopStrandingTests: DispatchLoopTestCase {
     // MARK: - Dispatchers list
 
     /// The batch is still processed by the dispatcher captured when it was requested.
-    func test_dispatchers_reemitted_during_a_dequeue_do_not_strand_the_dequeued_dispatches() {
+    func test_dispatchers_reemitted_during_a_dequeue_do_not_strand_the_dequeued_dispatches() throws {
         setUpLoop(dispatchLimit: 10)
         start()
         onFirstDequeue {
             self.onDispatchers.value = [self.dispatcher]
         }
         expectCompletedDispatches(25)
-        store(25)
+        try store(25)
         waitForLongTimeout()
         assertSettled(sent: 25)
     }
@@ -117,17 +117,17 @@ final class DispatchManagerLoopStrandingTests: DispatchLoopTestCase {
     // MARK: - Stop
 
     /// A `stopDispatchLoop()` issued from within the first dequeue, while the loop is still being set up, leaves it stopped.
-    func test_stopDispatchLoop_from_within_the_first_dequeue_leaves_the_loop_stopped() {
+    func test_stopDispatchLoop_from_within_the_first_dequeue_leaves_the_loop_stopped() throws {
         setUpLoop(dispatchLimit: 10)
         start()
         stop()
-        store(25)
+        try store(25)
         onFirstDequeue {
             self.stop()
         }
         restart()
         drainMainQueue()
-        store(5)
+        try store(5)
         drainMainQueue()
         XCTAssertLessThanOrEqual(sent, 10, "Nothing is dequeued after the first batch")
         XCTAssertEqual(queued, 30, "The stopped loop processes no completion, so nothing is deleted")
@@ -136,10 +136,10 @@ final class DispatchManagerLoopStrandingTests: DispatchLoopTestCase {
     // MARK: - Order
 
     /// A backlog is drained through the async follow-up dequeues without reordering the batches.
-    func test_a_backlog_is_dispatched_in_queue_order() {
+    func test_a_backlog_is_dispatched_in_queue_order() throws {
         setUpLoop(dispatchLimit: 10)
         expectCompletedDispatches(105)
-        store(105)
+        try store(105)
         start()
         waitForLongTimeout()
         assertSettled(sent: 105)
@@ -161,10 +161,10 @@ final class DispatchManagerLoopStrandingTests: DispatchLoopTestCase {
     }
 
     /// The dispatches released when the in-flight threshold is hit and then lowered keep the queue order.
-    func test_dispatches_released_by_the_inflight_threshold_are_dispatched_in_queue_order() {
+    func test_dispatches_released_by_the_inflight_threshold_are_dispatched_in_queue_order() throws {
         setUpLoop(dispatchLimit: 1)
         expectCompletedDispatches(120)
-        store(120)
+        try store(120)
         start()
         waitForLongTimeout()
         assertSettled(sent: 120)
@@ -172,11 +172,11 @@ final class DispatchManagerLoopStrandingTests: DispatchLoopTestCase {
     }
 
     /// The backlog stored before the first consent configuration is dispatched in order once it is published.
-    func test_a_consent_configuration_published_over_a_backlog_dispatches_in_queue_order() {
+    func test_a_consent_configuration_published_over_a_backlog_dispatches_in_queue_order() throws {
         setUpLoop(dispatchLimit: 10, consent: true)
         start()
         publishConsent(nil)
-        store(25)
+        try store(25)
         expectCompletedDispatches(25)
         publishConsent(Self.consentConfiguration)
         waitForLongTimeout()
@@ -185,10 +185,10 @@ final class DispatchManagerLoopStrandingTests: DispatchLoopTestCase {
     }
 
     /// Re-emitting the dispatchers between two dequeues doesn't reorder the rest of the queue.
-    func test_dispatchers_reemitted_between_dequeues_keep_queue_order() {
+    func test_dispatchers_reemitted_between_dequeues_keep_queue_order() throws {
         setUpLoop(dispatchLimit: 10)
         expectCompletedDispatches(25)
-        store(25)
+        try store(25)
         start()
         XCTAssertEqual(inflight, 10, "Only the first batch is dequeued before the main queue runs")
         onDispatchers.value = [dispatcher]
@@ -199,10 +199,10 @@ final class DispatchManagerLoopStrandingTests: DispatchLoopTestCase {
 
     // MARK: - In-flight and dispatchLimit
 
-    func test_the_whole_queue_is_sent_when_dispatchLimit_is_higher_than_the_maximum_inflight() {
+    func test_the_whole_queue_is_sent_when_dispatchLimit_is_higher_than_the_maximum_inflight() throws {
         setUpLoop(dispatchLimit: DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER + 10)
         expectCompletedDispatches(120)
-        store(120)
+        try store(120)
         start()
         waitForLongTimeout()
         assertSettled(sent: 120)
@@ -210,27 +210,27 @@ final class DispatchManagerLoopStrandingTests: DispatchLoopTestCase {
     }
 
     /// A `dispatchLimit` of 0 dequeues one dispatch at a time, without requesting dequeues forever.
-    func test_dispatchLimit_of_zero_dispatches_one_event_at_a_time_without_spinning() {
-        assertDispatchesOneEventAtATimeWithoutSpinning(dispatchLimit: 0)
+    func test_dispatchLimit_of_zero_dispatches_one_event_at_a_time_without_spinning() throws {
+        try assertDispatchesOneEventAtATimeWithoutSpinning(dispatchLimit: 0)
     }
 
     /// A negative `dispatchLimit` is handled as 1.
-    func test_negative_dispatchLimit_dispatches_one_event_at_a_time_without_spinning() {
-        assertDispatchesOneEventAtATimeWithoutSpinning(dispatchLimit: -1)
+    func test_negative_dispatchLimit_dispatches_one_event_at_a_time_without_spinning() throws {
+        try assertDispatchesOneEventAtATimeWithoutSpinning(dispatchLimit: -1)
     }
 
-    func test_the_whole_queue_is_sent_when_dispatchLimit_is_higher_than_the_maximum_inflight_and_enqueued_after_start() {
+    func test_the_whole_queue_is_sent_when_dispatchLimit_is_higher_than_the_maximum_inflight_and_enqueued_after_start() throws {
         setUpLoop(dispatchLimit: DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER + 10)
         expectCompletedDispatches(120)
         start()
-        store(120)
+        try store(120)
         waitForLongTimeout()
         assertSettled(sent: 120)
         XCTAssertEqual(dispatcher.batchSizes, [50, 50, 20])
     }
 
     /// Draining a long backlog must not nest each dequeue inside the previous one.
-    func test_draining_a_long_backlog_does_not_grow_the_stack() {
+    func test_draining_a_long_backlog_does_not_grow_the_stack() throws {
         setUpLoop(dispatchLimit: 1)
         let total = 1000
         expectCompletedDispatches(total)
@@ -239,14 +239,14 @@ final class DispatchManagerLoopStrandingTests: DispatchLoopTestCase {
         queueManager.onDequeueRequest.subscribe { _ in
             maxDepth = max(maxDepth, Thread.callStackReturnAddresses.count)
         }.addTo(disposer)
-        store(total)
+        try store(total)
         start()
         waitForLongTimeout()
         assertSettled(sent: total)
         XCTAssertLessThan(maxDepth, 500)
     }
 
-    private func assertDispatchesOneEventAtATimeWithoutSpinning(dispatchLimit: Int, file: StaticString = #filePath, line: UInt = #line) {
+    private func assertDispatchesOneEventAtATimeWithoutSpinning(dispatchLimit: Int, file: StaticString = #filePath, line: UInt = #line) throws {
         setUpLoop(dispatchLimit: dispatchLimit)
         let disposer = AutomaticDisposer()
         var dequeueRequests = 0
@@ -254,7 +254,7 @@ final class DispatchManagerLoopStrandingTests: DispatchLoopTestCase {
             dequeueRequests += 1
         }.addTo(disposer)
         expectCompletedDispatches(3)
-        store(3)
+        try store(3)
         start()
         waitForLongTimeout()
         drainMainQueue()

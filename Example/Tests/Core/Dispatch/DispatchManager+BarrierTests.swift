@@ -74,17 +74,17 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         wait(for: [eventsAreDequeued, eventsAreDispatched], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
-    func test_pulls_from_the_queue_are_stopped_asynchronously_when_a_barrier_closes() {
+    func test_pulls_from_the_queue_are_stopped_asynchronously_when_a_barrier_closes() throws {
         disableModule(module: module1)
         let eventsAreDequeued = expectation(description: "Events are flushed until queue is empty or limit is reached when a barrier is open. Closing the barrier only stops future flushes")
         eventsAreDequeued.expectedFulfillmentCount = 2
-        queueManager.storeDispatches(createDispatches(amount: 5), enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(createDispatches(amount: 5), enqueueingFor: allDispatchers)
         _ = queueManager.onDequeueRequest.subscribe { _ in
             eventsAreDequeued.fulfill()
         }
         _ = dispatchManager
         barrier.setState(.closed)
-        queueManager.storeDispatches([Dispatch(name: "6")], enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches([Dispatch(name: "6")], enqueueingFor: allDispatchers)
         waitForDefaultTimeout()
     }
 }

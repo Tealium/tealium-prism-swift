@@ -130,7 +130,7 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
         _ = module2.onDispatch.subscribe { _ in
             eventsAreNotDispatched.fulfill()
         }
-        queueManager.storeDispatches(createDispatches(amount: 3), enqueueingFor: [module2.id])
+        try queueManager.storeDispatches(createDispatches(amount: 3), enqueueingFor: [module2.id])
         disableModule(module: module2) // tears down module2's dequeue loop
         barrier.setState(.open) // surviving dispatchers may dequeue; module2 must not
         waitForDefaultTimeout()
@@ -160,7 +160,7 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
             attempts += 1
             if attempts == 1 { dequeued.fulfill() } else { subsequentDequeueLoop.fulfill() }
         }
-        queueManager.storeDispatches(createDispatches(amount: 1), enqueueingFor: [module1.id])
+        try queueManager.storeDispatches(createDispatches(amount: 1), enqueueingFor: [module1.id])
         barrier.setState(.open) // now the surviving loop(s) run: exactly one dequeue attempt is expected
         wait(for: [dequeued, subsequentDequeueLoop], timeout: Self.defaultTimeout)
     }
@@ -187,7 +187,7 @@ final class DispatchManagerDispatchersListTests: DispatchManagerTestCase {
             attempts += 1
             if attempts == 1 { dequeued.fulfill() } else { subsequentDequeueLoop.fulfill() }
         }
-        queueManager.storeDispatches(createDispatches(amount: 1), enqueueingFor: [module1.id])
+        try queueManager.storeDispatches(createDispatches(amount: 1), enqueueingFor: [module1.id])
         barrier.setState(.open) // now the surviving loop(s) run: exactly one dequeue attempt is expected
         wait(for: [dequeued, subsequentDequeueLoop], timeout: Self.defaultTimeout)
     }

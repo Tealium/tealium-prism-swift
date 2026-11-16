@@ -165,12 +165,12 @@ class DispatchLoopTestCase: XCTestCase {
     }
 
     /// Stores `count` consented events in the queue at once.
-    func store(_ count: Int) {
+    func store(_ count: Int) throws {
         let dispatches = (0..<count).map { _ -> Dispatch in
             stored += 1
             return Dispatch(name: "event\(stored)", data: [TealiumDataKey.allConsentedPurposes: ["purpose1"]])
         }
-        queueManager.storeDispatches(dispatches, enqueueingFor: [Self.dispatcherId])
+        try queueManager.storeDispatches(dispatches, enqueueingFor: [Self.dispatcherId])
     }
 
     func publishConsent(_ configuration: ConsentConfiguration?) {

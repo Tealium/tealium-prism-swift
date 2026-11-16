@@ -11,7 +11,7 @@ import XCTest
 
 final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
 
-    func test_events_dropped_by_transformations_are_removed_from_the_queue() {
+    func test_events_dropped_by_transformations_are_removed_from_the_queue() throws {
         let eventsAreDeleted = expectation(description: "Events are deleted")
         let transformerDropsAnEvent = expectation(description: "Transformer drops an event")
         transformers.value = [
@@ -30,7 +30,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
             Dispatch(name: "event_to_keep"),
             Dispatch(name: "event_to_keep")
         ]
-        queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
         _ = queueManager.onDeleteRequest.subscribe { deletedUUIDs, _ in
             if deletedUUIDs.contains(where: { $0 == dispatches.first?.id }) {
                 eventsAreDeleted.fulfill()
@@ -40,7 +40,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_all_events_not_allowed_by_loadRules_are_removed_from_the_queue_without_dispatching() {
+    func test_all_events_not_allowed_by_loadRules_are_removed_from_the_queue_without_dispatching() throws {
         disableModule(module: module1)
         let condition = Condition.endsWith(ignoreCase: false, variable: "tealium_event", suffix: "to_keep")
         _sdkSettings.add(modules: [MockDispatcher2.moduleType: ModuleSettings(moduleType: MockDispatcher2.moduleType,
@@ -57,7 +57,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         module2?.onDispatch.subscribe { _ in
             eventsAreDispatched.fulfill()
         }
-        queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
         _ = queueManager.onDeleteRequest.subscribe { deletedUUIDs, _ in
             if dispatches.map({ $0.id }) == deletedUUIDs {
                 eventsAreDeleted.fulfill()
@@ -67,7 +67,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_events_not_allowed_by_loadRules_are_removed_from_the_queue() {
+    func test_events_not_allowed_by_loadRules_are_removed_from_the_queue() throws {
         let eventsAreDeleted = expectation(description: "Events are deleted")
         disableModule(module: module1)
         let condition = Condition.endsWith(ignoreCase: false, variable: "tealium_event", suffix: "to_keep")
@@ -79,7 +79,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
             Dispatch(name: "event_to_keep"),
             Dispatch(name: "event_to_keep")
         ]
-        queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
         _ = queueManager.onDeleteRequest.subscribe { deletedUUIDs, _ in
             if deletedUUIDs.contains(where: { $0 == dispatches.first?.id }) {
                 eventsAreDeleted.fulfill()
@@ -89,7 +89,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_loadRules_are_checked_after_transformations() {
+    func test_loadRules_are_checked_after_transformations() throws {
         let transformationIsPerformed = expectation(description: "Transformation is performed")
         let condition = Condition.isDefined(variable: "transformed")
         transformers.value = [
@@ -107,12 +107,12 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         let dispatches = [
             Dispatch(name: "Event")
         ]
-        queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
         _ = dispatchManager
         waitForDefaultTimeout()
     }
 
-    func test_events_dropped_by_consent_are_removed_from_the_queue() {
+    func test_events_dropped_by_consent_are_removed_from_the_queue() throws {
         let eventsAreDeleted = expectation(description: "Events are deleted")
         let eventDispatched = expectation(description: "Events should not be dispatched")
         eventDispatched.isInverted = true
@@ -130,7 +130,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         module2?.onDispatch.subscribeOnce { _ in
             eventDispatched.fulfill()
         }
-        queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
         _ = queueManager.onDeleteRequest.subscribe { deletedUUIDs, _ in
             XCTAssertEqual(dispatches.map { $0.id }, deletedUUIDs)
             eventsAreDeleted.fulfill()
@@ -139,7 +139,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_events_accepted_by_consent_are_dispatched_removed_from_the_queue() {
+    func test_events_accepted_by_consent_are_dispatched_removed_from_the_queue() throws {
         let eventsAreDeleted = expectation(description: "Events are deleted")
         let eventDispatched = expectation(description: "Events should be dispatched")
         consentManager = MockConsentManager()
@@ -155,7 +155,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         module2?.onDispatch.subscribeOnce { _ in
             eventDispatched.fulfill()
         }
-        queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
         _ = queueManager.onDeleteRequest.subscribe { deletedUUIDs, _ in
             XCTAssertEqual(dispatches.map { $0.id }, deletedUUIDs)
             eventsAreDeleted.fulfill()
@@ -164,7 +164,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         wait(for: [eventDispatched, eventsAreDeleted], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
-    func test_mixed_consent_batch_deletes_both_accepted_and_rejected_events() {
+    func test_mixed_consent_batch_deletes_both_accepted_and_rejected_events() throws {
         let allEventsAreDeleted = expectation(description: "All events are deleted from the queue")
         allEventsAreDeleted.expectedFulfillmentCount = 3
         consentManager = MockConsentManager()
@@ -176,7 +176,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         let rejected1 = Dispatch(name: "rejected_event")
         let rejected2 = Dispatch(name: "rejected_event")
         let dispatches = [accepted, rejected1, rejected2]
-        queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
         _ = queueManager.onDeleteRequest.subscribe { deletedUUIDs, _ in
             for id in deletedUUIDs where dispatches.map({ $0.id }).contains(id) {
                 allEventsAreDeleted.fulfill()
@@ -186,7 +186,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_events_are_not_dequeued_if_consent_enabled_but_configuration_not_present() {
+    func test_events_are_not_dequeued_if_consent_enabled_but_configuration_not_present() throws {
         let eventsAreDeleted = expectation(description: "Events should not be deleted")
         eventsAreDeleted.isInverted = true
         let eventDispatched = expectation(description: "Events should not be dispatched")
@@ -202,7 +202,7 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         module2?.onDispatch.subscribeOnce { _ in
             eventDispatched.fulfill()
         }
-        queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: allDispatchers)
         _ = queueManager.onInflightDispatchesCount(for: MockDispatcher2.moduleType)
             .subscribe { count in
                 XCTAssertEqual(count, 0)

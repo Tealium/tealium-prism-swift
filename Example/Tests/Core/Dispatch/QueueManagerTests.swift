@@ -65,10 +65,10 @@ final class QueueManagerTests: XCTestCase {
         XCTAssertEqual(queueRepository.getQueuedDispatches(for: modulesIds[1], limit: nil).count, 1)
     }
 
-    func test_storeDispatches_stores_a_dispatch_per_each_processor() {
+    func test_storeDispatches_stores_a_dispatch_per_each_processor() throws {
         let dispatch = Dispatch(name: "event_name")
         let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches([dispatch], enqueueingFor: modulesNames)
+        try queueManager.storeDispatches([dispatch], enqueueingFor: modulesNames)
         let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 1)
         XCTAssertEqual(dispatches1[0].id, dispatch.id)
@@ -77,10 +77,10 @@ final class QueueManagerTests: XCTestCase {
         XCTAssertEqual(dispatches2[0].id, dispatch.id)
     }
 
-    func test_storeDispatches_stores_multiple_dispatches_per_each_processor() {
+    func test_storeDispatches_stores_multiple_dispatches_per_each_processor() throws {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertEqual(dispatches1[0].id, dispatches[0].id)
@@ -91,10 +91,10 @@ final class QueueManagerTests: XCTestCase {
         XCTAssertEqual(dispatches2[1].id, dispatches[1].id)
     }
 
-    func test_storeDispatches_stores_multiple_dispatches_only_for_specified_processor() {
+    func test_storeDispatches_stores_multiple_dispatches_only_for_specified_processor() throws {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: [modulesNames[0]])
+        try queueManager.storeDispatches(dispatches, enqueueingFor: [modulesNames[0]])
         let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertEqual(dispatches1[0].id, dispatches[0].id)
@@ -103,58 +103,72 @@ final class QueueManagerTests: XCTestCase {
         XCTAssertEqual(dispatches2.count, 0)
     }
 
-    func test_storeDispatches_emits_onEnqueueEvents() {
+    func test_storeDispatches_throws_and_does_not_emit_onEnqueueEvents_when_the_repository_fails() {
+        let failingManager = QueueManager(processors: TealiumImpl.queueProcessors(from: modules.map { $0.compactMap { $0 as? Dispatcher } }, addingConsent: true),
+                                          queueRepository: FailingQueueRepository(dbProvider: dbProvider,
+                                                                                  maxQueueSize: coreSettings.value.maxQueueSize,
+                                                                                  expiration: coreSettings.value.queueExpiration),
+                                          coreSettings: coreSettings,
+                                          logger: nil)
+        failingManager.onEnqueuedDispatchesForProcessors.subscribeOnce { _ in
+            XCTFail("onEnqueuedDispatchesForProcessors should not emit when the store fails")
+        }
+        XCTAssertThrowsError(try failingManager.storeDispatches([Dispatch(name: "event_name1")],
+                                                                enqueueingFor: modules.value.map { $0.id }))
+    }
+
+    func test_storeDispatches_emits_onEnqueueEvents() throws {
         let enqueuedEvents = expectation(description: "EvenqueuedEvents emitted")
         queueManager.onEnqueuedDispatchesForProcessors.subscribeOnce { _ in
             enqueuedEvents.fulfill()
         }
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         waitForDefaultTimeout()
     }
 
-    func test_storeDispatches_fails_with_duplicated_dispatch_only_inserts_one() {
+    func test_storeDispatches_fails_with_duplicated_dispatch_only_inserts_one() throws {
         let dispatch = Dispatch(name: "event_name")
         let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches([dispatch, dispatch], enqueueingFor: modulesNames)
+        try queueManager.storeDispatches([dispatch, dispatch], enqueueingFor: modulesNames)
         let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 1)
     }
 
-    func test_dequeueDispatches_returns_events_for_processor() {
+    func test_dequeueDispatches_returns_events_for_processor() throws {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertEqual(dispatches1[0].id, dispatches[0].id)
         XCTAssertEqual(dispatches1[1].id, dispatches[1].id)
     }
 
-    func test_dequeueDispatches_with_limit_returns_limited_number_of_events_for_processor() {
+    func test_dequeueDispatches_with_limit_returns_limited_number_of_events_for_processor() throws {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: 2)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertEqual(dispatches1[0].id, dispatches[0].id)
         XCTAssertEqual(dispatches1[1].id, dispatches[1].id)
     }
 
-    func test_dequeueDispatches_puts_events_in_the_inflight_for_that_processor() {
+    func test_dequeueDispatches_puts_events_in_the_inflight_for_that_processor() throws {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[0]], Set(dispatches1.map { $0.id }))
     }
 
-    func test_dequeueDispatches_adds_events_in_the_inflight_for_that_processor() {
+    func test_dequeueDispatches_adds_events_in_the_inflight_for_that_processor() throws {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.dequeueDispatches(for: modulesNames[0], limit: 2)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[0]]?.count, 2)
@@ -163,30 +177,30 @@ final class QueueManagerTests: XCTestCase {
         XCTAssertEqual(queueManager.inflightEvents.value[modulesNames[0]]?.count, 3)
     }
 
-    func test_peekDispatches_returns_events_for_processor() {
+    func test_peekDispatches_returns_events_for_processor() throws {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.peekDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertEqual(dispatches1[0].id, dispatches[0].id)
         XCTAssertEqual(dispatches1[1].id, dispatches[1].id)
     }
 
-    func test_peekDispatches_with_limit_returns_limited_number_of_events_for_processor() {
+    func test_peekDispatches_with_limit_returns_limited_number_of_events_for_processor() throws {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.peekDispatches(for: modulesNames[0], limit: 2)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertEqual(dispatches1[0].id, dispatches[0].id)
         XCTAssertEqual(dispatches1[1].id, dispatches[1].id)
     }
 
-    func test_peekDispatches_doesnt_put_events_in_the_inflight_for_that_processor() {
+    func test_peekDispatches_doesnt_put_events_in_the_inflight_for_that_processor() throws {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2")]
         let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let dispatches1 = queueManager.peekDispatches(for: modulesNames[0], limit: nil)
         XCTAssertEqual(dispatches1.count, 2)
         XCTAssertNil(queueManager.inflightEvents.value[modulesNames[0]])
@@ -208,10 +222,10 @@ final class QueueManagerTests: XCTestCase {
         XCTAssertEqual(queueRepository.maxQueueSize, queueSize)
     }
 
-    func test_coreSettings_change_causes_onDeletedDispatchesForProcessors_emission() {
+    func test_coreSettings_change_causes_onDeletedDispatchesForProcessors_emission() throws {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         let deletedExpectation = expectation(description: "Deleted dispatches emitted")
         queueManager.onDeletedDispatchesForProcessors.subscribeOnce { _ in
             deletedExpectation.fulfill()
@@ -220,12 +234,12 @@ final class QueueManagerTests: XCTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_onQueueSizePendingDispatch_returns_correct_count() {
+    func test_onQueueSizePendingDispatch_returns_correct_count() throws {
         let dispatches = [Dispatch(name: "event_name1"), Dispatch(name: "event_name2"), Dispatch(name: "event_name3")]
         let modulesNames = modules.value.map { $0.id }
         let pendingCountExpectation = expectation(description: "pendingCount is 3")
         let pendingCountAfterDeleteExpectation = expectation(description: "pendingCountAfterDelete is 2")
-        queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
+        try queueManager.storeDispatches(dispatches, enqueueingFor: modulesNames)
         queueManager.onQueueSizePendingDispatch(for: modulesNames[0]).subscribeOnce { value in
             if value == 3 {
                 pendingCountExpectation.fulfill()

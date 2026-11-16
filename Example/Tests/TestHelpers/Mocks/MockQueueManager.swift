@@ -27,13 +27,22 @@ class MockQueueManager: QueueManager {
     override func storeDispatches(
         _ dispatches: [Dispatch],
         enqueueingFor processors: [String]
-    ) {
+    ) throws {
         _onStoreRequest.onNext((dispatches, processors))
-        super.storeDispatches(dispatches, enqueueingFor: processors)
+        try super.storeDispatches(dispatches, enqueueingFor: processors)
     }
 
     override func deleteAllDispatches(for processor: String) {
         _onDeleteAllRequest.onNext(processor)
         super.deleteAllDispatches(for: processor)
+    }
+}
+
+/// A `QueueRepository` whose inserts always fail, to exercise the error paths of the queue consumers.
+class FailingQueueRepository: SQLQueueRepository {
+    struct StoreError: Error {}
+
+    override func storeDispatches(_ dispatches: [Dispatch], enqueueingFor processors: [String]) throws {
+        throw StoreError()
     }
 }

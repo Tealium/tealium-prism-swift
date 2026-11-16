@@ -9,7 +9,7 @@
 import Foundation
 
 /// A manager that stores `Dispatch`es in separate queues per each `processor` and keeps track of the one that are currently inflight.
-public protocol QueueManagerProtocol: QueueMetrics {
+protocol QueueManagerProtocol: QueueMetrics {
     /// Observable that emits an event with the `processor`s for which a `Dispatch` is enqueued.
     var onEnqueuedDispatchesForProcessors: Observable<Set<String>> { get }
 
@@ -49,8 +49,9 @@ public protocol QueueManagerProtocol: QueueMetrics {
      * - Parameters:
      *   - dispatches: The `Dispatch`es that will be stored in the queues
      *   - processors: The `processor`s for which to store the dispatches in the queue.
+     * - Throws: The error from the queue repository when the `Dispatch`es could not be persisted. In that case nothing was enqueued and `onEnqueuedDispatchesForProcessors` did not emit.
      */
-    func storeDispatches(_ dispatches: [Dispatch], enqueueingFor processors: [String])
+    func storeDispatches(_ dispatches: [Dispatch], enqueueingFor processors: [String]) throws
 
     /**
      * Deletes the provided `Dispatches` from the queue and from the list of inflight for the given `processor`.
