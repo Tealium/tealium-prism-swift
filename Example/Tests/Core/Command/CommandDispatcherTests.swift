@@ -86,7 +86,7 @@ final class CommandDispatcherTests: XCTestCase {
     }
 
     func test_dispatch_command_error_continues_to_next_command() {
-        let failingCommand = MockSyncCommand(name: "fail", errorToThrow: .missingParameter("p"))
+        let failingCommand = MockSyncCommand(name: "fail", errorToThrow: .invalidPayload(.missing(key: "p")))
         let successCommand = MockSyncCommand(name: "ok")
         let dispatcher = CommandDispatcher(
             id: "test", version: "1.0", commands: [failingCommand, successCommand], logCategory: "test", queue: queue, logger: nil

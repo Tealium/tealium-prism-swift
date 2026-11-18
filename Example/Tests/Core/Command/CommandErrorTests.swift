@@ -10,10 +10,56 @@ import XCTest
 
 final class CommandErrorTests: XCTestCase {
 
-    func test_invalidParameterValue_message_includes_parameter_and_reason() {
-        let error = CommandError.invalidParameterValue(parameter: "gender", reason: "expected one of m, f")
+    func test_invalidPayload_missing_message_includes_key() {
+        let error = CommandError.invalidPayload(.missing(key: "gender"))
+
+        XCTAssertEqual(error.message, "Missing required value for 'gender'")
+    }
+
+    func test_invalidPayload_typeMismatch_message_includes_key_and_expected_type() {
+        let error = CommandError.invalidPayload(.typeMismatch(key: "age", expectedType: "Int"))
+
+        XCTAssertEqual(error.message, "Invalid type for 'age' - expected Int")
+    }
+
+    func test_invalidPayload_invalidValue_message_includes_key_and_reason() {
+        let error = CommandError.invalidPayload(.invalidValue(key: "gender", reason: "expected one of m, f"))
 
         XCTAssertEqual(error.message, "Invalid value for 'gender' - expected one of m, f")
+    }
+
+    func test_invalidPayload_empty_message_includes_key() {
+        let error = CommandError.invalidPayload(.empty(key: "name"))
+
+        XCTAssertEqual(error.message, "Empty value for 'name'")
+    }
+
+    @available(*, deprecated)
+    func test_missingParameter_message_includes_parameter() {
+        let error = CommandError.missingParameter("name")
+
+        XCTAssertEqual(error.message, "Missing required parameter 'name'")
+    }
+
+    @available(*, deprecated)
+    func test_invalidParameterType_message_includes_parameter_and_expected_type() {
+        let error = CommandError.invalidParameterType(parameter: "age", expectedType: "Int")
+
+        XCTAssertEqual(error.message, "Invalid type for 'age' - expected Int")
+    }
+
+    @available(*, deprecated)
+    func test_emptyParameter_message_includes_parameter() {
+        let error = CommandError.emptyParameter("name")
+
+        XCTAssertEqual(error.message, "Parameter 'name' is empty")
+    }
+
+    @available(*, deprecated)
+    func test_emptyArray_message_includes_parameter() {
+        let error = CommandError.emptyArray("items")
+
+        XCTAssertEqual(error.message, "Array 'items' is empty")
     }
 
     func test_noValidParameters_message_lists_expected_parameters() {

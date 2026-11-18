@@ -20,7 +20,11 @@ public protocol Command {
     ///
     /// - Parameters:
     ///   - payload: The data to process.
-    ///   - completion: Called exactly once with `nil` on success or a `CommandError` on failure.
+    ///   - completion: Called exactly once with `nil` on success or the error on failure.
+    ///   When the SDK runs the command, the error is reported as a `CommandError`:
+    ///   a `CommandError` as is, an `ExtractionError` as `CommandError.invalidPayload`,
+    ///   and anything else as `CommandError.underlyingError`.
+    ///   A command can therefore call the `DataItemExtractor` helpers and complete with whatever they throw.
     /// - Returns: A `Disposable` that cancels in-progress async work when disposed.
-    func execute(payload: DataObject, completion: @escaping (CommandError?) -> Void) -> any Disposable
+    func execute(payload: DataObject, completion: @escaping (Error?) -> Void) -> any Disposable
 }

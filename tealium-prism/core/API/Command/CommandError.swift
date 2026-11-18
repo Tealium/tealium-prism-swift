@@ -17,26 +17,29 @@ import Foundation
 #endif
 public enum CommandError: ErrorEnum, ErrorWrapping {
 
+    // MARK: - Payload Errors
+
+    /// A payload parameter could not be read. The message is the wrapped error's message.
+    case invalidPayload(_ error: ExtractionError)
+
     // MARK: - Missing Parameters
 
     /// Required parameter is missing from payload.
+    @available(*, deprecated, message: "Deprecated, will be removed in a future version. Use invalidPayload(.missing(key:)) instead.")
     case missingParameter(String)
 
     /// Required parameter exists but has invalid type.
+    @available(*, deprecated, message: "Deprecated, will be removed in a future version. Use invalidPayload(.typeMismatch(key:expectedType:)) instead.")
     case invalidParameterType(parameter: String, expectedType: String)
 
-    /// Parameter has the right type but its value is not acceptable.
-    ///
-    /// `reason` states what is accepted (for example `expected one of granted, denied`) and must not
-    /// include the received value: command errors are logged and values can be personal data.
-    case invalidParameterValue(parameter: String, reason: String)
-
     /// Required parameter is empty when non-empty value expected.
+    @available(*, deprecated, message: "Deprecated, will be removed in a future version. Use invalidPayload(.empty(key:)) instead.")
     case emptyParameter(String)
 
     // MARK: - Array Parameter Errors
 
     /// Array parameter is empty when non-empty expected.
+    @available(*, deprecated, message: "Deprecated, will be removed in a future version. Use invalidPayload(.empty(key:)) instead.")
     case emptyArray(String)
 
     /// Multiple arrays have mismatched lengths.
@@ -54,9 +57,9 @@ public enum CommandError: ErrorEnum, ErrorWrapping {
     /// Command with the specified name was not found in registry.
     case commandNotFound(String)
 
-    // MARK: - Vendor-Specific Errors
+    // MARK: - Other Errors
 
-    /// A vendor-specific command error that doesn't fit the generic cases above.
+    /// Any other error a command fails with, such as an error from a vendor SDK.
     case underlyingError(_ error: Error)
 
     // MARK: - Error Description
@@ -64,14 +67,14 @@ public enum CommandError: ErrorEnum, ErrorWrapping {
     /// Detailed description of the error for logging purposes.
     public var message: String {
         switch self {
+        case .invalidPayload(let error):
+            return error.message
+
         case .missingParameter(let param):
             return "Missing required parameter '\(param)'"
 
         case let .invalidParameterType(parameter, expectedType):
             return "Invalid type for '\(parameter)' - expected \(expectedType)"
-
-        case let .invalidParameterValue(parameter, reason):
-            return "Invalid value for '\(parameter)' - \(reason)"
 
         case .emptyParameter(let param):
             return "Parameter '\(param)' is empty"
