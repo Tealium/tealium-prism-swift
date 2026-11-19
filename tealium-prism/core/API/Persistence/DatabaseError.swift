@@ -19,4 +19,12 @@ public enum DatabaseError: ErrorEnum, ErrorWrapping {
     case unsupportedDowngrade
     /// A database operation failed due to an underlying error.
     case underlyingError(_ error: Error)
+    /// The connection was closed because a statement found the database corrupt, and this operation ran nothing. `cause` is the
+    /// error that statement threw, for diagnostics only: its type is not API.
+    ///
+    /// Storage stays unavailable for this `Tealium` instance. Once it is shut down, a new instance opens a new database file.
+    ///
+    /// [`Tealium.create(config:completion:)`](doc:Tealium/create(config:completion:)) fails with the corruption error itself, not with this one, when the statement that finds the corruption is
+    /// one it throws from (for example, while registering a module's store).
+    case connectionClosed(cause: Error)
 }

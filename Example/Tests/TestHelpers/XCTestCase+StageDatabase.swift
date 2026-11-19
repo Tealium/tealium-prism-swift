@@ -11,13 +11,23 @@ import SQLite3
 @testable import TealiumPrism
 import XCTest
 
-// Swift doesn't import these extended result codes (composite macros in sqlite3.h), so they are defined here as the header does.
-let SQLITE_IOERR_READ = SQLITE_IOERR | (1 << 8)
-let SQLITE_CORRUPT_VTAB = SQLITE_CORRUPT | (1 << 8)
-let SQLITE_CORRUPT_SEQUENCE = SQLITE_CORRUPT | (2 << 8)
-let SQLITE_CORRUPT_INDEX = SQLITE_CORRUPT | (3 << 8)
+/// Thrown when a test's setup can't be staged: the test fails at its call, with `description`.
+struct StagingError: Error, CustomStringConvertible {
+    let description: String
+
+    init(_ description: String) {
+        self.description = description
+    }
+}
 
 extension XCTestCase {
+    /// Stops staging, failing the test, if a file already exists at `path`.
+    func requireNoFile(atPath path: String) throws {
+        guard !FileManager.default.fileExists(atPath: path) else {
+            throw StagingError("A file already exists at \(path): clean it up before staging")
+        }
+    }
+
     /// Stages a version 1 database file for `config` holding one `module` row named "marker", and closes it.
     ///
     /// The file is built from the frozen version-1 DDL (`FrozenSchemas.v1`), as 0.5.0 wrote it (rollback journal; 0.5.0 predates WAL),
@@ -33,14 +43,7 @@ extension XCTestCase {
                                rows: [StoredRow] = []) throws -> String {
         let databaseUrl = try XCTUnwrap(config.databaseUrl(), "The config needs a databaseName to stage a file")
         let statements = try XCTUnwrap(FrozenSchemas.createStatements(for: 1), "No frozen version-1 schema")
-        guard !FileManager.default.fileExists(atPath: databaseUrl.path) else {
-            struct StagingError: Error, CustomStringConvertible {
-                let description: String
-            }
-            let error = StagingError(description: "A database file already exists at \(databaseUrl.path): clean it up before staging")
-            XCTFail("\(error)")
-            throw error
-        }
+        try requireNoFile(atPath: databaseUrl.path)
         var staged: Connection? = try Connection(databaseUrl.path)
         for statement in statements {
             try staged?.run(statement)
@@ -79,6 +82,101 @@ extension XCTestCase {
         let pageSize = try Self.pageSize(of: handle)
         try handle.seek(toOffset: UInt64((number - 1) * pageSize))
         handle.write(Data(repeating: 0xFF, count: pageSize))
+    }
+
+    /// Overwrites the last 4 KB of the database file at `path` with pseudo-random bytes, as damage to the end of the file after the
+    /// process is killed. The sequence is fixed, so every run damages the file the same way.
+    ///
+    /// Same conditions as `corruptSchemaPage(atPath:)`.
+    private func overwriteTail(ofDatabaseAt path: String) throws {
+        let handle = try XCTUnwrap(FileHandle(forUpdatingAtPath: path), "Could not open \(path) to corrupt it")
+        defer { try? handle.close() }
+        let size = try handle.seekToEnd()
+        let count = min(4096, size)
+        var state: UInt64 = 0x9E37_79B9_7F4A_7C15
+        let bytes = (0..<count).map { _ -> UInt8 in
+            // xorshift64
+            state ^= state << 13
+            state ^= state >> 7
+            state ^= state << 17
+            return UInt8(truncatingIfNeeded: state)
+        }
+        try handle.seek(toOffset: size - count)
+        handle.write(Data(bytes))
+    }
+
+    /// Creates the database file for `config` through `DatabaseProvider`, lets `write` fill it, then overwrites every page but the
+    /// schema page, and returns a provider on the file again, which deletes it when a statement finds it corrupt.
+    ///
+    /// Statements on the returned provider compile, as the schema is intact, but fail as soon as they read a row. No file may exist
+    /// at the path yet.
+    func providerWithUnreadableRows(in config: TealiumConfig, writing write: (DatabaseProviderProtocol) throws -> Void) throws -> DatabaseProvider {
+        let url = try XCTUnwrap(config.databaseUrl(), "The config needs a databaseName to stage a file")
+        try requireNoFile(atPath: url.path)
+        do {
+            // Released at the end of the scope, so the connection closes and folds the -wal back into the file.
+            try write(try DatabaseProvider(config: config))
+        }
+        let pageCount = try pageCount(ofDatabaseAt: url.path)
+        guard pageCount > 1 else {
+            throw StagingError("Nothing but the schema was written to \(url.path)")
+        }
+        for page in stride(from: 2, through: pageCount, by: 1) {
+            try corruptPage(page, atPath: url.path)
+        }
+        return DatabaseProvider(connection: try Connection(url.path), helper: DatabaseHelper(databaseUrl: url, logger: nil), logger: nil)
+    }
+
+    /// Runs `statement` on a provider over a file staged by `write` whose rows are unreadable, and asserts that it deletes the file.
+    /// Each call stages its own file, as after the first corruption every statement fails fast without running.
+    func assertStatementDeletesUnreadableFile(writing write: (DatabaseProviderProtocol) throws -> Void,
+                                              message: String = "",
+                                              _ statement: (DatabaseProviderProtocol) throws -> Void,
+                                              file: StaticString = #filePath, line: UInt = #line) throws {
+        let config = fileDatabaseConfig()
+        try removeAccountFolderNowAndAtTeardown(account: config.account)
+        let path = try XCTUnwrap(config.databaseUrl()).path
+        let provider = try providerWithUnreadableRows(in: config, writing: write)
+        XCTAssertTrue(FileManager.default.fileExists(atPath: path), message, file: file, line: line)
+        try statement(provider)
+        XCTAssertFalse(FileManager.default.fileExists(atPath: path), "The file was not deleted. \(message)", file: file, line: line)
+    }
+
+    /// Stores 500 dispatches in `config`'s database file, then damages its tail, as after the process is killed while writing.
+    ///
+    /// - Returns: the path of the file.
+    @discardableResult
+    func stageQueuedDispatchesWithDamagedTail(config: TealiumConfig) throws -> String {
+        let path = try XCTUnwrap(config.databaseUrl(), "The config needs a databaseName to stage a file").path
+        do {
+            // Released at the end of the scope, so the connection closes and folds the -wal back into the file.
+            let repository = SQLQueueRepository(dbProvider: try DatabaseProvider(config: config), maxQueueSize: 500, expiration: 1.days)
+            try repository.storeDispatches((1...500).map { Dispatch(name: "queued_\($0)") }, enqueueingFor: [MockDispatcher.moduleType])
+        }
+        try overwriteTail(ofDatabaseAt: path)
+        return path
+    }
+
+    /// Creates the database file for `config` and leaves a -journal, -wal and -shm next to it, filled with garbage. Returns the paths of
+    /// the database file and of the three sidecars.
+    func stageDatabaseFileWithSidecars(config: TealiumConfig) throws -> (database: String, sidecars: [String]) {
+        _ = try DatabaseProvider.openDatabase(config: config)
+        let databasePath = try XCTUnwrap(config.databaseUrl(), "The config needs a databaseName").path
+        let sidecars = Array(databaseFiles(atPath: databasePath).dropFirst())
+        for sidecar in sidecars {
+            guard FileManager.default.createFile(atPath: sidecar, contents: Data(repeating: 0x42, count: 4096)) else {
+                throw StagingError("Could not create \(sidecar)")
+            }
+        }
+        return (databasePath, sidecars)
+    }
+
+    /// The number of pages in the database file at `path`, from its size and the page size in its header.
+    func pageCount(ofDatabaseAt path: String) throws -> Int {
+        let handle = try XCTUnwrap(FileHandle(forReadingAtPath: path), "Could not open \(path)")
+        defer { try? handle.close() }
+        let pageSize = try Self.pageSize(of: handle)
+        return Int(try handle.seekToEnd()) / pageSize
     }
 
     /// The root page of `table` in the database file at `path`, read with a fresh connection.
@@ -124,15 +222,5 @@ extension XCTestCase {
             let expiry = try XCTUnwrap(row[3] as? Int64, "expiry of \(module)/\(key) is not INTEGER")
             return StoredRow(module: module, key: key, value: value, expiry: expiry)
         }
-    }
-
-    /// Puts a regular file where `account`'s folder goes, so that creating the folder fails, and removes it at teardown.
-    func blockAccountFolder(_ account: String) throws {
-        let tealiumFolder = try TealiumFileManager.getTealiumApplicationFolder()
-        let accountPath = tealiumFolder.appendingPathComponent(account).path
-        try FileManager.default.createDirectory(at: tealiumFolder, withIntermediateDirectories: true)
-        try? FileManager.default.removeItem(atPath: accountPath)
-        XCTAssertTrue(FileManager.default.createFile(atPath: accountPath, contents: Data()))
-        addTeardownBlock { try? FileManager.default.removeItem(atPath: accountPath) }
     }
 }

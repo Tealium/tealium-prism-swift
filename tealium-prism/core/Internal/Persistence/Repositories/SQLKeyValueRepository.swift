@@ -10,7 +10,7 @@ import Foundation
 import SQLite
 
 final class SQLKeyValueRepository: KeyValueRepository {
-    private let database: Connection
+    private let database: DatabaseConnection
     private let moduleId: Int64
     private let signposter: TealiumSignposter
     typealias Schema = ModuleStorageSchema
@@ -32,21 +32,23 @@ final class SQLKeyValueRepository: KeyValueRepository {
     func get(key: String) -> DataItem? {
         let interval = TealiumSignpostInterval(signposter: signposter, name: "Get").begin(key)
         defer { interval.end() }
-        guard let row = try? database.pluck(Schema.getValue(key: key, moduleId: self.moduleId)) else {
+        guard let row = try? database.pluck(Schema.getValue(key: key, moduleId: self.moduleId)),
+              let value = try? row.get(Schema.value) else {
             return nil
         }
-        return DataItem(stringValue: row[Schema.value])
+        return DataItem(stringValue: value)
     }
 
     func getAll() -> DataObject {
         let interval = TealiumSignpostInterval(signposter: signposter, name: "GetAll").begin()
         defer { interval.end() }
-        guard let rows = try? database.prepare(Schema.getAllRows(moduleId: moduleId)) else {
+        guard let pairs = try? database.rows(Schema.getAllRows(moduleId: moduleId))
+            .map({ row -> (String, DataInputConvertible) in
+                (try row.get(Schema.key), DataItem(stringValue: try row.get(Schema.value)))
+            }) else {
             return [:]
         }
-        return DataObject(pairs: rows.map { row in
-            (row[Schema.key], DataItem(stringValue: row[Schema.value]))
-        })
+        return DataObject(pairs: pairs)
     }
 
     func delete(key: String) throws -> Int {
@@ -75,11 +77,7 @@ final class SQLKeyValueRepository: KeyValueRepository {
         let interval = TealiumSignpostInterval(signposter: signposter, name: "Keys").begin()
         defer { interval.end() }
 
-        guard let mapRowIterator = try? database.prepareRowIterator(Schema.getKeys(moduleId: moduleId)),
-              let keys = try? mapRowIterator.map({ $0[Schema.key] }) else {
-            return []
-        }
-        return keys
+        return (try? database.rows(Schema.getKeys(moduleId: moduleId)).map { try $0.get(Schema.key) }) ?? []
     }
 
     func count() -> Int {
@@ -100,9 +98,10 @@ final class SQLKeyValueRepository: KeyValueRepository {
     func getExpiry(key: String) -> Expiry? {
         let interval = TealiumSignpostInterval(signposter: signposter, name: "GetExpiry").begin(key)
         defer { interval.end() }
-        guard let row = try? database.pluck(Schema.getValue(key: key, moduleId: self.moduleId)) else {
+        guard let row = try? database.pluck(Schema.getValue(key: key, moduleId: self.moduleId)),
+              let timestamp = try? row.get(Schema.expiry) else {
             return nil
         }
-        return Expiry(timestamp: row[Schema.expiry])
+        return Expiry(timestamp: timestamp)
     }
 }

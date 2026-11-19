@@ -34,15 +34,16 @@ final class DatabaseProviderTests: XCTestCase {
     func test_persistent_db_is_created() throws {
         config.databaseName = "tealium"
         let database = try DatabaseProvider(config: config).database
-        XCTAssertFalse(isInMemory(database))
+        XCTAssertFalse(try isInMemory(database))
         let suffix = "/tealium-prism/mock_account/mock_profile/tealium.sqlite3"
-        XCTAssertTrue(filename(of: database).hasSuffix(suffix), "\(filename(of: database)) should have suffix \(suffix)")
+        let name = try filename(of: database)
+        XCTAssertTrue(name.hasSuffix(suffix), "\(name) should have suffix \(suffix)")
         XCTAssertTrue(FileManager.default.fileExists(atPath: path))
     }
 
     func test_no_database_name_opens_an_in_memory_db() throws {
         config.databaseName = nil
-        let database = try DatabaseProvider.openDatabase(config: config)
+        let database = try DatabaseProvider.openDatabase(config: config).connection
         XCTAssertTrue(isInMemory(database))
         XCTAssertFalse(FileManager.default.fileExists(atPath: path))
     }
@@ -53,19 +54,13 @@ final class DatabaseProviderTests: XCTestCase {
     private func open(_ helperFactory: @escaping (URL, LoggerProtocol?) -> DatabaseHelper = { DatabaseHelper(databaseUrl: $0, logger: $1) })
     throws -> (database: Connection, errors: [String], warnings: [String]) {
         let logger = MockLogger()
-        var errors = [String]()
-        var warnings = [String]()
-        let subscription = logger.handler.onLogged.subscribe { event in
-            guard event.category == LogCategory.persistence else { return }
-            if event.level == .error {
-                errors.append(event.message)
-            } else if event.level == .warn {
-                warnings.append(event.message)
-            }
+        var database: Connection?
+        let events = try logger.handler.eventsLoggedWhileExecuting {
+            database = try DatabaseProvider.openDatabase(config: config, logger: logger, helperFactory: helperFactory).connection
         }
-        defer { subscription.dispose() }
-        let database = try DatabaseProvider.openDatabase(config: config, logger: logger, helperFactory: helperFactory)
-        return (database, errors, warnings)
+        return (try XCTUnwrap(database),
+                events.messages(at: .error, in: LogCategory.persistence),
+                events.messages(at: .warn, in: LogCategory.persistence))
     }
 
     private func filename(of connection: Connection) -> String {
@@ -231,11 +226,11 @@ final class DatabaseProviderTests: XCTestCase {
             DatabaseHelper(databaseUrl: databaseUrl, logger: logger, version: 2, upgrades: [
                 TestUpgrade(targetVersion: 2) { _ in throw StepError() }
             ])
-        }
+        }.connection
         XCTAssertTrue(isInMemory(failed))
         var upgraded: Connection? = try DatabaseProvider.openDatabase(config: config) { databaseUrl, logger in
             DatabaseHelper(databaseUrl: databaseUrl, logger: logger, version: 2, upgrades: [TestUpgrade(targetVersion: 2)])
-        }
+        }.connection
         XCTAssertFalse(isInMemory(try XCTUnwrap(upgraded)))
         upgraded = nil
         let state = try storedState(atPath: databasePath)
@@ -317,7 +312,7 @@ final class DatabaseProviderTests: XCTestCase {
         // Arbitrary bytes, only to tell them apart from the files SQLite creates for the new file.
         let leftover = Data(repeating: 0x42, count: 4096)
         XCTAssertTrue(FileManager.default.createFile(atPath: fileUrl.path, contents: garbage))
-        let sidecars = ["-journal", "-wal", "-shm"].map { fileUrl.path + $0 }
+        let sidecars = SQLiteOpenHelper.sidecarSuffixes.map { fileUrl.path + $0 }
         for sidecar in sidecars {
             XCTAssertTrue(FileManager.default.createFile(atPath: sidecar, contents: leftover))
         }
@@ -339,12 +334,12 @@ final class DatabaseProviderTests: XCTestCase {
         for code in [SQLITE_IOERR_READ, SQLITE_AUTH, SQLITE_CANTOPEN] {
             try? TealiumFileManager.deleteAtPath(path: path)
             config.databaseName = "tealium"
-            var healthy: Connection? = try DatabaseProvider.openDatabase(config: config)
+            var healthy: Connection? = try DatabaseProvider.openDatabase(config: config).connection
             try healthy?.run("INSERT INTO module (name) VALUES ('marker')")
             healthy = nil
             let fileUrl = try XCTUnwrap(config.databaseUrl())
             let before = try XCTUnwrap(FileManager.default.contents(atPath: fileUrl.path))
-            let failure = SQLite.Result.error(message: "injected", code: code, statement: nil)
+            let failure = injectedSQLiteError(code: code)
             let (database, errors, _) = try open { databaseUrl, logger in
                 InjectedDatabaseHelper(databaseUrl: databaseUrl, logger: logger) { _ in failure }
             }
@@ -359,11 +354,11 @@ final class DatabaseProviderTests: XCTestCase {
         for code in [SQLITE_IOERR_READ, SQLITE_AUTH, SQLITE_CANTOPEN, SQLITE_BUSY] {
             try? TealiumFileManager.deleteAtPath(path: path)
             config.databaseName = "tealium"
-            var healthy: Connection? = try DatabaseProvider.openDatabase(config: config)
+            var healthy: Connection? = try DatabaseProvider.openDatabase(config: config).connection
             try healthy?.run("INSERT INTO module (name) VALUES ('marker')")
             healthy = nil
             let fileUrl = try XCTUnwrap(config.databaseUrl())
-            let failure = SQLite.Result.error(message: "injected", code: code, statement: nil)
+            let failure = injectedSQLiteError(code: code)
             let (database, errors, _) = try open { databaseUrl, logger in
                 FailingWALDatabaseHelper(databaseUrl: databaseUrl, logger: logger, failure: failure)
             }
@@ -377,7 +372,7 @@ final class DatabaseProviderTests: XCTestCase {
 
     func test_unreadable_file_is_not_deleted() throws {
         config.databaseName = "tealium"
-        var healthy: Connection? = try DatabaseProvider.openDatabase(config: config)
+        var healthy: Connection? = try DatabaseProvider.openDatabase(config: config).connection
         try healthy?.run("INSERT INTO module (name) VALUES ('marker')")
         healthy = nil
         let fileUrl = try XCTUnwrap(config.databaseUrl())
@@ -452,6 +447,130 @@ final class DatabaseProviderTests: XCTestCase {
         let state = try storedState(atPath: databasePath)
         XCTAssertEqual(state.userVersion, Int64(DatabaseHelper.DATABASE_VERSION))
         XCTAssertEqual(state.modules, [])
+    }
+}
+
+// MARK: - Corruption found by a statement
+
+// An extension only to keep the class body within the lint limit.
+extension DatabaseProviderTests {
+    func test_openDatabase_returns_no_helper_for_an_in_memory_database() throws {
+        config.databaseName = nil
+        XCTAssertNil(try DatabaseProvider.openDatabase(config: config).helper)
+    }
+
+    func test_openDatabase_returns_the_helper_of_the_file_it_opened() throws {
+        config.databaseName = "tealium"
+        let opened = try DatabaseProvider.openDatabase(config: config)
+        let expected = try XCTUnwrap(config.databaseUrl())
+        XCTAssertEqual(try XCTUnwrap(opened.helper?.databaseUrl), expected)
+    }
+
+    func test_openDatabase_returns_the_helper_of_the_file_it_recreated() throws {
+        config.databaseName = "tealium"
+        let fileUrl = try XCTUnwrap(config.databaseUrl())
+        XCTAssertTrue(FileManager.default.createFile(atPath: fileUrl.path, contents: garbage))
+        let opened = try DatabaseProvider.openDatabase(config: config)
+        XCTAssertFalse(isInMemory(opened.connection))
+        XCTAssertEqual(try XCTUnwrap(opened.helper?.databaseUrl), fileUrl)
+    }
+
+    func test_openDatabase_returns_no_helper_when_the_file_fails_to_open_and_storage_falls_back_to_memory() throws {
+        config.databaseName = "tealium"
+        _ = try DatabaseProvider.openDatabase(config: config).connection
+        let failure = injectedSQLiteError(code: SQLITE_IOERR_READ)
+        let opened = try DatabaseProvider.openDatabase(config: config) { databaseUrl, logger in
+            InjectedDatabaseHelper(databaseUrl: databaseUrl, logger: logger) { _ in failure }
+        }
+        XCTAssertTrue(isInMemory(opened.connection))
+        XCTAssertNil(opened.helper)
+    }
+
+    func test_corruption_after_the_fallback_to_memory_does_not_delete_the_kept_file() throws {
+        config.databaseName = "tealium"
+        _ = try DatabaseProvider.openDatabase(config: config).connection
+        let fileUrl = try XCTUnwrap(config.databaseUrl())
+        let failure = injectedSQLiteError(code: SQLITE_IOERR_READ)
+        let provider = try providerWithFailFunction { databaseUrl, logger in
+            InjectedDatabaseHelper(databaseUrl: databaseUrl, logger: logger) { _ in failure }
+        }
+        XCTAssertTrue(try isInMemory(provider.database))
+        XCTAssertThrowsError(try provider.database.execute("SELECT fail(\(SQLITE_CORRUPT))"))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: fileUrl.path))
+    }
+
+    func test_provider_deletes_its_own_file_and_not_another_database_file() throws {
+        config.databaseName = "other"
+        let otherPath = try XCTUnwrap(config.databaseUrl()).path
+        _ = try DatabaseProvider.openDatabase(config: config)
+        config.databaseName = "tealium"
+        let provider = try providerWithFailFunction()
+        let ownPath = try XCTUnwrap(config.databaseUrl()).path
+        XCTAssertTrue(FileManager.default.fileExists(atPath: ownPath))
+        XCTAssertThrowsError(try provider.database.execute("SELECT fail(\(SQLITE_CORRUPT))"))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: ownPath))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: otherPath))
+    }
+
+    func test_after_the_delete_the_old_connection_fails_and_a_new_provider_opens_a_new_file() throws {
+        config.databaseName = "tealium"
+        let databasePath = try XCTUnwrap(config.databaseUrl()).path
+        let provider = try providerWithFailFunction()
+        try provider.database.run("INSERT INTO module (name) VALUES ('old')")
+        let corruption = try XCTUnwrapThrownError { try provider.database.execute("SELECT fail(\(SQLITE_CORRUPT))") }
+        XCTAssertFalse(FileManager.default.fileExists(atPath: databasePath))
+        // The connection is closed: a write on it throws the closed error, whose cause is the corruption, and leaves no file behind.
+        XCTAssertConnectionClosed(try XCTUnwrapThrownError { try provider.database.run("INSERT INTO module (name) VALUES ('after')") }, causedBy: corruption)
+        for file in databaseFiles(atPath: databasePath) {
+            XCTAssertFalse(FileManager.default.fileExists(atPath: file), "\(file) reappeared")
+        }
+        let reopened = try open()
+        assertRecreated(reopened.database, atPath: databasePath)
+        XCTAssertEqual(reopened.errors, [])
+        XCTAssertEqual(reopened.warnings, [])
+    }
+
+    func test_leftover_sidecars_without_a_database_file_are_discarded_at_open() throws {
+        config.databaseName = "tealium"
+        let fileUrl = try XCTUnwrap(config.databaseUrl())
+        // A -wal and -shm with frames that were never checkpointed, from another database with a table of its own.
+        let otherPath = fileUrl.deletingLastPathComponent().appendingPathComponent("other.sqlite3").path
+        var other: Connection? = try Connection(otherPath)
+        try other?.execute("PRAGMA journal_mode = WAL; CREATE TABLE leftover (value TEXT); INSERT INTO leftover VALUES ('old');")
+        for suffix in ["-wal", "-shm"] {
+            try FileManager.default.copyItem(atPath: otherPath + suffix, toPath: fileUrl.path + suffix)
+        }
+        other = nil
+        XCTAssertTrue(FileManager.default.createFile(atPath: fileUrl.path + "-journal", contents: Data(repeating: 0x42, count: 4096)))
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fileUrl.path))
+        let opened = try open()
+        XCTAssertEqual(opened.errors, [])
+        XCTAssertEqual(opened.warnings, [])
+        assertRecreated(opened.database, atPath: fileUrl.path)
+        XCTAssertFalse(opened.database.tableExists(tableName: "leftover"))
+        XCTAssertEqual(try integrityCheck(ofDatabaseAt: fileUrl.path), "ok")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: fileUrl.path + "-journal"))
+        try opened.database.run("INSERT INTO module (name) VALUES ('new')")
+        XCTAssertEqual(try opened.database.scalar("SELECT COUNT(*) FROM module") as? Int64, 1)
+    }
+}
+
+// MARK: - Helpers
+
+extension DatabaseProviderTests {
+    /// The file of the `main` database, through SQL: empty for an in-memory database.
+    private func filename(of database: DatabaseConnection) throws -> String {
+        try XCTUnwrap(database.scalar("SELECT file FROM pragma_database_list WHERE name = 'main'") as? String)
+    }
+
+    private func isInMemory(_ database: DatabaseConnection) throws -> Bool {
+        try filename(of: database).isEmpty
+    }
+
+    /// A provider opened as `init(config:helperFactory:)` does. The raw connection is not kept: the provider is its only owner.
+    private func providerWithFailFunction(helperFactory: (URL, LoggerProtocol?) -> DatabaseHelper = DatabaseProvider.defaultHelperFactory) throws -> DatabaseProvider {
+        let opened = try DatabaseProvider.openDatabase(config: config, helperFactory: helperFactory)
+        return DatabaseProvider(connection: opened.connection.addingFailFunction(), helper: opened.helper, logger: nil)
     }
 }
 

@@ -11,16 +11,16 @@ import SQLite
 @testable import TealiumPrism
 
 class MockDatabaseProvider: DatabaseProviderProtocol {
-    let database: Connection
+    let database: DatabaseConnection
     init() {
-        guard let database = try? DatabaseProvider.getInMemoryDatabase() else {
+        guard let connection = try? DatabaseProvider.getInMemoryDatabase() else {
             fatalError("Failed to create MockDatabaseProvider")
         }
-        self.database = database
+        self.database = DatabaseConnection(connection: connection, onCorruption: { _ in })
     }
 
     /// Wraps an existing connection, e.g. an upgraded database file.
     init(database: Connection) {
-        self.database = database
+        self.database = DatabaseConnection(connection: database, onCorruption: { _ in })
     }
 }

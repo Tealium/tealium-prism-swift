@@ -127,3 +127,40 @@ func XCTAssertThrows<T, E: Error>(_ expression: @autoclosure () throws(E) -> T,
         errorHandler(error)
     }
 }
+
+private struct NothingThrown: Error { }
+
+/// The error `block` throws. Fails the test and throws if `block` doesn't throw.
+func XCTUnwrapThrownError<T>(_ block: () throws -> T, file: StaticString = #filePath, line: UInt = #line) throws -> Error {
+    do {
+        _ = try block()
+    } catch {
+        return error
+    }
+    XCTFail("No error thrown", file: file, line: line)
+    throw NothingThrown()
+}
+
+/// Asserts that `error` is `DatabaseError.connectionClosed`, never corruption itself, and describes its cause.
+/// The cause is the corruption `original` (same SQLite code and message) or, without it, any error that
+/// `DatabaseHelper.corruptionCode` treats as corruption: `SQLITE_CORRUPT` or `SQLITE_NOTADB`, in primary or extended form.
+func XCTAssertConnectionClosed(
+    _ error: Error,
+    causedBy original: Error? = nil,
+    file: StaticString = #filePath,
+    line: UInt = #line
+) {
+    guard case let DatabaseError.connectionClosed(cause) = error else {
+        XCTFail("\(error) is not DatabaseError.connectionClosed", file: file, line: line)
+        return
+    }
+    XCTAssertNil(DatabaseHelper.corruptionCode(error), "The closed error must never be corruption itself", file: file, line: line)
+    XCTAssertTrue("\(error)".contains("\(cause)"), "The description of \(error) has no cause", file: file, line: line)
+    guard let original else {
+        XCTAssertNotNil(DatabaseHelper.corruptionCode(cause), "\(cause) is not a corruption error", file: file, line: line)
+        return
+    }
+    XCTAssertNotNil(DatabaseHelper.corruptionCode(cause), file: file, line: line)
+    XCTAssertEqual(DatabaseHelper.corruptionCode(cause), DatabaseHelper.corruptionCode(original), file: file, line: line)
+    XCTAssertEqual("\(cause)", "\(original)", file: file, line: line)
+}

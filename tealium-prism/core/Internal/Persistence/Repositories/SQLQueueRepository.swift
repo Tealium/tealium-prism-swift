@@ -10,7 +10,7 @@ import Foundation
 import SQLite
 
 class SQLQueueRepository: QueueRepository {
-    private let database: Connection
+    private let database: DatabaseConnection
     var size: Int {
         (try? database.scalar(DispatchSchema.table.count)) ?? 0
     }
@@ -32,14 +32,13 @@ class SQLQueueRepository: QueueRepository {
             .where(getFilterExpiredExpression())
             .select(QueueSchema.tableProcessor, count(*))
             .group(QueueSchema.tableProcessor)
-        guard let rows = try? database.prepare(query) else {
+        guard let sizes = try? database.rows(query)
+            .map({ row -> (String, Int) in
+                (try row.get(QueueSchema.tableProcessor), try row.get(count(*)))
+            }) else {
             return [:]
         }
-        return rows.reduce(into: [String: Int]()) { partialResult, row in
-            let processor: String = row[QueueSchema.tableProcessor]
-            let count: Int = row[count(*)]
-            partialResult[processor] = count
-        }
+        return [String: Int](sizes, prefersFirst: false)
     }
 
     func queueSize(for processor: String) -> Int {
@@ -98,24 +97,21 @@ class SQLQueueRepository: QueueRepository {
             .where(!excluding.contains(DispatchSchema.uuid) && getFilterExpiredExpression())
             .order(DispatchSchema.timestamp)
             .limit(limit)
-        return getDispatches(query: query)
+        return getDispatches(query: query) ?? []
     }
 
     private func getFilterExpiredExpression() -> Expression<Bool> {
         DispatchSchema.timestamp >= getExpiryTimestamp(expiration: expiration)
     }
 
-    private func getDispatches(query: QueryType) -> [Dispatch] {
-        guard let rows = try? database.prepare(query) else {
-            return []
-        }
-        return rows.compactMap { row -> Dispatch? in
-            guard let payload: DataObject = try? row[DispatchSchema.dispatch].deserializeCodable() else {
+    private func getDispatches(query: QueryType) -> [Dispatch]? {
+        try? database.rows(query).compactMap { row -> Dispatch? in
+            guard let payload: DataObject = try? row.get(DispatchSchema.dispatch).deserializeCodable() else {
                 return nil
             }
             return Dispatch(payload: payload,
-                            id: row[DispatchSchema.tableUUID],
-                            timestamp: row[DispatchSchema.timestamp])
+                            id: try row.get(DispatchSchema.tableUUID),
+                            timestamp: try row.get(DispatchSchema.timestamp))
         }
     }
 

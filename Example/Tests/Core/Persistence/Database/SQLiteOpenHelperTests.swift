@@ -329,6 +329,14 @@ class SQLiteOpenHelperTests: XCTestCase {
         }
     }
 
+    func test_prepare_begins_the_schema_transaction_immediate() throws {
+        let connection = try Connection(.inMemory)
+        var statements = [String]()
+        connection.trace { statements.append($0) }
+        try MockDatabaseHelper(version: 1).prepare(database: connection)
+        XCTAssertEqual(statements.filter { $0.hasPrefix("BEGIN") }, ["BEGIN IMMEDIATE TRANSACTION"])
+    }
+
     // MARK: - deleteDatabase
 
     private struct RemoveError: Error { }

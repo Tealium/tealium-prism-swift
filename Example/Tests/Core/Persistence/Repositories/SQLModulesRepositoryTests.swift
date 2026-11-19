@@ -6,6 +6,7 @@
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
+import SQLite3
 @testable import TealiumPrism
 import XCTest
 
@@ -172,5 +173,38 @@ final class SQLModulesRepositoryTests: XCTestCase {
         waitForDefaultTimeout()
         subscription.dispose()
         XCTAssertNotNil(keyValueRepository.getAll().asDictionary()["survivor"])
+    }
+
+    // MARK: - Unreadable rows
+
+    func test_getModules_that_hits_corruption_returns_no_modules_and_deletes_the_file() throws {
+        try assertStatementDeletesUnreadableFile(writing: storeValueUntilRestart) {
+            XCTAssertEqual(SQLModulesRepository(dbProvider: $0).getModules(), [:])
+        }
+    }
+
+    func test_deleteExpired_that_hits_corruption_notifies_nothing_and_deletes_the_file() throws {
+        try assertStatementDeletesUnreadableFile(writing: storeValueUntilRestart) { provider in
+            let repository = SQLModulesRepository(dbProvider: provider)
+            var notified = false
+            let subscription = repository.onDataExpired.subscribe { _ in notified = true }
+            repository.deleteExpired(expiry: .restart)
+            subscription.dispose()
+            XCTAssertFalse(notified)
+        }
+    }
+
+    func test_registerModule_that_hits_corruption_throws_and_deletes_the_file() throws {
+        try assertStatementDeletesUnreadableFile(writing: storeValueUntilRestart) { provider in
+            let error = try XCTUnwrapThrownError { try SQLModulesRepository(dbProvider: provider).registerModule(name: "test") }
+            XCTAssertEqual(DatabaseHelper.corruptionCode(error), SQLITE_CORRUPT)
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func storeValueUntilRestart(in provider: DatabaseProviderProtocol) throws {
+        let moduleId = try SQLModulesRepository(dbProvider: provider).registerModule(name: "test")
+        try SQLKeyValueRepository(dbProvider: provider, moduleId: moduleId).upsert(key: "key", value: "value", expiry: .untilRestart)
     }
 }

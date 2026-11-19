@@ -17,6 +17,11 @@ import Foundation
  * Stored data requires an `Expiry` to be provided when storing, and expired data will not be
  * included in any retrieval operations; that is, expired data won't be returned by `get` or `getAll`
  * but it will also not be included in any aggregate methods such as `keys` or `count`.
+ *
+ * - Warning: This protocol is not thread-safe. Its methods, and the `DataStoreEditor` returned by `edit()`, must be
+ * called from the Tealium queue, which is where a module's methods are called, so a module can use its `DataStore`
+ * directly from them. `onDataUpdated` and `onDataRemoved` notify their subscribers synchronously, on the queue that
+ * made the change.
  */
 public protocol DataStore: AnyObject, DataItemExtractor {
     /**
@@ -71,6 +76,9 @@ public protocol DataStore: AnyObject, DataItemExtractor {
  * Enables editing multiple entries in the module storage in a transactional way.
  *
  * Storing a value whose `Expiry` has already passed removes any existing value at that key and stores nothing.
+ *
+ * - Warning: Like the `DataStore` that created it, a `DataStoreEditor` is not thread-safe and must only be used from the
+ * Tealium queue.
  */
 public protocol DataStoreEditor {
     /**

@@ -125,17 +125,13 @@ class DatabaseHelperTests: XCTestCase {
     private func openFailure(version: Int,
                              upgrades: [DatabaseUpgrade],
                              file: StaticString = #filePath,
-                             line: UInt = #line) throws -> Error? {
+                             line: UInt = #line) throws -> Error {
         let helper = DatabaseHelper(databaseUrl: try config.databaseUrl(), version: version, upgrades: upgrades)
-        var failure: Error?
-        XCTAssertThrows(try helper.getDatabase(), "The open should have failed", file: file, line: line) { error in
-            failure = error
-        }
-        return failure
+        return try XCTUnwrapThrownError({ try helper.getDatabase() }, file: file, line: line)
     }
 
     /// Asserts that `error` is a broken chain, reported at `version`, whose description is `chain`.
-    private func assertBrokenChain(_ error: Error?,
+    private func assertBrokenChain(_ error: Error,
                                    version: Int,
                                    _ chain: String,
                                    file: StaticString = #filePath,
@@ -236,7 +232,7 @@ class DatabaseHelperTests: XCTestCase {
 
     private func resultForms(_ code: Int32) -> [Error] {
         [
-            SQLite.Result.error(message: "test", code: code, statement: nil),
+            injectedSQLiteError(code: code),
             SQLite.Result.extendedError(message: "test", extendedCode: code, statement: nil)
         ]
     }

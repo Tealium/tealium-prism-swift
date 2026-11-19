@@ -9,6 +9,8 @@
 import Foundation
 
 /// A module used by the Tealium SDK to provide some plugin functionality.
+///
+/// Modules are created and called on the Tealium queue.
 public protocol Module: AnyObject {
     /// The version of this module
     var version: String { get }

@@ -6,6 +6,7 @@
 //  Copyright © 2024 Tealium, Inc. All rights reserved.
 //
 
+import SQLite3
 @testable import TealiumPrism
 import XCTest
 
@@ -77,13 +78,13 @@ final class SQLQueueRepositoryTests: XCTestCase {
     func test_deleteDispatches_deletes_queue_rows() {
         let dispatch = Dispatch(name: "test_event")
         XCTAssertNoThrow(try queueRepository.storeDispatches([dispatch], enqueueingFor: allProcessors))
-        guard let queueRows = XCTAssertNoThrowReturn(Array(try mockDatabaseProvider.database.prepare(QueueSchema.table))) else {
+        guard let queueRows = XCTAssertNoThrowReturn(try mockDatabaseProvider.database.rows(QueueSchema.table)) else {
             XCTFail("Failed to return Dispatch table")
             return
         }
         XCTAssertEqual(queueRows.count, 3)
         XCTAssertNoThrow(try queueRepository.deleteDispatches([dispatch.id], for: "processor1"))
-        guard let queueRows2 = XCTAssertNoThrowReturn(Array(try mockDatabaseProvider.database.prepare(QueueSchema.table))) else {
+        guard let queueRows2 = XCTAssertNoThrowReturn(try mockDatabaseProvider.database.rows(QueueSchema.table)) else {
             XCTFail("Failed to return Queue table")
             return
         }
@@ -220,7 +221,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
         let resultDispatches = queueRepository.getQueuedDispatches(for: "processor1", limit: nil)
         XCTAssertEqual(resultDispatches.count, 2)
         XCTAssertNoThrow(try queueRepository.setExpiration(60.minutes))
-        guard let dispatchRows = XCTAssertNoThrowReturn(Array(try mockDatabaseProvider.database.prepare(DispatchSchema.table))) else {
+        guard let dispatchRows = XCTAssertNoThrowReturn(try mockDatabaseProvider.database.rows(DispatchSchema.table)) else {
             XCTFail("Failed to return Dispatch table")
             return
         }
@@ -233,13 +234,13 @@ final class SQLQueueRepositoryTests: XCTestCase {
             Dispatch(name: "event2")
         ]
         XCTAssertNoThrow(try queueRepository.storeDispatches(dispatches, enqueueingFor: ["processor1"]))
-        guard let dispatchRows = XCTAssertNoThrowReturn(Array(try mockDatabaseProvider.database.prepare(DispatchSchema.table))) else {
+        guard let dispatchRows = XCTAssertNoThrowReturn(try mockDatabaseProvider.database.rows(DispatchSchema.table)) else {
             XCTFail("Failed to return Dispatch table")
             return
         }
         XCTAssertEqual(dispatchRows.count, 2)
         XCTAssertNoThrow(try queueRepository.setExpiration(5.days))
-        guard let dispatchRowsAfterSetExpiration = XCTAssertNoThrowReturn(Array(try mockDatabaseProvider.database.prepare(DispatchSchema.table))) else {
+        guard let dispatchRowsAfterSetExpiration = XCTAssertNoThrowReturn(try mockDatabaseProvider.database.rows(DispatchSchema.table)) else {
             XCTFail("Failed to return Dispatch table")
             return
         }
@@ -254,7 +255,7 @@ final class SQLQueueRepositoryTests: XCTestCase {
                                                                    limit: nil)
         XCTAssertEqual(resultDispatches.count, dispatches.count)
         XCTAssertNoThrow(try queueRepository.resize(newSize: 5))
-        guard let dispatchRows = XCTAssertNoThrowReturn(Array(try mockDatabaseProvider.database.prepare(DispatchSchema.table))) else {
+        guard let dispatchRows = XCTAssertNoThrowReturn(try mockDatabaseProvider.database.rows(DispatchSchema.table)) else {
             XCTFail("Failed to return Dispatch table")
             return
         }
@@ -312,6 +313,33 @@ final class SQLQueueRepositoryTests: XCTestCase {
             "processor2": 1
         ]
         XCTAssertEqual(queueRepository.queueSizeByProcessor(), expected)
+    }
+
+    // MARK: - Unreadable rows
+
+    private func repository(on provider: DatabaseProviderProtocol) -> SQLQueueRepository {
+        SQLQueueRepository(dbProvider: provider, maxQueueSize: 100, expiration: 1.days)
+    }
+
+    private func storeDispatch(in provider: DatabaseProviderProtocol) throws {
+        try repository(on: provider).storeDispatches([Dispatch(name: "test_event")], enqueueingFor: allProcessors)
+    }
+
+    func test_every_read_that_hits_corruption_returns_nothing_and_deletes_the_file() throws {
+        try assertStatementDeletesUnreadableFile(writing: storeDispatch) { XCTAssertEqual(repository(on: $0).queueSizeByProcessor(), [:]) }
+        try assertStatementDeletesUnreadableFile(writing: storeDispatch) { XCTAssertEqual(repository(on: $0).queueSize(for: "processor1"), 0) }
+        try assertStatementDeletesUnreadableFile(writing: storeDispatch) {
+            XCTAssertEqual(repository(on: $0).getQueuedDispatches(for: "processor1", limit: nil).count, 0)
+        }
+    }
+
+    func test_write_that_hits_corruption_throws_and_deletes_the_file() throws {
+        // No size limit, so that `spaceRequired` doesn't read the damaged table first: the INSERT finds the corruption itself.
+        try assertStatementDeletesUnreadableFile(writing: storeDispatch) { provider in
+            let repository = SQLQueueRepository(dbProvider: provider, maxQueueSize: -1, expiration: 1.days)
+            let error = try XCTUnwrapThrownError { try repository.storeDispatches([Dispatch(name: "new_event")], enqueueingFor: allProcessors) }
+            XCTAssertEqual(DatabaseHelper.corruptionCode(error), SQLITE_CORRUPT)
+        }
     }
 
     private func createOldDispatch(_ name: String, pastTimeFrame: TimeFrame) -> Dispatch {

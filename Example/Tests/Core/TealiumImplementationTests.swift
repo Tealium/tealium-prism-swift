@@ -199,9 +199,7 @@ final class TealiumImplementationTests: XCTestCase {
         config.databaseName = databaseName
         config.networkClient = MockNetworkClient(result: .success(.successful()))
         config.appStatusListener = ApplicationStatusListener(notificationCenter: notificationCenter)
-        let accountPath = try TealiumFileManager.getTealiumApplicationFolder().appendingPathComponent(config.account).path
-        try? TealiumFileManager.deleteAtPath(path: accountPath)
-        addTeardownBlock { try? TealiumFileManager.deleteAtPath(path: accountPath) }
+        try removeAccountFolderNowAndAtTeardown(account: config.account)
         let subscription = logHandler.onLogged.subscribe { event in
             guard event.category == LogCategory.persistence else { return }
             onPersistenceLog(event.message)
@@ -236,5 +234,42 @@ final class TealiumImplementationTests: XCTestCase {
             shutDown.fulfill()
         }
         wait(for: [shutDown], timeout: Self.longTimeout)
+    }
+
+    // MARK: - Corrupt queue database
+
+    func test_corrupt_queue_database_is_deleted_at_the_first_start_and_a_new_instance_dispatches() throws {
+        var config = fileDatabaseConfig(account: "corruptQueueAccount", minLogLevel: .error)
+        try removeAccountFolderNowAndAtTeardown(account: config.account)
+        let databasePath = try stageQueuedDispatchesWithDamagedTail(config: config)
+
+        // First instance: a start-up read finds the corruption, and the connection is closed, then the file deleted. Every later start-up
+        // call fails fast with the closed error, so the start ends with an error that carries the corruption.
+        let firstLog = MockLogHandler()
+        config.loggerType = .custom(firstLog)
+        let firstManager = TealiumInstanceManager(queue: .worker)
+        let firstErrors = try firstLog.messagesLogged(at: .error, in: LogCategory.persistence, whileExecuting: {
+            XCTAssertConnectionClosed(try createExpectingFailure(config: config, in: firstManager))
+        })
+        XCTAssertTrue(try XCTUnwrap(firstErrors.first, "The deletion is not logged")
+            .hasPrefix("Database corruption detected in '\(databasePath)'. The file was deleted"), "\(firstErrors)")
+        XCTAssertFalse(FileManager.default.fileExists(atPath: databasePath))
+
+        // Second instance: a new file is created, and new events are queued and dispatched.
+        let secondLog = MockLogHandler()
+        config.loggerType = .custom(secondLog)
+        let persistenceErrors = try secondLog.messagesLogged(at: .error, in: LogCategory.persistence, whileExecuting: {
+            let secondManager = TealiumInstanceManager(queue: .worker)
+            var dispatchedNames = [String]()
+            let subscription = MockDispatcher.onDispatch.subscribe { dispatchedNames += $0.compactMap { $0.name } }
+            let second = try createExpectingSuccess(config: config, in: secondManager)
+            try trackAndWaitForDispatch(second, event: "new_event")
+            XCTAssertTrue(FileManager.default.fileExists(atPath: databasePath))
+            shutDownAndWait(second, in: secondManager)
+            subscription.dispose()
+            // The queued events went with the file, so the new event is the only one dispatched.
+            XCTAssertEqual(dispatchedNames, ["new_event"])
+        })
+        XCTAssertEqual(persistenceErrors, [])
     }
 }
