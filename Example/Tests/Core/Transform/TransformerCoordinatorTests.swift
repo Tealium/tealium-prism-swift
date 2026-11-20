@@ -36,7 +36,7 @@ final class TransformerCoordinatorTests: XCTestCase {
     lazy var allTransformationsAreApplied = expectation(description: "All transformations are applied")
     lazy var coordinator = TransformerCoordinator(onTransformers: transformers.asObservableState(),
                                                   transformations: transformations,
-                                                  queue: TealiumQueue.worker,
+                                                  queue: TealiumQueue.main,
                                                   logger: logger)
     let testEvent = Dispatch(name: "test_event")
 
@@ -416,7 +416,7 @@ final class TransformerCoordinatorReadinessTests: XCTestCase {
     var transformations: ObservableState<[TransformationSettings]>
     lazy var coordinator = TransformerCoordinator(onTransformers: onTransformers,
                                                   transformations: transformations,
-                                                  queue: TealiumQueue.worker,
+                                                  queue: TealiumQueue.main,
                                                   logger: nil)
 
     func test_transform_applies_the_transformation_arriving_with_the_transformers() {

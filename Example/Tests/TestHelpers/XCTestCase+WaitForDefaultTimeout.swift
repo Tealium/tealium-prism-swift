@@ -22,6 +22,13 @@ public extension XCTestCase {
         waitForExpectations(timeout: Self.longTimeout)
     }
 
+    /// Waits until every block already enqueued on the main queue has run.
+    func drainMainQueue() {
+        let drained = expectation(description: "Main queue is drained")
+        DispatchQueue.main.async { drained.fulfill() }
+        wait(for: [drained], timeout: Self.longTimeout)
+    }
+
     func waitOnQueue(queue: TealiumQueue, timeout: TimeInterval = defaultTimeout) {
         queue.dispatchQueue.sync {
             waitForExpectations(timeout: timeout)

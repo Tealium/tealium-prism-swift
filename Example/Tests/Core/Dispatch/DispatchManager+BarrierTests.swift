@@ -98,17 +98,17 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
 
     /// Leaves a closed flushable barrier (like a `BatchingBarrier` below its batch size) holding a backlog
     /// after the launch flush ended, with the barriers re-emittable through the returned subject.
-    private func setUpClosedFlushableBarrierWithBacklog() -> StateSubject<[ScopedBarrier]> {
+    private func setUpClosedFlushableBarrierWithBacklog() throws -> StateSubject<[ScopedBarrier]> {
         let barriers = StateSubject<[ScopedBarrier]>([ScopedBarrier(barrier: barrier, scope: .all)])
         onBarriers = barriers.asObservable()
         barrier.setState(.closed)
         _ = dispatchManager
-        queueManager.storeDispatches(createDispatches(amount: 5), enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(createDispatches(amount: 5), enqueueingFor: allDispatchers)
         return barriers
     }
 
-    func test_changing_the_dispatchers_list_does_not_dispatch_the_backlog_held_by_a_closed_flushable_barrier() {
-        _ = setUpClosedFlushableBarrierWithBacklog()
+    func test_changing_the_dispatchers_list_does_not_dispatch_the_backlog_held_by_a_closed_flushable_barrier() throws {
+        _ = try setUpClosedFlushableBarrierWithBacklog()
         let backlogIsNotDispatched = expectation(description: "Backlog is NOT dispatched")
         backlogIsNotDispatched.isInverted = true
         backlogIsNotDispatched.assertForOverFulfill = false
@@ -128,8 +128,8 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_reemitting_the_barriers_does_not_dispatch_the_backlog_held_by_a_closed_flushable_barrier() {
-        let barriers = setUpClosedFlushableBarrierWithBacklog()
+    func test_reemitting_the_barriers_does_not_dispatch_the_backlog_held_by_a_closed_flushable_barrier() throws {
+        let barriers = try setUpClosedFlushableBarrierWithBacklog()
         let backlogIsNotDispatched = expectation(description: "Backlog is NOT dispatched")
         backlogIsNotDispatched.isInverted = true
         backlogIsNotDispatched.assertForOverFulfill = false

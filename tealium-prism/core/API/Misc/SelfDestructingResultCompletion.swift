@@ -57,6 +57,11 @@ public class SelfDestructingCompletion<Param> {
     /// The underlying completion block type.
     public typealias Completion = (Param) -> Void
     private var completion: Completion?
+
+    var isCompleted: Bool {
+        completion == nil
+    }
+
     /// Creates a new instance wrapping the given completion block.
     /// - Parameter completion: The block to invoke once when ``complete(result:)`` is called.
     public init(completion: @escaping Completion) {

@@ -214,4 +214,113 @@ final class DispatchManagerTransformAndDispatchTests: DispatchManagerTestCase {
         _ = dispatchManager
         waitForDefaultTimeout()
     }
+
+    // MARK: - Transformation in progress
+
+    /// Stopping the loop disposes the transformation of a batch already dequeued, through the `Disposable`
+    /// that `transformAndDispatch` holds for it.
+    func test_stopDispatchLoop_disposes_transformation_in_progress() throws {
+        let batch = try startPendingTransformation()
+
+        dispatchManager.stopDispatchLoop()
+
+        XCTAssertTrue(batch.step.disposable.isDisposed)
+        XCTAssertTrue(batch.transformer.pending.first === batch.step, "Disposing a step does not complete it")
+    }
+
+    /// A transformer that completes after the loop was stopped must not get its batch sent nor deleted.
+    func test_stopDispatchLoop_during_transformation_does_not_dispatch() throws {
+        let batch = try startPendingTransformation()
+        let module1 = try XCTUnwrap(module1)
+        var dispatchCalls = 0
+        _ = module1.onDispatch.subscribe { _ in dispatchCalls += 1 }
+        var deleteRequests = 0
+        _ = queueManager.onDeleteRequest.subscribe { _, _ in deleteRequests += 1 }
+
+        dispatchManager.stopDispatchLoop()
+        batch.transformer.completeAll()
+        drainMainQueue()
+
+        XCTAssertEqual(dispatchCalls, 0)
+        XCTAssertEqual(deleteRequests, 0)
+        XCTAssertEqual(queueManager.inflightEvents.value[module1.id],
+                       Set([batch.step.dispatch.id]),
+                       "The dispatch is still held in the queue")
+    }
+
+    /// `transformAndDispatch` sits downstream of the `flatMapLatest` that rebuilds the dequeue loops, so a change to
+    /// the dispatcher list leaves a running transformation alone and its batch is still sent.
+    func test_dispatcher_list_change_does_not_cancel_transformation_in_progress() throws {
+        let batch = try startPendingTransformation()
+        let module1 = try XCTUnwrap(module1)
+        var sentBatches: [[Dispatch]] = []
+        let sent = expectation(description: "module1 receives the batch")
+        _ = module1.onDispatch.subscribe { dispatches in
+            sentBatches.append(dispatches)
+            sent.fulfill()
+        }
+
+        enableModule(MockDispatcher2.moduleType)
+        XCTAssertEqual(allDispatchers.count, 2, "Precondition: the dispatcher list changed")
+        XCTAssertFalse(batch.step.disposable.isDisposed)
+
+        batch.transformer.complete(batch.step, with: batch.step.dispatch)
+        wait(for: [sent], timeout: Self.longTimeout)
+        drainMainQueue()
+        XCTAssertEqual(sentBatches.map { $0.map(\.id) }, [[batch.step.dispatch.id]])
+    }
+
+    /// The single-dispatch path: a step completed twice reaches `onTrackResult`, and the queue, only once.
+    func test_track_calls_onTrackResult_once_when_transformer_completes_twice() throws {
+        let asyncTransformer = AsyncMockTransformer(moduleId: "async")
+        registerTransformation(asyncTransformer, scope: .afterCollectors)
+        var trackResults = 0
+        var storeRequests = 0
+        _ = queueManager.onStoreRequest.subscribe { _, _ in storeRequests += 1 }
+
+        dispatchManager.track(Dispatch(name: "someEvent")) { _ in trackResults += 1 }
+        XCTAssertEqual(asyncTransformer.pending.count, 1)
+        let step = try XCTUnwrap(asyncTransformer.pending.first)
+        asyncTransformer.complete(step, with: step.dispatch, keepingCompletion: true)
+        asyncTransformer.completeAgain(step, with: step.dispatch)
+        drainMainQueue()
+
+        XCTAssertEqual(trackResults, 1)
+        XCTAssertEqual(storeRequests, 1)
+    }
+
+    // MARK: - Helpers
+
+    private struct PendingBatch {
+        let transformer: AsyncMockTransformer
+        let step: AsyncMockTransformer.PendingStep
+    }
+
+    /// Appends `transformer` to the registered transformers, with a transformation implemented by it and scoped to `scope`.
+    private func registerTransformation(_ transformer: Transformer, scope: TransformationScope) {
+        transformers.value.append(transformer)
+        transformerCoordinator.registerTransformation(TransformationSettings(id: "transformation-\(transformer.id)",
+                                                                             transformerId: transformer.id,
+                                                                             scope: scope))
+    }
+
+    /// Starts the loop with `module1` alone and tracks one dispatch, so that it is dequeued and held by an
+    /// `AsyncMockTransformer` scoped to `module1`, then returns that transformer and its single pending step.
+    private func startPendingTransformation() throws -> PendingBatch {
+        let asyncTransformer = AsyncMockTransformer(moduleId: "async")
+        registerTransformation(asyncTransformer, scope: .dispatchers([MockDispatcher1.moduleType]))
+        disableModule(module: module2)
+        let dequeued = expectation(description: "The dispatch is dequeued for module1")
+        queueManager.onInflightDispatchesCount(for: MockDispatcher1.moduleType)
+            .filter { $0 > 0 }
+            .subscribeOnce { _ in dequeued.fulfill() }
+
+        dispatchManager.track(Dispatch(name: "someEvent"))
+        wait(for: [dequeued], timeout: Self.longTimeout)
+
+        XCTAssertEqual(asyncTransformer.pending.count, 1)
+        let step = try XCTUnwrap(asyncTransformer.pending.first)
+        return PendingBatch(transformer: asyncTransformer, step: step)
+    }
+
 }

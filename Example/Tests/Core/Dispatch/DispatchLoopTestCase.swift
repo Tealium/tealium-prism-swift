@@ -102,13 +102,6 @@ class DispatchLoopTestCase: XCTestCase {
         return BatchingBarrier(queueMetrics: queueManager, onDispatchers: onDispatchers.asObservable(), configuration: configuration)
     }
 
-    /// Waits for the blocks already queued on main, e.g. a follow-up dequeue request, to run.
-    func drainMainQueue() {
-        let drained = expectation(description: "Main queue is drained")
-        DispatchQueue.main.async { drained.fulfill() }
-        wait(for: [drained], timeout: Self.longTimeout)
-    }
-
     func stop() {
         dispatchManager?.stopDispatchLoop()
     }

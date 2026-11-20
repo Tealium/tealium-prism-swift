@@ -68,19 +68,34 @@ class TransformerCoordinator: TransformerRegistrar {
     /**
      * Transforms a single `Dispatch`, intended to be mainly used on a dispatch after it's been enriched by the collectors.
      */
-    func transform(dispatch: Dispatch, for scope: DispatchScope, completion: @escaping TransformationCompletion) {
+    @discardableResult
+    func transform(dispatch: Dispatch, for scope: DispatchScope, completion: @escaping TransformationCompletion) -> any Disposable {
         // Asynchronously apply the transformations from the transformers when they are ready.
-        onTransformers.subscribeOnce { [weak self] transformers in
-            guard let self else {
-                completion(dispatch)
-                return
-            }
-            self.recursiveSerialApply(transformers: transformers,
-                                      transformations: self.getTransformations(for: scope),
-                                      to: dispatch,
-                                      scope: scope,
-                                      completion: completion)
-        }
+        return onTransformers.first()
+            // `self` is captured strongly on purpose: a chain in flight must always reach `completion`, and the
+            // coordinator only goes away at shutdown. A weak capture would drop the dispatch silently.
+            .callback(fromDisposable: { [self] transformers, callbackCompletion -> any Disposable in
+                // A single container per dispatch: disposing it cancels whichever step is in flight.
+                let container = Disposables.composite()
+                func applyNext(_ transformations: ArraySlice<TransformationSettings>, to dispatch: Dispatch?) {
+                    guard !container.isDisposed else { return }
+                    guard let transformation = transformations.first, let dispatch else {
+                        callbackCompletion(dispatch)
+                        return
+                    }
+                    let remaining = transformations.dropFirst()
+                    guard match(transformation: transformation, dispatch: dispatch) else {
+                        applyNext(remaining, to: dispatch)
+                        return
+                    }
+                    apply(transformers: transformers, singleTransformation: transformation, to: dispatch, scope: scope) { newDispatch in
+                        applyNext(remaining, to: newDispatch)
+                    }.addTo(container)
+                }
+                applyNext(getTransformations(for: scope)[...], to: dispatch)
+                return container
+            })
+            .subscribe(completion)
     }
 
     /**
@@ -88,58 +103,37 @@ class TransformerCoordinator: TransformerRegistrar {
      */
     @discardableResult
     func transform(dispatches: [Dispatch], for scope: DispatchScope, completion: @escaping DispatchesTransformationCompletion) -> any Disposable {
-        return TealiumDispatchGroup(queue: queue)
+        TealiumDispatchGroup(queue: queue)
             .parallelExecution(dispatches.map { dispatch in
-                return { completion in
-                    self.transform(dispatch: dispatch, for: scope) { dispatch in
-                        completion(dispatch)
-                    }
-                    return Disposables.disposed() // TODO: Return disposable returned from transformation once we make it disposable. 
+                { completion in
+                    self.transform(dispatch: dispatch, for: scope, completion: completion)
                 }
             }) { results in
                 completion(results.compactMap { $0 })
             }
     }
 
-    private func recursiveSerialApply(transformers: [Transformer],
-                                      transformations: [TransformationSettings],
-                                      to dispatch: Dispatch?,
-                                      scope: DispatchScope,
-                                      completion: @escaping TransformationCompletion) {
-        guard !transformations.isEmpty, let dispatch = dispatch else {
-            completion(dispatch)
-            return
-        }
-        var transformations = transformations
-        let transformation = transformations.removeFirst()
-        guard match(transformation: transformation, dispatch: dispatch) else {
-            recursiveSerialApply(transformers: transformers,
-                                 transformations: transformations,
-                                 to: dispatch,
-                                 scope: scope,
-                                 completion: completion)
-            return
-        }
-        apply(transformers: transformers, singleTransformation: transformation, to: dispatch, scope: scope) { [weak self] newDispatch in
-            self?.recursiveSerialApply(transformers: transformers,
-                                       transformations: transformations,
-                                       to: newDispatch,
-                                       scope: scope,
-                                       completion: completion)
-        }
-    }
-
     private func apply(transformers: [Transformer],
                        singleTransformation transformation: TransformationSettings,
                        to dispatch: Dispatch,
                        scope: DispatchScope,
-                       completion: @escaping TransformationCompletion) {
+                       completion: @escaping TransformationCompletion) -> any Disposable {
         guard let transformer = transformers.first(where: { $0.id == transformation.transformerId }) else {
             completion(dispatch)
-            return
+            return Disposables.disposed()
         }
-        // TODO: hold this Disposable and dispose it on cancel. Dropping completions that arrive after dispose is the coordinator's job, not the transformer's; today TealiumDispatchGroup and DispatchManager.transformAndDispatch do it.
-        _ = transformer.applyTransformation(transformation, to: dispatch, scope: scope, completion: completion)
+        let completion = SelfDestructingCompletion(completion: completion)
+        let transformerId = transformer.id
+        return transformer.applyTransformation(transformation, to: dispatch, scope: scope) { [queue, logger] dispatch in
+            queue.ensureOnQueue {
+                guard !completion.isCompleted else {
+                    logger?.warn(category: LogCategory.transformations,
+                                 "Transformer(\(transformerId)) completed Transformation(\(transformation.id)) more than once; ignoring.")
+                    return
+                }
+                completion.complete(result: dispatch)
+            }
+        }
     }
 
     func registerTransformation(_ transformation: TransformationSettings) {
@@ -147,6 +141,7 @@ class TransformerCoordinator: TransformerRegistrar {
             additionalTransformations.value.append(transformation)
         }
     }
+
     func unregisterTransformation(_ transformation: TransformationSettings) {
         additionalTransformations.value.removeAll { self.transformation($0, matchesIdsOf: transformation) }
     }

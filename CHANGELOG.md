@@ -32,11 +32,15 @@ All notable changes to Tealium Prism for Swift are documented in this file. Rele
 - A corrupt database file is now deleted and recreated, and the reason is logged under the `Persistence` category. Before, every launch failed to open it and fell back to in-memory storage, so queued events, the visitor ID and the session weren't kept across launches. Only SQLite corruption errors trigger this: a file that can't be opened for any other reason, for example because Data Protection keeps it locked before the first unlock, is never deleted.
 - Command names and the lenient boolean and number conversions, including numeric load rule conditions, now trim newlines as well as spaces and tabs, matching Kotlin. For example, `"log\n"` now runs the `log` command and `"true\n"` converts to `true`.
 - `DispatchType(rawValue:)` is now case insensitive and maps `"link"` to `.event`.
+- A `Transformer` may now call `completion` from any thread. The rest of the transformation chain resumes on the Tealium queue: inline when `completion` is called there, asynchronously otherwise. A transformer that works on other threads must return a `Disposable` that is safe to dispose and query from both.
+- Transformations can now be cancelled. When the SDK stops waiting for an event's transformations, for example when a Tealium instance shuts down, it disposes the `Disposable` returned by the running `Transformer` and applies no further transformations to that event.
 
 ### Fixes
 
 - Fixed the dispatch loop stranding a batch of events when a barrier closed while the batch was being taken from the queue, most often the `BatchingBarrier`. Those events were never sent and kept using in-flight slots until the app was relaunched. Draining a large backlog also no longer recurses deeply on the stack.
 - Fixed a `Dispatcher` with a `dispatchLimit` below 1 crashing the dispatch loop. It is now treated as 1.
+- Fixed a `Transformer` that called `completion` more than once re-running every later transformation, including side effects such as `PersistDataValue`, and storing the event twice. Later calls are now ignored and logged as a warning.
+- Fixed a `Transformer` that called `completion` off the Tealium queue running the rest of the transformation chain, and storing the event, on its own thread.
 - Fixed `DataLayer.onDataUpdated` and `DataLayer.onDataRemoved` reporting a key in both events when a transaction edited it more than once. Each key now appears in at most one event per transaction, matching its stored state: for example, a `put` followed by a `remove` is reported only in `onDataRemoved`.
 - Fixed a `put` with an expiry that has already passed being reported in `onDataUpdated`, and a date before 1970 being stored as never expiring. Such a `put` now removes any existing value at that key and is reported in `onDataRemoved`.
 - Fixed `Dispatch.getCommands()` returning names that are blank after trimming. A dispatch with only blank command names now logs "No command in dispatch" instead of failing each name with `CommandError.commandNotFound`.

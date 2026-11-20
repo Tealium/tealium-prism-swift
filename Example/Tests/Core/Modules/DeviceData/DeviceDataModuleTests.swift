@@ -308,14 +308,16 @@ extension DeviceDataModuleTests {
                                                                transformerId: DeviceDataModule.moduleType,
                                                                scope: .afterCollectors)
 
-    private func makeLaunch(modelInfoTimeoutMs: Int = DeviceDataModule.defaultModelInfoTimeoutMs,
+    private func makeLaunch(deviceDataProvider: DeviceDataProvider = DeviceDataProvider(),
+                            queue: TealiumQueue = .main,
+                            modelInfoTimeoutMs: Int = DeviceDataModule.defaultModelInfoTimeoutMs,
                             errorCooldownBaseInterval: TimeFrame = DeviceDataModule.defaultErrorCooldownBaseInterval) -> DeviceDataModule {
-        DeviceDataModule(deviceDataProvider: DeviceDataProvider(),
+        DeviceDataModule(deviceDataProvider: deviceDataProvider,
                          configuration: DeviceDataModuleConfiguration(configuration: [:]),
                          networkHelper: networkHelper,
                          storeProvider: context.moduleStoreProvider,
                          transformerRegistrar: transformerCoordinator,
-                         queue: .main,
+                         queue: queue,
                          logger: context.logger,
                          modelInfoTimeoutMs: modelInfoTimeoutMs,
                          errorCooldownBaseInterval: errorCooldownBaseInterval)
@@ -567,5 +569,95 @@ extension DeviceDataModuleTests {
         let dataStore = try context.moduleStoreProvider.getModuleStore(name: DeviceDataModule.moduleType)
         XCTAssertNil(module.readModelInfo(dataStore: dataStore))
         XCTAssertNil(dataStore.getDataItem(key: "device-models"))
+    }
+}
+
+// MARK: - Disposal
+
+extension DeviceDataModuleTests {
+    func test_applyTransformation_dispose_before_model_info_never_completes() throws {
+        let dataStore = try context.moduleStoreProvider.getModuleStore(name: DeviceDataModule.moduleType)
+        networkHelper.delay = 0 // The download completes only once the main queue runs it
+        try networkHelper.encodeResult(deviceFile(model: "Test Device"))
+        let module = makeLaunch(modelInfoTimeoutMs: 5000) // Far enough that the fallback cannot fire during the test
+        var completions = 0
+
+        let disposable = module.applyTransformation(Self.transformation, to: Dispatch(name: "test_event", data: [:]), scope: .afterCollectors) { _ in
+            completions += 1
+        }
+        disposable.dispose()
+        drainMainQueue() // The download, and with it the model info, arrives after the disposal
+
+        XCTAssertNotNil(module.readModelInfo(dataStore: dataStore), "The model info must have arrived for the test to be meaningful")
+        XCTAssertEqual(completions, 0, "A disposed transformation must stay silent when the model info arrives")
+        XCTAssertTrue(disposable.isDisposed)
+    }
+
+    func test_applyTransformation_dispose_before_main_thread_read_skips_read() throws {
+        // Model info already stored, so the transformation only waits for the main-thread read
+        let dataStore = try context.moduleStoreProvider.getModuleStore(name: DeviceDataModule.moduleType)
+        try dataStore.edit()
+            .putAll(dataObject: [DeviceDataKey.deviceType: "iPhone14,3",
+                                 DeviceDataKey.deviceModel: "Test Device",
+                                 DeviceDataKey.device: "Test Device",
+                                 DeviceDataKey.modelVariant: "Variant"],
+                    expiry: .forever)
+            .commit()
+        var screenReads = 0
+        let provider = DeviceDataProvider(orientationProvider: {
+            screenReads += 1
+            return [:]
+        })
+        // Run the module on the worker so the main-thread read is an asynchronous hop that can be disposed before it runs
+        let module = makeLaunch(deviceDataProvider: provider, queue: .worker)
+        var completions = 0
+
+        // The main queue is blocked by this sync call, so the main-thread hop cannot run before the disposal.
+        // Blocking is safe here: the worker side never waits for main (the read is reached through
+        // subscribeOn(.main), which hops asynchronously), so the sync cannot deadlock.
+        let disposable = TealiumQueue.worker.dispatchQueue.sync {
+            let disposable = module.applyTransformation(Self.transformation, to: Dispatch(name: "test_event", data: [:]), scope: .afterCollectors) { _ in
+                completions += 1
+            }
+            disposable.dispose()
+            return disposable
+        }
+        drainMainQueue()
+        let workerDrained = expectation(description: "Worker queue drained")
+        TealiumQueue.worker.ensureOnQueue {
+            workerDrained.fulfill()
+        }
+        wait(for: [workerDrained], timeout: Self.longTimeout)
+
+        XCTAssertEqual(screenReads, 0, "The main-thread read must be skipped when disposed before it runs")
+        XCTAssertEqual(completions, 0)
+        XCTAssertTrue(disposable.isDisposed)
+
+        // Control: the same arrangement reads and completes when not disposed
+        let completed = expectation(description: "Undisposed transformation completed")
+        TealiumQueue.worker.ensureOnQueue {
+            module.applyTransformation(Self.transformation, to: Dispatch(name: "test_event", data: [:]), scope: .afterCollectors) { result in
+                XCTAssertEqual(result?.payload.get(key: DeviceDataKey.deviceModel), "Test Device")
+                completed.fulfill()
+            }
+        }
+        wait(for: [completed], timeout: Self.longTimeout)
+        XCTAssertEqual(screenReads, 1)
+    }
+
+    func test_applyTransformation_completes_when_refresh_is_skipped() throws {
+        networkHelper.delay = 0 // The first-install download stays in flight until the main queue runs it
+        try networkHelper.encodeResult(deviceFile(model: "Test Device"))
+        let module = makeLaunch(modelInfoTimeoutMs: 5000)
+        let completed = expectation(description: "Transformation completed")
+
+        // requestRefresh is skipped here because a fetch is already in flight, so nothing new emits
+        module.applyTransformation(Self.transformation, to: Dispatch(name: "test_event", data: [:]), scope: .afterCollectors) { result in
+            XCTAssertEqual(result?.payload.get(key: DeviceDataKey.deviceModel), "Test Device")
+            completed.fulfill()
+        }
+        wait(for: [completed], timeout: Self.longTimeout)
+
+        XCTAssertEqual(requestedUrls.count, 1, "The transformation must not start a second download while one is in flight")
     }
 }

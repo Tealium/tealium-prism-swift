@@ -69,12 +69,6 @@ final class DispatchManagerMaximumInflightTests: DispatchManagerTestCase {
         XCTAssertEqual(pendingCount(for: module1.id), 5)
     }
 
-    private func drainMainQueue() {
-        let drained = expectation(description: "Main queue is drained")
-        DispatchQueue.main.async { drained.fulfill() }
-        wait(for: [drained], timeout: Self.longTimeout)
-    }
-
     private func pendingCount(for processorId: String) -> Int? {
         var count: Int?
         _ = queueManager.onQueueSizePendingDispatch(for: processorId).subscribeOnce { count = $0 }
