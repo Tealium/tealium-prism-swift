@@ -18,7 +18,8 @@ import Foundation
 public class StateSubject<Element>: Subject<Element> {
 
     private var _value: Element
-    /// The current state. Set a new value to emit an event to all `Observer`s.
+    /// The current state. Set a new value to emit an event to all `Observer`s; after the subject has completed, a new
+    /// value is ignored.
     public var value: Element {
         get {
             _value
@@ -35,17 +36,23 @@ public class StateSubject<Element>: Subject<Element> {
     }
 
     /// Emits a new state value to all subscribers and updates the stored state.
+    /// After the subject has completed, it is ignored and the stored state does not change.
     /// - Parameter element: The new state value.
     public override func onNext(_ element: Element) {
+        guard !isCompleted else { return }
         self._value = element
         super.onNext(element)
     }
 
     /// Converts this `StateSubject` to an `ObservableState` that is readonly and can only receive new values.
+    ///
+    /// A new observer first receives the current value. Values emitted into this subject while a new observer
+    /// receives the current value reach it afterwards. Subscribing to a completed subject delivers the current value,
+    /// then the completion; after completion, new values are ignored.
     public func asObservableState() -> ObservableState<Element> {
         ObservableState<Element>(valueProvider: self.value) { observer in
-            observer.onNext(self.value)
-            return super.asObservable().subscribe(observer)
+            self.subscribeThenNotify(ReplayingObserver(downstream: observer),
+                                     onAfterSubscribed: { $0.replay(CollectionOfOne(self.value)) })
         }
     }
 

@@ -40,12 +40,14 @@ public class ReplaySubject<Element>: Subject<Element> {
     }
 
     /// Returns an observable that replays cached elements to new subscribers.
+    ///
+    /// A new observer first receives the cached elements. Elements emitted into this subject while an observer
+    /// receives them reach it after the cached elements. Subscribing to a completed subject delivers the cached
+    /// elements, then the completion; after completion, new elements are ignored.
     public override func asObservable() -> Observable<Element> {
         Observables.create { observer in
-            for element in self.cache {
-                observer.onNext(element)
-            }
-            return super.asObservable().subscribe(observer)
+            self.subscribeThenNotify(ReplayingObserver(downstream: observer),
+                                     onAfterSubscribed: { $0.replay(self.cache) })
         }
     }
 
@@ -54,7 +56,9 @@ public class ReplaySubject<Element>: Subject<Element> {
     }
 
     /// Emits an element to all subscribers and adds it to the cache.
+    /// After the subject has completed, it is ignored and the cache does not change.
     public override func onNext(_ element: Element) {
+        guard !isCompleted else { return }
         while let size = cacheSize, cache.count >= size && cache.count > 0 {
             cache.remove(at: 0)
         }

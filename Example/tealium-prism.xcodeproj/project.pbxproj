@@ -2258,17 +2258,29 @@
 		F516C0462FD18BD800490B34 /* Tealium+SettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877D6F3F2E3A7E1B009F513E /* Tealium+SettingsTests.swift */; };
 		F516C0472FD18BD800490B34 /* Tealium+SettingsTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 877D6F3F2E3A7E1B009F513E /* Tealium+SettingsTests.swift */; };
 		F533C8632F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */; };
+		F5ACE8632F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5ACE8622F72CD3D007871E7 /* SubjectReplayTestHelpers.swift */; };
 		F533C8642F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */; };
+		F5ACE8642F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5ACE8622F72CD3D007871E7 /* SubjectReplayTestHelpers.swift */; };
 		F533C8652F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */; };
+		F5ACE8652F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5ACE8622F72CD3D007871E7 /* SubjectReplayTestHelpers.swift */; };
 		F533C8662F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */; };
+		F5ACE8662F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5ACE8622F72CD3D007871E7 /* SubjectReplayTestHelpers.swift */; };
 		F533C8672F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */; };
+		F5ACE8672F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5ACE8622F72CD3D007871E7 /* SubjectReplayTestHelpers.swift */; };
 		F533C8682F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */; };
+		F5ACE8682F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5ACE8622F72CD3D007871E7 /* SubjectReplayTestHelpers.swift */; };
 		F533C8692F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */; };
+		F5ACE8692F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5ACE8622F72CD3D007871E7 /* SubjectReplayTestHelpers.swift */; };
 		F533C86A2F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */; };
+		F5ACE86A2F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5ACE8622F72CD3D007871E7 /* SubjectReplayTestHelpers.swift */; };
 		F533C86B2F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */; };
+		F5ACE86B2F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5ACE8622F72CD3D007871E7 /* SubjectReplayTestHelpers.swift */; };
 		F533C86C2F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */; };
+		F5ACE86C2F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5ACE8622F72CD3D007871E7 /* SubjectReplayTestHelpers.swift */; };
 		F533C86D2F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */; };
+		F5ACE86D2F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5ACE8622F72CD3D007871E7 /* SubjectReplayTestHelpers.swift */; };
 		F533C86E2F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */; };
+		F5ACE86E2F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F5ACE8622F72CD3D007871E7 /* SubjectReplayTestHelpers.swift */; };
 		F533C8702F730833007871E7 /* MockBackgroundTaskStarter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C86F2F730833007871E7 /* MockBackgroundTaskStarter.swift */; };
 		F533C8712F730833007871E7 /* MockBackgroundTaskStarter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C86F2F730833007871E7 /* MockBackgroundTaskStarter.swift */; };
 		F533C8722F730833007871E7 /* MockBackgroundTaskStarter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F533C86F2F730833007871E7 /* MockBackgroundTaskStarter.swift */; };
@@ -3051,6 +3063,7 @@
 		F386AEACFA32C0448DB6FF23 /* Pods_EndToEndTests_iOS.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_EndToEndTests_iOS.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F516C03C2FD1896300490B34 /* BasicModuleFactoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BasicModuleFactoryTests.swift; sourceTree = "<group>"; };
 		F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NonDisposalCheckingObservable.swift; sourceTree = "<group>"; };
+		F5ACE8622F72CD3D007871E7 /* SubjectReplayTestHelpers.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SubjectReplayTestHelpers.swift; sourceTree = "<group>"; };
 		F533C86F2F730833007871E7 /* MockBackgroundTaskStarter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MockBackgroundTaskStarter.swift; sourceTree = "<group>"; };
 		F538CED7300513D7004AB31B /* ModuleSettingsTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModuleSettingsTests.swift; sourceTree = "<group>"; };
 		F538CEDC30053FC9004AB31B /* JustTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = JustTests.swift; sourceTree = "<group>"; };
@@ -3364,6 +3377,7 @@
 				ECF92FBD2F74519D00A5AE06 /* XCTestCase+AssertNoEmissionAfterDisposal.swift */,
 				F533C86F2F730833007871E7 /* MockBackgroundTaskStarter.swift */,
 				F533C8622F72CD3D007871E7 /* NonDisposalCheckingObservable.swift */,
+				F5ACE8622F72CD3D007871E7 /* SubjectReplayTestHelpers.swift */,
 				87A40ABE2E996951005D92CC /* NotificationCenter+PostApplicationNotification.swift */,
 				150410EA2A6EBC6300B91F30 /* Mocks */,
 				875371002E2E49BF00CDED6D /* AnyCodable+Equatable.swift */,
@@ -7320,6 +7334,7 @@
 				ECDE37E52E0EEB73008F89E1 /* QueueManager+QueueMetricsTests.swift in Sources */,
 				87A05CDE2DB7F79F00D280F4 /* MappingsTests.swift in Sources */,
 				F533C86D2F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */,
+				F5ACE86D2F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */,
 				87FC08552D91ADF300E1041D /* Rule+DataInputConvertibleTests.swift in Sources */,
 				15AE2B842A127D280093D154 /* MockUrlSession.swift in Sources */,
 				15C0DCCA2B0CF6730007F6BE /* Operators+IgnoreTests.swift in Sources */,
@@ -7479,6 +7494,7 @@
 				8702A37B2E266EEA001C9743 /* MockDatabaseHelper.swift in Sources */,
 				873D2F6B2E3A643A0043573A /* Tealium+ConsentTests.swift in Sources */,
 				F533C8642F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */,
+				F5ACE8642F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */,
 				8702A37C2E266EEA001C9743 /* MockBackoff.swift in Sources */,
 				8702A37D2E266EEA001C9743 /* MockTransformer.swift in Sources */,
 				8702A37E2E266EEA001C9743 /* XCTestCase+WaitForDefaultTimeout.swift in Sources */,
@@ -7805,6 +7821,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F533C8692F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */,
+				F5ACE8692F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */,
 				878C49B12E26919A00DA3155 /* MockQueueMetrics.swift in Sources */,
 				878C49B22E26919A00DA3155 /* MockTracker.swift in Sources */,
 				878C49B32E26919A00DA3155 /* MockConfig.swift in Sources */,
@@ -7870,6 +7887,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F533C86C2F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */,
+				F5ACE86C2F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */,
 				878C49EA2E2691D300DA3155 /* MockQueueMetrics.swift in Sources */,
 				878C49EB2E2691D300DA3155 /* MockTracker.swift in Sources */,
 				878C49EC2E2691D300DA3155 /* MockConfig.swift in Sources */,
@@ -8142,6 +8160,7 @@
 				87A4091B2E97F06E005D92CC /* DeinitTester.swift in Sources */,
 				F538CEDD30053FC9004AB31B /* JustTests.swift in Sources */,
 				F533C8632F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */,
+				F5ACE8632F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */,
 				87A4091C2E97F06E005D92CC /* DataItem+StringValueTests.swift in Sources */,
 				ECF92FC02F74519D00A5AE06 /* XCTestCase+AssertNoEmissionAfterDisposal.swift in Sources */,
 				87A4091D2E97F06E005D92CC /* ConsentInspectorTests.swift in Sources */,
@@ -8255,6 +8274,7 @@
 				87A409802E98FFD9005D92CC /* XCTAssert+Result.swift in Sources */,
 				87A409812E98FFD9005D92CC /* DeinitTester.swift in Sources */,
 				F533C86A2F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */,
+				F5ACE86A2F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */,
 				87A409822E98FFD9005D92CC /* MockMatchable.swift in Sources */,
 				87A409832E98FFD9005D92CC /* MockQueueManager.swift in Sources */,
 				87A409842E98FFD9005D92CC /* XCTAssert+NaN.swift in Sources */,
@@ -8329,6 +8349,7 @@
 				87A409D22E9900CE005D92CC /* MockDispatchManager.swift in Sources */,
 				87A409D32E9900CE005D92CC /* SDKSettings+copy.swift in Sources */,
 				F533C86E2F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */,
+				F5ACE86E2F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */,
 				87A409D42E9900CE005D92CC /* MultipleInstancesSettingsBuilder.swift in Sources */,
 				87A409D52E9900CE005D92CC /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				87A409D62E9900CE005D92CC /* FirstLaunchTests.swift in Sources */,
@@ -8405,6 +8426,7 @@
 				87A40A1E2E9900D1005D92CC /* MockDispatchManager.swift in Sources */,
 				87A40A1F2E9900D1005D92CC /* SDKSettings+copy.swift in Sources */,
 				F533C8652F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */,
+				F5ACE8652F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */,
 				87A40A202E9900D1005D92CC /* MultipleInstancesSettingsBuilder.swift in Sources */,
 				87A40A212E9900D1005D92CC /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				87A40A222E9900D1005D92CC /* FirstLaunchTests.swift in Sources */,
@@ -8481,6 +8503,7 @@
 				87A40A6A2E9900D5005D92CC /* MockDispatchManager.swift in Sources */,
 				87A40A6B2E9900D5005D92CC /* SDKSettings+copy.swift in Sources */,
 				F533C86B2F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */,
+				F5ACE86B2F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */,
 				87A40A6C2E9900D5005D92CC /* MultipleInstancesSettingsBuilder.swift in Sources */,
 				87A40A6D2E9900D5005D92CC /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				87A40A6E2E9900D5005D92CC /* FirstLaunchTests.swift in Sources */,
@@ -8736,6 +8759,7 @@
 				874F2DE22DF88DEA004E9B1C /* ConsentInspectorTests.swift in Sources */,
 				F538CEDF30053FC9004AB31B /* JustTests.swift in Sources */,
 				F533C8672F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */,
+				F5ACE8672F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */,
 				87BA6D8A2C6A470C00784784 /* Operators+StartsWithTests.swift in Sources */,
 				ECF92FBF2F74519D00A5AE06 /* XCTestCase+AssertNoEmissionAfterDisposal.swift in Sources */,
 				8704DA312E0C06CF002E5AC5 /* Dispatch+ConsentTests.swift in Sources */,
@@ -9040,6 +9064,7 @@
 				87BA6E012C6A47AF00784784 /* XCTAssert+EqualDictionaries.swift in Sources */,
 				F538CEDE30053FC9004AB31B /* JustTests.swift in Sources */,
 				F533C8682F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */,
+				F5ACE8682F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */,
 				8704DA322E0C06CF002E5AC5 /* Dispatch+ConsentTests.swift in Sources */,
 				ECF92FC12F74519D00A5AE06 /* XCTestCase+AssertNoEmissionAfterDisposal.swift in Sources */,
 				D54BBFB52C78C01A003687C7 /* TransformerCoordinatorTests.swift in Sources */,
@@ -9420,6 +9445,7 @@
 				87FC087E2D94532000E1041D /* MockDispatchManager.swift in Sources */,
 				876F25062DDF2EAC00C55FFE /* SDKSettings+copy.swift in Sources */,
 				F533C8662F72CD3D007871E7 /* NonDisposalCheckingObservable.swift in Sources */,
+				F5ACE8662F72CD3D007871E7 /* SubjectReplayTestHelpers.swift in Sources */,
 				87F0EA612E7AD645005C996D /* MultipleInstancesSettingsBuilder.swift in Sources */,
 				87F0EA6B2E7AFA09005C996D /* ModuleSettingsBuilder+SetProperty.swift in Sources */,
 				EC1AA4DF2CCFA34200D1D9D1 /* FirstLaunchTests.swift in Sources */,

@@ -143,4 +143,142 @@ final class StateSubjectTests: XCTestCase {
         }.addTo(container)
         subject.onNext(2)
     }
+
+    // MARK: - Emitting from the replay callback
+
+    func test_value_emitted_from_replay_callback_reaches_new_observer_after_the_callback() {
+        let subject = StateSubject(1)
+        var events = [String]()
+
+        let subscription = subject.asObservable().subscribe { value in
+            events.append("start \(value)")
+            if value == 1 {
+                subject.onNext(2)
+            }
+            events.append("end \(value)")
+        }
+        defer { subscription.dispose() }
+
+        XCTAssertEqual(events, ["start 1", "end 1", "start 2", "end 2"])
+        XCTAssertEqual(subject.value, 2)
+    }
+
+    func test_value_emitted_from_replay_callback_reaches_earlier_observer_nested() {
+        let subject = StateSubject(1)
+        var events = [String]()
+
+        _ = subject.asObservable().subscribe { value in
+            events.append("earlier \(value)")
+        }
+        events.removeAll()
+
+        let subscription = subject.asObservable().subscribe { value in
+            events.append("new start \(value)")
+            if value == 1 {
+                subject.onNext(2)
+            }
+            events.append("new end \(value)")
+        }
+        defer { subscription.dispose() }
+
+        XCTAssertEqual(events, ["new start 1", "earlier 2", "new end 1", "new start 2", "new end 2"])
+    }
+
+    func test_combineLatest_receives_value_emitted_into_last_source_from_first_value() {
+        assertCombineLatestReceivesValueEmittedIntoLastSource(makeSubject: { StateSubject($0) })
+    }
+
+    func test_iterable_combineLatest_receives_value_emitted_into_last_source_from_first_value() {
+        assertIterableCombineLatestReceivesValueEmittedIntoLastSource(makeSubject: { StateSubject($0) })
+    }
+
+    // MARK: - Completion
+
+    func test_completed_subject_delivers_value_then_completion_to_raw_observer() {
+        let subject = StateSubject(1)
+        subject.onComplete()
+        let observer = RecordingObserver<Int> { _ in subject.onNext(2) }
+
+        _ = subject.asObservable().subscribe(observer)
+        subject.onNext(3)
+
+        XCTAssertEqual(observer.events, ["next 1", "complete"])
+    }
+
+    func test_onNext_after_completion_does_not_change_value() {
+        let subject = StateSubject(1)
+        subject.onComplete()
+
+        subject.onNext(2)
+
+        XCTAssertEqual(subject.value, 1)
+        let observer = RecordingObserver<Int>()
+        _ = subject.asObservable().subscribe(observer)
+        XCTAssertEqual(observer.events, ["next 1", "complete"])
+    }
+
+    func test_completion_emitted_from_replay_callback_reaches_new_observer_after_replay() {
+        let subject = StateSubject(1)
+        let log = EventLog()
+        _ = subject.asObservable().subscribe(RecordingObserver<Int>(log: log, name: "earlier"))
+        log.removeAll()
+
+        _ = subject.asObservable().subscribe(RecordingObserver<Int>(log: log, name: "new") { value in
+            subject.onComplete()
+            log.append("new:end \(value)")
+        })
+        subject.onNext(2)
+
+        XCTAssertEqual(log.events, ["new:next 1", "earlier:complete", "new:end 1", "new:complete"])
+    }
+
+    func test_value_reaches_new_observer_before_completion_when_earlier_observer_completes_on_value_emitted_from_replay() {
+        let subject = StateSubject(1)
+        let log = EventLog()
+        _ = subject.asObservable().subscribe(RecordingObserver<Int>(log: log, name: "earlier") { value in
+            if value == 2 {
+                subject.onComplete()
+            }
+        })
+        log.removeAll()
+
+        _ = subject.asObservable().subscribe(RecordingObserver<Int>(log: log, name: "new") { value in
+            if value == 1 {
+                subject.onNext(2)
+            }
+        })
+
+        XCTAssertEqual(log.events, ["new:next 1", "earlier:next 2", "earlier:complete", "new:next 2", "new:complete"])
+    }
+
+    // MARK: - Observers that complete during their replay
+
+    func test_first_completing_during_replay_receives_nothing_after_completion() {
+        let subject = StateSubject(1)
+        let observer = RecordingObserver<Int> { _ in subject.onNext(2) }
+
+        _ = subject.asObservable().first().subscribe(observer)
+        subject.onNext(3)
+
+        XCTAssertEqual(observer.events, ["next 1", "complete"])
+        XCTAssertEqual(subject.value, 3)
+    }
+
+    func test_takeWhile_inclusive_completing_during_replay_receives_nothing_after_completion() {
+        let subject = StateSubject(1)
+        let observer = RecordingObserver<Int> { _ in subject.onNext(2) }
+
+        _ = subject.asObservable().takeWhile({ _ in false }, inclusive: true).subscribe(observer)
+        subject.onNext(3)
+
+        XCTAssertEqual(observer.events, ["next 1", "complete"])
+    }
+
+    func test_subscriber_disposed_during_replay_is_unregistered_when_subscribe_returns() {
+        assertSelfDisposingSubscriberIsReleased(by: StateSubject(1))
+    }
+
+    func test_subscriber_not_disposed_is_retained_by_the_subject() {
+        assertStayingSubscriberIsRetained(by: StateSubject(1))
+    }
 }
