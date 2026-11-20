@@ -24,6 +24,7 @@ Pod::Spec.new do |s|
   
   s.subspec "Core" do |core|
       core.source_files = "tealium-prism/core/**/*.{swift,h,m}"
+      core.resource_bundles = { "TealiumPrism" => "tealium-prism/core/PrivacyInfo.xcprivacy" }
     end
 
   s.subspec "Lifecycle" do |lifecycle|

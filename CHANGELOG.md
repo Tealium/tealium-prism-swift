@@ -21,6 +21,7 @@ All notable changes to Tealium Prism for Swift are documented in this file. Rele
 
 - Made `DataObject.getConvertible(converter:)` public.
 - Added `ComparableUtils.coerce(_:min:max:)` to clamp a value between a minimum and a maximum.
+- Added a privacy manifest (`PrivacyInfo.xcprivacy`) to Core, declaring no tracking, no collected data and no required-reason APIs.
 
 ### Deprecations
 

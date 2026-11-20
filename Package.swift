@@ -32,7 +32,8 @@ let package = Package(
                 .product(name: "SQLite", package: "SQLite.swift")
             ],
             path: "tealium-prism/core/",
-            exclude: ["Internal/Misc/ObjC/"]
+            exclude: ["Internal/Misc/ObjC/"],
+            resources: [.process("PrivacyInfo.xcprivacy")]
         ),
         .target(
             name: "TealiumPrismCoreObjC",
