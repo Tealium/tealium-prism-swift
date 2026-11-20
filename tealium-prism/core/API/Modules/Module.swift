@@ -9,6 +9,8 @@
 import Foundation
 
 /// A module used by the Tealium SDK to provide some plugin functionality.
+///
+/// Modules are created and called on the Tealium queue.
 public protocol Module: AnyObject {
     /// The version of this module
     var version: String { get }
@@ -59,6 +61,7 @@ public protocol Collector: Module {
 /// A `Module` that implements the functionality of dispatching some track requests towards some entity that can handle the events.
 public protocol Dispatcher: Module {
     /// The maximum amount of `Dispatch`es that are accepted in a single dispatch call. Default is 1.
+    /// A batch is also capped at the `DispatchManager`'s in-flight threshold (50), and values below 1 are treated as 1.
     var dispatchLimit: Int { get }
     /**
      * Sends the provided `Dispatch`es to some specific entity to handle them.

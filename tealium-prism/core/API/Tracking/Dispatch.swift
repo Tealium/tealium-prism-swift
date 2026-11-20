@@ -14,6 +14,16 @@ public enum DispatchType: String {
     case event
     /// A view dispatch.
     case view
+
+    /// Initialize the DispatchType with a String.
+    /// Supported values are "event" and "link" for `event`, and "view" for `view`.
+    public init?(rawValue: String) {
+        switch rawValue.lowercased() {
+        case "event", "link": self = .event
+        case "view": self = .view
+        default: return nil
+        }
+    }
 }
 
 /// Represents a tracking event or view to be dispatched.

@@ -24,17 +24,17 @@ final class QueueManagerQueueMetricsTests: XCTestCase {
                                          coreSettings: coreSettings,
                                          logger: nil)
 
-    override func setUp() {
+    override func setUpWithError() throws {
         // store one dispatch for MockDispatcher1 by default
-        queueManager.storeDispatches([Dispatch(name: "event_name1")], enqueueingFor: [MockDispatcher1.moduleType])
+        try queueManager.storeDispatches([Dispatch(name: "event_name1")], enqueueingFor: [MockDispatcher1.moduleType])
     }
 
     func test_onQueueSizePendingDispatch_emits_initial_value_for_given_processor() {
         XCTAssertObservedValueEqual(queueManager.onQueueSizePendingDispatch(for: MockDispatcher1.moduleType), 1)
     }
 
-    func test_onQueueSizePendingDispatch_emits_correct_values_for_different_processors() {
-        queueManager.storeDispatches([Dispatch(name: "event_name1"), Dispatch(name: "event_name2")], enqueueingFor: [MockDispatcher2.moduleType])
+    func test_onQueueSizePendingDispatch_emits_correct_values_for_different_processors() throws {
+        try queueManager.storeDispatches([Dispatch(name: "event_name1"), Dispatch(name: "event_name2")], enqueueingFor: [MockDispatcher2.moduleType])
         XCTAssertObservedValueEqual(queueManager.onQueueSizePendingDispatch(for: MockDispatcher1.moduleType), 1)
         XCTAssertObservedValueEqual(queueManager.onQueueSizePendingDispatch(for: MockDispatcher2.moduleType), 2)
     }

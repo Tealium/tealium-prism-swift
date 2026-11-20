@@ -14,6 +14,9 @@ import TealiumPrismCore
 /**
  * Errors that can occur when using the Context API module.
  */
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum ContextAPIError: Error, ErrorEnum, ErrorWrapping {
     /// The engine ID provided is invalid (empty or malformed). Engine IDs must be non-empty strings that identify a valid Context API engine in your Tealium account.
     case invalidEngineID

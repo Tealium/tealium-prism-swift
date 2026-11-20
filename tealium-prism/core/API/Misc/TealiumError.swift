@@ -9,6 +9,9 @@
 import Foundation
 
 /// Errors that can occur when calling methods directly on a `Tealium` instance.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum TealiumError: ErrorEnum, ErrorWrapping {
     /// An error happened during `Tealium` initialization that prevented the correct initialization of the `Tealium` instance.
     case initializationError(_ error: Error)

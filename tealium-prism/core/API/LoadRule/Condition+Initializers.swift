@@ -383,6 +383,9 @@ public extension Condition {
      * Returns a `Condition` that checks whether the value found at path `variable`, as a string,
      * is matched by the given `regex`.
      *
+     * If `regex` is not a valid `NSRegularExpression` pattern, evaluating the condition throws a `ConditionEvaluationError`.
+     * An empty `regex` matches every value.
+     *
      * - Parameters:
      *      - variable: the path to the variable in the payload to extract the value from for the comparison
      *      - regex: the target regex to check against
@@ -394,6 +397,9 @@ public extension Condition {
     /**
      * Returns a `Condition` that checks whether the value found at key `variable`, as a string,
      * is matched by the given `regex`.
+     *
+     * If `regex` is not a valid `NSRegularExpression` pattern, evaluating the condition throws a `ConditionEvaluationError`.
+     * An empty `regex` matches every value.
      *
      * - Parameters:
      *      - variable: the key to the variable in the payload to extract the value from for the comparison

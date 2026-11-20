@@ -226,7 +226,13 @@ public extension Observable {
      *
      * - Warning: If the underlying observable always emits a new event and the condition is always met, this will end up calling endlessly until, eventually, the app will crash for stack overflow or out of memory exceptions.
      * You need to treat the underlying observable as a recursive function and make sure there is an exit condition.
+     *
+     * - Warning: Deprecated, with known issues, so it shouldn't be relied upon:
+     *   - a source that emits synchronously on subscription resubscribes recursively, one level per emission,
+     *     and so can overflow the stack;
+     *   - disposing the subscription while an emission is being delivered downstream still resubscribes once to the source.
      */
+    @available(*, deprecated, message: "No longer used by the SDK. It will be removed in a future version.")
     func resubscribingWhile(_ isIncluded: @escaping (Element) -> Bool) -> Observable<Element> {
         ResubscribingWhileObservable(source: self, predicate: isIncluded)
     }
@@ -300,7 +306,7 @@ public extension Observable {
      * potentially synchronously if the element was emitted from that same queue.
      *
      * - parameter milliseconds: The time to wait before emitting the elements
-     * - parameter queue: The queue on which the debouncer is working on.
+     * - parameter queue: The queue on which the elements are emitted.
      */
     func delay(_ milliseconds: Int, on queue: TealiumQueue) -> Observable<Element> {
         flatMap { element in
@@ -324,17 +330,22 @@ fileprivate extension Observables {
             let downstream = AsyncDisposableContainer(queue: queue)
 
             guard milliseconds > 0 else {
+                // Dispose inside the block: ensureOnQueue may be asynchronous, and disposing right away would make the block drop the element.
                 queue.ensureOnQueue {
                     guard !downstream.isDisposed else { return }
                     observer.onNext(element)
+                    // The observer may have disposed this subscription from onNext, e.g. by emitting again upstream.
+                    guard !downstream.isDisposed else { return }
                     observer.onComplete()
+                    downstream.dispose()
                 }
-                downstream.dispose()
                 return downstream
             }
             queue.dispatchQueue.asyncAfter(deadline: .now() + .milliseconds(milliseconds)) {
                 guard !downstream.isDisposed else { return }
                 observer.onNext(element)
+                // The observer may have disposed this subscription from onNext, e.g. by emitting again upstream.
+                guard !downstream.isDisposed else { return }
                 observer.onComplete()
                 downstream.dispose()
             }

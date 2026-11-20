@@ -17,17 +17,20 @@ jobs:
   # Build job
   build_docs:
     # Specify runner +  build & upload the static files as an artifact
-    runs-on: 'macOS-15'
+    runs-on: macos-15
+    timeout-minutes: 30
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: "Run Local Action: Setup Machine"
         uses: ./.github/workflows/setup-machine
+        with:
+          pod-install: 'false' # jazzy builds the package with SPM (.jazzy.yaml); Example/Pods is not used
       - name: Build static files
         id: build
         run: ./scripts/docs.sh
       - name: Upload static files as artifact
         id: upload-artifact
-        uses: actions/upload-pages-artifact@v4
+        uses: actions/upload-pages-artifact@v5
   # Deployment job
   deploy_docs:
     environment:
@@ -37,20 +40,24 @@ jobs:
     permissions:
       pages: write      # to deploy to Pages
       id-token: write   # to verify the deployment originates from an appropriate source
-    runs-on: 'macOS-15'
+    runs-on: macos-15
+    timeout-minutes: 30
     needs: build_docs
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
   build_and_deploy_for_hugo:
-    runs-on: 'macOS-15'
+    runs-on: macos-15
+    timeout-minutes: 30
     permissions:
       contents: write
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: "Run Local Action: Setup Machine"
         uses: ./.github/workflows/setup-machine
+        with:
+          pod-install: 'false' # jazzy builds the package with SPM (.jazzy.yaml); Example/Pods is not used
       - name: Build static files
         id: build
         run: ./scripts/docs.sh --theme ./docs/tealdocs-theme/

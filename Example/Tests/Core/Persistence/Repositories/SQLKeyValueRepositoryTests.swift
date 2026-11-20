@@ -19,8 +19,8 @@ final class SQLKeyValueRepositoryTests: XCTestCase {
     let dbProvider = MockDatabaseProvider()
     lazy var repository = SQLKeyValueRepository(dbProvider: dbProvider, moduleId: 1)
 
-    override func setUp() {
-        dbProvider.database.foreignKeys = false
+    override func setUpWithError() throws {
+        try dbProvider.database.execute("PRAGMA foreign_keys = OFF")
     }
 
     func test_upsert_adds_new_item() throws {
@@ -168,5 +168,25 @@ final class SQLKeyValueRepositoryTests: XCTestCase {
         XCTAssertEqual(count, 1)
         XCTAssertFalse(otherRepository.contains(key: "key"))
         XCTAssertTrue(repository.contains(key: "key"))
+    }
+
+    // MARK: - Unreadable rows
+
+    private func storeValue(in provider: DatabaseProviderProtocol) throws {
+        let moduleId = try SQLModulesRepository(dbProvider: provider).registerModule(name: "test")
+        try SQLKeyValueRepository(dbProvider: provider, moduleId: moduleId).upsert(key: "key", value: "value", expiry: .forever)
+    }
+
+    private func repository(on provider: DatabaseProviderProtocol) -> SQLKeyValueRepository {
+        SQLKeyValueRepository(dbProvider: provider, moduleId: 1)
+    }
+
+    func test_every_read_that_hits_corruption_returns_nothing_and_deletes_the_file() throws {
+        try assertStatementDeletesUnreadableFile(writing: storeValue) { XCTAssertEqual(repository(on: $0).getAll(), [:]) }
+        try assertStatementDeletesUnreadableFile(writing: storeValue) { XCTAssertEqual(repository(on: $0).keys(), []) }
+        try assertStatementDeletesUnreadableFile(writing: storeValue) { XCTAssertNil(repository(on: $0).get(key: "key")) }
+        try assertStatementDeletesUnreadableFile(writing: storeValue) { XCTAssertEqual(repository(on: $0).count(), 0) }
+        try assertStatementDeletesUnreadableFile(writing: storeValue) { XCTAssertFalse(repository(on: $0).contains(key: "key")) }
+        try assertStatementDeletesUnreadableFile(writing: storeValue) { XCTAssertNil(repository(on: $0).getExpiry(key: "key")) }
     }
 }

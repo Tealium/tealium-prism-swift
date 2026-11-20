@@ -150,19 +150,14 @@ class QueueManager: QueueManagerProtocol {
         _inflightEvents.value = eventsInflight
     }
 
-    func storeDispatches(_ dispatches: [Dispatch], enqueueingFor processors: [String]) {
+    func storeDispatches(_ dispatches: [Dispatch], enqueueingFor processors: [String]) throws {
         guard !dispatches.isEmpty && !processors.isEmpty else {
             return
         }
-        do {
-            try queueRepository.storeDispatches(dispatches, enqueueingFor: processors)
-            logger?.debug(category: LogCategory.queueManager,
-                          "Enqueued dispatches for processors \(processors): \(dispatches.map { $0.logDescription() })")
-            _onEnqueuedDispatchesForProcessors.onNext(Set(processors))
-        } catch {
-            logger?.error(category: LogCategory.queueManager,
-                          "Failed to enqueue dispatches for processors \(processors): \(dispatches.map { $0.logDescription() })\nError: \(error)")
-        }
+        try queueRepository.storeDispatches(dispatches, enqueueingFor: processors)
+        logger?.debug(category: LogCategory.queueManager,
+                      "Enqueued dispatches for processors \(processors): \(dispatches.map { $0.logDescription() })")
+        _onEnqueuedDispatchesForProcessors.onNext(Set(processors))
     }
 
     func deleteDispatches(_ dispatchUUIDs: [String], for processor: String) {

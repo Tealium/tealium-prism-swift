@@ -7,9 +7,10 @@ on:
 
 jobs:
   deploy_cocoapods:
-    runs-on: 'macOS-15'
+    runs-on: macos-15
+    timeout-minutes: 60 # pod trunk push lints the podspec on every platform: 21-42 min per attempt so far
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: "Run Local Action: Setup Machine"
         uses: ./.github/workflows/setup-machine
       - name: Deploy to Cocoapods

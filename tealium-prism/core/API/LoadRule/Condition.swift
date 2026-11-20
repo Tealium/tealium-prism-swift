@@ -40,6 +40,7 @@
 /// - If a required filter value is missing
 /// - If numeric operations are attempted on non-numeric data
 /// - If an operator is not supported for the data type found
+/// - If the `regex` operator's filter is not a valid `NSRegularExpression` pattern
 ///
 /// ## Supported Data Types
 ///
@@ -131,6 +132,9 @@ public struct Condition: Equatable {
          *
          * The regex needs to follow the `NSRegularExpression` format:
          * https://developer.apple.com/documentation/foundation/nsregularexpression
+         *
+         * If the pattern is invalid, evaluating the condition throws a `ConditionEvaluationError`.
+         * An empty pattern matches every value.
          */
         case regex
     }

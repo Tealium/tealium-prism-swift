@@ -17,6 +17,11 @@ import Foundation
  * Stored data requires an `Expiry` to be provided when storing, and expired data will not be
  * included in any retrieval operations; that is, expired data won't be returned by `get` or `getAll`
  * but it will also not be included in any aggregate methods such as `keys` or `count`.
+ *
+ * - Warning: This protocol is not thread-safe. Its methods, and the `DataStoreEditor` returned by `edit()`, must be
+ * called from the Tealium queue, which is where a module's methods are called, so a module can use its `DataStore`
+ * directly from them. `onDataUpdated` and `onDataRemoved` notify their subscribers synchronously, on the queue that
+ * made the change.
  */
 public protocol DataStore: AnyObject, DataItemExtractor {
     /**
@@ -47,18 +52,34 @@ public protocol DataStore: AnyObject, DataItemExtractor {
      */
     func count() -> Int
 
-    /// Observable of key-value pairs from this DataStore that have been updated
+    /**
+     * Observable of key-value pairs from this DataStore that have been updated
+     *
+     * After a transaction, each key is reported in at most one of `onDataUpdated` and `onDataRemoved`, according to its
+     * last edit, so the event matches the state stored by that transaction. A key that is both put and removed in the
+     * same transaction is reported only by its final edit. A put whose `Expiry` has already passed removes the key instead.
+     */
     var onDataUpdated: Observable<DataObject> { get }
 
     /**
      * Observable of keys from this DataStore that have been removed or expired
      *
-     * Note that expiration may not happen immediately when the value is expired but may happen asynchronously on a later check
+     * After a transaction, each key is reported in at most one of `onDataUpdated` and `onDataRemoved`; see `onDataUpdated`.
+     * A removal that deleted nothing is not reported.
+     *
+     * Expired keys are reported when the SDK cleans up expired data, which may be later than the moment the value expired.
      */
     var onDataRemoved: Observable<[String]> { get }
 }
 
-/// Enables editing multiple entries in the module storage in a transactional way.
+/**
+ * Enables editing multiple entries in the module storage in a transactional way.
+ *
+ * Storing a value whose `Expiry` has already passed removes any existing value at that key and stores nothing.
+ *
+ * - Warning: Like the `DataStore` that created it, a `DataStoreEditor` is not thread-safe and must only be used from the
+ * Tealium queue.
+ */
 public protocol DataStoreEditor {
     /**
      * Applies a `DataStoreEdit` to this editor.
@@ -72,6 +93,8 @@ public protocol DataStoreEditor {
     /**
      * Adds a single key-value pair into the storage.
      *
+     * If the `expiry` has already passed, any existing value at the key is removed instead and nothing is stored.
+     *
      * - parameter key: The key to store the value under.
      * - parameter value: The `DataInput` to be stored.
      * - parameter expiry: The time frame for this data to remain stored.
@@ -82,6 +105,8 @@ public protocol DataStoreEditor {
 
     /**
      * Adds all key-value pairs from the dictionary into the storage.
+     *
+     * If the `expiry` has already passed, any existing value at each key is removed instead and nothing is stored.
      *
      * - parameter dataObject: A `DataObject` containing the key-value pairs to be stored.
      * - parameter expiry: The time frame for this data to remain stored.
@@ -135,6 +160,7 @@ public enum DataStoreEdit {
      * Puts the specified value at the given key for a specific expiry.
      *
      * If any previous value was stored at that key it will be replaced together with the new expiry.
+     * If the `expiry` has already passed, the previous value is removed instead and nothing is stored.
      */
     case put(key: String, value: DataInput, expiry: Expiry)
 }

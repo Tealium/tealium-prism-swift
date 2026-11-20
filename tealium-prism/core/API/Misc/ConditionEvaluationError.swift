@@ -20,17 +20,21 @@ public struct ConditionEvaluationError: InvalidMatchError {
         case numberParsingError(parsing: String, source: String)
         /// Current operation is not supported for the described type of data item.
         case operationNotSupportedFor(_ typeDescription: String)
+        /// The filter is not a valid regular expression.
+        case invalidRegex(pattern: String, cause: Error)
 
         var message: String {
             switch self {
             case .missingDataItem:
-                return "Data item is not defined"
+                "Data item is not defined"
             case .missingFilter:
-                return "Filter is not defined"
+                "Filter is not defined"
             case let .numberParsingError(parsing, source):
-                return "\(source) value \(parsing) cannot be parsed as a number"
+                "\(source) value \(parsing) cannot be parsed as a number"
             case let .operationNotSupportedFor(type):
-                return "Data item (\(type)) is not supported for this operation"
+                "Data item (\(type)) is not supported for this operation"
+            case let .invalidRegex(pattern, cause):
+                "Invalid regular expression: \"\(pattern)\". Cause: \(cause)"
             }
         }
     }

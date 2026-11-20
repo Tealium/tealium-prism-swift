@@ -140,7 +140,8 @@ public struct DataObject: ExpressibleByDictionaryLiteral {
         DataItem(value: asDictionary())
     }
 
-    func getConvertible<T>(converter: any DataItemConverter<T>) -> T? {
+    /// Converts the current `DataObject` using the provided converter.
+    public func getConvertible<T>(converter: any DataItemConverter<T>) -> T? {
         toDataItem().getConvertible(converter: converter)
     }
 
@@ -246,7 +247,7 @@ extension DataObject: CustomStringConvertible {
     }
 }
 
-extension DataObject {
+public extension DataObject {
     /**
      * Deep merges two `DataObject`s together, returning a new `DataObject` containing the merged data.
      *

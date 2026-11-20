@@ -48,21 +48,33 @@ public struct TealiumTextField: View {
                         onCommit?()
                     }
             }
-            if let onCommit = onCommit {
-                Button {
-                    onCommit()
-                } label: {
-                    Text(applyButtonText)
-                        .frame(width: 100, height: 50)
-                        .background(color)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-            }
           }
-        .frame(width: 250.0)
+        .frame(maxWidth: maxWidth)
         .padding()
         .overlay(RoundedRectangle(cornerRadius: 10)
                     .stroke(color, lineWidth: 1))
+        if let onCommit = onCommit {
+            Button(applyButtonText) {
+                onCommit()
+            }
+        }
     }
+
+    var maxWidth: Double {
+        #if os(tvOS)
+        400.0
+        #else
+        200.0
+        #endif
+    }
+}
+
+@available(iOS 17.0, macOS 14.0, tvOS 17.0, watchOS 10.0, *)
+#Preview {
+    @Previewable @State var text: String = ""
+    Group {
+        TealiumTextField($text, placeholder: "placeholder", applyButtonText: "Something", onCommit: {
+
+        })
+    }.buttonStyle(TealiumButtonStyle())
 }

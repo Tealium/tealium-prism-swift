@@ -40,6 +40,10 @@ class TealiumImpl {
         let client = config.networkClient.newClient(withLogger: logger)
         let networkHelper = client.makeNetworkHelper()
         let connectivityManager = ConnectivityManager.shared.emittingOn(queue: queue)
+        // Every error thrown out of this initializer goes through here, once.
+        func logInitializationFailure(_ error: Error) {
+            logger.error(category: LogCategory.tealium, "Tealium initialization failed: \(error)")
+        }
         do {
             storeProvider = try Self.initModuleStoreProvider(config: config, logger: logger)
             sharedDataStore = try storeProvider.getSharedDataStore()
@@ -51,8 +55,8 @@ class TealiumImpl {
         } catch {
             // Without a settings manager nothing would ever publish a log level, so the logs queued
             // so far would never be flushed. Publish one so the failure itself is visible.
-            logger.error(category: LogCategory.tealium, "Tealium initialization failed: \(error)")
             onLogLevel.onNext(.error)
+            logInitializationFailure(error)
             throw error
         }
         self.databaseProvider = storeProvider.databaseProvider
@@ -116,6 +120,7 @@ class TealiumImpl {
                                               barrierCoordinator: barrierCoordinator,
                                               transformerCoordinator: transformerCoordinator,
                                               mappingsEngine: mappingsEngine,
+                                              queue: queue,
                                               logger: logger)
         let tracker = TrackerImpl(onCollectors: moduleManager.observeModules { $0 as? Collector },
                                   loadRuleEngine: loadRuleEngine,
@@ -124,7 +129,13 @@ class TealiumImpl {
                                   logger: logger)
         self.tracker = tracker
 
-        let dataLayerStore = try storeProvider.getModuleStore(name: Modules.Types.dataLayer)
+        let dataLayerStore: any DataStore
+        do {
+            dataLayerStore = try storeProvider.getModuleStore(name: Modules.Types.dataLayer)
+        } catch {
+            logInitializationFailure(error)
+            throw error
+        }
         let network = NetworkUtilities(networkHelper: networkHelper,
                                        networkClient: client,
                                        connectivityManager: connectivityManager)
@@ -192,6 +203,7 @@ class TealiumImpl {
         // The consumers of the modules stop before the modules are cleared: an empty list is then a
         // teardown, and must not be mistaken for a configuration that leaves the queues unowned.
         tracker.dispatchManager.stopDispatchLoop()
+        barrierCoordinator.shutdown()
         queueManager.shutdown()
         moduleManager.shutdown()
         sessionManager.shutdown()
@@ -207,7 +219,7 @@ class TealiumImpl {
                                    logger: LoggerProtocol?) {
         let result: (busy: Bool, log: Int, checkpointed: Int)
         do {
-            result = try databaseProvider.checkpoint()
+            result = try databaseProvider.database.checkpoint()
         } catch {
             logger?.error(category: LogCategory.persistence,
                           "WAL checkpoint at \(moment) failed: \(error)")

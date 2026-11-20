@@ -32,7 +32,7 @@ final class DatabaseProviderWALTests: XCTestCase {
 
     func test_persistent_database_uses_WAL_journal_mode() throws {
         config.databaseName = "tealium"
-        let database = try DatabaseProvider.openDatabase(config: config)
+        let database = try DatabaseProvider.openDatabase(config: config).connection
 
         let mode = try XCTUnwrap(try database.scalar("PRAGMA journal_mode") as? String)
         XCTAssertEqual(mode.lowercased(), "wal",
@@ -42,7 +42,7 @@ final class DatabaseProviderWALTests: XCTestCase {
 
     func test_persistent_database_uses_synchronous_NORMAL() throws {
         config.databaseName = "tealium"
-        let database = try DatabaseProvider.openDatabase(config: config)
+        let database = try DatabaseProvider.openDatabase(config: config).connection
 
         // 1 == NORMAL. Under WAL this can only lose the most recent commit on OS crash or power
         // loss, never on app termination, where the log survives and is replayed on next open.
@@ -105,7 +105,7 @@ final class DatabaseProviderWALTests: XCTestCase {
         try repository.storeDispatches(dispatches, enqueueingFor: ["Collect"])
 
         try withExtendedLifetime(leaked) {
-            XCTAssertGreaterThan(try walSize(), 0,
+            XCTAssertGreaterThan(try walSize(ofDatabaseAt: databasePath()), 0,
                                  "The first connection must still be holding frames in the -wal, "
                                  + "otherwise the reopen below just reads the main database file "
                                  + "and proves nothing about recovery.")
@@ -117,7 +117,7 @@ final class DatabaseProviderWALTests: XCTestCase {
             XCTAssertEqual(reopenedRepository.size, dispatches.count,
                            "A new connection must read the frames left in the log. Recovery after a "
                            + "process kill runs the same mechanism, and stays a manual check.")
-            XCTAssertGreaterThan(try walSize(), 0,
+            XCTAssertGreaterThan(try walSize(ofDatabaseAt: databasePath()), 0,
                                  "The rows came out of the log, not out of an already-checkpointed "
                                  + "database file: the second connection must not have folded it back.")
         }
@@ -142,19 +142,19 @@ final class DatabaseProviderWALTests: XCTestCase {
 
         // Precondition: there is genuinely something to fold back. This is what stops the
         // assertions below from being vacuous.
-        let sizeBeforeCheckpoint = try walSize()
+        let sizeBeforeCheckpoint = try walSize(ofDatabaseAt: databasePath())
         XCTAssertGreaterThan(sizeBeforeCheckpoint, 0,
                              "With auto-checkpoint disabled, 100 committed dispatches must leave "
                              + "frames in the -wal; otherwise the checkpoint assertions prove nothing.")
 
-        let result = try provider.checkpoint()
+        let result = try provider.database.checkpoint()
 
         XCTAssertFalse(result.busy, "Nothing else holds the log, so the checkpoint must complete.")
         XCTAssertGreaterThan(result.log, 0)
         XCTAssertEqual(result.checkpointed, result.log,
                        "Every committed frame must be folded back into the main database file, "
                        + "not stranded in the log between launches.")
-        XCTAssertEqual(try walSize(), sizeBeforeCheckpoint,
+        XCTAssertEqual(try walSize(ofDatabaseAt: databasePath()), sizeBeforeCheckpoint,
                        "RESTART keeps the -wal at its working size for the next writer to reuse; "
                        + "journal_size_limit bounds it at that writer's reset.")
 
@@ -165,23 +165,23 @@ final class DatabaseProviderWALTests: XCTestCase {
         // frames the log now holds: only the new write's if the log restarted, or the earlier
         // frames plus the new ones if it did not.
         try repository.storeDispatches([Dispatch(name: "after_checkpoint")], enqueueingFor: ["Collect"])
-        let afterWrite = try XCTUnwrap(try provider.database.prepare("PRAGMA wal_checkpoint(PASSIVE)")
-            .failableNext()?.compactMap { $0 as? Int64 })
+        let afterWrite = try XCTUnwrap(try provider.database.rows("PRAGMA wal_checkpoint(PASSIVE)")
+            .first?.compactMap { $0 as? Int64 })
         XCTAssertEqual(afterWrite.count, 3)
         XCTAssertGreaterThan(afterWrite[1], 0, "The new write must be in the log.")
         XCTAssertLessThan(afterWrite[1], Int64(result.log),
                           "After the checkpoint a small write must restart the log from the "
                           + "beginning, not append to the frames already folded back.")
-        XCTAssertLessThanOrEqual(try walSize(), sizeBeforeCheckpoint,
+        XCTAssertLessThanOrEqual(try walSize(ofDatabaseAt: databasePath()), sizeBeforeCheckpoint,
                                  "A write into a restarted log overwrites the file from the start, "
                                  + "so the -wal must not grow.")
     }
 
     func test_checkpoint_is_safe_on_an_in_memory_database() throws {
-        // The default implementation must be a harmless no-op wherever WAL is not in use,
-        // including for test doubles that never touch disk.
+        // `DatabaseConnection.checkpoint()` must be a harmless no-op where WAL is not in use,
+        // as in an in-memory database, which has no file to checkpoint.
         let provider = try DatabaseProvider(config: mockConfig)  // no databaseName -> in memory
-        XCTAssertNoThrow(try provider.checkpoint())
+        XCTAssertNoThrow(try provider.database.checkpoint())
     }
 
     // MARK: - Sidecars
@@ -194,13 +194,13 @@ final class DatabaseProviderWALTests: XCTestCase {
         let databasePath = try XCTUnwrap(helper.databaseUrl?.path)
         // WAL mode never creates a rollback journal, so one is staged to prove it is removed too.
         XCTAssertTrue(FileManager.default.createFile(atPath: databasePath + "-journal", contents: Data()))
-        for suffix in ["-wal", "-shm", "-journal"] {
+        for suffix in SQLiteOpenHelper.sidecarSuffixes {
             XCTAssertTrue(FileManager.default.fileExists(atPath: databasePath + suffix),
                           "The \(suffix) file must exist before deleteDatabase() for this test to prove anything.")
         }
         try helper.deleteDatabase()
 
-        for suffix in ["", "-wal", "-shm", "-journal"] {
+        for suffix in [""] + SQLiteOpenHelper.sidecarSuffixes {
             XCTAssertFalse(FileManager.default.fileExists(atPath: databasePath + suffix),
                            "deleteDatabase() must remove the \(suffix.isEmpty ? "database" : suffix) "
                            + "file; a stranded sidecar leaves queued event data on disk.")
@@ -209,13 +209,7 @@ final class DatabaseProviderWALTests: XCTestCase {
 
     // MARK: - Helpers
 
-    /// Size of the `-wal` sidecar of the database these tests open, 0 only when its folder cannot be
-    /// resolved. Throws when the file cannot be read, so a missing `-wal` fails the test instead of
-    /// passing as an empty log.
-    private func walSize() throws -> Int {
-        let url = try TealiumFileManager.getApplicationFileUrl(for: config.account,
-                                                               profile: config.profile,
-                                                               fileName: "tealium.sqlite3")
-        return try FileManager.default.attributesOfItem(atPath: url.path.appending("-wal"))[.size] as? Int ?? 0
+    private func databasePath() throws -> String {
+        try TealiumFileManager.getApplicationFileUrl(for: config.account, profile: config.profile, fileName: "tealium.sqlite3").path
     }
 }

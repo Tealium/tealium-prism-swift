@@ -11,6 +11,9 @@ import Foundation
 /// The connection as it's reported by the system monitors
 public enum NetworkConnection: Equatable {
     /// The type of connection that we have at the moment
+    #if hasAttribute(nonexhaustive)
+    @nonexhaustive
+    #endif
     public enum ConnectionType: String, Equatable {
         /// The connection is cellular or connected via hotspot to another phone
         case cellular

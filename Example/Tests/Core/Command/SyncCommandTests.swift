@@ -24,20 +24,20 @@ final class SyncCommandTests: XCTestCase {
     func test_execute_completion_nil_on_success() {
         let command = MockSyncCommand(name: "test")
 
-        var receivedError: CommandError?
+        var receivedError: Error?
         _ = command.execute(payload: [:]) { receivedError = $0 }
 
         XCTAssertNil(receivedError)
     }
 
     func test_execute_completion_receives_error_on_throw() {
-        let command = MockSyncCommand(name: "test", errorToThrow: .missingParameter("param"))
+        let command = MockSyncCommand(name: "test", errorToThrow: .invalidPayload(.missing(key: "param")))
 
-        var receivedError: CommandError?
+        var receivedError: Error?
         _ = command.execute(payload: [:]) { receivedError = $0 }
 
-        guard case .missingParameter(let name) = receivedError else {
-            XCTFail("Expected missingParameter but got \(String(describing: receivedError))")
+        guard case .invalidPayload(.missing(let name)) = receivedError as? CommandError else {
+            XCTFail("Expected invalidPayload(.missing) but got \(String(describing: receivedError))")
             return
         }
         XCTAssertEqual(name, "param")
@@ -59,5 +59,23 @@ final class SyncCommandTests: XCTestCase {
         _ = command.execute(payload: [:]) { _ in }
 
         XCTAssertEqual(command.executeCallCount, 3)
+    }
+
+    func test_execute_completes_with_extractionError_when_required_key_is_missing() {
+        class RequiringCommand: SyncCommand {
+            override func execute(payload: DataObject) throws {
+                _ = try payload.require(JSONPath["param"], converter: LenientConverters.string)
+            }
+        }
+        let command = RequiringCommand(name: "test")
+
+        var receivedError: Error?
+        _ = command.execute(payload: [:]) { receivedError = $0 }
+
+        guard case .missing(let name) = receivedError as? ExtractionError else {
+            XCTFail("Expected ExtractionError.missing but got \(String(describing: receivedError))")
+            return
+        }
+        XCTAssertEqual(name, "param")
     }
 }

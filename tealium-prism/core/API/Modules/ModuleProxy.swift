@@ -244,7 +244,7 @@ public class ModuleProxy<SpecificModule: Module, Failure: Error> {
      * Fails with a `ModuleError` if the task can't be run or fails: see `ModuleError` for the meaning of each case.
      *
      * - Parameters:
-     *   - task: the task to be executed if module is enabled
+     *   - asyncTask: the task to be executed if module is enabled
      * - Returns: the `Single` with the `Result`.
      */
     public func executeAsyncModuleTask<T>(_ asyncTask: @escaping AsyncModuleTask<T>) -> SingleResult<T, ModuleError<Failure>> {

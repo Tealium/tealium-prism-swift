@@ -10,6 +10,12 @@
 import XCTest
 
 final class DispatchManagerBarrierTests: DispatchManagerTestCase {
+    let disposer = AutomaticDisposer()
+
+    override func tearDown() {
+        disposer.dispose()
+        super.tearDown()
+    }
 
     func test_event_is_not_dispatched_if_a_barrier_is_closed() {
         let eventIsNotDispatched = expectation(description: "Event is NOT dispatched")
@@ -74,17 +80,65 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         wait(for: [eventsAreDequeued, eventsAreDispatched], timeout: Self.defaultTimeout, enforceOrder: true)
     }
 
-    func test_pulls_from_the_queue_are_stopped_asynchronously_when_a_barrier_closes() {
+    func test_pulls_from_the_queue_are_stopped_asynchronously_when_a_barrier_closes() throws {
         disableModule(module: module1)
         let eventsAreDequeued = expectation(description: "Events are flushed until queue is empty or limit is reached when a barrier is open. Closing the barrier only stops future flushes")
         eventsAreDequeued.expectedFulfillmentCount = 2
-        queueManager.storeDispatches(createDispatches(amount: 5), enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(createDispatches(amount: 5), enqueueingFor: allDispatchers)
         _ = queueManager.onDequeueRequest.subscribe { _ in
             eventsAreDequeued.fulfill()
         }
         _ = dispatchManager
         barrier.setState(.closed)
-        queueManager.storeDispatches([Dispatch(name: "6")], enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches([Dispatch(name: "6")], enqueueingFor: allDispatchers)
+        waitForDefaultTimeout()
+    }
+
+    // MARK: - Flush restarts
+
+    /// Leaves a closed flushable barrier (like a `BatchingBarrier` below its batch size) holding a backlog
+    /// after the launch flush ended, with the barriers re-emittable through the returned subject.
+    private func setUpClosedFlushableBarrierWithBacklog() throws -> StateSubject<[ScopedBarrier]> {
+        let barriers = StateSubject<[ScopedBarrier]>([ScopedBarrier(barrier: barrier, scope: .all)])
+        onBarriers = barriers.asObservable()
+        barrier.setState(.closed)
+        _ = dispatchManager
+        try queueManager.storeDispatches(createDispatches(amount: 5), enqueueingFor: allDispatchers)
+        return barriers
+    }
+
+    func test_changing_the_dispatchers_list_does_not_dispatch_the_backlog_held_by_a_closed_flushable_barrier() throws {
+        _ = try setUpClosedFlushableBarrierWithBacklog()
+        let backlogIsNotDispatched = expectation(description: "Backlog is NOT dispatched")
+        backlogIsNotDispatched.isInverted = true
+        backlogIsNotDispatched.assertForOverFulfill = false
+        module1?.onDispatch.subscribe { _ in
+            backlogIsNotDispatched.fulfill()
+        }.addTo(disposer)
+
+        disableModule(module: module2)
+        enableModule(MockDispatcher2.moduleType)
+        let readdedModuleDoesNotDispatch = expectation(description: "Re-added module doesn't dispatch the backlog it had when it was disabled")
+        readdedModuleDoesNotDispatch.isInverted = true
+        readdedModuleDoesNotDispatch.assertForOverFulfill = false
+        module2?.onDispatch.subscribe { _ in
+            readdedModuleDoesNotDispatch.fulfill()
+        }.addTo(disposer)
+
+        waitForDefaultTimeout()
+    }
+
+    func test_reemitting_the_barriers_does_not_dispatch_the_backlog_held_by_a_closed_flushable_barrier() throws {
+        let barriers = try setUpClosedFlushableBarrierWithBacklog()
+        let backlogIsNotDispatched = expectation(description: "Backlog is NOT dispatched")
+        backlogIsNotDispatched.isInverted = true
+        backlogIsNotDispatched.assertForOverFulfill = false
+        module1?.onDispatch.subscribe { _ in
+            backlogIsNotDispatched.fulfill()
+        }.addTo(disposer)
+
+        barriers.onNext(barriers.value)
+
         waitForDefaultTimeout()
     }
 }

@@ -6,6 +6,7 @@
 //  Copyright © 2025 Tealium, Inc. All rights reserved.
 //
 
+import Combine
 import TealiumPrism
 
 class CustomCMP: CMPAdapter, ObservableObject {

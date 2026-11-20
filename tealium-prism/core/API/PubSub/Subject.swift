@@ -44,10 +44,36 @@ public class Subject<Element>: Subscribable, Observer, ObservableConvertible {
         observable
     }
 
+    /// Subscribes `observer` to this subject through `asObservable()`, so a subclass that overrides `asObservable()`
+    /// decides what `observer` receives.
     public func subscribe<O: Observer<Element>>(_ observer: O) -> any Disposable {
         asObservable().subscribe(observer)
     }
 
+    /// Whether this subject has completed.
+    var isCompleted: Bool { observable.isCompleted }
+
+    /// Subscribes `observer` directly to this subject's observer list, bypassing `asObservable()`, then calls
+    /// `onAfterSubscribed` with it.
+    ///
+    /// If this subject `isCompleted`, `observer` is not subscribed: `onAfterSubscribed` is called, then
+    /// `observer.onComplete()`, so `observer` receives what `onAfterSubscribed` sends before the completion.
+    ///
+    /// - Parameters:
+    ///   - observer: The observer to subscribe.
+    ///   - onAfterSubscribed: Called once, synchronously, with `observer`.
+    /// - Returns: The subscription, or a completed disposable if this subject `isCompleted`.
+    final func subscribeThenNotify<O: Observer<Element>>(_ observer: O,
+                                                         onAfterSubscribed: (O) -> Void) -> any Disposable {
+        guard !isCompleted else {
+            onAfterSubscribed(observer)
+            observer.onComplete()
+            return CompletedDisposable.shared
+        }
+        let subscription = observable.subscribe(observer)
+        onAfterSubscribed(observer)
+        return subscription
+    }
 }
 
 public extension Subject where Element == Void {

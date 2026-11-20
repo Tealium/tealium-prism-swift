@@ -11,9 +11,9 @@ import XCTest
 
 final class DispatchManagerQueueTests: DispatchManagerTestCase {
 
-    func test_event_is_dispatched_when_already_present_in_the_queue() {
+    func test_event_is_dispatched_when_already_present_in_the_queue() throws {
         let eventIsDispatched = expectation(description: "Event is dispatched")
-        queueManager.storeDispatches([Dispatch(name: "someEvent")], enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches([Dispatch(name: "someEvent")], enqueueingFor: allDispatchers)
         module1?.onDispatch.subscribeOnce { dispatches in
             XCTAssertEqual(dispatches.count, 1)
             XCTAssertEqual(dispatches.first?.name, "someEvent")
@@ -23,12 +23,12 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_events_are_dispatched_in_order() {
+    func test_events_are_dispatched_in_order() throws {
         disableModule(module: module2)
         let eventsAreDispatched = expectation(description: "Events are dispatched 30 times")
         eventsAreDispatched.expectedFulfillmentCount = 30
         var count = 1
-        queueManager.storeDispatches(createDispatches(amount: 30), enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(createDispatches(amount: 30), enqueueingFor: allDispatchers)
         _ = module1?.onDispatch.subscribe { dispatches in
             XCTAssertEqual(dispatches.count, 1)
             XCTAssertEqual(dispatches.first?.name, "event\(count)")
@@ -36,16 +36,16 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
             eventsAreDispatched.fulfill()
         }
         _ = dispatchManager
-        waitForDefaultTimeout()
+        waitForLongTimeout() // Each batch is dequeued in its own main queue block
     }
 
-    func test_events_are_dispatched_in_ordered_batches() {
+    func test_events_are_dispatched_in_ordered_batches() throws {
         disableModule(module: module1)
         XCTAssertEqual(moduleManager.modules.value.count, 1)
         let eventsAreDispatched = expectation(description: "Events are dispatched in batches 10 times")
         eventsAreDispatched.expectedFulfillmentCount = 10
         var count = 0
-        queueManager.storeDispatches(createDispatches(amount: 30), enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(createDispatches(amount: 30), enqueueingFor: allDispatchers)
         _ = module2?.onDispatch.subscribe { dispatches in
             XCTAssertEqual(dispatches.count, 3)
             for index in 0..<3 {
@@ -55,13 +55,13 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
             eventsAreDispatched.fulfill()
         }
         _ = dispatchManager
-        waitForDefaultTimeout()
+        waitForLongTimeout() // Each batch is dequeued in its own main queue block
     }
 
-    func test_pulls_from_the_queue_are_stopped_immediately_when_a_partial_batch_is_returned() {
+    func test_pulls_from_the_queue_are_stopped_immediately_when_a_partial_batch_is_returned() throws {
         disableModule(module: module1)
         let eventsAreDequeued = expectation(description: "Events are dequeued only once in a batch")
-        queueManager.storeDispatches(createDispatches(amount: 2), enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(createDispatches(amount: 2), enqueueingFor: allDispatchers)
         _ = queueManager.onDequeueRequest.subscribe { _ in
             eventsAreDequeued.fulfill()
         }
@@ -69,20 +69,29 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
         waitForDefaultTimeout()
     }
 
-    func test_pulls_from_the_queue_are_stopped_immediately_when_number_of_inflight_reaches_the_maximum() {
+    func test_pulls_from_the_queue_are_stopped_immediately_when_number_of_inflight_reaches_the_maximum() throws {
         disableModule(module: module2)
-        module1?.delay = 2000
+        module1?.delay = Int(Self.longTimeout * 2000) // No completion can lower the inflight count while we wait
         let eventsAreDequeued = expectation(description: "Events are dequeued Maximum number of times, not more")
         eventsAreDequeued.expectedFulfillmentCount = DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER
-        queueManager.storeDispatches(createDispatches(amount: DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER + 10), enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(createDispatches(amount: DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER + 10), enqueueingFor: allDispatchers)
+        var dequeueRequests = 0 // counts empty dequeues too: none is expected past the threshold
         _ = queueManager.onDequeueRequest.subscribe { _ in
+            dequeueRequests += 1
             eventsAreDequeued.fulfill()
         }
         _ = dispatchManager
-        waitForDefaultTimeout()
+        waitForLongTimeout() // Every full batch requests the next dequeue in its own main queue block
+        let drained = expectation(description: "Main queue is drained")
+        DispatchQueue.main.async { drained.fulfill() }
+        wait(for: [drained], timeout: Self.longTimeout)
+        var queued: Int?
+        _ = queueManager.onQueueSizePendingDispatch(for: MockDispatcher1.moduleType).subscribeOnce { queued = $0 }
+        XCTAssertEqual(dequeueRequests, DispatchManager.MAXIMUM_INFLIGHT_EVENTS_PER_DISPATCHER)
+        XCTAssertEqual(queued, 10)
     }
 
-    func test_dispatcher_completing_events_in_multiple_batches_causes_delete_of_all_batches() {
+    func test_dispatcher_completing_events_in_multiple_batches_causes_delete_of_all_batches() throws {
         disableModule(module: module1)
         guard let module = module2 else {
             XCTFail("Module not found")
@@ -94,7 +103,7 @@ final class DispatchManagerQueueTests: DispatchManagerTestCase {
                                       configuration: ["split_dispatches": true])
         _sdkSettings.add(modules: [module.id: settings])
         moduleManager.updateSettings(context: context, settings: sdkSettings.value)
-        queueManager.storeDispatches(createDispatches(amount: 3), enqueueingFor: allDispatchers)
+        try queueManager.storeDispatches(createDispatches(amount: 3), enqueueingFor: allDispatchers)
         let deletedEvents = expectation(description: "Deleted all 3 events separately")
         deletedEvents.expectedFulfillmentCount = 3
         queueManager.onDeleteRequest.subscribe { (events: ([String], String)) in

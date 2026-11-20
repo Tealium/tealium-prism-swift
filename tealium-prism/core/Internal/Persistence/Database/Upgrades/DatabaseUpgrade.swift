@@ -16,7 +16,7 @@ protocol DatabaseUpgrade {
     var targetVersion: Int { get }
     /// Upgrades the database from `targetVersion - 1` to `targetVersion`. Runs inside the helper's transaction.
     /// A step doesn't catch database errors. If it must rethrow, it throws the original error, not a replacement,
-    /// so the SQLite error stays visible: MT-2271 will route corruption on it.
+    /// so the SQLite error stays visible: `DatabaseProvider` recreates the file when it reports corruption.
     ///
     /// A step may throw any error: the helper wraps it in a `DatabaseUpgradeError` carrying this step's `targetVersion`,
     /// and the transaction is rolled back.

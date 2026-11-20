@@ -236,8 +236,8 @@ public extension Mappings {
      *
      *
      * - Parameters:
-     *      - parameter value: The constant value to map to the given destination.
-     *      - parameter destination: The destination path to store the mapped value.
+     *      - value: The constant value to map to the given destination.
+     *      - destination: The destination path to store the mapped value.
      * - Returns: A `ConstantOptions` mapping operation builder.
      */
     @discardableResult
@@ -250,8 +250,8 @@ public extension Mappings {
      * the given `destination` located/stored in the root of the data layer.
      *
      * - Parameters:
-     *      - parameter value: The constant value to map to the given destination.
-     *      - parameter destination: The destination key to store the mapped value.
+     *      - value: The constant value to map to the given destination.
+     *      - destination: The destination key to store the mapped value.
      * - Returns: A `ConstantOptions` mapping operation builder.
      */
     @discardableResult

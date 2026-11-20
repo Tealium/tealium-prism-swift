@@ -11,6 +11,9 @@ import Foundation
 /**
  * The policy, returned by a `RequestInterceptor` that the `NetworkClient` should apply on a given `NetworkResponse`.
  */
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum RetryPolicy {
     /// Do not retry the request.
     case doNotRetry

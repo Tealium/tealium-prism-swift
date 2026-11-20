@@ -1,0 +1,52 @@
+{
+  "configurations" : [
+    {
+      "id" : "26E37B95-E738-4259-B635-446548F05383",
+      "name" : "Configuration",
+      "options" : {
+        "threadSanitizerEnabled" : true
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "8709E7662EF1A7AA008025C8",
+        "name" : "ExtensionsTests_watchOS"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "87A409702E98FFD9005D92CC",
+        "name" : "EndToEndTests_watchOS"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "87A408712E97F06E005D92CC",
+        "name" : "CoreTests_watchOS"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "9EA12CC52EC696D600B23C56",
+        "name" : "ContextAPITests_watchOS"
+      }
+    },
+    {
+      "target" : {
+        "containerPath" : "container:tealium-prism.xcodeproj",
+        "identifier" : "87A40A532E9900D5005D92CC",
+        "name" : "LifecycleTests_watchOS"
+      }
+    }
+  ],
+  "version" : 1
+}

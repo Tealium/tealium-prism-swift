@@ -1,0 +1,32 @@
+name: Seed gems cache
+
+on:
+  push:
+    branches: [dev]
+    paths:
+      - 'Gemfile'
+      - 'Gemfile.lock'
+      - '.github/workflows/setup-machine/**'
+      - '.github/workflows/gems-cache-seed.yml'
+  schedule:
+    # Mon/Thu 05:17 UTC, off the hour; keeps the entry fresh within the 7-day idle eviction;
+    # safety net for runner-image/OS key changes
+    - cron: '17 5 * * 1,4'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  BUNDLE_WITHOUT: docs     # must match build-and-test.yml
+
+jobs:
+  seed:
+    runs-on: macos-15      # same label as build-and-test.yml
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: "Run Local Action: Setup Machine"
+        uses: ./.github/workflows/setup-machine
+        with:
+          pod-install: 'false'

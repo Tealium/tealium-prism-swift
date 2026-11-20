@@ -8,7 +8,8 @@
 
 import Foundation
 
-/// A database upgrade failed. Internal: the provider turns it into in-memory storage, so apps never see it.
+/// A database upgrade failed. Internal: the provider turns it into in-memory storage, or recreates the file when the step hit
+/// corruption, so apps never see it.
 struct DatabaseUpgradeError: Error {
     /// The version the failed step was upgrading to, or the first expected version not registered exactly once (`new` when only the order is wrong).
     let targetVersion: Int

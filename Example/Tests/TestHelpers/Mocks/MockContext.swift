@@ -25,7 +25,7 @@ class MockContext: TealiumContext {
          networkHelper: NetworkHelperProtocol = MockNetworkHelper(),
          networkClient: NetworkClient = MockNetworkClient(result: .success(.successful())),
          connectivityManager: ConnectivityManagerProtocol? = nil,
-         applicationStatusListener: ApplicationStatusListener = ApplicationStatusListener.shared,
+         applicationStatusListener: ApplicationStatusListener? = nil,
          queue: TealiumQueue = TealiumQueue.worker) {
         let transformerRegistrar = transformerRegistrar ?? TransformerCoordinator(
             onTransformers: Observables.just([]),
@@ -57,9 +57,16 @@ class MockContext: TealiumContext {
                    network: NetworkUtilities(networkHelper: networkHelper,
                                              networkClient: networkClient,
                                              connectivityManager: connectivityManager ?? MockConnectivityManager(queue: queue)),
-                   applicationStatusListener: applicationStatusListener,
+                   applicationStatusListener: applicationStatusListener ?? .mock(queue: queue),
                    queue: queue,
                    queueMetrics: queueManager,
                    dataLayer: try! moduleStoreProvider.getModuleStore(name: Modules.Types.dataLayer)) // swiftlint:disable:this force_try
+    }
+}
+
+extension ApplicationStatusListener {
+    /// A listener on `queue` that emits only what is posted to `notificationCenter`.
+    static func mock(queue: TealiumQueue, notificationCenter: NotificationCenter = NotificationCenter()) -> ApplicationStatusListener {
+        ApplicationStatusListener(queue: queue, notificationCenter: notificationCenter)
     }
 }

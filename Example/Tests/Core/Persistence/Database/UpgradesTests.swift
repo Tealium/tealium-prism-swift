@@ -121,7 +121,7 @@ final class UpgradesTests: XCTestCase {
         config.databaseName = "frozen-v1-\(UUID().uuidString)"
         let path = try stageVersion1Database(config: config)
         addTeardownBlock {
-            for candidate in [path] + SQLiteOpenHelper.sidecarSuffixes.map({ path + $0 }) {
+            for candidate in self.databaseFiles(atPath: path) {
                 try? FileManager.default.removeItem(atPath: candidate)
             }
         }
@@ -139,7 +139,7 @@ final class UpgradesTests: XCTestCase {
         ]
         let path = try stageVersion1Database(config: config, rows: rows)
         addTeardownBlock {
-            for candidate in [path] + SQLiteOpenHelper.sidecarSuffixes.map({ path + $0 }) {
+            for candidate in self.databaseFiles(atPath: path) {
                 try? FileManager.default.removeItem(atPath: candidate)
             }
         }

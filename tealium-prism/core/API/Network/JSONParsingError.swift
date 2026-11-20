@@ -9,6 +9,9 @@
 import Foundation
 
 /// Errors thrown when parsing a JSON payload fails.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum JSONParsingError: ErrorEnum {
     /// The parsed JSON value is not a dictionary.
     case jsonIsNotADictionary(_ object: Any)

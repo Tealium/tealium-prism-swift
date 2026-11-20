@@ -23,35 +23,50 @@ struct ConsentView: View {
                 }
         }
         .navigationBarBackButtonHidden(true)
+        #if os(tvOS)
+        // The remote's Menu button pops the navigation even with the back button hidden
+        .onExitCommand {
+            dismissIfNoChanges()
+        }
+        #endif
         .toolbar {
-            ToolbarItem(placement: .topBarLeading) {
+            ToolbarItem(placement: cancellationPlacement) {
                 Button(action: {
-                    if decision != TealiumHelper.shared.cmp.currentDecision {
-                        showAlert = true
-                    } else {
-                        self.presentationMode.wrappedValue.dismiss()
-                    }
+                    dismissIfNoChanges()
                 }){
-                    Image(systemName: "chevron.left")
-                    Text("Back")
+                    Label("Back", systemImage: "chevron.left")
+                        .labelStyle(.iconOnly)
                 }
             }
-            ToolbarItem(placement: .topBarTrailing) {
+            ToolbarItem(placement: confirmationPlacement) {
                 Button {
                     save()
                 } label: {
                     Text("Save").bold()
                 }
             }
-            
-        }
+        }.buttonStyle(.automatic)
+    }
+
+    var cancellationPlacement: ToolbarItemPlacement  {
+        #if os(watchOS)
+        .cancellationAction
+        #else
+        .navigation
+        #endif
+    }
+
+    var confirmationPlacement: ToolbarItemPlacement  {
+        .confirmationAction
     }
 
     var content: some View {
         VStack(spacing: 16) {
             Section {
-                Toggle("\(decision.decisionType)".capitalized, isOn: bindingForDecisionType())
-                    .tealiumButtonUI()
+                Group {
+                    Toggle(ConsentDecision.DecisionType.explicit.rawValue.capitalized, isOn: bindingForDecisionType(.explicit))
+                    Toggle(ConsentDecision.DecisionType.implicit.rawValue.capitalized, isOn: bindingForDecisionType(.implicit))
+                }.tealiumButtonUI()
             } header: {
                 Text("Decision Type").font(.title)
             }
@@ -78,17 +93,36 @@ struct ConsentView: View {
         }
     }
 
+    func dismissIfNoChanges() {
+        if decision != TealiumHelper.shared.cmp.currentDecision {
+            showAlert = true
+        } else {
+            presentationMode.wrappedValue.dismiss()
+        }
+    }
+
     func save() {
         TealiumHelper.shared.cmp.applyConsent(decision)
         presentationMode.wrappedValue.dismiss()
     }
 
-    func bindingForDecisionType() -> Binding<Bool> {
+    func bindingForDecisionType(_ decisionType: ConsentDecision.DecisionType) -> Binding<Bool> {
         Binding<Bool> {
-            decision.decisionType == .explicit
+            decision.decisionType == decisionType
         } set: { value in
-            decision = ConsentDecision(decisionType: value ? .explicit : .implicit,
+            guard !value else {
+                decision = ConsentDecision(decisionType: decisionType,
                                            purposes: decision.purposes)
+                return
+            }
+            let newType = switch decisionType {
+            case .explicit:
+                ConsentDecision.DecisionType.implicit
+            case .implicit:
+                ConsentDecision.DecisionType.explicit
+            }
+            decision = ConsentDecision(decisionType: newType,
+                                       purposes: decision.purposes)
         }
     }
 

@@ -1,0 +1,13 @@
+name: Setup Xcode
+description: Composite action that selects the Xcode version used by every CI job and logs it
+
+runs:
+  using: "composite"
+  steps:
+    - name: Setup Xcode version
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: '16.4'
+    - name: Log Selected XCode version
+      run: xcode-select -p && xcodebuild -version
+      shell: bash

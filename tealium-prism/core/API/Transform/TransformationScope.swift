@@ -9,6 +9,9 @@
 import Foundation
 
 /// Defines the scope where a transformation should be applied.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum TransformationScope: Equatable, DataInputConvertible {
     /// Apply transformation after data collection.
     case afterCollectors

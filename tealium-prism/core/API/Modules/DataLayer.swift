@@ -143,6 +143,11 @@ public protocol DataLayer {
     /**
      * A `Subscribable` to which you can subscribe to receive all the data that was updated in the `DataLayer`.
      *
+     * After each write, whether a single call or a `transactionally` block, each key is reported in at most one of
+     * `onDataUpdated` and `onDataRemoved`, according to its last edit, so the event matches the state stored by that
+     * write. A key that is both put and removed in the same transaction is reported only by its final edit. A put whose
+     * `Expiry` has already passed removes the key instead.
+     *
      * - Warning: The events will always be reported on a Tealium queue.
      */
     var onDataUpdated: any Subscribable<DataObject> { get }
@@ -151,6 +156,10 @@ public protocol DataLayer {
      * A `Subscribable` to which you can subscribe to receive all the data that was removed from the `DataLayer`.
      *
      * This `Subscribable` will receive events for both data manually removed and for data expired.
+     * Expired keys are reported when the SDK cleans up expired data, which may be later than the moment the value expired.
+     *
+     * After each write, each key is reported in at most one of `onDataUpdated` and `onDataRemoved`; see `onDataUpdated`.
+     * A removal that deleted nothing is not reported.
      *
      * - Warning: The events will always be reported on a Tealium queue.
      */

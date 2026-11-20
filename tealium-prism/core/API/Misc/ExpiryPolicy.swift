@@ -11,6 +11,9 @@ import Foundation
 /// Defines the expiry policy for persisted data values.
 /// Unlike `Expiry`, which may hold an absolute date, `ExpiryPolicy` always
 /// produces a fresh `Expiry` via `resolve()` at persistence time.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum ExpiryPolicy: Equatable {
     /// Expires when the session ends.
     case session

@@ -7,6 +7,7 @@
 //
 
 extension Comparable {
+    /// Coerce self to be between the provided min and max.
     func coerce(min: Self, max: Self) -> Self {
         if self < min {
             return min

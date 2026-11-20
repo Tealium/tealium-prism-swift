@@ -27,6 +27,9 @@ extension URLError {
 /**
  * An error reported by the NetworkClient.
  */
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum NetworkErrorType: Error, ErrorEnum {
     /// A request completed with a non 2xx status code and the optional data from the Body.
     case non200Status(Int, Data?)

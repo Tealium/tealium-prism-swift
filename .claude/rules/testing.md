@@ -12,6 +12,8 @@ Tests live in `Example/Tests/`, organized by module: `Core/`, `EndToEnd/`, `Life
 - **Mocks** — `TestHelpers/Mocks/` (~30 files): `MockTracker`, `MockContext`, `MockConfig`, `MockNetworkHelper`, `MockNetworkClient`, `MockConnectivityManager`, `MockDatabaseProvider`, `MockQueueManager`, `MockSessionManager`, `MockCollector`, `MockTransformer`, `MockDispatcher`, `MockBarrier`, `MockConsentManager`, `FailingMockDataStore`, `StubModuleFactory`, and more. Browse the folder for the current list rather than assuming a name.
 - **Other helpers** — `XCTestCase+WaitForDefaultTimeout` (0.1s default timeout, 10s long), `DeinitTester` / `RetainCycleHelper` (retain-cycle checks), `CreateDispatches`.
 
+**Test file layout:** tests first, then the private helpers and factories at the bottom of the file, under `// MARK: - Helpers` (in a trailing extension if the class body would exceed SwiftLint's `type_body_length`). Kotlin follows the same rule.
+
 Test schemes are per-module and per-platform (`CoreTests_iOS`, etc.) — see the run commands in the root `CLAUDE.md`. SwiftLint applies to test code too, under `.swiftlint_test.yml` (see the SwiftLint section in the root `CLAUDE.md`).
 
 ## Testable Init Pattern for Modules

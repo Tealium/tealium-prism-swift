@@ -204,7 +204,7 @@ final class V1ToV2Tests: XCTestCase {
         let moduleStoreProvider = ModuleStoreProvider(databaseProvider: provider,
                                                       modulesRepository: SQLModulesRepository(dbProvider: provider))
         _ = try moduleStoreProvider.getSharedDataStore()
-        let names = try provider.database.prepare("SELECT name FROM module").compactMap { $0[0] as? String }
+        let names = try provider.database.rows("SELECT name FROM module").compactMap { $0[0] as? String }
         XCTAssertTrue(names.contains(V1ToV2.sourceModuleName))
     }
 

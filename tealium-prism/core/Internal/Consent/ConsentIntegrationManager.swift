@@ -169,29 +169,27 @@ class ConsentIntegrationManager: ConsentManager {
             }
             self.logger?.trace(category: LogCategory.consent,
                                "Dispatches enqueued for refire dispatchers \(updatedDispatches.shortDescription())")
-            queueManager.storeDispatches(updatedDispatches, enqueueingFor: refireDispatchers)
+            tryStore(updatedDispatches, enqueueingFor: refireDispatchers)
         }
         if !normalDispatches.isEmpty {
             self.logger?.trace(category: LogCategory.consent,
                                "Dispatches enqueued for all dispatchers \(normalDispatches.shortDescription())")
-            self.queueManager.storeDispatches(normalDispatches, enqueueingFor: dispatchers.value)
+            tryStore(normalDispatches, enqueueingFor: dispatchers.value)
         }
     }
 
     func applyConsent(to dispatch: Dispatch) -> TrackResult {
         guard let consentInspector = cmpSelector.consentInspector.value else {
-            queueManager.storeDispatches([dispatch], enqueueingFor: [Self.id])
-            let info = "Missing ConsentConfiguration or ConsentDecision, enqueued for Consent."
-            return .accepted(dispatch, info: info)
+            return store(dispatch, enqueueingFor: [Self.id],
+                         info: "Missing ConsentConfiguration or ConsentDecision, enqueued for Consent.")
         }
         guard !consentInspector.tealiumExplicitlyBlocked() else {
             return .dropped(dispatch, reason: "Tealium explicitly blocked.")
         }
         let decision = consentInspector.decision
         guard consentInspector.tealiumConsented() else {
-            queueManager.storeDispatches([dispatch], enqueueingFor: [Self.id])
-            let info = "Tealium implicitly not consented, enqueued for Consent."
-            return .accepted(dispatch, info: info)
+            return store(dispatch, enqueueingFor: [Self.id],
+                         info: "Tealium implicitly not consented, enqueued for Consent.")
         }
         guard let consentedDispatch = dispatch.applyConsentDecision(decision) else {
             return .dropped(dispatch, reason: "No unprocessed purposes present.")
@@ -200,7 +198,33 @@ class ConsentIntegrationManager: ConsentManager {
         if consentInspector.allowsRefire() {
             processors += [Self.id]
         }
-        queueManager.storeDispatches([consentedDispatch], enqueueingFor: processors)
-        return .accepted(consentedDispatch, info: "Enqueued for processors: \(processors)")
+        return store(consentedDispatch, enqueueingFor: processors,
+                     info: "Enqueued for processors: \(processors)")
+    }
+
+    /// Stores the `dispatch` for the `processors` and reports the outcome to the track caller.
+    ///
+    /// - Returns: `.dropped` when the queue manager throws, `.accepted` with `info` otherwise.
+    private func store(_ dispatch: Dispatch, enqueueingFor processors: [String], info: String) -> TrackResult {
+        guard tryStore([dispatch], enqueueingFor: processors) else {
+            return .dropped(dispatch, reason: "Failed to persist dispatch to the queue.")
+        }
+        return .accepted(dispatch, info: info)
+    }
+
+    /// Stores the `dispatches` for the `processors` and returns `false` when the queue manager threw.
+    ///
+    /// The failure is logged here, once, because the replay sites have no track listener to inform and
+    /// `handleConsentInspectorChange` deletes the consent queue regardless, so a failed re-store can only be logged.
+    @discardableResult
+    private func tryStore(_ dispatches: [Dispatch], enqueueingFor processors: [String]) -> Bool {
+        do {
+            try queueManager.storeDispatches(dispatches, enqueueingFor: processors)
+            return true
+        } catch {
+            logger?.error(category: LogCategory.consent,
+                          "Failed to persist consent dispatches for processors \(processors): \(dispatches.map { $0.logDescription() })\nError: \(error)")
+            return false
+        }
     }
 }

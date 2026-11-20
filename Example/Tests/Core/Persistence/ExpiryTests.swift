@@ -44,4 +44,30 @@ final class ExpiryTests: XCTestCase {
         let expiry = Expiry(timestamp: 1_000_000)
         XCTAssertEqual(expiry, .after(Date(unixMilliseconds: 1_000_000)))
     }
+
+    func test_isExpired_is_true_when_expiry_equals_date() {
+        let date = Date(unixMilliseconds: 1_000_000)
+        XCTAssertTrue(Expiry.after(date).isExpired(at: date))
+    }
+
+    func test_isExpired_is_false_one_millisecond_before_expiry() {
+        let date = Date(unixMilliseconds: 1_000_000)
+        XCTAssertFalse(Expiry.after(date).isExpired(at: Date(unixMilliseconds: 999_999)))
+    }
+
+    func test_isExpired_is_true_after_expiry() {
+        let date = Date(unixMilliseconds: 1_000_000)
+        XCTAssertTrue(Expiry.after(date).isExpired(at: Date(unixMilliseconds: 1_000_001)))
+    }
+
+    func test_isExpired_is_true_for_after_date_before_1970() {
+        XCTAssertTrue(Expiry.after(.distantPast).isExpired(at: Date(unixMilliseconds: 1_000_000)))
+    }
+
+    func test_isExpired_is_false_for_forever_session_and_untilRestart() {
+        let date = Date(unixMilliseconds: 1_000_000)
+        XCTAssertFalse(Expiry.forever.isExpired(at: date))
+        XCTAssertFalse(Expiry.session.isExpired(at: date))
+        XCTAssertFalse(Expiry.untilRestart.isExpired(at: date))
+    }
 }

@@ -70,3 +70,21 @@ When adding or changing a `public` or `open` type/member:
 2. Ask the user whether the file should be moved to the module's `API/` folder before proceeding.
 3. Update related `.md` docs (in `docs/` and subfolders) — they are not auto-generated and go stale silently.
 4. Check and update the example app (`TealiumHelper`) if the change affects it or can be presented by new feature in the app.
+
+## Public Enums — `@nonexhaustive` by Default
+
+Prism ships as source with library evolution off, so a customer can `switch` exhaustively over any public enum, and adding a case breaks their build. Mark every new public enum `@nonexhaustive` ([SE-0487](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0487-extensible-enums.md)) so customers must handle unknown cases with `@unknown default`. Leave an enum exhaustive only if its set of cases is closed by design (e.g. a two-state result that can never gain a third state). Case-less namespace enums (`Modules`, `Disposables`, …) are unaffected.
+
+Wrap the attribute in a `hasAttribute` guard so the minimum compiler stays at Swift 6.0 — compilers older than 6.2.3 don't know the attribute and skip it:
+
+```swift
+/// Doc comment stays above the guard.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
+public enum SomeError: ErrorEnum {
+```
+
+- Use plain `@nonexhaustive`, not `@nonexhaustive(warn)`: the `(warn)` variant stays a warning even for Swift 6 language mode clients.
+- Code in the same package (all SDK targets) is exempt, so SDK-internal switches don't need `@unknown default`.
+- Marking an existing exhaustive enum is itself a breaking change for customers; call it out in the release notes.

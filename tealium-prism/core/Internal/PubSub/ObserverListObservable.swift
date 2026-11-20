@@ -13,7 +13,7 @@ import Foundation
  */
 class ObserverListObservable<Element>: Observable<Element> {
     private let observerList = DisposableItemList<AnyObserver<Element>>()
-    private var isCompleted = false
+    private(set) var isCompleted = false
 
     override init() {}
 

@@ -10,6 +10,9 @@ import Foundation
 
 /**
  * A class responsible for registering and returning the DataStore instances required by individual modules.
+ *
+ * - Warning: This class is not thread-safe. Its methods must be called from the Tealium queue, which is where a
+ * module's methods are called, so a module can use it directly from them.
  */
 public class ModuleStoreProvider {
     let databaseProvider: DatabaseProviderProtocol

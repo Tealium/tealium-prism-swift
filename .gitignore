@@ -22,3 +22,7 @@ builder/veracode/
 test_output/
 .aider*
 _site/
+# Written by ruby/setup-ruby bundler-cache. Must stay ignored:
+# scripts/publish.sh refuses to release from a dirty tree.
+/vendor/bundle/
+/.bundle/

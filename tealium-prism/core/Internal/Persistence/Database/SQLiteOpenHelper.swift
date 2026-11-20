@@ -222,8 +222,6 @@ class SQLiteOpenHelper {
         try onConfigure(database: database)
         // Not `Connection.userVersion`, whose getter turns a failed read into version 0 and so into `onCreate`.
         // `PRAGMA user_version` always returns a row, so a missing value is an error too.
-        // Android (Kotlin): the platform deletes and recreates a file whose header is corrupt; Swift throws here and keeps
-        // the file, falling back to memory, until MT-2271 routes corruption.
         guard let stored = try database.scalar("PRAGMA user_version") as? Int64 else {
             throw MissingUserVersionError()
         }
@@ -232,8 +230,7 @@ class SQLiteOpenHelper {
             // The connection is local to `getDatabase()` until it returns, so nothing interleaves between BEGIN and COMMIT.
             // Android (Kotlin): records `initializationFailure`, as the platform `SQLiteOpenHelper`'s `endTransaction` can mask the
             // callback's exception; Swift owns the transaction and throws the real cause directly.
-            try database.run("BEGIN DEFERRED TRANSACTION")
-            do {
+            try database.transactionIgnoringRollbackError(.immediate) {
                 if storedVersion == 0 {
                     try onCreate(database: database)
                 } else if storedVersion < version {
@@ -244,12 +241,6 @@ class SQLiteOpenHelper {
                 // Not `Connection.userVersion`, whose setter ignores a failed write. Inside the transaction,
                 // so a failed stamp rolls the changes back.
                 try database.run("PRAGMA user_version = \(version)")
-                try database.run("COMMIT TRANSACTION")
-            } catch {
-                // The real cause is thrown, not ROLLBACK's error. ROLLBACK usually fails because SQLite already rolled back
-                // (after SQLITE_FULL or SQLITE_IOERR), and closing the connection rolls back anything still open.
-                _ = try? database.run("ROLLBACK TRANSACTION")
-                throw error
             }
         }
         try self.onOpen(database: database)

@@ -8,6 +8,7 @@
 
 import Foundation
 @testable import TealiumPrism
+import XCTest
 
 // swiftlint:disable force_unwrapping
 extension URLRequest {
@@ -184,4 +185,38 @@ final class RequestRecorder {
         recordedDates.append(Date())
         return recordedDates.count
     }
+}
+
+/// CFNetwork starts a private thread for custom `URLProtocol`s the first time one is used in the process,
+/// blocking the caller until that Default QoS thread is up. Starting it once from a utility queue avoids the
+/// Thread Performance Checker priority inversion warning when the first mocked request is sent from the main thread.
+enum CustomURLProtocolWarmUp {
+    private static let warmUp: Void = {
+        let finished = XCTestExpectation(description: "Custom URLProtocol thread is started")
+        let configuration = URLSessionConfiguration.ephemeral
+        configuration.protocolClasses = [NoOpURLProtocol.self]
+        let session = URLSession(configuration: configuration)
+        DispatchQueue.global(qos: .utility).async {
+            session.dataTask(with: URL(fileURLWithPath: "/")) { _, _, _ in
+                finished.fulfill()
+            }.resume()
+        }
+        // XCTWaiter spins the run loop instead of blocking on a semaphore, so this wait isn't an inversion itself
+        _ = XCTWaiter.wait(for: [finished], timeout: 5)
+        session.invalidateAndCancel()
+    }()
+
+    static func ensureStarted() {
+        _ = warmUp
+    }
+}
+
+/// Completes immediately, so the warm up doesn't touch `URLProtocolMock`'s static replies or request recorders.
+private final class NoOpURLProtocol: URLProtocol {
+    override static func canInit(with request: URLRequest) -> Bool { true }
+    override static func canonicalRequest(for request: URLRequest) -> URLRequest { request }
+    override func startLoading() {
+        client?.urlProtocol(self, didFailWithError: URLError(.cancelled))
+    }
+    override func stopLoading() { }
 }

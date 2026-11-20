@@ -2,50 +2,58 @@ name: Build and Test
 
 on: [pull_request]
 
+permissions:
+  contents: read
+
+env:
+  BUNDLE_WITHOUT: docs
+  FASTLANE_SKIP_UPDATE_CHECK: "1"
+  FASTLANE_HIDE_CHANGELOG: "1"
+  FASTLANE_OPT_OUT_USAGE: "1"
+  # fastlane scan (scripts/run_tests.sh) reads this as its xcargs option; set here so local runs are unchanged.
+  # The index store is only used by the Xcode editor.
+  SCAN_XCARGS: COMPILER_INDEX_STORE_ENABLE=NO
+
+# PR jobs only restore the gems cache; gems-cache-seed.yml on dev writes the entry PRs restore.
+# Quirk: ruby/setup-ruby (v1.335.0) bundles @actions/cache 5.0.3, which ignores cache-mode
+# and has no restore-only input, so on a cache miss it still builds the archive (~0.4 s) and
+# then logs a refused save (no failure). Goes away once setup-ruby ships @actions/cache >= 5.2.0.
+cache-mode: read
+
 jobs:
-  inspect:
-    name: Inspect Machine
-    runs-on: 'macOS-15'
-    timeout-minutes: 10
-    steps:
-      - name: List available Xcode versions
-        run: ls /Applications | grep Xcode
-        shell: bash
-      - name: List available devices
-        run: xcrun simctl list devices
-        shell: bash
-      - name: List runtimes
-        run: xcrun simctl list runtimes
-        shell: bash
   build_example:
     name: Example Builds | ${{ matrix.scheme }}
-    runs-on: 'macOS-15'
-    timeout-minutes: 60
+    runs-on: macos-15
+    timeout-minutes: 15
     strategy:
       matrix:
-        scheme:
-            - Example_iOS
-        destination: 
-            - "generic/platform=iOS Simulator"
+        include:
+          - scheme: Example_iOS
+            destination: "generic/platform=iOS Simulator"
+          - scheme: Example_tvOS
+            destination: "generic/platform=tvOS Simulator"
+          - scheme: Example_macOS
+            destination: "generic/platform=macOS"
+            xcargs: "CODE_SIGN_IDENTITY='' CODE_SIGNING_REQUIRED=NO CODE_SIGNING_ALLOWED=NO"
+          - scheme: "Example_watchOS Watch App"
+            destination: "generic/platform=watchOS Simulator"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: "Run Local Action: Setup Machine"
         uses: ./.github/workflows/setup-machine
       - name: Build - "${{ matrix.scheme }}"
         working-directory: Example
-        run: ../scripts/build.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+        # Same flag as SCAN_XCARGS above, passed to xcodebuild through build.sh.
+        run: |
+          ../scripts/build.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}" \
+            --xcargs "COMPILER_INDEX_STORE_ENABLE=NO ${{ matrix.xcargs }}"
   build_SPM:
-    name: SPM Builds | ${{ matrix.scheme }} | ${{ matrix.destination }}
-    runs-on: 'macOS-15'
-    timeout-minutes: 60
+    name: SPM Builds | ${{ matrix.destination }}
+    runs-on: macos-15
+    timeout-minutes: 15
     strategy:
+      fail-fast: false
       matrix:
-        scheme:
-            - TealiumPrismCore
-            - TealiumPrismLifecycle
-            - TealiumPrismContextAPI
-            - TealiumPrismExtensions
-            - TealiumPrismJavaScriptTransformer
         destination:
             - "generic/platform=iOS"
             - "generic/platform=iOS Simulator"
@@ -55,15 +63,15 @@ jobs:
             - "generic/platform=watchOS"
             - "generic/platform=watchOS Simulator"
     steps:
-      - uses: actions/checkout@v4
-      - name: "Run Local Action: Setup Machine"
-        uses: ./.github/workflows/setup-machine
-      - name: Build - "${{ matrix.scheme }}"
-        run: scripts/build.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+      - uses: actions/checkout@v7
+      - name: "Run Local Action: Setup Xcode"
+        uses: ./.github/workflows/setup-xcode
+      - name: Build - TealiumPrism-Package
+        run: scripts/build_spm.sh "${{ matrix.destination }}"
   test_iOS:
     name: iOS Tests | ${{ matrix.scheme }}
-    runs-on: 'macOS-15'
-    timeout-minutes: 60
+    runs-on: macos-15
+    timeout-minutes: 20
     strategy:
       matrix:
         scheme:
@@ -77,15 +85,21 @@ jobs:
         destination:
             - "platform=iOS Simulator,OS=18.5,name=iPhone 16 Pro"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: "Run Local Action: Setup Machine"
         uses: ./.github/workflows/setup-machine
       - name: Test - "${{ matrix.scheme }}"
         run: scripts/run_tests.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+      - name: Diagnostics on failure or cancel
+        if: failure() || cancelled()
+        run: |
+          xcode-select -p && xcodebuild -version
+          xcrun simctl list runtimes
+          xcrun simctl list devices available
   test_tvOS:
     name: tvOS Tests | ${{ matrix.scheme }}
-    runs-on: 'macOS-15'
-    timeout-minutes: 60
+    runs-on: macos-15
+    timeout-minutes: 20
     strategy:
       matrix:
         scheme:
@@ -98,15 +112,21 @@ jobs:
         destination:
             - "platform=tvOS Simulator,OS=18.5,name=Apple TV"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: "Run Local Action: Setup Machine"
         uses: ./.github/workflows/setup-machine
       - name: Test - "${{ matrix.scheme }}"
         run: scripts/run_tests.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+      - name: Diagnostics on failure or cancel
+        if: failure() || cancelled()
+        run: |
+          xcode-select -p && xcodebuild -version
+          xcrun simctl list runtimes
+          xcrun simctl list devices available
   test_macOS:
     name: macOS Tests | ${{ matrix.scheme }}
-    runs-on: 'macOS-15'
-    timeout-minutes: 60
+    runs-on: macos-15
+    timeout-minutes: 20
     strategy:
       matrix:
         scheme:
@@ -119,15 +139,21 @@ jobs:
         destination:
             - "platform=macOS"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: "Run Local Action: Setup Machine"
         uses: ./.github/workflows/setup-machine
       - name: Test - "${{ matrix.scheme }}"
         run: scripts/run_tests.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+      - name: Diagnostics on failure or cancel
+        if: failure() || cancelled()
+        run: |
+          xcode-select -p && xcodebuild -version
+          xcrun simctl list runtimes
+          xcrun simctl list devices available
   test_watchOS:
     name: watchOS Tests | ${{ matrix.scheme }}
-    runs-on: 'macOS-15'
-    timeout-minutes: 60
+    runs-on: macos-15
+    timeout-minutes: 20
     strategy:
       matrix:
         scheme:
@@ -139,8 +165,14 @@ jobs:
         destination:
             - "platform=watchOS Simulator,name=Apple Watch Series 10 (42mm)"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v7
       - name: "Run Local Action: Setup Machine"
         uses: ./.github/workflows/setup-machine
       - name: Test - "${{ matrix.scheme }}"
         run: scripts/run_tests.sh --scheme "${{ matrix.scheme }}" --destination "${{ matrix.destination }}"
+      - name: Diagnostics on failure or cancel
+        if: failure() || cancelled()
+        run: |
+          xcode-select -p && xcodebuild -version
+          xcrun simctl list runtimes
+          xcrun simctl list devices available

@@ -95,6 +95,33 @@ final class TealiumDispatchGroupTests: XCTestCase {
         wait(for: [allWorksStarted], timeout: 1)
     }
 
+    func test_parallelExecution_dispose_disposes_in_progress_work() {
+        let completed = expectation(description: "Completion is not called")
+        completed.isInverted = true
+        let workDisposables = [Disposables.subscription { }, Disposables.subscription { }]
+
+        let disposable = group.parallelExecution(workDisposables.map { workDisposable in
+            { (_: @escaping (Int) -> Void) -> any Disposable in workDisposable }
+        }) { _ in
+            completed.fulfill()
+        }
+        // The group adds and disposes on its own queue.
+        drainQueue()
+        XCTAssertEqual(workDisposables.filter { $0.isDisposed }.count, 0)
+        disposable.dispose()
+        drainQueue()
+
+        XCTAssertEqual(workDisposables.filter { $0.isDisposed }.count, 2)
+        waitForDefaultTimeout()
+    }
+
+    /// Waits until `queue` has run everything enqueued on it so far, preserving FIFO order without blocking the test thread.
+    private func drainQueue() {
+        let drained = expectation(description: "Queue drained")
+        queue.ensureOnQueue { drained.fulfill() }
+        wait(for: [drained], timeout: 1)
+    }
+
     func test_completion_is_called_after_all_have_completed() {
         let firstWorkCompleted = expectation(description: "First execution completes")
         let secondWorkCompleted = expectation(description: "Second execution completes")

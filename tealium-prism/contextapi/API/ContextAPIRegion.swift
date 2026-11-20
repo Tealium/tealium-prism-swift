@@ -17,6 +17,9 @@ import TealiumPrismCore
  * The region determines which Tealium AudienceStream instance the API calls are made against.
  * Use `.custom(_:)` to support future regions that may be released without requiring an SDK update.
  */
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum ContextAPIRegion: DataInputConvertible, Equatable, RawRepresentable {
     /// Germany region
     case germany

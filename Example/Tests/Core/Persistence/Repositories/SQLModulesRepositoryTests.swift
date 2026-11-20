@@ -6,6 +6,7 @@
 //  Copyright © 2023 Tealium, Inc. All rights reserved.
 //
 
+import SQLite3
 @testable import TealiumPrism
 import XCTest
 
@@ -140,5 +141,70 @@ final class SQLModulesRepositoryTests: XCTestCase {
         modulesRepository.deleteExpired(expiry: .restart)
         waitForDefaultTimeout()
         subscription.dispose()
+    }
+
+    func test_deleteExpired_removes_data_whose_expiry_equals_the_date() throws {
+        let moduleId = try modulesRepository.registerModule(name: "test")
+        let keyValueRepository = SQLKeyValueRepository(dbProvider: dbProvider, moduleId: moduleId)
+        // Far in the future so the read filter would still return the row if the purge missed it.
+        let date = Date(unixMilliseconds: 4_102_444_800_000)
+        try keyValueRepository.upsert(key: "boundary", value: "value", expiry: .after(date))
+        let eventNotified = expectation(description: "onDataExpired event notified")
+        modulesRepository.onDataExpired.subscribeOnce { event in
+            XCTAssertNotNil(event[moduleId]?["boundary"])
+            eventNotified.fulfill()
+        }
+        modulesRepository.deleteExpired(expiry: .sessionChange, date: date)
+        waitForDefaultTimeout()
+        XCTAssertNil(keyValueRepository.getAll().asDictionary()["boundary"])
+    }
+
+    func test_deleteExpired_keeps_data_whose_expiry_is_one_millisecond_after_the_date() throws {
+        let moduleId = try modulesRepository.registerModule(name: "test")
+        let keyValueRepository = SQLKeyValueRepository(dbProvider: dbProvider, moduleId: moduleId)
+        let date = Date(unixMilliseconds: 4_102_444_800_000)
+        try keyValueRepository.upsert(key: "survivor", value: "value", expiry: .after(Date(unixMilliseconds: 4_102_444_800_001)))
+        let eventNotified = expectation(description: "onDataExpired event is NOT notified")
+        eventNotified.isInverted = true
+        let subscription = modulesRepository.onDataExpired.subscribe { _ in
+            eventNotified.fulfill()
+        }
+        modulesRepository.deleteExpired(expiry: .sessionChange, date: date)
+        waitForDefaultTimeout()
+        subscription.dispose()
+        XCTAssertNotNil(keyValueRepository.getAll().asDictionary()["survivor"])
+    }
+
+    // MARK: - Unreadable rows
+
+    func test_getModules_that_hits_corruption_returns_no_modules_and_deletes_the_file() throws {
+        try assertStatementDeletesUnreadableFile(writing: storeValueUntilRestart) {
+            XCTAssertEqual(SQLModulesRepository(dbProvider: $0).getModules(), [:])
+        }
+    }
+
+    func test_deleteExpired_that_hits_corruption_notifies_nothing_and_deletes_the_file() throws {
+        try assertStatementDeletesUnreadableFile(writing: storeValueUntilRestart) { provider in
+            let repository = SQLModulesRepository(dbProvider: provider)
+            var notified = false
+            let subscription = repository.onDataExpired.subscribe { _ in notified = true }
+            repository.deleteExpired(expiry: .restart)
+            subscription.dispose()
+            XCTAssertFalse(notified)
+        }
+    }
+
+    func test_registerModule_that_hits_corruption_throws_and_deletes_the_file() throws {
+        try assertStatementDeletesUnreadableFile(writing: storeValueUntilRestart) { provider in
+            let error = try XCTUnwrapThrownError { try SQLModulesRepository(dbProvider: provider).registerModule(name: "test") }
+            XCTAssertEqual(DatabaseHelper.corruptionCode(error), SQLITE_CORRUPT)
+        }
+    }
+
+    // MARK: - Helpers
+
+    private func storeValueUntilRestart(in provider: DatabaseProviderProtocol) throws {
+        let moduleId = try SQLModulesRepository(dbProvider: provider).registerModule(name: "test")
+        try SQLKeyValueRepository(dbProvider: provider, moduleId: moduleId).upsert(key: "key", value: "value", expiry: .untilRestart)
     }
 }

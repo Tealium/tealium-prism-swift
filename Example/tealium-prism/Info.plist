@@ -27,7 +27,7 @@
 			<string>com.tealium.Example</string>
 			<key>CFBundleURLSchemes</key>
 			<array>
-				<string>tealium</string>
+				<string>tealium-prism</string>
 			</array>
 		</dict>
 	</array>

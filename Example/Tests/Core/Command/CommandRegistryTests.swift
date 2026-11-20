@@ -59,6 +59,17 @@ final class CommandRegistryTests: XCTestCase {
         XCTAssertTrue(newCommand.executeCalled)
     }
 
+    func test_init_normalizes_command_name_to_lowercase() {
+        let command = MockSyncCommand(name: "My_Command")
+        let registry = CommandRegistry(commands: [command])
+
+        var error: CommandError?
+        _ = registry.execute(commandName: "my_command", payload: [:]) { error = $0 }
+
+        XCTAssertNil(error)
+        XCTAssertTrue(command.executeCalled)
+    }
+
     // MARK: - Execution Tests
 
     func test_execute_unknown_command_calls_completion_with_error() {
@@ -75,33 +86,6 @@ final class CommandRegistryTests: XCTestCase {
         XCTAssertEqual(name, "unknown")
     }
 
-    func test_execute_normalizes_command_name_to_lowercase() {
-        let command = MockSyncCommand(name: "test")
-        let registry = CommandRegistry(commands: [command])
-
-        let payload: DataObject = [:]
-
-        var errors: [CommandError?] = []
-        _ = registry.execute(commandName: "TEST", payload: payload) { errors.append($0) }
-        _ = registry.execute(commandName: "Test", payload: payload) { errors.append($0) }
-        _ = registry.execute(commandName: "TeSt", payload: payload) { errors.append($0) }
-
-        XCTAssertTrue(errors.allSatisfy { $0 == nil })
-    }
-
-    func test_execute_trims_whitespace_from_command_name() {
-        let command = MockSyncCommand(name: "test")
-        let registry = CommandRegistry(commands: [command])
-
-        let payload: DataObject = [:]
-
-        var errors: [CommandError?] = []
-        _ = registry.execute(commandName: "  test  ", payload: payload) { errors.append($0) }
-        _ = registry.execute(commandName: "\ttest\t", payload: payload) { errors.append($0) }
-
-        XCTAssertTrue(errors.allSatisfy { $0 == nil })
-    }
-
     func test_execute_passes_payload_to_command() {
         let command = MockSyncCommand(name: "test")
         let registry = CommandRegistry(commands: [command])
@@ -116,7 +100,7 @@ final class CommandRegistryTests: XCTestCase {
     }
 
     func test_execute_propagates_command_error() {
-        let failureCommand = MockSyncCommand(name: "failure", errorToThrow: .missingParameter("test_param"))
+        let failureCommand = MockSyncCommand(name: "failure", errorToThrow: .invalidPayload(.missing(key: "test_param")))
         let registry = CommandRegistry(commands: [failureCommand])
 
         let payload: DataObject = [:]
@@ -153,7 +137,7 @@ final class CommandRegistryTests: XCTestCase {
     }
 
     func test_execute_async_command_calls_completion_with_error() {
-        let command = MockAsyncCommand(name: "test", errorToThrow: .missingParameter("param"))
+        let command = MockAsyncCommand(name: "test", errorToThrow: CommandError.invalidPayload(.missing(key: "param")))
         let registry = CommandRegistry(commands: [command])
 
         let completionCalled = expectation(description: "completion called")
@@ -165,8 +149,8 @@ final class CommandRegistryTests: XCTestCase {
         }
 
         waitForExpectations(timeout: 1)
-        guard case .missingParameter(let name) = receivedError else {
-            XCTFail("Expected missingParameter but got \(String(describing: receivedError))")
+        guard case .invalidPayload(.missing(let name)) = receivedError else {
+            XCTFail("Expected invalidPayload(.missing) but got \(String(describing: receivedError))")
             return
         }
         XCTAssertEqual(name, "param")
@@ -183,5 +167,47 @@ final class CommandRegistryTests: XCTestCase {
 
         // Clean up.
         disposable.dispose()
+    }
+
+    // MARK: - Error Mapping Tests
+
+    func test_execute_reports_extractionError_as_invalidPayload() {
+        let command = MockAsyncCommand(name: "test", errorToThrow: ExtractionError.missing(key: "param"))
+        let registry = CommandRegistry(commands: [command])
+        let completionCalled = expectation(description: "completion called")
+
+        var receivedError: CommandError?
+        _ = registry.execute(commandName: "test", payload: [:]) { error in
+            receivedError = error
+            completionCalled.fulfill()
+        }
+
+        waitForExpectations(timeout: 1)
+
+        guard case .invalidPayload(.missing(let name)) = receivedError else {
+            XCTFail("Expected invalidPayload(.missing) but got \(String(describing: receivedError))")
+            return
+        }
+        XCTAssertEqual(name, "param")
+    }
+
+    func test_execute_reports_other_error_as_underlyingError() {
+        struct TestError: Error {}
+        let command = MockAsyncCommand(name: "test", errorToThrow: TestError())
+        let registry = CommandRegistry(commands: [command])
+        let completionCalled = expectation(description: "completion called")
+
+        var receivedError: CommandError?
+        _ = registry.execute(commandName: "test", payload: [:]) { error in
+            receivedError = error
+            completionCalled.fulfill()
+        }
+
+        waitForExpectations(timeout: 1)
+        guard case .underlyingError(let underlying) = receivedError else {
+            XCTFail("Expected underlyingError but got \(String(describing: receivedError))")
+            return
+        }
+        XCTAssertTrue(underlying is TestError)
     }
 }

@@ -17,18 +17,18 @@ class MockAsyncCommand: Command {
     var executeCalled = false
     var executeCallCount = 0
     var lastPayload: DataObject?
-    let errorToThrow: CommandError?
+    let errorToThrow: Error?
 
     /// Controls when the command calls completion. Defaults to immediate execution.
     /// Override in tests to defer completion: `command.delayBlock = { block in delayed = block }`.
     var delayBlock: (@escaping () -> Void) -> Void = { block in block() }
 
-    init(name: String, errorToThrow: CommandError? = nil) {
+    init(name: String, errorToThrow: Error? = nil) {
         self.name = name
         self.errorToThrow = errorToThrow
     }
 
-    func execute(payload: DataObject, completion: @escaping (CommandError?) -> Void) -> any Disposable {
+    func execute(payload: DataObject, completion: @escaping (Error?) -> Void) -> any Disposable {
         executeCalled = true
         executeCallCount += 1
         lastPayload = payload

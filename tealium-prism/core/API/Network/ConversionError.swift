@@ -9,6 +9,9 @@
 import Foundation
 
 /// Errors thrown when a value cannot be converted to a required type.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum ConversionError: ErrorEnum {
     /// The provided URL could not be converted to a valid `URL`.
     case invalidUrl(_ url: URLConvertible)

@@ -9,6 +9,9 @@
 import Foundation
 
 /// The expiration type of some persisted value.
+#if hasAttribute(nonexhaustive)
+@nonexhaustive
+#endif
 public enum Expiry: Equatable {
     /// Expires when the session ends.
     case session
@@ -54,5 +57,19 @@ public enum Expiry: Equatable {
         case .after(let date):
             return date.unixTimeMilliseconds
         }
+    }
+}
+
+extension Expiry {
+    /// Whether this expiry has already passed at `date`.
+    ///
+    /// Matches the persistence layer: an `.after` expiry is expired as soon as its date is at or
+    /// before `date`, compared in milliseconds. `.forever`, `.session` and `.untilRestart` never
+    /// expire by time.
+    func isExpired(at date: Date = Date()) -> Bool {
+        if case .after(let expiryDate) = self {
+            return expiryDate.unixTimeMilliseconds <= date.unixTimeMilliseconds
+        }
+        return false
     }
 }

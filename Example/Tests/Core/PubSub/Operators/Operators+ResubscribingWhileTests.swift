@@ -9,6 +9,8 @@
 @testable import TealiumPrism
 import XCTest
 
+// Exercises the deprecated `resubscribingWhile`: deprecated itself, to keep its tests free of deprecation warnings.
+@available(*, deprecated)
 final class OperatorsResubscribingTests: XCTestCase {
     let observable123 = Observables.just(1, 2, 3)
 

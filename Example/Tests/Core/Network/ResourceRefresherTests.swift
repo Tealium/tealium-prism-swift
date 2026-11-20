@@ -188,6 +188,11 @@ final class ResourceRefresherSettingsRetryTests: ResourceRefresherBaseTests {
     /// Called on `queue` with the result of every request, right before the retry decision is made in the same queue block.
     var onAttemptResult: ((NetworkResult) -> Void)?
 
+    override static func setUp() {
+        super.setUp()
+        CustomURLProtocolWarmUp.ensureStarted()
+    }
+
     override func tearDown() {
         URLProtocolMock.reset()
         super.tearDown()

@@ -28,24 +28,34 @@ class CommandRegistry {
     /// Execute a command by name.
     ///
     /// - Parameters:
-    ///   - commandName: The name of the command to execute (normalized internally).
+    ///   - commandName: The name of the command to execute. It must already be normalized, as returned by `Dispatch.getCommands()`.
     ///   - payload: The data to pass to the command.
     ///   - completion: Called with `nil` on success or a `CommandError` on failure.
+    ///   An error the command completes with is reported as is if it is a `CommandError`,
+    ///   as `CommandError.invalidPayload` if it is an `ExtractionError`, and as `CommandError.underlyingError` otherwise.
     /// - Returns: A `Disposable` that cancels the command's in-progress work when disposed.
     func execute(commandName: String, payload: DataObject, completion: @escaping (CommandError?) -> Void) -> any Disposable {
-        let normalizedName = CommandRegistry.normalize(commandName)
-
-        guard let command = commands[normalizedName] else {
+        guard let command = commands[commandName] else {
             completion(.commandNotFound(commandName))
             return Disposables.disposed()
         }
 
-        return command.execute(payload: payload, completion: completion)
+        return command.execute(payload: payload) { error in
+            completion(error.map(Self.commandError(from:)))
+        }
+    }
+
+    private static func commandError(from error: Error) -> CommandError {
+        switch error {
+        case let error as CommandError: error
+        case let error as ExtractionError: .invalidPayload(error)
+        default: .underlyingError(error)
+        }
     }
 
     /// The form of a command name used to match command names: trimmed of whitespace and lowercased.
-    /// Used by the registry lookup and by `Dispatch.getCommands()` to remove duplicates.
+    /// Applied to `Command.name` at registration and by `Dispatch.getCommands()`.
     static func normalize(_ name: String) -> String {
-        name.trimmingCharacters(in: .whitespaces).lowercased()
+        name.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()
     }
 }

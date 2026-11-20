@@ -28,7 +28,11 @@ class ModuleStore: DataStore {
             guard let self else { return }
             var removedKeys = [String]()
             var updatedData = DataObject()
-            for edit in edits {
+            // Only the last applied edit per key reflects what is stored. removingDuplicates keeps the
+            // first occurrence, so on the reversed array it keeps the last edit per key; reversing back
+            // restores edit order.
+            let lastEdits = Array(edits.reversed()).removingDuplicates(by: \.key).reversed()
+            for edit in lastEdits {
                 switch edit {
                 case let .remove(key):
                     removedKeys.append(key)
@@ -36,11 +40,11 @@ class ModuleStore: DataStore {
                     updatedData.set(value, key: key)
                 }
             }
-            if !removedKeys.isEmpty {
-                self._onDataRemoved.onNext(removedKeys)
-            }
             if updatedData.count > 0 {
                 self._onDataUpdated.onNext(updatedData)
+            }
+            if !removedKeys.isEmpty {
+                self._onDataRemoved.onNext(removedKeys)
             }
         }
     }
@@ -127,11 +131,35 @@ class ModuleStore: DataStore {
                     appliedEdits.append(contentsOf: repo.keys().map { .remove(key: $0) })
                     _ = try repo.clear()
                 }
-                for edit in edits where try apply(edit, on: repo) {
-                    appliedEdits.append(edit)
+                for edit in edits {
+                    // A put whose expiry has already passed would never be readable: apply it as a
+                    // removal of whatever is stored at the key, which the upsert would have overwritten,
+                    // so subscribers only hear about the removal.
+                    let appliedEdit = edit.asRemoveIfExpired()
+                    if try apply(appliedEdit, on: repo) {
+                        appliedEdits.append(appliedEdit)
+                    }
                 }
             }
             completion(appliedEdits)
         }
+    }
+}
+
+fileprivate extension DataStoreEdit {
+    /// The key this edit applies to.
+    var key: String {
+        switch self {
+        case .remove(let key): key
+        case .put(let key, _, _): key
+        }
+    }
+
+    /// Returns a `.remove` of the same key when this is a `.put` whose `Expiry` has already passed, otherwise `self`.
+    func asRemoveIfExpired() -> DataStoreEdit {
+        if case let .put(key, _, expiry) = self, expiry.isExpired() {
+            return .remove(key: key)
+        }
+        return self
     }
 }

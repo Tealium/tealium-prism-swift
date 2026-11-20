@@ -89,20 +89,22 @@ final class TealiumConsentTests: TealiumBaseTests {
 
         let dispatchIsSentToRefireDispatchers = expectation(description: "Dispatch is sent to refire dispatchers")
         purposes.insert("4")
+        MockDispatcher.onDispatch
+            .subscribeOn(queue)
+            .subscribe { dispatches in
+                guard let consentedPurposes = dispatches.first?.payload.getArray(key: TealiumDataKey.allConsentedPurposes, of: String.self) else {
+                    XCTFail("No consented purposes found in first dispatch")
+                    return
+                }
+                XCTAssertEqual(Set(consentedPurposes), purposes)
+                guard let unprocessedPurposes = dispatches.first?.payload.getArray(key: TealiumDataKey.unprocessedPurposes, of: String.self) else {
+                    XCTFail("No unprocessed purposes found in first dispatch")
+                    return
+                }
+                XCTAssertEqual(unprocessedPurposes, ["4"])
+                dispatchIsSentToRefireDispatchers.fulfill()
+            }.addTo(disposer)
         cmp.applyDecision(ConsentDecision(decisionType: .implicit, purposes: purposes))
-        MockDispatcher.onDispatch.subscribe { dispatches in
-            guard let consentedPurposes = dispatches.first?.payload.getArray(key: TealiumDataKey.allConsentedPurposes, of: String.self) else {
-                XCTFail("No consented purposes found in first dispatch")
-                return
-            }
-            XCTAssertEqual(Set(consentedPurposes), purposes)
-            guard let unprocessedPurposes = dispatches.first?.payload.getArray(key: TealiumDataKey.unprocessedPurposes, of: String.self) else {
-                XCTFail("No unprocessed purposes found in first dispatch")
-                return
-            }
-            XCTAssertEqual(unprocessedPurposes, ["4"])
-            dispatchIsSentToRefireDispatchers.fulfill()
-        }.addTo(disposer)
         waitForLongTimeout()
     }
 }

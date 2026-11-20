@@ -249,6 +249,11 @@ final class CollectModuleTests: XCTestCase {
 
 // URLProtocolMock seems not to be working on watchos
 #if !os(watchOS)
+    override static func setUp() {
+        super.setUp()
+        CustomURLProtocolWarmUp.ensureStarted()
+    }
+
     func test_collect_from_context_retries_a_transient_failure_once_and_completes() {
         let queue = TealiumQueue(label: "collectTestQueue")
         let networkConfiguration = NetworkConfiguration(sessionConfiguration: NetworkConfiguration.defaultUrlSessionConfiguration,

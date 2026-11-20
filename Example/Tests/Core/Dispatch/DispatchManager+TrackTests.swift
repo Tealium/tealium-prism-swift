@@ -80,4 +80,23 @@ final class DispatchManagerTrackTests: DispatchManagerTestCase {
         }
         waitForDefaultTimeout()
     }
+
+    func test_track_completion_block_is_run_with_dropped_result_when_the_dispatch_could_not_be_persisted() {
+        let failingQueueManager = MockQueueManager(processors: TealiumImpl.queueProcessors(from: moduleManager.observeModules { $0 as? Dispatcher },
+                                                                                           addingConsent: true),
+                                                   queueRepository: FailingQueueRepository(dbProvider: databaseProvider,
+                                                                                           maxQueueSize: 10,
+                                                                                           expiration: 1.days),
+                                                   coreSettings: coreSettings,
+                                                   logger: nil)
+        let failingDispatchManager = getDispatchManager(queueManager: failingQueueManager)
+        addTeardownBlock { failingDispatchManager.stopDispatchLoop() }
+        let completionCalled = expectation(description: completionCalledDescription)
+        failingDispatchManager.track(Dispatch(name: "someEvent")) { result in
+            completionCalled.fulfill()
+            XCTAssertTrackResultIsDropped(result)
+            XCTAssertEqual(result.info, "Reason: Failed to persist dispatch to the queue.")
+        }
+        waitForDefaultTimeout()
+    }
 }

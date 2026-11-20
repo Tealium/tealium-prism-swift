@@ -24,8 +24,12 @@ final class VisitorSwitcherTests: XCTestCase {
 
     override func setUpWithError() throws {
         dataLayerStore = try storeProvider.getModuleStore(name: "datalayer")
-        disposable = VisitorSwitcher.handleIdentitySwitches(onIdentityKey: identityKeyState,
-                                                            dataLayerStore: dataLayerStore) { [weak self] identity in
+        disposable = subscribeVisitorSwitcher()
+    }
+
+    private func subscribeVisitorSwitcher() -> any Disposable {
+        VisitorSwitcher.handleIdentitySwitches(onIdentityKey: identityKeyState,
+                                               dataLayerStore: dataLayerStore) { [weak self] identity in
             self?.identifiedValues.append(identity)
         }
     }
@@ -82,7 +86,7 @@ final class VisitorSwitcherTests: XCTestCase {
 
     func test_put_then_remove_in_one_transaction_emits_nothing_when_identity_was_present() throws {
         try storeIdentityInDataLayer("identityValue")
-        // The store publishes removals before updates, regardless of the order of the edits.
+        // The store reports only the key's final state for the transaction, so the removal wins.
         try dataLayerStore.edit()
             .put(key: Self.identityKey, value: "otherIdentity", expiry: .forever)
             .remove(key: Self.identityKey)
@@ -148,5 +152,72 @@ final class VisitorSwitcherTests: XCTestCase {
         disposable?.dispose()
         try storeIdentityInDataLayer("otherIdentity")
         XCTAssertEqual(identifiedValues, ["identityValue"])
+    }
+
+    // MARK: - Subscribers that commit to the data layer while handling an update
+
+    func test_identify_is_called_with_stored_identity_last_when_earlier_subscriber_normalizes_identity() throws {
+        disposable?.dispose()
+        subscribeIdentityNormalizer()
+        disposable = subscribeVisitorSwitcher()
+
+        try storeIdentityInDataLayer("User@Example.com")
+
+        XCTAssertEqual(dataLayerStore.get(key: Self.identityKey), "user@example.com")
+        XCTAssertEqual(identifiedValues.last, "user@example.com")
+    }
+
+    func test_identify_is_called_with_stored_identity_last_when_identityKey_change_resubscribes_after_normalizer() throws {
+        subscribeIdentityNormalizer()
+        _identityKeyState.value = "otherKey"
+        _identityKeyState.value = Self.identityKey
+
+        try storeIdentityInDataLayer("User@Example.com")
+
+        XCTAssertEqual(dataLayerStore.get(key: Self.identityKey), "user@example.com")
+        XCTAssertEqual(identifiedValues.last, "user@example.com")
+    }
+
+    func test_identify_is_not_called_when_earlier_subscriber_removes_identity() throws {
+        disposable?.dispose()
+        subscribeIdentityValidator()
+        disposable = subscribeVisitorSwitcher()
+
+        try storeIdentityInDataLayer("not-an-email")
+
+        XCTAssertNil(dataLayerStore.getDataItem(key: Self.identityKey))
+        XCTAssertEqual(identifiedValues, [])
+    }
+
+    func test_identify_is_called_with_each_identity_in_order_when_normalizer_subscribes_after_visitor_switcher() throws {
+        subscribeIdentityNormalizer()
+
+        try storeIdentityInDataLayer("User@Example.com")
+
+        XCTAssertEqual(identifiedValues, ["User@Example.com", "user@example.com"])
+    }
+
+    // MARK: - Helpers
+
+    /// App-side subscriber that stores the identity lowercased. The SDK hashes identities as stored, so a different case is a different identity.
+    @discardableResult
+    private func subscribeIdentityNormalizer() -> any Disposable {
+        dataLayerStore.onDataUpdated.subscribe { [dataLayerStore] update in
+            guard let identity: String = update.get(key: Self.identityKey), identity != identity.lowercased() else { return }
+            try? dataLayerStore?.edit()
+                .put(key: Self.identityKey, value: identity.lowercased(), expiry: .forever)
+                .commit()
+        }
+    }
+
+    /// App-side subscriber that removes an identity that is not an email address.
+    @discardableResult
+    private func subscribeIdentityValidator() -> any Disposable {
+        dataLayerStore.onDataUpdated.subscribe { [dataLayerStore] update in
+            guard let identity: String = update.get(key: Self.identityKey), !identity.contains("@") else { return }
+            try? dataLayerStore?.edit()
+                .remove(key: Self.identityKey)
+                .commit()
+        }
     }
 }

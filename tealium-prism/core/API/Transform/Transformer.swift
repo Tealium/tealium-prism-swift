@@ -11,9 +11,13 @@ public protocol Transformer: Module {
     /// Applies the specified `transformation` to a `Dispatch` for the `DispatchScope`
     /// in which this transformation is called.
     ///
-    /// - Threading: This method is called on the Tealium queue, and the caller disposes the returned
-    ///   `Disposable` on the Tealium queue. `completion` must be called on the Tealium queue (see
-    ///   ``TealiumContext/queue``); it may be called synchronously, before this method returns.
+    /// - Threading: This method is called on the Tealium queue (see ``TealiumContext/queue``), and the
+    ///   caller disposes the returned `Disposable` on the Tealium queue. `completion` may be called from
+    ///   any thread, and may be called synchronously, before this method returns. Calling it on the
+    ///   Tealium queue keeps the rest of the transformation chain synchronous and inline; calling it
+    ///   from another thread makes the rest of the chain asynchronous, resumed on the Tealium queue.
+    /// - Important: An implementation that works on other threads must return a `Disposable` whose
+    ///   `dispose()` and `isDisposed` are safe to use from both the Tealium queue and its own.
     /// - Completion: Call `completion` exactly once, unless the caller has disposed the returned
     ///   `Disposable`. Pass the transformed or unchanged dispatch for it to proceed, or `nil` to drop
     ///   it and stop any further processing.

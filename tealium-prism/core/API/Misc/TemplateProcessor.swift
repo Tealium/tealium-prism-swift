@@ -84,7 +84,7 @@ public class TemplateProcessor {
     /// fallback if present, otherwise an empty string.
     private static func section(from inner: String) -> TemplateSection {
         let parts = inner.components(separatedBy: "||")
-            .map { $0.trimmingCharacters(in: .whitespaces) }
+            .map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }
         let pathString = parts.first ?? ""
         let fallback = parts.count > 1 ? parts[1] : nil
 

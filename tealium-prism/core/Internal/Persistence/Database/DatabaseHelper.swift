@@ -8,6 +8,7 @@
 
 import Foundation
 import SQLite
+import SQLite3
 
 /**
  * Concrete implementation of the `SQLiteOpenHelper` which implements the onCreate/onConfigure/onUpgrade/onDowngrade methods.
@@ -35,23 +36,49 @@ class DatabaseHelper: SQLiteOpenHelper {
                    removeFile: removeFile)
     }
 
+    /// The SQLite code that reported corruption, or `nil` if `error` isn't corruption.
+    ///
+    /// Corruption is `SQLITE_CORRUPT` or `SQLITE_NOTADB`, as on Android. Any other code, I/O, can't-open, auth or permission
+    /// errors included, never is: those can come from a healthy file that is only locked, and it must not be deleted.
+    static func corruptionCode(_ error: Error) -> Int32? {
+        if let upgrade = error as? DatabaseUpgradeError {
+            return corruptionCode(upgrade.underlying)
+        }
+        guard let result = error as? SQLite.Result else {
+            return nil
+        }
+        let code: Int32
+        switch result {
+        case .error(_, let primaryCode, _):
+            code = primaryCode
+        case .extendedError(_, let extendedCode, _):
+            code = extendedCode
+        }
+        // The primary code is in the low 8 bits, whichever form SQLite reported.
+        let primary = code & 0xff
+        return primary == SQLITE_CORRUPT || primary == SQLITE_NOTADB ? code : nil
+    }
+
     override func onConfigure(database: Connection) throws {
         database.foreignKeys = true
 
         // Write-ahead logging. deleteDatabase() also removes the -wal, -shm and -journal.
         //
-        // Never throws: DatabaseProvider would fall back to an in-memory database and lose unsent
-        // events at app exit. Enabling WAL can fail, e.g. creating the -shm under Data Protection
-        // before first unlock, and then the database keeps the rollback journal.
+        // Only corruption throws, so that DatabaseProvider recreates the file: this pragma loads the schema, so it is the first
+        // statement to hit a corrupt schema page, which `PRAGMA user_version` doesn't read. Any other failure doesn't: DatabaseProvider
+        // would fall back to an in-memory database and lose unsent events at app exit. Enabling WAL can fail, e.g. creating the
+        // -shm under Data Protection before first unlock, and then the database keeps the rollback journal.
         //
         // busy_timeout first, as the WAL conversion briefly takes an exclusive lock.
         _ = try? database.execute("PRAGMA busy_timeout = 3000")
-        // Lowercased: the returned casing is not contractual.
         var journalMode: String?
         var journalModeError: Error?
         do {
-            journalMode = (try database.scalar("PRAGMA journal_mode = WAL") as? String)?.lowercased()
+            journalMode = try enableWriteAheadLog(database: database)
         } catch {
+            if Self.corruptionCode(error) != nil {
+                throw error
+            }
             journalModeError = error
         }
 
@@ -69,6 +96,12 @@ class DatabaseHelper: SQLiteOpenHelper {
             logger?.error(category: LogCategory.persistence,
                           "Could not enable WAL journal mode (got \(journalMode ?? "nil")); if the database opens, it uses the rollback journal instead\(cause)")
         }
+    }
+
+    /// Runs `PRAGMA journal_mode = WAL` and returns the journal mode SQLite reports, lowercased. Separate so tests can make it fail.
+    func enableWriteAheadLog(database: Connection) throws -> String? {
+        // Lowercased: the returned casing is not contractual.
+        (try database.scalar("PRAGMA journal_mode = WAL") as? String)?.lowercased()
     }
 
     override func onCreate(database: Connection) throws {

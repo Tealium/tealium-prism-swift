@@ -1,7 +1,7 @@
 Pod::Spec.new do |s|
   s.name             = 'tealium-prism'
   s.module_name      = "TealiumPrism"
-  s.version          = '0.7.0'
+  s.version          = '0.8.0'
   s.summary          = 'Tealium Prism Integration Library'
 
   s.description      = <<-DESC
@@ -20,10 +20,11 @@ Pod::Spec.new do |s|
   s.tvos.deployment_target = "13.0"
 
   s.swift_version = '5.0'
-  s.dependency 'SQLite.swift', '~> 0.15.0'
+  s.dependency 'SQLite.swift', '~> 0.15.4'
   
   s.subspec "Core" do |core|
       core.source_files = "tealium-prism/core/**/*.{swift,h,m}"
+      core.resource_bundles = { "TealiumPrism" => "tealium-prism/core/PrivacyInfo.xcprivacy" }
     end
 
   s.subspec "Lifecycle" do |lifecycle|

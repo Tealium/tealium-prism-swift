@@ -22,13 +22,15 @@ class ConsentIntegrationManagerBaseTests: XCTestCase {
     func buildQueueManager() -> MockQueueManager {
         let processors = TealiumImpl.queueProcessors(from: moduleManager.observeModules { $0 as? Dispatcher },
                                                      addingConsent: true)
-        let repository = SQLQueueRepository(dbProvider: databaseProvider,
-                                            maxQueueSize: 10,
-                                            expiration: 1.days)
         return MockQueueManager(processors: processors,
-                                queueRepository: repository,
+                                queueRepository: buildQueueRepository(),
                                 coreSettings: coreSettings,
                                 logger: nil)
+    }
+    func buildQueueRepository() -> SQLQueueRepository {
+        SQLQueueRepository(dbProvider: databaseProvider,
+                           maxQueueSize: 10,
+                           expiration: 1.days)
     }
     @StateSubject([])
     var transformations: ObservableState<[TransformationSettings]>
@@ -62,6 +64,10 @@ class ConsentIntegrationManagerBaseTests: XCTestCase {
                                          logger: nil)
     }
 
+    func applyDecision(decisionType: ConsentDecision.DecisionType, purposes: Set<String>) {
+        adapter.applyDecision(ConsentDecision(decisionType: decisionType, purposes: purposes))
+    }
+
     func updateConsentSettings(consentSettings: ConsentSettings) {
         _consentSettings.value = consentSettings
     }
@@ -69,10 +75,6 @@ class ConsentIntegrationManagerBaseTests: XCTestCase {
 
 final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
     let completionCalledDescription = "Completion was called"
-
-    func applyDecision(decisionType: ConsentDecision.DecisionType, purposes: Set<String>) {
-        adapter.applyDecision(ConsentDecision(decisionType: decisionType, purposes: purposes))
-    }
 
     func test_applyConsent_returns_dropped_result_and_original_dispatch_when_explicitly_not_tealium_consented() {
         applyDecision(decisionType: .explicit, purposes: [])
@@ -248,7 +250,7 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
         waitForDefaultTimeout()
     }
 
-    func test_handleConsentInspectorChange_enqueue_normal_dispatches_when_purposes_are_consented() {
+    func test_handleConsentInspectorChange_enqueue_normal_dispatches_when_purposes_are_consented() throws {
         let storeRequest = expectation(description: "All consent dispatch are stored")
         let config = ConsentConfiguration(tealiumPurposeId: "tealium",
                                           refireDispatchersIds: ["refireDispatcher"],
@@ -262,8 +264,8 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
                                          decision: decision,
                                          allPurposes: nil)
         let dispatches = [Dispatch(name: "event")]
-        queueManager.storeDispatches(dispatches,
-                                     enqueueingFor: [ConsentIntegrationManager.id])
+        try queueManager.storeDispatches(dispatches,
+                                         enqueueingFor: [ConsentIntegrationManager.id])
         queueManager.onStoreRequest.subscribeOnce { storedDispatches, allDispatchers in
             XCTAssertEqual(storedDispatches.map { $0.id }, dispatches.map { $0.id })
             XCTAssertEqual(allDispatchers, self.allDispatchersIds,
@@ -274,7 +276,7 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
         waitForDefaultTimeout()
     }
 
-    func test_handleConsentInspectorChange_enqueue_refire_dispatches_when_purposes_are_consented() {
+    func test_handleConsentInspectorChange_enqueue_refire_dispatches_when_purposes_are_consented() throws {
         let storeRequest = expectation(description: "All consent dispatch are stored")
         let config = ConsentConfiguration(tealiumPurposeId: "tealium",
                                           refireDispatchersIds: [MockDispatcher1.moduleType],
@@ -290,8 +292,8 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
         let dispatches = [Dispatch(name: "event", data: [
             TealiumDataKey.allConsentedPurposes: ["some_purpose"]
         ])]
-        queueManager.storeDispatches(dispatches,
-                                     enqueueingFor: [ConsentIntegrationManager.id])
+        try queueManager.storeDispatches(dispatches,
+                                         enqueueingFor: [ConsentIntegrationManager.id])
         queueManager.onStoreRequest.subscribeOnce { storedDispatches, refireDispatchers in
             XCTAssertEqual(storedDispatches.map { $0.id },
                            dispatches.map { $0.id + "-refire" })
@@ -302,7 +304,7 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
         waitForDefaultTimeout()
     }
 
-    func test_handleConsentInspectorChange_doesnt_enqueue_dispatches_when_purposes_are_not_consented() {
+    func test_handleConsentInspectorChange_doesnt_enqueue_dispatches_when_purposes_are_not_consented() throws {
         let storeRequest = expectation(description: "No consent dispatch are stored")
         storeRequest.isInverted = true
         let config = ConsentConfiguration(tealiumPurposeId: "tealium",
@@ -317,8 +319,8 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
                                          decision: decision,
                                          allPurposes: nil)
         let dispatches = [Dispatch(name: "event")]
-        queueManager.storeDispatches(dispatches,
-                                     enqueueingFor: [ConsentIntegrationManager.id])
+        try queueManager.storeDispatches(dispatches,
+                                         enqueueingFor: [ConsentIntegrationManager.id])
         queueManager.onStoreRequest.subscribeOnce { _, _ in
             storeRequest.fulfill()
         }
@@ -326,7 +328,7 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
         waitForDefaultTimeout()
     }
 
-    func test_handleConsentInspectorChange_doesnt_enqueue_dispatches_when_tealium_explicitly_blocked() {
+    func test_handleConsentInspectorChange_doesnt_enqueue_dispatches_when_tealium_explicitly_blocked() throws {
         let storeRequest = expectation(description: "No consent dispatch are stored")
         storeRequest.isInverted = true
         let config = ConsentConfiguration(tealiumPurposeId: "tealium",
@@ -341,13 +343,50 @@ final class ConsentIntegrationManagerTests: ConsentIntegrationManagerBaseTests {
                                          decision: decision,
                                          allPurposes: nil)
         let dispatches = [Dispatch(name: "event")]
-        queueManager.storeDispatches(dispatches,
-                                     enqueueingFor: [ConsentIntegrationManager.id])
+        try queueManager.storeDispatches(dispatches,
+                                         enqueueingFor: [ConsentIntegrationManager.id])
         queueManager.onStoreRequest.subscribeOnce { _, _ in
             storeRequest.fulfill()
         }
         consentManager.handleConsentInspectorChange(inspector)
         waitForDefaultTimeout()
+    }
+}
+
+/// When the queue insert fails, the dispatch can't be held or enqueued, so it must be reported as dropped.
+final class ConsentStoreFailureTests: ConsentIntegrationManagerBaseTests {
+    let expectedInfo = "Reason: Failed to persist dispatch to the queue."
+
+    override func buildQueueRepository() -> SQLQueueRepository {
+        FailingQueueRepository(dbProvider: databaseProvider, maxQueueSize: 10, expiration: 1.days)
+    }
+
+    func test_applyConsent_returns_dropped_when_store_fails_before_consentDecision_is_given() {
+        XCTAssertNil(consentManager.cmpSelector.consentInspector.value)
+        let result = consentManager.applyConsent(to: Dispatch(name: "event"))
+        XCTAssertTrackResultIsDropped(result) { dispatch in
+            XCTAssertNil(dispatch.payload.getDataItem(key: TealiumDataKey.consentType))
+        }
+        XCTAssertEqual(result.info, expectedInfo)
+    }
+
+    func test_applyConsent_returns_dropped_when_store_fails_and_implicitly_not_tealium_consented() {
+        applyDecision(decisionType: .implicit, purposes: [])
+        XCTAssertNotNil(consentManager.cmpSelector.consentInspector.value)
+        let result = consentManager.applyConsent(to: Dispatch(name: "event"))
+        XCTAssertTrackResultIsDropped(result) { dispatch in
+            XCTAssertNil(dispatch.payload.getDataItem(key: TealiumDataKey.consentType))
+        }
+        XCTAssertEqual(result.info, expectedInfo)
+    }
+
+    func test_applyConsent_returns_dropped_when_store_fails_and_tealium_consented() {
+        applyDecision(decisionType: .explicit, purposes: ["tealium"])
+        let result = consentManager.applyConsent(to: Dispatch(name: "event"))
+        XCTAssertTrackResultIsDropped(result) { dispatch in
+            XCTAssertNotNil(dispatch.payload.getDataItem(key: TealiumDataKey.consentType))
+        }
+        XCTAssertEqual(result.info, expectedInfo)
     }
 }
 

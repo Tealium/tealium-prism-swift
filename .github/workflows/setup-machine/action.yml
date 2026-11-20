@@ -1,5 +1,11 @@
 name: Setup the machine
-description: Reusable workflow to setup the machine and XCode
+description: Selects Xcode, sets up Ruby with cached gems and optionally runs pod install
+
+inputs:
+  pod-install:
+    description: "Run 'pod install' in Example (needed only by jobs using the Example workspace)"
+    required: false
+    default: 'true'
 
 runs:
   using: "composite"
@@ -7,20 +13,17 @@ runs:
     - name: Runner - ${{ runner.name }}
       run: echo "${{ runner.name }}"
       shell: bash
+    - name: "Run Local Action: Setup Xcode"
+      uses: ./.github/workflows/setup-xcode
     - uses: ruby/setup-ruby@v1
       with:
-        ruby-version: '3.4'
-    - name: Setup Xcode version
-      uses: maxim-lobanov/setup-xcode@v1
-      with:
-        xcode-version: '16.4'
-    - name: Log Selected XCode version
-      run:  xcode-select -p && xcodebuild -version
-      shell: bash
-    - name: Bundle Install
-      run: bundle install
-      shell: bash
+        # Exact patch on purpose: it is part of the bundler-cache key, so '3.4' would turn every PR
+        # cold whenever setup-ruby resolves a new 3.4.x. Bump it by hand (no Renovate/Dependabot in
+        # this repo); merging the bump re-seeds via gems-cache-seed.yml.
+        ruby-version: '3.4.12'
+        bundler-cache: true
     - name: Pod Install
+      if: ${{ inputs.pod-install == 'true' }}
       run: bundle exec pod install
       working-directory: Example
       shell: bash

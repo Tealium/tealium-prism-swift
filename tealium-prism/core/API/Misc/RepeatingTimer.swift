@@ -28,9 +28,11 @@ public class RepeatingTimer: Repeater {
     let leeway: DispatchTimeInterval
 
     /// - Parameters:
-    ///     - timeInterval: TimeInterval in seconds until the timed event happens, and repeating interval by default (if 'repeating' is not specified)
-    ///     - repeating: The interval to repeat, otherwise the same timeInterval is reused
-    ///     - queue: The queue to use for the timer
+    ///     - timeInterval: TimeInterval in seconds until the timed event happens, and repeating interval by default (if 'repeating' is not specified).
+    ///     - repeating: The interval to repeat, otherwise the same timeInterval is reused.
+    ///     - leeway:  The maximum amount of time after deadline by which the system may delay the delivery of the timer event.
+    ///     - queue: The queue to use for the timer.
+    ///     - eventHandler:  The handler block called on each repetition.
     public init(timeInterval: TimeInterval,
                 repeating: DispatchTimeInterval? = nil,
                 leeway: DispatchTimeInterval = .nanoseconds(0),

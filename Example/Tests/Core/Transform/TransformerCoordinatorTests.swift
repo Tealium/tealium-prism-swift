@@ -36,7 +36,7 @@ final class TransformerCoordinatorTests: XCTestCase {
     lazy var allTransformationsAreApplied = expectation(description: "All transformations are applied")
     lazy var coordinator = TransformerCoordinator(onTransformers: transformers.asObservableState(),
                                                   transformations: transformations,
-                                                  queue: TealiumQueue.worker,
+                                                  queue: TealiumQueue.main,
                                                   logger: logger)
     let testEvent = Dispatch(name: "test_event")
 
@@ -316,6 +316,18 @@ final class TransformerCoordinatorTests: XCTestCase {
         wait(for: [errorLogged, calledForThrowingTransformation], timeout: Self.defaultTimeout)
     }
 
+    func test_transform_does_not_apply_transformation_when_condition_has_invalid_regex() {
+        assertTransformationSkipped(conditions: .just(.invalidRegex()))
+    }
+
+    func test_transform_does_not_apply_transformation_when_condition_negates_an_invalid_regex() {
+        assertTransformationSkipped(conditions: .not(.just(.invalidRegex())))
+    }
+
+    func test_transform_does_not_apply_transformation_when_invalid_regex_is_evaluated_before_a_matching_sibling_in_an_or() {
+        assertTransformationSkipped(conditions: .or([.just(.invalidRegex()), .just(.isDefined(variable: "tealium_event"))]))
+    }
+
     func test_registerTransformation_adds_transformation_when_not_already_registered() {
         let newTransformation = TransformationSettings(id: "new", transformerId: "new", scope: .allDispatchers)
         XCTAssertFalse(coordinator.getTransformations(for: .dispatcher(id: "new"))
@@ -356,6 +368,35 @@ final class TransformerCoordinatorTests: XCTestCase {
         XCTAssertFalse(coordinator.getTransformations(for: .dispatcher(id: "new"))
             .contains(where: { coordinator.transformation($0, matchesIdsOf: newTransformation) }))
     }
+
+    private func assertTransformationSkipped(conditions: Rule<Condition>, file: StaticString = #filePath, line: UInt = #line) {
+        let errorLogged = expectation(description: "ConditionEvaluationError logged")
+        logger = MockLogger()
+        logger?.handler.onLogged.subscribeOnce({ logEvent in
+            XCTAssertEqual(logEvent.category, LogCategory.transformations, "Condition failure should be logged under the transformations category",
+                           file: file, line: line)
+            XCTAssertEqual(logEvent.level, .warn, "Condition failure should be logged as a warning", file: file, line: line)
+            errorLogged.fulfill()
+        })
+        coordinator.registerTransformation(TransformationSettings(id: "invalid_regex",
+                                                                  transformerId: "transformer1",
+                                                                  scope: .allDispatchers,
+                                                                  conditions: conditions))
+        let transformerCalled = expectation(description: "Transformer should not be called for throwing condition evaluation")
+        transformerCalled.isInverted = true
+        registeredTransformers[0].transformation = { transformation, dispatch, _ in
+            if transformation.id == "invalid_regex" {
+                transformerCalled.fulfill()
+            }
+            return dispatch
+        }
+        let completed = expectation(description: "Transform completed")
+        coordinator.transform(dispatch: testEvent, for: .dispatcher(id: "someDispatcher")) { _ in
+            completed.fulfill()
+        }
+        wait(for: [completed], timeout: Self.longTimeout)
+        wait(for: [errorLogged, transformerCalled], timeout: Self.defaultTimeout)
+    }
 }
 
 /**
@@ -375,7 +416,7 @@ final class TransformerCoordinatorReadinessTests: XCTestCase {
     var transformations: ObservableState<[TransformationSettings]>
     lazy var coordinator = TransformerCoordinator(onTransformers: onTransformers,
                                                   transformations: transformations,
-                                                  queue: TealiumQueue.worker,
+                                                  queue: TealiumQueue.main,
                                                   logger: nil)
 
     func test_transform_applies_the_transformation_arriving_with_the_transformers() {
