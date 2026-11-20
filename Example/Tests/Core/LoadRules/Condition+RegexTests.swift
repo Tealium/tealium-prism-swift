@@ -173,4 +173,52 @@ final class ConditionRegexTests: XCTestCase {
             XCTAssertEqual(error.condition, condition)
         }
     }
+
+    func test_regex_empty_pattern_matches_any_value() {
+        let condition = Condition.regularExpression(variable: "string", regex: "")
+        XCTAssertTrue(try condition.matches(payload: payload))
+    }
+
+    func test_regex_throws_when_pattern_is_invalid() {
+        let condition = Condition.invalidRegex(variable: "string")
+        XCTAssertThrows(try condition.matches(payload: payload)) { (error: ConditionEvaluationError) in
+            guard case let .invalidRegex(pattern, _) = error.kind else {
+                XCTFail("Should be invalid regex error, found: \(error)")
+                return
+            }
+            XCTAssertEqual(pattern, "[")
+            XCTAssertEqual(error.condition, condition)
+        }
+    }
+
+    func test_regex_throws_for_patterns_icu_rejects() {
+        for pattern in ["{x}", "}", "a{,3}", "(?P<n>a)", "\\p{isAlphabetic}"] {
+            let condition = Condition.regularExpression(variable: "string", regex: pattern)
+            XCTAssertThrows(try condition.matches(payload: payload), pattern) { (error: ConditionEvaluationError) in
+                guard case .invalidRegex = error.kind else {
+                    XCTFail("\(pattern) should be an invalid regex error, found: \(error)")
+                    return
+                }
+            }
+        }
+    }
+
+    func test_regex_dot_matches_a_single_code_point() {
+        let payload: DataObject = ["decomposed": "e\u{301}"]
+        let condition = Condition.regularExpression(variable: "decomposed", regex: "^.$")
+        XCTAssertFalse(try condition.matches(payload: payload))
+    }
+
+    func test_regex_dollar_matches_before_a_trailing_newline() {
+        let payload: DataObject = ["trailingNewline": "a\n"]
+        let condition = Condition.regularExpression(variable: "trailingNewline", regex: "a$")
+        XCTAssertTrue(try condition.matches(payload: payload))
+    }
+}
+
+extension Condition {
+    /// A regex condition whose pattern can't be compiled.
+    static func invalidRegex(variable: String = "tealium_event") -> Condition {
+        .regularExpression(variable: variable, regex: "[")
+    }
 }

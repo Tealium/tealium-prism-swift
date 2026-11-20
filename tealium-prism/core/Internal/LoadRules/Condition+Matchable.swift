@@ -76,9 +76,7 @@ extension Condition: Matchable {
             case .notStartsWith(let ignoreCase):
                 try stringsMatch(dataItem: dataItem, ignoreCase: ignoreCase) { !$0.hasPrefix($1) }
             case .regex:
-                try stringsMatch(dataItem: dataItem, ignoreCase: false) {
-                    $0.range(of: $1, options: .regularExpression) != nil
-                }
+                try stringsMatch(dataItem: dataItem, ignoreCase: false, regexMatches)
             }
         } catch {
             throw ConditionEvaluationError(kind: error, condition: self)
@@ -101,14 +99,26 @@ extension Condition: Matchable {
         return input == filter
     }
 
-    private func stringsMatch(dataItem: DataItem, ignoreCase: Bool, _ predicate: (String, String) -> Bool) throws(ErrorKind) -> Bool {
+    private func stringsMatch(
+        dataItem: DataItem,
+        ignoreCase: Bool,
+        _ predicate: (String, String) throws(ErrorKind) -> Bool
+    ) throws(ErrorKind) -> Bool {
         var filter = try requireFilter()
         var string = try stringify(dataItem)
         if ignoreCase {
             string = string.lowercased()
             filter = filter.lowercased()
         }
-        return predicate(string, filter)
+        return try predicate(string, filter)
+    }
+
+    private func regexMatches(_ string: String, pattern: String) throws(ErrorKind) -> Bool {
+        do {
+            return try string.matches(regexPattern: pattern)
+        } catch {
+            throw .invalidRegex(pattern: pattern, cause: error)
+        }
     }
 
     private func numbersMatch(dataItem: DataItem, orEqual: Bool, _ predicate: (Double, Double) -> Bool) throws(ErrorKind) -> Bool {
@@ -159,5 +169,16 @@ extension Condition: Matchable {
         } else {
             return Self.formatter.format(dataItem: value) ?? "null"
         }
+    }
+}
+
+private extension String {
+    func matches(regexPattern: String) throws -> Bool {
+        // NSRegularExpression rejects an empty pattern, which matches every string in other regex engines.
+        guard !regexPattern.isEmpty else {
+            return true
+        }
+        return try NSRegularExpression(pattern: regexPattern)
+            .firstMatch(in: self, range: NSRange(startIndex..., in: self)) != nil
     }
 }

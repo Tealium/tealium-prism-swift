@@ -27,7 +27,11 @@ final class LoadRuleEngineTests: XCTestCase {
                                                                                 target: "value"))),
             "noDataItem": LoadRule(id: "equals", conditions: .just(Condition.equals(ignoreCase: false,
                                                                                     variable: "missing",
-                                                                                    target: "value")))
+                                                                                    target: "value"))),
+            "invalid_regex": LoadRule(id: "invalid_regex", conditions: .just(.invalidRegex())),
+            "not_invalid_regex": LoadRule(id: "not_invalid_regex", conditions: .not(.just(.invalidRegex()))),
+            "invalid_regex_or_match": LoadRule(id: "invalid_regex_or_match",
+                                               conditions: .or([.just(.invalidRegex()), .just(.isDefined(variable: "tealium_event"))]))
         ])
     }
 
@@ -35,6 +39,30 @@ final class LoadRuleEngineTests: XCTestCase {
         _sdkSettings.add(modules: [
             moduleType: ModuleSettings(moduleType: moduleType, rules: rule)
         ])
+    }
+
+    func test_rulesAllow_returns_false_when_rule_has_an_invalid_regex() {
+        assertRulesDisallow(rule: "invalid_regex")
+    }
+
+    func test_rulesAllow_returns_false_when_rule_negates_an_invalid_regex() {
+        assertRulesDisallow(rule: "not_invalid_regex")
+    }
+
+    func test_rulesAllow_returns_false_when_invalid_regex_is_evaluated_before_a_matching_sibling_in_an_or() {
+        assertRulesDisallow(rule: "invalid_regex_or_match")
+    }
+
+    func test_evaluateLoadRules_fails_dispatch_when_rule_has_an_invalid_regex() {
+        assertEvaluationFails(rule: "invalid_regex")
+    }
+
+    func test_evaluateLoadRules_fails_dispatch_when_rule_negates_an_invalid_regex() {
+        assertEvaluationFails(rule: "not_invalid_regex")
+    }
+
+    func test_evaluateLoadRules_fails_dispatch_when_invalid_regex_is_evaluated_before_a_matching_sibling_in_an_or() {
+        assertEvaluationFails(rule: "invalid_regex_or_match")
     }
 
     func test_expand_replaces_id_strings_with_provided_conditions() {
@@ -194,5 +222,33 @@ final class LoadRuleEngineTests: XCTestCase {
             return
         }
         XCTAssertTrue(Rule<Condition>.just(condition).equals(newRule))
+    }
+
+    private func expectWarningLogged(file: StaticString, line: UInt) {
+        let errorLogged = expectation(description: "InvalidMatchError is logged")
+        logger = MockLogger()
+        logger?.handler.onLogged.subscribeOnce({ logEvent in
+            XCTAssertEqual(logEvent.category, LogCategory.loadRules, "Rule failure should be logged under the load rules category",
+                           file: file, line: line)
+            XCTAssertEqual(logEvent.level, .warn, "Rule failure should be logged as a warning", file: file, line: line)
+            errorLogged.fulfill()
+        })
+    }
+
+    private func assertRulesDisallow(rule: String, file: StaticString = #filePath, line: UInt = #line) {
+        addRule(.just(rule))
+        expectWarningLogged(file: file, line: line)
+        XCTAssertFalse(engine.rulesAllow(dispatch: Dispatch(name: "event"), forModule: moduleWithRules),
+                       "A rule that fails to evaluate should not allow the dispatch", file: file, line: line)
+        waitForDefaultTimeout()
+    }
+
+    private func assertEvaluationFails(rule: String, file: StaticString = #filePath, line: UInt = #line) {
+        addRule(.just(rule))
+        expectWarningLogged(file: file, line: line)
+        let (passed, failed) = engine.evaluateLoadRules(on: [Dispatch(name: "event")], forModule: moduleWithRules)
+        XCTAssertTrue(passed.isEmpty, "No dispatch should pass a rule that fails to evaluate", file: file, line: line)
+        XCTAssertEqual(failed.map { $0.name }, ["event"], "The dispatch should fail a rule that fails to evaluate", file: file, line: line)
+        waitForDefaultTimeout()
     }
 }
