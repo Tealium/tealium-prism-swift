@@ -2,30 +2,42 @@
 
 All notable changes to Tealium Prism for Swift are documented in this file. Releases are published on [GitHub](https://github.com/Tealium/tealium-prism-swift/releases).
 
-## 0.8.0 (Draft)
+## [0.8.0](https://github.com/Tealium/tealium-prism-swift/releases/tag/0.8.0) - 2026-11-23
 
 ### Breaking Changes
 
 #### Enums
 
 - Public enums that may gain cases in future releases are now non-exhaustive ([SE-0487](https://github.com/swiftlang/swift-evolution/blob/main/proposals/0487-extensible-enums.md) `@nonexhaustive`). With a Swift 6.2.3 or later compiler, a `switch` over one of them without an `@unknown default` case is an error in Swift 6 language mode and a warning in Swift 5 language mode. Add an `@unknown default` case so your code keeps compiling when a later release adds cases. Older compilers are unaffected. The non-exhaustive enums are:
-  - Errors: `TealiumError`, `NetworkErrorType`, `ConversionError`, `JSONParsingError`, `DatabaseError`, `CommandError`, `ModuleError`, `LifecycleError` and `ContextAPIError`.
+  - Errors: `TealiumError`, `NetworkErrorType`, `ConversionError`, `JSONParsingError`, `DatabaseError`, `CommandError`, `ModuleError`, `LifecycleError`, `ContextAPIError` and the new `ExtractionError`.
   - Others: `DispatchScope`, `TransformationScope`, `BarrierScope`, `NetworkConnection.ConnectionType`, `ContextAPIRegion`, `ExpiryPolicy`, `Expiry`, `UpdatePolicy` and `RetryPolicy`.
 - A `switch` over `NetworkConnection` that matches the connection type (for example `case .connected(.wifi)`) also needs an `@unknown default` case, because `NetworkConnection.ConnectionType` is non-exhaustive. `NetworkConnection` itself is still exhaustive, so `case .connected:` without the nested match needs no change.
+- Added cases to two of those enums: `CommandError.invalidPayload(_:)` and `DatabaseError.connectionClosed(cause:)` (see Additions and Fixes). With an older compiler, a `switch` over them without a `default` case must handle the new case.
 
 #### Commands
 
 - `Dispatch.getCommands()` now returns command names normalized the same way `Command` names are registered: trimmed and lowercased. For example, `[" LogEvent ", "other"]` now returns `["logevent", "other"]`. The `command_name` value in the payload is unchanged. If you compare the returned names, compare them with lowercased names. Command logs and `CommandError.commandNotFound` errors also show the normalized name.
+- The completion of `Command.execute(payload:completion:)` now takes an `Error?` instead of a `CommandError?`, and `SyncCommand.execute(payload:)` now `throws` instead of `throws(CommandError)`. A type that conforms to `Command` directly must update its signature. `SyncCommand` subclasses keep compiling. A command can now throw an `ExtractionError` from the new extraction helpers, and the SDK reports it as `CommandError.invalidPayload(_:)`.
+
+#### Persistence
+
+- `DatabaseProvider` and `DatabaseProviderProtocol` are no longer public. They exposed SQLite.swift's `Connection` and aren't meant to be used outside the SDK.
+- `QueueManagerProtocol` is no longer public. It wasn't meant to be used outside the SDK.
 
 ### Additions
 
-- Made `DataObject.getConvertible(converter:)` public.
+- Made `DataObject.getConvertible(converter:)` and `DataObject.deepMerge(with:depth:)` public.
 - Added `ComparableUtils.coerce(_:min:max:)` to clamp a value between a minimum and a maximum.
 - Added a privacy manifest (`PrivacyInfo.xcprivacy`) to Core, declaring no tracking, no collected data and no required-reason APIs.
+- Added failable extraction helpers to `DataItemExtractor`, and so to `DataStoreTransaction`, `[String: DataItem]`, `DataObject` and command payloads, ffor reading a parameter that must be valid, addressed by a `JSONObjectPath`: `require(_:converter:)`, `requireDataItem(_:)`, `requireDataDictionary(_:)`, `requireNonBlank(_:converter:)`, `requireOneOf(_:values:)`, `optional(_:converter:)`, `optionalDataDictionary(_:)` and `optionalOneOf(_:values:)`. The `require` helpers throw when the value is missing or `null`, of the wrong type, blank (`requireNonBlank`) or not one of the accepted values (`requireOneOf`). The `optional` helpers return `nil` when the value is missing or `null`, and throw in the other cases.
+- Added `ExtractionError`, thrown by those helpers, with the cases `missing(key:)`, `typeMismatch(key:expectedType:)`, `invalidValue(key:reason:)` and `empty(key:)`. Its messages name the parameter's path but never its value, which can be personal data.
+- Added `CommandError.invalidPayload(_:)`, which wraps an `ExtractionError`.
+- `JSONObjectPath` now conforms to `JSONObjectPathConvertible`, so a path built at runtime can be passed to the extraction helpers.
 
 ### Deprecations
 
 - Deprecated `Observable.resubscribingWhile(_:)`. The SDK no longer uses it, and it will be removed in a future version.
+- Deprecated `CommandError.missingParameter`, `CommandError.invalidParameterType`, `CommandError.emptyParameter` and `CommandError.emptyArray`. Use `CommandError.invalidPayload(_:)` with `.missing(key:)`, `.typeMismatch(key:expectedType:)` or `.empty(key:)` instead.
 
 ### Improvements
 
@@ -33,17 +45,32 @@ All notable changes to Tealium Prism for Swift are documented in this file. Rele
 - Command names and the lenient boolean and number conversions, including numeric load rule conditions, now trim newlines as well as spaces and tabs, matching Kotlin. For example, `"log\n"` now runs the `log` command and `"true\n"` converts to `true`.
 - `DispatchType(rawValue:)` is now case insensitive and maps `"link"` to `.event`.
 - A `Transformer` may now call `completion` from any thread. The rest of the transformation chain resumes on the Tealium queue: inline when `completion` is called there, asynchronously otherwise. A transformer that works on other threads must return a `Disposable` that is safe to dispose and query from both.
-- Transformations can now be cancelled. When the SDK stops waiting for an event's transformations, for example when a Tealium instance shuts down, it disposes the `Disposable` returned by the running `Transformer` and applies no further transformations to that event.
+- Transformations can now be cancelled. When the SDK stops waiting for an event's transformations, for example on Tealium shutdown, it disposes the `Disposable` returned by the running `Transformer` and applies no further transformations to that event.
+- Every `Tealium` initialization failure is now logged at error level, including failures after the early set-up.
+- A corruption found in an in-memory database is now logged.
+- Database transactions now take the write lock when they begin (`BEGIN IMMEDIATE`), so a transaction that reads before it writes can't get `SQLITE_BUSY` when it writes. This includes the schema creation and upgrade when the database opens.
+- `DataStore`, its `DataStoreEditor`, and `ModuleStoreProvider` now document that they must be used from the Tealium queue, which is where a module's methods are called.
 
 ### Fixes
 
+- Fixed a crash on every launch when the SDK's database file is corrupt and the corruption is found after the database opens, by a later statement. The SDK now deletes the corrupt file, with its `-wal`, `-shm` and `-journal`, and logs the corruption once at error level. The data stored in it is lost, including queued events and the visitor ID, so the next instance starts with a new anonymous visitor ID. If the corruption is found during initialization, `Tealium.create` fails. If it is found later, storage stays unavailable until the instance is shut down, and events tracked in the meantime are dropped: later database writes throw `DatabaseError.connectionClosed(cause:)`, whose `cause` is the corruption error. Once the instance is shut down, a new instance, or the next launch, creates a new database file.
+- The WAL checkpoint at backgrounding and shutdown now handles a corruption it finds the same way.
+- Fixed a failed database transaction reporting the error of its rollback instead of the error that caused it.
+- Fixed `track` reporting `TrackResult.accepted` when the event couldn't be stored in the queue. It now reports `.dropped` with the reason "Failed to persist dispatch to the queue.", and the failure is logged at error level.
 - Fixed the dispatch loop stranding a batch of events when a barrier closed while the batch was being taken from the queue, most often the `BatchingBarrier`. Those events were never sent and kept using in-flight slots until the app was relaunched. Draining a large backlog also no longer recurses deeply on the stack.
 - Fixed a `Dispatcher` with a `dispatchLimit` below 1 crashing the dispatch loop. It is now treated as 1.
+- Fixed a settings refresh, or a change in the enabled modules, starting a new barrier flush whenever events were queued. The events held by the `BatchingBarrier` were then sent without waiting for the batch to fill. During a flush that was already running, it also made the barriers close and reopen, restarted the 5-second flush timeout and, in the background, started another background task. Each `Dispatcher` now has a single flush at a time.
+- Fixed events tracked steadily while a barrier flush was about to start delaying it until the 5-second flush timeout passed, so the flush never happened. The flush now waits only for the queue to go from empty to non-empty, not for every new event.
 - Fixed a `Transformer` that called `completion` more than once re-running every later transformation, including side effects such as `PersistDataValue`, and storing the event twice. Later calls are now ignored and logged as a warning.
 - Fixed a `Transformer` that called `completion` off the Tealium queue running the rest of the transformation chain, and storing the event, on its own thread.
+- Fixed a `regex` load rule condition with an invalid pattern evaluating to `false` without an error, so a `not` around it matched every event. The condition now fails its rule, also under `not`, and the failure is logged as a warning. Every pattern now goes through `NSRegularExpression` (ICU), the engine Android uses, so a few rules match differently: patterns that only Swift `Regex` accepted, such as `{x}`, `}` or `(?P<name>…)`, are now invalid; `.` matches a single code point, so it no longer matches a whole 👍🏽 or an `e` followed by a combining accent; and `$` also matches before a trailing newline, so `a$` matches `"a\n"`. An empty pattern still matches every value.
 - Fixed `DataLayer.onDataUpdated` and `DataLayer.onDataRemoved` reporting a key in both events when a transaction edited it more than once. Each key now appears in at most one event per transaction, matching its stored state: for example, a `put` followed by a `remove` is reported only in `onDataRemoved`.
 - Fixed a `put` with an expiry that has already passed being reported in `onDataUpdated`, and a date before 1970 being stored as never expiring. Such a `put` now removes any existing value at that key and is reported in `onDataRemoved`.
+- Fixed a stored value that expired in the same millisecond as a purge being hidden from reads but never deleted.
 - Fixed `Dispatch.getCommands()` returning names that are blank after trimming. A dispatch with only blank command names now logs "No command in dispatch" instead of failing each name with `CommandError.commandNotFound`.
+- Fixed a value emitted into a `StateSubject` or a `ReplaySubject` from the callback of a new observer, while it receives the current value or the cached values, never reaching that observer. It now reaches it after those values, followed by any completion emitted at the same time. Earlier observers still receive it immediately.
+- Fixed `onNext` on a completed `StateSubject` or `ReplaySubject` still changing its value or cache, which observers subscribing afterwards then received. It is now ignored.
+- Fixed `Observable.delay(_:on:)` and `Observable.debounce(_:on:)` with 0 milliseconds dropping elements emitted from a queue other than `queue`.
 - Fixed a fresh Swift Package Manager resolution picking SQLite.swift 0.17.0, which requires iOS 15, macOS 12 and watchOS 9 and fails to build against Prism's minimum OS versions. SQLite.swift is now constrained to 0.15.x, from 0.15.4, in both `Package.swift` and the podspec.
 
 ## [0.7.0](https://github.com/Tealium/tealium-prism-swift/releases/tag/0.7.0) - 2026-10-16 - General Availability

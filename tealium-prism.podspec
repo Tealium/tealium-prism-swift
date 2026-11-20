@@ -1,14 +1,14 @@
 Pod::Spec.new do |s|
   s.name             = 'tealium-prism'
   s.module_name      = "TealiumPrism"
-  s.version          = '0.7.0'
+  s.version          = '0.8.0'
   s.summary          = 'Tealium Prism Integration Library'
 
   s.description      = <<-DESC
                        Integrates the Tealium CDP into your iOS, macOS, tvOS and watchOS apps.
                        DESC
 
-  s.homepage         = 'https://github.com/Tealium/tealium-prism'
+  s.homepage         = 'https://github.com/Tealium/tealium-prism-swift'
   s.license          = { :type => "Commercial", :file => "LICENSE" }
   s.authors          = { "Tealium Inc." => "dev@tealium.com" }
   s.source       = { :git => "https://github.com/Tealium/tealium-prism-swift.git", :tag => "#{s.version}" }
