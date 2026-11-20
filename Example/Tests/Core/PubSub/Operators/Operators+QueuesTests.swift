@@ -146,6 +146,34 @@ final class OperatorsQueuesTests: XCTestCase {
         waitForLongTimeout()
     }
 
+    /// Emits an element from a background queue and expects it to be delivered. Completion isn't emitted off-queue: operators expect their upstream events on a single queue.
+    private func assertDeliversOffQueue(_ applyOperator: (Observable<Int>) -> Observable<Int>) {
+        let subject = Subject<Int>()
+        let eventEmitted = expectation(description: "Event is emitted")
+        _ = applyOperator(subject.asObservable())
+            .subscribe { res in
+                XCTAssertEqual(res, 1)
+                eventEmitted.fulfill()
+            }
+
+        DispatchQueue.global().async {
+            subject.onNext(1)
+        }
+
+        wait(for: [eventEmitted], timeout: Self.longTimeout)
+    }
+
+    func test_delay_delivers_off_queue_when_delay_is_zero() {
+        assertDeliversOffQueue { $0.delay(0, on: queue) }
+    }
+
+    func test_delay_emits_synchronously_when_delay_is_zero_and_already_on_the_queue() {
+        var received = [Int]()
+        _ = observable123.delay(0, on: .main)
+            .subscribe { received.append($0) }
+        XCTAssertEqual(received, [1, 2, 3])
+    }
+
     func test_delay_subscription_dispose_cleans_retain_cycles() {
         let expectation = expectation(description: "Retain Cycle removed")
         let subject = Subject<Int>()
@@ -219,6 +247,40 @@ final class OperatorsQueuesTests: XCTestCase {
                 expectation.fulfill()
             }
         waitForLongTimeout()
+    }
+
+    func test_debounce_delivers_off_queue_when_delay_is_zero() {
+        assertDeliversOffQueue { $0.debounce(0, on: queue) }
+    }
+
+    func test_debounce_delivers_a_value_emitted_reentrantly_before_upstream_completes() {
+        let subject = Subject<Int>()
+        let firstReceived = expectation(description: "First value is received")
+        let secondReceived = expectation(description: "Second value is received")
+        let completed = expectation(description: "Observable completed")
+        var received = [Int]()
+        let disposer = AutomaticDisposer()
+
+        queue.ensureOnQueue { [queue] in
+            subject.asObservable()
+                .debounce(10, on: queue)
+                .subscribe { value in
+                    received.append(value)
+                    if value == 1 {
+                        firstReceived.fulfill()
+                        subject.onNext(2)
+                        subject.onComplete()
+                    } else {
+                        secondReceived.fulfill()
+                    }
+                } onComplete: {
+                    completed.fulfill()
+                }.addTo(disposer)
+            subject.onNext(1)
+        }
+
+        wait(for: [firstReceived, secondReceived, completed], timeout: Self.longTimeout, enforceOrder: true)
+        XCTAssertEqual(received, [1, 2])
     }
 
     func test_debounce_subscription_dispose_cleans_retain_cycles() {

@@ -306,7 +306,7 @@ public extension Observable {
      * potentially synchronously if the element was emitted from that same queue.
      *
      * - parameter milliseconds: The time to wait before emitting the elements
-     * - parameter queue: The queue on which the debouncer is working on.
+     * - parameter queue: The queue on which the elements are emitted.
      */
     func delay(_ milliseconds: Int, on queue: TealiumQueue) -> Observable<Element> {
         flatMap { element in
@@ -330,17 +330,22 @@ fileprivate extension Observables {
             let downstream = AsyncDisposableContainer(queue: queue)
 
             guard milliseconds > 0 else {
+                // Dispose inside the block: ensureOnQueue may be asynchronous, and disposing right away would make the block drop the element.
                 queue.ensureOnQueue {
                     guard !downstream.isDisposed else { return }
                     observer.onNext(element)
+                    // The observer may have disposed this subscription from onNext, e.g. by emitting again upstream.
+                    guard !downstream.isDisposed else { return }
                     observer.onComplete()
+                    downstream.dispose()
                 }
-                downstream.dispose()
                 return downstream
             }
             queue.dispatchQueue.asyncAfter(deadline: .now() + .milliseconds(milliseconds)) {
                 guard !downstream.isDisposed else { return }
                 observer.onNext(element)
+                // The observer may have disposed this subscription from onNext, e.g. by emitting again upstream.
+                guard !downstream.isDisposed else { return }
                 observer.onComplete()
                 downstream.dispose()
             }

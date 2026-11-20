@@ -20,11 +20,12 @@ class BarrierCoordinator {
     private let queue: TealiumQueue
     private let backgroundTaskStarter: BackgroundTaskStarter
     private let disposer = AutomaticDisposer()
+    private var queueFlushStates = [String: StateSubject<Bool>]()
 
     /// The milliseconds to wait for extra events before definitively flushing
     private let flushDebounceMilliseconds: Int
     /// The amount of milliseconds a flush operation can last, both in foreground and background
-    private let flushTimeout = 5000
+    private let flushTimeoutMilliseconds: Int
 
     @Subject<Void> var flushTrigger
 
@@ -32,6 +33,7 @@ class BarrierCoordinator {
          onApplicationStatus: Observable<ApplicationStatus>,
          queueMetrics: QueueMetrics,
          flushDebounceMilliseconds: Int = 200,
+         flushTimeoutMilliseconds: Int = 5000,
          backgroundTaskStarter: BackgroundTaskStarter? = nil,
          queue: TealiumQueue
     ) {
@@ -39,14 +41,15 @@ class BarrierCoordinator {
         self.onApplicationStatus = onApplicationStatus
         self.queueMetrics = queueMetrics
         self.flushDebounceMilliseconds = flushDebounceMilliseconds
+        self.flushTimeoutMilliseconds = flushTimeoutMilliseconds
         self.queue = queue
         self.backgroundTaskStarter = backgroundTaskStarter ?? BackgroundTaskStarter(queue: queue,
                                                                                     backgroundTaskTimeout: .seconds(3))
     }
 
     /**
-     * Places the `BarrierCoordinator` into a "flushing" state for each dispatcher until any queued
-     * `Dispatch`es have been processed and the queue size is reduced to zero.
+     * Places the `BarrierCoordinator` into a "flushing" state for each dispatcher until the dispatches
+     * pending for it have been dequeued (the pending count stays at zero for the debounce time), or for at most the flush timeout.
      *
      * The status of any barrier whose `Barrier.isFlushable` property returns `true` will be ignored
      * until the flush is completed.
@@ -55,11 +58,19 @@ class BarrierCoordinator {
         _flushTrigger.onNext(())
     }
 
+    /// Stops the flush detection of every dispatcher. Called by `TealiumImpl.shutdown()` once the dispatch loop has stopped.
+    func shutdown() {
+        disposer.dispose()
+    }
+
     /**
      * Returns an observable that will emit `open` when all the barriers (that apply to this dispatcher) open, and `closed` when at least one of them closes.
      *
      * When the barrier settings or their scope changes the barriers get evaluated again and emit a new value.
      * A new value is emitted only if it's different from the last one.
+     *
+     * The flush state of each dispatcher is shared by all the subscriptions to its barriers state, so subscribing again doesn't start a flush.
+     * Must be called on the tealium queue.
      */
     func onBarriersState(for dispatcherId: String) -> Observable<BarrierState> {
         onBarriers(for: dispatcherId)
@@ -92,18 +103,41 @@ class BarrierCoordinator {
         }
     }
 
-    func onQueueIsBeingFlushed(for dispatcherId: String) -> Observable<Bool> {
+    /**
+     * Returns an observable that emits whether the queue of the dispatcher is being flushed.
+     *
+     * The flush state is shared per dispatcher: new subscribers receive the current state and don't start a flush.
+     * A flush starts only when a new application status is emitted, or when `flush()` is called.
+     * The status replayed to the first subscription is the one that causes the flush on launch.
+     * The states live as long as the coordinator: the dispatcher ids are few, and a removed dispatcher's queue is emptied, so it doesn't flush again.
+     * Must be called on the tealium queue.
+     */
+    private func onQueueIsBeingFlushed(for dispatcherId: String) -> Observable<Bool> {
+        if let state = queueFlushStates[dispatcherId] {
+            return state.asObservable()
+        }
+        let state = StateSubject(false)
+        queueFlushStates[dispatcherId] = state
+        detectQueueFlush(for: dispatcherId)
+            .subscribe(state)
+            .addTo(disposer)
+        return state.asObservable()
+    }
+
+    private func detectQueueFlush(for dispatcherId: String) -> Observable<Bool> {
         onApplicationStatus
             .map { $0.type == .backgrounded }
             .merge(flushTrigger.map { true }) // Assume we might need a background task in case of user manual flush.
-            .flatMapLatest { [queueMetrics, queue, flushDebounceMilliseconds, flushTimeout, backgroundTaskStarter] requiresBackgroundTask in
+            .flatMapLatest { [queueMetrics, queue, flushDebounceMilliseconds, flushTimeoutMilliseconds, backgroundTaskStarter] requiresBackgroundTask in
                 queueMetrics.onQueueSizePendingDispatch(for: dispatcherId)
+                    .map { $0 > 0 }  // should flush is true until queue pending dispatches is empty
+                    .distinct()
                 // Debounce to make sure queue size is not changing again very soon,
                 // for example when a transformer (e.g. `DeviceData`) takes some time
                 // to transform a `sleep` event coming from lifecycle.
+                // Only changes between empty and non-empty restart the debounce, so steady arrivals can't postpone the flush.
                     .debounce(flushDebounceMilliseconds, on: queue)
-                    .map { $0 > 0 }  // should flush is true until queue pending dispatches is empty
-                    .merge(Observables.just(false).delay(flushTimeout, on: queue)) // stop flush after a while anyway
+                    .merge(Observables.just(false).delay(flushTimeoutMilliseconds, on: queue)) // stop flush after a while anyway
                     .takeWhile({ $0 }, inclusive: true) // stop listening when flush ended, include final false to stop the flush
                     .distinct()
                     .flatMapLatest { beingFlushed in

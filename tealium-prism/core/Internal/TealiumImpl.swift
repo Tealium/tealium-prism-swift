@@ -203,6 +203,7 @@ class TealiumImpl {
         // The consumers of the modules stop before the modules are cleared: an empty list is then a
         // teardown, and must not be mistaken for a configuration that leaves the queues unowned.
         tracker.dispatchManager.stopDispatchLoop()
+        barrierCoordinator.shutdown()
         queueManager.shutdown()
         moduleManager.shutdown()
         sessionManager.shutdown()

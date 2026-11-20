@@ -10,6 +10,12 @@
 import XCTest
 
 final class DispatchManagerBarrierTests: DispatchManagerTestCase {
+    let disposer = AutomaticDisposer()
+
+    override func tearDown() {
+        disposer.dispose()
+        super.tearDown()
+    }
 
     func test_event_is_not_dispatched_if_a_barrier_is_closed() {
         let eventIsNotDispatched = expectation(description: "Event is NOT dispatched")
@@ -85,6 +91,54 @@ final class DispatchManagerBarrierTests: DispatchManagerTestCase {
         _ = dispatchManager
         barrier.setState(.closed)
         try queueManager.storeDispatches([Dispatch(name: "6")], enqueueingFor: allDispatchers)
+        waitForDefaultTimeout()
+    }
+
+    // MARK: - Flush restarts
+
+    /// Leaves a closed flushable barrier (like a `BatchingBarrier` below its batch size) holding a backlog
+    /// after the launch flush ended, with the barriers re-emittable through the returned subject.
+    private func setUpClosedFlushableBarrierWithBacklog() -> StateSubject<[ScopedBarrier]> {
+        let barriers = StateSubject<[ScopedBarrier]>([ScopedBarrier(barrier: barrier, scope: .all)])
+        onBarriers = barriers.asObservable()
+        barrier.setState(.closed)
+        _ = dispatchManager
+        queueManager.storeDispatches(createDispatches(amount: 5), enqueueingFor: allDispatchers)
+        return barriers
+    }
+
+    func test_changing_the_dispatchers_list_does_not_dispatch_the_backlog_held_by_a_closed_flushable_barrier() {
+        _ = setUpClosedFlushableBarrierWithBacklog()
+        let backlogIsNotDispatched = expectation(description: "Backlog is NOT dispatched")
+        backlogIsNotDispatched.isInverted = true
+        backlogIsNotDispatched.assertForOverFulfill = false
+        module1?.onDispatch.subscribe { _ in
+            backlogIsNotDispatched.fulfill()
+        }.addTo(disposer)
+
+        disableModule(module: module2)
+        enableModule(MockDispatcher2.moduleType)
+        let readdedModuleDoesNotDispatch = expectation(description: "Re-added module doesn't dispatch the backlog it had when it was disabled")
+        readdedModuleDoesNotDispatch.isInverted = true
+        readdedModuleDoesNotDispatch.assertForOverFulfill = false
+        module2?.onDispatch.subscribe { _ in
+            readdedModuleDoesNotDispatch.fulfill()
+        }.addTo(disposer)
+
+        waitForDefaultTimeout()
+    }
+
+    func test_reemitting_the_barriers_does_not_dispatch_the_backlog_held_by_a_closed_flushable_barrier() {
+        let barriers = setUpClosedFlushableBarrierWithBacklog()
+        let backlogIsNotDispatched = expectation(description: "Backlog is NOT dispatched")
+        backlogIsNotDispatched.isInverted = true
+        backlogIsNotDispatched.assertForOverFulfill = false
+        module1?.onDispatch.subscribe { _ in
+            backlogIsNotDispatched.fulfill()
+        }.addTo(disposer)
+
+        barriers.onNext(barriers.value)
+
         waitForDefaultTimeout()
     }
 }
