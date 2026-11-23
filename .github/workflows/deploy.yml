@@ -13,6 +13,8 @@ jobs:
       - uses: actions/checkout@v7
       - name: "Run Local Action: Setup Machine"
         uses: ./.github/workflows/setup-machine
+        with:
+          pod-install: 'false' # pod trunk push lints the podspec on its own; Example/Pods is not used, and pod install could dirty the tree publish.sh requires clean
       - name: Deploy to Cocoapods
         run: scripts/publish.sh -p
         env:
