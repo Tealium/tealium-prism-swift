@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Scheme
    LastUpgradeVersion = "2640"
-   version = "1.7">
+   version = "1.8">
    <BuildAction
       parallelizeBuildables = "YES"
       buildImplicitDependencies = "YES"
@@ -66,6 +66,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F57555072F7C07D80066BAED"
             BuildableName = "Example_watchOS Watch App.app"
+            BlueprintName = "Example_watchOS Watch App"
             ReferencedContainer = "container:tealium-prism.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
@@ -82,6 +83,7 @@
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "F57555072F7C07D80066BAED"
             BuildableName = "Example_watchOS Watch App.app"
+            BlueprintName = "Example_watchOS Watch App"
             ReferencedContainer = "container:tealium-prism.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
